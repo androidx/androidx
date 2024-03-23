@@ -165,10 +165,10 @@ class ToGenericDocumentCodeGenerator {
         //       care of unboxing and widening where necessary.
         //
         //   1b: CollectionCallToArray
-        //       Collection contains String or GenericDocument.
-        //       We have to convert this into an array of String[] or GenericDocument[], but no
-        //       conversion of the collection elements is needed. We can use Collection#toArray for
-        //       this.
+        //       Collection contains String, GenericDocument or EmbeddingVector.
+        //       We have to convert this into an array of String[], GenericDocument[] or
+        //       EmbeddingVector[], but no conversion of the collection elements is
+        //       needed. We can use Collection#toArray for this.
         //
         //   1c: CollectionForLoopCallToGenericDocument
         //       Collection contains a class which is annotated with @Document.
@@ -188,8 +188,8 @@ class ToGenericDocumentCodeGenerator {
         //       unboxing and widening where necessary.
         //
         //   2b: ArrayUseDirectly
-        //       Array is of type String[], long[], double[], boolean[], byte[][] or
-        //       GenericDocument[].
+        //       Array is of type String[], long[], double[], boolean[], byte[][],
+        //       GenericDocument[] or EmbeddingVector[].
         //       We can directly use this field with no conversion.
         //
         //   2c: ArrayForLoopCallToGenericDocument
@@ -207,7 +207,8 @@ class ToGenericDocumentCodeGenerator {
 
         // Scenario 3: Single valued fields
         //   3a: FieldUseDirectlyWithNullCheck
-        //       Field is of type String, Long, Integer, Double, Float, Boolean.
+        //       Field is of type String, Long, Integer, Double, Float, Boolean or
+        //       EmbeddingVector.
         //       We can use this field directly, after testing for null. The java compiler will box
         //       or unbox as needed.
         //
@@ -375,6 +376,20 @@ class ToGenericDocumentCodeGenerator {
                     default:
                         throw new IllegalStateException("Unhandled type-category: " + typeCategory);
                 }
+            case EMBEDDING_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION:
+                        // List<EmbeddingVector>: 1b
+                        return collectionCallToArray(annotation, getterOrField);
+                    case ARRAY:
+                        // EmbeddingVector[]: 2b
+                        return arrayUseDirectly(annotation, getterOrField);
+                    case SINGLE:
+                        // EmbeddingVector: 3a
+                        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
             default:
                 throw new IllegalStateException("Unhandled annotation: " + annotation);
         }
@@ -417,10 +432,10 @@ class ToGenericDocumentCodeGenerator {
     }
 
     // 1b: CollectionCallToArray
-    //     Collection contains String or GenericDocument.
-    //     We have to convert this into an array of String[] or GenericDocument[], but no
-    //     conversion of the collection elements is needed. We can use Collection#toArray for
-    //     this.
+    //     Collection contains String, GenericDocument or EmbeddingVector.
+    //     We have to convert this into an array of String[], GenericDocument[] or
+    //     EmbeddingVector[], but no conversion of the collection elements is
+    //     needed. We can use Collection#toArray for this.
     @NonNull
     private CodeBlock collectionCallToArray(
             @NonNull DataPropertyAnnotation annotation,
@@ -536,8 +551,8 @@ class ToGenericDocumentCodeGenerator {
     }
 
     // 2b: ArrayUseDirectly
-    //     Array is of type String[], long[], double[], boolean[], byte[][] or
-    //     GenericDocument[].
+    //     Array is of type String[], long[], double[], boolean[], byte[][],
+    //     GenericDocument[] or EmbeddingVector[].
     //     We can directly use this field with no conversion.
     @NonNull
     private CodeBlock arrayUseDirectly(
@@ -613,7 +628,8 @@ class ToGenericDocumentCodeGenerator {
     }
 
     // 3a: FieldUseDirectlyWithNullCheck
-    //     Field is of type String, Long, Integer, Double, Float, Boolean.
+    //     Field is of type String, Long, Integer, Double, Float, Boolean or
+    //     EmbeddingVector.
     //     We can use this field directly, after testing for null. The java compiler will box
     //     or unbox as needed.
     @NonNull

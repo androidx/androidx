@@ -28,6 +28,7 @@ import static javax.lang.model.type.TypeKind.DECLARED;
 import androidx.annotation.NonNull;
 import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.EmbeddingPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.LongPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.StringPropertyAnnotation;
 
@@ -229,6 +230,12 @@ class SchemaCodeGenerator {
                 LongPropertyAnnotation longPropertyAnnotation = (LongPropertyAnnotation) annotation;
                 codeBlock.add(createSetIndexingTypeExpr(longPropertyAnnotation, getterOrField));
                 break;
+            case EMBEDDING_PROPERTY:
+                EmbeddingPropertyAnnotation embeddingPropertyAnnotation =
+                        (EmbeddingPropertyAnnotation) annotation;
+                codeBlock.add(
+                        createSetIndexingTypeExpr(embeddingPropertyAnnotation, getterOrField));
+                break;
             case DOUBLE_PROPERTY: // fall-through
             case BOOLEAN_PROPERTY: // fall-through
             case BYTES_PROPERTY:
@@ -414,6 +421,31 @@ class SchemaCodeGenerator {
         }
         return CodeBlock.of("\n.setIndexingType($T.$N)",
                 LongPropertyAnnotation.CONFIG_CLASS, enumName);
+    }
+
+    /**
+     * Creates an expr like
+     * {@code .setIndexingType(EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)}.
+     */
+    @NonNull
+    private static CodeBlock createSetIndexingTypeExpr(
+            @NonNull EmbeddingPropertyAnnotation annotation,
+            @NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+        String enumName;
+        switch (annotation.getIndexingType()) {
+            case 0:
+                enumName = "INDEXING_TYPE_NONE";
+                break;
+            case 1:
+                enumName = "INDEXING_TYPE_SIMILARITY";
+                break;
+            default:
+                throw new ProcessingException(
+                        "Unknown indexing type " + annotation.getIndexingType(),
+                        getterOrField.getElement());
+        }
+        return CodeBlock.of("\n.setIndexingType($T.$N)",
+                EmbeddingPropertyAnnotation.CONFIG_CLASS, enumName);
     }
 
     /**

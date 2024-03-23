@@ -1048,18 +1048,20 @@ public class AppSearchCompilerTest {
         // TODO(b/156296904): Uncomment Gift in this test when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
+                        + "import androidx.appsearch.app.EmbeddingVector;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Document.Namespace String namespace;\n"
                         + "  @Document.Id String id;\n"
-                        + "  @Document.StringProperty String stringProp;\n"
-                        + "  @Document.LongProperty Integer integerProp;\n"
-                        + "  @Document.LongProperty Long longProp;\n"
-                        + "  @Document.DoubleProperty Float floatProp;\n"
-                        + "  @Document.DoubleProperty Double doubleProp;\n"
-                        + "  @Document.BooleanProperty Boolean booleanProp;\n"
-                        + "  @Document.BytesProperty byte[] bytesProp;\n"
-                        //+ "  @Document.Property Gift documentProp;\n"
+                        + "  @StringProperty String stringProp;\n"
+                        + "  @LongProperty Integer integerProp;\n"
+                        + "  @LongProperty Long longProp;\n"
+                        + "  @DoubleProperty Float floatProp;\n"
+                        + "  @DoubleProperty Double doubleProp;\n"
+                        + "  @BooleanProperty Boolean booleanProp;\n"
+                        + "  @BytesProperty byte[] bytesProp;\n"
+                        + "  @EmbeddingProperty EmbeddingVector vectorProp;\n"
+                        //+ "  @DocumentProperty Gift documentProp;\n"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -1260,6 +1262,7 @@ public class AppSearchCompilerTest {
         Compilation compilation = compile(
                 "import java.util.*;\n"
                         + "import androidx.appsearch.app.GenericDocument;\n"
+                        + "import androidx.appsearch.app.EmbeddingVector;\n"
                         + "@Document\n"
                         + "public class Gift {\n"
                         + "  @Namespace String namespace;\n"
@@ -1274,6 +1277,7 @@ public class AppSearchCompilerTest {
                         + "  @BytesProperty Collection<byte[]> collectByteArr;\n"    // 1a
                         + "  @StringProperty Collection<String> collectString;\n"     // 1b
                         + "  @DocumentProperty Collection<Gift> collectGift;\n"         // 1c
+                        + "  @EmbeddingProperty Collection<EmbeddingVector> collectVec;\n"   // 1b
                         + "\n"
                         + "  // Arrays\n"
                         + "  @LongProperty Long[] arrBoxLong;\n"         // 2a
@@ -1289,6 +1293,7 @@ public class AppSearchCompilerTest {
                         + "  @BytesProperty byte[][] arrUnboxByteArr;\n"  // 2b
                         + "  @StringProperty String[] arrString;\n"        // 2b
                         + "  @DocumentProperty Gift[] arrGift;\n"            // 2c
+                        + "  @EmbeddingProperty EmbeddingVector[] arrVec;\n"         // 2b
                         + "\n"
                         + "  // Single values\n"
                         + "  @StringProperty String string;\n"        // 3a
@@ -1304,6 +1309,7 @@ public class AppSearchCompilerTest {
                         + "  @BooleanProperty boolean unboxBoolean;\n" // 3b
                         + "  @BytesProperty byte[] unboxByteArr;\n"  // 3a
                         + "  @DocumentProperty Gift gift;\n"            // 3c
+                        + "  @EmbeddingProperty EmbeddingVector vec;\n"        // 3a
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();
@@ -3477,6 +3483,38 @@ public class AppSearchCompilerTest {
                 /* restrictGeneratedCodeToLibrary= */true);
         assertThat(compilation).succeededWithoutWarnings();
         checkResultContains("Gift.java", "@RestrictTo(RestrictTo.Scope.LIBRARY)");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testEmbeddingFields() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "import androidx.appsearch.app.EmbeddingVector;\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        // Embedding properties
+                        + "  @EmbeddingProperty EmbeddingVector defaultIndexNone;\n"
+                        + "  @EmbeddingProperty(indexingType=0) EmbeddingVector indexNone;\n"
+                        + "  @EmbeddingProperty(indexingType=1) EmbeddingVector vec;\n"
+                        + "  @EmbeddingProperty(indexingType=1) List<EmbeddingVector> listVec;\n"
+                        + "  @EmbeddingProperty(indexingType=1)"
+                        + "  Collection<EmbeddingVector> collectVec;\n"
+                        + "  @EmbeddingProperty(indexingType=1) EmbeddingVector[] arrVec;\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "new AppSearchSchema.EmbeddingPropertyConfig.Builder");
+        checkResultContains("Gift.java",
+                "AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY");
+        checkResultContains("Gift.java",
+                "AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE");
+        checkResultContains("Gift.java",
+                "EmbeddingVector");
         checkEqualsGolden("Gift.java");
     }
 

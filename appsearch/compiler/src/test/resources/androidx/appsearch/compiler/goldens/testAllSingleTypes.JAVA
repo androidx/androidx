@@ -2,6 +2,7 @@ package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
@@ -55,6 +56,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
           .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytesProp")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .build())
+          .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("vectorProp")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE)
+            .build())
           .build();
   }
 
@@ -94,6 +99,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     byte[] bytesPropCopy = document.bytesProp;
     if (bytesPropCopy != null) {
       builder.setPropertyBytes("bytesProp", bytesPropCopy);
+    }
+    EmbeddingVector vectorPropCopy = document.vectorProp;
+    if (vectorPropCopy != null) {
+      builder.setPropertyEmbedding("vectorProp", vectorPropCopy);
     }
     return builder.build();
   }
@@ -138,6 +147,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (bytesPropCopy != null && bytesPropCopy.length != 0) {
       bytesPropConv = bytesPropCopy[0];
     }
+    EmbeddingVector[] vectorPropCopy = genericDoc.getPropertyEmbeddingArray("vectorProp");
+    EmbeddingVector vectorPropConv = null;
+    if (vectorPropCopy != null && vectorPropCopy.length != 0) {
+      vectorPropConv = vectorPropCopy[0];
+    }
     Gift document = new Gift();
     document.namespace = namespaceConv;
     document.id = idConv;
@@ -148,6 +162,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.doubleProp = doublePropConv;
     document.booleanProp = booleanPropConv;
     document.bytesProp = bytesPropConv;
+    document.vectorProp = vectorPropConv;
     return document;
   }
 }

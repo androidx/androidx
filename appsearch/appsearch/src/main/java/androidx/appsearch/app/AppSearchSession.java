@@ -223,6 +223,40 @@ public interface AppSearchSession extends Closeable {
      * match documentA. However, `propertyDefined("sender.name")` will match both documentA and
      * documentB, regardless of whether a value is actually set.
      *
+     * <p>{@link Features#SCHEMA_EMBEDDING_PROPERTY_CONFIG}: This feature covers the
+     * "semanticSearch" and "getSearchSpecEmbedding" functions in query expressions, which are
+     * used for semantic search.
+     *
+     * <p>Usage: semanticSearch(getSearchSpecEmbedding({embedding_index}), {low}, {high}, {metric})
+     * <ul>
+     *     <li>semanticSearch matches all documents that have at least one embedding vector with
+     *     a matching model signature (see {@link EmbeddingVector#getModelSignature()}) and a
+     *     similarity score within the range specified based on the provided metric.</li>
+     *     <li>getSearchSpecEmbedding({embedding_index}) retrieves the embedding search passed in
+     *     {@link SearchSpec.Builder#addSearchEmbeddings} based on the index specified, which
+     *     starts from 0.</li>
+     *     <li>"low" and "high" are floating point numbers that specify the similarity score
+     *     range. If omitted, they default to negative and positive infinity, respectively.</li>
+     *     <li>"metric" is a string value that specifies how embedding similarities should be
+     *     calculated. If omitted, it defaults to the metric specified in
+     *     {@link SearchSpec.Builder#setDefaultEmbeddingSearchMetricType(int)}. Possible
+     *     values:</li>
+     *     <ul>
+     *         <li>"COSINE"</li>
+     *         <li>"DOT_PRODUCT"</li>
+     *         <li>"EUCLIDEAN"</li>
+     *     </ul>
+     * </ul>
+     *
+     * <p>Examples:
+     * <ul>
+     *     <li>Basic: semanticSearch(getSearchSpecEmbedding(0), 0.5, 1, "COSINE")</li>
+     *     <li>With a property restriction:
+     *     property1:semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)</li>
+     *     <li>Hybrid: foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)</li>
+     *     <li>Complex: (foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)) AND bar</li>
+     * </ul>
+     *
      * <p>The availability of each of these features can be checked by calling
      * {@link Features#isFeatureSupported} with the desired feature.
      *
@@ -237,6 +271,8 @@ public interface AppSearchSession extends Closeable {
      *                        match type, etc.
      * @return a {@link SearchResults} object for retrieved matched documents.
      */
+    // TODO(b/326656531): Refine the javadoc to provide guidance on the best practice of
+    //  embedding searches and how to select an appropriate metric.
     @NonNull
     SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 

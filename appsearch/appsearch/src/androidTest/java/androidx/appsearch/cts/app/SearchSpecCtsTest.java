@@ -24,6 +24,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.EmbeddingVector;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchSpec;
@@ -678,5 +680,116 @@ public class SearchSpecCtsTest {
         assertThat(rebuild.getJoinSpec().getNestedQuery()).isEqualTo("");
         assertThat(rebuild.getJoinSpec().getNestedSearchSpec().getFilterSchemas())
                 .containsExactly("CallAction");
+    }
+
+    @Test
+    public void testGetEnabledFeatures_embeddingSearch() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(embedding1, embedding2)
+                .build();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                "EMBEDDING_SEARCH");
+        assertThat(searchSpec.getDefaultEmbeddingSearchMetricType()).isEqualTo(
+                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT);
+        assertThat(searchSpec.getSearchEmbeddings()).containsExactly(embedding1, embedding2);
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                "EMBEDDING_SEARCH");
+        assertThat(searchSpecCopy.getDefaultEmbeddingSearchMetricType()).isEqualTo(
+                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT);
+        assertThat(searchSpecCopy.getSearchEmbeddings()).containsExactly(embedding1, embedding2);
+    }
+
+    @Test
+    public void testRebuild_embeddingSearch() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+
+        // Create a builder
+        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(embedding1);
+        SearchSpec searchSpec1 = searchSpecBuilder.build();
+
+        // Add a new embedding to the builder and rebuild. We should see that the new embedding
+        // is only added to searchSpec2.
+        searchSpecBuilder.addSearchEmbeddings(embedding2);
+        SearchSpec searchSpec2 = searchSpecBuilder.build();
+
+        assertThat(searchSpec1.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                "EMBEDDING_SEARCH");
+        assertThat(searchSpec1.getDefaultEmbeddingSearchMetricType()).isEqualTo(
+                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT);
+        assertThat(searchSpec1.getSearchEmbeddings()).containsExactly(embedding1);
+
+        assertThat(searchSpec2.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                "EMBEDDING_SEARCH");
+        assertThat(searchSpec2.getDefaultEmbeddingSearchMetricType()).isEqualTo(
+                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT);
+        assertThat(searchSpec2.getSearchEmbeddings()).containsExactly(embedding1, embedding2);
+    }
+
+    @Test
+    public void testBuildSearchSpec_embeddingSearch() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+
+        assertThat(searchSpec.isNumericSearchEnabled()).isTrue();
+        assertThat(searchSpec.isVerbatimSearchEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterHasPropertyFunctionEnabled()).isTrue();
+        assertThat(searchSpec.isEmbeddingSearchEnabled()).isTrue();
+    }
+
+    @Test
+    public void testSetFeatureEnabledToFalse_embeddingSearch() {
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec = builder
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isEmbeddingSearchEnabled()).isTrue();
+
+        searchSpec = builder
+                .setListFilterQueryLanguageEnabled(false)
+                .setEmbeddingSearchEnabled(false)
+                .build();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isFalse();
+        assertThat(searchSpec.isEmbeddingSearchEnabled()).isFalse();
     }
 }

@@ -26,6 +26,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.FeatureConstants;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchResult;
@@ -290,7 +291,16 @@ public final class SearchSpecToProtoConverter {
                 .setQuery(mQueryExpression)
                 .addAllNamespaceFilters(mTargetPrefixedNamespaceFilters)
                 .addAllSchemaTypeFilters(mTargetPrefixedSchemaFilters)
-                .setUseReadOnlySearch(mIcingOptionsConfig.getUseReadOnlySearch());
+                .setUseReadOnlySearch(mIcingOptionsConfig.getUseReadOnlySearch())
+                .setSearchType(
+                        SearchSpecProto.SearchType.Code.EXPERIMENTAL_ICING_ADVANCED_QUERY);
+
+        List<EmbeddingVector> searchEmbeddings = mSearchSpec.getSearchEmbeddings();
+        for (int i = 0; i < searchEmbeddings.size(); i++) {
+            protoBuilder.addEmbeddingQueryVectors(
+                    GenericDocumentToProtoConverter.embeddingVectorToVectorProto(
+                            searchEmbeddings.get(i)));
+        }
 
         // Convert type property filter map into type property mask proto.
         for (Map.Entry<String, List<String>> entry :
@@ -319,6 +329,17 @@ public final class SearchSpecToProtoConverter {
             throw new IllegalArgumentException("Invalid term match type: " + termMatchCode);
         }
         protoBuilder.setTermMatchType(termMatchCodeProto);
+
+        @SearchSpec.EmbeddingSearchMetricType int embeddingSearchMetricType =
+                mSearchSpec.getDefaultEmbeddingSearchMetricType();
+        SearchSpecProto.EmbeddingQueryMetricType.Code embeddingSearchMetricTypeProto =
+                SearchSpecProto.EmbeddingQueryMetricType.Code.forNumber(embeddingSearchMetricType);
+        if (embeddingSearchMetricTypeProto == null || embeddingSearchMetricTypeProto.equals(
+                SearchSpecProto.EmbeddingQueryMetricType.Code.UNKNOWN)) {
+            throw new IllegalArgumentException(
+                    "Invalid embedding search metric type: " + embeddingSearchMetricType);
+        }
+        protoBuilder.setEmbeddingQueryMetricType(embeddingSearchMetricTypeProto);
 
         if (mNestedConverter != null && !mNestedConverter.hasNothingToSearch()) {
             JoinSpecProto.NestedSpecProto nestedSpec =
@@ -351,17 +372,6 @@ public final class SearchSpecToProtoConverter {
                     FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION
                             + " is currently not operational because the building process for the "
                             + "associated metadata has not yet been turned on.");
-        }
-
-        // TODO(b/208654892) Remove this field once EXPERIMENTAL_ICING_ADVANCED_QUERY is fully
-        //  supported.
-        boolean turnOnIcingAdvancedQuery =
-                mSearchSpec.isNumericSearchEnabled() || mSearchSpec.isVerbatimSearchEnabled()
-                        || mSearchSpec.isListFilterQueryLanguageEnabled()
-                        || mSearchSpec.isListFilterHasPropertyFunctionEnabled();
-        if (turnOnIcingAdvancedQuery) {
-            protoBuilder.setSearchType(
-                    SearchSpecProto.SearchType.Code.EXPERIMENTAL_ICING_ADVANCED_QUERY);
         }
 
         // Set enabled features
