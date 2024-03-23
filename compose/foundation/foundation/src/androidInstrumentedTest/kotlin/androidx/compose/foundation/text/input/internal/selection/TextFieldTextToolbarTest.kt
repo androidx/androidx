@@ -727,11 +727,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         )
         val clipboardManager = FakeClipboardManager()
         val state = TextFieldState("Hello World!")
-        setupContent(state, textToolbar, true, clipboardManager) { original, changes ->
+        setupContent(state, textToolbar, true, clipboardManager) {
             // only reject text changes, accept selection
-            val selection = changes.selection
-            changes.replace(0, changes.length, original.toString())
-            changes.selection = selection
+            val initialSelection = selection
+            replace(0, length, originalValue.toString())
+            selection = initialSelection
         }
 
         rule.onNodeWithTag(TAG).requestFocus()

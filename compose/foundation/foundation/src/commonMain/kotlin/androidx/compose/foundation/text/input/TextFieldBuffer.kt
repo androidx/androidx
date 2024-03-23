@@ -42,17 +42,15 @@ import androidx.compose.ui.text.TextRange
  *
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
+ *
+ * @property originalValue The value reverted to when [revertAllChanges] is called. This is not
+ * necessarily `initialValue`.
  */
 @OptIn(ExperimentalFoundationApi::class)
 class TextFieldBuffer internal constructor(
     initialValue: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null,
-    /**
-     * The value reverted to when [revertAllChanges] is called. This is not necessarily
-     * [initialValue] since the initial value may have already have had some intermediate changes
-     * applied to it.
-     */
-    private val sourceValue: TextFieldCharSequence = initialValue,
+    val originalValue: TextFieldCharSequence = initialValue,
     private val offsetMappingCalculator: OffsetMappingCalculator? = null,
 ) : Appendable {
 
@@ -277,8 +275,8 @@ class TextFieldBuffer internal constructor(
      */
     @ExperimentalFoundationApi
     fun revertAllChanges() {
-        replace(0, length, sourceValue.toString())
-        selection = sourceValue.selection
+        replace(0, length, originalValue.toString())
+        selection = originalValue.selection
         clearChangeList()
     }
 

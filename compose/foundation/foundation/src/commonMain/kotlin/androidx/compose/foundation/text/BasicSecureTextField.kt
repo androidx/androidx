@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldBuffer
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -249,22 +248,19 @@ internal class PasswordInputTransformation(
     internal var revealCodepointIndex by mutableIntStateOf(-1)
         private set
 
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
+    override fun TextFieldBuffer.transformInput() {
         // We only care about a single character insertion changes
-        val singleCharacterInsertion = valueWithChanges.changes.changeCount == 1 &&
-            valueWithChanges.changes.getRange(0).length == 1 &&
-            valueWithChanges.changes.getOriginalRange(0).length == 0
+        val singleCharacterInsertion = changes.changeCount == 1 &&
+            changes.getRange(0).length == 1 &&
+            changes.getOriginalRange(0).length == 0
 
         // if there is an expanded selection, don't reveal anything
-        if (!singleCharacterInsertion || valueWithChanges.hasSelection) {
+        if (!singleCharacterInsertion || hasSelection) {
             revealCodepointIndex = -1
             return
         }
 
-        val insertionPoint = valueWithChanges.changes.getRange(0).min
+        val insertionPoint = changes.getRange(0).min
         if (revealCodepointIndex != insertionPoint) {
             // start the timer for auto hide
             scheduleHide()

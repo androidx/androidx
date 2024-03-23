@@ -349,13 +349,10 @@ class TextFieldState internal constructor(
 
         val textFieldBuffer = TextFieldBuffer(
             initialValue = afterEditValue,
-            sourceValue = oldValue,
+            originalValue = oldValue,
             initialChanges = mainBuffer.changeTracker
         )
-        inputTransformation.transformInput(
-            originalValue = oldValue,
-            valueWithChanges = textFieldBuffer
-        )
+        with(inputTransformation) { textFieldBuffer.transformInput() }
         // If neither the text nor the selection changed, we want to preserve the composition.
         // Otherwise, the IME will reset it anyway.
         val afterFilterValue = textFieldBuffer.toTextFieldCharSequence(

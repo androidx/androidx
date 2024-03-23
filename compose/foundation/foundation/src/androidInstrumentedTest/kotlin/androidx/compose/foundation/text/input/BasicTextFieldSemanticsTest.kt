@@ -186,10 +186,10 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { _, changes ->
-                    if (changes.length > 1) {
-                        val newText = changes.asCharSequence().asSequence().joinToString("-")
-                        changes.replace(0, changes.length, newText)
+                inputTransformation = {
+                    if (length > 1) {
+                        val newText = asCharSequence().asSequence().joinToString("-")
+                        replace(0, length, newText)
                     }
                 }
             )
@@ -249,9 +249,9 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { _, changes ->
-                    val newChange = changes.asCharSequence().replace(Regex("a"), "")
-                    changes.replace(0, changes.length, newChange)
+                inputTransformation = {
+                    val newChange = asCharSequence().replace(Regex("a"), "")
+                    replace(0, length, newChange)
                 }
             )
         }
@@ -397,8 +397,8 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { _, changes ->
-                    changes.revertAllChanges()
+                inputTransformation = {
+                    revertAllChanges()
                 }
             )
         }
@@ -532,12 +532,12 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                 BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    inputTransformation = { _, changes ->
+                    inputTransformation = {
                         // remove all 'l' characters
-                        if (changes.changes.changeCount != 0) {
-                            val newChange = changes.asCharSequence().replace(Regex("l"), "")
-                            changes.replace(0, changes.length, newChange)
-                            changes.placeCursorAtEnd()
+                        if (changes.changeCount != 0) {
+                            val newChange = asCharSequence().replace(Regex("l"), "")
+                            replace(0, length, newChange)
+                            placeCursorAtEnd()
                         }
                     }
                 )
@@ -598,10 +598,10 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                 BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    inputTransformation = { original, changes ->
+                    inputTransformation = {
                         // reject copy action collapsing the selection
-                        if (changes.selection != original.selection) {
-                            changes.revertAllChanges()
+                        if (selection != originalValue.selection) {
+                            revertAllChanges()
                         }
                     }
                 )
@@ -648,8 +648,8 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                 BasicTextField(
                     state = state,
                     modifier = Modifier.testTag(Tag),
-                    inputTransformation = { _, changes ->
-                        changes.revertAllChanges()
+                    inputTransformation = {
+                        revertAllChanges()
                     }
                 )
             }
@@ -737,10 +737,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                 this[semanticsPropertyKey] = 2
             }
 
-            override fun transformInput(
-                originalValue: TextFieldCharSequence,
-                valueWithChanges: TextFieldBuffer
-            ) = Unit
+            override fun TextFieldBuffer.transformInput() = Unit
         }
         rule.setContent {
             BasicTextField(
@@ -762,10 +759,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                 this[semanticsPropertyKey] = number
             }
 
-            override fun transformInput(
-                originalValue: TextFieldCharSequence,
-                valueWithChanges: TextFieldBuffer
-            ) = Unit
+            override fun TextFieldBuffer.transformInput() = Unit
         }
         rule.setContent {
             BasicTextField(

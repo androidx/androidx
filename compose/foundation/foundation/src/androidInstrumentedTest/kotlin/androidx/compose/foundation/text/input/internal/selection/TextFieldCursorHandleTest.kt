@@ -142,8 +142,8 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             BasicTextField(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                inputTransformation = { _, valueWithChanges ->
-                    valueWithChanges.selection = TextRange(4)
+                inputTransformation = {
+                    selection = TextRange(4)
                 },
                 modifier = Modifier.testTag(TAG)
             )
@@ -587,8 +587,8 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             BasicTextField(
                 state,
                 textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
-                inputTransformation = { _, valueWithChanges ->
-                    valueWithChanges.selection = TextRange.Zero
+                inputTransformation = {
+                    selection = TextRange.Zero
                 },
                 modifier = Modifier
                     .testTag(TAG)
