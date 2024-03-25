@@ -55,12 +55,14 @@ package androidx.wear.tiles.renderer {
   public static final class TileRenderer.Config {
     method public java.util.concurrent.Executor getLoadActionExecutor();
     method public java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!> getLoadActionListener();
+    method public java.util.Map<androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!,java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>!> getPlatformDataProviders();
     method public int getTilesTheme();
     method public android.content.Context getUiContext();
   }
 
   public static final class TileRenderer.Config.Builder {
     ctor public TileRenderer.Config.Builder(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
+    method public androidx.wear.tiles.renderer.TileRenderer.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, androidx.wear.protolayout.expression.PlatformDataKey<?>!...);
     method public androidx.wear.tiles.renderer.TileRenderer.Config build();
     method public androidx.wear.tiles.renderer.TileRenderer.Config.Builder setTilesTheme(@StyleRes int);
   }
