@@ -521,6 +521,7 @@ class UseCaseManagerTest {
             callbackMap = CameraCallbackMap(),
             requestListener = ComboRequestListener(),
             builder = useCaseCameraComponentBuilder,
+            cameraControl = fakeCamera.cameraControlInternal,
             zslControl = ZslControlNoOpImpl(),
             controls = controls as java.util.Set<UseCaseCameraControl>,
             cameraProperties = FakeCameraProperties(

@@ -57,6 +57,7 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
@@ -109,6 +110,7 @@ class UseCaseManager @Inject constructor(
     private val requestListener: ComboRequestListener,
     private val cameraConfig: CameraConfig,
     private val builder: UseCaseCameraComponent.Builder,
+    private val cameraControl: CameraControlInternal,
     private val zslControl: ZslControl,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
@@ -219,6 +221,7 @@ class UseCaseManager @Inject constructor(
 
         if (attachedUseCases.addAll(useCases)) {
             if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
+                updateZslDisabledByUseCaseConfigStatus()
                 refreshAttachedUseCases(attachedUseCases)
             }
         }
@@ -262,6 +265,12 @@ class UseCaseManager @Inject constructor(
         if (attachedUseCases.removeAll(useCases)) {
             if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                 return
+            }
+
+            if (attachedUseCases.isEmpty()) {
+                cameraControl.setZslDisabledByUserCaseConfig(false)
+            } else {
+                updateZslDisabledByUseCaseConfigStatus()
             }
             refreshAttachedUseCases(attachedUseCases)
         }
@@ -649,6 +658,11 @@ class UseCaseManager @Inject constructor(
         val sessionConfig = validatingBuilder.build()
         val captureConfig = sessionConfig.repeatingCaptureConfig
         return predicate(captureConfig.surfaces, sessionConfig.surfaces)
+    }
+
+    private fun updateZslDisabledByUseCaseConfigStatus() {
+        val disableZsl = attachedUseCases.any { it.currentConfig.isZslDisabled(false) }
+        cameraControl.setZslDisabledByUserCaseConfig(disableZsl)
     }
 
     companion object {

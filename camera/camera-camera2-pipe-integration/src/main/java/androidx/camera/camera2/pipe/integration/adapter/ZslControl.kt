@@ -124,6 +124,8 @@ class ZslControlImpl @Inject constructor(
     internal val zslRingBuffer =
         ZslRingBuffer(RING_BUFFER_CAPACITY) { imageProxy -> imageProxy.close() }
 
+    private var isZslDisabledByUseCaseConfig = false
+
     @VisibleForTesting
     internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
     private var metadataMatchingCaptureCallback: CameraCaptureCallback? = null
@@ -132,7 +134,14 @@ class ZslControlImpl @Inject constructor(
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
         reset()
 
-        // TODO: b/331256951 - Port ZslDisabledByUserCaseConfig
+        // Early return only if use case config doesn't support zsl. If flash mode doesn't
+        // support zsl, we still create reprocessing capture session but will create a
+        // regular capture request when taking pictures. So when user switches flash mode, we
+        // could create reprocessing capture request if flash mode allows.
+        if (isZslDisabledByUseCaseConfig) {
+            return
+        }
+
         // TODO: b/267559511 - Port ZslDisablerQuirk
 
         if (!cameraMetadata.supportsPrivateReprocessing) {
@@ -213,11 +222,11 @@ class ZslControlImpl @Inject constructor(
     }
 
     override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
-        TODO("b/331256951 - Port ZslDisabledByUserCaseConfig")
+        isZslDisabledByUseCaseConfig = disabled
     }
 
     override fun isZslDisabledByUserCaseConfig(): Boolean {
-        TODO("b/331256951 - Port ZslDisabledByUserCaseConfig")
+        return isZslDisabledByUseCaseConfig
     }
 
     override fun setZslDisabledByFlashMode(disabled: Boolean) {

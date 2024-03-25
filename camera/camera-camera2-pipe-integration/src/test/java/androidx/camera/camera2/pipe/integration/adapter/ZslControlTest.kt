@@ -129,6 +129,42 @@ class ZslControlImplTest {
         assertThat(zslControlImpl.reprocessingImageReader).isNull()
     }
 
+    @Test
+    fun isZslDisabledByUserCaseConfig_notAddZslConfig() {
+        zslControlImpl = ZslControlImpl(
+            createCameraProperties(
+                hasCapabilities = true,
+                isYuvReprocessingSupported = false,
+                isPrivateReprocessingSupported = true,
+                isJpegValidOutputFormat = true
+            )
+        )
+        zslControlImpl.setZslDisabledByUserCaseConfig(true)
+
+        zslControlImpl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControlImpl.reprocessingImageReader).isNull()
+    }
+
+    @Test
+    fun isZslDisabled_clearZslConfig() {
+        zslControlImpl = ZslControlImpl(
+            createCameraProperties(
+                hasCapabilities = true,
+                isYuvReprocessingSupported = false,
+                isPrivateReprocessingSupported = true,
+                isJpegValidOutputFormat = true
+            )
+        )
+
+        zslControlImpl.addZslConfig(sessionConfigBuilder)
+
+        zslControlImpl.setZslDisabledByUserCaseConfig(true)
+        zslControlImpl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControlImpl.reprocessingImageReader).isNull()
+    }
+
     private fun createCameraProperties(
         hasCapabilities: Boolean,
         isYuvReprocessingSupported: Boolean,

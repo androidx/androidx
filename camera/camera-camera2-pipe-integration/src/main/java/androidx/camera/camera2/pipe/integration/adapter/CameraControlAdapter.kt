@@ -140,12 +140,11 @@ class CameraControlAdapter @Inject constructor(
         )
 
     override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
-        // Override if Zero-Shutter Lag needs to be disabled by user case config.
+        zslControl.setZslDisabledByUserCaseConfig(disabled)
     }
 
     override fun isZslDisabledByByUserCaseConfig(): Boolean {
-        // Override if Zero-Shutter Lag needs to be disabled by user case config.
-        return false
+        return zslControl.isZslDisabledByUserCaseConfig()
     }
 
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
