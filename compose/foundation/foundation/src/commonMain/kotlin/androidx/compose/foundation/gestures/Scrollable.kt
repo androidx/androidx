@@ -61,13 +61,10 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireDensity
@@ -284,7 +281,7 @@ private class ScrollableNode(
     private val nestedScrollDispatcher = NestedScrollDispatcher()
 
     private val scrollableContainerNode =
-        delegate(ModifierLocalScrollableContainerProvider(enabled))
+        delegate(ScrollableContainerNode(enabled))
 
     // Place holder fling behavior, we'll initialize it when the density is available.
     private val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
@@ -363,7 +360,7 @@ private class ScrollableNode(
 
         if (this.enabled != enabled) { // enabled changed
             nestedScrollConnection.enabled = enabled
-            scrollableContainerNode.enabled = enabled
+            scrollableContainerNode.update(enabled)
         }
         // a new fling behavior was set, change the resolved one.
         val resolvedFlingBehavior = flingBehavior ?: defaultFlingBehavior
@@ -915,13 +912,6 @@ internal class DefaultFlingBehavior(
     }
 }
 
-// TODO: b/203141462 - make this public and move it to ui
-/**
- * Whether this modifier is inside a scrollable container, provided by [Modifier.scrollable].
- * Defaults to false.
- */
-internal val ModifierLocalScrollableContainer = modifierLocalOf { false }
-
 private const val DefaultScrollMotionDurationScaleFactor = 1f
 internal val DefaultScrollMotionDurationScale = object : MotionDurationScale {
     override val scaleFactor: Float
@@ -929,19 +919,22 @@ internal val DefaultScrollMotionDurationScale = object : MotionDurationScale {
 }
 
 /**
- * (b/280804097): This cannot be flattened into Scrollable because of FocusBoundsObserver and its
- * usage of modifier locals
+ * (b/311181532): This could not be flattened so we moved it to TraversableNode, but ideally
+ * ScrollabeNode should be the one to be travesable.
  */
-private class ModifierLocalScrollableContainerProvider(var enabled: Boolean) :
-    ModifierLocalModifierNode,
-    Modifier.Node() {
-    private val modifierLocalMap = modifierLocalMapOf(ModifierLocalScrollableContainer to true)
-    override val providedValues: ModifierLocalMap
-        get() = if (enabled) {
-            modifierLocalMap
-        } else {
-            modifierLocalMapOf()
-        }
+internal class ScrollableContainerNode(enabled: Boolean) :
+    Modifier.Node(),
+    TraversableNode {
+    override val traverseKey: Any = TraverseKey
+
+    var enabled: Boolean = enabled
+        private set
+
+    companion object TraverseKey
+
+    fun update(enabled: Boolean) {
+        this.enabled = enabled
+    }
 }
 
 private val UnityDensity = object : Density {

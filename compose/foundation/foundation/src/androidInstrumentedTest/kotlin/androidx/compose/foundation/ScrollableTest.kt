@@ -22,7 +22,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ModifierLocalScrollableContainer
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -80,8 +79,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalReadScope
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalFocusManager
@@ -2068,15 +2067,8 @@ class ScrollableTest {
                         .testTag(scrollableBoxTag)
                         .size(100.dp)
                         .then(
-                            object : ModifierLocalConsumer {
-                                override fun onModifierLocalsUpdated(
-                                    scope: ModifierLocalReadScope
-                                ) {
-                                    with(scope) {
-                                        isOuterInScrollableContainer =
-                                            ModifierLocalScrollableContainer.current
-                                    }
-                                }
+                            ScrollableContainerReaderNodeElement {
+                                isOuterInScrollableContainer = it
                             }
                         )
                         .scrollable(
@@ -2084,15 +2076,8 @@ class ScrollableTest {
                             orientation = Orientation.Horizontal
                         )
                         .then(
-                            object : ModifierLocalConsumer {
-                                override fun onModifierLocalsUpdated(
-                                    scope: ModifierLocalReadScope
-                                ) {
-                                    with(scope) {
-                                        isInnerInScrollableContainer =
-                                            ModifierLocalScrollableContainer.current
-                                    }
-                                }
+                            ScrollableContainerReaderNodeElement {
+                                isInnerInScrollableContainer = it
                             }
                         )
                 )
@@ -2102,6 +2087,82 @@ class ScrollableTest {
         rule.runOnIdle {
             assertThat(isOuterInScrollableContainer).isFalse()
             assertThat(isInnerInScrollableContainer).isTrue()
+        }
+    }
+
+    @Test
+    fun scrollable_setsModifierLocalScrollableContainer_scrollDisabled() {
+        val controller = ScrollableState { it }
+
+        var isOuterInScrollableContainer: Boolean? = null
+        var isInnerInScrollableContainer: Boolean? = null
+        rule.setContent {
+            Box {
+                Box(
+                    modifier = Modifier
+                        .testTag(scrollableBoxTag)
+                        .size(100.dp)
+                        .then(
+                            ScrollableContainerReaderNodeElement {
+                                isOuterInScrollableContainer = it
+                            }
+                        )
+                        .scrollable(
+                            state = controller,
+                            orientation = Orientation.Horizontal,
+                            enabled = false
+                        )
+                        .then(
+                            ScrollableContainerReaderNodeElement {
+                                isInnerInScrollableContainer = it
+                            }
+                        )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInScrollableContainer).isFalse()
+            assertThat(isInnerInScrollableContainer).isFalse()
+        }
+    }
+
+    @Test
+    fun scrollable_setsModifierLocalScrollableContainer_scrollUpdates() {
+        val controller = ScrollableState { it }
+
+        var isInnerInScrollableContainer: Boolean? = null
+        val enabled = mutableStateOf(true)
+        rule.setContent {
+            Box {
+                Box(
+                    modifier = Modifier
+                        .testTag(scrollableBoxTag)
+                        .size(100.dp)
+                        .scrollable(
+                            state = controller,
+                            orientation = Orientation.Horizontal,
+                            enabled = enabled.value
+                        )
+                        .then(
+                            ScrollableContainerReaderNodeElement {
+                                isInnerInScrollableContainer = it
+                            }
+                        )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(isInnerInScrollableContainer).isTrue()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            assertThat(isInnerInScrollableContainer).isFalse()
         }
     }
 
@@ -2455,9 +2516,11 @@ class ScrollableTest {
                 item {
                     LazyRow(Modifier.testTag("list")) {
                         items(100) {
-                            Box(modifier = Modifier
-                                .size(20.dp)
-                                .background(Color.Blue))
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(Color.Blue)
+                            )
                         }
                     }
                 }
@@ -3209,3 +3272,45 @@ private fun espressoSwipe(
 }
 
 internal class TestScrollMotionDurationScale(override val scaleFactor: Float) : MotionDurationScale
+
+private class ScrollableContainerReaderNodeElement(val hasScrollableBlock: (Boolean) -> Unit) :
+    ModifierNodeElement<ScrollableContainerReaderNode>() {
+    override fun create(): ScrollableContainerReaderNode {
+        return ScrollableContainerReaderNode(hasScrollableBlock)
+    }
+
+    override fun update(node: ScrollableContainerReaderNode) {
+        node.hasScrollableBlock = hasScrollableBlock
+        node.onUpdate()
+    }
+
+    override fun hashCode(): Int = hasScrollableBlock.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other === null) return false
+        if (this::class != other::class) return false
+
+        other as ScrollableContainerReaderNodeElement
+
+        if (hasScrollableBlock != other.hasScrollableBlock) return false
+
+        return true
+    }
+}
+
+private class ScrollableContainerReaderNode(var hasScrollableBlock: (Boolean) -> Unit) :
+    Modifier.Node(),
+    TraversableNode {
+    override val traverseKey: Any = TraverseKey
+
+    override fun onAttach() {
+        hasScrollableBlock.invoke(hasScrollableContainer())
+    }
+
+    fun onUpdate() {
+        hasScrollableBlock.invoke(hasScrollableContainer())
+    }
+
+    companion object TraverseKey
+}
