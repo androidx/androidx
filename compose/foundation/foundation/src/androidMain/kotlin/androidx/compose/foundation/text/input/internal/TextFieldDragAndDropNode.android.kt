@@ -44,7 +44,7 @@ internal actual fun textFieldDragAndDropNode(
         shouldStartDragAndDrop = { dragAndDropEvent ->
             // If there's a receiveContent modifier wrapping around this TextField, initially all
             // dragging items should be accepted for drop. This is expected to be met by the caller
-            // of this function.
+            // of [textFieldDragAndDropNode] function.
             val clipDescription = dragAndDropEvent.toAndroidDragEvent().clipDescription
             hintMediaTypes().any {
                 it == MediaType.All || clipDescription.hasMimeType(it.representation)

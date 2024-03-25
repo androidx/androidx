@@ -322,7 +322,7 @@ package androidx.compose.foundation.content {
   }
 
   public final class ReceiveContentKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier contentReceiver(androidx.compose.ui.Modifier, java.util.Set<androidx.compose.foundation.content.MediaType> hintMediaTypes, androidx.compose.foundation.content.ReceiveContentListener receiveContentListener);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier contentReceiver(androidx.compose.ui.Modifier, androidx.compose.foundation.content.ReceiveContentListener receiveContentListener);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface ReceiveContentListener {

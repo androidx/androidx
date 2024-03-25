@@ -21,7 +21,6 @@ import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestActivity
 import androidx.compose.foundation.content.DragAndDropScope
-import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.consume
@@ -85,19 +84,6 @@ class TextFieldDragAndDropTest {
     }
 
     @Test
-    fun nonTextContent_isAcceptedIfReceiveContentDefined() {
-        rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
-                null
-            }
-        ) {
-            val accepted = drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
-            assertThat(accepted).isTrue()
-            assertThat(state.selection).isEqualTo(TextRange(2))
-        }
-    }
-
-    @Test
     fun textContent_isAccepted() {
         rule.setContentAndTestDragAndDrop {
             drag(Offset(fontSize.toPx() * 2, 10f), "hello")
@@ -120,7 +106,7 @@ class TextFieldDragAndDropTest {
     @Test
     fun draggingNonText_updatesSelection_withReceiveContent() {
         rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 null
             }
         ) {
@@ -225,7 +211,7 @@ class TextFieldDragAndDropTest {
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .contentReceiver(emptySet(), object : ReceiveContentListener {
+                        .contentReceiver(object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start"
                             }
@@ -298,7 +284,7 @@ class TextFieldDragAndDropTest {
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .contentReceiver(emptySet(), object : ReceiveContentListener {
+                        .contentReceiver(object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start"
                             }
@@ -364,7 +350,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 receivedContent = it
                 receivedContent.consume {
                     // do not consume text
@@ -390,7 +376,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 receivedContent = it
                 // consume everything
                 null
@@ -414,7 +400,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 receivedContent = it
                 val uri = receivedContent.clipEntry.firstUriOrNull()
                 // replace the content
@@ -436,7 +422,7 @@ class TextFieldDragAndDropTest {
     fun droppedItem_requestsPermission_ifReceiveContent() {
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver(emptySet()) { null }
+            modifier = Modifier.contentReceiver { null }
         ) {
             drag(Offset(fontSize.toPx() * 5, 10f), defaultUri)
             drop()

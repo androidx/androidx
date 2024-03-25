@@ -275,8 +275,8 @@ internal class TextFieldDecoratorModifierNode(
         textFieldDragAndDropNode(
             hintMediaTypes = {
                 val receiveContentConfiguration = getReceiveContentConfiguration()
-                // if receiveContent configuration is set, all drag operations should be
-                // accepted. ReceiveContent handler should evaluate the incoming content.
+                // if ReceiveContentConfiguration is set, all drag events should be accepted.
+                // ContentReceiver handler should evaluate the incoming content.
                 if (receiveContentConfiguration != null) {
                     MediaTypesAll
                 } else {
