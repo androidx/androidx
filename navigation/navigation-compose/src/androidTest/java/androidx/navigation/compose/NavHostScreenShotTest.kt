@@ -107,7 +107,10 @@ class NavHostScreenShotTest {
 
         composeTestRule.waitForIdle()
         // the image should show third destination covering half the screen (covering half of
-        // second destination) as its slideIn animation starts at half screen
+        // second destination) as its slideIn animation starts at half screen.
+        // We need to advance by 2 frames to ensure we actually make to the expected half screen
+        // state.
+        composeTestRule.mainClock.advanceTimeByFrame()
         composeTestRule.mainClock.advanceTimeByFrame()
 
         composeTestRule.onNodeWithText(THIRD).onParent()
