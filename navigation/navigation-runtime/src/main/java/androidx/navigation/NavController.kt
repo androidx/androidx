@@ -568,7 +568,6 @@ public open class NavController(
      * @return true if the stack was popped at least once and the user has been navigated to
      * another destination, false otherwise
      */
-    @OptIn(InternalSerializationApi::class)
     @MainThread
     @JvmOverloads
     @ExperimentalSafeArgsApi
@@ -577,16 +576,9 @@ public open class NavController(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean {
-        val dest = backQueue.lastOrNull {
-            it.destination.id == route::class.serializer().hashCode()
-        }
-        if (dest == null) return false
         // route contains arguments so we need to generate and pop with the populated route
         // rather than popping based on route pattern
-        val finalRoute = route.generateRouteWithArgs(
-            // get argument typeMap
-            dest.destination.arguments.mapValues { it.value.type }
-        )
+        val finalRoute = generateRouteFromBackStack(route) ?: return false
         return popBackStack(finalRoute, inclusive, saveState)
     }
 
@@ -1666,6 +1658,19 @@ public open class NavController(
         return currentGraph.findNode(route)
     }
 
+    // finds destination from backstack and generates a route filled with args
+    // based on the input serializable object
+    @OptIn(InternalSerializationApi::class)
+    private fun <T : Any> generateRouteFromBackStack(route: T): String? {
+        val entry = backQueue.lastOrNull {
+            it.destination.id == route::class.serializer().hashCode()
+        } ?: return null
+        return route.generateRouteWithArgs(
+            // get argument typeMap
+            entry.destination.arguments.mapValues { it.value.type }
+        )
+    }
+
     /**
      * Navigate to a destination from the current navigation graph. This supports both navigating
      * via an [action][NavDestination.getAction] and directly navigating to a destination.
@@ -2590,6 +2595,44 @@ public open class NavController(
                 "current destination is $currentDestination"
         }
         return lastFromBackStack
+    }
+
+    /**
+     * Gets the topmost [NavBackStackEntry] for a route from [KClass].
+     *
+     * This is always safe to use with [the current destination][currentDestination] or
+     * [its parent][NavDestination.parent] or grandparent navigation graphs as these
+     * destinations are guaranteed to be on the back stack.
+     *
+     * @param T route from the [KClass] of a destination that exists on the back stack. The
+     * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
+     * @throws IllegalArgumentException if the destination is not on the back stack
+     */
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry =
+        getBackStackEntry(serializer<T>().hashCode())
+
+    /**
+     * Gets the topmost [NavBackStackEntry] for a route from an Object.
+     *
+     * This is always safe to use with [the current destination][currentDestination] or
+     * [its parent][NavDestination.parent] or grandparent navigation graphs as these
+     * destinations are guaranteed to be on the back stack.
+     *
+     * @param route route from an Object of a destination that exists on the back stack. The
+     * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
+     * @throws IllegalArgumentException if the destination is not on the back stack
+     */
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> getBackStackEntry(route: T): NavBackStackEntry {
+        // route contains arguments so we need to generate the populated route
+        // rather than getting entry based on route pattern
+        val finalRoute = generateRouteFromBackStack(route)
+        requireNotNull(finalRoute) {
+            "No destination with route $finalRoute is on the NavController's back stack. The " +
+                "current destination is $currentDestination"
+        }
+        return getBackStackEntry(finalRoute)
     }
 
     /**
