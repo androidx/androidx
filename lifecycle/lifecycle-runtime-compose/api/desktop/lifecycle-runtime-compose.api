@@ -1,0 +1,52 @@
+public final class androidx/lifecycle/compose/DropUnlessLifecycleKt {
+	public static final fun dropUnlessResumed (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)Lkotlin/jvm/functions/Function0;
+	public static final fun dropUnlessStarted (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)Lkotlin/jvm/functions/Function0;
+}
+
+public final class androidx/lifecycle/compose/FlowExtKt {
+	public static final fun collectAsStateWithLifecycle (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;Lkotlin/coroutines/CoroutineContext;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun collectAsStateWithLifecycle (Lkotlinx/coroutines/flow/Flow;Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$State;Lkotlin/coroutines/CoroutineContext;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun collectAsStateWithLifecycle (Lkotlinx/coroutines/flow/StateFlow;Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;Lkotlin/coroutines/CoroutineContext;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+	public static final fun collectAsStateWithLifecycle (Lkotlinx/coroutines/flow/StateFlow;Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$State;Lkotlin/coroutines/CoroutineContext;Landroidx/compose/runtime/Composer;II)Landroidx/compose/runtime/State;
+}
+
+public final class androidx/lifecycle/compose/LifecycleEffectKt {
+	public static final fun LifecycleEventEffect (Landroidx/lifecycle/Lifecycle$Event;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleResumeEffect (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleResumeEffect (Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleResumeEffect (Ljava/lang/Object;Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleResumeEffect (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleResumeEffect ([Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleStartEffect (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleStartEffect (Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleStartEffect (Ljava/lang/Object;Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleStartEffect (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun LifecycleStartEffect ([Ljava/lang/Object;Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/lifecycle/compose/LifecycleExtKt {
+	public static final fun currentStateAsState (Landroidx/lifecycle/Lifecycle;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+}
+
+public abstract interface class androidx/lifecycle/compose/LifecyclePauseOrDisposeEffectResult {
+	public abstract fun runPauseOrOnDisposeEffect ()V
+}
+
+public final class androidx/lifecycle/compose/LifecycleResumePauseEffectScope : androidx/lifecycle/LifecycleOwner {
+	public static final field $stable I
+	public fun <init> (Landroidx/lifecycle/Lifecycle;)V
+	public fun getLifecycle ()Landroidx/lifecycle/Lifecycle;
+	public final fun onPauseOrDispose (Lkotlin/jvm/functions/Function1;)Landroidx/lifecycle/compose/LifecyclePauseOrDisposeEffectResult;
+}
+
+public final class androidx/lifecycle/compose/LifecycleStartStopEffectScope : androidx/lifecycle/LifecycleOwner {
+	public static final field $stable I
+	public fun <init> (Landroidx/lifecycle/Lifecycle;)V
+	public fun getLifecycle ()Landroidx/lifecycle/Lifecycle;
+	public final fun onStopOrDispose (Lkotlin/jvm/functions/Function1;)Landroidx/lifecycle/compose/LifecycleStopOrDisposeEffectResult;
+}
+
+public abstract interface class androidx/lifecycle/compose/LifecycleStopOrDisposeEffectResult {
+	public abstract fun runStopOrDisposeEffect ()V
+}
+
