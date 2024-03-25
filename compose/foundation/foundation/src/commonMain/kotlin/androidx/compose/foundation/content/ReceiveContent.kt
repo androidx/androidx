@@ -37,45 +37,45 @@ import androidx.compose.ui.platform.InspectorInfo
  * Content in this context refers to a [TransferableContent] that could be received from another
  * app through Drag-and-Drop, Copy/Paste, or from the Software Keyboard.
  *
- * @param hintMediaTypes A set of media types that are expected by this receiver. This set
- * gets passed to the Software Keyboard to send information about what type of content the editor
- * supports. It's possible that this modifier receives other type of content that's not specified in
- * this set. Please make sure to check again whether the received [TransferableContent] carries a
- * supported [MediaType]. An empty [MediaType] set implies [MediaType.All].
+ * There is no pre-filtering for the received content by media type, e.g. software Keyboard would
+ * assume that the app can handle any content that's sent to it. Therefore, it's crucial to check
+ * the received content's type and other related information before reading and processing it.
+ * Please refer to [TransferableContent.hasMediaType] and [TransferableContent.clipMetadata] to
+ * learn more about how to do proper checks on the received item.
+ *
  * @param receiveContentListener Listener to respond to the receive event. This interface also
  * includes a set of callbacks for certain Drag-and-Drop state changes. Please checkout
  * [ReceiveContentListener] docs for an explanation of each callback.
+ *
+ * @see TransferableContent
+ * @see hasMediaType
  *
  * @sample androidx.compose.foundation.samples.ReceiveContentFullSample
  */
 @Suppress("ExecutorRegistration")
 @ExperimentalFoundationApi
 fun Modifier.contentReceiver(
-    hintMediaTypes: Set<MediaType>,
     receiveContentListener: ReceiveContentListener
 ): Modifier = then(
     ReceiveContentElement(
-        hintMediaTypes = hintMediaTypes.toSet(),
         receiveContentListener = receiveContentListener
     )
 )
 
 @OptIn(ExperimentalFoundationApi::class)
 internal data class ReceiveContentElement(
-    val hintMediaTypes: Set<MediaType>,
     val receiveContentListener: ReceiveContentListener
 ) : ModifierNodeElement<ReceiveContentNode>() {
     override fun create(): ReceiveContentNode {
-        return ReceiveContentNode(hintMediaTypes, receiveContentListener)
+        return ReceiveContentNode(receiveContentListener)
     }
 
     override fun update(node: ReceiveContentNode) {
-        node.updateNode(hintMediaTypes, receiveContentListener)
+        node.updateNode(receiveContentListener)
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "receiveContent"
-        properties["hintMediaTypes"] = hintMediaTypes
     }
 }
 
@@ -84,7 +84,6 @@ internal data class ReceiveContentElement(
 // TraversableNode if it was available, the switch should be fairly easy when the bug is fixed.
 @OptIn(ExperimentalFoundationApi::class)
 internal class ReceiveContentNode(
-    var hintMediaTypes: Set<MediaType>,
     var receiveContentListener: ReceiveContentListener
 ) : DelegatingNode(), ModifierLocalModifierNode,
     CompositionLocalConsumerModifierNode {
@@ -95,7 +94,7 @@ internal class ReceiveContentNode(
     // The default provided configuration is the one supplied to this node. Once the node is
     // attached, it should provide a delegating version to ancestor nodes.
     override val providedValues: ModifierLocalMap =
-        modifierLocalMapOf<ReceiveContentConfiguration?>(
+        modifierLocalMapOf(
             ModifierLocalReceiveContent to receiveContentConfiguration
         )
 
@@ -108,11 +107,7 @@ internal class ReceiveContentNode(
         )
     }
 
-    fun updateNode(
-        hintMediaTypes: Set<MediaType>,
-        receiveContentListener: ReceiveContentListener
-    ) {
-        this.hintMediaTypes = hintMediaTypes
+    fun updateNode(receiveContentListener: ReceiveContentListener) {
         this.receiveContentListener = receiveContentListener
     }
 }

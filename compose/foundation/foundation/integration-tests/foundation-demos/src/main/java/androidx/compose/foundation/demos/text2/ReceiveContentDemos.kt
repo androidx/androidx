@@ -131,10 +131,7 @@ fun TextFieldReceiveContentDemo() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .contentReceiver(
-                hintMediaTypes = setOf(MediaType.Image),
-                receiveContentListener = receiveContentListener
-            )
+            .contentReceiver(receiveContentListener)
             .padding(16.dp)
             .background(
                 color = when {
@@ -204,8 +201,8 @@ fun NestedReceiveContentDemo() {
         )
         Spacer(Modifier.height(8.dp))
         ReceiveContentShowcase(
-            "Everything Consumer",
-            MediaType.All, {
+            title = "Everything Consumer",
+            onReceive = {
                 // consume everything here
                 null
             },
@@ -215,7 +212,6 @@ fun NestedReceiveContentDemo() {
             var images by remember { mutableStateOf<List<ImageBitmap>>(emptyList()) }
             ReceiveContentShowcase(
                 title = "Image Consumer",
-                hintMediaType = MediaType.Image,
                 onReceive = { transferableContent ->
                     if (!transferableContent.hasMediaType(MediaType.Image)) {
                         transferableContent
@@ -244,8 +240,8 @@ fun NestedReceiveContentDemo() {
                     }
                 }
                 ReceiveContentShowcase(
-                    "Text Consumer",
-                    MediaType.Text, {
+                    title = "Text Consumer",
+                    onReceive = {
                         it.consume { item ->
                             val text = item.coerceToText(context)
                             // only consume if it has text in it.
@@ -271,7 +267,6 @@ fun NestedReceiveContentDemo() {
 @Composable
 private fun ReceiveContentShowcase(
     title: String,
-    hintMediaType: MediaType,
     onReceive: (TransferableContent) -> TransferableContent?,
     modifier: Modifier = Modifier,
     onClear: () -> Unit = {},
@@ -279,7 +274,7 @@ private fun ReceiveContentShowcase(
 ) {
     val transferableContentState = remember { mutableStateOf<TransferableContent?>(null) }
     val receiveContentState = remember {
-        ReceiveContentState(setOf(hintMediaType)) {
+        ReceiveContentState {
             transferableContentState.value = it
             onReceive(it)
         }
@@ -376,7 +371,6 @@ private fun Uri.isImageBitmap(context: Context): Boolean {
 
 @OptIn(ExperimentalFoundationApi::class)
 class ReceiveContentState(
-    var hintMediaTypes: Set<MediaType>,
     private val onReceive: (TransferableContent) -> TransferableContent?
 ) {
     internal var hovering by mutableStateOf(false)
@@ -412,7 +406,7 @@ class ReceiveContentState(
 fun Modifier.dropReceiveContent(
     state: ReceiveContentState
 ) = composed {
-    contentReceiver(state.hintMediaTypes, state.listener)
+    contentReceiver(state.listener)
         .background(
             color = if (state.hovering) {
                 MaterialTheme.colors.secondary

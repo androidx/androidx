@@ -55,7 +55,7 @@ fun ReceiveContentBasicSample() {
         }
         BasicTextField(
             state = state,
-            modifier = Modifier.contentReceiver(setOf(MediaType.Image)) { transferableContent ->
+            modifier = Modifier.contentReceiver { transferableContent ->
                 if (!transferableContent.hasMediaType(MediaType.Image)) {
                     return@contentReceiver transferableContent
                 }
@@ -96,7 +96,6 @@ fun ReceiveContentFullSample() {
                     }
                 )
                 .contentReceiver(
-                    hintMediaTypes = setOf(MediaType.Image),
                     receiveContentListener = object : ReceiveContentListener {
                         override fun onDragStart() {
                             dragging = true
