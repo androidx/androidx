@@ -248,22 +248,25 @@ abstract class UpdateTranslationsTask : DefaultTask() {
             it.appendLine()
             it.appendLine("""
                 /**
-                 * Maps each locale tag we have a translation for to a function that creates the translation.
+                 * Returns the translation for the given locale; `null` if there isn't one.
                  */
-                internal val TranslationProviderByLocaleTag = mapOf(
+                internal fun translationFor(localeTag: String) = when(localeTag) {
             """.trimIndent())
-            for (locale in locales) {
-                it.appendLine("    \"${locale.toKotlinTag()}\" to " +
-                    "Translations::${locale.translationFunctionName()},")
 
+            fun emitTranslationEntry(localeTag: String, locale: Locale) {
+                it.appendLine("    \"${localeTag}\" -> " +
+                    "Translations.${locale.translationFunctionName()}()")
+            }
+            for (locale in locales) {
+                emitTranslationEntry(locale.toKotlinTag(), locale)
                 val newLanguageCode = OldToNewLanguageCode[locale.language]
                 if (newLanguageCode != null) {
                     val newLocale = locale.copy(language = newLanguageCode)
-                    it.appendLine("    \"${newLocale.toKotlinTag()}\" to " +
-                        "Translations::${locale.translationFunctionName()},")
+                    emitTranslationEntry(newLocale.toKotlinTag(), locale)
                 }
             }
-            it.appendLine(")")
+            it.appendLine("    else -> null")
+            it.appendLine("}")
         }
     }
 

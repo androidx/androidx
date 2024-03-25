@@ -19,9 +19,9 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.l10n.TranslationProviderByLocaleTag
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.platform.l10n.en
+import androidx.compose.ui.platform.l10n.translationFor
 
 @Immutable
 @JvmInline
@@ -85,15 +85,9 @@ private fun localeTagChain(locale: Locale) = sequence {
 /**
  * Finds a [Translation] for the given locale.
  */
-private fun findTranslation(locale: Locale): Translation {
-    for (tag in localeTagChain(locale)) {
-        // We don't need to merge translations because each one should contain all the strings.
-        val translation = TranslationProviderByLocaleTag[tag]?.invoke()
-        if (translation != null) {
-            return translation
-        }
-    }
-    error("Root translation must be present")
+private fun findTranslation(locale: Locale): Map<Strings, String> {
+    // We don't need to merge translations because each one should contain all the strings.
+    return localeTagChain(locale).firstNotNullOf { translationFor(it) }
 }
 
 /**
