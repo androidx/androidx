@@ -126,7 +126,6 @@ import kotlinx.coroutines.launch
  * @param label content to be rendered inside this button
  */
 @Composable
-@ExperimentalMaterial3Api
 fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -204,7 +203,6 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
  * @param label content to be rendered inside this button
  */
 @Composable
-@ExperimentalMaterial3Api
 fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
     selected: Boolean,
     onClick: () -> Unit,
@@ -264,7 +262,6 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
  * [SegmentedButton]s
  */
 @Composable
-@ExperimentalMaterial3Api
 fun SingleChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
     space: Dp = SegmentedButtonDefaults.BorderWidth,
@@ -302,7 +299,6 @@ fun SingleChoiceSegmentedButtonRow(
  *
  */
 @Composable
-@ExperimentalMaterial3Api
 fun MultiChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
     space: Dp = SegmentedButtonDefaults.BorderWidth,
@@ -320,7 +316,6 @@ fun MultiChoiceSegmentedButtonRow(
     }
 }
 
-@ExperimentalMaterial3Api
 @Composable
 private fun SegmentedButtonContent(
     icon: @Composable () -> Unit,
@@ -351,7 +346,6 @@ internal class SegmentedButtonContentMeasurePolicy(
     var animatable: Animatable<Int, AnimationVector1D>? = null
     private var initialOffset: Int? = null
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
         constraints: Constraints
@@ -425,15 +419,12 @@ private fun InteractionSource.interactionCountAsState(): State<Int> {
 }
 
 /** Scope for the children of a [SingleChoiceSegmentedButtonRow] */
-@ExperimentalMaterial3Api
 interface SingleChoiceSegmentedButtonRowScope : RowScope
 
 /** Scope for the children of a [MultiChoiceSegmentedButtonRow] */
-@ExperimentalMaterial3Api
 interface MultiChoiceSegmentedButtonRowScope : RowScope
 
 /* Contains defaults to be used with [SegmentedButtonRow] and [SegmentedButton] */
-@ExperimentalMaterial3Api
 @Stable
 object SegmentedButtonDefaults {
 
@@ -630,7 +621,6 @@ object SegmentedButtonDefaults {
  * @param disabledInactiveBorderColor the color used for the border when disabled and inactive
  */
 @Immutable
-@ExperimentalMaterial3Api
 class SegmentedButtonColors(
     // enabled & active
     val activeContainerColor: Color,
@@ -782,10 +772,8 @@ private fun Modifier.interactionZIndex(checked: Boolean, interactionCount: State
 private const val CheckedZIndexFactor = 5f
 private val IconSpacing = 8.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class SingleChoiceSegmentedButtonScopeWrapper(scope: RowScope) :
     SingleChoiceSegmentedButtonRowScope, RowScope by scope
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class MultiChoiceSegmentedButtonScopeWrapper(scope: RowScope) :
     MultiChoiceSegmentedButtonRowScope, RowScope by scope
