@@ -604,6 +604,16 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.MUTE_AUDIO,
                     Features.MUTE_AUDIO);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework WEB_AUTHENTICATION = new ApiFeature.NoFramework(
+            WebViewFeature.WEB_AUTHENTICATION, Features.WEB_AUTHENTICATION);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {
