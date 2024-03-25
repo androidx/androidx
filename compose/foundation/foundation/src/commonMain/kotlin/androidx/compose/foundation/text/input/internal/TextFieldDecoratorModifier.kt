@@ -688,7 +688,7 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     private fun startInputSession(fromTap: Boolean) {
-        if (!fromTap && !keyboardOptions.shouldShowKeyboardOnFocus) return
+        if (!fromTap && !keyboardOptions.showKeyboardOnFocusOrDefault) return
 
         val receiveContentConfiguration = getReceiveContentConfiguration()
 

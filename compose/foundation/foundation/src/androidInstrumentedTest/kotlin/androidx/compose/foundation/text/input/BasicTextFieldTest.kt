@@ -372,7 +372,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
+                keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag)
@@ -395,7 +395,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
+                keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag)
