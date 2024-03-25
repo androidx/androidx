@@ -212,7 +212,7 @@ class ValueParserTest {
 
     @Test
     fun nonDataClassValue_fails() {
-        checkSourceFails(annotatedValue("private class MySdkRequest(val id: Int)"))
+        checkSourceFails(annotatedValue("class MySdkRequest(val id: Int)"))
             .containsExactlyErrors(
                 "Only data classes and enum classes can be annotated with" +
                     " @PrivacySandboxValue."
