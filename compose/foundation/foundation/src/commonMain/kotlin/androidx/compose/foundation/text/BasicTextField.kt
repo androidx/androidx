@@ -534,7 +534,7 @@ private val MinTouchTargetSizeForHandles = DpSize(40.dp, 40.dp)
  * for entering a credit card number:
  * @sample androidx.compose.foundation.samples.CreditCardSample
  *
- * Note: This overload does not support [KeyboardOptions.shouldShowKeyboardOnFocus].
+ * Note: This overload does not support [KeyboardOptions.showKeyboardOnFocus].
  *
  * @param value the input [String] text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
@@ -686,7 +686,7 @@ fun BasicTextField(
  * hit target area, use the decoration box:
  * @sample androidx.compose.foundation.samples.TextFieldWithIconSample
  *
- * Note: This overload does not support [KeyboardOptions.shouldShowKeyboardOnFocus].
+ * Note: This overload does not support [KeyboardOptions.showKeyboardOnFocus].
  *
  * @param value The [androidx.compose.ui.text.input.TextFieldValue] to be shown in the
  * [BasicTextField].
