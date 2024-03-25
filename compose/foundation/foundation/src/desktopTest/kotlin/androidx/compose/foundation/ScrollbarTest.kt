@@ -623,6 +623,29 @@ class ScrollbarTest {
     }
 
     @Theory
+    fun `press on track outside slider with reverseLayout`(
+        scrollbarProvider: ScrollbarProvider
+    ) {
+        rule.setContent(scrollbarProvider) {
+            TestBox(
+                size = 100.dp,
+                childSize = 50.dp,
+                childCount = 3,
+                scrollbarWidth = 10.dp,
+                reverseLayoutAndScrolling = true
+            )
+        }
+
+        rule.onNodeWithTag("box2").assertTopPositionInRootIsEqualTo(50.dp)
+
+        rule.onNodeWithTag("scrollbar").performMouseInput {
+            click(Offset(5f, 1f))
+        }
+
+        rule.onNodeWithTag("box1").assertTopPositionInRootIsEqualTo(50.dp)
+    }
+
+    @Theory
     fun `dynamically change content then drag slider to the end`(
         scrollbarProvider: ScrollbarProvider
     ) {
@@ -1235,11 +1258,15 @@ class ScrollbarTest {
         childSize: Dp,
         childCount: Int,
         scrollbarWidth: Dp,
-        scrollbarHeight: Dp = size
+        scrollbarHeight: Dp = size,
+        reverseLayoutAndScrolling: Boolean = false
     ) = withTestEnvironment {
         Box(Modifier.size(size)) {
             Column(
-                Modifier.fillMaxSize().testTag("column").verticalScroll(scrollState)
+                Modifier
+                    .fillMaxSize()
+                    .testTag("column")
+                    .verticalScroll(scrollState, reverseScrolling = reverseLayoutAndScrolling)
             ) {
                 repeat(childCount) {
                     Box(Modifier.size(childSize).testTag("box$it"))
@@ -1248,6 +1275,7 @@ class ScrollbarTest {
 
             ScrollbarProviderLocal.current.VerticalScrollbar(
                 scrollState = scrollState,
+                reverseLayout = reverseLayoutAndScrolling,
                 modifier = Modifier
                     .width(scrollbarWidth)
                     .height(scrollbarHeight)
