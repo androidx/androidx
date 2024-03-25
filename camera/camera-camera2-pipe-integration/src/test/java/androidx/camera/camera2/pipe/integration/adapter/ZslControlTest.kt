@@ -23,6 +23,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlImpl.Companion.MAX_IMAGES
 import androidx.camera.camera2.pipe.integration.adapter.ZslControlImpl.Companion.RING_BUFFER_CAPACITY
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
@@ -68,7 +69,7 @@ class ZslControlImplTest {
         assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat)
             .isEqualTo(ImageFormat.PRIVATE)
         assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(
-            ZslControlImpl.MAX_IMAGES
+            MAX_IMAGES
         )
         assertThat(zslControlImpl.reprocessingImageReader!!.width).isEqualTo(
             PRIVATE_REPROCESSING_MAXIMUM_SIZE.width
@@ -144,6 +145,38 @@ class ZslControlImplTest {
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControlImpl.reprocessingImageReader).isNull()
+    }
+
+    @Test
+    fun isZslDisabledByFlashMode_addZslConfig() {
+        zslControlImpl = ZslControlImpl(
+            createCameraProperties(
+                hasCapabilities = true,
+                isYuvReprocessingSupported = false,
+                isPrivateReprocessingSupported = true,
+                isJpegValidOutputFormat = true
+            )
+        )
+        zslControlImpl.setZslDisabledByFlashMode(true)
+
+        zslControlImpl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControlImpl.reprocessingImageReader).isNotNull()
+        assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat).isEqualTo(
+            ImageFormat.PRIVATE
+        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(
+            MAX_IMAGES
+        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.width).isEqualTo(
+            PRIVATE_REPROCESSING_MAXIMUM_SIZE.width
+        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.height).isEqualTo(
+            PRIVATE_REPROCESSING_MAXIMUM_SIZE.height
+        )
+        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY
+        )
     }
 
     @Test

@@ -125,6 +125,7 @@ class ZslControlImpl @Inject constructor(
         ZslRingBuffer(RING_BUFFER_CAPACITY) { imageProxy -> imageProxy.close() }
 
     private var isZslDisabledByUseCaseConfig = false
+    private var isZslDisabledByFlashMode = false
 
     @VisibleForTesting
     internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
@@ -230,11 +231,11 @@ class ZslControlImpl @Inject constructor(
     }
 
     override fun setZslDisabledByFlashMode(disabled: Boolean) {
-        TODO("b/331256916 - Port ZslDisabledByFlashMode")
+        isZslDisabledByFlashMode = disabled
     }
 
     override fun isZslDisabledByFlashMode(): Boolean {
-        TODO("b/331256916 - Port ZslDisabledByFlashMode")
+        return isZslDisabledByFlashMode
     }
 
     override fun dequeueImageFromBuffer(): ImageProxy? {

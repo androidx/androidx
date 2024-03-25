@@ -843,6 +843,42 @@ class CapturePipelineTest {
         )
     }
 
+    @Config(minSdk = 23)
+    @Test
+    fun submitZslCaptureRequests_withZslDisabledByFlashMode_templateStillPictureSent():
+        Unit = runTest {
+        // Arrange.
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requestList.addAll(requests)
+            requests.complete()
+        }
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeDeferrableSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+        configureZslControl()
+        fakeZslControl.setZslDisabledByFlashMode(true)
+
+        // Act.
+        capturePipeline.submitStillCaptures(
+            listOf(imageCaptureConfig),
+            RequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG),
+            MutableOptionsBundle.create(),
+            captureMode = ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            flashMode = ImageCapture.FLASH_MODE_OFF,
+            flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        ).awaitAllWithTimeout()
+
+        // Assert.
+        val request = requestList.single()
+        assertThat(request.streams.single()).isEqualTo(fakeStreamId)
+        assertThat(request.template).isEqualTo(
+            RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        )
+    }
+
     private fun configureZslControl() {
         val fakeImageProxy: ImageProxy = mock()
         val fakeCaptureResult = CaptureResultAdapter(

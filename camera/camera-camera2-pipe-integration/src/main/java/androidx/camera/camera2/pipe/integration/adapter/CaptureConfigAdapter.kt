@@ -103,11 +103,11 @@ class CaptureConfigAdapter @Inject constructor(
             )
         }
 
-        // TODO: b/331256916 - Check ZslDisabledByFlashMode
         var inputRequest: InputRequest? = null
         var requestTemplateToSubmit = RequestTemplate(captureConfig.templateType)
         if (captureConfig.templateType == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG &&
-            !zslControl.isZslDisabledByUserCaseConfig()
+            !zslControl.isZslDisabledByUserCaseConfig() &&
+            !zslControl.isZslDisabledByFlashMode()
         ) {
             zslControl.dequeueImageFromBuffer()?.let { imageProxy ->
                 CameraCaptureResults.retrieveCameraCaptureResult(imageProxy.imageInfo)
