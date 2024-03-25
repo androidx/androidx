@@ -33,7 +33,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    def composeVersion = "1.6.3"
+    def composeVersion = "1.6.4"
     api("androidx.annotation:annotation:$composeVersion")
     api("androidx.compose.animation:animation:$composeVersion")
     api("androidx.compose.foundation:foundation:$composeVersion")
