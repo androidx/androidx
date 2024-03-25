@@ -330,7 +330,8 @@ public final class TileRenderer {
 
         /**
          * Returns the theme to use for this Tile instance. This can be used to customise things
-         * like the default font family.
+         * like the default font family. Defaults to zero (default theme) if not specified by {@link
+         * Builder#setTilesTheme(int)}.
          */
         public int getTilesTheme() {
             return mTilesTheme;
@@ -363,7 +364,7 @@ public final class TileRenderer {
 
             /**
              * Sets the theme to use for this Tile instance. This can be used to customise things
-             * like the default font family.
+             * like the default font family. If not set, zero (default theme) will be used.
              */
             @NonNull
             public Builder setTilesTheme(@StyleRes int tilesTheme) {
