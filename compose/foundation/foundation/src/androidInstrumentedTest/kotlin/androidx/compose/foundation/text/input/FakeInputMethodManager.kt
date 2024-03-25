@@ -74,4 +74,12 @@ internal class FakeInputMethodManager : ComposeInputMethodManager {
     override fun startStylusHandwriting() {
         calls += "startStylusHandwriting"
     }
+
+    override fun prepareStylusHandwritingDelegation() {
+        calls += "prepareStylusHandwritingDelegation"
+    }
+
+    override fun acceptStylusHandwritingDelegation() {
+        calls += "acceptStylusHandwritingDelegation"
+    }
 }
