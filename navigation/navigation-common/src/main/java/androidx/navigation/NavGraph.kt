@@ -188,11 +188,12 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * Finds a destination in the collection by route from [KClass]. This will recursively check the
      * [parent][parent] of this navigation graph if node is not found in this navigation graph.
      *
-     * @param route Route to locate
+     * @param T Route from a [KClass] to locate
      * @return the node with route - the node must have been created with a route from [KClass]
      */
     @OptIn(InternalSerializationApi::class)
-    internal inline fun <reified T> findNode(): NavDestination? {
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T> findNode(): NavDestination? {
         return findNode(serializer<T>().hashCode())
     }
 
@@ -205,7 +206,8 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      */
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    internal fun <T> findNode(route: T?): NavDestination? {
+    @ExperimentalSafeArgsApi
+    public fun <T> findNode(route: T?): NavDestination? {
         return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
     }
 
@@ -364,10 +366,10 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      *
      * This will override any previously set [startDestinationId]
      *
-     * @param startDestRoute The route of the destination as a [KClass] to be shown when navigating
+     * @param T The route of the destination as a [KClass] to be shown when navigating
      * to this NavGraph.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalSafeArgsApi
     public inline fun <reified T> setStartDestination() {
         setStartDestination(serializer<T>()) { startDestination ->
             startDestination.route!!
@@ -383,7 +385,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * to this NavGraph.
      */
     @OptIn(InternalSerializationApi::class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalSafeArgsApi
     public fun <T : Any> setStartDestination(startDestRoute: T) {
         setStartDestination(startDestRoute::class.serializer()) { startDestination ->
             val args = startDestination.arguments.mapValues {
@@ -524,7 +526,9 @@ public inline operator fun NavGraph.get(route: String): NavDestination =
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE")
-internal inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): NavDestination =
+@ExperimentalSafeArgsApi
+
+public inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): NavDestination =
     findNode<T>()
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
@@ -534,7 +538,8 @@ internal inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): N
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE")
-internal inline operator fun <T> NavGraph.get(route: T): NavDestination =
+@ExperimentalSafeArgsApi
+public inline operator fun <T> NavGraph.get(route: T): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
@@ -546,11 +551,13 @@ public operator fun NavGraph.contains(route: String): Boolean = findNode(route) 
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 @Suppress("UNUSED_PARAMETER")
-internal inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
+@ExperimentalSafeArgsApi
+public inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
     findNode<T>() != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
-internal operator fun <T> NavGraph.contains(route: T): Boolean = findNode(route) != null
+@ExperimentalSafeArgsApi
+public operator fun <T> NavGraph.contains(route: T): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an
