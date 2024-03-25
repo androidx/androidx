@@ -40,14 +40,20 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
     private val defaultArtifactRedirectingTargetNames = setOf("android")
 
     fun publishMultiplatform(component: ComposeComponent) {
-        val artifactRedirectingTargetNames = project.rootProject.findProject(component.path)!!
+        val artifactRedirectingTargetNames = (project.rootProject.findProject(component.path)!!
             .findProperty("artifactRedirecting.publication.targetNames").let {
                 (it as? String)?.split(",") ?: emptyList()
-            }.toSet() + defaultArtifactRedirectingTargetNames
+            }.toSet() + defaultArtifactRedirectingTargetNames).toMutableSet()
 
-        val useArtifactRedirectingPublication = component.supportedPlatforms.any {
-            it.matchesAnyIgnoringCase(artifactRedirectingTargetNames)
+
+        if (component.neverRedirect) {
+            artifactRedirectingTargetNames.clear()
         }
+
+        val useArtifactRedirectingPublication = !component.neverRedirect &&
+            component.supportedPlatforms.any {
+                it.matchesAnyIgnoringCase(artifactRedirectingTargetNames)
+            }
 
         // To make ArtifactRedirecting publishing work properly with kotlin >= 1.9.0,
         // we use decorated `KotlinMultiplatform` publication named - 'KotlinMultiplatformDecorated'.
@@ -59,8 +65,18 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
             dependsOnComposeTask("${component.path}:publish${ComposePlatforms.KotlinMultiplatform.name}PublicationTo$repository")
         }
 
-        for (platform in targetPlatforms) {
-            if (platform !in component.supportedPlatforms) continue
+        for (platform in component.supportedPlatforms) {
+            // TODO: Rename everything to "iOS" and remove this mapping
+            val fixedPlatform = when(platform) {
+                ComposePlatforms.UikitX64 -> ComposePlatforms.IosX64
+                ComposePlatforms.UikitArm64 -> ComposePlatforms.IosArm64
+                ComposePlatforms.UikitSimArm64 -> ComposePlatforms.IosSimulatorArm64
+                ComposePlatforms.IosX64 -> ComposePlatforms.UikitX64
+                ComposePlatforms.IosArm64 -> ComposePlatforms.UikitArm64
+                ComposePlatforms.IosSimulatorArm64 -> ComposePlatforms.UikitSimArm64
+                else -> platform
+            }
+            if (platform !in targetPlatforms && fixedPlatform !in targetPlatforms) continue
             if (platform.matchesAnyIgnoringCase(artifactRedirectingTargetNames)) continue
 
             dependsOnComposeTask("${component.path}:publish${platform.name}PublicationTo$repository")

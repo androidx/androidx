@@ -18,9 +18,9 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
     WasmJs("Web"),
     MacosX64("Macos"),
     MacosArm64("Macos"),
-    UikitX64("UiKit"),
-    UikitArm64("UiKit"),
-    UikitSimArm64("UiKit"),
+    UikitX64("UiKit"), // TODO: Align with AOSP: rename to iOS
+    UikitArm64("UiKit"), // TODO: Align with AOSP: rename to iOS
+    UikitSimArm64("UiKit"), // TODO: Align with AOSP: rename to iOS
     IosX64("Ios"),
     IosArm64("Ios"),
     IosSimulatorArm64("Ios"),
@@ -49,25 +49,22 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
         listOf(name, *alternativeNames).any { it.equals(nameCandidate, ignoreCase = true) }
 
     companion object {
-        val IOS = EnumSet.of(
-            ComposePlatforms.IosX64,
-            ComposePlatforms.IosArm64,
-            ComposePlatforms.IosSimulatorArm64,
-        )
-
-        // exclude IOS by default, because ALL includes UIKIT instead
-        val ALL = EnumSet.allOf(ComposePlatforms::class.java) - IOS
-
         val JVM_BASED = EnumSet.of(
             ComposePlatforms.Desktop,
             ComposePlatforms.AndroidDebug,
             ComposePlatforms.AndroidRelease
         )
 
-        val UIKIT = EnumSet.of(
+        val UI_KIT = EnumSet.of(
             ComposePlatforms.UikitX64,
             ComposePlatforms.UikitArm64,
             ComposePlatforms.UikitSimArm64
+        )
+
+        val IOS = EnumSet.of(
+            ComposePlatforms.IosX64,
+            ComposePlatforms.IosArm64,
+            ComposePlatforms.IosSimulatorArm64
         )
 
         val ANDROID = EnumSet.of(
@@ -75,19 +72,25 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
             ComposePlatforms.AndroidRelease
         )
 
-        // These platforms are not supported by skiko yet
-        val NO_SKIKO = EnumSet.of(
-            ComposePlatforms.TvosArm64,
-            ComposePlatforms.TvosX64,
-            ComposePlatforms.TvosSimulatorArm64,
-            ComposePlatforms.WatchosArm64,
-            ComposePlatforms.WatchosArm32,
-            ComposePlatforms.WatchosX64,
-            ComposePlatforms.WatchosSimulatorArm64,
+        val LINUX = EnumSet.of(
             ComposePlatforms.LinuxX64,
-            ComposePlatforms.LinuxArm64,
-            ComposePlatforms.MingwX64,
+            ComposePlatforms.LinuxArm64
         )
+
+        val MACOS = EnumSet.of(
+            ComposePlatforms.MacosX64,
+            ComposePlatforms.MacosArm64
+        )
+
+        val WEB = EnumSet.of(
+            ComposePlatforms.Js,
+            ComposePlatforms.WasmJs
+        )
+
+        val SKIKO_SUPPORT = EnumSet.of(KotlinMultiplatform) + JVM_BASED + UI_KIT + MACOS + WEB
+
+        val ALL = EnumSet.allOf(ComposePlatforms::class.java) - IOS
+        val ALL_AOSP = EnumSet.of(KotlinMultiplatform) + JVM_BASED + IOS + LINUX + MACOS + WEB
 
         /**
          * Maps comma separated list of platforms into a set of [ComposePlatforms]

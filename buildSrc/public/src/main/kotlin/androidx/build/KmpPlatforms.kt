@@ -52,7 +52,7 @@ enum class PlatformGroup {
          * Do *not* enable [JS] unless you have read and understand this:
          * https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
          */
-        val enabledByDefault = listOf(JVM, DESKTOP, MAC, JS, WASM)
+        val enabledByDefault = listOf(JVM, DESKTOP, LINUX, MAC, JS, WASM)
     }
 }
 
@@ -70,6 +70,7 @@ enum class PlatformIdentifier(
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),
     LINUX_64("linuxx64", PlatformGroup.LINUX),
+    LINUX_ARM_64("linuxarm64", PlatformGroup.LINUX),
     IOS_SIMULATOR_ARM_64("iossimulatorarm64", PlatformGroup.MAC),
     IOS_X_64("iosx64", PlatformGroup.MAC),
     IOS_ARM_64("iosarm64", PlatformGroup.MAC),

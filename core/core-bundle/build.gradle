@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -24,10 +22,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("JetbrainsAndroidXPlugin")
 }
-
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 def jsEnabled = KmpPlatformsKt.enableJs(project)
 def wasmEnabled = KmpPlatformsKt.enableWasm(project)
@@ -100,7 +95,6 @@ android {
 androidx {
     name = "androidx.core:core-bundle"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.CORE
     inceptionYear = "2024"
     description = "Provides Bundle in Kotlin Multiplatform projects"
 }

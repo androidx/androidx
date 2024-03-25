@@ -22,11 +22,11 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
 object SupportConfig {
-    const val DEFAULT_MIN_SDK_VERSION = 14
+    const val DEFAULT_MIN_SDK_VERSION = 19
     const val INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
-    private const val INTERNAL_BUILD_TOOLS_VERSION = "30.0.2"
-    private const val PUBLIC_BUILD_TOOLS_VERSION = "30.0.2"
-    const val NDK_VERSION = "23.1.7779620"
+    private const val INTERNAL_BUILD_TOOLS_VERSION = "33.0.2"
+    private const val PUBLIC_BUILD_TOOLS_VERSION = "33.0.2"
+    const val NDK_VERSION = "25.2.9519653"
 
     /**
      * The Android SDK version to use for compilation.
@@ -34,7 +34,7 @@ object SupportConfig {
      * Either an integer value or a pre-release platform code, prefixed with "android-" (ex.
      * "android-28" or "android-Q") as you would see within the SDK's platforms directory.
      */
-    const val COMPILE_SDK_VERSION = "android-32"
+    const val COMPILE_SDK_VERSION = "android-33"
 
     /**
      * The Android SDK version to use for targetSdkVersion meta-data.
@@ -47,7 +47,7 @@ object SupportConfig {
      * order for tests to run on devices running released versions of the Android OS. If this is
      * set to a pre-release version, tests will only be able to run on pre-release devices.
      */
-    const val TARGET_SDK_VERSION = 32
+    const val TARGET_SDK_VERSION = 33
 
     /**
      * Returns the build tools version that should be used for the project.

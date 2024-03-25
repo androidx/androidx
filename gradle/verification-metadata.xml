@@ -428,6 +428,7 @@
             <trusting group="org.opentest4j"/>
          </trusted-key>
          <trusted-key id="fffd810fffde203d5fa27263beabcfbee059e4e5" group="com.github.siom79.japicmp"/>
+         <trusted-key id="e7dc75fc24fb3c8dfe8086ad3d5839a2262cbbfb" group="org.jetbrains.kotlinx.binary-compatibility-validator"/>
       </trusted-keys>
    </configuration>
    <components>

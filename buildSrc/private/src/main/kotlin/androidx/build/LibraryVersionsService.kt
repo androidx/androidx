@@ -73,7 +73,8 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                 } else if (tagName != null && versionForTag != null) {
                     versionForTag
                 } else {
-                    versions.getString(versionName)!!
+                    // Do not use version from toml to about accidentally publish "stable" version
+                    "0.0.0-SNAPSHOT"
                 }
             Version.parseOrNull(versionValue)
                 ?: throw GradleException(

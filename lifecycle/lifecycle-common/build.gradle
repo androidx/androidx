@@ -54,7 +54,6 @@ kotlin {
         browser()
     }
     wasmJs()
-    linuxArm64()
 
     explicitApi = ExplicitApiMode.Strict
 

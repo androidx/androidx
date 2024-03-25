@@ -61,6 +61,7 @@ import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 import androidx.build.jetbrains.ArtifactRedirecting
 import androidx.build.jetbrains.artifactRedirecting
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 
 fun Project.configureMavenArtifactUpload(
     extension: AndroidXExtension,
@@ -361,16 +362,16 @@ private fun Project.isMultiplatformPublicationEnabled(): Boolean {
 }
 
 private fun Project.configureMultiplatformPublication(componentFactory: SoftwareComponentFactory) {
-//    TODO: [1.4 Update] workaround for mpp publication -- disable android
-
-//    val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>()!!
-//    multiplatformExtension.targets.all { target ->
-//        if (target is KotlinAndroidTarget) {
-//            target.publishLibraryVariants(
-//                Release.DEFAULT_PUBLISH_CONFIG
-//            )
-//        }
-//    }
+    if (project.path != ":core:core-bundle") return
+    val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>()!!
+    multiplatformExtension.targets.all { target ->
+        if (target is KotlinAndroidTarget) {
+            target.publishLibraryVariants(
+                Release.DEFAULT_PUBLISH_CONFIG,
+                "debug"
+            )
+        }
+    }
 
     replaceBaseMultiplatformPublication(componentFactory)
 }

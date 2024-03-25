@@ -92,6 +92,8 @@ open class JetbrainsExtensions(
             comp.configurations.compileOnlyConfiguration,
         ).forEach { c ->
             c?.resolutionStrategy {
+
+                // TODO: It should be based on config
                 it.dependencySubstitution {
                     it.substitute(it.project(":annotation:annotation"))
                         .using(it.module("androidx.annotation:annotation:$androidAnnotationVersion"))
@@ -101,6 +103,8 @@ open class JetbrainsExtensions(
                         .using(it.module("androidx.lifecycle:lifecycle-common:$androidLifecycleVersion"))
                     it.substitute(it.project(":lifecycle:lifecycle-runtime"))
                         .using(it.module("androidx.lifecycle:lifecycle-runtime:$androidLifecycleVersion"))
+                    it.substitute(it.project(":lifecycle:lifecycle-viewmodel"))
+                        .using(it.module("androidx.lifecycle:lifecycle-viewmodel:$androidLifecycleVersion"))
                 }
             }
         }

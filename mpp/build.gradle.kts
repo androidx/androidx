@@ -24,13 +24,6 @@ open class ComposePublishingTask : AbstractComposePublishingTask() {
 
 val composeProperties = ComposeProperties(project)
 
-val PublishedLifecyclePlatforms = ComposePlatforms.ALL -
-    ComposePlatforms.NO_SKIKO -
-    ComposePlatforms.UIKIT + // the target names in Lifecycle are ios, not uikit
-    ComposePlatforms.IOS +
-    ComposePlatforms.LinuxX64 +
-    ComposePlatforms.LinuxArm64
-
 val mainComponents =
     listOf(
         ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
@@ -38,17 +31,33 @@ val mainComponents =
         ComposeComponent(
             path = ":lifecycle:lifecycle-common",
             // No android target here - jvm artefact will be used for android apps as well
-            supportedPlatforms = PublishedLifecyclePlatforms - ComposePlatforms.ANDROID
+            supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.ANDROID
         ),
         ComposeComponent(
             path = ":lifecycle:lifecycle-runtime",
-            supportedPlatforms = PublishedLifecyclePlatforms
+            supportedPlatforms = ComposePlatforms.ALL_AOSP
         ),
+        ComposeComponent(
+            path = ":lifecycle:lifecycle-viewmodel",
+            supportedPlatforms = ComposePlatforms.ALL_AOSP
+        ),
+
+        ComposeComponent(
+            path = ":core:core-bundle",
+            supportedPlatforms = ComposePlatforms.ALL_AOSP,
+            neverRedirect = true
+        ),
+        ComposeComponent(":savedstate:savedstate", ComposePlatforms.ALL_AOSP),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", ComposePlatforms.ALL_AOSP),
+
+        ComposeComponent(":navigation:navigation-common", ComposePlatforms.ALL_AOSP),
+        ComposeComponent(":navigation:navigation-runtime", ComposePlatforms.ALL_AOSP),
+
         //To be added later: (also don't forget to add gradle.properties see in lifecycle-runtime for an example)
-        //ComposeComponent(
-        //    path = ":lifecycle:lifecycle-runtime-compose",
-        //    supportedPlatforms = PublishedLifecyclePlatforms
-        //),
+        ComposeComponent(":lifecycle:lifecycle-runtime-compose"),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-compose"),
+        ComposeComponent(":navigation:navigation-compose"),
+
         ComposeComponent(":compose:animation:animation"),
         ComposeComponent(":compose:animation:animation-core"),
         ComposeComponent(":compose:animation:animation-graphics"),
@@ -80,7 +89,7 @@ val mainComponents =
         ),
         ComposeComponent(
             ":compose:ui:ui-uikit",
-            supportedPlatforms = ComposePlatforms.UIKIT
+            supportedPlatforms = ComposePlatforms.UI_KIT
         ),
         ComposeComponent(":compose:ui:ui-unit"),
         ComposeComponent(":compose:ui:ui-util"),

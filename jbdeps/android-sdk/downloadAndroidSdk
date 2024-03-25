@@ -2,32 +2,23 @@
 
 cd "$(dirname "$0")"
 
-clone() {
-    mkdir -p $1
-    pushd $1
-    git init
-    git config advice.detachedHead false
-    git fetch --depth=1 $2 $3
-    git checkout FETCH_HEAD
-    popd
-}
-
-# Commit hashes and sdk versions from https://android.googlesource.com/platform/manifest/+/refs/heads/androidx-main/default.xml
+ANDROID_COMPILE_SDK=33
+ANDROID_BUILD_TOOLS=33.0.2
 
 downloadLinuxSDK() {
-    clone linux/platforms/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/platforms/android-32 master
-    clone linux/sources/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/sources/android-32 master
-    clone linux/build-tools/30.0.3 https://android.googlesource.com/platform/prebuilts/fullsdk-linux/build-tools/30.0.3 master
-    clone linux/platform-tools https://android.googlesource.com/platform/prebuilts/fullsdk-linux/platform-tools master
-    clone linux/tools https://android.googlesource.com/platform/prebuilts/fullsdk-linux/tools master
+    curl -o commandlinetools-linux.zip https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip
+    unzip -o -d linux commandlinetools-linux.zip
+    rm linux commandlinetools-linux.zip
+    echo y | "linux/cmdline-tools/bin/sdkmanager" --sdk_root=linux "platform-tools" "platforms;android-$ANDROID_COMPILE_SDK" "build-tools;$ANDROID_BUILD_TOOLS"
+    echo y | "linux/cmdline-tools/bin/sdkmanager" --sdk_root=linux --licenses
 }
 
 downloadMacOsSDK() {
-    clone darwin/platforms/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/platforms/android-32 master
-    clone darwin/sources/android-32 https://android.googlesource.com/platform/prebuilts/fullsdk/sources/android-32 master
-    clone darwin/build-tools/30.0.3 https://android.googlesource.com/platform/prebuilts/fullsdk-darwin/build-tools/30.0.3 master
-    clone darwin/platform-tools https://android.googlesource.com/platform/prebuilts/fullsdk-darwin/platform-tools master
-    clone darwin/tools https://android.googlesource.com/platform/prebuilts/fullsdk-darwin/tools master
+    curl -o commandlinetools-mac.zip https://dl.google.com/android/repository/commandlinetools-mac-9123335_latest.zip
+    unzip -o -d darwin commandlinetools-mac.zip
+    rm commandlinetools-mac.zip
+    echo y | "darwin/cmdline-tools/bin/sdkmanager" --sdk_root=darwin "platform-tools" "platforms;android-$ANDROID_COMPILE_SDK" "build-tools;$ANDROID_BUILD_TOOLS"
+    echo y | "darwin/cmdline-tools/bin/sdkmanager" --sdk_root=darwin --licenses
 }
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then

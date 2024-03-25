@@ -42,7 +42,6 @@ kotlin {
         browser()
     }
     wasmJs()
-    linuxArm64()
 
     explicitApi = ExplicitApiMode.Strict
 
@@ -52,6 +51,8 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(project(":lifecycle:lifecycle-common"))
                 api(project(":annotation:annotation"))
+
+                implementation(libs.kotlinCoroutinesCore)
             }
         }
 

@@ -45,7 +45,6 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
             project.rootProject.projectDir.resolve("gradle/libs.versions.toml").toPath()
         )
         skikoVersion = toml.getTable("versions")!!.getString("skiko")!!
-        println("Skiko version = $skikoVersion")
     }
 
     override fun android(): Unit = multiplatformExtension.run {
