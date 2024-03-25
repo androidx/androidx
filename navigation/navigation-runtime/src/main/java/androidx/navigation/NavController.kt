@@ -578,7 +578,7 @@ public open class NavController(
     ): Boolean {
         // route contains arguments so we need to generate and pop with the populated route
         // rather than popping based on route pattern
-        val finalRoute = generateRouteFromBackStack(route) ?: return false
+        val finalRoute = generateRouteFilled(route, fromBackStack = true) ?: return false
         return popBackStack(finalRoute, inclusive, saveState)
     }
 
@@ -894,13 +894,9 @@ public open class NavController(
     @MainThread
     @ExperimentalSafeArgsApi
     public fun <T : Any> clearBackStack(route: T): Boolean {
-        val dest = findDestination(route::class.serializer().hashCode()) ?: return false
         // route contains arguments so we need to generate and clear with the populated route
         // rather than clearing based on route pattern
-        val finalRoute = route.generateRouteWithArgs(
-            // get argument typeMap
-            dest.arguments.mapValues { it.value.type }
-        )
+        val finalRoute = generateRouteFilled(route) ?: return false
         val cleared = clearBackStackInternal(finalRoute)
         // Only return true if the clear succeeded and we've dispatched
         // the change to a new destination
@@ -1658,16 +1654,24 @@ public open class NavController(
         return currentGraph.findNode(route)
     }
 
-    // finds destination from backstack and generates a route filled with args
-    // based on the input serializable object
+    // Finds destination and generates a route filled with args based on the serializable object.
+    // `fromBackStack` is for efficiency - if left false, the worst case scenario is searching
+    // from entire graph when we only care about backstack.
     @OptIn(InternalSerializationApi::class)
-    private fun <T : Any> generateRouteFromBackStack(route: T): String? {
-        val entry = backQueue.lastOrNull {
-            it.destination.id == route::class.serializer().hashCode()
-        } ?: return null
+    private fun <T : Any> generateRouteFilled(route: T, fromBackStack: Boolean = false): String? {
+        val destination = if (fromBackStack) {
+            // limit search within backstack
+            backQueue.lastOrNull {
+                it.destination.id == route::class.serializer().hashCode()
+            }?.destination
+        } else {
+            // search from within root graph
+            findDestination(route::class.serializer().hashCode())
+        }
+        if (destination == null) return null
         return route.generateRouteWithArgs(
             // get argument typeMap
-            entry.destination.arguments.mapValues { it.value.type }
+            destination.arguments.mapValues { it.value.type }
         )
     }
 
@@ -2354,6 +2358,56 @@ public open class NavController(
     }
 
     /**
+     * Navigate to a route from an Object in the current NavGraph. If an invalid route is given, an
+     * [IllegalArgumentException] will be thrown.
+     *
+     * The target NavDestination must have been created with route from a [KClass]
+     *
+     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
+     * of the route will be overridden by the restored args.
+     *
+     * @param route route from an Object for the destination
+     * @param builder DSL for constructing a new [NavOptions]
+     *
+     * @throws IllegalArgumentException if the given route is invalid
+     */
+    @MainThread
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> navigate(route: T, builder: NavOptionsBuilder.() -> Unit) {
+        navigate(route, navOptions(builder))
+    }
+
+    /**
+     * Navigate to a route from an Object in the current NavGraph. If an invalid route is given, an
+     * [IllegalArgumentException] will be thrown.
+     *
+     * The target NavDestination must have been created with route from a [KClass]
+     *
+     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
+     * of the route will be overridden by the restored args.
+     *
+     * @param route route from an Object for the destination
+     * @param navOptions special options for this navigation operation
+     * @param navigatorExtras extras to pass to the [Navigator]
+     *
+     * @throws IllegalArgumentException if the given route is invalid
+     */
+    @MainThread
+    @JvmOverloads
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> navigate(
+        route: T,
+        navOptions: NavOptions? = null,
+        navigatorExtras: Navigator.Extras? = null
+    ) {
+        val finalRoute = generateRouteFilled(route)
+        navigate(
+            NavDeepLinkRequest.Builder.fromUri(createRoute(finalRoute).toUri()).build(), navOptions,
+            navigatorExtras
+        )
+    }
+
+    /**
      * Create a deep link to a destination within this NavController.
      *
      * @return a [NavDeepLinkBuilder] suitable for constructing a deep link
@@ -2627,7 +2681,7 @@ public open class NavController(
     public fun <T : Any> getBackStackEntry(route: T): NavBackStackEntry {
         // route contains arguments so we need to generate the populated route
         // rather than getting entry based on route pattern
-        val finalRoute = generateRouteFromBackStack(route)
+        val finalRoute = generateRouteFilled(route, fromBackStack = true)
         requireNotNull(finalRoute) {
             "No destination with route $finalRoute is on the NavController's back stack. The " +
                 "current destination is $currentDestination"

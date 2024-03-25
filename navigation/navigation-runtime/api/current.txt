@@ -128,6 +128,10 @@ package androidx.navigation {
     method @MainThread public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions);
     method @MainThread public final void navigate(String route, optional androidx.navigation.NavOptions? navOptions, optional androidx.navigation.Navigator.Extras? navigatorExtras);
     method @MainThread public final void navigate(String route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
+    method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public final <T> void navigate(T route);
+    method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public final <T> void navigate(T route, optional androidx.navigation.NavOptions? navOptions);
+    method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public final <T> void navigate(T route, optional androidx.navigation.NavOptions? navOptions, optional androidx.navigation.Navigator.Extras? navigatorExtras);
+    method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public final <T> void navigate(T route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
     method @MainThread public boolean navigateUp();
     method @MainThread public boolean popBackStack();
     method @SuppressCompatibility @MainThread @androidx.navigation.ExperimentalSafeArgsApi public inline <reified T> boolean popBackStack(boolean inclusive, optional boolean saveState);
