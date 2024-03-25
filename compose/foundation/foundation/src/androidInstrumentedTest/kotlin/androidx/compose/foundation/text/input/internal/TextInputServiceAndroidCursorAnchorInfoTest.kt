@@ -94,6 +94,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
         override fun sendKeyEvent(event: KeyEvent) {}
         override fun startStylusHandwriting() {}
+        override fun prepareStylusHandwritingDelegation() {}
+        override fun acceptStylusHandwritingDelegation() {}
     }
 
     private lateinit var inputConnection: InputConnection
