@@ -83,11 +83,11 @@ abstract class MetricCapture(
 /**
  * Time metric, which reports time in nanos, based on the time passed to [captureStop].
  *
- * Reports "timeNs"
+ * Reports elapsed time with the label from `name`, which defaults to `timeNs`.
  */
 @ExperimentalBenchmarkConfigApi
-public class TimeCapture : MetricCapture(
-    names = listOf("timeNs")
+public class TimeCapture @JvmOverloads constructor(name: String = "timeNs") : MetricCapture(
+    names = listOf(name)
 ) {
     private var currentStarted = 0L
     private var currentPausedStarted = 0L
