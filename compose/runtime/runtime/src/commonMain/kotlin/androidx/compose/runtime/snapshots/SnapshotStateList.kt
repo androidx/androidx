@@ -33,7 +33,15 @@ import androidx.compose.runtime.synchronized
 @Stable
 class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
     override var firstStateRecord: StateRecord =
-        StateListStateRecord<T>(persistentListOf())
+        persistentListOf<T>().let { list ->
+            StateListStateRecord(list).also {
+                if (Snapshot.isInSnapshot) {
+                    it.next = StateListStateRecord(list).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
+                }
+            }
+        }
         private set
 
     override fun prependStateRecord(value: StateRecord) {
@@ -213,7 +221,7 @@ class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
                     oldList = current.list
                 }
                 val newList = block(oldList!!)
-                if (newList == oldList) {
+                if (newList === oldList) {
                     result = false
                     break
                 }
