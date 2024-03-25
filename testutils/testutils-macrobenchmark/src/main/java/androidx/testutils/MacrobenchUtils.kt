@@ -72,7 +72,7 @@ fun getStartupMetrics() =
         StartupTimingMetric(),
         TraceSectionMetric(
             "StartupTracingInitializer",
-            mode = TraceSectionMetric.Mode.First
+            TraceSectionMetric.Mode.First
         ),
         MemoryUsageMetric(MemoryUsageMetric.Mode.Last)
     )
