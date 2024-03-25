@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSafeArgsApi::class)
+
 package androidx.navigation
 
 import android.content.Context
@@ -1845,6 +1847,124 @@ class NavControllerRouteTest {
         // popped without saving state
         navController.popBackStack("second_test/13/18", true, false)
         val cleared = navController.clearBackStack("second_test/13/18")
+        assertThat(cleared).isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithKClass() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+
+        navController.navigate(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        val popped = navController.popBackStack<TestClass>(true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack<TestClass>()
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithKClassPoppedWithObject() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+
+        navController.navigate(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        val popped = navController.popBackStack(TestClass(), true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack<TestClass>()
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithKClassArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+
+        navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        val popped = navController.popBackStack<TestClassPathArg>(true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack<TestClassPathArg>()
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithObject() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+
+        navController.navigate(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        val popped = navController.popBackStack(TestClass(), true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack(TestClass())
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithObjectPoppedWithKClass() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class)
+        }
+
+        navController.navigate(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        val popped = navController.popBackStack<TestClass>(true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack(TestClass())
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithObjectIncorrectArg() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClassPathArg::class)
+        }
+
+        // second nav
+        navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        val popped = navController.popBackStack(
+            TestClassPathArg(0), true, true
+        )
+        assertThat(popped).isTrue()
+
+        // pass in different arg value
+        val cleared = navController.clearBackStack(TestClassPathArg(1))
         assertThat(cleared).isFalse()
     }
 

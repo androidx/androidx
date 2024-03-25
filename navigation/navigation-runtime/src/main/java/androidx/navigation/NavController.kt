@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:SuppressLint("NullAnnotationGroup")
+
 package androidx.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -529,13 +533,13 @@ public open class NavController(
     /**
      * Attempts to pop the controller's back stack back to a specific destination.
      *
-     * @param route The topmost destination to retain with route from a [KClass]. The
+     * @param T The topmost destination to retain with route from a [KClass]. The
      * target NavDestination must have been created with route from [KClass].
      * @param inclusive Whether the given destination should also be popped.
      * @param saveState Whether the back stack and the state of all destinations between the
-     * current destination and the [route] should be saved for later
+     * current destination and [T] should be saved for later
      * restoration via [NavOptions.Builder.setRestoreState] or the `restoreState` attribute using
-     * the same [route] (note: this matching ID is true whether
+     * the same [T] (note: this matching ID is true whether
      * [inclusive] is true or false).
      *
      * @return true if the stack was popped at least once and the user has been navigated to
@@ -543,7 +547,8 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    internal inline fun <reified T> popBackStack(
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean = popBackStack(serializer<T>().hashCode(), inclusive, saveState)
@@ -566,7 +571,8 @@ public open class NavController(
     @OptIn(InternalSerializationApi::class)
     @MainThread
     @JvmOverloads
-    internal fun <T : Any> popBackStack(
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
         saveState: Boolean = false
@@ -862,6 +868,48 @@ public open class NavController(
     @MainThread
     public fun clearBackStack(@IdRes destinationId: Int): Boolean {
         val cleared = clearBackStackInternal(destinationId)
+        // Only return true if the clear succeeded and we've dispatched
+        // the change to a new destination
+        return cleared && dispatchOnDestinationChanged()
+    }
+
+    /**
+     * Clears any saved state associated with KClass [T] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param T The route from the [KClass] of the destination previously used with [popBackStack]
+     * with a `saveState`value of `true`. The target NavDestination must have been created
+     * with route from [KClass].
+     *
+     * @return true if the saved state of the stack associated with [T] was cleared.
+     */
+    @MainThread
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T> clearBackStack(): Boolean =
+        clearBackStack(serializer<T>().hashCode())
+
+    /**
+     * Clears any saved state associated with KClass [T] that was previously saved
+     * via [popBackStack] when using a `saveState` value of `true`.
+     *
+     * @param route The route from an Object of the destination previously used with
+     * [popBackStack] with a `saveState`value of `true`. The target NavDestination must
+     * have been created with route from [KClass].
+     *
+     * @return true if the saved state of the stack associated with [T] was cleared.
+     */
+    @OptIn(InternalSerializationApi::class)
+    @MainThread
+    @ExperimentalSafeArgsApi
+    public fun <T : Any> clearBackStack(route: T): Boolean {
+        val dest = findDestination(route::class.serializer().hashCode()) ?: return false
+        // route contains arguments so we need to generate and clear with the populated route
+        // rather than clearing based on route pattern
+        val finalRoute = route.generateRouteWithArgs(
+            // get argument typeMap
+            dest.arguments.mapValues { it.value.type }
+        )
+        val cleared = clearBackStackInternal(finalRoute)
         // Only return true if the clear succeeded and we've dispatched
         // the change to a new destination
         return cleared && dispatchOnDestinationChanged()
@@ -2676,10 +2724,11 @@ public inline fun NavController.createGraph(
  * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-internal inline fun NavController.createGraph(
+@ExperimentalSafeArgsApi
+public inline fun NavController.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
 
@@ -2693,9 +2742,10 @@ internal inline fun NavController.createGraph(
  * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-internal inline fun NavController.createGraph(
+@ExperimentalSafeArgsApi
+public inline fun NavController.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
-    typeMap: Map<KType, NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
