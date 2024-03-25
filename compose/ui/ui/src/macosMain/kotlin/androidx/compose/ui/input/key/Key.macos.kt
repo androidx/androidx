@@ -17,7 +17,6 @@
 package androidx.compose.ui.input.key
 
 import androidx.compose.ui.input.key.Key.Companion.Number
-import org.jetbrains.skiko.*
 
 /**
  * Actual implementation of [Key] for JS and Native.
@@ -28,288 +27,288 @@ import org.jetbrains.skiko.*
 actual value class Key(val keyCode: Long) {
     actual companion object {
         /** Unknown key. */
-        actual val Unknown: Key = skikoKeyToKey(SkikoKey.KEY_UNKNOWN)
+        actual val Unknown = Key(-1)
 
         /**
          * Home key.
          *
          * This key is handled by the framework and is never delivered to applications.
          */
-        actual val Home: Key = skikoKeyToKey(SkikoKey.KEY_HOME)
+        actual val Home = Key(115)
 
         /**
          * Up Arrow Key / Directional Pad Up key.
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionUp: Key = skikoKeyToKey(SkikoKey.KEY_UP)
+        actual val DirectionUp = Key(126)
 
         /**
          * Down Arrow Key / Directional Pad Down key.
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionDown: Key = skikoKeyToKey(SkikoKey.KEY_DOWN)
+        actual val DirectionDown = Key(125)
 
         /**
          * Left Arrow Key / Directional Pad Left key.
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionLeft: Key = skikoKeyToKey(SkikoKey.KEY_LEFT)
+        actual val DirectionLeft = Key(123)
 
         /**
          * Right Arrow Key / Directional Pad Right key.
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionRight: Key = skikoKeyToKey(SkikoKey.KEY_RIGHT)
+        actual val DirectionRight = Key(124)
 
         /** '0' key. */
-        actual val Zero: Key = skikoKeyToKey(SkikoKey.KEY_0)
+        actual val Zero = Key(29)
 
         /** '1' key. */
-        actual val One: Key = skikoKeyToKey(SkikoKey.KEY_1)
+        actual val One = Key(18)
 
         /** '2' key. */
-        actual val Two: Key = skikoKeyToKey(SkikoKey.KEY_2)
+        actual val Two = Key(19)
 
         /** '3' key. */
-        actual val Three: Key = skikoKeyToKey(SkikoKey.KEY_3)
+        actual val Three = Key(20)
 
         /** '4' key. */
-        actual val Four: Key = skikoKeyToKey(SkikoKey.KEY_4)
+        actual val Four = Key(21)
 
         /** '5' key. */
-        actual val Five: Key = skikoKeyToKey(SkikoKey.KEY_5)
+        actual val Five = Key(23)
 
         /** '6' key. */
-        actual val Six: Key = skikoKeyToKey(SkikoKey.KEY_6)
+        actual val Six = Key(22)
 
         /** '7' key. */
-        actual val Seven: Key = skikoKeyToKey(SkikoKey.KEY_7)
+        actual val Seven = Key(26)
 
         /** '8' key. */
-        actual val Eight: Key = skikoKeyToKey(SkikoKey.KEY_8)
+        actual val Eight = Key(28)
 
         /** '9' key. */
-        actual val Nine: Key = skikoKeyToKey(SkikoKey.KEY_9)
+        actual val Nine = Key(25)
 
         /** '-' key. */
-        actual val Minus: Key = skikoKeyToKey(SkikoKey.KEY_MINUS)
+        actual val Minus = Key(27)
 
         /** '=' key. */
-        actual val Equals: Key = skikoKeyToKey(SkikoKey.KEY_EQUALS)
+        actual val Equals = Key(24)
 
         /** 'A' key. */
-        actual val A: Key = skikoKeyToKey(SkikoKey.KEY_A)
+        actual val A = Key(0)
 
         /** 'B' key. */
-        actual val B: Key = skikoKeyToKey(SkikoKey.KEY_B)
+        actual val B = Key(11)
 
         /** 'C' key. */
-        actual val C: Key = skikoKeyToKey(SkikoKey.KEY_C)
+        actual val C = Key(8)
 
         /** 'D' key. */
-        actual val D: Key = skikoKeyToKey(SkikoKey.KEY_D)
+        actual val D = Key(2)
 
         /** 'E' key. */
-        actual val E: Key = skikoKeyToKey(SkikoKey.KEY_E)
+        actual val E = Key(14)
 
         /** 'F' key. */
-        actual val F: Key = skikoKeyToKey(SkikoKey.KEY_F)
+        actual val F = Key(3)
 
         /** 'G' key. */
-        actual val G: Key = skikoKeyToKey(SkikoKey.KEY_G)
+        actual val G = Key(5)
 
         /** 'H' key. */
-        actual val H: Key = skikoKeyToKey(SkikoKey.KEY_H)
+        actual val H = Key(4)
 
         /** 'I' key. */
-        actual val I: Key = skikoKeyToKey(SkikoKey.KEY_I)
+        actual val I = Key(34)
 
         /** 'J' key. */
-        actual val J: Key = skikoKeyToKey(SkikoKey.KEY_J)
+        actual val J = Key(38)
 
         /** 'K' key. */
-        actual val K: Key = skikoKeyToKey(SkikoKey.KEY_K)
+        actual val K = Key(40)
 
         /** 'L' key. */
-        actual val L: Key = skikoKeyToKey(SkikoKey.KEY_L)
+        actual val L = Key(37)
 
         /** 'M' key. */
-        actual val M: Key = skikoKeyToKey(SkikoKey.KEY_M)
+        actual val M = Key(46)
 
         /** 'N' key. */
-        actual val N: Key = skikoKeyToKey(SkikoKey.KEY_N)
+        actual val N = Key(45)
 
         /** 'O' key. */
-        actual val O: Key = skikoKeyToKey(SkikoKey.KEY_O)
+        actual val O = Key(31)
 
         /** 'P' key. */
-        actual val P: Key = skikoKeyToKey(SkikoKey.KEY_P)
+        actual val P = Key(35)
 
         /** 'Q' key. */
-        actual val Q: Key = skikoKeyToKey(SkikoKey.KEY_Q)
+        actual val Q = Key(12)
 
         /** 'R' key. */
-        actual val R: Key = skikoKeyToKey(SkikoKey.KEY_R)
+        actual val R = Key(15)
 
         /** 'S' key. */
-        actual val S: Key = skikoKeyToKey(SkikoKey.KEY_S)
+        actual val S = Key(1)
 
         /** 'T' key. */
-        actual val T: Key = skikoKeyToKey(SkikoKey.KEY_T)
+        actual val T = Key(17)
 
         /** 'U' key. */
-        actual val U: Key = skikoKeyToKey(SkikoKey.KEY_U)
+        actual val U = Key(32)
 
         /** 'V' key. */
-        actual val V: Key = skikoKeyToKey(SkikoKey.KEY_V)
+        actual val V = Key(9)
 
         /** 'W' key. */
-        actual val W: Key = skikoKeyToKey(SkikoKey.KEY_W)
+        actual val W = Key(13)
 
         /** 'X' key. */
-        actual val X: Key = skikoKeyToKey(SkikoKey.KEY_X)
+        actual val X = Key(7)
 
         /** 'Y' key. */
-        actual val Y: Key = skikoKeyToKey(SkikoKey.KEY_Y)
+        actual val Y = Key(16)
 
         /** 'Z' key. */
-        actual val Z: Key = skikoKeyToKey(SkikoKey.KEY_Z)
+        actual val Z = Key(6)
 
         /** ',' key. */
-        actual val Comma: Key = skikoKeyToKey(SkikoKey.KEY_COMMA)
+        actual val Comma = Key(43)
 
         /** '.' key. */
-        actual val Period: Key = skikoKeyToKey(SkikoKey.KEY_PERIOD)
+        actual val Period = Key(47)
 
         /** Left Alt modifier key. */
-        actual val AltLeft: Key = skikoKeyToKey(SkikoKey.KEY_LEFT_ALT)
+        actual val AltLeft = Key(58)
 
         /** Right Alt modifier key. */
-        actual val AltRight: Key = skikoKeyToKey(SkikoKey.KEY_RIGHT_ALT)
+        actual val AltRight = Key(61)
 
         /** Left Shift modifier key. */
-        actual val ShiftLeft: Key = skikoKeyToKey(SkikoKey.KEY_LEFT_SHIFT)
+        actual val ShiftLeft = Key(56)
 
         /** Right Shift modifier key. */
-        actual val ShiftRight: Key = skikoKeyToKey(SkikoKey.KEY_RIGHT_SHIFT)
+        actual val ShiftRight = Key(60)
 
         /** Tab key. */
-        actual val Tab: Key = skikoKeyToKey(SkikoKey.KEY_TAB)
+        actual val Tab = Key(48)
 
         /** Space key. */
-        actual val Spacebar: Key = skikoKeyToKey(SkikoKey.KEY_SPACE)
+        actual val Spacebar = Key(49)
 
         /** Enter key. */
-        actual val Enter: Key = skikoKeyToKey(SkikoKey.KEY_ENTER)
+        actual val Enter = Key(36)
 
         /**
          * Backspace key.
          *
          * Deletes characters before the insertion point, unlike [Delete].
          */
-        actual val Backspace: Key = skikoKeyToKey(SkikoKey.KEY_BACKSPACE) // Key(KeyEvent.VK_BACK_SPACE)
+        actual val Backspace = Key(51)
 
         /**
          * Delete key.
          *
          * Deletes characters ahead of the insertion point, unlike [Backspace].
          */
-        actual val Delete: Key = skikoKeyToKey(SkikoKey.KEY_DELETE)
+        actual val Delete = Key(117)
 
         /** Escape key. */
-        actual val Escape: Key = skikoKeyToKey(SkikoKey.KEY_ESCAPE)
+        actual val Escape = Key(53)
 
         /** Left Control modifier key. */
-        actual val CtrlLeft: Key = skikoKeyToKey(SkikoKey.KEY_LEFT_CONTROL)
+        actual val CtrlLeft = Key(59)
 
         /** Right Control modifier key. */
-        actual val CtrlRight: Key = skikoKeyToKey(SkikoKey.KEY_RIGHT_CONTROL)
+        actual val CtrlRight = Key(62)
 
         /** Caps Lock key. */
-        actual val CapsLock: Key = skikoKeyToKey(SkikoKey.KEY_CAPSLOCK)
+        actual val CapsLock = Key(57)
 
         /** Scroll Lock key. */
-        actual val ScrollLock: Key = skikoKeyToKey(SkikoKey.KEY_SCROLL_LOCK)
+        actual val ScrollLock = Key(107)
 
         /** Left Meta modifier key. */
-        actual val MetaLeft: Key = skikoKeyToKey(SkikoKey.KEY_LEFT_META)
+        actual val MetaLeft = Key(55)
 
         /** Right Meta modifier key. */
-        actual val MetaRight: Key = skikoKeyToKey(SkikoKey.KEY_RIGHT_META)
+        actual val MetaRight = Key(54)
 
         /** System Request / Print Screen key. */
-        actual val PrintScreen: Key = skikoKeyToKey(SkikoKey.KEY_PRINTSCEEN)
+        actual val PrintScreen = Key(105)
 
         /**
          * Insert key.
          *
          * Toggles insert / overwrite edit mode.
          */
-        actual val Insert: Key = skikoKeyToKey(SkikoKey.KEY_INSERT)
+        actual val Insert = Key(114)
 
         /** '`' (backtick) key. */
-        actual val Grave: Key = skikoKeyToKey(SkikoKey.KEY_BACK_QUOTE)
+        actual val Grave = Key(50)
 
         /** '[' key. */
-        actual val LeftBracket: Key = skikoKeyToKey(SkikoKey.KEY_OPEN_BRACKET)
+        actual val LeftBracket = Key(33)
 
         /** ']' key. */
-        actual val RightBracket: Key = skikoKeyToKey(SkikoKey.KEY_CLOSE_BRACKET)
+        actual val RightBracket = Key(30)
 
         /** '/' key. */
-        actual val Slash: Key = skikoKeyToKey(SkikoKey.KEY_SLASH)
+        actual val Slash = Key(42)
 
         /** '\' key. */
-        actual val Backslash: Key = skikoKeyToKey(SkikoKey.KEY_BACKSLASH)
+        actual val Backslash = Key(44)
 
         /** ';' key. */
-        actual val Semicolon: Key = skikoKeyToKey(SkikoKey.KEY_SEMICOLON)
+        actual val Semicolon = Key(41)
 
         /** Page Up key. */
-        actual val PageUp: Key = skikoKeyToKey(SkikoKey.KEY_PGUP)
+        actual val PageUp = Key(116)
 
         /** Page Down key. */
-        actual val PageDown: Key = skikoKeyToKey(SkikoKey.KEY_PGDOWN)
+        actual val PageDown = Key(121)
 
         /** F1 key. */
-        actual val F1: Key = skikoKeyToKey(SkikoKey.KEY_F1)
+        actual val F1 = Key(122)
 
         /** F2 key. */
-        actual val F2: Key = skikoKeyToKey(SkikoKey.KEY_F2)
+        actual val F2 = Key(120)
 
         /** F3 key. */
-        actual val F3: Key = skikoKeyToKey(SkikoKey.KEY_F3)
+        actual val F3 = Key(99)
 
         /** F4 key. */
-        actual val F4: Key = skikoKeyToKey(SkikoKey.KEY_F4)
+        actual val F4 = Key(118)
 
         /** F5 key. */
-        actual val F5: Key = skikoKeyToKey(SkikoKey.KEY_F5)
+        actual val F5 = Key(96)
 
         /** F6 key. */
-        actual val F6: Key = skikoKeyToKey(SkikoKey.KEY_F6)
+        actual val F6 = Key(97)
 
         /** F7 key. */
-        actual val F7: Key = skikoKeyToKey(SkikoKey.KEY_F7)
+        actual val F7 = Key(98)
 
         /** F8 key. */
-        actual val F8: Key = skikoKeyToKey(SkikoKey.KEY_F8)
+        actual val F8 = Key(100)
 
         /** F9 key. */
-        actual val F9: Key = skikoKeyToKey(SkikoKey.KEY_F9)
+        actual val F9 = Key(101)
 
         /** F10 key. */
-        actual val F10: Key = skikoKeyToKey(SkikoKey.KEY_F10)
+        actual val F10 = Key(109)
 
         /** F11 key. */
-        actual val F11: Key = skikoKeyToKey(SkikoKey.KEY_F11)
+        actual val F11 = Key(103)
 
         /** F12 key. */
-        actual val F12: Key = skikoKeyToKey(SkikoKey.KEY_F12)
+        actual val F12 = Key(111)
 
         /**
          * Num Lock key.
@@ -317,56 +316,56 @@ actual value class Key(val keyCode: Long) {
          * This is the Num Lock key; it is different from [Number].
          * This key alters the behavior of other keys on the numeric keypad.
          */
-        actual val NumLock: Key = skikoKeyToKey(SkikoKey.KEY_NUM_LOCK)
+        actual val NumLock = Key(71)
 
         /** Numeric keypad '0' key. */
-        actual val NumPad0: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_0)
+        actual val NumPad0 = Key(82)
 
         /** Numeric keypad '1' key. */
-        actual val NumPad1: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_1)
+        actual val NumPad1 = Key(83)
 
         /** Numeric keypad '2' key. */
-        actual val NumPad2: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_2)
+        actual val NumPad2 = Key(84)
 
         /** Numeric keypad '3' key. */
-        actual val NumPad3: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_3)
+        actual val NumPad3 = Key(85)
 
         /** Numeric keypad '4' key. */
-        actual val NumPad4: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_4)
+        actual val NumPad4 = Key(86)
 
         /** Numeric keypad '5' key. */
-        actual val NumPad5: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_5)
+        actual val NumPad5 = Key(87)
 
         /** Numeric keypad '6' key. */
-        actual val NumPad6: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_6)
+        actual val NumPad6 = Key(88)
 
         /** Numeric keypad '7' key. */
-        actual val NumPad7: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_7)
+        actual val NumPad7 = Key(89)
 
         /** Numeric keypad '8' key. */
-        actual val NumPad8: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_8)
+        actual val NumPad8 = Key(91)
 
         /** Numeric keypad '9' key. */
-        actual val NumPad9: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_9)
+        actual val NumPad9 = Key(92)
 
         /** Numeric keypad '/' key (for division). */
-        actual val NumPadDivide: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_DIVIDE)
+        actual val NumPadDivide = Key(75)
 
         /** Numeric keypad '*' key (for multiplication). */
-        actual val NumPadMultiply: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_MULTIPLY)
+        actual val NumPadMultiply = Key(67)
 
         /** Numeric keypad '-' key (for subtraction). */
-        actual val NumPadSubtract: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_SUBTRACT)
+        actual val NumPadSubtract = Key(78)
 
         /** Numeric keypad '+' key (for addition). */
-        actual val NumPadAdd: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_ADD)
+        actual val NumPadAdd = Key(69)
 
         /** Numeric keypad Enter key. */
-        actual val NumPadEnter: Key = skikoKeyToKey(SkikoKey.KEY_NUMPAD_ENTER)
+        actual val NumPadEnter = Key(76)
 
-        actual val MoveHome: Key = skikoKeyToKey(SkikoKey.KEY_HOME)
+        actual val MoveHome = Key(115)
 
-        actual val MoveEnd: Key = skikoKeyToKey(SkikoKey.KEY_END)
+        actual val MoveEnd = Key(119)
 
         // Unsupported Keys
         actual val SoftLeft = Key(-1000000001)
@@ -540,24 +539,21 @@ actual value class Key(val keyCode: Long) {
         actual val ThumbsUp = Key(-1000000181)
         actual val ThumbsDown = Key(-1000000182)
         actual val ProfileSwitch = Key(-1000000183)
-        actual val Help: Key = Key(-1000000184)
-        actual val Plus: Key = Key(-1000000185)
-        actual val Multiply: Key = Key(-1000000186)
-        actual val Pound: Key = Key(-1000000187)
-        actual val Cut: Key = Key(-1000000188)
-        actual val Copy: Key = Key(-1000000189)
-        actual val Paste: Key = Key(-1000000190)
-        actual val Apostrophe: Key = Key(-1000000191)
-        actual val At: Key = Key(-10000001902)
-        actual val NumPadDot: Key = Key(-1000000193)
-        actual val NumPadComma: Key = Key(-1000000194)
-        actual val NumPadEquals: Key = Key(-1000000195)
-        actual val NumPadLeftParenthesis: Key = Key(-1000000196)
-        actual val NumPadRightParenthesis: Key = Key(-1000000197)
+        actual val Help = Key(-1000000184)
+        actual val Plus = Key(-1000000185)
+        actual val Multiply = Key(-1000000186)
+        actual val Pound = Key(-1000000187)
+        actual val Cut = Key(-1000000188)
+        actual val Copy = Key(-1000000189)
+        actual val Paste = Key(-1000000190)
+        actual val Apostrophe = Key(-1000000191)
+        actual val At = Key(-10000001902)
+        actual val NumPadDot = Key(-1000000193)
+        actual val NumPadComma = Key(-1000000194)
+        actual val NumPadEquals = Key(-1000000195)
+        actual val NumPadLeftParenthesis = Key(-1000000196)
+        actual val NumPadRightParenthesis = Key(-1000000197)
     }
 
     actual override fun toString() = "Key keyCode: $keyCode"
 }
-
-fun skikoKeyToKey(skikoKey: SkikoKey) = Key(skikoKey.platformKeyCode.toLong())
-

@@ -24,7 +24,7 @@ actual typealias NativeKeyEvent = SkikoKeyboardEvent
  * The key that was pressed.
  */
 actual val KeyEvent.key: Key
-    get() = skikoKeyToKey(nativeKeyEvent.key)
+    get() = Key(nativeKeyEvent.key.platformKeyCode.toLong())
 
 /**
  * The [type][KeyEventType] of key event.
