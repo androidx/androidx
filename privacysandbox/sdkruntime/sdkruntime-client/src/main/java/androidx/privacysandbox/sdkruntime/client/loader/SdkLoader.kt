@@ -51,24 +51,30 @@ internal class SdkLoader internal constructor(
      *  4. Select [LocalSdkProvider] implementation that could work with that api version.
      *
      * @param sdkConfig sdk to load
+     * @param overrideVersionHandshake (optional) override internal api level handshake
      * @return LocalSdk implementation for loaded SDK
      */
-    fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdkProvider {
+    fun loadSdk(
+        sdkConfig: LocalSdkConfig,
+        overrideVersionHandshake: VersionHandshake? = null
+    ): LocalSdkProvider {
         val classLoader = classLoaderFactory.createClassLoaderFor(
             sdkConfig,
             getParentClassLoader()
         )
-        return createLocalSdk(classLoader, sdkConfig)
+        val versionHandshake = overrideVersionHandshake ?: VersionHandshake.DEFAULT
+        return createLocalSdk(classLoader, sdkConfig, versionHandshake)
     }
 
     private fun getParentClassLoader(): ClassLoader = appContext.classLoader.parent!!
 
     private fun createLocalSdk(
         sdkClassLoader: ClassLoader,
-        sdkConfig: LocalSdkConfig
+        sdkConfig: LocalSdkConfig,
+        versionHandshake: VersionHandshake
     ): LocalSdkProvider {
         try {
-            val sdkApiVersion = VersionHandshake.perform(sdkClassLoader)
+            val sdkApiVersion = versionHandshake.perform(sdkClassLoader)
             ResourceRemapping.apply(sdkClassLoader, sdkConfig.resourceRemapping)
             if (ClientFeature.SDK_SANDBOX_CONTROLLER.isAvailable(sdkApiVersion)) {
                 val controller = controllerFactory.createControllerFor(sdkConfig)
