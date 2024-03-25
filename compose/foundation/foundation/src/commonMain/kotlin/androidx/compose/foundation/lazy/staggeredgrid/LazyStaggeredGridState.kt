@@ -324,9 +324,22 @@ class LazyStaggeredGridState private constructor(
     }
 
     internal fun ScrollScope.snapToItemInternal(index: Int, scrollOffset: Int) {
+        val positionChanged = scrollPosition.index != index ||
+            scrollPosition.scrollOffset != scrollOffset
+        // sometimes this method is called not to scroll, but to stay on the same index when
+        // the data changes, as by default we maintain the scroll position by key, not index.
+        // when this happens we don't need to reset the animations as from the user perspective
+        // we didn't scroll anywhere and if there is an offset change for an item, this change
+        // should be animated.
+        // however, when the request is to really scroll to a different position, we have to
+        // reset previously known item positions as we don't want offset changes to be animated.
+        // this offset should be considered as a scroll, not the placement change.
+        if (positionChanged) {
+            placementAnimator.reset()
+        }
         val layoutInfo = layoutInfo
         val visibleItem = layoutInfo.findVisibleItem(index)
-        if (visibleItem != null) {
+        if (visibleItem != null && positionChanged) {
             val currentOffset = if (layoutInfo.orientation == Orientation.Vertical) {
                 visibleItem.offset.y
             } else {
@@ -335,9 +348,9 @@ class LazyStaggeredGridState private constructor(
             val delta = currentOffset + scrollOffset
             scrollBy(delta.toFloat())
         } else {
-            scrollPosition.requestPosition(index, scrollOffset)
-            remeasurement?.forceRemeasure()
+            scrollPosition.requestPositionAndForgetLastKnownKey(index, scrollOffset)
         }
+        remeasurement?.forceRemeasure()
     }
 
     /**

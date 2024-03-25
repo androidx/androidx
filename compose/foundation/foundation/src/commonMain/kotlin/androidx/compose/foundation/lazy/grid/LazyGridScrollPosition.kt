@@ -83,7 +83,7 @@ internal class LazyGridScrollPosition(
      * c) there will be not enough items to fill the viewport after the requested index, so we
      * would have to compose few elements before the asked index, changing the first visible item.
      */
-    fun requestPosition(index: Int, scrollOffset: Int) {
+    fun requestPositionAndForgetLastKnownKey(index: Int, scrollOffset: Int) {
         update(index, scrollOffset)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [checkIfFirstVisibleItemWasMoved] shouldn't override this.
