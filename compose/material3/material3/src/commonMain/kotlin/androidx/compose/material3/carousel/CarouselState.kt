@@ -62,6 +62,7 @@ class CarouselState(
         pagerState.scroll(scrollPriority, block)
     }
 
+    @ExperimentalMaterial3Api
     companion object {
         /**
          * To keep current item and item offset saved
