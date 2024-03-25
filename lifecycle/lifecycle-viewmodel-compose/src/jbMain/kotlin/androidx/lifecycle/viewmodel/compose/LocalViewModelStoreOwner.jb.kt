@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@
 
 package androidx.lifecycle.viewmodel.compose
 
-/**
- * @see SavedStateHandle
- */
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION)
-@RequiresOptIn(level = RequiresOptIn.Level.WARNING)
-annotation class SavedStateHandleSaveableApi
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+
+private object GlobalViewModelStoreOwner: ViewModelStoreOwner {
+    override val viewModelStore: ViewModelStore = ViewModelStore()
+}
+
+@Composable
+internal actual fun findViewModelStoreOwner(): ViewModelStoreOwner? =
+    GlobalViewModelStoreOwner

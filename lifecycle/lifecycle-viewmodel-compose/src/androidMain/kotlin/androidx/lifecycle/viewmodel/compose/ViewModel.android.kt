@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ViewModelKt")
+
 package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
