@@ -385,7 +385,8 @@ internal abstract class DragGestureNode(
     // we point to the new reference when we invoke them. startDragImmediately is a lambda since we
     // need the most recent value passed to it from Scrollable.
     private val _canDrag: (PointerInputChange) -> Boolean = { this.canDrag(it) }
-    private val velocityTracker = VelocityTracker()
+    private var channel: Channel<DragEvent>? = null
+    private var dragInteraction: DragInteraction.Start? = null
     private var isListeningForEvents = false
 
     /**
@@ -432,14 +433,14 @@ internal abstract class DragGestureNode(
          */
         coroutineScope.launch {
             while (isActive) {
-                var event = channel.receive()
+                var event = channel?.receive()
                 if (event !is DragStarted) continue
                 processDragStart(event)
                 try {
                     drag { processDelta ->
                         while (event !is DragStopped && event !is DragCancelled) {
                             (event as? DragDelta)?.let(processDelta)
-                            event = channel.receive()
+                            event = channel?.receive()
                         }
                     }
                     if (event is DragStopped) {
@@ -457,6 +458,9 @@ internal abstract class DragGestureNode(
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         // TODO: conditionally undelegate when aosp/2462416 lands?
         if (!this@DragGestureNode.enabled) return@SuspendingPointerInputModifierNode
+        // re-create tracker when pointer input block restarts. This lazily creates the tracker
+        // only when it is need.
+        val velocityTracker = VelocityTracker()
         coroutineScope {
             try {
                 awaitPointerEventScope {
@@ -472,6 +476,9 @@ internal abstract class DragGestureNode(
                              * and should be propagated
                              */
                             if (!isListeningForEvents) {
+                                if (channel == null) {
+                                    channel = Channel(capacity = Channel.UNLIMITED)
+                                }
                                 startListeningForEvents()
                             }
                             var isDragSuccessful = false
@@ -501,7 +508,7 @@ internal abstract class DragGestureNode(
                                 } else {
                                     DragCancelled
                                 }
-                                channel.trySend(event)
+                                channel?.trySend(event)
                             }
                         }
                     }
@@ -513,9 +520,6 @@ internal abstract class DragGestureNode(
             }
         }
     })
-
-    private val channel = Channel<DragEvent>(capacity = Channel.UNLIMITED)
-    private var dragInteraction: DragInteraction.Start? = null
 
     override fun onDetach() {
         isListeningForEvents = false
@@ -633,7 +637,7 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
     startEvent: PointerInputChange,
     initialDelta: Offset,
     velocityTracker: VelocityTracker,
-    channel: SendChannel<DragEvent>,
+    channel: SendChannel<DragEvent>?,
     hasDragged: (PointerInputChange) -> Boolean,
 ): Boolean {
 
@@ -642,9 +646,9 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
     val ySign = sign(startEvent.position.y)
     val adjustedStart = startEvent.position -
         Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
-    channel.trySend(DragStarted(adjustedStart))
+    channel?.trySend(DragStarted(adjustedStart))
 
-    channel.trySend(DragDelta(initialDelta))
+    channel?.trySend(DragDelta(initialDelta))
 
     return onDragOrUp(hasDragged, startEvent.id) { event ->
         // Velocity tracker takes all events, even UP
@@ -654,7 +658,7 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
         if (!event.changedToUpIgnoreConsumed()) {
             val delta = event.positionChange()
             event.consume()
-            channel.trySend(DragDelta(delta))
+            channel?.trySend(DragDelta(delta))
         }
     }
 }
