@@ -15,7 +15,8 @@ if [ -n "$OUT_DIR" ] ; then
     mkdir -p "$OUT_DIR"
     OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-    export TMPDIR=$OUT_DIR
+    export TMPDIR="$OUT_DIR/tmp"
+    mkdir -p "$TMPDIR"
 else
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
