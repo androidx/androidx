@@ -17,12 +17,14 @@
 package androidx.privacysandbox.tools.core.validator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
+import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ParsedApi
 import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNonNull
+import javax.lang.model.SourceVersion.isKeyword as isJavaKeyword
 
 class ModelValidator private constructor(val api: ParsedApi) {
     private val values = api.values.map(AnnotatedValue::type)
@@ -42,6 +44,7 @@ class ModelValidator private constructor(val api: ParsedApi) {
         validateServiceAndInterfaceMethods()
         validateValuePropertyTypes()
         validateCallbackMethods()
+        validateNames()
         return ValidationResult(errors)
     }
 
@@ -141,6 +144,39 @@ class ModelValidator private constructor(val api: ParsedApi) {
                             "@PrivacySandboxValue, interfaces annotated with " +
                             "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                             "callback parameter types."
+                    )
+                }
+            }
+        }
+    }
+
+    private fun validateNames() {
+        for (value in api.values.filterIsInstance<AnnotatedDataClass>()) {
+            for (property in value.properties) {
+                if (isJavaKeyword(property.name)) {
+                    errors.add(
+                        "Error in ${value.type.qualifiedName}.${property.name}: property name " +
+                            "must not be a Java keyword."
+                    )
+                }
+            }
+        }
+        for (value in api.values.filterIsInstance<AnnotatedEnumClass>()) {
+            for (variant in value.variants) {
+                if (isJavaKeyword(variant)) {
+                    errors.add(
+                        "Error in ${value.type.qualifiedName}.$variant: enum constant " +
+                            "name must not be a Java keyword."
+                    )
+                }
+            }
+        }
+        for (iface in api.interfaces + api.callbacks + api.services) {
+            for (method in iface.methods) {
+                if (isJavaKeyword(method.name)) {
+                    errors.add(
+                        "Error in ${iface.type.qualifiedName}.${method.name}: method name " +
+                            "must not be a Java keyword."
                     )
                 }
             }
