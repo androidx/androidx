@@ -45,8 +45,9 @@ import androidx.compose.ui.text.intl.LocaleList
  * When [ImeOptions.singleLine] is false, the keyboard might show return key rather than the action
  * requested here.
  * @param platformImeOptions defines the platform specific IME options.
- * @param shouldShowKeyboardOnFocus when true, software keyboard will show on focus gain. When
- * false, the user must interact (e.g. tap) before the keyboard is shown.
+ * @param showKeyboardOnFocus when true, software keyboard will show on focus gain. When
+ * false, the user must interact (e.g. tap) before the keyboard is shown. A null value (the default
+ * parameter value) means the keyboard will be shown on focus.
  * @param hintLocales List of the languages that the user is supposed to switch to no matter what
  * input method subtype is currently used. This special "hint" can be used mainly for, but not
  * limited to, multilingual users who want IMEs to switch language based on editor's context.
@@ -59,7 +60,9 @@ class KeyboardOptions(
     val keyboardType: KeyboardType = KeyboardType.Text,
     val imeAction: ImeAction = ImeAction.Default,
     val platformImeOptions: PlatformImeOptions? = null,
-    val shouldShowKeyboardOnFocus: Boolean = true,
+    @Suppress("AutoBoxing")
+    @get:Suppress("AutoBoxing")
+    val showKeyboardOnFocus: Boolean? = null,
     @get:Suppress("NullableCollection")
     val hintLocales: LocaleList? = null
 ) {
@@ -111,7 +114,7 @@ class KeyboardOptions(
         keyboardType,
         imeAction,
         platformImeOptions,
-        shouldShowKeyboardOnFocus = true
+        showKeyboardOnFocus = Default.showKeyboardOnFocusOrDefault
     )
 
     @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
@@ -121,16 +124,19 @@ class KeyboardOptions(
         keyboardType: KeyboardType = KeyboardType.Text,
         imeAction: ImeAction = ImeAction.Default,
         platformImeOptions: PlatformImeOptions? = null,
-        shouldShowKeyboardOnFocus: Boolean = true
+        @Suppress("AutoBoxing")
+        showKeyboardOnFocus: Boolean? = null
     ) : this(
         capitalization,
         autoCorrect,
         keyboardType,
         imeAction,
         platformImeOptions,
-        shouldShowKeyboardOnFocus,
+        showKeyboardOnFocus,
         hintLocales = null
     )
+
+    internal val showKeyboardOnFocusOrDefault get() = showKeyboardOnFocus ?: true
 
     /**
      * Returns a new [ImeOptions] with the values that are in this [KeyboardOptions] and provided
@@ -148,13 +154,20 @@ class KeyboardOptions(
         hintLocales = hintLocales
     )
 
+    /**
+     * Returns a copy of this object with the values passed to this method.
+     *
+     * Note that if an unspecified (null) value is passed explicitly to this method, it will replace
+     * any actually-specified value.
+     */
     fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrect,
         keyboardType: KeyboardType = this.keyboardType,
         imeAction: ImeAction = this.imeAction,
         platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
-        showKeyboardOnFocus: Boolean = this.shouldShowKeyboardOnFocus,
+        @Suppress("AutoBoxing")
+        showKeyboardOnFocus: Boolean? = this.showKeyboardOnFocus,
         hintLocales: LocaleList? = this.hintLocales
     ): KeyboardOptions {
         return KeyboardOptions(
@@ -163,7 +176,7 @@ class KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
-            shouldShowKeyboardOnFocus = showKeyboardOnFocus,
+            showKeyboardOnFocus = showKeyboardOnFocus,
             hintLocales = hintLocales
         )
     }
@@ -178,7 +191,8 @@ class KeyboardOptions(
         keyboardType: KeyboardType = this.keyboardType,
         imeAction: ImeAction = this.imeAction,
         platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
-        shouldShowKeyboardOnFocus: Boolean = this.shouldShowKeyboardOnFocus
+        @Suppress("AutoBoxing")
+        showKeyboardOnFocus: Boolean? = this.showKeyboardOnFocus
     ): KeyboardOptions {
         return KeyboardOptions(
             capitalization = capitalization,
@@ -186,7 +200,7 @@ class KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
-            shouldShowKeyboardOnFocus = shouldShowKeyboardOnFocus,
+            showKeyboardOnFocus = showKeyboardOnFocus,
             hintLocales = this.hintLocales
             // New properties must be added here even though this is deprecated. The deprecated copy
             // constructors should still work on instances created with newer library versions.
@@ -210,7 +224,7 @@ class KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
-            shouldShowKeyboardOnFocus = this.shouldShowKeyboardOnFocus,
+            showKeyboardOnFocus = this.showKeyboardOnFocus,
             hintLocales = this.hintLocales
             // New properties must be added here even though this is deprecated. The deprecated copy
             // constructors should still work on instances created with newer library versions.
@@ -233,7 +247,7 @@ class KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = this.platformImeOptions,
-            shouldShowKeyboardOnFocus = this.shouldShowKeyboardOnFocus,
+            showKeyboardOnFocus = this.showKeyboardOnFocus,
             hintLocales = this.hintLocales
             // New properties must be added here even though this is deprecated. The deprecated copy
             // constructors should still work on instances created with newer library versions.
@@ -249,7 +263,7 @@ class KeyboardOptions(
         if (keyboardType != other.keyboardType) return false
         if (imeAction != other.imeAction) return false
         if (platformImeOptions != other.platformImeOptions) return false
-        if (shouldShowKeyboardOnFocus != other.shouldShowKeyboardOnFocus) return false
+        if (showKeyboardOnFocus != other.showKeyboardOnFocus) return false
         if (hintLocales != other.hintLocales) return false
 
         return true
@@ -261,7 +275,7 @@ class KeyboardOptions(
         result = 31 * result + keyboardType.hashCode()
         result = 31 * result + imeAction.hashCode()
         result = 31 * result + platformImeOptions.hashCode()
-        result = 31 * result + shouldShowKeyboardOnFocus.hashCode()
+        result = 31 * result + showKeyboardOnFocus.hashCode()
         result = 31 * result + hintLocales.hashCode()
         return result
     }
@@ -270,7 +284,7 @@ class KeyboardOptions(
         return "KeyboardOptions(capitalization=$capitalization, autoCorrect=$autoCorrect, " +
             "keyboardType=$keyboardType, imeAction=$imeAction, " +
             "platformImeOptions=$platformImeOptions, " +
-            "shouldShowKeyboardOnFocus=$shouldShowKeyboardOnFocus, " +
+            "showKeyboardOnFocus=$showKeyboardOnFocus, " +
             "hintLocales=$hintLocales)"
     }
 }
