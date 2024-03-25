@@ -27,7 +27,6 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -422,21 +421,29 @@ public fun NavHost(
             }
         }
 
-        val transition = if (inPredictiveBack) {
-            val transitionState = remember(backStackEntry) {
-                // The state returned here cannot be nullable cause it produces the input of the
-                // transitionSpec passed into the AnimatedContent and that must match the non-nullable
-                // scope exposed by the transitions on the NavHost and composable APIs.
-                SeekableTransitionState(backStackEntry)
-            }
+        val transitionState = remember {
+            // The state returned here cannot be nullable cause it produces the input of the
+            // transitionSpec passed into the AnimatedContent and that must match the non-nullable
+            // scope exposed by the transitions on the NavHost and composable APIs.
+            SeekableTransitionState(backStackEntry)
+        }
+
+        if (inPredictiveBack) {
             LaunchedEffect(progress) {
                 val previousEntry = currentBackStack[currentBackStack.size - 2]
                 transitionState.seekTo(progress, previousEntry)
             }
-            rememberTransition(transitionState, label = "entry")
         } else {
-            updateTransition(backStackEntry, label = "entry")
+            LaunchedEffect(backStackEntry) {
+                // This ensures we don't animate after the back gesture is cancelled and we
+                // are already on the current state
+                if (transitionState.currentState != backStackEntry) {
+                    transitionState.animateTo(backStackEntry)
+                }
+            }
         }
+
+        val transition = rememberTransition(transitionState, label = "entry")
 
         transition.AnimatedContent(
             modifier,
