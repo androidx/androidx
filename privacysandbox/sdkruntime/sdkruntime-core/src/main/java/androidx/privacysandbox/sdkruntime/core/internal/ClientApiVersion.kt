@@ -72,12 +72,11 @@ enum class ClientApiVersion(
         private val FEATURE_TO_VERSION_MAP = buildFeatureMap()
 
         fun minAvailableVersionFor(clientFeature: ClientFeature): ClientApiVersion {
-            return FEATURE_TO_VERSION_MAP[clientFeature]!!
+            return FEATURE_TO_VERSION_MAP[clientFeature] ?: FUTURE_VERSION
         }
 
         /**
-         * Build mapping between [ClientFeature] and version where it first time became available.
-         * Features not added to specific version mapped as [FUTURE_VERSION]
+         * Build mapping between [ClientFeature] and version where it first became available.
          */
         private fun buildFeatureMap(): Map<ClientFeature, ClientApiVersion> {
             if (FUTURE_VERSION.newFeatures.isNotEmpty()) {
@@ -92,11 +91,6 @@ enum class ClientApiVersion(
                                 "$feature duplicated in $version and $oldVersion"
                             )
                         }
-                    }
-                }
-                ClientFeature.values().forEach { feature ->
-                    if (!containsKey(feature)) {
-                        put(feature, FUTURE_VERSION)
                     }
                 }
             }

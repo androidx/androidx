@@ -26,6 +26,7 @@ import androidx.privacysandbox.sdkruntime.client.controller.LocalControllerFacto
 import androidx.privacysandbox.sdkruntime.client.controller.SdkRegistry
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
 import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
+import androidx.privacysandbox.sdkruntime.client.loader.VersionHandshake
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import org.jetbrains.annotations.TestOnly
@@ -47,14 +48,19 @@ internal class LocalSdkRegistry(
         return configHolder.getSdkConfig(sdkName) != null
     }
 
-    override fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+    override fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat =
+        loadSdk(sdkName, params, overrideVersionHandshake = null)
+
+    fun loadSdk(
+        sdkName: String,
+        params: Bundle,
+        overrideVersionHandshake: VersionHandshake?
+    ): SandboxedSdkCompat {
         val sdkConfig = configHolder.getSdkConfig(sdkName)
-        if (sdkConfig == null) {
-            throw LoadSdkCompatException(
+            ?: throw LoadSdkCompatException(
                 LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
                 "$sdkName not bundled with app"
             )
-        }
 
         synchronized(sdks) {
             if (sdks.containsKey(sdkName)) {
@@ -64,7 +70,7 @@ internal class LocalSdkRegistry(
                 )
             }
 
-            val sdkProvider = sdkLoader.loadSdk(sdkConfig)
+            val sdkProvider = sdkLoader.loadSdk(sdkConfig, overrideVersionHandshake)
             val sandboxedSdkCompat = sdkProvider.onLoadSdk(params)
             sdks.put(
                 sdkName, Entry(

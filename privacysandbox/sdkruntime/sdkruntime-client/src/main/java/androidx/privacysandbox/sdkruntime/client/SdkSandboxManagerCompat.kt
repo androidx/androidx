@@ -30,10 +30,10 @@ import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
-import androidx.privacysandbox.sdkruntime.client.controller.SdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.impl.LocalAppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.impl.LocalSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.impl.PlatformAppOwnedSdkRegistry
+import androidx.privacysandbox.sdkruntime.client.loader.VersionHandshake
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
@@ -90,7 +90,7 @@ import org.jetbrains.annotations.TestOnly
  */
 class SdkSandboxManagerCompat private constructor(
     private val platformApi: PlatformApi,
-    private val localSdkRegistry: SdkRegistry,
+    private val localSdkRegistry: LocalSdkRegistry,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) {
     /**
@@ -127,6 +127,23 @@ class SdkSandboxManagerCompat private constructor(
             return localSdkRegistry.loadSdk(sdkName, params)
         }
         return platformApi.loadSdk(sdkName, params)
+    }
+
+    /**
+     * Load local SDK using different client-core protocol version [apiVersion].
+     *
+     * Could be used for:
+     * 1) Testing features in development (force future version for SDK binary with feature impl)
+     * 2) Testing loading newest SDK versions via old protocol version.
+     */
+    @TestOnly
+    internal fun loadLocalSdkWithVersionOverride(
+        sdkName: String,
+        params: Bundle,
+        apiVersion: Int
+    ): SandboxedSdkCompat {
+        val customHandshake = VersionHandshake(overrideApiVersion = apiVersion)
+        return localSdkRegistry.loadSdk(sdkName, params, customHandshake)
     }
 
     /**
