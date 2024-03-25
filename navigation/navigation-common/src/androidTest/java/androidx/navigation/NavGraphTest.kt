@@ -144,7 +144,9 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             setStartDestination(15)
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, null
+            ).build())
         }
         assertThat(graph.startDestinationId).isEqualTo(15)
 
@@ -174,7 +176,7 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             setStartDestination(15)
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class, null).build())
         }
         assertThat(graph.startDestinationId).isEqualTo(15)
 
@@ -202,7 +204,7 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class, null).build())
         }
 
         val dest = graph.findNode<TestClass>()
@@ -215,7 +217,9 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, null
+            ).build())
         }
 
         assertThat(graph[TestClass::class]).isNotNull()
@@ -227,7 +231,9 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, null
+            ).build())
         }
 
         assertThat(graph.contains(TestClass::class)).isTrue()
@@ -239,7 +245,9 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, null
+            ).build())
         }
 
         val dest = graph.findNode(TestClass(15))
@@ -252,7 +260,9 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, null
+            ).build())
         }
 
         assertThat(graph[TestClass(15)]).isNotNull()
@@ -264,7 +274,9 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, null
+            ).build())
         }
 
         assertThat(graph.contains(TestClass(15))).isTrue()
