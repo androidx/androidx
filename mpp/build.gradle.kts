@@ -208,7 +208,7 @@ val preparedArtifactsRoot = publishingDir.map { it.dir("prepared") }
 val modulesFile = publishingDir.map { it.file("modules.txt") }
 
 val findComposeModules by tasks.registering(FindModulesInSpaceTask::class) {
-    requestedGroupId.set("org.jetbrains.compose")
+    requestedGroupId.set(project.property("maven.central.group") as String)
     requestedVersion.set(mavenCentral.version)
     spaceInstanceUrl.set("https://public.jetbrains.space")
     spaceClientId.set(System.getenv("COMPOSE_REPO_USERNAME") ?: "")
