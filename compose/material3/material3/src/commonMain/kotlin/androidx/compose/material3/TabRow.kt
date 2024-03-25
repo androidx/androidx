@@ -459,6 +459,7 @@ private fun TabRowImpl(
                     constraints.copy(
                         minWidth = tabWidth,
                         maxWidth = tabWidth,
+                        minHeight = 0,
                         maxHeight = tabRowHeight
                     )
                 )
@@ -567,8 +568,8 @@ internal class TabIndicatorOffsetNode(
             }
         )
 
-        return layout(placeable.width, constraints.maxHeight) {
-            placeable.place(offset.roundToPx(), constraints.maxHeight - placeable.height)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(offset.roundToPx(), 0)
         }
     }
 }
