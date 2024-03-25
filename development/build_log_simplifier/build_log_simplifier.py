@@ -117,13 +117,10 @@ def shorten_uninteresting_stack_frames(lines):
     result = []
     prev_line_is_boring = False
     for line in lines:
-        if line.startswith("\tat org.gradle"):
+        if line.startswith("\tat ") and not line.startswith("\tat androidx"):
+            # non-androidx stack frame
             if not prev_line_is_boring:
-                result.append("\tat org.gradle...\n")
-            prev_line_is_boring = True
-        elif line.startswith("\tat java.base"):
-            if not prev_line_is_boring:
-                result.append("\tat java.base...\n")
+                result.append(line.replace("\n", "...\n"))
             prev_line_is_boring = True
         else:
             result.append(line)
