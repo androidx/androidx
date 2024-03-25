@@ -76,6 +76,8 @@ object Arguments {
     internal val profilerDefault: Boolean
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
+    internal val profilerSkipWhenDurationRisksAnr: Boolean
+    internal val profilerPerfCompareEnable: Boolean
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
@@ -213,6 +215,11 @@ object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
                 ?.toLong()
                 ?: 5
+        profilerSkipWhenDurationRisksAnr =
+            arguments.getBenchmarkArgument("profiling.skipWhenDurationRisksAnr")?.toBoolean()
+                ?: true
+        profilerPerfCompareEnable =
+            arguments.getBenchmarkArgument("profiling.perfCompare.enable")?.toBoolean() ?: false
         if (profiler != null) {
             Log.d(
                 BenchmarkState.TAG,

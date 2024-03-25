@@ -96,6 +96,7 @@ class BenchmarkState internal constructor(
             dryRunMode = Arguments.dryRunMode,
             startupMode = Arguments.startupMode,
             profiler = config?.profiler?.profiler ?: Arguments.profiler,
+            profilerPerfCompareMode = Arguments.profilerPerfCompareEnable,
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
             simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
@@ -257,10 +258,8 @@ class BenchmarkState internal constructor(
             currentPhase.profiler?.stop()
             InMemoryTracing.endSection()
             thermalThrottleSleepSeconds += currentPhase.thermalThrottleSleepSeconds
-            if (currentPhase.loopMode.warmupManager == null && currentPhase.profiler == null) {
-                // Always save metrics, except during warmup / profiling
-                // Note that dryRunMode avoids reporting these to JSON by other means, they
-                // still should be accessible to tests
+            if (currentPhase.loopMode.warmupManager == null) {
+                // Save captured metrics except during warmup, where we intentionally discard
                 metricResults.addAll(
                     currentMetrics.captureFinished(maxIterations = currentLoopsPerMeasurement)
                 )
@@ -293,10 +292,17 @@ class BenchmarkState internal constructor(
                 warmupEstimatedIterationTimeNs * METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
             if (this == MethodTracing &&
                 Looper.myLooper() == Looper.getMainLooper() &&
-                estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS) {
+                estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS &&
+                Arguments.profilerSkipWhenDurationRisksAnr
+            ) {
+                val expectedDurSec = estimatedMethodTraceDurNs / 1_000_000_000.0
                 InstrumentationResults.scheduleIdeWarningOnNextReport(
-                    "Skipping method trace of estimated duration" +
-                        " ${estimatedMethodTraceDurNs / 1_000_000_000.0} sec to avoid ANR"
+                    """
+                        Skipping method trace of estimated duration $expectedDurSec sec to avoid ANR
+
+                        To disable this behavior, set instrumentation arg:
+                            androidx.benchmark.profiling.skipWhenDurationRisksAnr = false
+                    """.trimIndent()
                 )
                 null
             } else {
