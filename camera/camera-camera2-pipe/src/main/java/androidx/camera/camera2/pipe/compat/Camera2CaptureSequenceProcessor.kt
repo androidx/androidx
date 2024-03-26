@@ -160,6 +160,7 @@ internal class Camera2CaptureSequenceProcessor(
 
             if (request.inputRequest != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 checkNotNull(imageWriter) {
+                    request.inputRequest.image.close()
                     "Failed to create ImageWriter for capture session: $session"
                 }
 
