@@ -126,13 +126,7 @@ internal open class SnapshotMutableFloatStateImpl(
     value: Float
 ) : StateObjectImpl(), MutableFloatState, SnapshotMutableState<Float> {
 
-    private var next = FloatStateStateRecord(value).also {
-        if (Snapshot.isInSnapshot) {
-            it.next = FloatStateStateRecord(value).also { next ->
-                next.snapshotId = Snapshot.PreexistingSnapshotId
-            }
-        }
-    }
+    private var next = FloatStateStateRecord(value)
 
     override val firstStateRecord: StateRecord
         get() = next

@@ -33,15 +33,7 @@ import kotlin.jvm.JvmName
 @Stable
 class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
     override var firstStateRecord: StateRecord =
-        persistentHashMapOf<K, V>().let { map ->
-            StateMapStateRecord(map).also {
-                if (Snapshot.isInSnapshot) {
-                    it.next = StateMapStateRecord(map).also { next ->
-                        next.snapshotId = Snapshot.PreexistingSnapshotId
-                    }
-                }
-            }
-        }
+        StateMapStateRecord<K, V>(persistentHashMapOf())
         private set
 
     override fun prependStateRecord(value: StateRecord) {

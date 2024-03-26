@@ -587,7 +587,7 @@ class SnapshotStateListTests {
 
             repeat(100) { index ->
                 repeat(10) {
-                    assertTrue(list.contains(index * 100 + it), "Missing ${index * 100 + it}")
+                    assertTrue(list.contains(index * 100 + it))
                 }
             }
         }
