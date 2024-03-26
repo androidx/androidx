@@ -38,6 +38,8 @@ import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagBytes;
 import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
 import static androidx.wear.protolayout.materialcore.Helper.isRoundDevice;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -172,7 +174,9 @@ public class EdgeContentLayout implements LayoutElement {
         @Nullable private LayoutElement mSecondaryLabelText = null;
         @Nullable private LayoutElement mContent = null;
         private byte mMetadataContentByte = 0;
-        private boolean mIsEdgeContentBehind = false;
+        // Default for non responsive behaviour is false (for backwards compatibility) and for
+        // responsive behaviour, only true is used.
+        @Nullable private Boolean mIsEdgeContentBehind = null;
         private boolean mIsResponsiveInsetEnabled = false;
         @Nullable private Float mEdgeContentThickness = null;
         @NonNull
@@ -210,8 +214,9 @@ public class EdgeContentLayout implements LayoutElement {
          */
         @NonNull
         public Builder setResponsiveContentInsetEnabled(boolean enabled) {
-            if (mIsEdgeContentBehind) {
-                // We don't allow mixing this method with responsiveness.
+            if (mIsEdgeContentBehind != null && !mIsEdgeContentBehind) {
+                // We don't allow mixing above content with responsiveness, as content should always
+                // be behind.
                 throw new IllegalStateException(
                         "Setters setResponsiveContentInsetEnabled and "
                                 + "setEdgeContentBehindAllOtherContent can't be used together. "
@@ -220,11 +225,11 @@ public class EdgeContentLayout implements LayoutElement {
             }
 
             this.mIsResponsiveInsetEnabled = enabled;
-            if (enabled) {
-                mMetadataContentByte = (byte) (mMetadataContentByte | CONTENT_INSET_USED);
-            } else {
-                mMetadataContentByte = (byte) (mMetadataContentByte & ~CONTENT_INSET_USED);
-            }
+            mMetadataContentByte =
+                    (byte)
+                            (enabled
+                                    ? (mMetadataContentByte | CONTENT_INSET_USED)
+                                    : (mMetadataContentByte & ~CONTENT_INSET_USED));
             return this;
         }
 
@@ -320,14 +325,15 @@ public class EdgeContentLayout implements LayoutElement {
          * false}, meaning that the edge content will be placed above all other content.
          *
          * <p>Note that, if {@link #setResponsiveContentInsetEnabled} is set to {@code true}, edge
-         * content will always go behind all other content and this method call will be ignored.
+         * content will always go behind all other content and this method call will throw as those
+         * shouldn't be mixed.
          *
-         * @throws IllegalStateException if this and {@link #setResponsiveContentInsetEnabled}
-         * are used together.
+         * @throws IllegalStateException if this and {@link #setResponsiveContentInsetEnabled} are
+         *     used together.
          */
         @NonNull
         public Builder setEdgeContentBehindAllOtherContent(boolean isBehind) {
-            if (mIsResponsiveInsetEnabled) {
+            if (mIsResponsiveInsetEnabled && !isBehind) {
                 // We don't allow mixing this method with responsiveness.
                 throw new IllegalStateException(
                         "Setters setResponsiveContentInsetEnabled and "
@@ -344,8 +350,11 @@ public class EdgeContentLayout implements LayoutElement {
         @NonNull
         @Override
         public EdgeContentLayout build() {
-            if (mIsResponsiveInsetEnabled && mIsEdgeContentBehind) {
-                // We don't allow mixing this method with responsiveness.
+            if (mIsResponsiveInsetEnabled
+                    && mIsEdgeContentBehind != null
+                    && !mIsEdgeContentBehind) {
+                // We don't allow mixing requesting for edge content to be above with
+                // responsiveness.
                 throw new IllegalStateException(
                         "Setters setResponsiveContentInsetEnabled and "
                                 + "setEdgeContentBehindAllOtherContent can't be used together. "
@@ -369,8 +378,6 @@ public class EdgeContentLayout implements LayoutElement {
             DpProp contentWidth = dp(
                     mDeviceParameters.getScreenHeightDp() - edgeContentSize);
 
-            // TODO(b/321681652): Confirm with the UX if we can put 6dp as outer margin so it
-            //  matches CPI.
             float outerMargin =
                     mEdgeContent instanceof CircularProgressIndicator
                             && ((CircularProgressIndicator) mEdgeContent).isOuterMarginApplied()
@@ -488,6 +495,9 @@ public class EdgeContentLayout implements LayoutElement {
 
         @NonNull
         private EdgeContentLayout legacyLayoutBuild() {
+            if (mIsEdgeContentBehind == null) {
+                mIsEdgeContentBehind = false;
+            }
             float thicknessDp =
                     mEdgeContent instanceof CircularProgressIndicator
                             ? ((CircularProgressIndicator) mEdgeContent).getStrokeWidth().getValue()
@@ -500,8 +510,8 @@ public class EdgeContentLayout implements LayoutElement {
             float contentHeightDp = mDeviceParameters.getScreenHeightDp() - indicatorWidth;
             float contentWidthDp = mDeviceParameters.getScreenWidthDp() - indicatorWidth;
 
-            DpProp contentHeight = dp(Math.min(contentHeightDp, contentWidthDp));
-            DpProp contentWidth = dp(Math.min(contentHeightDp, contentWidthDp));
+            DpProp contentHeight = dp(min(contentHeightDp, contentWidthDp));
+            DpProp contentWidth = dp(min(contentHeightDp, contentWidthDp));
 
             Modifiers modifiers =
                     new Modifiers.Builder()
@@ -611,7 +621,8 @@ public class EdgeContentLayout implements LayoutElement {
             // By tag we know that content exists. It will be at position 0 if there is no primary
             // label, or at position 2 (primary label, spacer - content) otherwise.
             int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
-            return ((Box) getInnerContent(contentPosition)).getContents().get(0);
+            Box box = (Box) getInnerContent(contentPosition);
+            return box.getContents().get(0);
         }
     }
 
@@ -722,18 +733,18 @@ public class EdgeContentLayout implements LayoutElement {
      * and secondary label.
      */
     private List<LayoutElement> getInnerColumnContentsForResponsive() {
-        return ((Column)
-                ((Box)
+        Box box =
+                (Box)
                         getAllContent()
                                 .getContents()
-                                .get(areElementsPresent(PRIMARY_LABEL_PRESENT)
-                                        // There's a primary label and then spacer after it
-                                        // before other content in this Column.
-                                        ? 2
-                                        : 0))
-                        .getContents()
-                        .get(0))
-                .getContents();
+                                .get(
+                                        areElementsPresent(PRIMARY_LABEL_PRESENT)
+                                                // There's a primary label and then spacer after it
+                                                // before other content in this Column.
+                                                ? 2
+                                                : 0);
+        Column column = (Column) box.getContents().get(0);
+        return column.getContents();
     }
 
     /**
