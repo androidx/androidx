@@ -126,13 +126,7 @@ internal open class SnapshotMutableLongStateImpl(
     value: Long
 ) : StateObjectImpl(), MutableLongState, SnapshotMutableState<Long> {
 
-    private var next = LongStateStateRecord(value).also {
-        if (Snapshot.isInSnapshot) {
-            it.next = LongStateStateRecord(value).also { next ->
-                next.snapshotId = Snapshot.PreexistingSnapshotId
-            }
-        }
-    }
+    private var next = LongStateStateRecord(value)
 
     override val firstStateRecord: StateRecord
         get() = next
