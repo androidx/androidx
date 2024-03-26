@@ -38,7 +38,8 @@ import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitController
-import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_UNAVAILABLE
 import androidx.window.embedding.SplitInfo
 import androidx.window.embedding.SplitPairFilter
 import androidx.window.embedding.SplitPairRule
@@ -73,7 +74,14 @@ open class SplitDeviceStateActivityBase : AppCompatActivity(), View.OnClickListe
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
         splitController = SplitController.getInstance(this)
-        if (splitController.splitSupportStatus != SPLIT_AVAILABLE) {
+        if (splitController.splitSupportStatus == SPLIT_UNAVAILABLE) {
+            Toast.makeText(
+                this, R.string.toast_split_not_available,
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+            return
+        } else if (splitController.splitSupportStatus == SPLIT_ERROR_PROPERTY_NOT_DECLARED) {
             Toast.makeText(
                 this, R.string.toast_split_not_support,
                 Toast.LENGTH_SHORT
