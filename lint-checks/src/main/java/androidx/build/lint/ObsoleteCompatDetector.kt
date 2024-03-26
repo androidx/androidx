@@ -131,7 +131,9 @@ private class CompatMethodHandler(val context: JavaContext) : UElementHandler() 
         }
 
         if (!hasReplaceWith) {
-            val replacement = expression.javaPsi!!.text!!.replace("\"", "\\\"")
+            val replacement = expression.javaPsi!!.text!!
+                .replace("\"", "\\\"")
+                .replace(Regex("\n\\s*"), "")
             lintFix.add(
                 LintFix.create()
                     .name("Annotate with @ReplaceWith")
