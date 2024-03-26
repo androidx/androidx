@@ -57,12 +57,12 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.PhysicalCameraInfo;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
@@ -536,13 +536,13 @@ public class Camera2CameraInfoImplTest {
                         new Pair<>("3", characteristicsPhysical3)));
         Camera2CameraInfoImpl impl = new Camera2CameraInfoImpl("0", cameraManagerCompat);
 
-        List<PhysicalCameraInfo> physicalCameraInfos = new ArrayList<>(
+        List<CameraInfo> physicalCameraInfos = new ArrayList<>(
                 impl.getPhysicalCameraInfos());
         assertThat(physicalCameraInfos.size()).isEqualTo(3);
         assertThat(characteristics0.getPhysicalCameraIds()).containsExactly(
-                physicalCameraInfos.get(0).getPhysicalCameraId(),
-                physicalCameraInfos.get(1).getPhysicalCameraId(),
-                physicalCameraInfos.get(2).getPhysicalCameraId());
+                Camera2CameraInfo.from(physicalCameraInfos.get(0)).getCameraId(),
+                Camera2CameraInfo.from(physicalCameraInfos.get(1)).getCameraId(),
+                Camera2CameraInfo.from(physicalCameraInfos.get(2)).getCameraId());
     }
 
     @Config(maxSdk = 27)

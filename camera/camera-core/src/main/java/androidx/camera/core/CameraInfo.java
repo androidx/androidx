@@ -418,13 +418,13 @@ public interface CameraInfo {
     }
 
     /**
-     * Returns a set of {@link PhysicalCameraInfo}.
+     * Returns a set of physical camera {@link CameraInfo}s.
      *
-     * @return Set of {@link PhysicalCameraInfo}.
+     * @return Set of physical camera {@link CameraInfo}s.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    default Set<PhysicalCameraInfo> getPhysicalCameraInfos() {
+    default Set<CameraInfo> getPhysicalCameraInfos() {
         return Collections.emptySet();
     }
 
