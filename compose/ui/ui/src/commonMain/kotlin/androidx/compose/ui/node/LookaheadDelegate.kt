@@ -87,8 +87,10 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
 
     abstract fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int
 
-    // True when the coordinator is running its own placing block to obtain the position
-    // in parent, but is not interested in the position of children.
+    /**
+     * True when the coordinator is running its own placing block to obtain the position
+     * in parent, but is not interested in the position of children.
+     */
     internal var isShallowPlacing: Boolean = false
     internal abstract val measureResult: MeasureResult
     internal abstract fun replace()
@@ -415,7 +417,7 @@ internal abstract class LookaheadDelegate(
         if (this.position != position) {
             this.position = position
             layoutNode.layoutDelegate.lookaheadPassDelegate
-                ?.notifyChildrenUsingCoordinatesWhilePlacing()
+                ?.notifyChildrenUsingLookaheadCoordinatesWhilePlacing()
             coordinator.invalidateAlignmentLinesFromPositionChange()
         }
         if (!isPlacingForAlignment) {
