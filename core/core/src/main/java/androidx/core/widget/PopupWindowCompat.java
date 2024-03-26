@@ -61,7 +61,10 @@ public final class PopupWindowCompat {
      * @param xoff A horizontal offset from the anchor in pixels
      * @param yoff A vertical offset from the anchor in pixels
      * @param gravity Alignment of the popup relative to the anchor
+     * @deprecated Call {@link PopupWindow#showAsDropDown()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "popup.showAsDropDown(anchor, xoff, yoff, gravity)")
     public static void showAsDropDown(@NonNull PopupWindow popup, @NonNull View anchor,
             int xoff, int yoff, int gravity) {
         popup.showAsDropDown(anchor, xoff, yoff, gravity);

@@ -113,7 +113,10 @@ public final class CheckedTextViewCompat {
      * Returns the drawable used as the check mark image
      *
      * @see CheckedTextView#setCheckMarkDrawable(Drawable)
+     * @deprecated Call {@link CheckedTextView#getCheckMarkDrawable()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.getCheckMarkDrawable()")
     @Nullable
     public static Drawable getCheckMarkDrawable(@NonNull CheckedTextView textView) {
         return textView.getCheckMarkDrawable();

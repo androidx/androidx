@@ -190,6 +190,7 @@ public final class BundleCompat {
      *
      * @deprecated Use {@link Bundle#getBinder(String)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "bundle.getBinder(key)")
     @Deprecated
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
@@ -206,6 +207,7 @@ public final class BundleCompat {
      *
      * @deprecated Use {@link Bundle#putBinder(String, IBinder)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "bundle.putBinder(key, binder)")
     @Deprecated
     public static void putBinder(@NonNull Bundle bundle, @Nullable String key,
             @Nullable IBinder binder) {

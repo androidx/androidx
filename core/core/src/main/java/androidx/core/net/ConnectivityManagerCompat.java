@@ -86,7 +86,10 @@ public final class ConnectivityManagerCompat {
      *
      * @return {@code true} if large transfers should be avoided, otherwise
      *        {@code false}.
+     * @deprecated Call {@link ConnectivityManager#isActiveNetworkMetered()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "cm.isActiveNetworkMetered()")
     @SuppressWarnings("deprecation")
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     public static boolean isActiveNetworkMetered(@NonNull ConnectivityManager cm) {
