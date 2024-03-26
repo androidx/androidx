@@ -1,8 +1,8 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
     Added method androidx.compose.foundation.pager.PageInfo.getKey()
-AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getOutOfBoundsPageCount():
-    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getOutOfBoundsPageCount()
+AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getBeyondViewportPageCount():
+    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getBeyondViewportPageCount()
 AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getSnapPosition():
     Added method androidx.compose.foundation.pager.PagerLayoutInfo.getSnapPosition()
 
