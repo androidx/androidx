@@ -1044,9 +1044,10 @@ private fun Placeable.PlacementScope.place(
     supportingPlaceable?.placeRelative(0, height)
 }
 
-internal fun Modifier.outlineCutout(labelSize: Size, paddingValues: PaddingValues) =
+internal fun Modifier.outlineCutout(labelSize: () -> Size, paddingValues: PaddingValues) =
     this.drawWithContent {
-        val labelWidth = labelSize.width
+        val labelSizeValue = labelSize()
+        val labelWidth = labelSizeValue.width
         if (labelWidth > 0f) {
             val innerPadding = OutlinedTextFieldInnerPadding.toPx()
             val leftLtr = paddingValues.calculateLeftPadding(layoutDirection).toPx() - innerPadding
@@ -1059,7 +1060,7 @@ internal fun Modifier.outlineCutout(labelSize: Size, paddingValues: PaddingValue
                 LayoutDirection.Rtl -> size.width - leftLtr.coerceAtLeast(0f)
                 else -> rightLtr
             }
-            val labelHeight = labelSize.height
+            val labelHeight = labelSizeValue.height
             // using label height as a cutout area to make sure that no hairline artifacts are
             // left when we clip the border
             clipRect(left, -labelHeight / 2, right, labelHeight / 2, ClipOp.Difference) {

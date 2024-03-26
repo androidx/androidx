@@ -17,10 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
@@ -31,24 +28,22 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material3.internal.AnimationDuration
 import androidx.compose.material3.internal.CommonDecorationBox
 import androidx.compose.material3.internal.SupportingTopPadding
+import androidx.compose.material3.internal.TextFieldAnimationDuration
 import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.material3.internal.TextFieldType
+import androidx.compose.material3.internal.animateBorderStrokeAsState
+import androidx.compose.material3.internal.textFieldBackground
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.input.VisualTransformation
@@ -117,12 +112,13 @@ object TextFieldDefaults {
         unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) {
         val focused = interactionSource.collectIsFocusedAsState().value
-        val containerColor = colors.containerColor(enabled, isError, focused)
-        val containerColorState =
-            animateColorAsState(containerColor, tween(durationMillis = AnimationDuration))
+        val containerColor = animateColorAsState(
+            targetValue = colors.containerColor(enabled, isError, focused),
+            animationSpec = tween(durationMillis = TextFieldAnimationDuration),
+        )
         Box(
             modifier
-                .background(containerColorState.value, shape)
+                .textFieldBackground(containerColor::value, shape)
                 .indicatorLine(
                     enabled = enabled,
                     isError = isError,
@@ -169,15 +165,16 @@ object TextFieldDefaults {
         properties["focusedIndicatorLineThickness"] = focusedIndicatorLineThickness
         properties["unfocusedIndicatorLineThickness"] = unfocusedIndicatorLineThickness
     }) {
+        val focused = interactionSource.collectIsFocusedAsState().value
         val stroke = animateBorderStrokeAsState(
             enabled,
             isError,
-            interactionSource,
+            focused,
             colors,
             focusedIndicatorLineThickness,
             unfocusedIndicatorLineThickness
         )
-        Modifier.drawIndicatorLine(stroke.value)
+        Modifier.drawIndicatorLine(stroke)
     }
 
     /**
@@ -734,22 +731,23 @@ object OutlinedTextFieldDefaults {
         focusedBorderThickness: Dp = FocusedBorderThickness,
         unfocusedBorderThickness: Dp = UnfocusedBorderThickness,
     ) {
+        val focused = interactionSource.collectIsFocusedAsState().value
         val borderStroke = animateBorderStrokeAsState(
             enabled,
             isError,
-            interactionSource,
+            focused,
             colors,
             focusedBorderThickness,
             unfocusedBorderThickness,
         )
-        val focused = interactionSource.collectIsFocusedAsState().value
-        val containerColor = colors.containerColor(enabled, isError, focused)
-        val containerColorState =
-            animateColorAsState(containerColor, tween(durationMillis = AnimationDuration))
+        val containerColor = animateColorAsState(
+            targetValue = colors.containerColor(enabled, isError, focused),
+            animationSpec = tween(durationMillis = TextFieldAnimationDuration),
+        )
         Box(
             modifier
                 .border(borderStroke.value, shape)
-                .background(containerColorState.value, shape)
+                .textFieldBackground(containerColor::value, shape)
         )
     }
 
@@ -1622,31 +1620,4 @@ class TextFieldColors constructor(
         result = 31 * result + errorSuffixColor.hashCode()
         return result
     }
-}
-
-@Composable
-private fun animateBorderStrokeAsState(
-    enabled: Boolean,
-    isError: Boolean,
-    interactionSource: InteractionSource,
-    colors: TextFieldColors,
-    focusedBorderThickness: Dp,
-    unfocusedBorderThickness: Dp
-): State<BorderStroke> {
-    val focused by interactionSource.collectIsFocusedAsState()
-    val indicatorColor = colors.indicatorColor(enabled, isError, focused)
-    val indicatorColorState = if (enabled) {
-        animateColorAsState(indicatorColor, tween(durationMillis = AnimationDuration))
-    } else {
-        rememberUpdatedState(indicatorColor)
-    }
-    val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
-    val animatedThickness = if (enabled) {
-        animateDpAsState(targetThickness, tween(durationMillis = AnimationDuration))
-    } else {
-        rememberUpdatedState(unfocusedBorderThickness)
-    }
-    return rememberUpdatedState(
-        BorderStroke(animatedThickness.value, SolidColor(indicatorColorState.value))
-    )
 }
