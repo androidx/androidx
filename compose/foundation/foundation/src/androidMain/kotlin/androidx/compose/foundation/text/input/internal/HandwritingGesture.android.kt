@@ -22,12 +22,22 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.SelectGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.text.LegacyTextFieldState
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.TextGranularity
 import androidx.compose.ui.text.TextInclusionStrategy
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.CommitTextCommand
+import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.EditingBuffer
+import androidx.compose.ui.text.input.SetSelectionCommand
 
 @RequiresApi(34)
 internal object HandwritingGestureApi34 {
@@ -104,6 +114,88 @@ internal object HandwritingGestureApi34 {
         replaceSelectedText(
             newText = fallbackText,
             clearComposition = true,
+        )
+        return InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK
+    }
+
+    @DoNotInline
+    internal fun LegacyTextFieldState.performHandwritingGesture(
+        gesture: HandwritingGesture,
+        textFieldSelectionManager: TextFieldSelectionManager?,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        val text = untransformedText ?: return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
+        if (text != layoutResult?.value?.layoutInput?.text) {
+            // The text is transformed or layout is null, handwriting gesture failed.
+            return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
+        }
+        return when (gesture) {
+            is SelectGesture ->
+                performSelectGesture(gesture, textFieldSelectionManager, editCommandConsumer)
+            is DeleteGesture -> performDeleteGesture(gesture, text, editCommandConsumer)
+            else -> InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
+        }
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.performSelectGesture(
+        gesture: SelectGesture,
+        textSelectionManager: TextFieldSelectionManager?,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        val range = getRangeForScreenRect(
+            gesture.selectionArea.toComposeRect(),
+            gesture.granularity.toTextGranularity(),
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+
+        editCommandConsumer.invoke(SetSelectionCommand(range.start, range.end))
+        textSelectionManager?.enterSelectionMode(true)
+        showFloatingToolbar = true
+
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.performDeleteGesture(
+        gesture: DeleteGesture,
+        text: AnnotatedString,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        val granularity = gesture.granularity.toTextGranularity()
+        val range = getRangeForScreenRect(
+            gesture.deletionArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+
+        val finalRange = if (granularity == TextGranularity.Word) {
+            range.adjustHandwritingDeleteGestureRange(text)
+        } else {
+            range
+        }
+
+        editCommandConsumer.invoke(
+            compoundEditCommand(
+                SetSelectionCommand(finalRange.end, finalRange.end),
+                DeleteSurroundingTextCommand(
+                    lengthAfterCursor = 0,
+                    lengthBeforeCursor = finalRange.length
+                )
+            )
+        )
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun fallbackOnLegacyTextField(
+        gesture: HandwritingGesture,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        val fallbackText = gesture.fallbackText
+            ?: return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
+        editCommandConsumer.invoke(
+            CommitTextCommand(fallbackText, newCursorPosition = 1)
         )
         return InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK
     }
@@ -240,7 +332,44 @@ private fun TextLayoutState.getRangeForScreenRect(
     granularity: TextGranularity,
     inclusionStrategy: TextInclusionStrategy
 ): TextRange? {
-    val screenOriginInLocal = textLayoutNodeCoordinates?.screenToLocal(Offset.Zero) ?: return null
+    return layoutResult?.multiParagraph?.getRangeForScreenRect(
+        rectInScreen,
+        textLayoutNodeCoordinates,
+        granularity,
+        inclusionStrategy
+    )
+}
+
+private fun LegacyTextFieldState.getRangeForScreenRect(
+    rectInScreen: Rect,
+    granularity: TextGranularity,
+    inclusionStrategy: TextInclusionStrategy
+): TextRange? {
+    return layoutResult?.value?.multiParagraph?.getRangeForScreenRect(
+        rectInScreen,
+        layoutCoordinates,
+        granularity,
+        inclusionStrategy
+    )
+}
+
+private fun MultiParagraph.getRangeForScreenRect(
+    rectInScreen: Rect,
+    layoutCoordinates: LayoutCoordinates?,
+    granularity: TextGranularity,
+    inclusionStrategy: TextInclusionStrategy
+): TextRange? {
+    val screenOriginInLocal = layoutCoordinates?.screenToLocal(Offset.Zero) ?: return null
     val localRect = rectInScreen.translate(screenOriginInLocal)
-    return layoutResult?.multiParagraph?.getRangeForRect(localRect, granularity, inclusionStrategy)
+    return getRangeForRect(localRect, granularity, inclusionStrategy)
+}
+
+private fun compoundEditCommand(vararg editCommands: EditCommand): EditCommand {
+    return object : EditCommand {
+        override fun applyTo(buffer: EditingBuffer) {
+            for (editCommand in editCommands) {
+                editCommand.applyTo(buffer)
+            }
+        }
+    }
 }

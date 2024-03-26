@@ -49,7 +49,7 @@ class LegacyTextInputMethodRequestEmojiTest {
             localToScreen = {},
             inputMethodManager = mock<InputMethodManager>()
         )
-        textInputService.startInput(TextFieldValue(""), ImeOptions.Default, {}, {})
+        textInputService.startInput(TextFieldValue(""), null, ImeOptions.Default, {}, {})
 
         val info = EditorInfo()
         textInputService.createInputConnection(info)

@@ -18,7 +18,9 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.input.internal.LegacyPlatformTextInputServiceAdapter.LegacyPlatformTextInputNode
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputSession
@@ -57,6 +59,10 @@ class LegacyPlatformTextInputServiceAdapterTest {
             override val softwareKeyboardController: SoftwareKeyboardController?
                 get() = null
             override val layoutCoordinates: LayoutCoordinates?
+                get() = null
+            override val legacyTextFieldState: LegacyTextFieldState?
+                get() = null
+            override val textFieldSelectionManager: TextFieldSelectionManager?
                 get() = null
 
             override fun launchTextInputSession(
@@ -123,6 +129,10 @@ class LegacyPlatformTextInputServiceAdapterTest {
             override val softwareKeyboardController: SoftwareKeyboardController?
                 get() = null
             override val layoutCoordinates: LayoutCoordinates?
+                get() = null
+            override val legacyTextFieldState: LegacyTextFieldState?
+                get() = null
+            override val textFieldSelectionManager: TextFieldSelectionManager?
                 get() = null
 
             override fun launchTextInputSession(
