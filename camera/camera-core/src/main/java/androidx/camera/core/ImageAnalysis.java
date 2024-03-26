@@ -94,6 +94,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -296,14 +297,44 @@ public final class ImageAnalysis extends UseCase {
         }
 
         // Merges the analyzerResolution to ResolutionSelector.
-        ResolutionSelector resolutionSelector =
-                builder.getMutableConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
-        if (resolutionSelector != null && resolutionSelector.getResolutionStrategy() == null) {
+        // Note: the input builder contains the configs that are merging result of default config
+        // and app config  (in UseCase#mergeConfigs()). Merging the analyzer default target
+        // resolution depends on the ResolutionSelector set by the app, therefore, need to check
+        // the ResolutionSelector retrieved from UseCase#getAppConfig() to determine how to merge
+        // it.
+        if (builder.getUseCaseConfig().containsOption(OPTION_RESOLUTION_SELECTOR)) {
+            ResolutionSelector appResolutionSelector =
+                    getAppConfig().retrieveOption(OPTION_RESOLUTION_SELECTOR, null);
+            // Creates a builder according to whether app has resolution selector setting or not.
             ResolutionSelector.Builder resolutionSelectorBuilder =
-                    ResolutionSelector.Builder.fromResolutionSelector(resolutionSelector);
-            resolutionSelectorBuilder.setResolutionStrategy(
-                    new ResolutionStrategy(analyzerResolution,
-                            ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+                    appResolutionSelector == null ? new ResolutionSelector.Builder()
+                            : ResolutionSelector.Builder.fromResolutionSelector(
+                                    appResolutionSelector);
+            // Sets a ResolutionStrategy matching to the analyzer default resolution when app
+            // doesn't have resolution strategy setting.
+            if (appResolutionSelector == null
+                    || appResolutionSelector.getResolutionStrategy() == null) {
+                resolutionSelectorBuilder.setResolutionStrategy(
+                        new ResolutionStrategy(analyzerResolution,
+                                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+            }
+            // Sets a ResolutionFilter to select the analyzer default resolution in priority only
+            // when the app doesn't have its own resolution selector setting. This can't be set when
+            // app has any ResolutionSelector setting. Otherwise, app might obtain an unexpected
+            // resolution for ImageAnalysis.
+            if (appResolutionSelector == null) {
+                final Size analyzerResolutionFinal = analyzerResolution;
+                resolutionSelectorBuilder.setResolutionFilter(
+                        (supportedSizes, rotationDegrees) -> {
+                            List<Size> resultList = new ArrayList<>(supportedSizes);
+                            if (resultList.contains(analyzerResolutionFinal)) {
+                                resultList.remove(analyzerResolutionFinal);
+                                resultList.add(0, analyzerResolutionFinal);
+                            }
+                            return resultList;
+                        }
+                );
+            }
             builder.getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR,
                     resolutionSelectorBuilder.build());
         }
