@@ -404,7 +404,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         activityStack: ActivityStack
     ): Bundle = embeddingExtension?.setLaunchingActivityStack(options, activityStack) ?: options
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
@@ -435,24 +435,24 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
         embeddingExtension?.setOverlayAttributesCalculator(calculator)
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun clearOverlayAttributesCalculator() {
         embeddingExtension?.clearOverlayAttributesCalculator()
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         embeddingExtension?.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
@@ -469,7 +469,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
             )
     }
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
         embeddingExtension?.removeOverlayInfoCallback(overlayInfoCallback)
     }

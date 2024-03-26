@@ -60,7 +60,7 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(5)
     fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle
 
     @RequiresWindowSdkExtension(5)
@@ -76,24 +76,24 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     )
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun clearOverlayAttributesCalculator()
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
         overlayInfoCallback: Consumer<OverlayInfo>,
     )
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(6)
     fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
 }

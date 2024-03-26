@@ -26,6 +26,7 @@ import android.util.DisplayMetrics
 import android.util.LayoutDirection
 import android.util.Pair as AndroidPair
 import android.view.WindowMetrics
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.Bounds
 import androidx.window.core.ExperimentalWindowApi
@@ -147,6 +148,7 @@ internal class EmbeddingAdapter(
         return builder.build()
     }
 
+    @RequiresWindowSdkExtension(6)
     @OptIn(ExperimentalWindowApi::class)
     @SuppressLint("NewApi", "ClassVerificationFailure")
     internal fun translate(parentContainerInfo: OEMParentContainerInfo): ParentContainerInfo {
