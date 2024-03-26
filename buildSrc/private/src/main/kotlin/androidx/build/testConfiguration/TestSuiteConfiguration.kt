@@ -30,22 +30,23 @@ import androidx.build.isPresubmitBuild
 import androidx.build.multiplatformExtension
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.dsl.TestExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.LibraryVariant
 import com.android.build.api.variant.TestAndroidComponentsExtension
+import com.android.build.api.variant.TestVariant
 import com.android.build.api.variant.Variant
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.TestExtension
-import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.attributes.VariantAttr
-import com.android.build.gradle.internal.publishing.AndroidArtifacts
-import com.android.build.gradle.internal.publishing.AndroidArtifacts.ArtifactType
 import org.gradle.api.Project
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
@@ -61,7 +62,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
  * populating the task with relevant data from the first 4 params, and setting whether the task is
  * enabled.
  */
-fun Project.createTestConfigurationGenerationTask(
+private fun Project.createTestConfigurationGenerationTask(
     variantName: String,
     artifacts: Artifacts,
     minSdk: Int,
@@ -207,8 +208,9 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                         .artifactView {
                             it.attributes { container ->
                                 container.attribute(
-                                    AndroidArtifacts.ARTIFACT_TYPE,
-                                    ArtifactType.APK.type
+                                    ARTIFACT_TYPE_ATTRIBUTE,
+                                    // TODO: Replace with gradle-api attribute when made
+                                    "apk"
                                 )
                             }
                         }
@@ -235,7 +237,9 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                     config.isCanBeResolved = true
                     config.isCanBeConsumed = false
                     config.attributes {
-                        it.attribute(VariantAttr.ATTRIBUTE, objects.named(targetAppProjectVariant))
+                        it.attribute(
+                            BuildTypeAttr.ATTRIBUTE, objects.named(targetAppProjectVariant)
+                        )
                         it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                     }
                     config.dependencies.add(project.dependencyFactory.create(targetAppProject))
@@ -254,7 +258,11 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                     configuration.incoming
                         .artifactView { view ->
                             view.attributes {
-                                it.attribute(AndroidArtifacts.ARTIFACT_TYPE, ArtifactType.APK.type)
+                                it.attribute(
+                                    ARTIFACT_TYPE_ATTRIBUTE,
+                                    // TODO: Replace with gradle-api attribute when made
+                                    "apk"
+                                )
                             }
                         }
                         .files
@@ -290,7 +298,7 @@ private fun getOrCreateMediaTestConfigTask(
     }
 }
 
-fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
+private fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
     variantName: String,
     artifacts: Artifacts,
     minSdk: Int,
@@ -409,7 +417,7 @@ fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
 }
 
 @Suppress("UnstableApiUsage") // usage of HasDeviceTests
-fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
+fun Project.configureTestConfigGeneration(commonExtension: CommonExtension<*, *, *, *, *, *>) {
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
         onVariants { variant ->
             when {
@@ -421,7 +429,7 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                                     deviceTest.name,
                                     deviceTest.artifacts,
                                     // replace minSdk after b/328495232 is fixed
-                                    baseExtension.defaultConfig.minSdk!!,
+                                    commonExtension.defaultConfig.minSdk!!,
                                     deviceTest.instrumentationRunner,
                                 )
                             }
@@ -430,7 +438,7 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                                     deviceTest.name,
                                     deviceTest.artifacts,
                                     // replace minSdk after b/328495232 is fixed
-                                    baseExtension.defaultConfig.minSdk!!,
+                                    commonExtension.defaultConfig.minSdk!!,
                                     deviceTest.instrumentationRunner,
                                     deviceTest.instrumentationRunnerArguments
                                 )
@@ -443,9 +451,11 @@ fun Project.configureTestConfigGeneration(baseExtension: BaseExtension) {
                         variant.name,
                         variant.artifacts,
                         // replace minSdk after b/328495232 is fixed
-                        baseExtension.defaultConfig.minSdk!!,
-                        provider { baseExtension.defaultConfig.testInstrumentationRunner!! },
-                        provider { baseExtension.defaultConfig.testInstrumentationRunnerArguments }
+                        commonExtension.defaultConfig.minSdk!!,
+                        provider { commonExtension.defaultConfig.testInstrumentationRunner!! },
+                        provider {
+                            commonExtension.defaultConfig.testInstrumentationRunnerArguments
+                        }
                     )
                 }
             }
@@ -475,10 +485,10 @@ fun Project.configureTestConfigGeneration(
 private fun Project.getTestSourceSetsForAndroid(): List<FileCollection> {
     val testSourceFileCollections = mutableListOf<FileCollection>()
     // com.android.test modules keep test code in main sourceset
-    extensions.findByType(TestExtension::class.java)?.let { testExtension ->
-        testExtension.sourceSets.find { it.name == "main" }?.let { sourceSet ->
-            testSourceFileCollections.addAll(sourceSet.java.getSourceDirectoryTrees())
-        }
+    extensions.findByType(TestVariant::class.java)?.let { variant ->
+        testSourceFileCollections.addAll(variant.sources.java!!.all.get().map {
+                directory -> project.files(directory.asFileTree)
+        })
         // Add kotlin-android main source set
         extensions
             .findByType(KotlinAndroidProjectExtension::class.java)
@@ -490,13 +500,23 @@ private fun Project.getTestSourceSetsForAndroid(): List<FileCollection> {
     }
 
     // Add Java androidTest source set
-    extensions
-        .findByType(TestedExtension::class.java)
-        ?.sourceSets
-        ?.find { it.name == "androidTest" }
-        ?.let { sourceSet ->
-            testSourceFileCollections.addAll(sourceSet.java.getSourceDirectoryTrees())
-        }
+    extensions.findByType(ApplicationVariant::class.java)?.let { variant ->
+        testSourceFileCollections.addAll(
+            variant.sources.getByName("androidTest")
+                .all.get().map {
+                        directory -> project.files(directory.asFileTree)
+                }
+        )
+    }
+
+    extensions.findByType(LibraryVariant::class.java)?.let { variant ->
+        testSourceFileCollections.addAll(
+            variant.sources.getByName("androidTest")
+                .all.get().map {
+                        directory -> project.files(directory.asFileTree)
+                }
+        )
+    }
 
     // Add kotlin-android androidTest source set
     extensions
@@ -514,7 +534,7 @@ private fun Project.getTestSourceSetsForAndroid(): List<FileCollection> {
     return testSourceFileCollections
 }
 
-fun Project.isPrivacySandboxEnabled(): Boolean =
+private fun Project.isPrivacySandboxEnabled(): Boolean =
     extensions.findByType(ApplicationExtension::class.java)
         ?.privacySandbox
         ?.enable
