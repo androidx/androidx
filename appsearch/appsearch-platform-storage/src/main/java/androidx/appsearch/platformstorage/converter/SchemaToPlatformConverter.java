@@ -52,16 +52,21 @@ public final class SchemaToPlatformConverter {
         Preconditions.checkNotNull(jetpackSchema);
         android.app.appsearch.AppSearchSchema.Builder platformBuilder =
                 new android.app.appsearch.AppSearchSchema.Builder(jetpackSchema.getSchemaType());
-        List<AppSearchSchema.PropertyConfig> properties = jetpackSchema.getProperties();
-        for (int i = 0; i < properties.size(); i++) {
-            android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty =
-                    toPlatformProperty(properties.get(i));
-            platformBuilder.addProperty(platformProperty);
+        if (!jetpackSchema.getDescription().isEmpty()) {
+            // TODO(b/326987971): Remove this once description becomes available.
+            throw new UnsupportedOperationException(Features.SCHEMA_SET_DESCRIPTION
+                    + " is not available on this AppSearch implementation.");
         }
         if (!jetpackSchema.getParentTypes().isEmpty()) {
             // TODO(b/269295094): Remove this once polymorphism becomes available.
             throw new UnsupportedOperationException(Features.SCHEMA_ADD_PARENT_TYPE
                     + " is not available on this AppSearch implementation.");
+        }
+        List<AppSearchSchema.PropertyConfig> properties = jetpackSchema.getProperties();
+        for (int i = 0; i < properties.size(); i++) {
+            android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty =
+                    toPlatformProperty(properties.get(i));
+            platformBuilder.addProperty(platformProperty);
         }
         return platformBuilder.build();
     }
@@ -78,12 +83,14 @@ public final class SchemaToPlatformConverter {
                 new AppSearchSchema.Builder(platformSchema.getSchemaType());
         List<android.app.appsearch.AppSearchSchema.PropertyConfig> properties =
                 platformSchema.getProperties();
+        // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+        // available in platform.
+        // TODO(b/269295094): Call jetpackBuilder.addParentType() to add parent types once
+        //  polymorphism becomes available in platform.
         for (int i = 0; i < properties.size(); i++) {
             AppSearchSchema.PropertyConfig jetpackProperty = toJetpackProperty(properties.get(i));
             jetpackBuilder.addProperty(jetpackProperty);
         }
-        // TODO(b/269295094): Call jetpackBuilder.addParentType() to add parent types once
-        //  polymorphism becomes available in platform.
         return jetpackBuilder.build();
     }
 
@@ -94,6 +101,11 @@ public final class SchemaToPlatformConverter {
     private static android.app.appsearch.AppSearchSchema.PropertyConfig toPlatformProperty(
             @NonNull AppSearchSchema.PropertyConfig jetpackProperty) {
         Preconditions.checkNotNull(jetpackProperty);
+        if (!jetpackProperty.getDescription().isEmpty()) {
+            // TODO(b/326987971): Remove this once description becomes available.
+            throw new UnsupportedOperationException(Features.SCHEMA_SET_DESCRIPTION
+                    + " is not available on this AppSearch implementation.");
+        }
         if (jetpackProperty instanceof AppSearchSchema.StringPropertyConfig) {
             AppSearchSchema.StringPropertyConfig stringProperty =
                     (AppSearchSchema.StringPropertyConfig) jetpackProperty;
@@ -199,6 +211,8 @@ public final class SchemaToPlatformConverter {
                 jetpackBuilder.setJoinableValueType(
                         ApiHelperForU.getJoinableValueType(stringProperty));
             }
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return jetpackBuilder.build();
         } else if (platformProperty
                 instanceof android.app.appsearch.AppSearchSchema.LongPropertyConfig) {
@@ -211,19 +225,27 @@ public final class SchemaToPlatformConverter {
                 jetpackBuilder.setIndexingType(
                         ApiHelperForU.getIndexingType(longProperty));
             }
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return jetpackBuilder.build();
         } else if (platformProperty
                 instanceof android.app.appsearch.AppSearchSchema.DoublePropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.DoublePropertyConfig.Builder(platformProperty.getName())
                     .setCardinality(platformProperty.getCardinality())
                     .build();
         } else if (platformProperty
                 instanceof android.app.appsearch.AppSearchSchema.BooleanPropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.BooleanPropertyConfig.Builder(platformProperty.getName())
                     .setCardinality(platformProperty.getCardinality())
                     .build();
         } else if (platformProperty
                 instanceof android.app.appsearch.AppSearchSchema.BytesPropertyConfig) {
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.BytesPropertyConfig.Builder(platformProperty.getName())
                     .setCardinality(platformProperty.getCardinality())
                     .build();
@@ -231,6 +253,8 @@ public final class SchemaToPlatformConverter {
                 instanceof android.app.appsearch.AppSearchSchema.DocumentPropertyConfig) {
             android.app.appsearch.AppSearchSchema.DocumentPropertyConfig documentProperty =
                     (android.app.appsearch.AppSearchSchema.DocumentPropertyConfig) platformProperty;
+            // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
+            // available in platform.
             return new AppSearchSchema.DocumentPropertyConfig.Builder(
                     documentProperty.getName(),
                     documentProperty.getSchemaType())

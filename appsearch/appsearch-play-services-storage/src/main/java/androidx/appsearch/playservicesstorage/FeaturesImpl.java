@@ -100,6 +100,10 @@ final class FeaturesImpl implements Features {
                 // TODO(b/289150947) : Update to reflect support once this feature is synced over
                 //  into gms-appsearch.
                 // fall through
+            case Features.SCHEMA_SET_DESCRIPTION:
+                // TODO(b/326987971) : Update to reflect support once this feature is synced over
+                // into gms-appsearch.
+                // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 // TODO(b/296088047) : Update to reflect support once this feature is synced over
                 //  into gms-appsearch.

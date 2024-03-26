@@ -80,14 +80,19 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
     @Field(id = 3, getter = "getParentTypes")
     private final List<String> mParentTypes;
 
+    @Field(id = 4, getter = "getDescription")
+    private final String mDescription;
+
     @Constructor
     AppSearchSchema(
             @Param(id = 1) @NonNull String schemaType,
             @Param(id = 2) @NonNull List<PropertyConfigParcel> propertyConfigParcels,
-            @Param(id = 3) @NonNull List<String> parentTypes) {
+            @Param(id = 3) @NonNull List<String> parentTypes,
+            @Param(id = 4) @NonNull String description) {
         mSchemaType = Objects.requireNonNull(schemaType);
         mPropertyConfigParcels = Objects.requireNonNull(propertyConfigParcels);
         mParentTypes = Objects.requireNonNull(parentTypes);
+        mDescription = Objects.requireNonNull(description);
     }
 
     @Override
@@ -110,6 +115,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         builder.append("{\n");
         builder.increaseIndentLevel();
         builder.append("schemaType: \"").append(getSchemaType()).append("\",\n");
+        builder.append("description: \"").append(getDescription()).append("\",\n");
         builder.append("properties: [\n");
 
         AppSearchSchema.PropertyConfig[] sortedProperties = getProperties()
@@ -136,6 +142,20 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
     @NonNull
     public String getSchemaType() {
         return mSchemaType;
+    }
+
+    /**
+     * Returns a natural language description of this schema type.
+     *
+     * <p>Ex. The description for an Email type could be "A type of electronic message".
+     *
+     * <p>This information is purely to help apps consuming this type to understand its semantic
+     * meaning. This field has no effect in AppSearch - it is just stored with the AppSearchSchema.
+     * If {@link Builder#setDescription} is uncalled, then this method will return an empty string.
+     */
+    @NonNull
+    public String getDescription() {
+        return mDescription;
     }
 
     /**
@@ -177,6 +197,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         if (!getSchemaType().equals(otherSchema.getSchemaType())) {
             return false;
         }
+        if (!getDescription().equals(otherSchema.getDescription())) {
+            return false;
+        }
         if (!getParentTypes().equals(otherSchema.getParentTypes())) {
             return false;
         }
@@ -185,7 +208,11 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(getSchemaType(), getProperties(), getParentTypes());
+        return ObjectsCompat.hash(
+            getSchemaType(),
+            getProperties(),
+            getParentTypes(),
+            getDescription());
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -198,6 +225,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
     /** Builder for {@link AppSearchSchema objects}. */
     public static final class Builder {
         private final String mSchemaType;
+        private String mDescription = "";
         private ArrayList<PropertyConfigParcel> mPropertyConfigParcels = new ArrayList<>();
         private LinkedHashSet<String> mParentTypes = new LinkedHashSet<>();
         private final Set<String> mPropertyNames = new ArraySet<>();
@@ -206,6 +234,25 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Creates a new {@link AppSearchSchema.Builder}. */
         public Builder(@NonNull String schemaType) {
             mSchemaType = Preconditions.checkNotNull(schemaType);
+        }
+
+        /**
+         * Sets a natural language description of this schema type.
+         *
+         * <p> For more details about the description field, see {@link
+         * AppSearchSchema#getDescription}.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SCHEMA_SET_DESCRIPTION)
+        @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+        @CanIgnoreReturnValue
+        @NonNull
+        public AppSearchSchema.Builder setDescription(@NonNull String description) {
+            Objects.requireNonNull(description);
+            resetIfBuilt();
+            mDescription = description;
+            return this;
         }
 
         /** Adds a property to the given type. */
@@ -299,7 +346,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             mBuilt = true;
             return new AppSearchSchema(mSchemaType,
                     mPropertyConfigParcels,
-                    new ArrayList<>(mParentTypes));
+                    new ArrayList<>(mParentTypes),
+                    mDescription);
         }
 
         private void resetIfBuilt() {
@@ -435,6 +483,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             builder.append("{\n");
             builder.increaseIndentLevel();
             builder.append("name: \"").append(getName()).append("\",\n");
+            builder.append("description: \"").append(getDescription()).append("\",\n");
 
             if (this instanceof AppSearchSchema.StringPropertyConfig) {
                 ((StringPropertyConfig) this)
@@ -494,6 +543,23 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         @NonNull
         public String getName() {
             return mPropertyConfigParcel.getName();
+        }
+
+        /**
+         * Returns a natural language description of this property.
+         *
+         * <p>Ex. The description for the "homeAddress" property of a "Person" type could be "the
+         * address at which this person lives".
+         *
+         * <p>This information is purely to help apps consuming this type the semantic meaning of
+         * its properties. This field has no effect in AppSearch - it is just stored with the
+         * AppSearchSchema. If the description is not set, then this method will return an empty
+         * string.
+         */
+        @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+        @NonNull
+        public String getDescription() {
+            return mPropertyConfigParcel.getDescription();
         }
 
         /**
@@ -759,6 +825,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Builder for {@link StringPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
             @IndexingType
@@ -772,6 +839,23 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             /** Creates a new {@link StringPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public StringPropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -872,7 +956,9 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                 JoinableConfigParcel joinableConfigParcel =
                         new JoinableConfigParcel(mJoinableValueType, mDeletionPropagation);
                 return new StringPropertyConfig(
-                        PropertyConfigParcel.createForString(mPropertyName,
+                        PropertyConfigParcel.createForString(
+                                mPropertyName,
+                                mDescription,
                                 mCardinality,
                                 stringConfigParcel,
                                 joinableConfigParcel));
@@ -981,6 +1067,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Builder for {@link LongPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
             @IndexingType
@@ -989,6 +1076,23 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             /** Creates a new {@link LongPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public LongPropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -1028,7 +1132,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public LongPropertyConfig build() {
                 return new LongPropertyConfig(
                         PropertyConfigParcel.createForLong(
-                                mPropertyName, mCardinality, mIndexingType));
+                                mPropertyName, mDescription, mCardinality, mIndexingType));
             }
         }
 
@@ -1063,12 +1167,30 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Builder for {@link DoublePropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link DoublePropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public DoublePropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -1092,7 +1214,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public DoublePropertyConfig build() {
                 return new DoublePropertyConfig(
                         PropertyConfigParcel.createForDouble(
-                                mPropertyName, mCardinality));
+                                mPropertyName, mDescription, mCardinality));
             }
         }
     }
@@ -1106,12 +1228,30 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Builder for {@link BooleanPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link BooleanPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+              Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public BooleanPropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -1135,7 +1275,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public BooleanPropertyConfig build() {
                 return new BooleanPropertyConfig(
                         PropertyConfigParcel.createForBoolean(
-                                mPropertyName, mCardinality));
+                                mPropertyName, mDescription, mCardinality));
             }
         }
     }
@@ -1149,12 +1289,30 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Builder for {@link BytesPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
 
             /** Creates a new {@link BytesPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public BytesPropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -1180,7 +1338,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public BytesPropertyConfig build() {
                 return new BytesPropertyConfig(
                         PropertyConfigParcel.createForBytes(
-                                mPropertyName, mCardinality));
+                                mPropertyName, mDescription, mCardinality));
             }
         }
     }
@@ -1242,6 +1400,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         public static final class Builder {
             private final String mPropertyName;
             private final String mSchemaType;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
             private boolean mShouldIndexNestedProperties = false;
@@ -1260,6 +1419,23 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public Builder(@NonNull String propertyName, @NonNull String schemaType) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
                 mSchemaType = Preconditions.checkNotNull(schemaType);
+            }
+
+            /**
+             * Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public DocumentPropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -1412,6 +1588,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
                 return new DocumentPropertyConfig(
                         PropertyConfigParcel.createForDocument(
                                 mPropertyName,
+                                mDescription,
                                 mCardinality,
                                 mSchemaType,
                                 new DocumentIndexingConfigParcel(mShouldIndexNestedProperties,
@@ -1493,6 +1670,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         /** Builder for {@link EmbeddingPropertyConfig}. */
         public static final class Builder {
             private final String mPropertyName;
+            private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
             @EmbeddingPropertyConfig.IndexingType
@@ -1501,6 +1679,23 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             /** Creates a new {@link EmbeddingPropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
                 mPropertyName = Preconditions.checkNotNull(propertyName);
+            }
+
+            /**
+             * Sets a natural language description of this property.
+             *
+             * <p> For more details about the description field, see {@link
+             * AppSearchSchema.PropertyConfig#getDescription}.
+             */
+            @RequiresFeature(
+                    enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                    name = Features.SCHEMA_SET_DESCRIPTION)
+            @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
+            @SuppressWarnings("MissingGetterMatchingBuilder") // getter defined in superclass
+            @NonNull
+            public EmbeddingPropertyConfig.Builder setDescription(@NonNull String description) {
+                mDescription = Objects.requireNonNull(description);
+                return this;
             }
 
             /**
@@ -1545,7 +1740,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             public EmbeddingPropertyConfig build() {
                 return new EmbeddingPropertyConfig(
                         PropertyConfigParcel.createForEmbedding(
-                                mPropertyName, mCardinality, mIndexingType));
+                                mPropertyName, mDescription, mCardinality, mIndexingType));
             }
         }
     }

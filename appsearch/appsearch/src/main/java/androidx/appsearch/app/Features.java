@@ -120,6 +120,14 @@ public interface Features {
     String LIST_FILTER_HAS_PROPERTY_FUNCTION = FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION;
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers whether or not the
+     * AppSearch backend can store the descriptions returned by
+     * {@link AppSearchSchema#getDescription} and
+     * {@link AppSearchSchema.PropertyConfig#getDescription}.
+     */
+    String SCHEMA_SET_DESCRIPTION = "SCHEMA_SET_DESCRIPTION";
+
+    /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link AppSearchSchema.EmbeddingPropertyConfig}.
      *
@@ -127,7 +135,7 @@ public interface Features {
      * the query language and {@link SearchSpec.Builder#setRankingStrategy(String)} for the ranking
      * language.
      */
-    String SCHEMA_EMBEDDING_PROPERTY_CONFIG = FeatureConstants.SCHEMA_EMBEDDING_PROPERTY_CONFIG;
+    String SCHEMA_EMBEDDING_PROPERTY_CONFIG = "SCHEMA_EMBEDDING_PROPERTY_CONFIG";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers

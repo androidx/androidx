@@ -84,6 +84,9 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @Field(id = 9, getter = "getEmbeddingIndexingConfigParcel")
     private final EmbeddingIndexingConfigParcel mEmbeddingIndexingConfigParcel;
 
+    @Field(id = 9, getter = "getDescription")
+    private final String mDescription;
+
     @Nullable
     private Integer mHashCode;
 
@@ -98,7 +101,8 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
             @Param(id = 6) @Nullable DocumentIndexingConfigParcel documentIndexingConfigParcel,
             @Param(id = 7) @Nullable IntegerIndexingConfigParcel integerIndexingConfigParcel,
             @Param(id = 8) @Nullable JoinableConfigParcel joinableConfigParcel,
-            @Param(id = 9) @Nullable EmbeddingIndexingConfigParcel embeddingIndexingConfigParcel) {
+            @Param(id = 9) @Nullable EmbeddingIndexingConfigParcel embeddingIndexingConfigParcel,
+            @Param(id = 10) @NonNull String description) {
         mName = Objects.requireNonNull(name);
         mDataType = dataType;
         mCardinality = cardinality;
@@ -108,12 +112,14 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
         mIntegerIndexingConfigParcel = integerIndexingConfigParcel;
         mJoinableConfigParcel = joinableConfigParcel;
         mEmbeddingIndexingConfigParcel = embeddingIndexingConfigParcel;
+        mDescription = Objects.requireNonNull(description);
     }
 
     /** Creates a {@link PropertyConfigParcel} for String. */
     @NonNull
     public static PropertyConfigParcel createForString(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality,
             @NonNull StringIndexingConfigParcel stringIndexingConfigParcel,
             @NonNull JoinableConfigParcel joinableConfigParcel) {
@@ -126,13 +132,15 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
                 Objects.requireNonNull(joinableConfigParcel),
-                /*embeddingIndexingConfigParcel=*/ null);
+                /*embeddingIndexingConfigParcel=*/ null,
+                Objects.requireNonNull(description));
     }
 
     /** Creates a {@link PropertyConfigParcel} for Long. */
     @NonNull
     public static PropertyConfigParcel createForLong(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality,
             @AppSearchSchema.LongPropertyConfig.IndexingType int indexingType) {
         return new PropertyConfigParcel(
@@ -144,13 +152,15 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*documentIndexingConfigParcel=*/ null,
                 new IntegerIndexingConfigParcel(indexingType),
                 /*joinableConfigParcel=*/ null,
-                /*embeddingIndexingConfigParcel=*/ null);
+                /*embeddingIndexingConfigParcel=*/ null,
+                Objects.requireNonNull(description));
     }
 
     /** Creates a {@link PropertyConfigParcel} for Double. */
     @NonNull
     public static PropertyConfigParcel createForDouble(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality) {
         return new PropertyConfigParcel(
                 Objects.requireNonNull(propertyName),
@@ -161,13 +171,15 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
                 /*joinableConfigParcel=*/ null,
-                /*embeddingIndexingConfigParcel=*/ null);
+                /*embeddingIndexingConfigParcel=*/ null,
+                Objects.requireNonNull(description));
     }
 
     /** Creates a {@link PropertyConfigParcel} for Boolean. */
     @NonNull
     public static PropertyConfigParcel createForBoolean(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality) {
         return new PropertyConfigParcel(
                 Objects.requireNonNull(propertyName),
@@ -178,13 +190,15 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
                 /*joinableConfigParcel=*/ null,
-                /*embeddingIndexingConfigParcel=*/ null);
+                /*embeddingIndexingConfigParcel=*/ null,
+                Objects.requireNonNull(description));
     }
 
     /** Creates a {@link PropertyConfigParcel} for Bytes. */
     @NonNull
     public static PropertyConfigParcel createForBytes(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality) {
         return new PropertyConfigParcel(
                 Objects.requireNonNull(propertyName),
@@ -195,13 +209,15 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
                 /*joinableConfigParcel=*/ null,
-                /*embeddingIndexingConfigParcel=*/ null);
+                /*embeddingIndexingConfigParcel=*/ null,
+                Objects.requireNonNull(description));
     }
 
     /** Creates a {@link PropertyConfigParcel} for Document. */
     @NonNull
     public static PropertyConfigParcel createForDocument(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality,
             @NonNull String schemaType,
             @NonNull DocumentIndexingConfigParcel documentIndexingConfigParcel) {
@@ -214,13 +230,15 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 Objects.requireNonNull(documentIndexingConfigParcel),
                 /*integerIndexingConfigParcel=*/ null,
                 /*joinableConfigParcel=*/ null,
-                /*embeddingIndexingConfigParcel=*/ null);
+                /*embeddingIndexingConfigParcel=*/ null,
+                Objects.requireNonNull(description));
     }
 
     /** Creates a {@link PropertyConfigParcel} for Embedding. */
     @NonNull
     public static PropertyConfigParcel createForEmbedding(
             @NonNull String propertyName,
+            @NonNull String description,
             @Cardinality int cardinality,
             @AppSearchSchema.EmbeddingPropertyConfig.IndexingType int indexingType) {
         return new PropertyConfigParcel(
@@ -232,13 +250,20 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
                 /*documentIndexingConfigParcel=*/ null,
                 /*integerIndexingConfigParcel=*/ null,
                 /*joinableConfigParcel=*/ null,
-                new EmbeddingIndexingConfigParcel(indexingType));
+                new EmbeddingIndexingConfigParcel(indexingType),
+                Objects.requireNonNull(description));
     }
 
     /** Gets name for the property. */
     @NonNull
     public String getName() {
         return mName;
+    }
+
+    /** Gets description for the property. */
+    @NonNull
+    public String getDescription() {
+        return mDescription;
     }
 
     /** Gets data type for the property. */
@@ -304,6 +329,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
         }
         PropertyConfigParcel otherProperty = (PropertyConfigParcel) other;
         return ObjectsCompat.equals(mName, otherProperty.mName)
+                && Objects.equals(mDescription, otherProperty.mDescription)
                 && ObjectsCompat.equals(mDataType, otherProperty.mDataType)
                 && ObjectsCompat.equals(mCardinality, otherProperty.mCardinality)
                 && ObjectsCompat.equals(mSchemaType, otherProperty.mSchemaType)
@@ -322,10 +348,18 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @Override
     public int hashCode() {
         if (mHashCode == null) {
-            mHashCode = ObjectsCompat.hash(mName, mDataType, mCardinality, mSchemaType,
-                    mStringIndexingConfigParcel, mDocumentIndexingConfigParcel,
-                    mIntegerIndexingConfigParcel, mJoinableConfigParcel,
-                    mEmbeddingIndexingConfigParcel);
+            mHashCode =
+                ObjectsCompat.hash(
+                        mName,
+                        mDescription,
+                        mDataType,
+                        mCardinality,
+                        mSchemaType,
+                        mStringIndexingConfigParcel,
+                        mDocumentIndexingConfigParcel,
+                        mIntegerIndexingConfigParcel,
+                        mJoinableConfigParcel,
+                        mEmbeddingIndexingConfigParcel);
         }
         return mHashCode;
     }
@@ -334,6 +368,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @NonNull
     public String toString() {
         return "{name: " + mName
+                + ", description: " + mDescription
                 + ", dataType: " + mDataType
                 + ", cardinality: " + mCardinality
                 + ", schemaType: " + mSchemaType

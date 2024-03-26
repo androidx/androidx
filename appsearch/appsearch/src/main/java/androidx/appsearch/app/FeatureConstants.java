@@ -40,9 +40,6 @@ public interface FeatureConstants {
     /**  Feature constants for {@link Features#LIST_FILTER_HAS_PROPERTY_FUNCTION}.  */
     String LIST_FILTER_HAS_PROPERTY_FUNCTION = "LIST_FILTER_HAS_PROPERTY_FUNCTION";
 
-    /** Feature constants for {@link Features#SCHEMA_EMBEDDING_PROPERTY_CONFIG}. */
-    String SCHEMA_EMBEDDING_PROPERTY_CONFIG = "SCHEMA_EMBEDDING_PROPERTY_CONFIG";
-
     /** A feature constant for the "semanticSearch" function in {@link AppSearchSession#search}. */
     String EMBEDDING_SEARCH = "EMBEDDING_SEARCH";
 }
