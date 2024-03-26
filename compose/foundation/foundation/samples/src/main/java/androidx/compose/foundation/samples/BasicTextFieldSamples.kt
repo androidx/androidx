@@ -52,7 +52,6 @@ import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.then
-import androidx.compose.foundation.text.input.valueAsFlow
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -67,6 +66,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -228,7 +228,7 @@ fun BasicTextFieldStateCompleteSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.valueAsFlow().collectLatest { queryText ->
+            snapshotFlow { searchFieldState.text }.collectLatest { queryText ->
                 // Start a new search every time the user types something valid. If the previous
                 // search is still being processed when the text is changed, it will be cancelled
                 // and this code will run again with the latest query text.
@@ -320,7 +320,7 @@ fun BasicTextFieldStateEditSample() {
 fun BasicTextFieldCustomInputTransformationSample() {
     // Demonstrates how to create a custom and relatively complex InputTransformation.
     val state = remember { TextFieldState() }
-    BasicTextField(state, inputTransformation = { _, new ->
+    BasicTextField(state, inputTransformation = {
         // A filter that always places newly-input text at the start of the string, after a
         // prompt character, like a shell.
         val promptChar = '>'
@@ -332,27 +332,27 @@ fun BasicTextFieldCustomInputTransformationSample() {
         }
 
         // Step one: Figure out the insertion point.
-        val newPromptChars = new.asCharSequence().countPrefix(promptChar)
+        val newPromptChars = asCharSequence().countPrefix(promptChar)
         val insertionPoint = if (newPromptChars == 0) 0 else 1
 
         // Step two: Ensure text is placed at the insertion point.
-        if (new.changes.changeCount == 1) {
-            val insertedRange = new.changes.getRange(0)
-            val replacedRange = new.changes.getOriginalRange(0)
+        if (changes.changeCount == 1) {
+            val insertedRange = changes.getRange(0)
+            val replacedRange = changes.getOriginalRange(0)
             if (!replacedRange.collapsed && insertedRange.collapsed) {
                 // Text was deleted, delete forwards from insertion point.
-                new.delete(insertionPoint, insertionPoint + replacedRange.length)
+                delete(insertionPoint, insertionPoint + replacedRange.length)
             }
         }
         // Else text was replaced or there were multiple changes - don't handle.
 
         // Step three: Ensure the prompt character is there.
         if (newPromptChars == 0) {
-            new.insert(0, ">")
+            insert(0, ">")
         }
 
         // Step four: Ensure the cursor is ready for the next input.
-        new.placeCursorAfterCharAt(0)
+        placeCursorAfterCharAt(0)
     })
 }
 
@@ -385,9 +385,9 @@ fun BasicTextFieldOutputTransformationSample() {
         state,
         inputTransformation = InputTransformation
             .maxLength(10)
-            .then { _, valueWithChanges ->
-                if (!TextUtils.isDigitsOnly(valueWithChanges.asCharSequence())) {
-                    valueWithChanges.revertAllChanges()
+            .then {
+                if (!TextUtils.isDigitsOnly(asCharSequence())) {
+                    revertAllChanges()
                 }
             },
         outputTransformation = PhoneNumberOutputTransformation(false)
@@ -422,14 +422,14 @@ fun BasicTextFieldInputTransformationByValueChooseSample() {
 
 @Sampled
 fun BasicTextFieldInputTransformationChainingSample() {
-    val removeFirstEFilter = InputTransformation { _, new ->
-        val index = new.asCharSequence().indexOf('e')
+    val removeFirstEFilter = InputTransformation {
+        val index = asCharSequence().indexOf('e')
         if (index != -1) {
-            new.replace(index, index + 1, "")
+            replace(index, index + 1, "")
         }
     }
-    val printECountFilter = InputTransformation { _, new ->
-        println("found ${new.asCharSequence().count { it == 'e' }} 'e's in the string")
+    val printECountFilter = InputTransformation {
+        println("found ${asCharSequence().count { it == 'e' }} 'e's in the string")
     }
 
     // Returns a filter that always prints 0 e's.
@@ -443,9 +443,9 @@ fun BasicTextFieldInputTransformationChainingSample() {
 @Composable
 fun BasicTextFieldChangeIterationSample() {
     // Print a log message every time the text is changed.
-    BasicTextField(state = rememberTextFieldState(), inputTransformation = { _, new ->
-        new.changes.forEachChange { sourceRange, replacedLength ->
-            val newString = new.asCharSequence().substring(sourceRange)
+    BasicTextField(state = rememberTextFieldState(), inputTransformation = {
+        changes.forEachChange { sourceRange, replacedLength ->
+            val newString = asCharSequence().substring(sourceRange)
             println("""$replacedLength characters were replaced with "$newString"""")
         }
     })
@@ -456,13 +456,13 @@ fun BasicTextFieldChangeIterationSample() {
 fun BasicTextFieldChangeReverseIterationSample() {
     // Make a text field behave in "insert mode" – inserted text overwrites the text ahead of it
     // instead of being inserted.
-    BasicTextField(state = rememberTextFieldState(), inputTransformation = { _, new ->
-        new.changes.forEachChangeReversed { range, originalRange ->
+    BasicTextField(state = rememberTextFieldState(), inputTransformation = {
+        changes.forEachChangeReversed { range, originalRange ->
             if (!range.collapsed && originalRange.collapsed) {
                 // New text was inserted, delete the text ahead of it.
-                new.delete(
-                    range.end.coerceAtMost(new.length),
-                    (range.end + range.length).coerceAtMost(new.length)
+                delete(
+                    range.end.coerceAtMost(length),
+                    (range.end + range.length).coerceAtMost(length)
                 )
             }
         }
@@ -480,7 +480,7 @@ fun BasicTextFieldTextValuesSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.valueAsFlow()
+            snapshotFlow { searchFieldState.text }
                 // Let fast typers get multiple keystrokes in before kicking off a search.
                 .debounce(500)
                 // collectLatest cancels the previous search if it's still running when there's a

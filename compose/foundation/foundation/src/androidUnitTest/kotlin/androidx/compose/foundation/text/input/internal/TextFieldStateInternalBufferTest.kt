@@ -409,7 +409,7 @@ class TextFieldStateInternalBufferTest {
         val initialBuffer = state.mainBuffer
 
         state.editAsUser(
-            inputTransformation = { _, new -> new.revertAllChanges() },
+            inputTransformation = { revertAllChanges() },
             restartImeIfContentChanges = false
         ) {
             commitText("d", 4)
@@ -428,8 +428,8 @@ class TextFieldStateInternalBufferTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         val state = TextFieldState(initialValue)
-        val inputTransformation = InputTransformation { old, new ->
-            fail("filter ran, old=\"$old\", new=\"$new\"")
+        val inputTransformation = InputTransformation {
+            fail("filter ran, old=\"${originalValue}\", new=\"${toTextFieldCharSequence()}\"")
         }
 
         state.editAsUser(inputTransformation, restartImeIfContentChanges = false) {}
@@ -440,8 +440,8 @@ class TextFieldStateInternalBufferTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         val state = TextFieldState(initialValue)
-        val inputTransformation = InputTransformation { old, new ->
-            fail("filter ran, old=\"$old\", new=\"$new\"")
+        val inputTransformation = InputTransformation {
+            fail("filter ran, old=\"${originalValue}\", new=\"${toTextFieldCharSequence()}\"")
         }
 
         state.editAsUser(
@@ -455,8 +455,8 @@ class TextFieldStateInternalBufferTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = TextRange(0, 5))
         val state = TextFieldState(initialValue)
-        val inputTransformation = InputTransformation { old, new ->
-            fail("filter ran, old=\"$old\", new=\"$new\"")
+        val inputTransformation = InputTransformation {
+            fail("filter ran, old=\"${originalValue}\", new=\"${toTextFieldCharSequence()}\"")
         }
 
         state.editAsUser(
@@ -470,7 +470,9 @@ class TextFieldStateInternalBufferTest {
         val initialValue =
             TextFieldCharSequence("hello", selection = TextRange(2), composition = TextRange(0, 5))
         val state = TextFieldState(initialValue)
-        val inputTransformation = InputTransformation { old, new ->
+        val inputTransformation = InputTransformation {
+            val old = originalValue
+            val new = toTextFieldCharSequence()
             fail(
                 "filter ran, old=\"$old\" (${old.selection}), " +
                     "new=\"$new\" (${new.selection})"
@@ -493,7 +495,9 @@ class TextFieldStateInternalBufferTest {
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         var filterRan = false
         val state = TextFieldState(initialValue)
-        val inputTransformation = InputTransformation { old, new ->
+        val inputTransformation = InputTransformation {
+            val old = originalValue
+            val new = toTextFieldCharSequence()
             // Filter should only run once.
             assertThat(filterRan).isFalse()
             filterRan = true
@@ -514,7 +518,9 @@ class TextFieldStateInternalBufferTest {
             TextFieldCharSequence("hello", selection = TextRange(2), composition = null)
         var filterRan = false
         val state = TextFieldState(initialValue)
-        val inputTransformation = InputTransformation { old, new ->
+        val inputTransformation = InputTransformation {
+            val old = originalValue
+            val new = toTextFieldCharSequence()
             // Filter should only run once.
             assertThat(filterRan).isFalse()
             filterRan = true
