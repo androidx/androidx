@@ -116,7 +116,10 @@ public final class TextViewCompat {
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
      * @attr name android:drawableBottom
+     * @deprecated Call {@link TextView#setCompoundDrawablesRelative()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelative(start, top, end, bottom)")
     public static void setCompoundDrawablesRelative(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
             @Nullable Drawable bottom) {
@@ -141,7 +144,10 @@ public final class TextViewCompat {
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
      * @attr name android:drawableBottom
+     * @deprecated Call {@link TextView#setCompoundDrawablesRelativeWithIntrinsicBounds()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
             @Nullable Drawable bottom) {
@@ -165,7 +171,10 @@ public final class TextViewCompat {
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
      * @attr name android:drawableBottom
+     * @deprecated Call {@link TextView#setCompoundDrawablesRelativeWithIntrinsicBounds()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
             @DrawableRes int bottom) {
@@ -175,7 +184,10 @@ public final class TextViewCompat {
     /**
      * Returns the maximum number of lines displayed in the given TextView, or -1 if the maximum
      * height was set in pixels instead.
+     * @deprecated Call {@link TextView#getMaxLines()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.getMaxLines()")
     public static int getMaxLines(@NonNull TextView textView) {
         return textView.getMaxLines();
     }
@@ -183,7 +195,10 @@ public final class TextViewCompat {
     /**
      * Returns the minimum number of lines displayed in the given TextView, or -1 if the minimum
      * height was set in pixels instead.
+     * @deprecated Call {@link TextView#getMinLines()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.getMinLines()")
     public static int getMinLines(@NonNull TextView textView) {
         return textView.getMinLines();
     }
@@ -207,7 +222,10 @@ public final class TextViewCompat {
 
     /**
      * Returns drawables for the start, top, end, and bottom borders from the given text view.
+     * @deprecated Call {@link TextView#getCompoundDrawablesRelative()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.getCompoundDrawablesRelative()")
     @NonNull
     public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
         return textView.getCompoundDrawablesRelative();
@@ -406,7 +424,10 @@ public final class TextViewCompat {
      *
      * @param textView The TextView to set the action selection mode callback on.
      * @param callback The action selection mode callback to set on textView.
+     * @deprecated Call {@link TextView#setCustomSelectionActionModeCallback(ActionMode.Callback)} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "textView.setCustomSelectionActionModeCallback(callback)")
     public static void setCustomSelectionActionModeCallback(@NonNull final TextView textView,
                 @NonNull final ActionMode.Callback callback) {
         textView.setCustomSelectionActionModeCallback(

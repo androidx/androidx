@@ -2627,20 +2627,20 @@ package androidx.core.view {
   }
 
   public final class MenuItemCompat {
-    method @Deprecated public static boolean collapseActionView(android.view.MenuItem!);
-    method @Deprecated public static boolean expandActionView(android.view.MenuItem!);
+    method @Deprecated @ReplaceWith(expression="item.collapseActionView()") public static boolean collapseActionView(android.view.MenuItem!);
+    method @Deprecated @ReplaceWith(expression="item.expandActionView()") public static boolean expandActionView(android.view.MenuItem!);
     method public static androidx.core.view.ActionProvider? getActionProvider(android.view.MenuItem);
-    method @Deprecated public static android.view.View! getActionView(android.view.MenuItem!);
+    method @Deprecated @ReplaceWith(expression="item.getActionView()") public static android.view.View! getActionView(android.view.MenuItem!);
     method public static int getAlphabeticModifiers(android.view.MenuItem);
     method public static CharSequence? getContentDescription(android.view.MenuItem);
     method public static android.content.res.ColorStateList? getIconTintList(android.view.MenuItem);
     method public static android.graphics.PorterDuff.Mode? getIconTintMode(android.view.MenuItem);
     method public static int getNumericModifiers(android.view.MenuItem);
     method public static CharSequence? getTooltipText(android.view.MenuItem);
-    method @Deprecated public static boolean isActionViewExpanded(android.view.MenuItem!);
+    method @Deprecated @ReplaceWith(expression="item.isActionViewExpanded()") public static boolean isActionViewExpanded(android.view.MenuItem!);
     method public static android.view.MenuItem? setActionProvider(android.view.MenuItem, androidx.core.view.ActionProvider?);
-    method @Deprecated public static android.view.MenuItem! setActionView(android.view.MenuItem!, android.view.View!);
-    method @Deprecated public static android.view.MenuItem! setActionView(android.view.MenuItem!, int);
+    method @Deprecated @ReplaceWith(expression="item.setActionView(view)") public static android.view.MenuItem! setActionView(android.view.MenuItem!, android.view.View!);
+    method @Deprecated @ReplaceWith(expression="item.setActionView(resId)") public static android.view.MenuItem! setActionView(android.view.MenuItem!, int);
     method public static void setAlphabeticShortcut(android.view.MenuItem, char, int);
     method public static void setContentDescription(android.view.MenuItem, CharSequence?);
     method public static void setIconTintList(android.view.MenuItem, android.content.res.ColorStateList?);
@@ -2648,7 +2648,7 @@ package androidx.core.view {
     method public static void setNumericShortcut(android.view.MenuItem, char, int);
     method @Deprecated public static android.view.MenuItem! setOnActionExpandListener(android.view.MenuItem!, androidx.core.view.MenuItemCompat.OnActionExpandListener!);
     method public static void setShortcut(android.view.MenuItem, char, char, int, int);
-    method @Deprecated public static void setShowAsAction(android.view.MenuItem!, int);
+    method @Deprecated @ReplaceWith(expression="item.setShowAsAction(actionEnum)") public static void setShowAsAction(android.view.MenuItem!, int);
     method public static void setTooltipText(android.view.MenuItem, CharSequence?);
     field @Deprecated public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
     field @Deprecated public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
@@ -3445,13 +3445,13 @@ package androidx.core.view.accessibility {
 
   public final class AccessibilityManagerCompat {
     method @Deprecated public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
-    method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
-    method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
-    method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
+    method @Deprecated @ReplaceWith(expression="manager.addTouchExplorationStateChangeListener(listener)") public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
+    method @Deprecated @ReplaceWith(expression="manager.getEnabledAccessibilityServiceList(feedbackTypeFlags)") public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
+    method @Deprecated @ReplaceWith(expression="manager.getInstalledAccessibilityServiceList()") public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
     method public static boolean isRequestFromAccessibilityTool(android.view.accessibility.AccessibilityManager);
-    method @Deprecated public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager!);
+    method @Deprecated @ReplaceWith(expression="manager.isTouchExplorationEnabled()") public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
-    method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
+    method @Deprecated @ReplaceWith(expression="manager.removeTouchExplorationStateChangeListener(listener)") public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener);
   }
 
   @Deprecated public static interface AccessibilityManagerCompat.AccessibilityStateChangeListener {
@@ -4199,21 +4199,21 @@ package androidx.core.widget {
     method public static int getAutoSizeTextType(android.widget.TextView);
     method public static android.content.res.ColorStateList? getCompoundDrawableTintList(android.widget.TextView);
     method public static android.graphics.PorterDuff.Mode? getCompoundDrawableTintMode(android.widget.TextView);
-    method public static android.graphics.drawable.Drawable![] getCompoundDrawablesRelative(android.widget.TextView);
+    method @Deprecated @ReplaceWith(expression="textView.getCompoundDrawablesRelative()") public static android.graphics.drawable.Drawable![] getCompoundDrawablesRelative(android.widget.TextView);
     method public static int getFirstBaselineToTopHeight(android.widget.TextView);
     method public static int getLastBaselineToBottomHeight(android.widget.TextView);
-    method public static int getMaxLines(android.widget.TextView);
-    method public static int getMinLines(android.widget.TextView);
+    method @Deprecated @ReplaceWith(expression="textView.getMaxLines()") public static int getMaxLines(android.widget.TextView);
+    method @Deprecated @ReplaceWith(expression="textView.getMinLines()") public static int getMinLines(android.widget.TextView);
     method public static androidx.core.text.PrecomputedTextCompat.Params getTextMetricsParams(android.widget.TextView);
     method public static void setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int) throws java.lang.IllegalArgumentException;
     method public static void setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int) throws java.lang.IllegalArgumentException;
     method public static void setAutoSizeTextTypeWithDefaults(android.widget.TextView, int);
     method public static void setCompoundDrawableTintList(android.widget.TextView, android.content.res.ColorStateList?);
     method public static void setCompoundDrawableTintMode(android.widget.TextView, android.graphics.PorterDuff.Mode?);
-    method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
-    method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
-    method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, @DrawableRes int, @DrawableRes int, @DrawableRes int, @DrawableRes int);
-    method public static void setCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
+    method @Deprecated @ReplaceWith(expression="textView.setCompoundDrawablesRelative(start, top, end, bottom)") public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
+    method @Deprecated @ReplaceWith(expression="textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)") public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
+    method @Deprecated @ReplaceWith(expression="textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)") public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, @DrawableRes int, @DrawableRes int, @DrawableRes int, @DrawableRes int);
+    method @Deprecated @ReplaceWith(expression="textView.setCustomSelectionActionModeCallback(callback)") public static void setCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
     method public static void setFirstBaselineToTopHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setLastBaselineToBottomHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setLineHeight(android.widget.TextView, @IntRange(from=0) @Px int);
