@@ -21,7 +21,7 @@ import android.util.Log
 
 internal object BackCompatManager {
 
-    fun <T> getBackCompatManager(context: Context, tag: String, manager: (Context) -> T?): T? {
+    fun <T> getManager(context: Context, tag: String, manager: (Context) -> T?): T? {
         // catch NoClassDefFoundError in case uses-library tag is missing from manifest
         try {
             return manager(context)

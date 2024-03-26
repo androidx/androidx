@@ -49,10 +49,8 @@ abstract class AppSetIdManager internal constructor() {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AppSetIdManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                BackCompatManager.getBackCompatManager(context, "AppSetIdManager") {
-                    AppSetIdManagerApi31Ext9Impl(
-                        context
-                    )
+                BackCompatManager.getManager(context, "AppSetIdManager") {
+                    AppSetIdManagerApi31Ext9Impl(context)
                 }
             } else {
                 null
