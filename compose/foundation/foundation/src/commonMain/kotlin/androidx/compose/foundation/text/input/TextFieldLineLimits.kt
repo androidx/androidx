@@ -36,7 +36,12 @@ sealed interface TextFieldLineLimits {
      * The text field is always a single line tall, ignores newlines in the text, and scrolls
      * horizontally when the text overflows.
      */
-    object SingleLine : TextFieldLineLimits
+    object SingleLine : TextFieldLineLimits {
+
+        override fun toString(): String {
+            return "TextFieldLineLimits.SingleLine"
+        }
+    }
 
     /**
      * The text field will be at least [minHeightInLines] tall, if the text overflows it will wrap,

@@ -19,6 +19,7 @@
 
 package androidx.compose.foundation.samples
 
+import android.text.TextUtils
 import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -39,12 +40,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.byValue
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.forEachChangeReversed
 import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.then
@@ -56,6 +60,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -349,6 +354,44 @@ fun BasicTextFieldCustomInputTransformationSample() {
         // Step four: Ensure the cursor is ready for the next input.
         new.placeCursorAfterCharAt(0)
     })
+}
+
+@Sampled
+@Composable
+fun BasicTextFieldOutputTransformationSample() {
+    @Stable
+    data class PhoneNumberOutputTransformation(
+        private val pad: Boolean
+    ) : OutputTransformation {
+        override fun TextFieldBuffer.transformOutput() {
+            if (pad) {
+                // Pad the text with placeholder chars if too short.
+                // (___) ___-____
+                val padCount = 10 - length
+                repeat(padCount) {
+                    append('_')
+                }
+            }
+
+            // (123) 456-7890
+            if (length > 0) insert(0, "(")
+            if (length > 4) insert(4, ") ")
+            if (length > 9) insert(9, "-")
+        }
+    }
+
+    val state = rememberTextFieldState()
+    BasicTextField(
+        state,
+        inputTransformation = InputTransformation
+            .maxLength(10)
+            .then { _, valueWithChanges ->
+                if (!TextUtils.isDigitsOnly(valueWithChanges.asCharSequence())) {
+                    valueWithChanges.revertAllChanges()
+                }
+            },
+        outputTransformation = PhoneNumberOutputTransformation(false)
+    )
 }
 
 @Sampled
