@@ -18,10 +18,10 @@ package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeCallableIds
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.ComposeNames
 import androidx.compose.compiler.plugins.kotlin.FeatureFlag
 import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.FunctionMetrics
-import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.ComposeWritableSlices
 import androidx.compose.compiler.plugins.kotlin.analysis.Stability
@@ -529,14 +529,14 @@ class ComposableFunctionBodyTransformer(
         composerIrClass
             .functions
             .first {
-                it.name == KtxNameConventions.STARTRESTARTGROUP && it.valueParameters.size == 1
+                it.name == ComposeNames.STARTRESTARTGROUP && it.valueParameters.size == 1
             }
     }
 
     private val currentMarkerProperty: IrProperty? by guardedLazy {
         composerIrClass.properties
             .firstOrNull {
-                it.name == KtxNameConventions.CURRENTMARKER
+                it.name == ComposeNames.CURRENTMARKER
             }
     }
 
@@ -544,7 +544,7 @@ class ComposableFunctionBodyTransformer(
         composerIrClass
             .functions
             .firstOrNull {
-                it.name == KtxNameConventions.ENDTOMARKER && it.valueParameters.size == 1
+                it.name == ComposeNames.ENDTOMARKER && it.valueParameters.size == 1
             }
     }
 
@@ -555,7 +555,7 @@ class ComposableFunctionBodyTransformer(
         composerIrClass
             .functions
             .first {
-                it.name == KtxNameConventions.ENDRESTARTGROUP && it.valueParameters.size == 0
+                it.name == ComposeNames.ENDRESTARTGROUP && it.valueParameters.size == 0
             }
     }
 
@@ -626,7 +626,7 @@ class ComposableFunctionBodyTransformer(
             ?.owner
             ?.functions
             ?.singleOrNull {
-                it.name == KtxNameConventions.UPDATE_SCOPE &&
+                it.name == ComposeNames.UPDATE_SCOPE &&
                     it.valueParameters.first().type.arguments.size == 3
             }
             ?: error("new updateScope not found in result type of endRestartGroup")
@@ -650,7 +650,7 @@ class ComposableFunctionBodyTransformer(
     private val joinKeyFunction by guardedLazy {
         composerIrClass.functions
             .first {
-                it.name == KtxNameConventions.JOINKEY && it.valueParameters.size == 2
+                it.name == ComposeNames.JOINKEY && it.valueParameters.size == 2
             }
     }
 
@@ -776,12 +776,24 @@ class ComposableFunctionBodyTransformer(
         // ComposerParamTransformer and has a synthetic "composer param" as its last parameter
         if (composerParam() == null) return false
 
+        // Virtual functions with default params are called through wrapper generated in
+        // ComposableDefaultParamLowering. The restartable group is moved to the wrapper, while
+        // the function itself is no longer restartable.
+        if (isVirtualFunctionWithDefaultParam()) {
+            return false
+        }
+
         // Check if the descriptor has restart scope calls resolved
         // Lambdas should be ignored. All composable lambdas are wrapped by a restartable
         // function wrapper by ComposerLambdaMemoization which supplies the startRestartGroup/
         // endRestartGroup pair on behalf of the lambda.
         return origin != IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
     }
+
+    private fun IrFunction.isVirtualFunctionWithDefaultParam(): Boolean =
+        this is IrSimpleFunction &&
+            (context.irTrace[ComposeWritableSlices.IS_VIRTUAL_WITH_DEFAULT_PARAM, this] == true ||
+                overriddenSymbols.any { it.owner.isVirtualFunctionWithDefaultParam() })
 
     private val IrFunction.hasNonRestartableAnnotation: Boolean
         get() = hasAnnotation(ComposeFqNames.NonRestartableComposable)
@@ -822,9 +834,10 @@ class ComposableFunctionBodyTransformer(
         // An outer group is required if we are a lambda or dynamic method or the runtime doesn't
         // support remember after call. A outer group is explicitly elided by readonly and has
         // explicit groups.
-        var outerGroupRequired = (!isReadOnly && !hasExplicitGroups &&
-            !useNonSkippingGroupOptimization) || declaration.isLambda() ||
-            declaration.isOverridableOrOverrides
+        var outerGroupRequired =
+            (!isReadOnly && !hasExplicitGroups && !useNonSkippingGroupOptimization) ||
+                declaration.isLambda() ||
+                declaration.isOverridableOrOverrides
 
         val skipPreamble = mutableStatementContainer()
         val bodyPreamble = mutableStatementContainer()
@@ -1341,32 +1354,6 @@ class ComposableFunctionBodyTransformer(
         return parametersScope
     }
 
-    // Conservatively determine if a default group might be used. This must return true if
-    // if the scopes's hasDefaultGroup will be true after calling
-    // buildPreambleStatementsAndReturnIfSkippingPossible but can be true in cases where it is
-    // false. If they disagree the worst case is that intrisnic remember is disabled when it could
-    // have been enabled.
-    private fun mightUseDefaultGroup(
-        isSkippableDeclaration: Boolean,
-        scope: Scope.FunctionScope,
-        defaultParam: IrDefaultBitMaskValue?
-    ): Boolean {
-        if (!isSkippableDeclaration) return false
-        if (defaultParam == null) return false
-        val parameters = scope.allTrackedParams
-
-        // if any parameter we are tracking has a non-static default value then we will probably
-        // create a default group.
-        return parameters.any { it.defaultValue?.expression?.isStatic() == false }
-    }
-
-    // Like mightUseDefaultGroup(), this is an intentionally conservative value that must be true
-    // when ever a varargs group could be generated but can be true when it is not.
-    private fun mightUseVarArgsGroup(
-        isSkippableDeclaration: Boolean,
-        scope: Scope.FunctionScope
-    ) = isSkippableDeclaration && scope.allTrackedParams.any { it.isVararg }
-
     private fun buildPreambleStatementsAndReturnIfSkippingPossible(
         sourceElement: IrElement,
         skipPreamble: IrStatementContainer,
@@ -1764,13 +1751,13 @@ class ComposableFunctionBodyTransformer(
         ) { fn ->
             fn.parent = function
             val newComposer = fn.addValueParameter(
-                KtxNameConventions.COMPOSER_PARAMETER.identifier,
+                ComposeNames.COMPOSER_PARAMETER.identifier,
                 composerIrClass.defaultType
                     .replaceArgumentsWithStarProjections()
                     .makeNullable()
             )
             fn.addValueParameter(
-                KtxNameConventions.FORCE_PARAMETER,
+                ComposeNames.FORCE_PARAMETER,
                 builtIns.intType
             )
             fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
@@ -2994,7 +2981,7 @@ class ComposableFunctionBodyTransformer(
         val numRealValueParams: Int
 
         val hasDefaults = ownerFn.valueParameters.any {
-            it.name == KtxNameConventions.DEFAULT_PARAMETER
+            it.name == ComposeNames.DEFAULT_PARAMETER
         }
         if (!hasDefaults && expression.isInvoke()) {
             // in the case of an invoke without any defaults, all of the parameters are going to
@@ -3015,11 +3002,11 @@ class ComposableFunctionBodyTransformer(
             // Context receiver params are value parameters and will precede real params, calculate
             // the amount of real params by finding the index off the last real param (if any) and
             // offsetting it by the amount of context receiver params.
-            val indexOfLastRealParam = ownerFn.valueParameters.indexOfLast {
-                !it.name.asString().startsWith('$')
+            val composerParamIndex = ownerFn.valueParameters.indexOfFirst {
+                it.name == ComposeNames.COMPOSER_PARAMETER
             }
-            numRealValueParams = if (indexOfLastRealParam != -1) {
-                (indexOfLastRealParam + 1) - numContextParams
+            numRealValueParams = if (composerParamIndex != -1) {
+                composerParamIndex - numContextParams
             } else {
                 0
             }
@@ -3471,7 +3458,7 @@ class ComposableFunctionBodyTransformer(
 
                 val value = expression.symbol.owner
                 return if (
-                    value is IrValueParameter && value.name == KtxNameConventions.COMPOSER_PARAMETER
+                    value is IrValueParameter && value.name == ComposeNames.COMPOSER_PARAMETER
                 ) {
                     irCurrentComposer()
                 } else {
@@ -4066,11 +4053,11 @@ class ComposableFunctionBodyTransformer(
                 for (param in function.valueParameters) {
                     val paramName = param.name.asString()
                     when {
-                        paramName == KtxNameConventions.COMPOSER_PARAMETER.identifier ->
+                        paramName == ComposeNames.COMPOSER_PARAMETER.identifier ->
                             composerParameter = param
-                        paramName.startsWith(KtxNameConventions.DEFAULT_PARAMETER.identifier) ->
+                        paramName.startsWith(ComposeNames.DEFAULT_PARAMETER.identifier) ->
                             defaultParams += param
-                        paramName.startsWith(KtxNameConventions.CHANGED_PARAMETER.identifier) ->
+                        paramName.startsWith(ComposeNames.CHANGED_PARAMETER.identifier) ->
                             changedParams += param
                         paramName.startsWith("\$context_receiver_") ||
                         paramName.startsWith("\$name\$for\$destructuring") ||
@@ -4270,7 +4257,11 @@ class ComposableFunctionBodyTransformer(
             open fun calculateSourceInfo(sourceInformationEnabled: Boolean): String? {
                 return if (sourceInformationEnabled && sourceLocations.isNotEmpty()) {
                     val locations = sourceLocations
-                        .filter { !it.used }
+                        .filter {
+                            !it.used &&
+                                it.element.startOffset != UNDEFINED_OFFSET &&
+                                it.element.endOffset != UNDEFINED_OFFSET
+                        }
                         .distinct()
                     var markedRepeatable = false
                     val fileEntry = fileScope?.declaration?.fileEntry
