@@ -401,10 +401,18 @@ class WorkUpdateTest {
             .setBackoffCriteria(BackoffPolicy.LINEAR, 10, DAYS)
             .build()
         workManager.enqueue(request)
+        val executionDeferred = CompletableDeferred<Unit>()
+        env.processor.addExecutionListener { _, _ ->
+            env.taskExecutor.serialTaskExecutor.execute { executionDeferred.complete(Unit) }
+        }
         // await worker to be created
         val worker1 = workerFactory.await(request.id)
         assertThat(worker1.runAttemptCount).isEqualTo(0)
         workManager.awaitWorkerEnqueued(request.id)
+        // rescheduling routine (see Schedulers.registerRescheduling) must not
+        // trigger unwanted execution of a worker with the rewinded lastEnqueueTime.
+        // To achieve this we add our own ExecutionListener
+        executionDeferred.await()
         // rewind time so can updated worker can run
         val spec = workManager.workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         val delta = spec.calculateNextRunTime() - System.currentTimeMillis()
