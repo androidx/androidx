@@ -108,9 +108,8 @@ internal class AndroidClipboardManager internal constructor(
 // add more functionality in it.
 actual class ClipEntry(val clipData: ClipData) {
 
-    actual fun getMetadata(): ClipMetadata {
-        return clipData.description.toClipMetadata()
-    }
+    actual val clipMetadata: ClipMetadata
+        get() = clipData.description.toClipMetadata()
 }
 
 fun ClipData.toClipEntry(): ClipEntry = ClipEntry(this)

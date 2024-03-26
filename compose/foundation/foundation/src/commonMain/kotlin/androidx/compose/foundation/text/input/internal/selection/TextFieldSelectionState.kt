@@ -1158,7 +1158,7 @@ internal class TextFieldSelectionState(
             ?: return pasteAsPlainText()
 
         val clipEntry = clipboardManager?.getClip() ?: return pasteAsPlainText()
-        val clipMetadata = clipEntry.getMetadata()
+        val clipMetadata = clipEntry.clipMetadata
 
         val remaining = receiveContentConfiguration.receiveContentListener.onReceive(
             TransferableContent(

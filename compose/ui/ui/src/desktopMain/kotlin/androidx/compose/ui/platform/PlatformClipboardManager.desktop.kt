@@ -80,9 +80,8 @@ actual class ClipEntry(
         return transferable.getTransferData(flavor)
     }
 
-    actual fun getMetadata(): ClipMetadata {
-        return ClipMetadata(transferable)
-    }
+    actual val clipMetadata: ClipMetadata
+        get() = ClipMetadata(transferable)
 }
 
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to
