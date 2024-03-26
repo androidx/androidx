@@ -3020,6 +3020,59 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithPopKClassInclusive() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = TestClass::class) {
+            test(TestClass::class)
+            test("second")
+        }
+
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(null, TEST_CLASS_ROUTE).inOrder()
+
+        navController.navigate("second") {
+            popUpTo<TestClass> {
+                inclusive = true
+            }
+        }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("second")
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(null, "second").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithPopKClassNotInclusive() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = TestClass::class) {
+            test(TestClass::class)
+            test("second")
+            test("third")
+        }
+
+        assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(null, TEST_CLASS_ROUTE).inOrder()
+
+        navController.navigate("second")
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(null, TEST_CLASS_ROUTE, "second").inOrder()
+
+        navController.navigate("third") {
+            popUpTo<TestClass> {
+                inclusive = false
+            }
+        }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("third")
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(null, TEST_CLASS_ROUTE, "third").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testDeepLinkFromNavGraph() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
