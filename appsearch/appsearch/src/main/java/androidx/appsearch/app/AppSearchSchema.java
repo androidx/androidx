@@ -153,6 +153,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
      * meaning. This field has no effect in AppSearch - it is just stored with the AppSearchSchema.
      * If {@link Builder#setDescription} is uncalled, then this method will return an empty string.
      */
+    @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
     @NonNull
     public String getDescription() {
         return mDescription;
