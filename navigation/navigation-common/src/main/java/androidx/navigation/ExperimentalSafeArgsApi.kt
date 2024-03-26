@@ -26,6 +26,8 @@ package androidx.navigation
  * APIs annotated with `ExperimentalSafeArgsAPI` requires opt-in
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER
+)
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)
 public annotation class ExperimentalSafeArgsApi
