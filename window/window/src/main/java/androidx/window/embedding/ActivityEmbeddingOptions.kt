@@ -97,7 +97,7 @@ fun Bundle.setLaunchingActivityStack(
  * @param activity The [Activity] that is going to be used for launching activity with this
  * [ActivityOptions], which is usually be the [Activity] of the app that hosts the task.
  * @param overlayCreateParams The parameter container to create an overlay [ActivityStack]
- * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
+ * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 6.
  */
 @RequiresWindowSdkExtension(6)
 fun Bundle.setOverlayCreateParams(

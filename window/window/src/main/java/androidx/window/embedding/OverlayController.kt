@@ -71,7 +71,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * @param calculator The overlay calculator function to compute [OverlayAttributes] by
      *   [OverlayAttributesCalculatorParams]. It will replace the previously set if it exists.
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *   is less than 5.
+     *   is less than 6.
      * @sample androidx.window.samples.embedding.overlayAttributesCalculatorSample
      */
     @RequiresWindowSdkExtension(6)
@@ -85,7 +85,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * Clears the overlay calculator function previously set by [setOverlayAttributesCalculator].
      *
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *                                       is less than 5.
+     *                                       is less than 6.
      */
     @RequiresWindowSdkExtension(6)
     fun clearOverlayAttributesCalculator() {
@@ -107,7 +107,7 @@ class OverlayController @VisibleForTesting internal constructor(
      * @param overlayTag The overlay [ActivityStack]'s tag
      * @param overlayAttributes The [OverlayAttributes] to update
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *                                       is less than 5.
+     *                                       is less than 6.
      */
     @RequiresWindowSdkExtension(6)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
@@ -121,8 +121,8 @@ class OverlayController @VisibleForTesting internal constructor(
      * reported in [OverlayInfo.activityStack]. Otherwise, [OverlayInfo.activityStack] is `null`.
      *
      * Note that launching an overlay [ActivityStack] only supports on the device with
-     * [WindowSdkExtensions.extensionVersion] equal to or larger than 5.
-     * If [WindowSdkExtensions.extensionVersion] is less than 5, this flow will always
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6.
+     * If [WindowSdkExtensions.extensionVersion] is less than 6, this flow will always
      * report [OverlayInfo] without associated [OverlayInfo.activityStack].
      *
      * @param overlayTag The overlay [ActivityStack]'s tag which is set through
