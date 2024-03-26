@@ -28,11 +28,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActionScope
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.handwriting.detectStylusHandwriting
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState
 import androidx.compose.ui.focus.FocusDirection
@@ -120,7 +120,7 @@ internal data class TextFieldDecoratorModifier(
     private val enabled: Boolean,
     private val readOnly: Boolean,
     private val keyboardOptions: KeyboardOptions,
-    private val keyboardActions: KeyboardActions,
+    private val keyboardActionHandler: KeyboardActionHandler?,
     private val singleLine: Boolean,
     private val interactionSource: MutableInteractionSource
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
@@ -132,7 +132,7 @@ internal data class TextFieldDecoratorModifier(
         enabled = enabled,
         readOnly = readOnly,
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
+        keyboardActionHandler = keyboardActionHandler,
         singleLine = singleLine,
         interactionSource = interactionSource,
     )
@@ -146,7 +146,7 @@ internal data class TextFieldDecoratorModifier(
             enabled = enabled,
             readOnly = readOnly,
             keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
+            keyboardActionHandler = keyboardActionHandler,
             singleLine = singleLine,
             interactionSource = interactionSource,
         )
@@ -167,7 +167,7 @@ internal class TextFieldDecoratorModifierNode(
     var enabled: Boolean,
     var readOnly: Boolean,
     keyboardOptions: KeyboardOptions,
-    var keyboardActions: KeyboardActions,
+    var keyboardActionHandler: KeyboardActionHandler?,
     var singleLine: Boolean,
     var interactionSource: MutableInteractionSource
 ) : DelegatingNode(),
@@ -382,21 +382,6 @@ internal class TextFieldDecoratorModifierNode(
         }
     }
 
-    private val onImeActionPerformed: (ImeAction) -> Unit = { imeAction ->
-        val keyboardAction = when (imeAction) {
-            ImeAction.Done -> keyboardActions.onDone
-            ImeAction.Go -> keyboardActions.onGo
-            ImeAction.Next -> keyboardActions.onNext
-            ImeAction.Previous -> keyboardActions.onPrevious
-            ImeAction.Search -> keyboardActions.onSearch
-            ImeAction.Send -> keyboardActions.onSend
-            ImeAction.Default, ImeAction.None -> null
-            else -> error("invalid ImeAction")
-        }
-        keyboardAction?.invoke(keyboardActionScope)
-            ?: keyboardActionScope.defaultKeyboardAction(imeAction)
-    }
-
     /**
      * A coroutine job that observes text and layout changes in selection state to react to those
      * changes.
@@ -418,7 +403,7 @@ internal class TextFieldDecoratorModifierNode(
         enabled: Boolean,
         readOnly: Boolean,
         keyboardOptions: KeyboardOptions,
-        keyboardActions: KeyboardActions,
+        keyboardActionHandler: KeyboardActionHandler?,
         singleLine: Boolean,
         interactionSource: MutableInteractionSource
     ) {
@@ -441,7 +426,7 @@ internal class TextFieldDecoratorModifierNode(
         this.enabled = enabled
         this.readOnly = readOnly
         this.keyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
-        this.keyboardActions = keyboardActions
+        this.keyboardActionHandler = keyboardActionHandler
         this.singleLine = singleLine
         this.interactionSource = interactionSource
 
@@ -706,7 +691,7 @@ internal class TextFieldDecoratorModifierNode(
                     layoutState = textLayoutState,
                     imeOptions = keyboardOptions.toImeOptions(singleLine),
                     receiveContentConfiguration = receiveContentConfiguration,
-                    onImeAction = onImeActionPerformed,
+                    onImeAction = ::onImeActionPerformed,
                     stylusHandwritingTrigger = stylusHandwritingTrigger,
                 )
             }
@@ -738,6 +723,22 @@ internal class TextFieldDecoratorModifierNode(
             interactionSource.tryEmit(HoverInteraction.Exit(it))
             dragEnterEvent = null
         }
+    }
+
+    private fun onImeActionPerformed(imeAction: ImeAction) {
+        if (imeAction == ImeAction.None ||
+            imeAction == ImeAction.Default ||
+            keyboardActionHandler == null) {
+            // this should never happen but better be safe
+            keyboardActionScope.defaultKeyboardAction(imeAction)
+            return
+        }
+
+        keyboardActionHandler?.onKeyboardAction(
+            performDefaultAction = {
+                keyboardActionScope.defaultKeyboardAction(imeAction)
+            }
+        )
     }
 }
 

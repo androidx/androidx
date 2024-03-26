@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -129,9 +130,11 @@ private object BasicTextFieldDefaults {
  * in the editor.
  * @param keyboardOptions Software keyboard options that contain configurations such as
  * [KeyboardType] and [ImeAction].
- * @param keyboardActions When the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction].
+ * @param onKeyboardAction Called when the user presses the action button in the input method
+ * editor (IME), or by pressing the enter key on a hardware keyboard. By default this parameter
+ * is null, and would execute the default behavior for a received IME Action e.g., [ImeAction.Done]
+ * would close the keyboard, [ImeAction.Next] would switch the focus to the next focusable item on
+ * the screen.
  * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
  * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all
  * newline characters ('\n') within the text will be replaced with regular whitespace (' '),
@@ -175,7 +178,7 @@ fun BasicTextField(
     inputTransformation: InputTransformation? = null,
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
@@ -194,7 +197,7 @@ fun BasicTextField(
         inputTransformation = inputTransformation,
         textStyle = textStyle,
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
+        onKeyboardAction = onKeyboardAction,
         lineLimits = lineLimits,
         onTextLayout = onTextLayout,
         interactionSource = interactionSource,
@@ -224,7 +227,7 @@ internal fun BasicTextField(
     inputTransformation: InputTransformation? = null,
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
@@ -314,7 +317,7 @@ internal fun BasicTextField(
                 enabled = enabled,
                 readOnly = readOnly,
                 keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
+                keyboardActionHandler = onKeyboardAction,
                 singleLine = singleLine,
                 interactionSource = interactionSource
             )
