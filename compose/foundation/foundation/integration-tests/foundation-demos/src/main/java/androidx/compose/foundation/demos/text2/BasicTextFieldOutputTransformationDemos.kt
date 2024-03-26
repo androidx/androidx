@@ -28,7 +28,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
@@ -257,12 +256,9 @@ private data class PhoneNumberOutputTransformation(
 
 @OptIn(ExperimentalFoundationApi::class)
 private object OnlyDigitsFilter : InputTransformation {
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
-        if ("""\D""".toRegex().containsMatchIn(valueWithChanges.asCharSequence())) {
-            valueWithChanges.revertAllChanges()
+    override fun TextFieldBuffer.transformInput() {
+        if ("""\D""".toRegex().containsMatchIn(asCharSequence())) {
+            revertAllChanges()
         }
     }
 }

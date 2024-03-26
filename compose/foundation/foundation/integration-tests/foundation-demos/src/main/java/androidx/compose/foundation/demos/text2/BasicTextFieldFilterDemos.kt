@@ -35,7 +35,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.allCaps
 import androidx.compose.foundation.text.input.maxLength
@@ -106,12 +105,9 @@ private fun DigitsOnlyDemo() {
             keyboardType = KeyboardType.Number
         )
 
-        override fun transformInput(
-            originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBuffer
-        ) {
-            if (!valueWithChanges.asCharSequence().isDigitsOnly()) {
-                valueWithChanges.revertAllChanges()
+        override fun TextFieldBuffer.transformInput() {
+            if (!asCharSequence().isDigitsOnly()) {
+                revertAllChanges()
             }
         }
     })

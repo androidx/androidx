@@ -31,10 +31,10 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.flow.Flow
 
 internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
     return TextFieldState(
@@ -51,8 +51,7 @@ internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
  * [setTextAndPlaceCursorAtEnd], or [clearText]. Individual parts of the state like [text],
  * [selection], or [composition] can be read from any snapshot restart scope like Composable
  * functions. To observe these members from outside a restart scope, use
- * `snapshotFlow { textFieldState.text }` or `snapshotFlow { textFieldState.selection }`. To
- * observe the entirety of state including text, selection, and composition, call [valueAsFlow].
+ * `snapshotFlow { textFieldState.text }` or `snapshotFlow { textFieldState.selection }`.
  *
  * When instantiating this class from a composable, use [rememberTextFieldState] to automatically
  * save and restore the field state. For more advanced use cases, pass [TextFieldState.Saver] to
@@ -106,12 +105,9 @@ class TextFieldState internal constructor(
      * a composable function) will cause the function to restart when the text field's value
      * changes.
      *
-     * To observe changes to this property outside a restartable function, see [valueAsFlow].
-     *
      * @sample androidx.compose.foundation.samples.BasicTextFieldTextDerivedStateSample
      *
      * @see edit
-     * @see valueAsFlow
      */
     internal var value: TextFieldCharSequence by mutableStateOf(
         TextFieldCharSequence(initialText, initialSelection)
@@ -182,8 +178,9 @@ class TextFieldState internal constructor(
         }
     }
 
-    override fun toString(): String =
+    override fun toString(): String = Snapshot.withoutReadObservation {
         "TextFieldState(selection=$selection, text=\"$text\")"
+    }
 
     /**
      * Undo history controller for this TextFieldState.
@@ -200,7 +197,8 @@ class TextFieldState internal constructor(
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun startEdit(): TextFieldBuffer {
-        check(!isEditing) {
+        val isEditingFreeze = Snapshot.withoutReadObservation { isEditing }
+        check(!isEditingFreeze) {
             "TextFieldState does not support concurrent or nested editing."
         }
         isEditing = true
@@ -349,13 +347,10 @@ class TextFieldState internal constructor(
 
         val textFieldBuffer = TextFieldBuffer(
             initialValue = afterEditValue,
-            sourceValue = oldValue,
+            originalValue = oldValue,
             initialChanges = mainBuffer.changeTracker
         )
-        inputTransformation.transformInput(
-            originalValue = oldValue,
-            valueWithChanges = textFieldBuffer
-        )
+        with(inputTransformation) { textFieldBuffer.transformInput() }
         // If neither the text nor the selection changed, we want to preserve the composition.
         // Otherwise, the IME will reset it anyway.
         val afterFilterValue = textFieldBuffer.toTextFieldCharSequence(
@@ -552,16 +547,6 @@ class TextFieldState internal constructor(
         }
     }
 }
-
-/**
- * Returns a [Flow] of the values of [TextFieldState.text], [TextFieldState.selection], and
- * [TextFieldState.composition] as seen from the global snapshot.
- * The initial value is emitted immediately when the flow is collected.
- *
- * @sample androidx.compose.foundation.samples.BasicTextFieldTextValuesSample
- */
-@ExperimentalFoundationApi
-fun TextFieldState.valueAsFlow(): Flow<TextFieldCharSequence> = snapshotFlow { value }
 
 /**
  * Create and remember a [TextFieldState]. The state is remembered using [rememberSaveable] and so

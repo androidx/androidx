@@ -158,7 +158,7 @@ class TextFieldBufferTest {
         val expectedValue = TextFieldCharSequence("world", TextRange(5))
         val state = TextFieldBuffer(
             initialValue = TextFieldCharSequence("hello", TextRange(2)),
-            sourceValue = expectedValue
+            originalValue = expectedValue
         )
         state.revertAllChanges()
         assertThat(state.toTextFieldCharSequence()).isEqualTo(expectedValue)
