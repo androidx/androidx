@@ -64,6 +64,12 @@ fun interface InputTransformation {
      * To reject all changes in [valueWithChanges], call
      * `valueWithChanges.`[revertAllChanges][TextFieldBuffer.revertAllChanges].
      *
+     * When multiple [InputTransformation]s are linked together, the [transformInput] function of
+     * the first transformation is invoked before the second one. Once the changes are made to
+     * [valueWithChanges] by the initial [InputTransformation] in the chain, the same instance of
+     * [valueWithChanges] is forwarded to the subsequent transformation in the chain along with the
+     * unchanged [originalValue]. This sequence persists until the chain reaches its conclusion.
+     *
      * @param originalValue The value of the field before the change was performed.
      * @param valueWithChanges The value of the field after the change. This value can be changed
      * in-place to alter or reject the changes or set the selection.

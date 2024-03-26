@@ -1680,7 +1680,7 @@ package androidx.compose.foundation.text.input {
   }
 
   @androidx.compose.runtime.Stable public fun interface OutputTransformation {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void transformOutput(androidx.compose.foundation.text.input.TextFieldBuffer);
+    method public void transformOutput(androidx.compose.foundation.text.input.TextFieldBuffer);
   }
 
   public final class TextFieldBuffer implements java.lang.Appendable {

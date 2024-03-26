@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Stable
 
@@ -32,9 +31,22 @@ fun interface OutputTransformation {
      * text. After this function returns, the contents of the buffer will be presented to the user
      * as the contents of the text field instead of the raw contents of the [TextFieldState].
      *
-     * Note that the contents of the [TextFieldState] remain completely unchanged. This is a one-way
-     * transformation that only affects what is presented to the user.
+     * Use this function to change the visual and semantics representation of the text. For example,
+     * a phone number field can format the raw input by adding parentheses and white spaces in
+     * between characters.
+     *
+     * The result of this transformation is purely representational and does not affect the contents
+     * of [TextFieldState].
+     *
+     * Selection and cursor positions are managed internally by [BasicTextField]. If there's a range
+     * of inserted characters via this [OutputTransformation], selection or cursor never goes in
+     * between these inserted characters.
+     *
+     * Note that this transformation is called every time a new text needs to be displayed. This
+     * implies that the contents of [TextFieldBuffer] will always be what the [TextFieldState] holds
+     * currently. All the changes made here are discarded after text is presented to the user.
+     *
+     * @sample androidx.compose.foundation.samples.BasicTextFieldOutputTransformationSample
      */
-    @ExperimentalFoundationApi
     fun TextFieldBuffer.transformOutput()
 }
