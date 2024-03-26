@@ -47,7 +47,13 @@ enum class ClientFeature {
      * Support for loading SDKs by other SDKs:
      * [SdkSandboxControllerCompat.loadSdk]
      */
-    LOAD_SDK;
+    LOAD_SDK,
+
+    /**
+     * Support for retrieving client app package name:
+     * [SdkSandboxControllerCompat.getClientPackageName]
+     */
+    GET_CLIENT_PACKAGE_NAME;
 
     val availableFrom: ClientApiVersion
         get() = ClientApiVersion.minAvailableVersionFor(this)
