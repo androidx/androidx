@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.core;
 
+import static android.hardware.camera2.CameraCharacteristics.LENS_POSE_REFERENCE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -35,7 +36,10 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -44,7 +48,6 @@ import androidx.camera.core.ConcurrentCamera;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
-import androidx.camera.core.PhysicalCameraInfo;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -262,7 +265,8 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mBackPreviewView);
     }
 
-    @SuppressLint("RestrictedApiAndroidX")
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @SuppressLint({"RestrictedApiAndroidX", "NullAnnotationGroup"})
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,
@@ -283,13 +287,13 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
 
             String innerPhysicalCameraId = null;
             String outerPhysicalCameraId = null;
-            for (PhysicalCameraInfo info : cameraInfoPrimary.getPhysicalCameraInfos()) {
+            for (CameraInfo info : cameraInfoPrimary.getPhysicalCameraInfos()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    if (info.getLensPoseReference()
+                    if (Camera2CameraInfo.from(info).getCameraCharacteristic(LENS_POSE_REFERENCE)
                             == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA) {
-                        innerPhysicalCameraId = info.getPhysicalCameraId();
+                        innerPhysicalCameraId = Camera2CameraInfo.from(info).getCameraId();
                     } else {
-                        outerPhysicalCameraId = info.getPhysicalCameraId();
+                        outerPhysicalCameraId = Camera2CameraInfo.from(info).getCameraId();
                     }
                 }
             }

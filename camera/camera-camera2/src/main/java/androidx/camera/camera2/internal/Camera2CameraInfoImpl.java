@@ -51,13 +51,13 @@ import androidx.camera.camera2.internal.compat.quirk.ZslDisablerQuirk;
 import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
-import androidx.camera.core.PhysicalCameraInfo;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -128,7 +128,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private final CameraManagerCompat mCameraManager;
 
     @Nullable
-    private Set<PhysicalCameraInfo> mPhysicalCameraInfos;
+    private Set<CameraInfo> mPhysicalCameraInfos;
 
     /**
      * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
@@ -640,24 +640,21 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public Set<PhysicalCameraInfo> getPhysicalCameraInfos() {
+    public Set<CameraInfo> getPhysicalCameraInfos() {
         if (mPhysicalCameraInfos == null) {
             mPhysicalCameraInfos = new HashSet<>();
             for (String physicalCameraId : mCameraCharacteristicsCompat.getPhysicalCameraIds()) {
-                CameraCharacteristicsCompat characteristicsCompat;
                 try {
-                    characteristicsCompat =
-                            mCameraManager.getCameraCharacteristicsCompat(physicalCameraId);
+                    CameraInfo physicalCameraInfo = new Camera2CameraInfoImpl(
+                            physicalCameraId,
+                            mCameraManager);
+                    mPhysicalCameraInfos.add(physicalCameraInfo);
                 } catch (CameraAccessExceptionCompat e) {
                     Logger.e(TAG,
                             "Failed to get CameraCharacteristics for cameraId " + physicalCameraId,
                             e);
                     return Collections.emptySet();
                 }
-
-                PhysicalCameraInfo physicalCameraInfo = Camera2PhysicalCameraInfo.of(
-                        physicalCameraId, characteristicsCompat);
-                mPhysicalCameraInfos.add(physicalCameraInfo);
             }
         }
 

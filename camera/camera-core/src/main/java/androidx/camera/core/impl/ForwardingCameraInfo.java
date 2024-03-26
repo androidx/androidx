@@ -22,13 +22,13 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.PhysicalCameraInfo;
 import androidx.camera.core.ZoomState;
 import androidx.lifecycle.LiveData;
 
@@ -237,7 +237,7 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
 
     @NonNull
     @Override
-    public Set<PhysicalCameraInfo> getPhysicalCameraInfos() {
+    public Set<CameraInfo> getPhysicalCameraInfos() {
         return mCameraInfoInternal.getPhysicalCameraInfos();
     }
 }
