@@ -48,14 +48,12 @@ fun interface InputTransformation {
      * Optional [KeyboardOptions] that will be used as the default keyboard options for configuring
      * the IME. The options passed directly to the text field composable will always override this.
      */
-    @ExperimentalFoundationApi
     val keyboardOptions: KeyboardOptions? get() = null
 
     /**
      * Optional semantics configuration that can update certain characteristics of the applied
      * TextField, e.g. [SemanticsPropertyReceiver.maxTextLength].
      */
-    @ExperimentalFoundationApi
     fun SemanticsPropertyReceiver.applySemantics() = Unit
 
     /**
@@ -96,28 +94,6 @@ fun interface InputTransformation {
  *
  * @param next The [InputTransformation] that will be ran after this one.
  */
-@ExperimentalFoundationApi
-@Stable
-@JvmName("thenOrNull")
-fun InputTransformation?.then(next: InputTransformation?): InputTransformation? = when {
-    this == null -> next
-    next == null -> this
-    else -> this.then(next)
-}
-
-/**
- * Creates a filter chain that will run [next] after this. Filters are applied sequentially, so any
- * changes made by this filter will be visible to [next].
- *
- * The returned filter will [merge][KeyboardOptions.merge] this transformation's [KeyboardOptions]
- * with those from [next], preferring options from [next] where both transformations specify the
- * same option.
- *
- * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationChainingSample
- *
- * @param next The [InputTransformation] that will be ran after this one.
- */
-@ExperimentalFoundationApi
 @Stable
 fun InputTransformation.then(next: InputTransformation): InputTransformation =
     FilterChain(this, next)
@@ -134,7 +110,6 @@ fun InputTransformation.then(next: InputTransformation): InputTransformation =
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueChooseSample
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueReplaceSample
  */
-@ExperimentalFoundationApi
 @Stable
 fun InputTransformation.byValue(
     transformation: (
@@ -150,7 +125,6 @@ fun InputTransformation.byValue(
  *
  * @param locale The [Locale] in which to perform the case conversion.
  */
-@ExperimentalFoundationApi
 @Stable
 fun InputTransformation.allCaps(locale: Locale): InputTransformation =
     this.then(AllCapsTransformation(locale))
@@ -159,7 +133,6 @@ fun InputTransformation.allCaps(locale: Locale): InputTransformation =
  * Returns [InputTransformation] that rejects input which causes the total length of the text field
  * to be more than [maxLength] characters.
  */
-@ExperimentalFoundationApi
 @Stable
 fun InputTransformation.maxLength(maxLength: Int): InputTransformation =
     this.then(MaxLengthFilter(maxLength))

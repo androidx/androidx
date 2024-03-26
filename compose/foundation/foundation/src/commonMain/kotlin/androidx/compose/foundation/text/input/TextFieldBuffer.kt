@@ -123,9 +123,6 @@ class TextFieldBuffer internal constructor(
      * character, pass [TextFieldBuffer.length]. Passing a zero-length range is the same as calling
      * [placeCursorBeforeCharAt].
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalFoundationApi
-    @get:ExperimentalFoundationApi
     var selection: TextRange
         get() = selectionInChars
         set(value) {
@@ -272,7 +269,6 @@ class TextFieldBuffer internal constructor(
      * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will
      * be visible in the returned sequence as well.
      */
-    @ExperimentalFoundationApi
     fun asCharSequence(): CharSequence = buffer
 
     private fun clearChangeList() {
@@ -285,7 +281,6 @@ class TextFieldBuffer internal constructor(
      * After calling this method, this object will be in the same state it was when it was initially
      * created, and [changes] will be empty.
      */
-    @ExperimentalFoundationApi
     fun revertAllChanges() {
         replace(0, length, originalValue.toString())
         selection = originalValue.selection
@@ -307,7 +302,6 @@ class TextFieldBuffer internal constructor(
      *
      * @see placeCursorAfterCharAt
      */
-    @ExperimentalFoundationApi
     fun placeCursorBeforeCharAt(index: Int) {
         requireValidIndex(index, startExclusive = true, endExclusive = false)
         // skip further validation
@@ -328,7 +322,6 @@ class TextFieldBuffer internal constructor(
      *
      * @see placeCursorBeforeCharAt
      */
-    @ExperimentalFoundationApi
     fun placeCursorAfterCharAt(index: Int) {
         requireValidIndex(index, startExclusive = false, endExclusive = true)
         // skip further validation
@@ -416,7 +409,6 @@ class TextFieldBuffer internal constructor(
  * @see TextFieldBuffer.append
  * @see TextFieldBuffer.delete
  */
-@ExperimentalFoundationApi
 fun TextFieldBuffer.insert(index: Int, text: String) {
     replace(index, index, text)
 }
@@ -432,7 +424,6 @@ fun TextFieldBuffer.insert(index: Int, text: String) {
  * @see TextFieldBuffer.append
  * @see TextFieldBuffer.insert
  */
-@ExperimentalFoundationApi
 fun TextFieldBuffer.delete(start: Int, end: Int) {
     replace(start, end, "")
 }
@@ -440,7 +431,6 @@ fun TextFieldBuffer.delete(start: Int, end: Int) {
 /**
  * Places the cursor at the end of the text.
  */
-@ExperimentalFoundationApi
 fun TextFieldBuffer.placeCursorAtEnd() {
     placeCursorBeforeCharAt(length)
 }
@@ -448,7 +438,6 @@ fun TextFieldBuffer.placeCursorAtEnd() {
 /**
  * Places the selection around all the text.
  */
-@ExperimentalFoundationApi
 fun TextFieldBuffer.selectAll() {
     selection = TextRange(0, length)
 }
@@ -555,18 +544,4 @@ internal inline fun findCommonPrefixAndSuffix(
     }
 
     onFound(aStart, aEnd, bStart, bEnd)
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private object EmptyChangeList : ChangeList {
-    override val changeCount: Int
-        get() = 0
-
-    override fun getRange(changeIndex: Int): TextRange {
-        throw IndexOutOfBoundsException()
-    }
-
-    override fun getOriginalRange(changeIndex: Int): TextRange {
-        throw IndexOutOfBoundsException()
-    }
 }
