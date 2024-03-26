@@ -72,4 +72,8 @@ internal class LocalController(
     ) {
         LocalSdkActivityHandlerRegistry.unregister(handlerCompat)
     }
+
+    override fun getClientPackageName(): String {
+        throw UnsupportedOperationException("Not supported yet")
+    }
 }

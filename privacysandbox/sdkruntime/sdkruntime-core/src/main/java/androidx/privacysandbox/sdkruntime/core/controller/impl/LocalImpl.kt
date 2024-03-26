@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
+import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
@@ -34,6 +35,7 @@ import java.util.concurrent.Executor
  */
 internal class LocalImpl(
     private val implFromClient: SdkSandboxControllerCompat.SandboxControllerImpl,
+    private val sdkContext: Context,
     private val clientVersion: Int
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
@@ -90,6 +92,22 @@ internal class LocalImpl(
             throw UnsupportedOperationException(
                 "Client library version doesn't support SdkActivities"
             )
+        }
+    }
+
+    override fun getClientPackageName(): String {
+        if (ClientFeature.GET_CLIENT_PACKAGE_NAME.isAvailable(clientVersion)) {
+            return implFromClient.getClientPackageName()
+        } else {
+            /**
+             * When loaded locally sdkContext is wrapped Application context.
+             * All previously released client library versions returns client app package name.
+             *
+             * After supporting [ClientFeature.GET_CLIENT_PACKAGE_NAME] it will work correctly for
+             * future versions, even if getPackageName() behaviour will be changed for sdk context
+             * wrapper.
+             */
+            return sdkContext.getPackageName()
         }
     }
 }

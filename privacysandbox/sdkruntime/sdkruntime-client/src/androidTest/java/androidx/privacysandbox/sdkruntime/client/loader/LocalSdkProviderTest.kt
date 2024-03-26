@@ -429,5 +429,9 @@ internal class LocalSdkProviderTest(
         ) {
             sdkActivityHandlers.values.remove(handlerCompat)
         }
+
+        override fun getClientPackageName(): String {
+            throw UnsupportedOperationException("Not supported yet")
+        }
     }
 }
