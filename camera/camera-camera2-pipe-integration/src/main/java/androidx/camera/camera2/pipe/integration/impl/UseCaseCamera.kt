@@ -100,7 +100,6 @@ class UseCaseCameraImpl @Inject constructor(
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
-    private lateinit var stateCollectJob: Job
 
     override var runningUseCases = setOf<UseCase>()
         set(value) {
@@ -131,7 +130,7 @@ class UseCaseCameraImpl @Inject constructor(
         useCaseGraphConfig.apply {
             cameraStateAdapter.onGraphUpdated(graph)
         }
-        stateCollectJob = threads.scope.launch {
+        threads.scope.launch {
             useCaseGraphConfig.apply {
                 graph.graphState.collect {
                     cameraStateAdapter.onGraphStateUpdated(graph, it)
@@ -144,7 +143,7 @@ class UseCaseCameraImpl @Inject constructor(
                         it is GraphStateStopped ||
                         it is GraphStateError
                     ) {
-                        stateCollectJob.cancel()
+                        this@launch.coroutineContext[Job]?.cancel()
                     }
 
                     // TODO: b/323614735: Technically our RequestProcessor implementation could be
