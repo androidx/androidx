@@ -6294,6 +6294,17 @@ public class ExifInterface {
         dataOutputStream.writeByte(MARKER_APP1);
         writeExifSegment(dataOutputStream);
 
+        if (xmpAttribute != null && mXmpIsFromSeparateMarker) {
+            // Write XMP APP1 segment. The XMP spec (part 3, section 1.1.3) recommends for this to
+            // directly follow the Exif APP1 segment.
+            dataOutputStream.write(MARKER);
+            dataOutputStream.writeByte(MARKER_APP1);
+            int length = 2 + IDENTIFIER_XMP_APP1.length + xmpAttribute.bytes.length;
+            dataOutputStream.writeUnsignedShort(length);
+            dataOutputStream.write(IDENTIFIER_XMP_APP1);
+            dataOutputStream.write(xmpAttribute.bytes);
+        }
+
         // Re-add previously removed XMP data.
         if (xmpAttribute != null) {
             mAttributes[IFD_TYPE_PRIMARY].put(TAG_XMP, xmpAttribute);
@@ -6313,12 +6324,22 @@ public class ExifInterface {
                     if (length < 0) {
                         throw new IOException("Invalid length");
                     }
-                    byte[] identifier = new byte[6];
-                    if (length >= 6) {
+                    // If the length is long enough, we read enough bytes for the XMP identifier,
+                    // because it's longer than the EXIF one.
+                    @Nullable byte[] identifier;
+                    if (length >= IDENTIFIER_XMP_APP1.length) {
+                        identifier = new byte[IDENTIFIER_XMP_APP1.length];
+                    } else if (length >= IDENTIFIER_EXIF_APP1.length) {
+                        identifier = new byte[IDENTIFIER_EXIF_APP1.length];
+                    } else {
+                        identifier = null;
+                    }
+                    if (identifier != null) {
                         dataInputStream.readFully(identifier);
-                        if (Arrays.equals(identifier, IDENTIFIER_EXIF_APP1)) {
-                            // Skip the original EXIF APP1 segment.
-                            dataInputStream.skipFully(length - 6);
+                        if (startsWith(identifier, IDENTIFIER_EXIF_APP1)
+                                || startsWith(identifier, IDENTIFIER_XMP_APP1)) {
+                            // Skip the original EXIF or XMP APP1 segment.
+                            dataInputStream.skipFully(length - identifier.length);
                             break;
                         }
                     }
@@ -6326,8 +6347,8 @@ public class ExifInterface {
                     dataOutputStream.writeByte(MARKER);
                     dataOutputStream.writeByte(marker);
                     dataOutputStream.writeUnsignedShort(length + 2);
-                    if (length >= 6) {
-                        length -= 6;
+                    if (identifier != null) {
+                        length -= identifier.length;
                         dataOutputStream.write(identifier);
                     }
                     int read;

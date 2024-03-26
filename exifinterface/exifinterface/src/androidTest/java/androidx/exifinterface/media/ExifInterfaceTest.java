@@ -1431,9 +1431,21 @@ public class ExifInterfaceTest {
 
         ExifInterface exifInterface = exifInterfaceFactory.create(imageFile);
         exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        String xmp =
+                "<?xpacket begin='' id='W5M0MpCehiHzreSzNTczkc9d'?>"
+                        + "<x:xmpmeta xmlns:x='adobe:ns:meta/' x:xmptk='Image::ExifTool 10.73'>"
+                        + "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>"
+                        + "<rdf:Description rdf:about='' xmlns:photoshop='http://ns.adobe.com/photoshop/1.0/'>"
+                        + "<photoshop:DateCreated>2024-03-15T17:44:18</photoshop:DateCreated>"
+                        + "</rdf:Description>"
+                        + "</rdf:RDF>"
+                        + "</x:xmpmeta>"
+                        + "<?xpacket end='w'?>";
+        exifInterface.setAttribute(ExifInterface.TAG_XMP, xmp);
         exifInterface.saveAttributes();
 
-        expectedAttributes = expectedAttributes.buildUpon().setMake("abc").build();
+        expectedAttributes =
+                expectedAttributes.buildUpon().setMake("abc").clearXmp().setXmp(xmp).build();
 
         // Check expected modifications are visible without re-parsing the file.
         compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
