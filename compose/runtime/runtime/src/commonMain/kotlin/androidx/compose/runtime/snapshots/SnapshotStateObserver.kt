@@ -252,6 +252,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         try {
             isPaused = false
             currentMap = scopeMap
+            @Suppress("deprecation") // b/317114874
             currentMapThreadId = Thread.currentThread().id
 
             scopeMap.observe(scope, readObserver, block)

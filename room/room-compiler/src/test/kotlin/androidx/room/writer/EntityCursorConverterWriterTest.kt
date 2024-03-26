@@ -39,7 +39,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             import java.lang.SuppressWarnings;
             import javax.annotation.processing.Generated;
             @Generated("androidx.room.RoomProcessor")
-            @SuppressWarnings({"unchecked", "deprecation"})
+            @SuppressWarnings({"unchecked", "deprecation", "removal"})
             public final class MyContainerClass {
         """.trimIndent()
         const val OUT_SUFFIX = "}"
