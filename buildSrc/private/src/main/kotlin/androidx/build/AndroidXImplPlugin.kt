@@ -638,10 +638,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configurePublicResourcesStub(project.multiplatformExtension!!)
-        project.configureMultiplatformSourcesForAndroid { action ->
-            kotlinMultiplatformAndroidComponentsExtension.onVariant {
-                action(it.name)
-            }
+        kotlinMultiplatformAndroidComponentsExtension.onVariant {
+            project.configureMultiplatformSourcesForAndroid(it.name)
         }
         project.configureVersionFileWriter(
             project.multiplatformExtension!!,
@@ -825,29 +823,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.configureSourceJarForAndroid(libraryExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
-        project.configureDependencyVerification(androidXExtension) { taskProvider ->
-            libraryExtension.defaultPublishVariant { libraryVariant ->
-                taskProvider.configure { task ->
-                    task.dependsOn(libraryVariant.javaCompileProvider)
-                }
-            }
-        }
-
         val reportLibraryMetrics = project.configureReportLibraryMetricsTask()
         project.addToBuildOnServer(reportLibraryMetrics)
-        libraryExtension.defaultPublishVariant { libraryVariant ->
-            reportLibraryMetrics.configure {
-                it.jarFiles.from(
-                    libraryVariant.packageLibraryProvider.map { zip ->
-                        zip.inputs.files
-                    }
-                )
-            }
-        }
 
         val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
         val copyPublicResourcesDirTask =
@@ -858,6 +838,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 task.buildSrcResDir.set(File(project.getSupportRootFolder(), "buildSrc/res"))
             }
         libraryAndroidComponentsExtension.onVariants { variant ->
+            configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
             if (variant.buildType == DEFAULT_PUBLISH_CONFIG) {
                 // Standard docs, resource API, and Metalava configuration for AndroidX projects.
                 project.configureProjectForApiTasks(
@@ -865,7 +846,22 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     androidXExtension
                 )
             }
-            configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
+            if (variant.name == DEFAULT_PUBLISH_CONFIG) {
+                project.configureSourceJarForAndroid(variant)
+                project.configureDependencyVerification(androidXExtension) { taskProvider ->
+                    taskProvider.configure { task ->
+                        task.dependsOn("compileReleaseJavaWithJavac")
+                    }
+                }
+
+                reportLibraryMetrics.configure {
+                    it.jarFiles.from(
+                        project.tasks.named("bundleReleaseAar").map {
+                            zip -> zip.inputs.files
+                        }
+                    )
+                }
+            }
             val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
                 variant.name + "VerifyELFRegionAlignment",
                 VerifyELFRegionAlignmentTask::class.java
