@@ -2847,8 +2847,9 @@ package androidx.compose.ui.platform {
   public final class ClipEntry {
     ctor public ClipEntry(android.content.ClipData clipData);
     method public android.content.ClipData getClipData();
-    method public androidx.compose.ui.platform.ClipMetadata getMetadata();
+    method public androidx.compose.ui.platform.ClipMetadata getClipMetadata();
     property public final android.content.ClipData clipData;
+    property public final androidx.compose.ui.platform.ClipMetadata clipMetadata;
   }
 
   public final class ClipMetadata {
