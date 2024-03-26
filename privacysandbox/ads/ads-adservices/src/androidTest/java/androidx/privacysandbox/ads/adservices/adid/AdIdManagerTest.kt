@@ -75,7 +75,15 @@ class AdIdManagerTest {
     fun testAdIdOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(AdIdManager.obtain(mContext)).isEqualTo(null)
+        assertThat(AdIdManager.obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testAdIdManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(android.adservices.adid.AdIdManager.get(any())).thenThrow(NoClassDefFoundError())
+        assertThat(AdIdManager.obtain(mContext)).isNull()
     }
 
     @Test

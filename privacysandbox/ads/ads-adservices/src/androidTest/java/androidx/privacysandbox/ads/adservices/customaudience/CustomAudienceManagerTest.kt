@@ -86,7 +86,15 @@ class CustomAudienceManagerTest {
     fun testOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        Truth.assertThat(obtain(mContext)).isEqualTo(null)
+        Truth.assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testCustomAudienceManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(CustomAudienceManager.get(any())).thenThrow(NoClassDefFoundError())
+        Truth.assertThat(obtain(mContext)).isNull()
     }
 
     @Test

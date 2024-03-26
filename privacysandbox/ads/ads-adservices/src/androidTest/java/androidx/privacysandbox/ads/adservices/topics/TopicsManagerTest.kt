@@ -81,7 +81,15 @@ class TopicsManagerTest {
     fun testTopicsOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExt4Version)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(obtain(mContext)).isEqualTo(null)
+        assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testTopicsManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(TopicsManager.get(any())).thenThrow(NoClassDefFoundError())
+        assertThat(obtain(mContext)).isNull()
     }
 
     @Test
