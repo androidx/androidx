@@ -10,5 +10,11 @@ package androidx.navigation.fragment.compose {
     method public androidx.navigation.fragment.compose.ComposableFragment ComposableFragment(String fullyQualifiedName);
   }
 
+  @androidx.navigation.Navigator.Name("composable") public final class ComposableFragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.FragmentNavigator.Destination> {
+    ctor public ComposableFragmentNavigator(androidx.navigation.fragment.FragmentNavigator fragmentNavigator);
+    ctor public ComposableFragmentNavigator(androidx.navigation.NavigatorProvider provider);
+    method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
+  }
+
 }
 
