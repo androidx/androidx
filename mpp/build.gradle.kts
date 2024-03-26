@@ -204,6 +204,7 @@ tasks.register("testComposeModules") { // used in https://github.com/JetBrains/a
 }
 
 val mavenCentral = MavenCentralProperties(project)
+val mavenCentralGroup = project.providers.gradleProperty("maven.central.group")
 if (mavenCentral.signArtifacts) {
     signing.useInMemoryPgpKeys(
         mavenCentral.signArtifactsKey.get(),
@@ -217,7 +218,7 @@ val preparedArtifactsRoot = publishingDir.map { it.dir("prepared") }
 val modulesFile = publishingDir.map { it.file("modules.txt") }
 
 val findComposeModules by tasks.registering(FindModulesInSpaceTask::class) {
-    requestedGroupId.set(project.providers.gradleProperty("maven.central.group"))
+    requestedGroupId.set(mavenCentralGroup)
     requestedVersion.set(mavenCentral.version)
     spaceInstanceUrl.set("https://public.jetbrains.space")
     spaceClientId.set(System.getenv("COMPOSE_REPO_USERNAME") ?: "")
@@ -254,7 +255,7 @@ val reuploadArtifactsToMavenCentral by tasks.registering(UploadToSonatypeTask::c
     user.set(mavenCentral.user)
     password.set(mavenCentral.password)
     autoCommitOnSuccess.set(mavenCentral.autoCommitOnSuccess)
-    stagingProfileName.set("org.jetbrains.compose")
+    stagingProfileName.set(mavenCentralGroup)
 }
 
 fun readComposeModules(
