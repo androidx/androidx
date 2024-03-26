@@ -2427,7 +2427,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         const val LOCK_MODE_LOCKED = 3
 
         /**
-         * Value for [splitDividerPosition] indicating that
+         * Value for [splitDividerPosition] indicating that the position should be automatically
+         * determined by other layout policy (e.g. [LayoutParams.weight]) rather than set to
+         * a specific pixel value. [visualDividerPosition] will continue to reflect the currently
+         * displayed position of the divider.
          */
         const val SPLIT_DIVIDER_POSITION_AUTO = -1
 
