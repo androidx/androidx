@@ -175,6 +175,7 @@ private fun rememberLazyListMeasurePolicy(
     graphicsContext
 ) {
     { containerConstraints ->
+        state.measurementScopeInvalidator.attachToScope()
         // Tracks if the lookahead pass has occurred
         val hasLookaheadPassOccurred = state.hasLookaheadPassOccurred || isLookingAhead
         checkScrollableContainerConstraints(

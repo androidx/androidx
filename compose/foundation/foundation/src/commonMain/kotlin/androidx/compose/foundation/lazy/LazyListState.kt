@@ -304,7 +304,51 @@ class LazyListState @ExperimentalFoundationApi constructor(
         }
     }
 
+    internal val measurementScopeInvalidator = ObservableScopeInvalidator()
+
+    /**
+     * Requests the item at [index] to be at the start of the viewport during the next
+     * remeasure, offset by [scrollOffset], and schedules a remeasure.
+     *
+     * The scroll position will be updated to the requested position rather than maintain
+     * the index based on the first visible item key (when a data set change will also be
+     * applied during the next remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset the offset that the item should end up after the scroll. Note that
+     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     * scroll the item further upward (taking it partly offscreen).
+     */
+    fun requestScrollToItem(
+        @AndroidXIntRange(from = 0)
+        index: Int,
+        scrollOffset: Int = 0
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            layoutInfoState.value.coroutineScope.launch {
+                scroll { }
+            }
+        }
+
+        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
+    }
+
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
+        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
+    }
+
+    /**
+     * Snaps to the requested scroll position. Synchronously executes remeasure if [forceRemeasure]
+     * is true, and schedules a remeasure if false.
+     */
+    private fun snapToItemIndexInternal(
+        index: Int,
+        scrollOffset: Int,
+        forceRemeasure: Boolean
+    ) {
         val positionChanged = scrollPosition.index != index ||
             scrollPosition.scrollOffset != scrollOffset
         // sometimes this method is called not to scroll, but to stay on the same index when
@@ -319,7 +363,12 @@ class LazyListState @ExperimentalFoundationApi constructor(
             itemAnimator.reset()
         }
         scrollPosition.requestPositionAndForgetLastKnownKey(index, scrollOffset)
-        remeasurement?.forceRemeasure()
+
+        if (forceRemeasure) {
+            remeasurement?.forceRemeasure()
+        } else {
+            measurementScopeInvalidator.invalidateScope()
+        }
     }
 
     /**
@@ -545,6 +594,8 @@ class LazyListState @ExperimentalFoundationApi constructor(
      * When the user provided custom keys for the items we can try to detect when there were
      * items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
+     * The scroll position will not be updated if [requestScrollToItem] was called since
+     * the last time this method was called.
      */
     internal fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyListItemProvider,
