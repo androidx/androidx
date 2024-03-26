@@ -108,6 +108,18 @@ public class NavOptions internal constructor(
         private set
 
     /**
+     * Route from an Object for the destination to pop up to before navigating. When set,
+     * all non-matching destinations should be popped from the back stack.
+     * @return the destination route to pop up to, clearing all intervening destinations
+     * @see Builder.setPopUpTo
+     *
+     * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
+     */
+    public var popUpToRouteObject: Any? = null
+        private set
+
+    /**
      * NavOptions stores special options for navigate actions
      */
     internal constructor(
@@ -160,6 +172,34 @@ public class NavOptions internal constructor(
         popExitAnim
     ) {
         this.popUpToRouteClass = popUpToRouteClass
+    }
+
+    /**
+     * NavOptions stores special options for navigate actions
+     */
+    @OptIn(InternalSerializationApi::class)
+    internal constructor(
+        singleTop: Boolean,
+        restoreState: Boolean,
+        popUpToRouteObject: Any,
+        popUpToInclusive: Boolean,
+        popUpToSaveState: Boolean,
+        enterAnim: Int,
+        exitAnim: Int,
+        popEnterAnim: Int,
+        popExitAnim: Int
+    ) : this(
+        singleTop,
+        restoreState,
+        popUpToRouteObject::class.serializer().hashCode(),
+        popUpToInclusive,
+        popUpToSaveState,
+        enterAnim,
+        exitAnim,
+        popEnterAnim,
+        popExitAnim
+    ) {
+        this.popUpToRouteObject = popUpToRouteObject
     }
 
     /**
@@ -288,6 +328,7 @@ public class NavOptions internal constructor(
         private var popUpToId = -1
         private var popUpToRoute: String? = null
         private var popUpToRouteClass: KClass<*>? = null
+        private var popUpToRouteObject: Any? = null
         private var popUpToInclusive = false
         private var popUpToSaveState = false
 
@@ -432,6 +473,37 @@ public class NavOptions internal constructor(
         }
 
         /**
+         * Pop up to a given destination before navigating. This pops all non-matching destinations
+         * from the back stack until this destination is found.
+         *
+         * @param route route from an Object for destination to pop up to, clearing all
+         * intervening destinations.
+         * @param inclusive true to also pop the given destination from the back stack.
+         * @param saveState true if the back stack and the state of all destinations between the
+         * current destination and [route] should be saved for later restoration via
+         * [setRestoreState] or the `restoreState` attribute using the same route from an Object
+         * as [popUpToRouteObject] (note: this matching route is true whether [inclusive] is
+         * true or false).
+         * @return this Builder
+         *
+         * @see NavOptions.popUpToId
+         * @see NavOptions.isPopUpToInclusive
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder")
+        @ExperimentalSafeArgsApi
+        @OptIn(InternalSerializationApi::class)
+        public fun <T : Any> setPopUpTo(
+            route: T,
+            inclusive: Boolean,
+            saveState: Boolean = false
+        ): Builder {
+            popUpToRouteObject = route
+            setPopUpTo(route::class.serializer().hashCode(), inclusive, saveState)
+            return this
+        }
+
+        /**
          * Sets a custom Animation or Animator resource for the enter animation.
          *
          * Note: Animator resources are not supported for navigating to a new Activity
@@ -503,6 +575,12 @@ public class NavOptions internal constructor(
                 NavOptions(
                     singleTop, restoreState,
                     popUpToRouteClass, popUpToInclusive, popUpToSaveState,
+                    enterAnim, exitAnim, popEnterAnim, popExitAnim
+                )
+            } else if (popUpToRouteObject != null) {
+                NavOptions(
+                    singleTop, restoreState,
+                    popUpToRouteObject!!, popUpToInclusive, popUpToSaveState,
                     enterAnim, exitAnim, popEnterAnim, popExitAnim
                 )
             } else {

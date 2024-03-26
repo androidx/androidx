@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSafeArgsApi::class)
+
 package androidx.navigation
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -82,7 +84,6 @@ class NavOptionsTest {
             .isFalse()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun popUpToKClass() {
         val navOptions = navOptions {
@@ -97,6 +98,23 @@ class NavOptionsTest {
         assertWithMessage("NavOptions should have not have popUpTo destination route set")
             .that(navOptions.popUpToRoute)
             .isEqualTo(null)
+        assertWithMessage("NavOptions should have isPopUpToInclusive false by default")
+            .that(navOptions.isPopUpToInclusive())
+            .isFalse()
+    }
+
+    @Test
+    fun popUpToObject() {
+        val popObj = TestClass()
+        val navOptions = navOptions {
+            popUpTo(popObj)
+        }
+        assertWithMessage("NavOptions should have popUpTo destination id set")
+            .that(navOptions.popUpToId)
+            .isEqualTo(serializer<TestClass>().hashCode())
+        assertWithMessage("NavOptions should have popUpTo destination route set")
+            .that(navOptions.popUpToRouteObject)
+            .isEqualTo(popObj)
         assertWithMessage("NavOptions should have isPopUpToInclusive false by default")
             .that(navOptions.isPopUpToInclusive())
             .isFalse()
@@ -121,7 +139,6 @@ class NavOptionsTest {
             .isTrue()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun popUpToKClassBuilder() {
         val navOptions = navOptions {
@@ -139,6 +156,29 @@ class NavOptionsTest {
         assertWithMessage("NavOptions should have not have popUpTo destination route set")
             .that(navOptions.popUpToRoute)
             .isEqualTo(null)
+        assertWithMessage("NavOptions should have isPopUpToInclusive set")
+            .that(navOptions.isPopUpToInclusive())
+            .isTrue()
+        assertWithMessage("NavOptions should have shouldPopUpToSaveState set")
+            .that(navOptions.shouldPopUpToSaveState())
+            .isTrue()
+    }
+
+    @Test
+    fun popUpToObjectBuilder() {
+        val popObject = TestClass()
+        val navOptions = navOptions {
+            popUpTo(popObject) {
+                inclusive = true
+                saveState = true
+            }
+        }
+        assertWithMessage("NavOptions should have popUpTo destination id set")
+            .that(navOptions.popUpToId)
+            .isEqualTo(serializer<TestClass>().hashCode())
+        assertWithMessage("NavOptions should have popUpTo destination class set")
+            .that(navOptions.popUpToRouteObject)
+            .isEqualTo(popObject)
         assertWithMessage("NavOptions should have isPopUpToInclusive set")
             .that(navOptions.isPopUpToInclusive())
             .isTrue()

@@ -576,10 +576,10 @@ public open class NavController(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean {
-        // route contains arguments so we need to generate and pop with the populated route
-        // rather than popping based on route pattern
-        val finalRoute = generateRouteFilled(route, fromBackStack = true) ?: return false
-        return popBackStack(finalRoute, inclusive, saveState)
+        val popped = popBackStackInternal(route, inclusive, saveState)
+        // Only return true if the pop succeeded and we've dispatched
+        // the change to a new destination
+        return popped && dispatchOnDestinationChanged()
     }
 
     /**
@@ -636,6 +636,21 @@ public open class NavController(
             return false
         }
         return executePopOperations(popOperations, foundDestination, inclusive, saveState)
+    }
+
+    private fun <T : Any> popBackStackInternal(
+        route: T,
+        inclusive: Boolean,
+        saveState: Boolean = false
+    ): Boolean {
+        // route contains arguments so we need to generate and pop with the populated route
+        // rather than popping based on route pattern
+        val finalRoute = generateRouteFilled(route, fromBackStack = true)
+        requireNotNull(finalRoute) {
+            "PopBackStack failed: route $route cannot be found from" +
+                "the current backstack. The current destination is $currentDestination"
+        }
+        return popBackStackInternal(finalRoute, inclusive, saveState)
     }
 
     /**
@@ -1978,6 +1993,12 @@ public open class NavController(
                 navOptions.popUpToRouteClass != null ->
                     popped = popBackStackInternal(
                         navOptions.popUpToRouteClass!!.serializer().hashCode(),
+                        navOptions.isPopUpToInclusive(),
+                        navOptions.shouldPopUpToSaveState()
+                    )
+                navOptions.popUpToRouteObject != null ->
+                    popped = popBackStackInternal(
+                        navOptions.popUpToRouteObject!!,
                         navOptions.isPopUpToInclusive(),
                         navOptions.shouldPopUpToSaveState()
                     )

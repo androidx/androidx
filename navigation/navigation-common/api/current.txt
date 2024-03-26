@@ -366,6 +366,7 @@ package androidx.navigation {
     method @IdRes public int getPopUpToId();
     method public String? getPopUpToRoute();
     method public kotlin.reflect.KClass<?>? getPopUpToRouteClass();
+    method public Object? getPopUpToRouteObject();
     method public boolean isPopUpToInclusive();
     method public boolean shouldLaunchSingleTop();
     method public boolean shouldPopUpToSaveState();
@@ -377,6 +378,7 @@ package androidx.navigation {
     property @IdRes public final int popUpToId;
     property public final String? popUpToRoute;
     property public final kotlin.reflect.KClass<?>? popUpToRouteClass;
+    property public final Object? popUpToRouteObject;
   }
 
   public static final class NavOptions.Builder {
@@ -392,6 +394,8 @@ package androidx.navigation {
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive, optional boolean saveState);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public <T> androidx.navigation.NavOptions.Builder setPopUpTo(T route, boolean inclusive);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public <T> androidx.navigation.NavOptions.Builder setPopUpTo(T route, boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setRestoreState(boolean restoreState);
   }
 
@@ -403,10 +407,12 @@ package androidx.navigation {
     method public int getPopUpToId();
     method public String? getPopUpToRoute();
     method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public kotlin.reflect.KClass<?>? getPopUpToRouteClass();
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public Object? getPopUpToRouteObject();
     method public boolean getRestoreState();
     method public void popUpTo(@IdRes int id, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void popUpTo(String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public inline <reified T> void popUpTo(optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public <T> void popUpTo(T route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void setLaunchSingleTop(boolean);
     method @Deprecated public void setPopUpTo(int);
     method public void setRestoreState(boolean);
@@ -415,6 +421,7 @@ package androidx.navigation {
     property public final int popUpToId;
     property public final String? popUpToRoute;
     property @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public final kotlin.reflect.KClass<?>? popUpToRouteClass;
+    property @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public final Object? popUpToRouteObject;
     property public final boolean restoreState;
   }
 
