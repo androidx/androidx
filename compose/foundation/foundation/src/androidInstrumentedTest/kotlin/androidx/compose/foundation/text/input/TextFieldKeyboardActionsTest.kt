@@ -17,15 +17,12 @@
 package androidx.compose.foundation.text.input
 
 import android.view.inputmethod.EditorInfo
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
-import androidx.compose.foundation.text.KeyboardActionScope
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
@@ -60,7 +57,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldKeyboardActionsTest : FocusedWindowTest {
@@ -77,7 +73,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions {
+                onKeyboardAction = {
                     called = true
                 }
             )
@@ -95,7 +91,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions {
+                onKeyboardAction = {
                     called = true
                 }
             )
@@ -111,13 +107,13 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
 
     @Test
     fun textField_performsUnexpectedImeAction_fromInputConnection() {
-        var calledFor: ImeAction? = null
+        var called = false
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActionsAll {
-                    calledFor = it
+                onKeyboardAction = {
+                    called = true
                 }
             )
         }
@@ -126,7 +122,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
 
         inputMethodInterceptor.withInputConnection {
             performEditorAction(EditorInfo.IME_ACTION_SEARCH)
-            assertThat(calledFor).isEqualTo(ImeAction.Search)
+            assertThat(called).isTrue()
         }
     }
 
@@ -215,7 +211,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    keyboardActions = KeyboardActionsAll {
+                    onKeyboardAction = {
                         // don't call default action
                     }
                 )
@@ -245,8 +241,8 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    keyboardActions = KeyboardActionsAll {
-                        defaultKeyboardAction(it)
+                    onKeyboardAction = {
+                        it()
                     }
                 )
                 Box(
@@ -263,63 +259,23 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
     }
 
     @Test
-    fun textField_performsGo_whenReceivedImeActionIsGo() {
-        var called = false
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField(
-                state = TextFieldState(),
-                keyboardActions = KeyboardActions(onGo = {
-                    called = true
-                })
-            )
-        }
-
-        rule.onNode(hasSetTextAction()).requestFocus()
-
-        inputMethodInterceptor.withInputConnection {
-            performEditorAction(EditorInfo.IME_ACTION_GO)
-            assertThat(called).isTrue()
-        }
-    }
-
-    @Test
-    fun textField_doesNotPerformGo_whenReceivedImeActionIsNotGo() {
-        var called = false
-        inputMethodInterceptor.setTextFieldTestContent {
-            BasicTextField(
-                state = TextFieldState(),
-                keyboardActions = KeyboardActions(onGo = {
-                    called = true
-                })
-            )
-        }
-
-        rule.onNode(hasSetTextAction()).requestFocus()
-
-        inputMethodInterceptor.withInputConnection {
-            performEditorAction(EditorInfo.IME_ACTION_SEARCH)
-            assertThat(called).isFalse()
-        }
-    }
-
-    @Test
     fun textField_changingKeyboardActions_usesNewKeyboardActions() {
         var lastCaller = 0
-        val actions1 = KeyboardActionsAll { lastCaller = 1 }
-        val actions2 = KeyboardActionsAll { lastCaller = 2 }
-        var keyboardActions by mutableStateOf(actions1)
+        val actions1 = KeyboardActionHandler { lastCaller = 1 }
+        val actions2 = KeyboardActionHandler { lastCaller = 2 }
+        var onKeyboardAction by mutableStateOf(actions1)
         rule.setTextFieldTestContent {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = keyboardActions
+                onKeyboardAction = onKeyboardAction
             )
         }
 
         rule.onNode(hasSetTextAction()).performImeAction()
         rule.runOnIdle { assertThat(lastCaller).isEqualTo(1) }
 
-        keyboardActions = actions2
+        onKeyboardAction = actions2
 
         // do not go through focus requests again
         rule.onNode(hasSetTextAction()).performSemanticsAction(SemanticsActions.OnImeAction)
@@ -328,14 +284,14 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun textField_singleLinePressEnter_triggersPassedImeAction() {
-        var calledFor: ImeAction? = null
+    fun textField_singleLinePressEnter_triggersKeyboardAction() {
+        var called = false
         rule.setTextFieldTestContent {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                keyboardActions = KeyboardActionsAll {
-                    calledFor = it
+                onKeyboardAction = {
+                    called = true
                 },
                 lineLimits = SingleLine
             )
@@ -345,19 +301,19 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             performClick()
             performKeyInput { pressKey(Key.Enter) }
         }
-        rule.runOnIdle { assertThat(calledFor).isEqualTo(ImeAction.Go) }
+        rule.runOnIdle { assertThat(called).isTrue() }
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun textField_multiLinePressEnter_doesNotTriggerPassedImeAction() {
-        var calledFor: ImeAction? = null
+    fun textField_multiLinePressEnter_doesNotTriggerKeyboardAction() {
+        var called = false
         rule.setTextFieldTestContent {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                keyboardActions = KeyboardActionsAll {
-                    calledFor = it
+                onKeyboardAction = {
+                    called = true
                 },
                 lineLimits = MultiLine(maxHeightInLines = 1)
             )
@@ -367,7 +323,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             performClick()
             performKeyInput { pressKey(Key.Enter) }
         }
-        rule.runOnIdle { assertThat(calledFor).isNull() }
+        rule.runOnIdle { assertThat(called).isFalse() }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -400,15 +356,45 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
         }
         rule.onNodeWithTag("box2").assertIsFocused()
     }
-}
 
-private fun KeyboardActionsAll(
-    onAny: KeyboardActionScope.(ImeAction) -> Unit
-): KeyboardActions = KeyboardActions(
-    onDone = { onAny(ImeAction.Done) },
-    onGo = { onAny(ImeAction.Go) },
-    onNext = { onAny(ImeAction.Next) },
-    onPrevious = { onAny(ImeAction.Previous) },
-    onSearch = { onAny(ImeAction.Search) },
-    onSend = { onAny(ImeAction.Send) }
-)
+    @Test
+    fun textField_ImeActionNone_isNotPassedToKeyboardActionHandler() {
+        var called = false
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = TextFieldState(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.None),
+                onKeyboardAction = {
+                    called = true
+                }
+            )
+        }
+
+        rule.onNode(hasSetTextAction()).performImeAction()
+
+        assertThat(called).isFalse()
+    }
+
+    @Test
+    fun textField_ImeActionDefault_isNotPassedToKeyboardActionHandler() {
+        var called = false
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = TextFieldState(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
+                onKeyboardAction = {
+                    called = true
+                }
+            )
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        inputMethodInterceptor.withInputConnection {
+            performEditorAction(EditorInfo.IME_ACTION_NONE)
+            performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
+        }
+
+        assertThat(called).isFalse()
+    }
+}

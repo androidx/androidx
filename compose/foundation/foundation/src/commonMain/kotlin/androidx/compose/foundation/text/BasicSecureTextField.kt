@@ -20,8 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.text.input.ImeActionHandler
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldDecorator
@@ -70,13 +70,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
  *
  * @param state [TextFieldState] object that holds the internal state of a [BasicTextField].
  * @param modifier optional [Modifier] for this text field.
- * @param onSubmit Called when the user submits a form either by pressing the action button in the
- * input method editor (IME), or by pressing the enter key on a hardware keyboard. If the user
- * submits the form by pressing the action button in the IME, the provided IME action is passed to
- * the function. If the user submits the form by pressing the enter key on a hardware keyboard,
- * the defined [KeyboardOptions.imeAction] parameter is passed to the function. Return true to
- * indicate that the action has been handled completely, which will skip the default behavior,
- * such as hiding the keyboard for the [ImeAction.Done] action.
  * @param enabled controls the enabled state of the [BasicTextField]. When `false`, the text
  * field will be neither editable nor focusable, the input of the text field will not be selectable.
  * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
@@ -91,6 +84,11 @@ import kotlinx.coroutines.flow.consumeAsFlow
  * [KeyboardType] and [ImeAction]. This composable by default configures [KeyboardOptions] for a
  * secure text field by disabling auto correct and setting [KeyboardType] to
  * [KeyboardType.Password].
+ * @param onKeyboardAction Called when the user presses the action button in the input method
+ * editor (IME), or by pressing the enter key on a hardware keyboard. By default this parameter
+ * is null, and would execute the default behavior for a received IME Action e.g., [ImeAction.Done]
+ * would close the keyboard, [ImeAction.Next] would switch the focus to the next focusable item on
+ * the screen.
  * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
  * callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
  * or null if it cannot. The function reads the layout result from a snapshot state object, and will
@@ -116,12 +114,11 @@ import kotlinx.coroutines.flow.consumeAsFlow
 fun BasicSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
-    // TODO(b/297425359) Investigate cleaning up the IME action handling APIs.
-    onSubmit: ImeActionHandler? = null,
     enabled: Boolean = true,
     inputTransformation: InputTransformation? = null,
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.SecureTextField,
+    onKeyboardAction: KeyboardActionHandler? = null,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
@@ -183,8 +180,7 @@ fun BasicSecureTextField(
             } else inputTransformation,
             textStyle = textStyle,
             keyboardOptions = keyboardOptions,
-            keyboardActions = onSubmit?.let { KeyboardActions(onSubmit = it::onImeAction) }
-                ?: KeyboardActions.Default,
+            onKeyboardAction = onKeyboardAction,
             lineLimits = TextFieldLineLimits.SingleLine,
             onTextLayout = onTextLayout,
             interactionSource = interactionSource,
@@ -291,41 +287,6 @@ private const val DEFAULT_OBFUSCATION_MASK = '\u2022'
 
 @OptIn(ExperimentalFoundationApi::class)
 private val PasswordCodepointTransformation = CodepointTransformation.mask(DEFAULT_OBFUSCATION_MASK)
-
-// TODO(b/297425359) Investigate cleaning up the IME action handling APIs.
-@OptIn(ExperimentalFoundationApi::class)
-private fun KeyboardActions(onSubmit: ImeActionHandler) = KeyboardActions(
-    onDone = {
-        if (!onSubmit.onImeAction(ImeAction.Done)) {
-            defaultKeyboardAction(ImeAction.Done)
-        }
-    },
-    onGo = {
-        if (!onSubmit.onImeAction(ImeAction.Go)) {
-            defaultKeyboardAction(ImeAction.Go)
-        }
-    },
-    onNext = {
-        if (!onSubmit.onImeAction(ImeAction.Next)) {
-            defaultKeyboardAction(ImeAction.Next)
-        }
-    },
-    onPrevious = {
-        if (!onSubmit.onImeAction(ImeAction.Previous)) {
-            defaultKeyboardAction(ImeAction.Previous)
-        }
-    },
-    onSearch = {
-        if (!onSubmit.onImeAction(ImeAction.Search)) {
-            defaultKeyboardAction(ImeAction.Search)
-        }
-    },
-    onSend = {
-        if (!onSubmit.onImeAction(ImeAction.Send)) {
-            defaultKeyboardAction(ImeAction.Send)
-        }
-    },
-)
 
 /**
  * Overrides the TextToolbar and keyboard shortcuts to never allow copy or cut options by the
