@@ -594,7 +594,6 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
      * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
 
     /**
