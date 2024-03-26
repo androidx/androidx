@@ -32,7 +32,6 @@ import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
 import androidx.window.WindowTestUtils.Companion.assumeBeforeVendorApiLevel
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
-import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.FoldingFeature.STATE_FLAT
@@ -754,7 +753,7 @@ class ExtensionWindowBackendTest {
 
         @SuppressLint("NewApi")
         fun emit(info: OEMWindowLayoutInfo) {
-            if (ExtensionsUtil.safeVendorApiLevel < WindowExtensions.VENDOR_API_LEVEL_2) {
+            if (ExtensionsUtil.safeVendorApiLevel < 2) {
                 consumers.forEach { it.accept(info) }
             } else {
                 oemConsumers.forEach { it.accept(info) }
