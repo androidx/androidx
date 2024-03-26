@@ -18,7 +18,8 @@ package androidx.window.demo.embedding;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
-import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_AVAILABLE;
+import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED;
+import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ADJACENT;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ALWAYS;
 import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
@@ -90,6 +91,22 @@ public class SplitActivityBase extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final SplitController splitController = SplitController.getInstance(this);
+        final SplitController.SplitSupportStatus splitSupportStatus =
+                splitController.getSplitSupportStatus();
+        if (splitSupportStatus == SPLIT_UNAVAILABLE) {
+            Toast.makeText(this, R.string.toast_split_not_available,
+                    Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        } else if (splitSupportStatus == SPLIT_ERROR_PROPERTY_NOT_DECLARED) {
+            Toast.makeText(this, R.string.toast_split_not_support,
+                    Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         mViewBinding = ActivitySplitActivityLayoutBinding.inflate(getLayoutInflater());
         setContentView(mViewBinding.getRoot());
 
@@ -179,7 +196,6 @@ public class SplitActivityBase extends AppCompatActivity
                         .setTitle("Alert dialog demo")
                         .setMessage("This is a dialog demo").create().show());
 
-        final SplitController splitController = SplitController.getInstance(this);
         if (WindowSdkExtensions.getInstance().getExtensionVersion() < 5) {
             mViewBinding.pinTopActivityStackButton.setEnabled(false);
             mViewBinding.unpinTopActivityStackButton.setEnabled(false);
@@ -207,12 +223,6 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
-        if (splitController.getSplitSupportStatus() != SPLIT_AVAILABLE) {
-            Toast.makeText(this, R.string.toast_split_not_support,
-                    Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
         mRuleController = RuleController.getInstance(this);
     }
 
