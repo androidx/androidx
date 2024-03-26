@@ -37,21 +37,6 @@ fi
 
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 
-# hash the files in the out dir in case we want to confirm which files changed during the build
-function hashOutDir() {
-  hashFile=out.hashes
-  echo "hashing out dir and saving into $DIST_DIR/$hashFile"
-  # We hash files in parallel for more performance (-P <number>)
-  # We limit the number of files hashed by any one process (-n <number>) to lower the risk of one
-  # process having to do much more work than the others.
-  # We do allow each process to hash multiple files (also -n <number>) to avoid spawning too many processes
-  # It would be nice to copy all files, but that takes a while
-  (cd $OUT_DIR && find -type f | grep -v "$hashFile" | xargs --no-run-if-empty -P 32 -n 64 sha1sum > $DIST_DIR/$hashFile)
-  echo "done hashing out dir"
-}
-# disable temporarily b/276812697
-# hashOutDir
-
 # If we encounter a failure in postsubmit, we try a few things to determine if the failure is
 # reproducible
 DIAGNOSE_ARG=""
