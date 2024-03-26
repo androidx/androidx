@@ -484,4 +484,22 @@ public class LayoutElementBuildersTest {
                         .getArcDirection().getValue())
                 .isEqualTo(arcTextDirection);
     }
+
+    @Test
+    public void arcAdapterContent_withTransformation_throws() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText("test")
+                        .setModifiers(
+                                new ModifiersBuilders.Modifiers.Builder()
+                                        .setTransformation(
+                                                new ModifiersBuilders.Transformation.Builder()
+                                                        .build())
+                                        .build())
+                        .build();
+        LayoutElementBuilders.ArcAdapter.Builder arcAdapterBuilder =
+                new LayoutElementBuilders.ArcAdapter.Builder();
+
+        assertThrows(IllegalArgumentException.class, () -> arcAdapterBuilder.setContent(text));
+    }
 }
