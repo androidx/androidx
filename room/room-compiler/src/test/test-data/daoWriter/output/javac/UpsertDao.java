@@ -20,7 +20,7 @@ import javax.annotation.processing.Generated;
 import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked", "deprecation", "removal"})
 public final class UpsertDao_Impl implements UpsertDao {
     private final RoomDatabase __db;
 

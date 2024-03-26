@@ -18,11 +18,14 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Setup JDK 17"
+    - name: "Setup JDK 17 and 21"
       id: setup-java
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
-        java-version: "17"
+        distribution: "zulu"
+        java-version: |
+          17
+          21
     # TODO b/216535050: Implement task to install the exact AndroidX ndk
     # version in case it is not available.
     - name: "Install Cmake"

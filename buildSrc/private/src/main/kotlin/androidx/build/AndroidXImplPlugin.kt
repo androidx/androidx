@@ -924,6 +924,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 val defaultTargetJavaVersion = getDefaultTargetJavaVersion(androidXExtension.type)
                 sourceCompatibility = defaultTargetJavaVersion
                 targetCompatibility = defaultTargetJavaVersion
+                project.disableJava8TargetObsoleteWarnings()
             }
             if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
                 project.configureSourceJarForJava()
@@ -1006,6 +1007,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             sourceCompatibility = VERSION_1_8
             targetCompatibility = VERSION_1_8
         }
+        project.disableJava8TargetObsoleteWarnings()
 
         val defaultMinSdkVersion = project.defaultAndroidConfig.minSdk
         val defaultCompileSdkVersion = project.defaultAndroidConfig.compileSdk
@@ -1514,6 +1516,15 @@ internal fun Project.configureTaskTimeouts() {
         // that we can count on the user to monitor
         if (t !is StudioTask) {
             t.timeout.set(Duration.ofMinutes(TASK_TIMEOUT_MINUTES))
+        }
+    }
+}
+
+private fun Project.disableJava8TargetObsoleteWarnings() {
+    afterEvaluate {
+        project.tasks.withType(JavaCompile::class.java).configureEach { task ->
+            // JDK 21 considers Java 8 an obsolete source and target value. Disable this warning.
+            task.options.compilerArgs.add("-Xlint:-options")
         }
     }
 }

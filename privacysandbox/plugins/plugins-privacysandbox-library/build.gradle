@@ -22,6 +22,14 @@ configurations {
     }
 }
 
+tasks.withType(Test).configureEach {
+    it.javaLauncher = javaToolchains.launcherFor {
+        // Test on JDK 17 which supports lower versions of AGP. This can be removed
+        // once we move to AGP 8.2.1+
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {

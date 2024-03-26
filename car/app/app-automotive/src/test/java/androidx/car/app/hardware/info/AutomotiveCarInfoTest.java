@@ -95,10 +95,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(
-        manifest = Config.NONE,
-        shadows = {ShadowCar.class}
-)
+@Config(shadows = {ShadowCar.class})
 @DoNotInstrument
 public class AutomotiveCarInfoTest {
     @Rule
