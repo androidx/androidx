@@ -31,19 +31,25 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
@@ -59,7 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 
-val ScrollingScreenshotsDemos = listOf(
+val LongScreenshotsDemos = listOf(
     ComposableDemo("Single, small, eager list") { SingleEagerListDemo() },
     ComposableDemo("Single, small, lazy list") { SingleLazyListDemo() },
     ComposableDemo("Single, full-screen list") { SingleFullScreenListDemo() },
@@ -67,6 +73,10 @@ val ScrollingScreenshotsDemos = listOf(
     ComposableDemo("Big viewport nested in smaller outer viewport") { BigInLittleDemo() },
     ComposableDemo("Scrollable in dialog") { InDialogDemo() },
     ComposableDemo("Nested AndroidView") { AndroidViewDemo() },
+    ComposableDemo("TextField in scrollable (legacy)") { LegacyTextFieldInScrollableDemo() },
+    ComposableDemo("Single giant text field (legacy)") { LegacySingleGiantTextFieldDemo() },
+    ComposableDemo("TextField in scrollable") { TextFieldInScrollableDemo() },
+    ComposableDemo("Single giant text field") { SingleGiantTextFieldDemo() },
 )
 
 @Composable
@@ -355,6 +365,114 @@ private fun AndroidViewDemo() {
                 Text("Compose item", Modifier.padding(16.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun LegacyTextFieldInScrollableDemo() {
+    LazyColumn(
+        Modifier
+            .fillMaxSize()
+            .imePadding()
+    ) {
+        item { FeatureFlagToggle() }
+
+        repeat(10) {
+            item {
+                var text by remember { mutableStateOf("") }
+                OutlinedTextField(
+                    label = { Text("Single line") },
+                    value = text,
+                    onValueChange = { text = it },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                )
+            }
+            item {
+                var text by remember { mutableStateOf("one\ntwo\nthree\nfour\nfive\nsix") }
+                OutlinedTextField(
+                    label = { Text("Multiline, scrollable field") },
+                    value = text,
+                    onValueChange = { text = it },
+                    singleLine = false,
+                    maxLines = 3,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LegacySingleGiantTextFieldDemo() {
+    var text by remember { mutableStateOf("") }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+    ) {
+        FeatureFlagToggle()
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+private fun TextFieldInScrollableDemo() {
+    LazyColumn(
+        Modifier
+            .fillMaxSize()
+            .imePadding()
+    ) {
+        item { FeatureFlagToggle() }
+
+        repeat(10) {
+            item {
+                val text = rememberTextFieldState()
+                Text("Single line")
+                BasicTextField(
+                    state = text,
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                )
+            }
+            item {
+                val text = rememberTextFieldState("one\ntwo\nthree\nfour\nfive\nsix")
+                Text("Multiline, scrollable field")
+                BasicTextField(
+                    state = text,
+                    lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 3),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SingleGiantTextFieldDemo() {
+    val text = rememberTextFieldState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+    ) {
+        FeatureFlagToggle()
+        BasicTextField(
+            state = text,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
