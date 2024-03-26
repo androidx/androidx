@@ -313,6 +313,7 @@ fun BasicTextFieldStateEditSample() {
 @Sampled
 @Composable
 fun BasicTextFieldCustomInputTransformationSample() {
+    // Demonstrates how to create a custom and relatively complex InputTransformation.
     val state = remember { TextFieldState() }
     BasicTextField(state, inputTransformation = { _, new ->
         // A filter that always places newly-input text at the start of the string, after a
@@ -506,8 +507,8 @@ fun BasicTextFieldUndoSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun BasicTextFieldDecoratorSample() {
+    // Demonstrates how to use the decorator API on BasicTextField
     val state = rememberTextFieldState("Hello, World!")
     BasicTextField(
         state = state,

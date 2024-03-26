@@ -81,6 +81,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
+private object BasicTextFieldDefaults {
+    val CursorBrush = SolidColor(Color.Black)
+}
+
 /**
  * Basic text composable that provides an interactive box that accepts text input through software
  * or hardware keyboard, but provides no decorations like hint or placeholder.
@@ -90,13 +94,11 @@ import androidx.compose.ui.unit.dp
  * Similarly, all the programmatic updates made to [state] also reflect on this composable.
  *
  * If you want to add decorations to your text field, such as icon or similar, and increase the
- * hit target area, use the decorator:
- * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
+ * hit target area, use the decorator.
  *
  * In order to filter (e.g. only allow digits, limit the number of characters), or change (e.g.
  * convert every character to uppercase) the input received from the user, use an
  * [InputTransformation].
- * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  *
  * Limiting the height of the [BasicTextField] in terms of line count and choosing a scroll
  * direction can be achieved by using [TextFieldLineLimits].
@@ -108,7 +110,6 @@ import androidx.compose.ui.unit.dp
  * It's also possible to internally wrap around an existing TextFieldState and expose a more
  * lightweight state hoisting mechanism through a value that dictates the content of the TextField
  * and an onValueChange callback that communicates the changes to this value.
- * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  *
  * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField].
  * @param modifier optional [Modifier] for this text field.
@@ -156,6 +157,12 @@ import androidx.compose.ui.unit.dp
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  * scroll behavior. In other cases the text field becomes vertically scrollable.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  */
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
@@ -172,7 +179,7 @@ fun BasicTextField(
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
+    cursorBrush: Brush = BasicTextFieldDefaults.CursorBrush,
     outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
@@ -221,7 +228,7 @@ internal fun BasicTextField(
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
+    cursorBrush: Brush = BasicTextFieldDefaults.CursorBrush,
     codepointTransformation: CodepointTransformation? = null,
     outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
