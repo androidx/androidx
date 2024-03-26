@@ -56,10 +56,8 @@ abstract class TopicsManager internal constructor() {
             } else if (AdServicesInfo.adServicesVersion() == 4) {
                 TopicsManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                BackCompatManager.getBackCompatManager(context, "TopicsManager") {
-                    TopicsManagerApi31Ext9Impl(
-                        context
-                    )
+                BackCompatManager.getManager(context, "TopicsManager") {
+                    TopicsManagerApi31Ext9Impl(context)
                 }
             } else {
                 null

@@ -290,10 +290,8 @@ abstract class AdSelectionManager internal constructor() {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AdSelectionManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                BackCompatManager.getBackCompatManager(context, "AdSelectionManager") {
-                    AdSelectionManagerApi31Ext9Impl(
-                        context
-                    )
+                BackCompatManager.getManager(context, "AdSelectionManager") {
+                    AdSelectionManagerApi31Ext9Impl(context)
                 }
             } else {
                 null
