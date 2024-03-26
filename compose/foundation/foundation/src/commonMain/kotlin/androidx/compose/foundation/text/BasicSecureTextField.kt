@@ -105,9 +105,9 @@ import kotlinx.coroutines.flow.consumeAsFlow
  * for different [Interaction]s.
  * @param cursorBrush [Brush] to paint cursor with. If [SolidColor] with [Color.Unspecified]
  * provided, there will be no cursor drawn.
- * @param textObfuscationMode Determines the method used to obscure the input text.
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
+ * @param textObfuscationMode Determines the method used to obscure the input text.
  */
 @ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
@@ -125,10 +125,10 @@ fun BasicSecureTextField(
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     cursorBrush: Brush = SolidColor(Color.Black),
-    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
     decorator: TextFieldDecorator? = null,
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
 ) {
     val secureTextFieldController = remember { SecureTextFieldController() }
     LaunchedEffect(secureTextFieldController) {
