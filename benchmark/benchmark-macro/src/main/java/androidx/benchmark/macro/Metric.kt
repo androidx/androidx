@@ -498,14 +498,14 @@ class TraceSectionMetric @JvmOverloads constructor(
      */
     private val targetPackageOnly: Boolean = true
 ) : Metric() {
-    enum class Mode {
+    sealed class Mode(internal val name: String) {
         /**
          * Captures the duration of the first instance of `sectionName` in the trace.
          *
          * When this mode is used, no measurement will be reported if the named section does
          * not appear in the trace.
          */
-        First,
+        object First : Mode("First")
 
         /**
          * Captures the sum of all instances of `sectionName` in the trace.
@@ -513,7 +513,7 @@ class TraceSectionMetric @JvmOverloads constructor(
          * When this mode is used, a measurement of `0` will be reported if the named section
          * does not appear in the trace.
          */
-        Sum,
+        object Sum : Mode("Sum")
 
         /**
          * Reports the maximum observed duration for a trace section matching `sectionName` in the
@@ -522,7 +522,7 @@ class TraceSectionMetric @JvmOverloads constructor(
          * When this mode is used, no measurement will be reported if the named section does
          * not appear in the trace.
          */
-        Min,
+        object Min : Mode("Min")
 
         /**
          * Reports the maximum observed duration for a trace section matching `sectionName` in the
@@ -531,7 +531,7 @@ class TraceSectionMetric @JvmOverloads constructor(
          * When this mode is used, no measurement will be reported if the named section does
          * not appear in the trace.
          */
-        Max,
+        object Max : Mode("Max")
 
         /**
          * Counts the number of observed instances of a trace section matching `sectionName` in the
@@ -540,7 +540,7 @@ class TraceSectionMetric @JvmOverloads constructor(
          * When this mode is used, a measurement of `0` will be reported if the named section
          * does not appear in the trace.
          */
-        Count,
+        object Count : Mode("Count")
 
         /**
          * Average duration of trace sections matching `sectionName` in the trace.
@@ -548,7 +548,7 @@ class TraceSectionMetric @JvmOverloads constructor(
          * When this mode is used, a measurement of `0` will be reported if the named section
          * does not appear in the trace.
          */
-        Average,
+        object Average : Mode("Average")
     }
 
     override fun configure(packageName: String) {
