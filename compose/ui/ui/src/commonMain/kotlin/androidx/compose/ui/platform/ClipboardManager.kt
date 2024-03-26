@@ -88,7 +88,7 @@ expect class ClipEntry {
      *
      * Calling this function does not trigger any content access warnings on any platform.
      */
-    fun getMetadata(): ClipMetadata
+    val clipMetadata: ClipMetadata
 }
 
 /**

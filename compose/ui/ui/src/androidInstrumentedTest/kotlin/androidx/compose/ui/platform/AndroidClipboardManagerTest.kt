@@ -260,6 +260,19 @@ class AndroidClipboardManagerTest {
     }
 
     @Test
+    fun getPrimaryClipEntry_includesClipMetadata() {
+        val clipboardManager = mock<ClipboardManager>()
+        val clipData = mock<ClipData>()
+        val clipDescription = mock<ClipDescription>()
+        whenever(clipData.description).thenReturn(clipDescription)
+        whenever(clipboardManager.primaryClip).thenReturn(clipData)
+        val subject = AndroidClipboardManager(clipboardManager)
+
+        assertThat(subject.getClip()?.clipMetadata?.clipDescription)
+            .isSameInstanceAs(clipDescription)
+    }
+
+    @Test
     fun setPrimaryClip_callsSetPrimaryClip() {
         val clipboardManager = mock<ClipboardManager>()
         val clipData = mock<ClipData>()
