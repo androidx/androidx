@@ -303,7 +303,7 @@ public final class ImageCapture extends UseCase {
      * content.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final int OUTPUT_FORMAT_ULTRA_HDR = 1;
+    public static final int OUTPUT_FORMAT_JPEG_ULTRA_HDR = 1;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -505,7 +505,7 @@ public final class ImageCapture extends UseCase {
 
     private static boolean isOutputFormatUltraHdr(@NonNull MutableConfig config) {
         return Objects.equals(config.retrieveOption(OPTION_OUTPUT_FORMAT, null),
-                OUTPUT_FORMAT_ULTRA_HDR);
+                OUTPUT_FORMAT_JPEG_ULTRA_HDR);
     }
 
     /**
@@ -973,7 +973,7 @@ public final class ImageCapture extends UseCase {
             Set<Integer> formats = new HashSet<>();
             formats.add(OUTPUT_FORMAT_JPEG);
             if (isUltraHdrSupported()) {
-                formats.add(OUTPUT_FORMAT_ULTRA_HDR);
+                formats.add(OUTPUT_FORMAT_JPEG_ULTRA_HDR);
             }
 
             return formats;
@@ -1577,7 +1577,7 @@ public final class ImageCapture extends UseCase {
     /**
      * The output format of the captured image.
      */
-    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_ULTRA_HDR})
+    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface OutputFormat {
@@ -2811,7 +2811,7 @@ public final class ImageCapture extends UseCase {
          * will be used as the dynamic range of this use case.
          *
          * @param outputFormat The output image format. Value is {@link #OUTPUT_FORMAT_JPEG} or
-         *                     {@link #OUTPUT_FORMAT_ULTRA_HDR}.
+         *                     {@link #OUTPUT_FORMAT_JPEG_ULTRA_HDR}.
          * @return The current Builder.
          *
          * @see OutputFormat

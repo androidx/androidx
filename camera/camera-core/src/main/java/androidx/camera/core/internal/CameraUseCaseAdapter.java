@@ -22,7 +22,7 @@ import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
-import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_ULTRA_HDR;
+import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
@@ -961,7 +961,7 @@ public final class CameraUseCaseAdapter implements Camera {
 
             UseCaseConfig<?> config = useCase.getCurrentConfig();
             if (config.containsOption(OPTION_OUTPUT_FORMAT) && checkNotNull(
-                    config.retrieveOption(OPTION_OUTPUT_FORMAT)) == OUTPUT_FORMAT_ULTRA_HDR) {
+                    config.retrieveOption(OPTION_OUTPUT_FORMAT)) == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
                 return true;
             }
 
