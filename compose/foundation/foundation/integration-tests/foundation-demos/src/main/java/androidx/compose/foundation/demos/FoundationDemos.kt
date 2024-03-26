@@ -93,7 +93,7 @@ val FoundationDemos = DemoCategory(
         ComposableDemo("Window insets") { WindowInsetsDemo() },
         ComposableDemo("Marquee") { BasicMarqueeDemo() },
         DemoCategory("Pointer Icon", PointerIconDemos),
-        DemoCategory("Long screenshots", ScrollingScreenshotsDemos),
+        DemoCategory("Long screenshots", LongScreenshotsDemos),
         DemoCategory("Context Menu", ContextMenuDemos),
     )
 )
