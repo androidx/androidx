@@ -22,12 +22,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -43,7 +37,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -1272,47 +1265,6 @@ class SnapshotTests {
         assertEquals(1, current.writeCount)
     }
 
-    @Test
-    fun testSnapshotStateIsBornAccessible() {
-        fun <T, V> test(create: () -> T, read: (T) -> V, update: (T) -> V) {
-            val snapshot = takeMutableSnapshot()
-            val created: Any? = null
-            val modified = observeChanges(snapshot) {
-                val (state, initial) = snapshot.enter {
-                    val state = create()
-                    state to read(state)
-                }
-
-                // Ensure the value is accessible and has its initial state
-                assertEquals(initial, read(state))
-                val newValue = snapshot.enter {
-                    update(state)
-                }
-
-                // Ensure the test actually modified it
-                assertNotEquals(initial, newValue)
-
-                // Ensure the value still has its initial state
-                assertEquals(initial, read(state))
-                snapshot.apply().check()
-
-                // Ensure the value now has the modified state
-                assertEquals(newValue, read(state))
-            }
-
-            // The object is not considered modified
-            assertFalse(created in modified)
-        }
-
-        test({ mutableStateOf("A") }, { it.value }) { it.value = "B"; "B" }
-        test({ mutableIntStateOf(1) }, { it.value }, { it.value = 2; 2 })
-        test({ mutableLongStateOf(1L) }, { it.value }, { it.value = 2L; 2L })
-        test({ mutableFloatStateOf(1f) }, { it.value }, { it.value = 2f; 2f })
-        test({ mutableDoubleStateOf(1.0) }, { it.value }, { it.value = 2.0; 2.0 })
-        test({ mutableStateListOf<Int>() }, { it.isEmpty() }, { it.add(1); it.isEmpty() })
-        test({ mutableStateMapOf<Int, Int>() }, { it.isEmpty() }, { it[23] = 42; it.isEmpty() })
-    }
-
     private fun usedRecords(state: StateObject): Int {
         var used = 0
         var current: StateRecord? = state.firstStateRecord
@@ -1343,20 +1295,6 @@ internal fun <T> changesOf(state: State<T>, block: () -> Unit): Int {
     var changes = 0
     val removeObserver = Snapshot.registerApplyObserver { states, _ ->
         if (states.contains(state)) changes++
-    }
-    try {
-        block()
-        Snapshot.sendApplyNotifications()
-    } finally {
-        removeObserver.dispose()
-    }
-    return changes
-}
-
-internal fun observeChanges(snapshot: Snapshot, block: () -> Unit): Set<Any> {
-    var changes = setOf<Any>()
-    val removeObserver = Snapshot.registerApplyObserver { states, changedSnapshot ->
-        if (changedSnapshot == snapshot) changes = states
     }
     try {
         block()
