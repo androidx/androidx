@@ -143,6 +143,11 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    lintPublish(project(":compose:ui:ui-text-lint"))
+    lintChecks(project(":compose:ui:ui-text-lint"))
+}
+
 androidx {
     name = "Compose UI Text"
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
