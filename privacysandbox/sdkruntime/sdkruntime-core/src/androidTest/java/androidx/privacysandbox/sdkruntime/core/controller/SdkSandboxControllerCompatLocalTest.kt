@@ -241,6 +241,32 @@ class SdkSandboxControllerCompatLocalTest {
         }
     }
 
+    @Test
+    fun getClientPackageName_whenNotAvailable_returnsContextPackageName() {
+        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        val result = controllerCompat.getClientPackageName()
+
+        assertThat(result).isEqualTo(context.getPackageName())
+    }
+
+    @Test
+    fun getClientPackageName_returnsPackageNameFromLocalImpl() {
+        clientHandShakeForVersionIncluding(ClientFeature.GET_CLIENT_PACKAGE_NAME)
+
+        val expectedResult = "test.client.package.name"
+        val stubLocalImpl = TestStubImpl(
+            clientPackageName = expectedResult
+        )
+        SdkSandboxControllerCompat.injectLocalImpl(stubLocalImpl)
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        val result = controllerCompat.getClientPackageName()
+
+        assertThat(result).isEqualTo(expectedResult)
+    }
+
     /**
      * Call [Versions.handShake] to emulate loading via client lib.
      * Using version where [clientFeature] available.
@@ -262,6 +288,7 @@ class SdkSandboxControllerCompatLocalTest {
         private val appOwnedSdks: List<AppOwnedSdkSandboxInterfaceCompat> = emptyList(),
         private val loadSdkResult: SandboxedSdkCompat? = null,
         private val loadSdkError: LoadSdkCompatException? = null,
+        private val clientPackageName: String = ""
     ) : SdkSandboxControllerCompat.SandboxControllerImpl {
         var token: IBinder? = null
 
@@ -310,5 +337,8 @@ class SdkSandboxControllerCompatLocalTest {
         ) {
             token = null
         }
+
+        override fun getClientPackageName(): String =
+            clientPackageName
     }
 }

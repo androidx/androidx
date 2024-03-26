@@ -127,6 +127,14 @@ class SdkSandboxControllerCompat internal constructor(
     fun unregisterSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat) =
         controllerImpl.unregisterSdkSandboxActivityHandler(handlerCompat)
 
+    /**
+     * Returns the package name of the client app.
+     *
+     * @return Package name of the client app.
+     */
+    fun getClientPackageName(): String =
+        controllerImpl.getClientPackageName()
+
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
 
@@ -142,6 +150,8 @@ class SdkSandboxControllerCompat internal constructor(
         fun unregisterSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat
         )
+
+        fun getClientPackageName(): String
     }
 
     companion object {
@@ -162,7 +172,7 @@ class SdkSandboxControllerCompat internal constructor(
                 val implFromClient = localImpl ?: throw UnsupportedOperationException(
                     "Shouldn't happen: No controller implementation available"
                 )
-                return SdkSandboxControllerCompat(LocalImpl(implFromClient, clientVersion))
+                return SdkSandboxControllerCompat(LocalImpl(implFromClient, context, clientVersion))
             }
             val platformImpl = PlatformImplFactory.create(context)
             return SdkSandboxControllerCompat(platformImpl)
