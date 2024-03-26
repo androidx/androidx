@@ -154,10 +154,8 @@ abstract class MeasurementManager {
             return if (AdServicesInfo.adServicesVersion() >= 5) {
                 MeasurementManagerApi33Ext5Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                BackCompatManager.getBackCompatManager(context, "MeasurementManager") {
-                    MeasurementManagerApi31Ext9Impl(
-                        context
-                    )
+                BackCompatManager.getManager(context, "MeasurementManager") {
+                    MeasurementManagerApi31Ext9Impl(context)
                 }
             } else {
                 null
