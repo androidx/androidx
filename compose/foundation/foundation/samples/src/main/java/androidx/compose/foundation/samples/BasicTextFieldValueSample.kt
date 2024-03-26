@@ -39,6 +39,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 @Composable
 fun BasicTextFieldWithValueOnValueChangeSample() {
     var text by remember { mutableStateOf("") }
+    // A reference implementation that demonstrates how to create a TextField with the legacy
+    // state hoisting design around `BasicTextField(TextFieldState)`
     StringTextField(
         value = text,
         onValueChange = { text = it }
