@@ -27,6 +27,7 @@ rootProject.name = "activity-playground"
 playground {
     setupPlayground("../..")
     selectProjectsFromAndroidX({ name ->
+        if (name == ":activity:integration-tests:macrobenchmark") return false
         if (name.startsWith(":activity")) return true
         return false
     })
