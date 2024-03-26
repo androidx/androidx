@@ -23,6 +23,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlImpl.Companion.RING_BUFFER_CAPACITY
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -74,6 +75,9 @@ class ZslControlImplTest {
         )
         assertThat(zslControlImpl.reprocessingImageReader!!.height).isEqualTo(
             PRIVATE_REPROCESSING_MAXIMUM_SIZE.height
+        )
+        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY
         )
     }
 

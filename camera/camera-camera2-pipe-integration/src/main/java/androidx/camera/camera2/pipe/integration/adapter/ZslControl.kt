@@ -37,6 +37,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.utils.ZslRingBuffer
 import javax.inject.Inject
 
 interface ZslControl {
@@ -120,6 +121,10 @@ class ZslControlImpl @Inject constructor(
     }
 
     @VisibleForTesting
+    internal val zslRingBuffer =
+        ZslRingBuffer(RING_BUFFER_CAPACITY) { imageProxy -> imageProxy.close() }
+
+    @VisibleForTesting
     internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
     private var metadataMatchingCaptureCallback: CameraCaptureCallback? = null
     private var reprocessingImageDeferrableSurface: DeferrableSurface? = null
@@ -161,8 +166,9 @@ class ZslControlImpl @Inject constructor(
             { reader ->
                 try {
                     val imageProxy = reader.acquireLatestImage()
-                    // TODO: b/330404301 - Queue the image into the ZSL ring buffer instead.
-                    imageProxy?.close()
+                    if (imageProxy != null) {
+                        zslRingBuffer.enqueue(imageProxy)
+                    }
                 } catch (e: IllegalStateException) {
                     Log.error { "Failed to acquire latest image" }
                 }
@@ -223,11 +229,15 @@ class ZslControlImpl @Inject constructor(
     }
 
     override fun dequeueImageFromBuffer(): ImageProxy? {
-        TODO("b/330405430 - Add ZSL ring buffer and build requests")
+        return try {
+            zslRingBuffer.dequeue()
+        } catch (e: NoSuchElementException) {
+            Log.warn { "ZslControlImpl#dequeueImageFromBuffer: No such element" }
+            null
+        }
     }
 
     private fun reset() {
-        // TODO: b/330404301 - Reset the ring buffer when we have it.
         val reprocImageDeferrableSurface = reprocessingImageDeferrableSurface
         if (reprocImageDeferrableSurface != null) {
             val reprocImageReaderProxy = reprocessingImageReader
@@ -236,10 +246,17 @@ class ZslControlImpl @Inject constructor(
                     { reprocImageReaderProxy.safeClose() },
                     CameraXExecutors.mainThreadExecutor()
                 )
+                // Clear the listener so that no more buffer is enqueued to |zslRingBuffer|.
+                reprocImageReaderProxy.clearOnImageAvailableListener()
                 reprocessingImageReader = null
             }
             reprocImageDeferrableSurface.close()
             reprocessingImageDeferrableSurface = null
+        }
+
+        val ringBuffer = zslRingBuffer
+        while (!ringBuffer.isEmpty) {
+            ringBuffer.dequeue().close()
         }
     }
 
