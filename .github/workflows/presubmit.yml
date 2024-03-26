@@ -36,7 +36,6 @@ jobs:
       status: ${{ steps.output-status.outputs.status }}
       affectedFileArgs: ${{ steps.affected-file-args.outputs.files }}
     env:
-      GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
@@ -130,7 +129,6 @@ jobs:
     env:
       artifact-id: ${{matrix.project}}
       project-root: playground-projects/${{matrix.project-root || matrix.project}}-playground
-      GRADLE_BUILD_CACHE_PASSWORD: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
       GRADLE_ENCRYPTION_KEY: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
     steps:
@@ -150,7 +148,6 @@ jobs:
         with:
           project: ${{ matrix.project }}
           project-root: ${{ env.project-root }}
-          gradle-cache-password: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
           gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
           gradle-flags: ${{ needs.setup.outputs.gradlew_flags }}

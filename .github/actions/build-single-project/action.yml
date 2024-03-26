@@ -61,7 +61,6 @@ runs:
     - name: "gradle buildOnServer zipTestConfigsWithApks"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
         GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
@@ -70,7 +69,6 @@ runs:
     - name: "gradle playgroundCIHostTests"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
-        GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
         GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
