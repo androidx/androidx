@@ -4855,15 +4855,6 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /** Sets the element to adapt to an {@link Arc}. */
-            @RequiresSchemaVersion(major = 1, minor = 0)
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement content) {
-                mImpl.setContent(content.toLayoutElementProto());
-                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
-                return this;
-            }
-
             /**
              * Sets whether this adapter's contents should be rotated, according to its position in
              * the arc or not. As an example, assume that an {@link Image} has been added to the
@@ -4899,6 +4890,26 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setRotateContents(boolean rotateContents) {
                 return setRotateContents(new BoolProp.Builder(rotateContents).build());
+            }
+
+            /**
+             * Sets the element to adapt to an {@link Arc}.
+             *
+             * @throws IllegalArgumentException if the provided content has a transformation
+             *     modifier.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            @NonNull
+            public Builder setContent(@NonNull LayoutElement content) {
+                LayoutElementProto.LayoutElement contentProto = content.toLayoutElementProto();
+                if (hasTransformation(contentProto)) {
+                    throw new IllegalArgumentException(
+                            "Transformation modifier is not supported for the layout element inside"
+                                    + " an ArcAdapter.");
+                }
+                mImpl.setContent(contentProto);
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
+                return this;
             }
 
             /** Builds an instance from accumulated values. */
@@ -6083,4 +6094,39 @@ public final class LayoutElementBuilders {
 
         private FontStyles() {}
     }
+
+  /** Checks whether a layout element has a transformation modifier. */
+  private static boolean hasTransformation(@NonNull LayoutElementProto.LayoutElement content) {
+    switch (content.getInnerCase()) {
+      case IMAGE:
+        return content.getImage().hasModifiers()
+            && content.getImage().getModifiers().hasTransformation();
+      case TEXT:
+        return content.getText().hasModifiers()
+            && content.getText().getModifiers().hasTransformation();
+      case SPACER:
+        return content.getSpacer().hasModifiers()
+            && content.getSpacer().getModifiers().hasTransformation();
+      case BOX:
+        return content.getBox().hasModifiers()
+            && content.getBox().getModifiers().hasTransformation();
+      case ROW:
+        return content.getRow().hasModifiers()
+            && content.getRow().getModifiers().hasTransformation();
+      case COLUMN:
+        return content.getColumn().hasModifiers()
+            && content.getColumn().getModifiers().hasTransformation();
+      case SPANNABLE:
+        return content.getSpannable().hasModifiers()
+            && content.getSpannable().getModifiers().hasTransformation();
+      case ARC:
+        return content.getArc().hasModifiers()
+            && content.getArc().getModifiers().hasTransformation();
+      case EXTENSION:
+        // fall through
+      case INNER_NOT_SET:
+        return false;
+    }
+    return false;
+  }
 }
