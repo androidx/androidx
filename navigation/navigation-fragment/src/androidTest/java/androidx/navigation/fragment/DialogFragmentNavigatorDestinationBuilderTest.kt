@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSafeArgsApi::class)
+
 package androidx.navigation.fragment
 
 import androidx.fragment.app.DialogFragment
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.contains
 import androidx.navigation.createGraph
 import androidx.navigation.get
@@ -113,6 +116,47 @@ class DialogFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(BuilderTestDialogFragment::class.java.name)
         assertWithMessage("DialogFragment should have label set")
             .that(graph[DESTINATION_ROUTE].label)
+            .isEqualTo(LABEL)
+    }
+
+    @UiThreadTest
+    @Test
+    fun fragmentKClass() {
+        val navHostFragment = NavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+            dialog<BuilderTestDialogFragment, TestClass>()
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("DialogFragment class should be set to BuilderTestDialogFragment")
+            .that((graph[TestClass::class] as DialogFragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestDialogFragment::class.java.name)
+    }
+
+    @UiThreadTest
+    @Test
+    fun fragmentWithBodyKClass() {
+        val navHostFragment = NavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+            dialog<BuilderTestDialogFragment, TestClass> {
+                label = LABEL
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("DialogFragment class should be set to BuilderTestDialogFragment")
+            .that((graph[TestClass::class] as DialogFragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestDialogFragment::class.java.name)
+        assertWithMessage("DialogFragment should have label set")
+            .that(graph[TestClass::class].label)
             .isEqualTo(LABEL)
     }
 }
