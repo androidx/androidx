@@ -65,6 +65,13 @@ fun android.graphics.Rect.toComposeRect(): androidx.compose.ui.geometry.Rect =
     )
 
 /**
+ * Creates a new instance of [androidx.compose.ui.geometry.Rect] with the same bounds
+ * specified in the given [android.graphics.RectF].
+ */
+fun android.graphics.RectF.toComposeRect(): Rect =
+    Rect(this.left, this.top, this.right, this.bottom)
+
+/**
  * Creates a new instance of [android.graphics.Rect] with the same bounds
  * specified in the given [IntRect]
  */
