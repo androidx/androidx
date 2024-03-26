@@ -1105,10 +1105,11 @@ internal abstract class AbstractClickableNode(
             action = { onClick(); true },
             label = onClickLabel
         )
-        if (!enabled) {
+        if (enabled) {
+            with(focusableNode) { applySemantics() }
+        } else {
             disabled()
         }
-        with(focusableNode) { applySemantics() }
         applyAdditionalSemantics()
     }
 

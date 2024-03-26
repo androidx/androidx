@@ -100,6 +100,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
@@ -2915,6 +2916,98 @@ class ClickableTest {
 
         // Indication requires composed, so cannot compare equal
         assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun focusUsingSemanticAction() {
+        // Arrange.
+        val tag = "testClickable"
+        rule.setContent {
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .focusProperties { canFocus = true }
+                    .clickable {}
+            )
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).requestFocus()
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsFocused()
+    }
+
+    @Test
+    fun focusUsingSemanticActionWhenNotEnabled() {
+        // Arrange.
+        val tag = "testClickable"
+        rule.setContent {
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .focusProperties { canFocus = true }
+                    .clickable(enabled = false) {}
+            )
+        }
+
+        // Act.
+        assertFailsWith(
+            exceptionClass = AssertionError::class,
+            message = "Failed to perform action RequestFocus, the node is missing [RequestFocus]"
+        ) {
+            rule.onNodeWithTag(tag).requestFocus()
+        }
+    }
+
+    @Test
+    fun focusUsingSemanticActionWhileChangingEnabledParam() {
+        // Arrange.
+        val tag = "testClickable"
+        lateinit var focusManager: FocusManager
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            focusManager = LocalFocusManager.current
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .focusProperties { canFocus = true }
+                    .clickable(enabled = enabled) {}
+            )
+        }
+
+        // Request focus succeeds when enabled = true.
+        rule.onNodeWithTag(tag).requestFocus()
+        rule.onNodeWithTag(tag).assertIsFocused()
+
+        // Request focus fails when enabled = false.
+        rule.runOnIdle {
+            enabled = false
+            focusManager.clearFocus()
+        }
+        assertFailsWith(
+            exceptionClass = AssertionError::class,
+            message = "Failed to perform action RequestFocus, the node is missing [RequestFocus]"
+        ) {
+            rule.onNodeWithTag(tag).requestFocus()
+        }
+        assertFailsWith(
+            exceptionClass = AssertionError::class,
+            message = "Failed to assert the following: (Focused = 'false')"
+        ) {
+            rule.onNodeWithTag(tag).assertIsNotFocused()
+        }
+
+        // Request focus succeeds when enabled = true.
+        rule.runOnIdle {
+            enabled = true
+            focusManager.clearFocus()
+        }
+        rule.onNodeWithTag(tag).requestFocus()
+        rule.onNodeWithTag(tag).assertIsFocused()
     }
 }
 
