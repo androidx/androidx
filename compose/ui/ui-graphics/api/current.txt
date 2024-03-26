@@ -865,6 +865,7 @@ package androidx.compose.ui.graphics {
     method public static android.graphics.RectF toAndroidRectF(androidx.compose.ui.geometry.Rect);
     method public static androidx.compose.ui.unit.IntRect toComposeIntRect(android.graphics.Rect);
     method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.Rect);
+    method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.RectF);
   }
 
   public final class RectangleShapeKt {
