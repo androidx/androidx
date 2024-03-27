@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
@@ -378,6 +379,15 @@ expect class GraphicsLayer {
         size: IntSize,
         block: DrawScope.() -> Unit
     ): GraphicsLayer
+
+    /**
+     * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that
+     * [GraphicsLayer.buildLayer] must be invoked first to record drawing operations before invoking
+     * this method.
+     *
+     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap
+     */
+    suspend fun toImageBitmap(): ImageBitmap
 
     /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]

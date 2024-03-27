@@ -29,12 +29,16 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -57,7 +61,11 @@ actual class GraphicsLayer internal constructor(
 
     private var internalOutline: Outline? = null
     private var outlinePath: Path? = null
+    private var roundRectClipPath: Path? = null
     private var usePathForClip = false
+
+    // Paint used only in Software rendering scenarios for API 21 when rendering to a Bitmap
+    private var softwareLayerPaint: Paint? = null
 
     /**
      * Tracks the amount of the parent layers currently drawing this layer as a child.
@@ -419,6 +427,43 @@ actual class GraphicsLayer internal constructor(
         }
     }
 
+    private fun transformCanvas(androidCanvas: android.graphics.Canvas) {
+        val left = topLeft.x.toFloat()
+        val top = topLeft.y.toFloat()
+        val right = topLeft.x + size.width.toFloat()
+        val bottom = topLeft.y + size.height.toFloat()
+        // If there is alpha applied, we must render into an offscreen buffer to
+        // properly blend the contents of this layer against the background content
+        val layerAlpha = alpha
+        val layerColorFilter = colorFilter
+        val layerBlendMode = blendMode
+        val useSaveLayer = layerAlpha < 1.0f ||
+            layerBlendMode != BlendMode.SrcOver ||
+            layerColorFilter != null ||
+            compositingStrategy == CompositingStrategy.Offscreen
+        if (useSaveLayer) {
+            val paint = (softwareLayerPaint ?: Paint().also { softwareLayerPaint = it })
+                .apply {
+                    alpha = layerAlpha
+                    blendMode = layerBlendMode
+                    colorFilter = layerColorFilter
+                }
+            androidCanvas.saveLayer(
+                left,
+                top,
+                right,
+                bottom,
+                paint.asFrameworkPaint()
+            )
+        } else {
+            androidCanvas.save()
+        }
+        // If we are software rendered we must translate the canvas based on the offset provided
+        // in the move call which operates directly on the RenderNode
+        androidCanvas.translate(left, top)
+        androidCanvas.concat(impl.calculateMatrix())
+    }
+
     /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
      */
@@ -434,11 +479,30 @@ actual class GraphicsLayer internal constructor(
         if (useZ) {
             canvas.enableZ()
         }
-        val clipPath = outlinePath
-        val willClipPath = usePathForClip
-        if (willClipPath && clipPath != null) {
+        val androidCanvas = canvas.nativeCanvas
+        val softwareRendered = !androidCanvas.isHardwareAccelerated
+        if (softwareRendered) {
+            androidCanvas.save()
+            transformCanvas(androidCanvas)
+        }
+
+        val willClipPath = usePathForClip || (softwareRendered && clip)
+        if (willClipPath) {
             canvas.save()
-            canvas.clipPath(clipPath)
+            when (val tmpOutline = outline) {
+                is Outline.Rectangle -> {
+                    canvas.clipRect(tmpOutline.bounds)
+                }
+                is Outline.Rounded -> {
+                    val rRectPath = roundRectClipPath?.apply { rewind() }
+                        ?: Path().also { roundRectClipPath = it }
+                    rRectPath.addRoundRect(tmpOutline.roundRect)
+                    canvas.clipPath(rRectPath)
+                }
+                is Outline.Generic -> {
+                    canvas.clipPath(tmpOutline.path)
+                }
+            }
         }
 
         parentLayer?.addSubLayer(this)
@@ -449,6 +513,9 @@ actual class GraphicsLayer internal constructor(
         }
         if (useZ) {
             canvas.disableZ()
+        }
+        if (softwareRendered) {
+            androidCanvas.restore()
         }
     }
 
@@ -712,9 +779,28 @@ actual class GraphicsLayer internal constructor(
             }
         }
 
+    /**
+     * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that
+     * [GraphicsLayer.buildLayer] must be invoked first to record drawing operations before invoking
+     * this method.
+     *
+     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap
+     */
+    actual suspend fun toImageBitmap(): ImageBitmap =
+        SnapshotImpl.toBitmap(this).asImageBitmap()
+
     actual companion object {
         actual val UnsetOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
         actual val UnsetSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+
+        private val SnapshotImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            LayerSnapshotV28
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 &&
+            SurfaceUtils.isLockHardwareCanvasAvailable()) {
+            LayerSnapshotV22
+        } else {
+            LayerSnapshotV21
+        }
     }
 }
 
@@ -857,6 +943,11 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.discardDisplayList
      */
     fun discardDisplayList()
+
+    /**
+     * Calculate the current transformation matrix for the layer implementation
+     */
+    fun calculateMatrix(): android.graphics.Matrix
 
     companion object {
         val DefaultDrawBlock: DrawScope.() -> Unit = { drawRect(Color.Transparent) }

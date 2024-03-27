@@ -1468,6 +1468,7 @@ package androidx.compose.ui.graphics.layer {
     method public void setTopLeft(long);
     method public void setTranslationX(float);
     method public void setTranslationY(float);
+    method public suspend Object? toImageBitmap(kotlin.coroutines.Continuation<? super androidx.compose.ui.graphics.ImageBitmap>);
     property public final float alpha;
     property public final long ambientShadowColor;
     property public final int blendMode;
