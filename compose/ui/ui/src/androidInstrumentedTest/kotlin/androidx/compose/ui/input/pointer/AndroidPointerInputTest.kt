@@ -92,7 +92,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -537,13 +536,7 @@ class AndroidPointerInputTest {
         }
     }
 
-    // Currently ignored because it fails when run via command line.  Runs successfully in Android
-    // Studio.
     @Test
-    // TODO(b/158099918): For some reason, this test fails when run from command line but passes
-    //  when run from Android Studio.  This seems to be caused by b/158099918.  Once that is
-    //  fixed, @Ignore can be removed.
-    @Ignore
     fun dispatchTouchEvent_throughLayersOfAndroidAndCompose_hitsChildWithCorrectCoords() {
 
         // Arrange
