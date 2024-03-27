@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("NullAnnotationGroup")
+
 package androidx.navigation
 
+import android.annotation.SuppressLint
 import androidx.annotation.IdRes
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * A host is a single context or container for navigation via a [NavController].
@@ -75,3 +80,21 @@ public inline fun NavHost.createGraph(
     route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navController.createGraph(startDestination, route, builder)
+
+/**
+ * Construct a new [NavGraph]
+ *
+ * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
+ * respective NavDestination must be added as a [KClass] in order to match.
+ * @param route the graph's unique route from a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
+ */
+@ExperimentalSafeArgsApi
+public inline fun NavHost.createGraph(
+    startDestination: KClass<*>,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navController.createGraph(startDestination, route, typeMap, builder)
