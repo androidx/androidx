@@ -31,7 +31,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.ui:ui:1.6.0")
+    api(project(":compose:ui:ui"))
     api("androidx.compose.runtime:runtime:1.6.0")
     api("androidx.navigation:navigation-runtime:2.6.0")
     api(project(":wear:compose:compose-material"))
@@ -77,4 +77,3 @@ androidx {
     metalavaK2UastEnabled = true
     samples(project(":wear:compose:compose-navigation-samples"))
 }
-

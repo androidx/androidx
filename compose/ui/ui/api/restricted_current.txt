@@ -2845,12 +2845,12 @@ package androidx.compose.ui.platform {
   public final class AndroidCompositionLocals_androidKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.res.Configuration> getLocalConfiguration();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> getLocalLifecycleOwner();
+    method @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> getLocalLifecycleOwner();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> getLocalSavedStateRegistryOwner();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.view.View> getLocalView();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.res.Configuration> LocalConfiguration;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
+    property @Deprecated public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> LocalSavedStateRegistryOwner;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.view.View> LocalView;
   }
