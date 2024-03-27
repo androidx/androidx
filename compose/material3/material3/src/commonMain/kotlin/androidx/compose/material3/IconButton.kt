@@ -57,7 +57,10 @@ import androidx.compose.ui.semantics.semantics
  * This icon button has an overall minimum touch target size of 48 x 48dp, to meet accessibility
  * guidelines.
  *
+ * Simple Usage
  * @sample androidx.compose.material3.samples.IconButtonSample
+ * IconButton with a color tint
+ * @sample androidx.compose.material3.samples.TintedIconButtonSample
  *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
