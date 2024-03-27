@@ -44,6 +44,9 @@
     <!-- The accessibility content description of the emoji bidirectional switcher. [CHAR_LIMIT=100] -->
     <string name="emoji_bidirectional_switcher_content_desc">emoji bidirectional switcher</string>
 
+    <!-- The accessibility content description after the emoji bidirectional switcher clicked. [CHAR_LIMIT=100] -->
+    <string name="emoji_bidirectional_switcher_clicked_desc">emoji facing direction switched</string>
+
     <!-- The accessibility content description of the emoji variant selector. [CHAR_LIMIT=100] -->
     <string name="emoji_variant_selector_content_desc">emoji variant selector</string>
 
