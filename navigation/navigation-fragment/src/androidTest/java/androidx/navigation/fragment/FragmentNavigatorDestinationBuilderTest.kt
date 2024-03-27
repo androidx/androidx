@@ -163,7 +163,14 @@ class TestNavigatorDestinationBuilderTest {
 private const val DESTINATION_ID = 1
 private const val DESTINATION_ROUTE = "destination"
 private const val LABEL = "Test"
+
 class BuilderTestFragment : Fragment()
 
 @Serializable
 internal class TestClass
+
+@Serializable
+internal class TestClassArg(val arg: Int)
+
+@Serializable
+internal class TestGraph
