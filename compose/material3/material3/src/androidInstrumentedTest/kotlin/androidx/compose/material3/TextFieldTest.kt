@@ -40,7 +40,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Strings.Companion.DefaultErrorMessage
+import androidx.compose.material3.internal.HorizontalIconPadding
+import androidx.compose.material3.internal.MinFocusedLabelLineHeight
+import androidx.compose.material3.internal.MinSupportingTextLineHeight
+import androidx.compose.material3.internal.MinTextLineHeight
+import androidx.compose.material3.internal.Strings.Companion.DefaultErrorMessage
+import androidx.compose.material3.internal.SupportingTopPadding
+import androidx.compose.material3.internal.TextFieldPadding
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember

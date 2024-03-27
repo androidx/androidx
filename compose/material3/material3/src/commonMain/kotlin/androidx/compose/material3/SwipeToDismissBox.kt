@@ -22,6 +22,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.SwipeToDismissBoxState.Companion.Saver
+import androidx.compose.material3.internal.AnchoredDraggableDefaults
+import androidx.compose.material3.internal.AnchoredDraggableState
+import androidx.compose.material3.internal.DraggableAnchors
+import androidx.compose.material3.internal.anchoredDraggable
+import androidx.compose.material3.internal.animateTo
+import androidx.compose.material3.internal.draggableAnchors
+import androidx.compose.material3.internal.snapTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
