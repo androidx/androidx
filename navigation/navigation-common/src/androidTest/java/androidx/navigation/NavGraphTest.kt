@@ -147,7 +147,7 @@ class NavGraphTest {
         val graph = NavGraph(navGraphNavigator).apply {
             setStartDestination(15)
             addDestination(NavDestinationBuilder(
-                navGraphNavigator, TestClass::class, null
+                navGraphNavigator, TestClass::class, emptyMap()
             ).build())
         }
         assertThat(graph.startDestinationId).isEqualTo(15)
@@ -178,7 +178,9 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             setStartDestination(15)
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class, null).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, emptyMap()
+            ).build())
         }
         assertThat(graph.startDestinationId).isEqualTo(15)
 
@@ -206,7 +208,9 @@ class NavGraphTest {
         class TestClass(val arg: Int)
 
         val graph = NavGraph(navGraphNavigator).apply {
-            addDestination(NavDestinationBuilder(navGraphNavigator, TestClass::class, null).build())
+            addDestination(NavDestinationBuilder(
+                navGraphNavigator, TestClass::class, emptyMap()
+            ).build())
         }
 
         val dest = graph.findNode<TestClass>()
@@ -220,7 +224,7 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             addDestination(NavDestinationBuilder(
-                navGraphNavigator, TestClass::class, null
+                navGraphNavigator, TestClass::class, emptyMap()
             ).build())
         }
 
@@ -234,7 +238,7 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             addDestination(NavDestinationBuilder(
-                navGraphNavigator, TestClass::class, null
+                navGraphNavigator, TestClass::class, emptyMap()
             ).build())
         }
 
@@ -248,7 +252,7 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             addDestination(NavDestinationBuilder(
-                navGraphNavigator, TestClass::class, null
+                navGraphNavigator, TestClass::class, emptyMap()
             ).build())
         }
 
@@ -263,7 +267,7 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             addDestination(NavDestinationBuilder(
-                navGraphNavigator, TestClass::class, null
+                navGraphNavigator, TestClass::class, emptyMap()
             ).build())
         }
 
@@ -277,7 +281,7 @@ class NavGraphTest {
 
         val graph = NavGraph(navGraphNavigator).apply {
             addDestination(NavDestinationBuilder(
-                navGraphNavigator, TestClass::class, null
+                navGraphNavigator, TestClass::class, emptyMap()
             ).build())
         }
 
