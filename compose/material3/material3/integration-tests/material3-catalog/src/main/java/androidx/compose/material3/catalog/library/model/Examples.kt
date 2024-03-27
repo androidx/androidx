@@ -174,6 +174,7 @@ import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSuppor
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
+import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.runtime.Composable
@@ -652,6 +653,11 @@ val IconButtonExamples =
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
         ) { IconButtonSample() },
+        Example(
+            name = ::TintedIconButtonSample.name,
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+        ) { TintedIconButtonSample() },
         Example(
             name = ::IconToggleButtonSample.name,
             description = IconButtonExampleDescription,
