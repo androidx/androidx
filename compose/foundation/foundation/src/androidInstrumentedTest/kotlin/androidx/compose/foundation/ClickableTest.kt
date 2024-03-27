@@ -18,7 +18,6 @@ package androidx.compose.foundation
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -1321,24 +1320,234 @@ class ClickableTest {
         }
     }
 
-    // Helper function for next several tests
+    // Helper functions for next several tests
     private fun Modifier.dynamicPointerInputModifier(
-        enable: Boolean,
+        enabled: Boolean,
         key: Any? = Unit,
         onPress: () -> Unit
-    ) = if (enable) {
+    ) = if (enabled) {
         pointerInput(key) {
-            awaitEachGesture {
-                val event = awaitPointerEvent()
-                if (event.type == PointerEventType.Press) {
-                    onPress()
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    if (event.type == PointerEventType.Press) {
+                        onPress()
+                    }
                 }
             }
         }
     } else this
 
+    private fun Modifier.dynamicClickableModifier(
+        enabled: Boolean,
+        onClick: () -> Unit
+    ) = if (enabled) {
+        clickable(
+            interactionSource = null,
+            indication = null
+        ) { onClick() }
+    } else this
+
     @Test
-    fun dynamicInputModifierTouch_addsClickableAboveWithKey_triggersBothModifiers() {
+    fun dynamicClickableModifierTouch_addsAbovePointerInputWithKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput("unique_key_123") {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @Test
+    fun dynamicClickableModifierTouch_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicClickableModifierMouse_addsAbovePointerInputWithKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput("unique_key_123") {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicClickableModifierMouse_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @Test
+    fun dynamicInputModifierTouch_addsAboveClickableWithKey_triggersBothModifiers() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1374,7 +1583,7 @@ class ClickableTest {
     }
 
     @Test
-    fun dynamicInputModifierTouch_addsClickableAboveWithUnitKey_triggersInBothModifiers() {
+    fun dynamicInputModifierTouch_addsAboveClickableWithUnitKey_triggersInBothModifiers() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1413,7 +1622,7 @@ class ClickableTest {
      */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicInputModifierMouse_addsClickableAboveWithKey_triggersBothModifiers() {
+    fun dynamicInputModifierMouse_addsAboveClickableWithKey_triggersBothModifiers() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1461,7 +1670,7 @@ class ClickableTest {
      */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicInputModifierMouse_addsClickableAboveWithUnitKey_triggersInBothModifiers() {
+    fun dynamicInputModifierMouse_addsAboveClickableWithUnitKey_triggersInBothModifiers() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
