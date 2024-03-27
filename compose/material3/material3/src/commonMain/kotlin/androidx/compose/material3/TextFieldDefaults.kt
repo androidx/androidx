@@ -31,6 +31,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.internal.AnimationDuration
+import androidx.compose.material3.internal.CommonDecorationBox
+import androidx.compose.material3.internal.SupportingTopPadding
+import androidx.compose.material3.internal.TextFieldPadding
+import androidx.compose.material3.internal.TextFieldType
 import androidx.compose.material3.tokens.FilledTextFieldTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
 import androidx.compose.runtime.Composable

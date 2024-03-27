@@ -26,6 +26,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.internal.CalendarDate
+import androidx.compose.material3.internal.CalendarLocale
+import androidx.compose.material3.internal.CalendarModel
+import androidx.compose.material3.internal.CalendarMonth
+import androidx.compose.material3.internal.DaysInWeek
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.createCalendarModel
+import androidx.compose.material3.internal.defaultLocale
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
