@@ -73,9 +73,6 @@ mkdir -p "$DIST_DIR"
 # Before we start the build, remove temporary directory contents, needs to match gradlew TMPDIR
 rm -fr "$OUT_DIR/tmp"
 
-# Temporary workaround for b/331200399. Remove once buildbots snapshot the new out directory
-bash -c "cd $OUT_DIR && echo fake_bin* | xargs --no-run-if-empty rm -rf"
-
 if echo "$BUILD_NUMBER" | grep "P" >/dev/null; then
   PRESUBMIT=true
 else
