@@ -48,8 +48,6 @@ import androidx.compose.ui.platform.LocalFocusManager
  * To display the background only when the list is in focus, use
  * [ImmersiveListBackgroundScope.AnimatedVisibility].
  *
- * @sample androidx.tv.samples.SampleImmersiveList
- *
  * @param background Composable defining the background to be displayed for a given item's
  * index. `listHasFocus` argument can be used to hide the background when the list is not in focus
  * @param modifier applied to Immersive List.
