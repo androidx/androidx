@@ -164,9 +164,17 @@ internal class EmojiPickerPopupMultiSkintoneDesign(
                     imageTintList = ColorStateList.valueOf(Color.GRAY)
                 }
 
+                var contentDescriptionRow = selectedLeftSkintone
+                var contentDescriptionColumn = selectedRightSkintone
+                if (hasLeftSkintone()) {
+                    contentDescriptionRow = 0
+                    contentDescriptionColumn = selectedLeftSkintone
+                } else if (hasRightSkintone()) {
+                    contentDescriptionRow = 1
+                    contentDescriptionColumn = selectedRightSkintone
+                }
                 contentDescription = getImageContentDescription(
-                    context, if (row == 0) selectedLeftSkintone else row,
-                    if (column == 0) selectedRightSkintone else column)
+                    context, contentDescriptionRow, contentDescriptionColumn)
             }
     }
 
