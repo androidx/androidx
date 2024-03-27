@@ -1315,7 +1315,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return null;
     }
 
-    void onContainerAvailable(@NonNull FragmentContainerView container) {
+    /**
+     * Callback for when the {@link FragmentContainerView} becomes available in the view hierarchy
+     * and the fragment manager can add the fragment view to its hierarchy.
+     *
+     * @param container the container that the active fragment should add their views to
+     */
+    public final void onContainerAvailable(@NonNull FragmentContainerView container) {
         for (FragmentStateManager fragmentStateManager:
                 mFragmentStore.getActiveFragmentStateManagers()) {
             Fragment fragment = fragmentStateManager.getFragment();
@@ -1337,7 +1343,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * view's context is not a {@link FragmentActivity}.
      */
     @NonNull
-    static FragmentManager findFragmentManager(@NonNull View view) {
+    public static FragmentManager findFragmentManager(@NonNull View view) {
         // Search the view ancestors for a Fragment
         Fragment fragment = findViewFragment(view);
         FragmentManager fm;
