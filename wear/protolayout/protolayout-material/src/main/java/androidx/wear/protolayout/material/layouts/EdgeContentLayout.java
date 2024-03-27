@@ -733,16 +733,8 @@ public class EdgeContentLayout implements LayoutElement {
      * and secondary label.
      */
     private List<LayoutElement> getInnerColumnContentsForResponsive() {
-        Box box =
-                (Box)
-                        getAllContent()
-                                .getContents()
-                                .get(
-                                        areElementsPresent(PRIMARY_LABEL_PRESENT)
-                                                // There's a primary label and then spacer after it
-                                                // before other content in this Column.
-                                                ? 2
-                                                : 0);
+        List<LayoutElement> allContent = getAllContent().getContents();
+        Box box = (Box) allContent.get(allContent.size() - 1);
         Column column = (Column) box.getContents().get(0);
         return column.getContents();
     }
