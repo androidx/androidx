@@ -162,8 +162,28 @@ internal fun RowColumnMeasurePolicy.measure(
         var remainder = remainingToTarget
         for (i in startIndex until endIndex) {
             val measurable = measurables[i]
-            remainder -=
-                (weightUnitSpace * measurable.rowColumnParentData.weight).fastRoundToInt()
+            val itemWeight = measurable.rowColumnParentData.weight
+            val weightedSize = (weightUnitSpace * itemWeight)
+            try {
+                remainder -= weightedSize.fastRoundToInt()
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException(
+                    e.message + " Tracked at " +
+                        "https://issuetracker.google.com/issues/297974033" +
+                        "mainAxisMax " + mainAxisMax +
+                        "mainAxisMin " + mainAxisMin +
+                        "targetSpace " + targetSpace +
+                        "arrangementSpacingPx " + arrangementSpacingPx +
+                        "weightChildrenCount " + weightChildrenCount +
+                        "fixedSpace " + fixedSpace +
+                        "arrangementSpacingTotal " + arrangementSpacingTotal +
+                        "remainingToTarget " + remainingToTarget +
+                        "totalWeight " + totalWeight +
+                        "weightUnitSpace " + weightUnitSpace +
+                        "itemWeight " + itemWeight +
+                        "weightedSize " + weightedSize
+                ).initCause(e)
+            }
         }
 
         for (i in startIndex until endIndex) {
@@ -181,23 +201,48 @@ internal fun RowColumnMeasurePolicy.measure(
                 // loss or gain remainder evenly to the first children.
                 val remainderUnit = remainder.sign
                 remainder -= remainderUnit
+                val weightedSize = (weightUnitSpace * weight)
                 val childMainAxisSize = max(
                     0,
-                    (weightUnitSpace * weight).fastRoundToInt() + remainderUnit
+                    weightedSize.fastRoundToInt() + remainderUnit
                 )
-                val childConstraints = createConstraints(
-                    mainAxisMin = if (parentData.fill &&
-                        childMainAxisSize != Constraints.Infinity
-                    ) {
-                        childMainAxisSize
-                    } else {
-                        0
-                    },
-                    crossAxisMin = crossAxisDesiredSize ?: 0,
-                    mainAxisMax = childMainAxisSize,
-                    crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
-                    isPrioritizing = true
-                )
+
+                val childConstraints: Constraints
+                try {
+                     childConstraints = createConstraints(
+                        mainAxisMin = if (parentData.fill &&
+                            childMainAxisSize != Constraints.Infinity
+                        ) {
+                            childMainAxisSize
+                        } else {
+                            0
+                        },
+                        crossAxisMin = crossAxisDesiredSize ?: 0,
+                        mainAxisMax = childMainAxisSize,
+                        crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
+                        isPrioritizing = true
+                    )
+                } catch (e: IllegalArgumentException) {
+                    throw IllegalArgumentException(
+                        e.message + " Tracked at " +
+                            "https://issuetracker.google.com/issues/300280216" +
+                            "mainAxisMax " + mainAxisMax +
+                            "mainAxisMin " + mainAxisMin +
+                            "targetSpace " + targetSpace +
+                            "arrangementSpacingPx " + arrangementSpacingPx +
+                            "weightChildrenCount " + weightChildrenCount +
+                            "fixedSpace " + fixedSpace +
+                            "arrangementSpacingTotal " + arrangementSpacingTotal +
+                            "remainingToTarget " + remainingToTarget +
+                            "totalWeight " + totalWeight +
+                            "weightUnitSpace " + weightUnitSpace +
+                            "weight " + weight +
+                            "weightedSize " + weightedSize +
+                            "crossAxisDesiredSize " + crossAxisDesiredSize +
+                            "remainderUnit " + remainderUnit +
+                            "childMainAxisSize " + childMainAxisSize
+                    ).initCause(e)
+                }
                 val placeable = child.measure(childConstraints)
                 val placeableMainAxisSize = placeable.mainAxisSize()
                 val placeableCrossAxisSize = placeable.crossAxisSize()
