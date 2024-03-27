@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
 import androidx.benchmark.InstrumentationResults.instrumentationReport
 import androidx.benchmark.InstrumentationResults.reportBundle
+import androidx.benchmark.json.BenchmarkData
 import java.util.concurrent.TimeUnit
 
 /**
@@ -513,21 +514,21 @@ class BenchmarkState internal constructor(
             " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
     }
 
-    private fun getReport(testName: String, className: String) = BenchmarkResult(
+    private fun getTestResult(testName: String, className: String) = BenchmarkData.TestResult(
+        name = testName,
         className = className,
-        testName = testName,
         totalRunTimeNs = totalRunTimeNs,
         metrics = metricResults,
+        warmupIterations = warmupRepeats,
         repeatIterations = iterationsPerRepeat,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-        warmupIterations = warmupRepeats
     )
 
     @ExperimentalBenchmarkStateApi
     fun getMeasurementTimeNs(): List<Double> =
         metricResults.first { it.name == "timeNs" }.data
 
-    internal fun getReport() = checkFinished().run { getReport("", "") }
+    internal fun getTestResult() = checkFinished().run { getTestResult("", "") }
 
     /**
      * Acquires a status report bundle
@@ -549,7 +550,7 @@ class BenchmarkState internal constructor(
         }
         InstrumentationResultScope(status).reportSummaryToIde(
             testName = key,
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = metricResults,
                 sampledMetrics = emptyList()
             ),
@@ -584,8 +585,8 @@ class BenchmarkState internal constructor(
             tracePath = tracePath
         )
         reportBundle(bundle)
-        ResultWriter.appendReport(
-            getReport(
+        ResultWriter.appendTestResult(
+            getTestResult(
                 testName = PREFIX + methodName,
                 className = fullClassName
             )
@@ -680,11 +681,12 @@ class BenchmarkState internal constructor(
             dataNs.forEachIndexed { index, value ->
                 metricsContainer.data[index][0] = value
             }
-            val report = BenchmarkResult(
+            val metrics = metricsContainer.captureFinished(maxIterations = 1)
+            val report = BenchmarkData.TestResult(
                 className = className,
-                testName = testName,
+                name = testName,
                 totalRunTimeNs = totalRunTimeNs,
-                metrics = metricsContainer.captureFinished(maxIterations = 1),
+                metrics = metrics,
                 repeatIterations = repeatIterations,
                 thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
                 warmupIterations = warmupIterations
@@ -696,12 +698,12 @@ class BenchmarkState internal constructor(
             instrumentationReport {
                 reportSummaryToIde(
                     testName = fullTestName,
-                    measurements = report.metrics,
+                    measurements = Measurements(metrics, emptyList()),
                 )
             }
 
             // Report values to file output
-            ResultWriter.appendReport(report)
+            ResultWriter.appendTestResult(report)
         }
     }
 }

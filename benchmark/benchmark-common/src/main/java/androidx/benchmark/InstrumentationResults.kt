@@ -71,7 +71,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         warningMessage: String? = null,
         testName: String? = null,
         message: String? = null,
-        measurements: BenchmarkResult.Measurements? = null,
+        measurements: Measurements? = null,
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList()
     ) {
@@ -184,7 +184,7 @@ object InstrumentationResults {
     internal fun ideSummary(
         testName: String? = null,
         message: String? = null,
-        measurements: BenchmarkResult.Measurements? = null,
+        measurements: Measurements? = null,
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList()
     ): IdeSummaryPair {
