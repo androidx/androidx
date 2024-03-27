@@ -45,7 +45,7 @@ internal fun rememberPagerMeasurePolicy(
     contentPadding: PaddingValues,
     reverseLayout: Boolean,
     orientation: Orientation,
-    outOfBoundsPageCount: Int,
+    beyondViewportPageCount: Int,
     pageSpacing: Dp,
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
@@ -63,7 +63,7 @@ internal fun rememberPagerMeasurePolicy(
     pageSize,
     snapPosition,
     pageCount,
-    outOfBoundsPageCount
+    beyondViewportPageCount
 ) {
     { containerConstraints ->
         val isVertical = orientation == Orientation.Vertical
@@ -174,7 +174,7 @@ internal fun rememberPagerMeasurePolicy(
                 mainAxisAvailableSize = mainAxisAvailableSize,
                 visualPageOffset = visualItemOffset,
                 pageAvailableSize = pageAvailableSize,
-                outOfBoundsPageCount = outOfBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 orientation = orientation,
                 currentPage = currentPage,
                 currentPageOffset = currentPageOffset,

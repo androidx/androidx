@@ -180,7 +180,7 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_calculateOutOfBoundsPageCount() {
+    fun carousel_calculateBeyondViewportPageCount() {
         val xSmallSize = 5f
         val smallSize = 100f
         val mediumSize = 200f
@@ -200,7 +200,7 @@ class CarouselTest {
             beforeContentPadding = 0f,
             afterContentPadding = 0f
         )
-        val outOfBoundsNum = calculateOutOfBounds(strategy)
+        val outOfBoundsNum = calculateBeyondViewportPageCount(strategy)
         // With this strategy, we expect 3 loaded items
         val loadedItems = 3
 

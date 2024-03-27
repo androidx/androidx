@@ -81,7 +81,7 @@ internal fun Pager(
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
     /** Number of pages to compose and layout before and after the visible pages */
-    outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
+    beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
     /** Space between pages */
     pageSpacing: Dp = 0.dp,
     /** Allows to change how to calculate the Page size */
@@ -99,9 +99,9 @@ internal fun Pager(
     /** The content of the pager */
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
-    require(outOfBoundsPageCount >= 0) {
-        "outOfBoundsPageCount should be greater than or equal to 0, " +
-            "you selected $outOfBoundsPageCount"
+    require(beyondViewportPageCount >= 0) {
+        "beyondViewportPageCount should be greater than or equal to 0, " +
+            "you selected $beyondViewportPageCount"
     }
 
     val pagerItemProvider = rememberPagerItemProviderLambda(
@@ -115,7 +115,7 @@ internal fun Pager(
         contentPadding = contentPadding,
         reverseLayout = reverseLayout,
         orientation = orientation,
-        outOfBoundsPageCount = outOfBoundsPageCount,
+        beyondViewportPageCount = beyondViewportPageCount,
         pageSpacing = pageSpacing,
         pageSize = pageSize,
         horizontalAlignment = horizontalAlignment,
@@ -156,7 +156,7 @@ internal fun Pager(
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberPagerBeyondBoundsState(
                     state = state,
-                    outOfBoundsPageCount = outOfBoundsPageCount
+                    beyondViewportPageCount = beyondViewportPageCount
                 ),
                 beyondBoundsInfo = state.beyondBoundsInfo,
                 reverseLayout = reverseLayout,
