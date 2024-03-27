@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSafeArgsApi::class)
+
 package androidx.navigation.fragment
 
 import android.app.Dialog
@@ -146,7 +148,6 @@ class NavControllerWithFragmentTest {
         assertThat(originalEntryViewModel.cleared).isTrue()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun fragmentNavigateWithKClass() = withNavigationActivity {
         navController.graph = navController.createGraph("first") {
@@ -165,7 +166,6 @@ class NavControllerWithFragmentTest {
         )
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun fragmentNavigateWithKClassArg() = withNavigationActivity {
         navController.graph = navController.createGraph("first") {
@@ -186,7 +186,6 @@ class NavControllerWithFragmentTest {
         assertThat(arg).isEqualTo(15)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun fragmentStartDestinationWithKClass() = withNavigationActivity {
         navController.graph = navController.createGraph(TestClass::class) {
@@ -202,7 +201,6 @@ class NavControllerWithFragmentTest {
         )
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun fragmentStartDestinationAndRouteWithKClass() = withNavigationActivity {
         navController.graph = navController.createGraph(
@@ -220,6 +218,177 @@ class NavControllerWithFragmentTest {
         assertThat(navController.visibleEntries.value).containsExactly(
             navController.currentBackStackEntry
         )
+    }
+
+    @Test
+    fun fragmentStartDestinationWithObject() = withNavigationActivity {
+        navController.graph = navController.createGraph(TestClass()) {
+            fragment<EmptyFragment, TestClass>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
+    }
+
+    @Test
+    fun fragmentStartDestinationWithObjectAndKClassRoute() = withNavigationActivity {
+        navController.graph = navController.createGraph(
+            route = TestGraph::class,
+            startDestination = TestClass()
+        ) {
+            fragment<EmptyFragment, TestClass>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.graph.route).isEqualTo(TEST_GRAPH_ROUTE)
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
+    }
+
+    @Test
+    fun fragmentStartDestinationWithObjectArg() = withNavigationActivity {
+        navController.graph = navController.createGraph(TestClassArg(15)) {
+            fragment<EmptyFragment, TestClassArg>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ARG_ROUTE)
+        assertThat(navController.visibleEntries.value).containsExactly(
+            navController.currentBackStackEntry
+        )
+        val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
+        assertThat(arg).isEqualTo(15)
+    }
+
+    @Test
+    fun dialogNavigateWithObject() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            dialog<BuilderTestDialogFragment, TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        val startEntry = navController.getBackStackEntry("first")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            startEntry, navController.currentBackStackEntry
+        ).inOrder()
+    }
+
+    @Test
+    fun dialogNavigateWithObjectArg() = withNavigationActivity {
+        navController.graph = navController.createGraph("first") {
+            fragment<EmptyFragment>("first")
+            dialog<BuilderTestDialogFragment, TestClassArg>()
+        }
+        navController.navigate(TestClassArg(15))
+
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ARG_ROUTE)
+        val startEntry = navController.getBackStackEntry("first")
+        assertThat(navController.visibleEntries.value).containsExactly(
+            startEntry, navController.currentBackStackEntry
+        ).inOrder()
+        assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+            .isEqualTo(15)
+    }
+
+    @Test
+    fun dialogStartDestinationWithKClass() = withNavigationActivity {
+        navController.graph = navController.createGraph(TestClass::class) {
+            dialog<BuilderTestDialogFragment, TestClass>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.visibleEntries.value.last())
+            .isEqualTo(navController.currentBackStackEntry)
+    }
+
+    @Test
+    fun dialogStartDestinationAndRouteWithKClass() = withNavigationActivity {
+        navController.graph = navController.createGraph(
+            route = TestGraph::class,
+            startDestination = TestClass::class
+        ) {
+            dialog<BuilderTestDialogFragment, TestClass>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.graph.route).isEqualTo(TEST_GRAPH_ROUTE)
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.visibleEntries.value.last())
+            .isEqualTo(navController.currentBackStackEntry)
+    }
+
+    @Test
+    fun dialogStartDestinationWithObject() = withNavigationActivity {
+        navController.graph = navController.createGraph(TestClass()) {
+            dialog<BuilderTestDialogFragment, TestClass>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.visibleEntries.value.last())
+            .isEqualTo(navController.currentBackStackEntry)
+    }
+
+    @Test
+    fun dialogStartDestinationWithObjectAndKClassRoute() = withNavigationActivity {
+        navController.graph = navController.createGraph(
+            route = TestGraph::class,
+            startDestination = TestClass()
+        ) {
+            dialog<BuilderTestDialogFragment, TestClass>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.graph.route).isEqualTo(TEST_GRAPH_ROUTE)
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ROUTE)
+        assertThat(navController.visibleEntries.value.last())
+            .isEqualTo(navController.currentBackStackEntry)
+    }
+
+    @Test
+    fun dialogStartDestinationWithObjectArg() = withNavigationActivity {
+        navController.graph = navController.createGraph(TestClassArg(15)) {
+            dialog<BuilderTestDialogFragment, TestClassArg>()
+        }
+        val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo(TEST_CLASS_ARG_ROUTE)
+        assertThat(navController.visibleEntries.value.last())
+            .isEqualTo(navController.currentBackStackEntry)
+        val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
+        assertThat(arg).isEqualTo(15)
     }
 
     @Test
