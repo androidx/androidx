@@ -91,6 +91,9 @@ class FileIo(object):
     elif os.path.isfile(filePath):
       os.remove(filePath)
 
+  def move(self, fromPath, toPath):
+    os.rename(fromPath, toPath)
+
   def join(self, path1, path2):
     return os.path.normpath(os.path.join(path1, path2))
 
@@ -768,8 +771,14 @@ class DiffRunner(object):
           if not os.path.isdir(self.sampleFailure_path):
             # save sample failure path where user can see it
             print("Saving sample failed state to " + str(self.sampleFailure_path))
-            fileIo.ensureDirExists(self.sampleFailure_path)
-            self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(self.sampleFailure_path)
+            # write to a temporary directory so if a user looks at this path while we're writing, they don't see incomplete results
+            tempPath = self.sampleFailure_path + ".temp"
+            fileIo.removePath(tempPath)
+            fileIo.ensureDirExists(tempPath)
+            self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(tempPath)
+            # rename temporary directory
+            if os.path.exists(tempPath):
+              fileIo.move(tempPath, self.sampleFailure_path)
           # count failures
           numConsecutiveFailures += 1
           numFailuresSinceLastSplitOrSuccess += 1
