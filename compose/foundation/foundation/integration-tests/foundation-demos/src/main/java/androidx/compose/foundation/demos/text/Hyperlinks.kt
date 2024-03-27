@@ -45,6 +45,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.parseAsHtml
 import androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
 import androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
 import androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
@@ -73,7 +74,7 @@ fun Hyperlinks() {
 
         val dac = "https://developer.android.com/develop/ui/compose/"
 
-        Sample("Through Builder with state-based styling") {
+        Sample("State-based styling through builder") {
             Text(buildAnnotatedString {
                 append("Text and a ")
                 withLink(
@@ -89,6 +90,17 @@ fun Hyperlinks() {
                 append(" immediately following.")
             }
             )
+        }
+        Sample("State-based styling from Html-tagged string") {
+            val stringFromHtml = """
+                This is a <span style=\"color:red\"><a href=$dac/animation>link</a></span> 
+                here. Another <a href=$dac/semantics>link</a> follows.
+            """.trimIndent().parseAsHtml(
+                linkStyle = SpanStyle(color = Color.Magenta),
+                linkFocusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
+                linkHoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+            )
+            Text(stringFromHtml)
         }
         Sample("Single link styling with SpanStyle") {
             val stringWithLink = buildAnnotatedString {
@@ -109,7 +121,7 @@ fun Hyperlinks() {
             }
             Text(text = stringWithLink)
         }
-        Sample("Basic styling") {
+        Sample("Styling with Material colors") {
             val linkColor = MaterialTheme.colors.primary
             Text(buildAnnotatedString {
                 append("BasicText with ")
