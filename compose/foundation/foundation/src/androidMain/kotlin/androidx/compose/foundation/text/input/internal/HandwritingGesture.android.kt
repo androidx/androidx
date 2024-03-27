@@ -17,9 +17,11 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.view.inputmethod.DeleteGesture
+import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.SelectGesture
+import android.view.inputmethod.SelectRangeGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.LegacyTextFieldState
@@ -38,6 +40,8 @@ import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.EditingBuffer
 import androidx.compose.ui.text.input.SetSelectionCommand
+import kotlin.math.max
+import kotlin.math.min
 
 @RequiresApi(34)
 internal object HandwritingGestureApi34 {
@@ -49,6 +53,8 @@ internal object HandwritingGestureApi34 {
         return when (handwritingGesture) {
             is SelectGesture -> performSelectGesture(handwritingGesture, layoutState)
             is DeleteGesture -> performDeleteGesture(handwritingGesture, layoutState)
+            is SelectRangeGesture -> performSelectRangeGesture(handwritingGesture, layoutState)
+            is DeleteRangeGesture -> performDeleteRangeGesture(handwritingGesture, layoutState)
             else -> InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
     }
@@ -84,6 +90,51 @@ internal object HandwritingGestureApi34 {
         performDeletion(
             rangeInTransformedText = rangeInTransformedText,
             adjustRange = (granularity == TextGranularity.Word)
+        )
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    internal fun TransformedTextFieldState.performSelectRangeGesture(
+        gesture: SelectRangeGesture,
+        layoutState: TextLayoutState
+    ): Int {
+        val granularity = gesture.granularity.toTextGranularity()
+        val startRange = layoutState.getRangeForScreenRect(
+            gesture.selectionStartArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallback(gesture)
+        val endRange = layoutState.getRangeForScreenRect(
+            gesture.selectionEndArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallback(gesture)
+
+        selectCharsIn(enclosure(startRange, endRange))
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    internal fun TransformedTextFieldState.performDeleteRangeGesture(
+        gesture: DeleteRangeGesture,
+        layoutState: TextLayoutState
+    ): Int {
+        val granularity = gesture.granularity.toTextGranularity()
+        val startRange = layoutState.getRangeForScreenRect(
+            gesture.deletionStartArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallback(gesture)
+        val endRange = layoutState.getRangeForScreenRect(
+            gesture.deletionEndArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallback(gesture)
+
+        performDeletion(
+            rangeInTransformedText = enclosure(startRange, endRange),
+            adjustRange = granularity == TextGranularity.Word
         )
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
@@ -372,4 +423,9 @@ private fun compoundEditCommand(vararg editCommands: EditCommand): EditCommand {
             }
         }
     }
+}
+
+/** Return the minimum [TextRange] that contains the both given [TextRange]s. */
+private fun enclosure(a: TextRange, b: TextRange): TextRange {
+    return TextRange(min(a.start, a.start), max(b.end, b.end))
 }

@@ -19,8 +19,10 @@ package androidx.compose.foundation.text.input.internal
 import android.os.Build
 import android.text.InputType
 import android.view.inputmethod.DeleteGesture
+import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.SelectGesture
+import android.view.inputmethod.SelectRangeGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.TextRange
@@ -191,7 +193,9 @@ private object EditorInfoApi34 {
     fun setHandwritingGestures(editorInfo: EditorInfo) {
         editorInfo.supportedHandwritingGestures = listOf(
             SelectGesture::class.java,
-            DeleteGesture::class.java
+            DeleteGesture::class.java,
+            SelectRangeGesture::class.java,
+            DeleteRangeGesture::class.java
         )
     }
 }
