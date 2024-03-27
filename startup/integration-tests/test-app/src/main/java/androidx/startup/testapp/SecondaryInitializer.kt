@@ -25,9 +25,7 @@ class SecondaryInitializer : Initializer<Unit> {
         Log.d(TAG, "Initialized")
     }
 
-    override fun dependencies(): List<Class<out Initializer<*>>> {
-        return emptyList()
-    }
+    override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
 
     companion object {
         private const val TAG = "SecondaryInitializer"
