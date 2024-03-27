@@ -31,7 +31,7 @@ internal class FakeCamera2DeviceCloser : Camera2DeviceCloser {
         cameraDevice: CameraDevice?,
         closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
-        audioRestriction: AudioRestrictionController?
+        audioRestrictionController: AudioRestrictionController
     ) {
         cameraDeviceWrapper?.onDeviceClosed()
     }

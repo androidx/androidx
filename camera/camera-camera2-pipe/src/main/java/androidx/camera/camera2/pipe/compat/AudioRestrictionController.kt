@@ -17,24 +17,48 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraDevice
+import android.os.Build
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AudioRestrictionMode
+import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_NONE
+import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION
+import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION_SOUND
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.compat.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_NONE
-import androidx.camera.camera2.pipe.compat.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION
-import androidx.camera.camera2.pipe.compat.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_VIBRATION_SOUND
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Class that keeps the global audio restriction mode and audio restriction mode on each
- * CameraGraph, and computes the final audio restriction mode based on the settings.
+ * AudioRestrictionController keeps the global audio restriction mode and audio restriction mode on
+ * each CameraGraph, and computes the final audio restriction mode based on the settings.
  */
+interface AudioRestrictionController {
+    /** Public global audio restriction mode across all CameraGraph instances. */
+    var globalAudioRestrictionMode: AudioRestrictionMode
+
+    /** Update the audio restriction mode of the given CameraGraph. */
+    fun updateCameraGraphAudioRestrictionMode(cameraGraph: CameraGraph, mode: AudioRestrictionMode)
+
+    /** Removes the CameraGraph from the local CameraGraph to audio restriction mode mapping. */
+    fun removeCameraGraph(cameraGraph: CameraGraph)
+
+    /** Adds the listener to the controller's stored collection of listeners. */
+    fun addListener(listener: Listener)
+
+    /** Removes the listener to the controller's stored collection of listeners.*/
+    fun removeListener(listener: Listener)
+
+    /** [CameraDeviceWrapper] extends the [Listener]. When audio restriction mode changes, the
+     * listener's update method would be invoked. */
+    interface Listener {
+        /** @see CameraDevice.getCameraAudioRestriction */
+        fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode)
+    }
+}
+
 @Singleton
-@RequiresApi(30)
-class AudioRestrictionController @Inject constructor() {
+class AudioRestrictionControllerImpl @Inject constructor() : AudioRestrictionController {
     private val lock = Any()
-    var globalAudioRestrictionMode: AudioRestrictionMode = AUDIO_RESTRICTION_NONE
+    override var globalAudioRestrictionMode: AudioRestrictionMode = AUDIO_RESTRICTION_NONE
         get() = synchronized(lock) { field }
         set(value: AudioRestrictionMode) {
             synchronized(lock) {
@@ -43,22 +67,20 @@ class AudioRestrictionController @Inject constructor() {
             }
         }
 
-    private val audioRestrictionModeMap: MutableMap<CameraGraph, AudioRestrictionMode> =
-        mutableMapOf()
-    private val activeListeners: MutableSet<Listener> = mutableSetOf()
+    private val audioRestrictionModeMap = mutableMapOf<CameraGraph, AudioRestrictionMode>()
+    private val activeListeners = mutableSetOf<AudioRestrictionController.Listener>()
 
-    fun getCameraGraphAudioRestriction(cameraGraph: CameraGraph): AudioRestrictionMode {
-        return audioRestrictionModeMap.getOrDefault(cameraGraph, AUDIO_RESTRICTION_NONE)
-    }
-
-    fun setCameraGraphAudioRestriction(cameraGraph: CameraGraph, mode: AudioRestrictionMode) {
+    override fun updateCameraGraphAudioRestrictionMode(
+        cameraGraph: CameraGraph,
+        mode: AudioRestrictionMode
+    ) {
         synchronized(lock) {
             audioRestrictionModeMap[cameraGraph] = mode
             updateListenersMode()
         }
     }
 
-    fun removeCameraGraph(cameraGraph: CameraGraph) {
+    override fun removeCameraGraph(cameraGraph: CameraGraph) {
         synchronized(lock) {
             audioRestrictionModeMap.remove(cameraGraph)
             updateListenersMode()
@@ -80,7 +102,10 @@ class AudioRestrictionController @Inject constructor() {
         return AUDIO_RESTRICTION_NONE
     }
 
-    fun addListener(listener: Listener) {
+    override fun addListener(listener: AudioRestrictionController.Listener) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return
+        }
         synchronized(lock) {
             activeListeners.add(listener)
             val mode = computeAudioRestrictionMode()
@@ -88,7 +113,10 @@ class AudioRestrictionController @Inject constructor() {
         }
     }
 
-    fun removeListener(listener: Listener?) {
+    override fun removeListener(listener: AudioRestrictionController.Listener) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return
+        }
         synchronized(lock) {
             activeListeners.remove(listener)
         }
@@ -100,10 +128,5 @@ class AudioRestrictionController @Inject constructor() {
         for (listener in activeListeners) {
             listener.onCameraAudioRestrictionUpdated(mode)
         }
-    }
-
-    interface Listener {
-        /** @see CameraDevice.getCameraAudioRestriction */
-        fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode)
     }
 }

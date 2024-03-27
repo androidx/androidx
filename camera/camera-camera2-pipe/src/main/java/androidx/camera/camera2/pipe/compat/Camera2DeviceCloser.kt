@@ -38,7 +38,7 @@ internal interface Camera2DeviceCloser {
         cameraDevice: CameraDevice? = null,
         closeUnderError: Boolean = false,
         androidCameraState: AndroidCameraState,
-        audioRestriction: AudioRestrictionController?
+        audioRestrictionController: AudioRestrictionController
     )
 }
 
@@ -53,7 +53,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
         cameraDevice: CameraDevice?,
         closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
-        audioRestriction: AudioRestrictionController?
+        audioRestrictionController: AudioRestrictionController
     ) {
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
         if (unwrappedCameraDevice != null) {
@@ -75,7 +75,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
              * hadn't been created for the opened camera.
              */
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                audioRestriction?.removeListener(cameraDeviceWrapper)
+                audioRestrictionController.removeListener(cameraDeviceWrapper)
             }
 
             // We only need to close the device once (don't want to create another capture session).

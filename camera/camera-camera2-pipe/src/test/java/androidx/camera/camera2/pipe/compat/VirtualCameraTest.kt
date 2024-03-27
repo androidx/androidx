@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.camera2.pipe.testing.FakeAudioRestrictionController
 import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -116,6 +117,7 @@ internal class VirtualCameraStateTest {
             object : Token {
                 override val released: Boolean
                     get() = true
+
                 override fun release(): Boolean {
                     return true
                 }
@@ -166,6 +168,7 @@ internal class VirtualCameraStateTest {
             object : Token {
                 override val released: Boolean
                     get() = true
+
                 override fun release(): Boolean {
                     return true
                 }
@@ -207,6 +210,7 @@ internal class VirtualCameraStateTest {
             object : Token {
                 override val released: Boolean
                     get() = true
+
                 override fun release(): Boolean {
                     return true
                 }
@@ -247,6 +251,7 @@ internal class VirtualCameraStateTest {
             object : Token {
                 override val released: Boolean
                     get() = true
+
                 override fun release(): Boolean {
                     return true
                 }
@@ -296,6 +301,7 @@ internal class AndroidCameraDeviceTest {
             lastCameraError = cameraError
         }
     }
+    private val audioRestrictionController = FakeAudioRestrictionController()
 
     @After
     fun teardown() {
@@ -314,7 +320,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController,
             )
 
         assertThat(listener.state.value).isInstanceOf(CameraStateUnopened.javaClass)
@@ -362,7 +369,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController
             )
 
         listener.onDisconnected(testCamera.cameraDevice)
@@ -386,7 +394,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController
             )
 
         listener.close()
@@ -407,7 +416,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController
             )
 
         listener.closeWith(IllegalArgumentException("Test Exception"))
@@ -428,7 +438,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
@@ -451,7 +462,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController
             )
 
         listener.onOpened(testCamera.cameraDevice)
@@ -475,7 +487,8 @@ internal class AndroidCameraDeviceTest {
                 timeSource,
                 cameraErrorListener,
                 cameraDeviceCloser,
-                FakeThreads.fromTestScope(TestScope())
+                FakeThreads.fromTestScope(TestScope()),
+                audioRestrictionController
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
