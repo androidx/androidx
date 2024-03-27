@@ -237,8 +237,8 @@ internal fun Carousel(
         CarouselPageSize(keylineList, beforeContentPadding, afterContentPadding)
     }
 
-    val outOfBoundsPageCount = remember(pageSize.strategy.itemMainAxisSize) {
-        calculateOutOfBounds(pageSize.strategy)
+    val beyondViewportPageCount = remember(pageSize.strategy.itemMainAxisSize) {
+        calculateBeyondViewportPageCount(pageSize.strategy)
     }
     val carouselScope = CarouselScopeImpl
 
@@ -260,7 +260,7 @@ internal fun Carousel(
             ),
             pageSize = pageSize,
             pageSpacing = itemSpacing,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             snapPosition = snapPosition,
             flingBehavior = flingBehavior,
             modifier = modifier
@@ -287,7 +287,7 @@ internal fun Carousel(
             ),
             pageSize = pageSize,
             pageSpacing = itemSpacing,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             snapPosition = snapPosition,
             flingBehavior = flingBehavior,
             modifier = modifier
@@ -329,9 +329,9 @@ private fun PaddingValues.calculateAfterContentPadding(orientation: Orientation)
     return with(LocalDensity.current) { dpValue.toPx() }
 }
 
-internal fun calculateOutOfBounds(strategy: Strategy): Int {
+internal fun calculateBeyondViewportPageCount(strategy: Strategy): Int {
     if (!strategy.isValid()) {
-        return PagerDefaults.OutOfBoundsPageCount
+        return PagerDefaults.BeyondViewportPageCount
     }
     var totalKeylineSpace = 0f
     var totalNonAnchorKeylines = 0

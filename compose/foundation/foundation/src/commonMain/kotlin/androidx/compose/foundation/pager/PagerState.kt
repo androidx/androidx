@@ -668,9 +668,9 @@ abstract class PagerState(
         if (info.visiblePagesInfo.isNotEmpty()) {
             val isPrefetchingForward = delta > 0
             val indexToPrefetch = if (isPrefetchingForward) {
-                info.visiblePagesInfo.last().index + info.outOfBoundsPageCount + PagesToPrefetch
+                info.visiblePagesInfo.last().index + info.beyondViewportPageCount + PagesToPrefetch
             } else {
-                info.visiblePagesInfo.first().index - info.outOfBoundsPageCount - PagesToPrefetch
+                info.visiblePagesInfo.first().index - info.beyondViewportPageCount - PagesToPrefetch
             }
             if (indexToPrefetch != this.indexToPrefetch &&
                 indexToPrefetch in 0 until pageCount
@@ -694,9 +694,9 @@ abstract class PagerState(
     private fun cancelPrefetchIfVisibleItemsChanged(info: PagerLayoutInfo) {
         if (indexToPrefetch != -1 && info.visiblePagesInfo.isNotEmpty()) {
             val expectedPrefetchIndex = if (wasPrefetchingForward) {
-                info.visiblePagesInfo.last().index + info.outOfBoundsPageCount + PagesToPrefetch
+                info.visiblePagesInfo.last().index + info.beyondViewportPageCount + PagesToPrefetch
             } else {
-                info.visiblePagesInfo.first().index - info.outOfBoundsPageCount - PagesToPrefetch
+                info.visiblePagesInfo.first().index - info.beyondViewportPageCount - PagesToPrefetch
             }
             if (indexToPrefetch != expectedPrefetchIndex) {
                 indexToPrefetch = -1
@@ -756,7 +756,7 @@ internal val EmptyLayoutInfo = PagerMeasureResult(
     viewportStartOffset = 0,
     viewportEndOffset = 0,
     reverseLayout = false,
-    outOfBoundsPageCount = 0,
+    beyondViewportPageCount = 0,
     firstVisiblePage = null,
     firstVisiblePageScrollOffset = 0,
     currentPage = null,

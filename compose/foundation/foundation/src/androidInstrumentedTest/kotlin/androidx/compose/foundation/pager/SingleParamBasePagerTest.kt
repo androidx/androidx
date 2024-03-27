@@ -88,7 +88,7 @@ open class SingleParamBasePagerTest {
         pageCount: () -> Int = { DefaultPageCount },
         modifier: Modifier = Modifier,
         orientation: Orientation = Orientation.Horizontal,
-        outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
+        beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
         pageSize: PageSize = PageSize.Fill,
         userScrollEnabled: Boolean = true,
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
@@ -133,7 +133,7 @@ open class SingleParamBasePagerTest {
             ) {
                 HorizontalOrVerticalPager(
                     state = state,
-                    outOfBoundsPageCount = outOfBoundsPageCount,
+                    beyondViewportPageCount = beyondViewportPageCount,
                     orientation = orientation,
                     modifier = modifier
                         .testTag(PagerTestTag)
@@ -196,7 +196,7 @@ open class SingleParamBasePagerTest {
         userScrollEnabled: Boolean = true,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        outOfBoundsPageCount: Int = 0,
+        beyondViewportPageCount: Int = 0,
         pageSize: PageSize = PageSize.Fill,
         flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
         pageSpacing: Dp = 0.dp,
@@ -212,7 +212,7 @@ open class SingleParamBasePagerTest {
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                outOfBoundsPageCount = outOfBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
@@ -227,7 +227,7 @@ open class SingleParamBasePagerTest {
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                outOfBoundsPageCount = outOfBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
@@ -285,7 +285,7 @@ data class SingleParamConfig(
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     val pageSpacing: Dp = 0.dp,
     val mainAxisContentPadding: PaddingValues = PaddingValues(0.dp),
-    val outOfBoundsPageCount: Int = 0,
+    val beyondViewportPageCount: Int = 0,
     val snapPosition: Pair<SnapPosition, String> = SnapPosition.Start to "Start",
 ) {
     fun TouchInjectionScope.swipeWithVelocityAcrossMainAxis(

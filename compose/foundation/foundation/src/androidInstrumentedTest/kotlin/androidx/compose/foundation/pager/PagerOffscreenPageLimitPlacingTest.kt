@@ -47,7 +47,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
             ParameterizedPager(
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.fillMaxSize(),
-                outOfBoundsPageCount = 1,
+                beyondViewportPageCount = 1,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing,
                 contentPadding = it.mainAxisContentPadding
@@ -92,7 +92,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 initialPage = initialIndex,
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.fillMaxSize(),
-                outOfBoundsPageCount = 2,
+                beyondViewportPageCount = 2,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing,
                 contentPadding = it.mainAxisContentPadding
@@ -126,7 +126,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 initialPage = 5,
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.fillMaxSize(),
-                outOfBoundsPageCount = 0,
+                beyondViewportPageCount = 0,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing,
                 contentPadding = it.mainAxisContentPadding
@@ -158,7 +158,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.size(pageSizeDp * 1.5f),
                 pageSize = PageSize.Fixed(pageSizeDp),
-                outOfBoundsPageCount = it.outOfBoundsPageCount,
+                beyondViewportPageCount = it.beyondViewportPageCount,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing
             )
@@ -170,7 +170,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     add(SingleParamConfig(
                         orientation = orientation,
                         pageSpacing = pageSpacing,
-                        outOfBoundsPageCount = 2
+                        beyondViewportPageCount = 2
                     ))
                 }
             }
