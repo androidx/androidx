@@ -683,6 +683,22 @@ class TextFieldStateTest {
         assertThat(isRead).isEqualTo(false)
     }
 
+    @Test
+    fun onlyHighlightChange_doesNotTriggerInputTransformation() {
+        val state = TextFieldState("abc def ghi")
+        var transformationCalled = 0
+        val inputTransformation = InputTransformation {
+            transformationCalled++
+        }
+        state.editAsUser(inputTransformation) {
+            setHighlight(TextHighlightType.HandwritingSelectPreview, 0, 3)
+        }
+        state.editAsUser(inputTransformation) {
+            setHighlight(TextHighlightType.HandwritingDeletePreview, 4, 7)
+        }
+        assertThat(transformationCalled).isEqualTo(0)
+    }
+
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {
         val globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {
             // This is normally done by the compose runtime.

@@ -291,7 +291,7 @@ class TextUndoTest {
     }
 
     @Test
-    fun directEditsClearTheUndoHistory() {
+    fun directEdits_clearTheUndoHistory() {
         val state = TextFieldState("abc")
         state.typeAtEnd("d")
         state.typeAtStart("e")
@@ -301,6 +301,39 @@ class TextUndoTest {
 
         assertThat(state.undoState.canUndo).isEqualTo(false)
         assertThat(state.undoState.canRedo).isEqualTo(false)
+    }
+
+    @Test
+    fun directEdit_onlySelectionChange_doesNotClearUndoHistory() {
+        val state = TextFieldState("abc")
+        state.typeAtEnd("d")
+        state.typeAtStart("e")
+        state.typeAtEnd("f")
+
+        state.edit {
+            selection = TextRange(0)
+        }
+
+        assertThat(state.undoState.canUndo).isEqualTo(true)
+    }
+
+    @Test
+    fun directEdit_replaceButNoContentChange_clearsUndoHistory() {
+        val state = TextFieldState("abc")
+        state.typeAtEnd("d")
+        state.typeAtStart("e")
+        state.typeAtEnd("f")
+
+        val before = state.text.toString()
+
+        state.edit {
+            replace(0, 6, "eabcdf")
+        }
+
+        val after = state.text.toString()
+
+        assertThat(before).isEqualTo(after)
+        assertThat(state.undoState.canUndo).isEqualTo(false)
     }
 
     companion object {

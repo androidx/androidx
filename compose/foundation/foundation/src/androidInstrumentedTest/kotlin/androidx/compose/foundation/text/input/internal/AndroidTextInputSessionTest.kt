@@ -23,7 +23,9 @@ import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.FakeInputMethodManager
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
@@ -188,6 +190,19 @@ class AndroidTextInputSessionTest {
     }
 
     @Test
+    fun onlyChangingHighlight_doesNotFireUpdateSelectionOrRestartInput() {
+        val state = TextFieldState("abc def ghi")
+        val composeImm = FakeInputMethodManager()
+        launchInputSessionWithDefaultsForTest(state = state, composeImm = composeImm)
+
+        state.editAsUser(inputTransformation = null) {
+            setHighlight(TextHighlightType.HandwritingSelectPreview, 0, 3)
+        }
+
+        composeImm.expectNoMoreCalls()
+    }
+
+    @Test
     fun debugMode_isDisabled() {
         // run this in presubmit to check that we are not accidentally enabling logs on prod
         assertFalse(
@@ -200,15 +215,25 @@ class AndroidTextInputSessionTest {
     private fun launchInputSessionWithDefaultsForTest(
         state: TextFieldState = TextFieldState(),
         imeOptions: ImeOptions = ImeOptions.Default,
-        onImeAction: (ImeAction) -> Unit = {}
+        onImeAction: (ImeAction) -> Unit = {},
+        composeImm: ComposeInputMethodManager? = null
     ) {
         coroutineScope.launch {
             textInputNode.establishTextInputSession {
-                inputSessionWithDefaultsForTest(
-                    state,
-                    imeOptions,
-                    onImeAction
-                )
+                if (composeImm != null) {
+                    inputSessionWithDefaultsForTest(
+                        state,
+                        imeOptions,
+                        onImeAction,
+                        composeImm = composeImm
+                    )
+                } else {
+                    inputSessionWithDefaultsForTest(
+                        state,
+                        imeOptions,
+                        onImeAction
+                    )
+                }
             }
         }
     }
@@ -217,7 +242,8 @@ class AndroidTextInputSessionTest {
         state: TextFieldState = TextFieldState(),
         imeOptions: ImeOptions = ImeOptions.Default,
         onImeAction: (ImeAction) -> Unit = {},
-        receiveContentConfiguration: ReceiveContentConfiguration? = null
+        receiveContentConfiguration: ReceiveContentConfiguration? = null,
+        composeImm: ComposeInputMethodManager = ComposeInputMethodManager(view)
     ): Nothing = platformSpecificTextInputSession(
         state = TransformedTextFieldState(
             textFieldState = state,
@@ -226,8 +252,11 @@ class AndroidTextInputSessionTest {
         ),
         layoutState = TextLayoutState(),
         imeOptions = imeOptions,
+        composeImm = composeImm,
         receiveContentConfiguration = receiveContentConfiguration,
         onImeAction = onImeAction,
+        stylusHandwritingTrigger = null,
+        viewConfiguration = null
     )
 
     private inner class TestTextElement : ModifierNodeElement<TestTextNode>() {
