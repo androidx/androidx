@@ -94,8 +94,7 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
     public constructor(
         navigator: Navigator<out D>,
         @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
-        @Suppress("OptionalBuilderConstructorArgument")
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : this(
         navigator,
         route?.serializer()?.hashCode() ?: -1,

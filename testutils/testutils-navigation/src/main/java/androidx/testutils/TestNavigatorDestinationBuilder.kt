@@ -86,5 +86,5 @@ class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Dest
     constructor(navigator: TestNavigator, route: String) : super(navigator, route)
     @OptIn(ExperimentalSafeArgsApi::class)
     @SuppressLint("NullAnnotationGroup")
-    constructor(navigator: TestNavigator, route: KClass<*>) : super(navigator, route, null)
+    constructor(navigator: TestNavigator, route: KClass<*>) : super(navigator, route, emptyMap())
 }

@@ -2860,7 +2860,7 @@ public inline fun NavController.createGraph(
 public inline fun NavController.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
 
@@ -2878,6 +2878,6 @@ public inline fun NavController.createGraph(
 public inline fun NavController.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
