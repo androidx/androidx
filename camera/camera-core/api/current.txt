@@ -407,6 +407,11 @@ package androidx.camera.core {
     method public int getImageCaptureError();
   }
 
+  public final class ImageCaptureExtKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? takePicture(androidx.camera.core.ImageCapture, androidx.camera.core.ImageCapture.OutputFileOptions outputFileOptions, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageCapture.OutputFileResults>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? takePicture(androidx.camera.core.ImageCapture, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageProxy>);
+  }
+
   @RequiresApi(21) public class ImageCaptureLatencyEstimate {
     ctor public ImageCaptureLatencyEstimate(long, long);
     method public long getCaptureLatencyMillis();
