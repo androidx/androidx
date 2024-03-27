@@ -122,6 +122,7 @@ androidx {
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose Animation Graphics Library for using animated-vector resources in Compose"
+    samples(project(":compose:animation:animation-graphics:animation-graphics-samples"))
 }
 
 android {

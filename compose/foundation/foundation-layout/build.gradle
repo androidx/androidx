@@ -119,6 +119,7 @@ androidx {
     inceptionYear = "2019"
     description = "Compose layout implementations"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
 }
 
 android {
