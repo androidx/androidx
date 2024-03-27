@@ -37,6 +37,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.ZslDisablerQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -234,8 +236,8 @@ class CameraInfoAdapter @Inject constructor(
         ?: emptySet()
 
     override fun isZslSupported(): Boolean {
-        // TODO: b/267559511 - Migrate ZslDisablerQuirk.
-        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported
+        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported &&
+            DeviceQuirks[ZslDisablerQuirk::class.java] == null
     }
 
     override fun isPrivateReprocessingSupported(): Boolean {

@@ -26,6 +26,8 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.ZslDisablerQuirk
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.area
@@ -126,6 +128,7 @@ class ZslControlImpl @Inject constructor(
 
     private var isZslDisabledByUseCaseConfig = false
     private var isZslDisabledByFlashMode = false
+    private var isZslDisabledByQuirks = DeviceQuirks[ZslDisablerQuirk::class.java] != null
 
     @VisibleForTesting
     internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
@@ -143,7 +146,9 @@ class ZslControlImpl @Inject constructor(
             return
         }
 
-        // TODO: b/267559511 - Port ZslDisablerQuirk
+        if (isZslDisabledByQuirks) {
+            return
+        }
 
         if (!cameraMetadata.supportsPrivateReprocessing) {
             Log.info { "ZslControlImpl: Private reprocessing isn't supported" }

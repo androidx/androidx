@@ -37,6 +37,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.M)
@@ -196,6 +197,59 @@ class ZslControlImplTest {
         zslControlImpl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControlImpl.reprocessingImageReader).isNull()
+    }
+
+    @Test
+    fun hasZslDisablerQuirk_notAddZslConfig() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-F936B")
+
+        zslControlImpl = ZslControlImpl(
+            createCameraProperties(
+                hasCapabilities = true,
+                isYuvReprocessingSupported = false,
+                isPrivateReprocessingSupported = true,
+                isJpegValidOutputFormat = true
+            )
+        )
+
+        zslControlImpl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControlImpl.reprocessingImageReader).isNull()
+    }
+
+    @Test
+    fun hasNoZslDisablerQuirk_addZslConfig() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "samsung")
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "SM-G973")
+
+        zslControlImpl = ZslControlImpl(
+            createCameraProperties(
+                hasCapabilities = true,
+                isYuvReprocessingSupported = false,
+                isPrivateReprocessingSupported = true,
+                isJpegValidOutputFormat = true
+            )
+        )
+
+        zslControlImpl.addZslConfig(sessionConfigBuilder)
+
+        assertThat(zslControlImpl.reprocessingImageReader).isNotNull()
+        assertThat(zslControlImpl.reprocessingImageReader!!.imageFormat).isEqualTo(
+            ImageFormat.PRIVATE
+        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.maxImages).isEqualTo(
+            MAX_IMAGES
+        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.width).isEqualTo(
+            PRIVATE_REPROCESSING_MAXIMUM_SIZE.width
+        )
+        assertThat(zslControlImpl.reprocessingImageReader!!.height).isEqualTo(
+            PRIVATE_REPROCESSING_MAXIMUM_SIZE.height
+        )
+        assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY
+        )
     }
 
     private fun createCameraProperties(

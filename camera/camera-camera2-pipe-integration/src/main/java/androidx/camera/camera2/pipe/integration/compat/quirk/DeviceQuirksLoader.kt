@@ -91,6 +91,9 @@ object DeviceQuirksLoader {
         if (CaptureSessionOnClosedNotCalledQuirk.isEnabled()) {
             quirks.add(CaptureSessionOnClosedNotCalledQuirk())
         }
+        if (ZslDisablerQuirk.load()) {
+            quirks.add(ZslDisablerQuirk())
+        }
         return quirks
     }
 }
