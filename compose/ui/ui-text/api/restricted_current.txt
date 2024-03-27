@@ -1077,6 +1077,7 @@ package androidx.compose.ui.text.input {
     method public int getPrevious();
     method public int getSearch();
     method public int getSend();
+    method public int getUnspecified();
     property public final int Default;
     property public final int Done;
     property public final int Go;
@@ -1085,6 +1086,7 @@ package androidx.compose.ui.text.input {
     property public final int Previous;
     property public final int Search;
     property public final int Send;
+    property public final int Unspecified;
   }
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
@@ -1129,10 +1131,12 @@ package androidx.compose.ui.text.input {
     method public int getCharacters();
     method public int getNone();
     method public int getSentences();
+    method public int getUnspecified();
     method public int getWords();
     property public final int Characters;
     property public final int None;
     property public final int Sentences;
+    property public final int Unspecified;
     property public final int Words;
   }
 
@@ -1149,6 +1153,7 @@ package androidx.compose.ui.text.input {
     method public int getPassword();
     method public int getPhone();
     method public int getText();
+    method public int getUnspecified();
     method public int getUri();
     property public final int Ascii;
     property public final int Decimal;
@@ -1158,6 +1163,7 @@ package androidx.compose.ui.text.input {
     property public final int Password;
     property public final int Phone;
     property public final int Text;
+    property public final int Unspecified;
     property public final int Uri;
   }
 

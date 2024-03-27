@@ -23,10 +23,11 @@ import androidx.compose.runtime.Stable
  * the keyboard will show the requested action.
  */
 @kotlin.jvm.JvmInline
-value class ImeAction internal constructor(@Suppress("unused") private val value: Int) {
+value class ImeAction private constructor(@Suppress("unused") private val value: Int) {
 
     override fun toString(): String {
         return when (this) {
+            Unspecified -> "Unspecified"
             None -> "None"
             Default -> "Default"
             Go -> "Go"
@@ -40,6 +41,14 @@ value class ImeAction internal constructor(@Suppress("unused") private val value
     }
 
     companion object {
+        /**
+         * The action is not specified. This defaults to [Default], which explicitly requests
+         * the platform and keyboard to make the decision, but [Default] will take precedence when
+         * merging [ImeAction]s.
+         */
+        @Stable
+        val Unspecified: ImeAction = ImeAction(-1)
+
         /**
          * Use the platform and keyboard defaults and let the keyboard decide the action it is
          * going to show. The keyboards will mostly show one of [Done] or [None] actions based on

@@ -193,7 +193,7 @@ internal fun DateInputTextField(
         isError = errorText.value.isNotBlank(),
         visualTransformation = DateVisualTransformation(dateInputFormat),
         keyboardOptions = KeyboardOptions(
-            autoCorrect = false,
+            autoCorrectEnabled = false,
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
