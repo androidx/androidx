@@ -22,7 +22,6 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraCaptureSession.StateCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraExtensionSession
-import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
@@ -251,10 +250,10 @@ internal class AndroidCameraState(
     private val cameraErrorListener: CameraErrorListener,
     private val camera2DeviceCloser: Camera2DeviceCloser,
     private val threads: Threads,
+    private val audioRestrictionController: AudioRestrictionController,
     private val interopDeviceStateCallback: CameraDevice.StateCallback? = null,
     private val interopSessionStateCallback: StateCallback? = null,
     private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null,
-    private val audioRestriction: AudioRestrictionController? = null
 ) : CameraDevice.StateCallback() {
     private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
@@ -337,7 +336,7 @@ internal class AndroidCameraState(
                 cameraDevice = cameraDevice,
                 closeUnderError = currentCloseInfo.errorCode != null,
                 androidCameraState = this,
-                audioRestriction = audioRestriction
+                audioRestrictionController = audioRestrictionController
             )
             return
         }
@@ -353,9 +352,7 @@ internal class AndroidCameraState(
             interopExtensionSessionStateCallback,
             threads
         )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            audioRestriction?.addListener(androidCameraDevice)
-        }
+        audioRestrictionController.addListener(androidCameraDevice)
         _state.value =
             CameraStateOpen(androidCameraDevice)
 
@@ -371,7 +368,7 @@ internal class AndroidCameraState(
                 cameraDevice = cameraDevice,
                 closeUnderError = closeInfo.errorCode != null,
                 androidCameraState = this,
-                audioRestriction = audioRestriction
+                audioRestrictionController = audioRestrictionController
             )
             _state.value = computeClosedState(closeInfo)
         }
@@ -477,7 +474,7 @@ internal class AndroidCameraState(
                 cameraDevice,
                 closeUnderError = closeInfo.errorCode != null,
                 androidCameraState = this,
-                audioRestriction = audioRestriction
+                audioRestrictionController = audioRestrictionController
             )
             _state.value = computeClosedState(closeInfo)
         }

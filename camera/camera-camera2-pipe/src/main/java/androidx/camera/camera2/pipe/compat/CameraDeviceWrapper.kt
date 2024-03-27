@@ -29,6 +29,7 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AudioRestrictionMode
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -110,7 +111,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
 
     /** @see CameraDevice.getCameraAudioRestriction */
     @RequiresApi(Build.VERSION_CODES.R)
-    fun getCameraAudioRestriction(): AudioRestrictionMode?
+    fun getCameraAudioRestriction(): AudioRestrictionMode
 }
 
 internal fun CameraDevice?.closeWithTrace() {
@@ -649,17 +650,5 @@ internal class VirtualAndroidCameraDevice(
     @RequiresApi(30)
     override fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode) {
         androidCameraDevice.onCameraAudioRestrictionUpdated(mode)
-    }
-}
-
-/**
- * @see [CameraDevice.AUDIO_RESTRICTION_NONE] and other constants.
- */
-@JvmInline
-value class AudioRestrictionMode(val value: Int) {
-    companion object {
-        val AUDIO_RESTRICTION_NONE = AudioRestrictionMode(0)
-        val AUDIO_RESTRICTION_VIBRATION = AudioRestrictionMode(1)
-        val AUDIO_RESTRICTION_VIBRATION_SOUND = AudioRestrictionMode(3)
     }
 }

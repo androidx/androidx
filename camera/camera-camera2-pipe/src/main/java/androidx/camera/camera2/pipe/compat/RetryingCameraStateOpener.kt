@@ -173,7 +173,7 @@ constructor(
         cameraId: CameraId,
         attempts: Int,
         requestTimestamp: TimestampNs,
-        audioRestriction: AudioRestrictionController? = null
+        audioRestrictionController: AudioRestrictionController
     ): OpenCameraResult {
         val metadata = camera2MetadataProvider.getCameraMetadata(cameraId)
         val cameraState =
@@ -186,11 +186,11 @@ constructor(
                 cameraErrorListener,
                 camera2DeviceCloser,
                 threads,
+                audioRestrictionController,
                 cameraInteropConfig?.cameraDeviceStateCallback,
                 cameraInteropConfig?.cameraSessionStateCallback,
                 /** interopExtensionSessionStateCallback= */
-                null,
-                audioRestriction
+                null
             )
 
         try {
@@ -232,8 +232,8 @@ constructor(
     private val cameraAvailabilityMonitor: CameraAvailabilityMonitor,
     private val timeSource: TimeSource,
     private val devicePolicyManager: DevicePolicyManagerWrapper,
-    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?,
-    private val audioRestriction: AudioRestrictionController? = null
+    private val audioRestrictionController: AudioRestrictionController,
+    private val cameraInteropConfig: CameraPipe.CameraInteropConfig?
 ) {
     internal suspend fun openCameraWithRetry(
         cameraId: CameraId,
@@ -250,7 +250,7 @@ constructor(
                     cameraId,
                     attempts,
                     requestTimestamp,
-                    audioRestriction
+                    audioRestrictionController
                 )
             val elapsed = Timestamps.now(timeSource) - requestTimestamp
             with(result) {

@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.graph
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AudioRestrictionMode
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
@@ -27,7 +28,6 @@ import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
-import androidx.camera.camera2.pipe.compat.AudioRestrictionMode
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -68,7 +68,7 @@ constructor(
     private val listener3A: Listener3A,
     private val frameDistributor: FrameDistributor,
     private val frameCaptureQueue: FrameCaptureQueue,
-    private val audioRestriction: AudioRestrictionController? = null
+    private val audioRestrictionController: AudioRestrictionController
 ) : CameraGraph {
     private val sessionMutex = Mutex()
     private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
@@ -207,16 +207,9 @@ constructor(
         Debug.traceStop()
     }
 
-    override fun getAudioRestriction(): AudioRestrictionMode? {
+    override fun updateAudioRestrictionMode(mode: AudioRestrictionMode) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return audioRestriction?.getCameraGraphAudioRestriction(this)
-        }
-        return null
-    }
-
-    override fun setAudioRestriction(mode: AudioRestrictionMode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            audioRestriction?.setCameraGraphAudioRestriction(this, mode)
+            audioRestrictionController.updateCameraGraphAudioRestrictionMode(this, mode)
         }
     }
 
@@ -229,9 +222,7 @@ constructor(
             frameDistributor.close()
             frameCaptureQueue.close()
             surfaceGraph.close()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                audioRestriction?.removeCameraGraph(this)
-            }
+            audioRestrictionController.removeCameraGraph(this)
             Debug.traceStop()
         }
     }
