@@ -87,8 +87,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -339,7 +337,8 @@ internal class TextFieldDecoratorModifierNode(
             })
     )
 
-    var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
+    var keyboardOptions: KeyboardOptions =
+        keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
         private set
 
     /**
@@ -376,8 +375,7 @@ internal class TextFieldDecoratorModifierNode(
                 ImeAction.Done -> {
                     requireKeyboardController().hide()
                 }
-                ImeAction.Go, ImeAction.Search, ImeAction.Send,
-                ImeAction.Default, ImeAction.None -> Unit
+                else -> Unit
             }
         }
     }
@@ -425,7 +423,7 @@ internal class TextFieldDecoratorModifierNode(
         this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
-        this.keyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
+        this.keyboardOptions = keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
         this.keyboardActionHandler = keyboardActionHandler
         this.singleLine = singleLine
         this.interactionSource = interactionSource
@@ -533,8 +531,10 @@ internal class TextFieldDecoratorModifierNode(
             textFieldState.replaceSelectedText(newText, clearComposition = true)
             true
         }
-        onImeAction(keyboardOptions.imeAction) {
-            onImeActionPerformed(keyboardOptions.imeAction)
+
+        val effectiveImeAction = keyboardOptions.imeActionOrDefault
+        onImeAction(effectiveImeAction) {
+            onImeActionPerformed(effectiveImeAction)
             true
         }
         onClick {
@@ -660,7 +660,7 @@ internal class TextFieldDecoratorModifierNode(
             textFieldSelectionState = textFieldSelectionState,
             editable = enabled && !readOnly,
             singleLine = singleLine,
-            onSubmit = { onImeActionPerformed(keyboardOptions.imeAction) }
+            onSubmit = { onImeActionPerformed(keyboardOptions.imeActionOrDefault) }
         )
     }
 
@@ -753,33 +753,3 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     onImeAction: ((ImeAction) -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
 ): Nothing
-
-/**
- * Returns a [KeyboardOptions] that is merged with [defaults], with this object's values taking
- * precedence.
- */
-// TODO(b/295951492) KeyboardOptions can't actually be merged correctly in all cases, because its
-//  properties don't all have proper "unspecified" values. I think we can fix that in a
-//  backwards-compatible way, but it will require adding new API outside of the text2 package so we
-//  should hold off on making them until after the study.
-internal fun KeyboardOptions.withDefaultsFrom(defaults: KeyboardOptions?): KeyboardOptions {
-    if (defaults == null) return this
-    return KeyboardOptions(
-        capitalization = if (this.capitalization != KeyboardCapitalization.None) {
-            this.capitalization
-        } else {
-            defaults.capitalization
-        },
-        autoCorrect = this.autoCorrect && defaults.autoCorrect,
-        keyboardType = if (this.keyboardType != KeyboardType.Text) {
-            this.keyboardType
-        } else {
-            defaults.keyboardType
-        },
-        imeAction = if (this.imeAction != ImeAction.Default) {
-            this.imeAction
-        } else {
-            defaults.imeAction
-        }
-    )
-}

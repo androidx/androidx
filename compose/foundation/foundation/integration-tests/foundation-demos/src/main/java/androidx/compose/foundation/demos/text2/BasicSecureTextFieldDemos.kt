@@ -101,7 +101,7 @@ fun NumberPasswordDemo() {
             }
         },
         keyboardOptions = KeyboardOptions(
-            autoCorrect = false,
+            autoCorrectEnabled = false,
             keyboardType = KeyboardType.NumberPassword
         ),
         modifier = demoTextFieldModifiers
