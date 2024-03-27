@@ -42,7 +42,7 @@ import kotlinx.serialization.serializer
  * an argument of "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
  */
 internal fun <T> KSerializer<T>.generateRoutePattern(
-    typeMap: Map<KType, NavType<*>>? = null
+    typeMap: Map<KType, NavType<*>> = emptyMap()
 ): String {
     assertNotAbstractClass {
         throw IllegalArgumentException(
@@ -89,7 +89,7 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
  * implementation of NavType<Int>.
  */
 internal fun <T> KSerializer<T>.generateNavArguments(
-    typeMap: Map<KType, NavType<*>>? = null
+    typeMap: Map<KType, NavType<*>> = emptyMap()
 ): List<NamedNavArgument> {
     assertNotAbstractClass {
         throw IllegalArgumentException(
@@ -148,10 +148,10 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
 
 @Suppress("UNCHECKED_CAST")
 private fun SerialDescriptor.computeNavType(
-    typeMap: Map<KType, NavType<*>>? = null
+    typeMap: Map<KType, NavType<*>>
 ): NavType<Any?> {
-    val customType = typeMap?.keys
-        ?.find { kType -> matchKType(kType) }
+    val customType = typeMap.keys
+        .find { kType -> matchKType(kType) }
         ?.let { typeMap[it] } as? NavType<Any?>
     return customType ?: getNavType()
 }

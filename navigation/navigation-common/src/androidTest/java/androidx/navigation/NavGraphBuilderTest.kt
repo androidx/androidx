@@ -130,7 +130,7 @@ class NavGraphBuilderTest {
             startDestination = route
         ) {
             val builder = NavDestinationBuilder(
-                provider[NoOpNavigator::class], TestClass::class, null
+                provider[NoOpNavigator::class], TestClass::class, emptyMap()
             )
             addDestination(builder.build())
         }
@@ -153,7 +153,7 @@ class NavGraphBuilderTest {
             startDestination = route
         ) {
             val builder = NavDestinationBuilder(
-                provider[NoOpNavigator::class], TestClass::class, null
+                provider[NoOpNavigator::class], TestClass::class, emptyMap()
             )
             addDestination(builder.build())
         }
@@ -444,4 +444,5 @@ fun NavGraphBuilder.navDestination(
 fun NavGraphBuilder.navDestination(
     route: KClass<*>,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
-) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route, null).apply(builder))
+) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route, emptyMap())
+    .apply(builder))
