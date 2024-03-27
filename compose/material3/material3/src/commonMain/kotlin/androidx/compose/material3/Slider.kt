@@ -42,6 +42,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.awaitHorizontalPointerSlopOrCancellation
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.pointerSlop
 import androidx.compose.material3.tokens.SliderTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable

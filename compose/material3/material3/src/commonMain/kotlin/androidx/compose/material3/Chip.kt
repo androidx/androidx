@@ -33,6 +33,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SuggestionChipDefaults.defaultElevatedSuggestionChipColors
+import androidx.compose.material3.internal.animateElevation
+import androidx.compose.material3.internal.heightOrZero
+import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.material3.tokens.AssistChipTokens
 import androidx.compose.material3.tokens.FilterChipTokens
 import androidx.compose.material3.tokens.InputChipTokens

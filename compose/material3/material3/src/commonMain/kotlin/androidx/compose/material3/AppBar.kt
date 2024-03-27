@@ -45,6 +45,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.BottomAppBarTokens
 import androidx.compose.material3.tokens.FabSecondaryTokens
 import androidx.compose.material3.tokens.TopAppBarLargeTokens

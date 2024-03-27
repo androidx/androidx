@@ -42,6 +42,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.internal.AnchoredDraggableState
+import androidx.compose.material3.internal.DraggableAnchors
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.anchoredDraggable
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.snapTo
+import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.material3.tokens.ScrimTokens
