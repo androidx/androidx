@@ -42,7 +42,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -297,16 +300,54 @@ class SessionWorkerTest {
         sessionManager.scope.startSession(context).first()
         sessionManager.scope.closeSession()
     }
+
+    @Test
+    fun sessionWorkerClosesWithTheLock() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val runError = mutableStateOf(false)
+        val resultFlow = sessionManager.runWithLock {
+            this as TestSessionManager.TestSessionManagerScope
+            startSession(context) {
+                Text("Hello")
+                if (runError.value) throw Throwable()
+            }
+        }
+        resultFlow.first { it.isSuccess }
+
+        // Start the error within the lock
+        sessionManager.runWithLock {
+            runError.value = true
+            resultFlow.first { it.isFailure }
+            // Composition is now cancelled due to error. However, the worker should not be able to
+            // close the session channel until it has the lock. yield() here; the worker will run
+            // until it suspends to wait for the lock.
+            yield()
+            val session = checkNotNull(getSession(SESSION_KEY))
+            assertThat(session.isOpen).isTrue()
+        }
+
+        // Now that we've let go of the lock, yield() again to make sure the worker can resume
+        // from waiting for the lock and close the session.
+        yield()
+        sessionManager.runWithLock {
+            val session = checkNotNull(getSession(SESSION_KEY))
+            assertThat(session.isOpen).isFalse()
+        }
+    }
 }
 
 private const val SESSION_KEY = "123"
 
 class TestSessionManager : SessionManager {
     val scope = TestSessionManagerScope()
-    // No locking needed, tests are run on single threaded environment and is only user of this
-    // SessionManager.
+    private val mutex = Mutex()
+
     override suspend fun <T> runWithLock(block: suspend SessionManagerScope.() -> T): T =
-        scope.block()
+        mutex.withLock { scope.block() }
 
     class TestSessionManagerScope : SessionManagerScope {
         private val sessions = mutableMapOf<String, Session>()
