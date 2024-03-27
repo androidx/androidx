@@ -36,13 +36,14 @@ internal actual fun CharSequence.toCharArray(
             endIndex
         )
         else -> {
-            require(startIndex in indices && endIndex in 0..length) {
+            rangeCheck(start = startIndex, end = endIndex, length = length) {
                 "Expected source [$startIndex, $endIndex) to be in [0, $length)"
             }
             val copyLength = endIndex - startIndex
-            require(
-                destinationOffset in destination.indices &&
-                    destinationOffset + copyLength in 0..destination.size
+            rangeCheck(
+                start = destinationOffset,
+                end = destinationOffset + copyLength,
+                length = destination.size
             ) {
                 "Expected destination [$destinationOffset, ${destinationOffset + copyLength}) " +
                     "to be in [0, ${destination.size})"
@@ -53,4 +54,8 @@ internal actual fun CharSequence.toCharArray(
             }
         }
     }
+}
+
+private inline fun rangeCheck(start: Int, end: Int, length: Int, lazyMessage: () -> String) {
+    require((start >= 0) && (start <= end) && (end <= length), lazyMessage)
 }
