@@ -41,7 +41,6 @@ import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
@@ -574,6 +573,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun configureWithAppPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.extensions.getByType<AppExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
+            configureAndroidApplicationOptions(project, androidXExtension)
             excludeVersionFiles(packagingOptions.resources)
         }
 
@@ -589,10 +589,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 it.configureTests()
                 it.configureLocalAsbSigning(project.getKeystore())
             }
-            finalizeDsl { appExtension ->
-                project.configureTestConfigGeneration(appExtension)
-                appExtension.configureAndroidApplicationOptions(project, androidXExtension)
-            }
         }
 
         project.buildOnServerDependsOnAssembleRelease()
@@ -602,12 +598,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun configureWithTestPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.extensions.getByType<TestExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
-            excludeVersionFiles(packagingOptions.resources)
-        }
-
-        project.extensions.getByType<com.android.build.api.dsl.TestExtension>().apply {
-            project.configureTestConfigGeneration(this)
             project.addAppApkToTestConfigGeneration(androidXExtension)
+            excludeVersionFiles(packagingOptions.resources)
         }
 
         project.configureJavaCompilationWarnings(androidXExtension)
@@ -789,6 +781,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         val libraryExtension =
             project.extensions.getByType<LibraryExtension>().apply {
                 configureAndroidBaseOptions(project, androidXExtension)
+                project.addAppApkToTestConfigGeneration(androidXExtension)
                 configureAndroidLibraryOptions(project, androidXExtension)
 
                 // Make sure the main Kotlin source set doesn't contain anything under
@@ -808,6 +801,31 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
 
+        val libraryAndroidComponentsExtension =
+            project.extensions.getByType<LibraryAndroidComponentsExtension>()
+
+        // Remove the android:targetSdkVersion element from the manifest used for AARs.
+        libraryAndroidComponentsExtension.onVariants { variant ->
+            project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
+        }
+
+        project.extensions.getByType<com.android.build.api.dsl.LibraryExtension>().apply {
+            publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
+        }
+
+        libraryAndroidComponentsExtension.apply {
+            beforeVariants(selector().withBuildType("release")) { variant ->
+                variant.enableUnitTest = false
+            }
+            onVariants {
+                it.configureTests()
+                it.aotCompileMicrobenchmarks(project)
+            }
+        }
+
+        project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
+        project.configureJavaCompilationWarnings(androidXExtension)
+
         val reportLibraryMetrics = project.configureReportLibraryMetricsTask()
         project.addToBuildOnServer(reportLibraryMetrics)
 
@@ -819,69 +837,48 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             ) { task ->
                 task.buildSrcResDir.set(File(project.getSupportRootFolder(), "buildSrc/res"))
             }
-
-        project.extensions.getByType<LibraryAndroidComponentsExtension>().apply {
-            beforeVariants(selector().withBuildType("release")) { variant ->
-                variant.enableUnitTest = false
+        libraryAndroidComponentsExtension.onVariants { variant ->
+            configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
+            if (variant.buildType == DEFAULT_PUBLISH_CONFIG) {
+                // Standard docs, resource API, and Metalava configuration for AndroidX projects.
+                project.configureProjectForApiTasks(
+                    LibraryApiTaskConfig(libraryExtension, variant),
+                    androidXExtension
+                )
             }
-            onVariants { variant ->
-                variant.configureTests()
-                variant.aotCompileMicrobenchmarks(project)
-                // Remove the android:targetSdkVersion element from the manifest used for AARs.
-                project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
-
-                configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
-                if (variant.buildType == DEFAULT_PUBLISH_CONFIG) {
-                    // Standard docs, resource API, and Metalava configuration for AndroidX projects.
-                    project.configureProjectForApiTasks(
-                        LibraryApiTaskConfig(libraryExtension, variant),
-                        androidXExtension
-                    )
+            if (variant.name == DEFAULT_PUBLISH_CONFIG) {
+                project.configureSourceJarForAndroid(variant)
+                project.configureDependencyVerification(androidXExtension) { taskProvider ->
+                    taskProvider.configure { task ->
+                        task.dependsOn("compileReleaseJavaWithJavac")
+                    }
                 }
-                if (variant.name == DEFAULT_PUBLISH_CONFIG) {
-                    project.configureSourceJarForAndroid(variant)
-                    project.configureDependencyVerification(androidXExtension) { taskProvider ->
-                        taskProvider.configure { task ->
-                            task.dependsOn("compileReleaseJavaWithJavac")
+
+                reportLibraryMetrics.configure {
+                    it.jarFiles.from(
+                        project.tasks.named("bundleReleaseAar").map {
+                            zip -> zip.inputs.files
                         }
-                    }
-
-                    reportLibraryMetrics.configure {
-                        it.jarFiles.from(
-                            project.tasks.named("bundleReleaseAar").map {
-                                    zip -> zip.inputs.files
-                            }
-                        )
-                    }
-                }
-                val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
-                    variant.name + "VerifyELFRegionAlignment",
-                    VerifyELFRegionAlignmentTask::class.java
-                ) { task ->
-                    task.files.from(
-                        variant.artifacts.get(SingleArtifact.MERGED_NATIVE_LIBS)
-                            .map { dir ->
-                                dir.asFileTree.files
-                                    .filter { it.extension == "so" }
-                                    .filter { it.path.contains("arm64-v8a") }
-                                    .filterNot { prebuiltLibraries.contains(it.name) }
-                            }
                     )
-                    task.cacheEvenIfNoOutputs()
-                }
-                project.addToBuildOnServer(verifyELFRegionAlignmentTaskProvider)
-            }
-            finalizeDsl { libraryExtension ->
-                project.configureTestConfigGeneration(libraryExtension)
-                project.addAppApkToTestConfigGeneration(androidXExtension)
-                libraryExtension.apply {
-                    publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
                 }
             }
-            project.configureVersionFileWriter(this, androidXExtension)
+            val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
+                variant.name + "VerifyELFRegionAlignment",
+                VerifyELFRegionAlignmentTask::class.java
+            ) { task ->
+                task.files.from(
+                    variant.artifacts.get(SingleArtifact.MERGED_NATIVE_LIBS)
+                        .map { dir ->
+                            dir.asFileTree.files
+                                .filter { it.extension == "so" }
+                                .filter { it.path.contains("arm64-v8a") }
+                                .filterNot { prebuiltLibraries.contains(it.name) }
+                        }
+                )
+                task.cacheEvenIfNoOutputs()
+            }
+            project.addToBuildOnServer(verifyELFRegionAlignmentTaskProvider)
         }
-
-        project.configureJavaCompilationWarnings(androidXExtension)
 
         project.setUpCheckDocsTask(androidXExtension)
 
@@ -1072,6 +1069,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
+        project.configureTestConfigGeneration(this)
         project.configureFtlRunner(
             project.extensions.getByType(AndroidComponentsExtension::class.java)
         )
@@ -1252,7 +1250,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun ApplicationExtension.configureAndroidApplicationOptions(
+    private fun AppExtension.configureAndroidApplicationOptions(
         project: Project,
         androidXExtension: AndroidXExtension
     ) {
