@@ -459,7 +459,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      * Position of the division between split panes when [isSlideable] is `false`.
      * When the value is < 0 it should be one of the `SPLIT_DIVIDER_POSITION_*` constants,
      * e.g. [SPLIT_DIVIDER_POSITION_AUTO]. When the value is >= 0 it represents a value in pixels
-     * between 0 and [getWidth].
+     * between 0 and [getWidth]. The default value is [SPLIT_DIVIDER_POSITION_AUTO].
      *
      * Changing this property will result in a [requestLayout] and relayout of the contents
      * of the [SlidingPaneLayout].
