@@ -1983,22 +1983,22 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MapController.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method public androidx.car.app.model.Header? getHeader();
-    method public androidx.car.app.model.ItemList? getItemList();
-    method public androidx.car.app.navigation.model.MapController? getMapController();
-    method public androidx.car.app.model.Pane? getPane();
+  @Deprecated @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.ItemList? getItemList();
+    method @Deprecated public androidx.car.app.navigation.model.MapController? getMapController();
+    method @Deprecated public androidx.car.app.model.Pane? getPane();
   }
 
-  public static final class MapTemplate.Builder {
-    ctor public MapTemplate.Builder();
-    method public androidx.car.app.navigation.model.MapTemplate build();
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setHeader(androidx.car.app.model.Header);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setPane(androidx.car.app.model.Pane);
+  @Deprecated public static final class MapTemplate.Builder {
+    ctor @Deprecated public MapTemplate.Builder();
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate build();
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setPane(androidx.car.app.model.Pane);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(7) public final class MapWithContentTemplate implements androidx.car.app.model.Template {
@@ -2063,56 +2063,56 @@ package androidx.car.app.navigation.model {
     method public void onPanModeChanged(boolean);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
+  @Deprecated @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
-    method public androidx.car.app.model.ItemList? getItemList();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
-    method public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
+    method @Deprecated public androidx.car.app.model.ItemList? getItemList();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @Deprecated public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method @Deprecated public androidx.car.app.model.CarText? getTitle();
-    method public boolean isLoading();
+    method @Deprecated public boolean isLoading();
   }
 
-  public static final class PlaceListNavigationTemplate.Builder {
-    ctor public PlaceListNavigationTemplate.Builder();
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate build();
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
+  @Deprecated public static final class PlaceListNavigationTemplate.Builder {
+    ctor @Deprecated public PlaceListNavigationTemplate.Builder();
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate build();
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
+  @Deprecated @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
-    method public androidx.car.app.model.ItemList? getItemList();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
-    method public androidx.car.app.model.Action? getNavigateAction();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
+    method @Deprecated public androidx.car.app.model.ItemList? getItemList();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @Deprecated public androidx.car.app.model.Action? getNavigateAction();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method @Deprecated public androidx.car.app.model.CarText? getTitle();
-    method public boolean isLoading();
+    method @Deprecated public boolean isLoading();
   }
 
-  public static final class RoutePreviewNavigationTemplate.Builder {
-    ctor public RoutePreviewNavigationTemplate.Builder();
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate build();
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
+  @Deprecated public static final class RoutePreviewNavigationTemplate.Builder {
+    ctor @Deprecated public RoutePreviewNavigationTemplate.Builder();
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate build();
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence);
   }

@@ -37,7 +37,12 @@ import java.util.Objects;
  * list). The content is usually rendered as an overlay on top of the map tiles, with the map
  * visible and stable areas adjusting to the content.
  *
- * See {@link Builder#setContentTemplate(Template)} for the list of supported content templates.
+ * <p>See {@link Builder#setContentTemplate(Template)} for the list of supported content templates.
+ * </p>
+ *
+ * <p>In order to use this template your car app <b>MUST</b> declare that it uses <b>EITHER</b> the
+ * {@code androidx.car.app.NAVIGATION_TEMPLATES} permission <b>OR</b> the {@code
+ *  androidx.car.app.MAP_TEMPLATES} in the manifest.</p>
  */
 @CarProtocol
 @KeepFields

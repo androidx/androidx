@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,18 @@ import androidx.car.app.model.CarText;
 import androidx.car.app.model.DurationSpan;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
-import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate;
+import androidx.car.app.navigation.model.MapController;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModelFactory;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.concurrent.TimeUnit;
 
-/** Creates a screen using the {@link RoutePreviewNavigationTemplate} */
+/** Creates a screen using the new {@link MapWithContentTemplate} */
 public final class RoutePreviewDemoScreen extends Screen {
     private boolean mIsFavorite;
 
@@ -99,6 +101,7 @@ public final class RoutePreviewDemoScreen extends Screen {
 
         return new Row.Builder()
                 .setTitle(route)
+                .setOnClickListener(() -> onRouteSelected(index))
                 .addText(titleText)
                 .addAction(action)
                 .build();
@@ -107,29 +110,22 @@ public final class RoutePreviewDemoScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Action action = new Action.Builder()
-                .setIcon(buildCarIconWithResources(R.drawable.outline_info_24))
-                .setOnClickListener(() -> CarToast.makeText(getCarContext(),
-                        R.string.secondary_action_toast, LENGTH_LONG).show())
-                .build();
-
         // Adjust the item limit according to the car constrains.
         mItemLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_ROUTE_LIST);
 
-        ItemList.Builder itemListBuilder = new ItemList.Builder()
-                .setOnSelectedListener(this::onRouteSelected)
-                .setOnItemsVisibilityChangedListener(this::onRoutesVisible);
+        CarIcon navigateActionIcon = new CarIcon.Builder(IconCompat.createWithResource(
+                getCarContext(), R.drawable.ic_place_white_24dp)).build();
+        Action navigateAction = new Action.Builder()
+                .setIcon(navigateActionIcon)
+                .setOnClickListener(this::onNavigate)
+                .build();
+
+        ItemList.Builder itemListBuilder = new ItemList.Builder();
 
         for (int i = 0; i < mItemLimit; i++) {
-            itemListBuilder.addItem(createRow(i, action));
+            itemListBuilder.addItem(createRow(i, navigateAction));
         }
-
-        // Set text variants for the navigate action text.
-        CarText navigateActionText =
-                new CarText.Builder(getCarContext().getString(R.string.continue_start_nav))
-                        .addVariant(getCarContext().getString(R.string.continue_route))
-                        .build();
 
         Header header = new Header.Builder()
                 .setStartHeaderAction(Action.BACK)
@@ -168,15 +164,14 @@ public final class RoutePreviewDemoScreen extends Screen {
                 .setTitle(getCarContext().getString(R.string.route_preview_template_demo_title))
                 .build();
 
-        return new RoutePreviewNavigationTemplate.Builder()
-                .setItemList(itemListBuilder.build())
-                .setNavigateAction(
-                        new Action.Builder()
-                                .setTitle(navigateActionText)
-                                .setOnClickListener(this::onNavigate)
-                                .build())
-                .setMapActionStrip(mRoutingDemoModelFactory.getMapActionStrip())
-                .setHeader(header)
+        // RoutePreview Template is deprecated. Demo using new MapWithContent Template
+        return new MapWithContentTemplate.Builder()
+                .setContentTemplate(new ListTemplate.Builder()
+                        .setHeader(header)
+                        .setSingleList(itemListBuilder.build())
+                        .build())
+                .setMapController(new MapController.Builder().setMapActionStrip(
+                        mRoutingDemoModelFactory.getMapActionStrip()).build())
                 .build();
     }
 
@@ -190,22 +185,5 @@ public final class RoutePreviewDemoScreen extends Screen {
         CarToast.makeText(getCarContext(),
                 getCarContext().getString(R.string.selected_route_toast_msg) + ": " + index,
                 LENGTH_LONG).show();
-    }
-
-    private void onRoutesVisible(int startIndex, int endIndex) {
-        CarToast.makeText(
-                        getCarContext(),
-                        getCarContext().getString(R.string.visible_routes_toast_msg)
-                                + ": [" + startIndex + "," + endIndex + "]",
-                        LENGTH_LONG)
-                .show();
-    }
-
-    private CarIcon buildCarIconWithResources(int imageId) {
-        return new CarIcon.Builder(
-                IconCompat.createWithResource(
-                        getCarContext(),
-                        imageId))
-                .build();
     }
 }
