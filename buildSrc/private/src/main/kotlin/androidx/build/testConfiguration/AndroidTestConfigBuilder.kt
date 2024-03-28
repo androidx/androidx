@@ -365,18 +365,18 @@ private val MICROBENCHMARK_PRESUBMIT_OPTION =
 """
         .trimIndent()
 
+// NOTE: can only specify one "listener" key, must manually concat within that
 private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
     """
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener,androidx.benchmark.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
 
+// NOTE: can only specify one "listener" key, must manually concat within that
 private val MACROBENCHMARK_POSTSUBMIT_OPTIONS =
     """
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener,androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
