@@ -114,7 +114,7 @@ class ImageCaptureScreenState(
     // We need to acquire OutputTransform from PreviewView for this to work
     private val mlKitAnalyzer = MlKitAnalyzer(
         listOf(barcodeScanner),
-        COORDINATE_SYSTEM_VIEW_REFERENCED,
+        ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
         Dispatchers.Main.asExecutor()
     ) { result ->
         val barcodes = result.getValue(barcodeScanner)

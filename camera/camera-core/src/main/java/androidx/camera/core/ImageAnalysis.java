@@ -54,6 +54,7 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
+import android.view.View;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -967,6 +968,22 @@ public final class ImageAnalysis extends UseCase {
      * {@link Analyzer#updateTransform(Matrix)}.
      */
     public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
+
+    /**
+     * {@link ImageAnalysis.Analyzer} option for returning UI coordinates.
+     *
+     * <p>When the {@link ImageAnalysis.Analyzer} is configured with this option, it will receive a
+     * {@link Matrix} that will receive a value that represents the transformation from camera
+     * sensor to the {@link View}, which can be used for highlighting detected result in UI. For
+     * example, laying over a bounding box on top of the detected face.
+     *
+     * <p>Note this option will only work with an artifact that displays the camera feed in UI.
+     * Generally, this is used by higher-level libraries such as the CameraController API that
+     * incorporates a viewfinder UI. It will not be effective when used with camera-core directly.
+     *
+     * @see ImageAnalysis.Analyzer
+     */
+    public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1;
 
     /**
      * {@link ImageAnalysis.Analyzer} option for returning the sensor coordinates.
