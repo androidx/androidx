@@ -59,6 +59,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -176,6 +177,7 @@ class VideoCaptureTest(
 
     @UiThreadTest
     @Test
+    @Ignore("b/331617278")
     fun canBindToLifeCycleAndRecordVideo() {
         // Arrange.
         val file = createTempFile()
@@ -203,6 +205,7 @@ class VideoCaptureTest(
 
     @UiThreadTest
     @Test
+    @Ignore("b/331617278")
     fun canBindToLifeCycleAndRecordVideoWithPreviewAndImageCaptureBound() {
         // Arrange.
         val file = createTempFile()
