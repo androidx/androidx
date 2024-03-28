@@ -860,11 +860,10 @@ public final class ImageCapture extends UseCase {
     /**
      * Captures a new still image for in memory access.
      *
-     * <p>The callback will be called only once for every invocation of this method. The listener
-     * is responsible for calling {@link Image#close()} on the returned image.
+     * <p>The listener is responsible for calling {@link Image#close()} on the returned image.
      *
      * @param executor The executor in which the callback methods will be run.
-     * @param callback Callback to be invoked for the newly captured image
+     * @param callback Callback to be invoked for the newly captured image.
      *
      * @throws IllegalArgumentException If {@link ImageCapture#FLASH_MODE_SCREEN} is used without a
      *                                  non-null {@code ScreenFlash} instance set.
@@ -882,8 +881,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
-     *
-     * <p> The callback will be called only once for every invocation of this method.
      *
      * <p> If the {@link ImageCapture} is in a {@link UseCaseGroup} where {@link ViewPort} is
      * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
