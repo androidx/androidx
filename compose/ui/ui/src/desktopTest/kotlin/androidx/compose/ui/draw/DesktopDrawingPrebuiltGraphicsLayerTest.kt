@@ -332,7 +332,7 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
         layer: GraphicsLayer = obtainLayer()
     ): Modifier {
         return drawWithContent {
-            layer.buildLayer {
+            layer.record {
                 this@drawWithContent.drawContent()
             }
             drawLayer(layer)

@@ -164,7 +164,7 @@ class DrawModifierTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testBuildLayerWithCache() {
+    fun testRecordWithCache() {
         var graphicsLayer: GraphicsLayer? = null
         val testTag = "TestTag"
         val size = 120.dp
@@ -179,13 +179,12 @@ class DrawModifierTest {
                 .then(
                     Modifier.drawWithCache {
                         val layer = obtainGraphicsLayer().also { graphicsLayer = it }
-                        layer
-                            .buildLayer {
+                        layer.apply {
+                            record {
                                 drawContent()
                             }
-                            .apply {
-                                this.colorFilter = ColorFilter.tint(tintColor)
-                            }
+                            this.colorFilter = ColorFilter.tint(tintColor)
+                        }
                         onDrawWithContent {
                             drawLayer(layer)
                         }
@@ -217,7 +216,7 @@ class DrawModifierTest {
         val drawGraphicsLayer = mutableStateOf(0)
         val rectColor = Color.Red
         val bgColor = Color.Blue
-        var isLayerBuilt = false
+        var isLayerRecorded = false
         rule.setContent {
             val graphicsLayer = rememberGraphicsLayer()
             assertEquals(IntSize.Zero, graphicsLayer.size)
@@ -226,11 +225,11 @@ class DrawModifierTest {
                 .testTag(testTag)
                 .then(
                     Modifier.drawWithCache {
-                        if (!isLayerBuilt) {
-                            graphicsLayer.buildLayer {
+                        if (!isLayerRecorded) {
+                            graphicsLayer.record {
                                 drawRect(rectColor)
                             }
-                            isLayerBuilt = true
+                            isLayerRecorded = true
                         }
                         onDrawWithContent {
                             drawRect(bgColor)
@@ -271,7 +270,7 @@ class DrawModifierTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testBuildLayerDrawContent() {
+    fun testRecordDrawContent() {
         val testTag = "TestTag"
         val targetColor = Color.Blue
         rule.setContent {
@@ -282,7 +281,7 @@ class DrawModifierTest {
                         .size(40.dp)
                         .background(Color.Green)
                         .drawWithContent {
-                            layer.buildLayer {
+                            layer.record {
                                 this@drawWithContent.drawContent()
                             }
                             drawLayer(layer)

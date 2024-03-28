@@ -208,7 +208,7 @@ internal class GraphicsLayerV29(
 
     override var isInvalidated: Boolean = true
 
-    override fun buildLayer(
+    override fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,

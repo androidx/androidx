@@ -52,7 +52,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(Color.Red)
                     }
                 }
@@ -67,11 +67,11 @@ class DesktopGraphicsLayerTest {
     }
 
     @Test
-    fun testBuildLayerWithSize() {
+    fun testRecordWithSize() {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer(
+                    record(
                         size = IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)
                     ) {
                         drawRect(Color.Red)
@@ -86,16 +86,17 @@ class DesktopGraphicsLayerTest {
     }
 
     @Test
-    fun testBuildLayerWithOffset() {
+    fun testRecordWithOffset() {
         var layer: GraphicsLayer? = null
         val topLeft = IntOffset(TEST_WIDTH / 2, TEST_HEIGHT / 2)
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(Color.Red)
-                    }.topLeft = topLeft
+                    }
+                    this.topLeft = topLeft
                 }
                 drawLayer(layer!!)
             },
@@ -115,11 +116,12 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         inset(0f, 0f, -4f, -4f) {
                             drawRect(Color.Red)
                         }
-                    }.topLeft = topLeft
+                    }
+                    this.topLeft = topLeft
                 }
                 drawLayer(layer!!)
             },
@@ -142,7 +144,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(
                             Color.Red,
                             size = Size(this.size.width / 2, this.size.height / 2)
@@ -169,7 +171,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(
                             Color.Red,
                             size = Size(this.size.width / 2, this.size.height / 2)
@@ -196,7 +198,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         inset(this.size.width / 4, this.size.height / 4) {
                             drawRect(Color.Red)
                         }
@@ -222,7 +224,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(Color.Red)
                     }
                     scaleY = 0.5f
@@ -247,7 +249,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(Color.Red, size = this.size / 2f)
                     }
                     translationX = this.size.width / 2f
@@ -270,7 +272,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(Color.Red, size = this.size / 2f)
                     }
                     translationY = this.size.height / 2f
@@ -291,7 +293,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(
                             Color.Red,
                             size = Size(100000f, 100000f)
@@ -318,7 +320,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(
                             Color.Red,
                             size = Size(100000f, 100000f)
@@ -362,7 +364,7 @@ class DesktopGraphicsLayerTest {
                 )
 
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer(halfSize) {
+                    record(halfSize) {
                         drawRect(targetColor)
                     }
                     shadowElevation = 10f
@@ -409,7 +411,7 @@ class DesktopGraphicsLayerTest {
                 )
 
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer(halfSize) {
+                    record(halfSize) {
                         drawRect(targetColor)
                     }
                     setPathOutline(
@@ -474,7 +476,7 @@ class DesktopGraphicsLayerTest {
                 bottom = top + halfSize.height
 
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer(halfSize) {
+                    record(halfSize) {
                         drawRect(targetColor)
                     }
                     setRoundRectOutline(IntOffset.Zero, halfSize, radius)
@@ -555,7 +557,7 @@ class DesktopGraphicsLayerTest {
                 layer = graphicsContext.createGraphicsLayer().apply {
                     compositingStrategy = CompositingStrategy.Auto
                     alpha = 0.5f
-                    buildLayer {
+                    record {
                         inset(0f, 0f, size.width / 3, size.height / 3) {
                             drawRect(color = Color.Red)
                         }
@@ -592,7 +594,7 @@ class DesktopGraphicsLayerTest {
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
                     compositingStrategy = CompositingStrategy.Offscreen
-                    buildLayer {
+                    record {
                         inset(0f, 0f, size.width / 3, size.height / 3) {
                             drawRect(color = Color.Red)
                         }
@@ -625,7 +627,7 @@ class DesktopGraphicsLayerTest {
                 layer = graphicsContext.createGraphicsLayer().apply {
                     compositingStrategy = CompositingStrategy.ModulateAlpha
                     alpha = 0.5f
-                    buildLayer {
+                    record {
                         inset(0f, 0f, size.width / 3, size.height / 3) {
                             drawRect(color = Color.Red)
                         }
@@ -662,7 +664,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(Color.Red)
                     }.apply {
                         colorFilter = ColorFilter.tint(Color.Blue)
@@ -697,12 +699,11 @@ class DesktopGraphicsLayerTest {
                         (drawScopeSize.width / 2).toInt(),
                         (drawScopeSize.height / 2).toInt()
                     )
-                    buildLayer(layerSize) {
+                    record(layerSize) {
                         drawRect(Color.Red)
-                    }.apply {
-                        this.topLeft = topLeft
-                        this.blendMode = BlendMode.Xor
                     }
+                    this.topLeft = topLeft
+                    this.blendMode = BlendMode.Xor
                 }
                 drawRect(Color.Green)
                 drawLayer(layer!!)
@@ -745,7 +746,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(targetColor)
                     }
                     setRectOutline(this.size.center, this.size / 2)
@@ -790,7 +791,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(targetColor)
                     }
                     setPathOutline(Path().apply {
@@ -845,7 +846,7 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 layer = graphicsContext.createGraphicsLayer().apply {
-                    buildLayer {
+                    record {
                         drawRect(targetColor)
                     }
                     setRoundRectOutline(

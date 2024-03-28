@@ -83,7 +83,7 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
                     // actually doing a placeholder render before the activity is setup
                     // (ex in unit tests) causes the emulator to crash with an NPE in native code
                     // on the HWUI canvas implementation
-                    layer.buildLayer(
+                    layer.record(
                         DefaultDensity,
                         LayoutDirection.Ltr,
                         IntSize(1, 1),

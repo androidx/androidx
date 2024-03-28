@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -225,6 +225,25 @@ interface GraphicsLayerScope : Density {
         get() = Size.Unspecified
 }
 
+private class GraphicsContextObserver(
+    private val graphicsContext: GraphicsContext
+) : RememberObserver {
+
+    val graphicsLayer = graphicsContext.createGraphicsLayer()
+
+    override fun onRemembered() {
+        // NO-OP
+    }
+
+    override fun onForgotten() {
+        graphicsContext.releaseGraphicsLayer(graphicsLayer)
+    }
+
+    override fun onAbandoned() {
+        graphicsContext.releaseGraphicsLayer(graphicsLayer)
+    }
+}
+
 /**
  * Create a new [GraphicsLayer] instance that will automatically be released when the Composable
  * is disposed.
@@ -235,15 +254,7 @@ interface GraphicsLayerScope : Density {
 @ComposableOpenTarget(-1)
 fun rememberGraphicsLayer(): GraphicsLayer {
     val graphicsContext = LocalGraphicsContext.current
-    val layer = remember {
-        graphicsContext.createGraphicsLayer()
-    }
-    DisposableEffect(layer) {
-        onDispose {
-            graphicsContext.releaseGraphicsLayer(layer)
-        }
-    }
-    return layer
+    return remember { GraphicsContextObserver(graphicsContext) }.graphicsLayer
 }
 
 /**
