@@ -253,8 +253,7 @@ public class StreamSharing extends UseCase {
                 isMirroringRequired(camera)); // Mirroring can be overridden by children.
         mSharingInputEdge = getSharingInputEdge(mCameraEdge, camera);
 
-        mSharingNode = new SurfaceProcessorNode(camera,
-                DefaultSurfaceProcessor.Factory.newInstance(streamSpec.getDynamicRange()));
+        mSharingNode = getSharingNode(camera, streamSpec);
 
         // Transform the input based on virtual camera configuration.
         boolean isViewportSet = getViewPortCropRect() != null;
@@ -314,9 +313,17 @@ public class StreamSharing extends UseCase {
     @NonNull
     private SurfaceEdge getSharingInputEdge(@NonNull SurfaceEdge cameraEdge,
             @NonNull CameraInternal camera) {
-        if (getEffect() == null
-                || getEffect().getTransformation() == CameraEffect.TRANSFORMATION_PASSTHROUGH) {
+        if (getEffect() == null) {
             // No effect. The input edge is the camera edge.
+            return cameraEdge;
+        }
+        if (getEffect().getTransformation() == CameraEffect.TRANSFORMATION_PASSTHROUGH) {
+            // This is a passthrough effect for testing.
+            return cameraEdge;
+        }
+        if (getEffect().getOutputOption() == CameraEffect.OUTPUT_OPTION_ONE_FOR_EACH_TARGET) {
+            // When OUTPUT_OPTION_ONE_FOR_EACH_TARGET is used, we will apply the effect at the
+            // sharing stage.
             return cameraEdge;
         }
         // Transform the camera edge to get the input edge.
@@ -336,6 +343,23 @@ public class StreamSharing extends UseCase {
                 singletonList(outConfig));
         SurfaceProcessorNode.Out out = mEffectNode.transform(in);
         return requireNonNull(out.get(outConfig));
+    }
+
+    @NonNull
+    private SurfaceProcessorNode getSharingNode(@NonNull CameraInternal camera,
+            @NonNull StreamSpec streamSpec) {
+        if (getEffect() != null
+                && getEffect().getOutputOption()
+                == CameraEffect.OUTPUT_OPTION_ONE_FOR_EACH_TARGET) {
+            // The effect wants to handle the sharing itself. Use the effect's node for sharing.
+            mEffectNode = new SurfaceProcessorNode(camera,
+                    getEffect().createSurfaceProcessorInternal());
+            return mEffectNode;
+        } else {
+            // Create an internal node for sharing.
+            return new SurfaceProcessorNode(camera,
+                    DefaultSurfaceProcessor.Factory.newInstance(streamSpec.getDynamicRange()));
+        }
     }
 
     private int getRotationAppliedByEffect() {
