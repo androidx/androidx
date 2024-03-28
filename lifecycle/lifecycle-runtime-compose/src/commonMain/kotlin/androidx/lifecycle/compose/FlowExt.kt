@@ -53,6 +53,7 @@ import kotlinx.coroutines.withContext
  * @param context [CoroutineContext] to use for collecting.
  */
 @Composable
+@Suppress("StateFlowValueCalledInComposition") // Initial value for an ongoing collect.
 fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
@@ -87,6 +88,7 @@ fun <T> StateFlow<T>.collectAsStateWithLifecycle(
  * @param context [CoroutineContext] to use for collecting.
  */
 @Composable
+@Suppress("StateFlowValueCalledInComposition") // Initial value for an ongoing collect.
 fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycle: Lifecycle,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
