@@ -1655,7 +1655,7 @@ private fun TimePickerTextField(
                     interactionSource = interactionSource,
                     contentPadding = PaddingValues(0.dp),
                     container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
+                        OutlinedTextFieldDefaults.Container(
                             enabled = true,
                             isError = false,
                             interactionSource = interactionSource,
