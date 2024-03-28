@@ -20,46 +20,32 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
-import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
-import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
-import androidx.privacysandbox.ui.client.view.SandboxedSdkView
-import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
-import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var sdkSandboxManager: SdkSandboxManagerCompat
-
-    private lateinit var sdkApi: ISdkApi
-
-    private lateinit var webViewBannerView: SandboxedSdkView
-    private lateinit var bottomBannerView: SandboxedSdkView
-    private lateinit var resizableBannerView: SandboxedSdkView
-    private lateinit var newAdButton: Button
-    private lateinit var resizeButton: Button
-    private lateinit var resizeSdkButton: Button
-    private lateinit var mediationSwitch: SwitchMaterial
-    private lateinit var localWebViewToggle: SwitchMaterial
-    private lateinit var appOwnedMediateeToggleButton: SwitchMaterial
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var currentFragment: BaseFragment
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        drawerLayout = findViewById(R.id.drawer)
+        navigationView = findViewById(R.id.navigation_view)
 
         sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
 
@@ -67,9 +53,9 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val loadedSdks = sdkSandboxManager.getSandboxedSdks()
-                var loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
+                val loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
                 if (loadedSdk == null) {
-                    loadedSdk = sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
+                    sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
                     sdkSandboxManager.loadSdk(MEDIATEE_SDK_NAME, Bundle())
                     sdkSandboxManager.registerAppOwnedSdkSandboxInterface(
                         AppOwnedSdkSandboxInterfaceCompat(
@@ -79,131 +65,70 @@ class MainActivity : AppCompatActivity() {
                         )
                     )
                 }
-                onLoadedSdk(loadedSdk)
+                switchContentFragment(MainFragment(), "Main CUJ")
+                initializeOptionsButton()
+                initializeDrawer()
             } catch (e: LoadSdkCompatException) {
-                Log.i(TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
-                    " and errorMsg: " + e.message)
+                Log.i(
+                    TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
+                        " and errorMsg: " + e.message
+                )
             }
         }
     }
 
-    private fun onLoadedSdk(sandboxedSdk: SandboxedSdkCompat) {
-        Log.i(TAG, "Loaded successfully")
-        sdkApi = ISdkApi.Stub.asInterface(sandboxedSdk.getInterface())
-
-        webViewBannerView = findViewById(R.id.webview_ad_view)
-        bottomBannerView = SandboxedSdkView(this@MainActivity)
-        resizableBannerView = findViewById(R.id.resizable_ad_view)
-        newAdButton = findViewById(R.id.new_ad_button)
-        resizeButton = findViewById(R.id.resize_button)
-        resizeSdkButton = findViewById(R.id.resize_sdk_button)
-        mediationSwitch = findViewById(R.id.mediation_switch)
-        localWebViewToggle = findViewById(R.id.local_to_internet_switch)
-        appOwnedMediateeToggleButton = findViewById(R.id.app_owned_mediatee_switch)
-
-        loadWebViewBannerAd()
-        loadBottomBannerAd()
-        loadResizableBannerAd()
-    }
-
-    private fun loadWebViewBannerAd() {
-        webViewBannerView.addStateChangedListener(StateChangeListener(webViewBannerView))
-        webViewBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadLocalWebViewAd()
-        ))
-
-        localWebViewToggle.setOnCheckedChangeListener { _: View, isChecked: Boolean ->
-            if (isChecked) {
-                webViewBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                    sdkApi.loadLocalWebViewAd()
-                ))
+    private fun initializeOptionsButton() {
+        val button: Button = findViewById(R.id.toggle_drawer_button)
+        button.setOnClickListener {
+            if (drawerLayout.isOpen) {
+                drawerLayout.closeDrawers()
             } else {
-                webViewBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                    sdkApi.loadWebViewAd()
-                ))
+                currentFragment.handleDrawerStateChange(true)
+                drawerLayout.open()
             }
         }
     }
 
-    private fun loadBottomBannerAd() {
-        bottomBannerView.addStateChangedListener(StateChangeListener(bottomBannerView))
-        bottomBannerView.layoutParams = findViewById<LinearLayout>(
-            R.id.bottom_banner_container).layoutParams
-        runOnUiThread {
-            findViewById<LinearLayout>(R.id.bottom_banner_container).addView(bottomBannerView)
-        }
-        bottomBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadTestAd(/*text=*/ "Hey!")
-        ))
-    }
-
-    private fun loadResizableBannerAd() {
-        resizableBannerView.addStateChangedListener(
-            StateChangeListener(resizableBannerView))
-        resizableBannerView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Resizable View")
-        ))
-
-        var count = 1
-        var loadMediateeFromApp = false
-        appOwnedMediateeToggleButton.setOnCheckedChangeListener { _, isChecked ->
-            loadMediateeFromApp = isChecked
-        }
-        newAdButton.setOnClickListener {
-            if (mediationSwitch.isChecked) {
-                resizableBannerView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadMediatedTestAd(count, loadMediateeFromApp)
-                ))
-            } else {
-                resizableBannerView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Ad #$count")
-                ))
+    private fun initializeDrawer() {
+        drawerLayout.addDrawerListener(object : DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
             }
-            count++
-        }
 
-        val maxWidthPixels = 1000
-        val maxHeightPixels = 1000
-        val newSize = { currentSize: Int, maxSize: Int ->
-            (currentSize + (100..200).random()) % maxSize
-        }
-
-        resizeButton.setOnClickListener {
-            val newWidth = newSize(resizableBannerView.width, maxWidthPixels)
-            val newHeight = newSize(resizableBannerView.height, maxHeightPixels)
-            resizableBannerView.layoutParams =
-                resizableBannerView.layoutParams.apply {
-                    width = newWidth
-                    height = newHeight
+            override fun onDrawerOpened(drawerView: View) {
+                // we handle this in the button onClick instead
             }
-        }
 
-        resizeSdkButton.setOnClickListener {
-            val newWidth = newSize(resizableBannerView.width, maxWidthPixels)
-            val newHeight = newSize(resizableBannerView.height, maxHeightPixels)
-            sdkApi.requestResize(newWidth, newHeight)
-        }
-    }
+            override fun onDrawerClosed(drawerView: View) {
+                currentFragment.handleDrawerStateChange(false)
+            }
 
-    private inner class StateChangeListener(val view: SandboxedSdkView) :
-        SandboxedSdkUiSessionStateChangedListener {
-        override fun onStateChanged(state: SandboxedSdkUiSessionState) {
-            Log.i(TAG, "UI session state changed to: " + state.toString())
-            if (state is SandboxedSdkUiSessionState.Error) {
-                // If the session fails to open, display the error.
-                val parent = view.parent as ViewGroup
-                val index = parent.indexOfChild(view)
-                val textView = TextView(this@MainActivity)
-                textView.text = state.throwable.message
-
-                runOnUiThread {
-                    parent.removeView(view)
-                    parent.addView(textView, index)
+            override fun onDrawerStateChanged(newState: Int) {
+            }
+        })
+        navigationView.setNavigationItemSelectedListener {
+            val itemId = it.itemId
+            when (itemId) {
+                R.id.item_main -> switchContentFragment(MainFragment(), it.title)
+                R.id.item_empty -> switchContentFragment(EmptyFragment(), it.title)
+                else -> {
+                    Log.e(TAG, "Invalid fragment option")
+                    true
                 }
             }
         }
+    }
+
+    private fun switchContentFragment(fragment: BaseFragment, title: CharSequence?): Boolean {
+        drawerLayout.closeDrawers()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.content_fragment_container, fragment).commit()
+        currentFragment = fragment
+        title?.let {
+            runOnUiThread {
+                setTitle(it)
+            }
+        }
+        return true
     }
 
     companion object {
