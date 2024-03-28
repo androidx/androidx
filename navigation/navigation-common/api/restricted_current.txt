@@ -142,6 +142,10 @@ package androidx.navigation {
   public static final class NavBackStackEntry.Companion {
   }
 
+  public final class NavBackStackEntryKt {
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public static inline <reified T> T toRoute(androidx.navigation.NavBackStackEntry);
+  }
+
   public final class NavDeepLink {
     method public String? getAction();
     method public String? getMimeType();
