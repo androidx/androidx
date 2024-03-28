@@ -303,9 +303,7 @@ private class DelegatingThemeAwareRippleNode(
     private var rippleNode: DelegatableNode? = null
 
     override fun onAttach() {
-        observeReads {
-            updateConfiguration()
-        }
+        updateConfiguration()
     }
 
     override fun onObservedReadsChanged() {
@@ -317,11 +315,13 @@ private class DelegatingThemeAwareRippleNode(
      * [RippleConfiguration.rippleAlpha] are handled as part of the ripple definition.
      */
     private fun updateConfiguration() {
-        val configuration = currentValueOf(LocalRippleConfiguration)
-        if (!configuration.isEnabled) {
-            removeRipple()
-        } else {
-            if (rippleNode == null) attachNewRipple()
+        observeReads {
+            val configuration = currentValueOf(LocalRippleConfiguration)
+            if (!configuration.isEnabled) {
+                removeRipple()
+            } else {
+                if (rippleNode == null) attachNewRipple()
+            }
         }
     }
 

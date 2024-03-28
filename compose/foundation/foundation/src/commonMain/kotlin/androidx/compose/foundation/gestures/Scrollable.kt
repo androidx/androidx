@@ -388,10 +388,8 @@ private class ScrollableNode(
         update(CanDragCalculation, enabled, interactionSource, resetPointerInputHandling)
     }
 
-    @Suppress("SuspiciousCompositionLocalModifierRead")
     override fun onAttach() {
         updateDefaultFlingBehavior()
-        observeReads { currentValueOf(LocalDensity) } // monitor change in Density
         scrollConfig = platformScrollConfig()
     }
 
@@ -401,8 +399,11 @@ private class ScrollableNode(
     }
 
     private fun updateDefaultFlingBehavior() {
-        val density = currentValueOf(LocalDensity)
-        defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+        // monitor change in Density
+        observeReads {
+            val density = currentValueOf(LocalDensity)
+            defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+        }
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
