@@ -2127,9 +2127,15 @@ internal class ComposerImpl(
                 writer.anchor(group)
             } else null
         } else {
-            if (reader.isAfterFirstChild)
-                reader.anchor(reader.currentGroup - 1)
-            else null
+            if (reader.isAfterFirstChild) {
+                var group = reader.currentGroup - 1
+                var parent = reader.parent(group)
+                while (parent != reader.parent && parent >= 0) {
+                    group = parent
+                    parent = reader.parent(group)
+                }
+                reader.anchor(group)
+            } else null
         }
 
     override val compositionData: CompositionData get() = slotTable

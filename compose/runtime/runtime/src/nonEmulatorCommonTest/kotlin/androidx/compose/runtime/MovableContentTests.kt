@@ -1592,6 +1592,34 @@ class MovableContentTests {
 
         revalidate()
     }
+
+    @Test
+    fun movableContent_rememberOrdering() = compositionTest {
+        val movableContent1 = movableContentOf {
+            repeat(100) {
+                Text("Some content")
+            }
+        }
+        var includeContent by mutableStateOf(true)
+        var rememberKey by mutableStateOf(0)
+
+        compose {
+            if (includeContent) {
+                movableContent1()
+            }
+            val a = remember(rememberKey) {
+                SimpleRememberedObject("Key $rememberKey")
+            }
+            Text(a.name)
+        }
+
+        rememberKey++
+        expectChanges()
+
+        includeContent = false
+        rememberKey++
+        expectChanges()
+    }
 }
 
 @Composable
@@ -1754,5 +1782,16 @@ class RememberedObject : RememberObserver {
         abandonedCount++
         count--
         if (count == 0) died = true
+    }
+}
+
+class SimpleRememberedObject(val name: String) : RememberObserver {
+    override fun onRemembered() {
+    }
+
+    override fun onForgotten() {
+    }
+
+    override fun onAbandoned() {
     }
 }
