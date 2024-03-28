@@ -30,13 +30,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
+import android.hardware.biometrics.BiometricManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
 import android.os.Bundle;
 import android.service.credentials.CredentialEntry;
 
+import androidx.annotation.RequiresApi;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
 import androidx.credentials.provider.BeginGetCredentialOption;
 import androidx.credentials.provider.BeginGetCustomCredentialOption;
+import androidx.credentials.provider.BiometricPromptData;
 import androidx.credentials.provider.CustomCredentialEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -47,8 +52,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.Instant;
+
+import javax.crypto.NullCipher;
+
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 public class CustomCredentialEntryJavaTest {
     private static final CharSequence TITLE = "title";
@@ -61,6 +69,11 @@ public class CustomCredentialEntryJavaTest {
     private static final Long LAST_USED_TIME = 10L;
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
+    @RequiresApi(28) // CryptoObject necessitates a minimum API level of 28
+    private static final BiometricPromptData TEST_BIOMETRIC_DATA = new BiometricPromptData.Builder()
+            .setCryptoObject(new BiometricPrompt.CryptoObject(new NullCipher()))
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .build();
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
     private final BeginGetCredentialOption mBeginCredentialOption =
             new BeginGetCustomCredentialOption(
@@ -291,7 +304,7 @@ public class CustomCredentialEntryJavaTest {
         ).build();
     }
     private CustomCredentialEntry constructEntryWithAllParams() {
-        return new CustomCredentialEntry.Builder(
+        CustomCredentialEntry.Builder testBuilder = new CustomCredentialEntry.Builder(
                 mContext,
                 TYPE,
                 TITLE,
@@ -302,8 +315,12 @@ public class CustomCredentialEntryJavaTest {
                 .setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED)
                 .setTypeDisplayName(TYPE_DISPLAY_NAME)
                 .setEntryGroupId(ENTRY_GROUP_ID)
-                .setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT)
-                .build();
+                .setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            testBuilder.setBiometricPromptData(TEST_BIOMETRIC_DATA);
+        }
+        return testBuilder.build();
     }
     private void assertEntryWithRequiredParams(CustomCredentialEntry entry) {
         assertThat(TITLE.equals(entry.getTitle()));
@@ -313,6 +330,7 @@ public class CustomCredentialEntryJavaTest {
         assertThat(entry.getEntryGroupId()).isEqualTo(TITLE);
         assertThat(entry.isDefaultIconPreferredAsSingleProvider()).isEqualTo(
                 DEFAULT_SINGLE_PROVIDER_ICON_BIT);
+        assertThat(entry.getBiometricPromptData()).isNull();
     }
     private void assertEntryWithRequiredParamsFromSlice(CustomCredentialEntry entry) {
         assertThat(TITLE.equals(entry.getTitle()));
@@ -322,6 +340,7 @@ public class CustomCredentialEntryJavaTest {
         assertThat(entry.getEntryGroupId()).isEqualTo(TITLE);
         assertThat(entry.isDefaultIconPreferredAsSingleProvider()).isEqualTo(
                 DEFAULT_SINGLE_PROVIDER_ICON_BIT);
+        assertThat(entry.getBiometricPromptData()).isNull();
     }
     private void assertEntryWithAllParams(CustomCredentialEntry entry) {
         assertThat(TITLE.equals(entry.getTitle()));
@@ -338,6 +357,13 @@ public class CustomCredentialEntryJavaTest {
         assertThat(entry.getEntryGroupId()).isEqualTo(ENTRY_GROUP_ID);
         assertThat(entry.isDefaultIconPreferredAsSingleProvider()).isEqualTo(
                 SINGLE_PROVIDER_ICON_BIT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                && entry.getBiometricPromptData() != null) {
+            assertThat(entry.getBiometricPromptData().getAllowedAuthenticators()).isEqualTo(
+                    TEST_BIOMETRIC_DATA.getAllowedAuthenticators());
+        } else {
+            assertThat(entry.getBiometricPromptData()).isNull();
+        }
     }
     private void assertEntryWithAllParamsFromSlice(CustomCredentialEntry entry) {
         assertThat(TITLE.equals(entry.getTitle()));
@@ -353,5 +379,12 @@ public class CustomCredentialEntryJavaTest {
         assertThat(entry.getEntryGroupId()).isEqualTo(ENTRY_GROUP_ID);
         assertThat(entry.isDefaultIconPreferredAsSingleProvider()).isEqualTo(
                 SINGLE_PROVIDER_ICON_BIT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                && entry.getBiometricPromptData() != null) {
+            assertThat(entry.getBiometricPromptData().getAllowedAuthenticators()).isEqualTo(
+                    TEST_BIOMETRIC_DATA.getAllowedAuthenticators());
+        } else {
+            assertThat(entry.getBiometricPromptData()).isNull();
+        }
     }
 }
