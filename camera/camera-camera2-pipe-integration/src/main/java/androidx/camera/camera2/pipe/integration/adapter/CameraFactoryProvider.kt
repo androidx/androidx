@@ -34,7 +34,8 @@ import androidx.camera.core.impl.CameraThreadConfig
 
 /**
  * The [CameraFactoryProvider] is responsible for creating the root dagger component that is used
- * to share resources across Camera instances.
+ * to share resources across Camera instances. There should generally be one
+ * [CameraFactoryProvider] instance per CameraX instance.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraFactoryProvider(
@@ -42,13 +43,11 @@ class CameraFactoryProvider(
     private val sharedAppContext: Context? = null,
     private val sharedThreadConfig: CameraThreadConfig? = null
 ) : CameraFactory.Provider {
-    private val cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
+    private val sharedInteropCallbacks = CameraInteropStateCallbackRepository()
     private val lock = Any()
 
     @GuardedBy("lock")
     private var cachedCameraPipe: Pair<Context, Lazy<CameraPipe>>? = null
-
-    private var cameraOpenRetryMaxTimeoutNs: DurationNs? = null
 
     override fun newInstance(
         context: Context,
@@ -57,21 +56,24 @@ class CameraFactoryProvider(
         cameraOpenRetryMaxTimeoutInMs: Long
     ): CameraFactory {
 
-        this.cameraOpenRetryMaxTimeoutNs = if (cameraOpenRetryMaxTimeoutInMs != -1L) null
+        val openRetryMaxTimeout = if (cameraOpenRetryMaxTimeoutInMs != -1L) null
         else DurationNs(cameraOpenRetryMaxTimeoutInMs)
 
-        val lazyCameraPipe = getOrCreateCameraPipe(context)
+        val lazyCameraPipe = getOrCreateCameraPipe(context, openRetryMaxTimeout)
 
         return CameraFactoryAdapter(
             lazyCameraPipe,
             sharedAppContext ?: context,
             sharedThreadConfig ?: threadConfig,
-            cameraInteropStateCallbackRepository,
+            sharedInteropCallbacks,
             availableCamerasLimiter
         )
     }
 
-    private fun getOrCreateCameraPipe(context: Context): Lazy<CameraPipe> {
+    private fun getOrCreateCameraPipe(
+        context: Context,
+        openRetryMaxTimeout: DurationNs?,
+    ): Lazy<CameraPipe> {
         if (sharedCameraPipe != null) {
             return lazyOf(sharedCameraPipe)
         }
@@ -79,19 +81,22 @@ class CameraFactoryProvider(
         synchronized(lock) {
             val existing = cachedCameraPipe
             if (existing == null) {
-                val sharedCameraPipe = lazy { createCameraPipe(context) }
-                cachedCameraPipe = context to sharedCameraPipe
-                return sharedCameraPipe
+                val lazyCameraPipe = lazy {
+                    createCameraPipe(context, openRetryMaxTimeout)
+                }
+                cachedCameraPipe = context to lazyCameraPipe
+                return lazyCameraPipe
             } else {
                 check(context == existing.first) {
-                    "Mismatched context! Expected ${existing.first} but was $context"
+                    "Failed to create CameraPipe, existing instance was created using " +
+                        "${existing.first}, but received $context."
                 }
                 return existing.second
             }
         }
     }
 
-    private fun createCameraPipe(context: Context): CameraPipe {
+    private fun createCameraPipe(context: Context, openRetryMaxTimeout: DurationNs?): CameraPipe {
         Debug.traceStart { "Create CameraPipe" }
         val timeSource = SystemTimeSource()
         val start = Timestamps.now(timeSource)
@@ -100,9 +105,9 @@ class CameraFactoryProvider(
             CameraPipe.Config(
                 appContext = context.applicationContext,
                 cameraInteropConfig = CameraPipe.CameraInteropConfig(
-                    cameraInteropStateCallbackRepository.deviceStateCallback,
-                    cameraInteropStateCallbackRepository.sessionStateCallback,
-                    cameraOpenRetryMaxTimeoutNs
+                    sharedInteropCallbacks.deviceStateCallback,
+                    sharedInteropCallbacks.sessionStateCallback,
+                    openRetryMaxTimeout
                 )
             )
         )
