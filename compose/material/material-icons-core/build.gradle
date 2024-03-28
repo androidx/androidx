@@ -115,6 +115,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose Material Design core icons. This module contains the most commonly used set of Material icons."
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
 }
 
 android {

@@ -235,7 +235,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 sources.elements.map { jars ->
                     // Now that we publish sample jars, they can get confused with normal source
                     // jars. We want to handle sample jars separately, so filter by the name.
-                    jars.filter { "samples" !in it.toString() }.map { jar ->
+                    jars.filter { "samples" !in it.toString() }
+                        .map { it.asFile }.toSortedSet().map { jar ->
                         localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
                     }
                 }
@@ -764,7 +765,12 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        val sources = inputJars.get().associate { it.name to archiveOperations.zipTree(it) }
+        val sources = inputJars.get()
+            // Now that we publish sample jars, they can get confused with normal source
+            // jars. We want to handle sample jars separately, so filter by the name.
+            .filter { "samples" !in it.toString() }
+            .associate { it.name to archiveOperations.zipTree(it) }
+            .toSortedMap()
         fileSystemOperations.sync {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
             it.from(sources.values)
