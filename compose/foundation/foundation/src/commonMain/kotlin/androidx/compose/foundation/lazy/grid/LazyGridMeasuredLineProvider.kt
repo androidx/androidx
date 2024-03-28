@@ -77,8 +77,8 @@ internal abstract class LazyGridMeasuredLineProvider(
             val constraints = childConstraints(startSlot, span)
             measuredItemProvider.getAndMeasure(
                 lineConfiguration.firstItemIndex + it,
-                mainAxisSpacing,
-                constraints
+                constraints,
+                mainAxisSpacing
             ).also { startSlot += span }
         }
         return createLine(

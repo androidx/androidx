@@ -962,7 +962,8 @@ package androidx.compose.foundation.lazy.grid {
   }
 
   @androidx.compose.foundation.lazy.grid.LazyGridScopeMarker @androidx.compose.runtime.Stable public sealed interface LazyGridItemScope {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.ui.Modifier animateItemPlacement(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec);
+    method public androidx.compose.ui.Modifier animateItem(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeInSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>? placementSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeOutSpec);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public default androidx.compose.ui.Modifier animateItemPlacement(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec);
   }
 
   @androidx.compose.foundation.lazy.grid.LazyGridScopeMarker public sealed interface LazyGridItemSpanScope {

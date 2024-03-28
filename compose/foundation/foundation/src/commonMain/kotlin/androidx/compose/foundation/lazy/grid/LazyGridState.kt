@@ -27,6 +27,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -219,7 +220,7 @@ class LazyGridState constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal val placementAnimator = LazyGridItemPlacementAnimator()
+    internal val itemAnimator = LazyLayoutItemAnimator<LazyGridMeasuredItem>()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
@@ -297,7 +298,7 @@ class LazyGridState constructor(
         // reset previously known item positions as we don't want offset changes to be animated.
         // this offset should be considered as a scroll, not the placement change.
         if (positionChanged) {
-            placementAnimator.reset()
+            itemAnimator.reset()
         }
         scrollPosition.requestPositionAndForgetLastKnownKey(index, scrollOffset)
         if (forceRemeasure) {
@@ -306,7 +307,6 @@ class LazyGridState constructor(
             measurementScopeInvalidator.invalidateScope()
         }
     }
-
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be

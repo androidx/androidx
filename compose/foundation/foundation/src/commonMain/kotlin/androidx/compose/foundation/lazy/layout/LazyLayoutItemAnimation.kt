@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-internal class LazyLayoutAnimation(
+internal class LazyLayoutItemAnimation(
     private val coroutineScope: CoroutineScope,
     private val graphicsContext: GraphicsContext? = null,
     private val onLayerPropertyChanged: () -> Unit = {}
@@ -248,6 +250,33 @@ internal class LazyLayoutAnimation(
 
     companion object {
         val NotInitialized = IntOffset(Int.MAX_VALUE, Int.MAX_VALUE)
+    }
+}
+
+internal data class LazyLayoutAnimateItemElement(
+    private val fadeInSpec: FiniteAnimationSpec<Float>?,
+    private val placementSpec: FiniteAnimationSpec<IntOffset>?,
+    private val fadeOutSpec: FiniteAnimationSpec<Float>?
+) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
+
+    override fun create(): LazyLayoutAnimationSpecsNode =
+        LazyLayoutAnimationSpecsNode(
+            fadeInSpec,
+            placementSpec,
+            fadeOutSpec
+        )
+
+    override fun update(node: LazyLayoutAnimationSpecsNode) {
+        node.fadeInSpec = fadeInSpec
+        node.placementSpec = placementSpec
+        node.fadeOutSpec = fadeOutSpec
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "animateItem"
+        properties["fadeInSpec"] = fadeInSpec
+        properties["placementSpec"] = placementSpec
+        properties["fadeOutSpec"] = fadeOutSpec
     }
 }
 
