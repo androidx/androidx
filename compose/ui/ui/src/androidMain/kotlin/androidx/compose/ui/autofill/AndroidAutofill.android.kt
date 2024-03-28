@@ -88,7 +88,7 @@ internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
                 id
             )
             AutofillApi23Helper.setId(child, id, view.context.packageName, null, null)
-            AutofillApi26Helper.setAutofillType(child, View.AUTOFILL_TYPE_TEXT)
+            AutofillApi26Helper.setAutofillType(child, ContentDataType.Text.dataType)
             AutofillApi26Helper.setAutofillHints(
                 child,
                 autofillNode.autofillTypes.fastMap { it.androidType }.toTypedArray()
