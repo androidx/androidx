@@ -107,6 +107,9 @@ public class DeviceQuirksLoader {
         if (SignalEosOutputBufferNotComeQuirk.load()) {
             quirks.add(new SignalEosOutputBufferNotComeQuirk());
         }
+        if (SizeCannotEncodeVideoQuirk.load()) {
+            quirks.add(new SizeCannotEncodeVideoQuirk());
+        }
 
         return quirks;
     }
