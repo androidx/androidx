@@ -172,8 +172,8 @@ class AnchoredDraggableStateTest {
                             state.updateAnchors(
                                 DraggableAnchors {
                                     A at 0f
-                                    B at layoutSize.width / 2f
-                                    C at layoutSize.width.toFloat()
+                                    B at layoutSize.height / 2f
+                                    C at layoutSize.height.toFloat()
                                 }
                             )
                         }
@@ -283,6 +283,59 @@ class AnchoredDraggableStateTest {
         assertWithMessage("Target state")
             .that(state.targetValue)
             .isEqualTo(B)
+    }
+
+    @Test
+    fun anchoredDraggable_targetState_updatedWithDeltaDispatch() {
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            positionalThreshold = { it / 2f },
+            velocityThreshold = defaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 400f
+            }
+        )
+
+        val initialOffset = state.requireOffset()
+
+        // Swipe towards B, close before threshold
+        val aToBThreshold = abs(state.anchors.positionOf(A) - state.anchors.positionOf(B)) / 2f
+        state.dispatchRawDelta(initialOffset + (aToBThreshold * 0.9f))
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        // Swipe towards B, close after threshold
+        state.dispatchRawDelta(aToBThreshold * 0.2f)
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        // Swipe towards A, close before threshold
+        state.dispatchRawDelta(-(aToBThreshold * 0.9f))
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        // Swipe towards A, close after threshold
+        state.dispatchRawDelta(-(aToBThreshold * 0.2f))
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
     }
 
     @Test
