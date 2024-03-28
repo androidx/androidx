@@ -1026,7 +1026,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         assertThat(callback.results.size + callback.errors.size).isEqualTo(3)
         for (error in callback.errors) {
-            assertThat(error.imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)
+            assertThat(error.imageCaptureError).isAnyOf(
+                ImageCapture.ERROR_CAMERA_CLOSED,
+                // If unbind() happens earlier than takePicture(), it gets ERROR_INVALID_CAMERA.
+                ImageCapture.ERROR_INVALID_CAMERA
+            )
         }
     }
 
