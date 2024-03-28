@@ -4260,6 +4260,13 @@ public class ExifInterface {
             if (i == IFD_TYPE_THUMBNAIL && !mHasThumbnail) {
                 continue;
             }
+            if (tag.equals(TAG_XMP) && i == IFD_TYPE_PREVIEW && mXmpIsFromSeparateMarker) {
+                // XMP was read from a standalone XMP APP1 segment in the source file, and only
+                // stored in sExifTagMapsForWriting[IFD_TYPE_PRIMARY], so we shouldn't store the
+                // updated value in sExifTagMapsForWriting[IFD_TYPE_PREVIEW] here, otherwise we risk
+                // incorrectly writing the updated value twice in the resulting file.
+                continue;
+            }
             final ExifTag exifTag = sExifTagMapsForWriting[i].get(tag);
             if (exifTag != null) {
                 if (value == null) {

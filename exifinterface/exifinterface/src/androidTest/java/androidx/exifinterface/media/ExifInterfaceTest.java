@@ -82,6 +82,18 @@ public class ExifInterfaceTest {
     private static final double DIFFERENCE_TOLERANCE = .001;
     private static final boolean ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO = true;
 
+    /** Test XMP value that is different to all the XMP values embedded in the test images. */
+    private static final String TEST_XMP =
+            "<?xpacket begin='' id='W5M0MpCehiHzreSzNTczkc9d'?>"
+                    + "<x:xmpmeta xmlns:x='adobe:ns:meta/' x:xmptk='Image::ExifTool 10.73'>"
+                    + "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>"
+                    + "<rdf:Description rdf:about='' xmlns:photoshop='http://ns.adobe.com/photoshop/1.0/'>"
+                    + "<photoshop:DateCreated>2024-03-15T17:44:18</photoshop:DateCreated>"
+                    + "</rdf:Description>"
+                    + "</rdf:RDF>"
+                    + "</x:xmpmeta>"
+                    + "<?xpacket end='w'?>";
+
     @Rule
     public GrantPermissionRule mRuntimePermissionRule =
             GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -160,6 +172,54 @@ public class ExifInterfaceTest {
                         R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
         readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
         writeToFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
+    }
+
+    // https://issuetracker.google.com/309843390
+    @Test
+    @LargeTest
+    public void testJpegWithExifAndXmp_doesntDuplicateXmp() throws Throwable {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+
+        exifInterface.setAttribute(ExifInterface.TAG_XMP, TEST_XMP);
+
+        exifInterface.saveAttributes();
+
+        byte[] imageBytes = Files.toByteArray(imageFile);
+        assertThat(countOccurrences(imageBytes, "<?xpacket begin=".getBytes(Charsets.UTF_8)))
+                .isEqualTo(1);
+    }
+
+    /**
+     * Returns the number of times {@code pattern} appears in {@code source}.
+     *
+     * <p>Overlapping occurrences are counted multiple times, e.g. {@code countOccurrences([0, 1, 0,
+     * 1, 0], [0, 1, 0])} will return 2.
+     */
+    private static int countOccurrences(byte[] source, byte[] pattern) {
+        int count = 0;
+        for (int i = 0; i < source.length - pattern.length; i++) {
+            if (containsAtIndex(source, i, pattern)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns {@code true} if {@code source} contains {@code pattern} starting at {@code index}.
+     *
+     * @throws IndexOutOfBoundsException if {@code source.length < index + pattern.length}.
+     */
+    private static boolean containsAtIndex(byte[] source, int index, byte[] pattern) {
+        for (int i = 0; i < pattern.length; i++) {
+            if (pattern[i] != source[index + i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // https://issuetracker.google.com/264729367
@@ -1431,21 +1491,11 @@ public class ExifInterfaceTest {
 
         ExifInterface exifInterface = exifInterfaceFactory.create(imageFile);
         exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
-        String xmp =
-                "<?xpacket begin='' id='W5M0MpCehiHzreSzNTczkc9d'?>"
-                        + "<x:xmpmeta xmlns:x='adobe:ns:meta/' x:xmptk='Image::ExifTool 10.73'>"
-                        + "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>"
-                        + "<rdf:Description rdf:about='' xmlns:photoshop='http://ns.adobe.com/photoshop/1.0/'>"
-                        + "<photoshop:DateCreated>2024-03-15T17:44:18</photoshop:DateCreated>"
-                        + "</rdf:Description>"
-                        + "</rdf:RDF>"
-                        + "</x:xmpmeta>"
-                        + "<?xpacket end='w'?>";
-        exifInterface.setAttribute(ExifInterface.TAG_XMP, xmp);
+        exifInterface.setAttribute(ExifInterface.TAG_XMP, TEST_XMP);
         exifInterface.saveAttributes();
 
         expectedAttributes =
-                expectedAttributes.buildUpon().setMake("abc").clearXmp().setXmp(xmp).build();
+                expectedAttributes.buildUpon().setMake("abc").clearXmp().setXmp(TEST_XMP).build();
 
         // Check expected modifications are visible without re-parsing the file.
         compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
