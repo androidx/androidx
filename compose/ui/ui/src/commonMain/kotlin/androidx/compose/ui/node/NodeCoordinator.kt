@@ -832,6 +832,7 @@ internal abstract class NodeCoordinator(
         relativeToSource: Offset
     ): Offset {
         if (sourceCoordinates is LookaheadLayoutCoordinates) {
+            sourceCoordinates.coordinator.onCoordinatesUsed()
             return -sourceCoordinates.localPositionOf(this, -relativeToSource)
         }
 
