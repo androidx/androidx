@@ -20,6 +20,7 @@ import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +55,7 @@ class SearchBarBenchmark(private val type: SearchBarType) {
     }
 
     @Test
-    fun changeActiveState() {
+    fun changeExpandedState() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = testCaseFactory,
             assertOneRecomposition = false,
@@ -71,24 +72,29 @@ internal class SearchBarTestCase(
     @Composable
     override fun MeasuredContent() {
         state = remember { mutableStateOf(true) }
+        val inputField: @Composable () -> Unit = {
+            SearchBarDefaults.InputField(
+                query = "",
+                onQueryChange = {},
+                onSearch = {},
+                expanded = state.value,
+                onExpandedChange = { state.value = it },
+            )
+        }
 
         when (type) {
             SearchBarType.FullScreen ->
                 SearchBar(
-                    query = "",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = state.value,
-                    onActiveChange = { state.value = it },
+                    inputField = inputField,
+                    expanded = state.value,
+                    onExpandedChange = { state.value = it },
                     content = {},
                 )
             SearchBarType.Docked ->
                 DockedSearchBar(
-                    query = "",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = state.value,
-                    onActiveChange = { state.value = it },
+                    inputField = inputField,
+                    expanded = state.value,
+                    onExpandedChange = { state.value = it },
                     content = {},
                 )
         }
