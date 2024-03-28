@@ -285,7 +285,7 @@ public class ExerciseUpdate internal constructor(
 
     override fun toString(): String =
         "ExerciseUpdate(" +
-            "state=$exerciseStateInfo.state, " +
+            "state=${exerciseStateInfo.state}, " +
             "startTime=$startTime, " +
             "updateDurationFromBoot=$updateDurationFromBoot, " +
             "latestMetrics=$latestMetrics, " +
