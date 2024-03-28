@@ -30,7 +30,6 @@ import androidx.datastore.core.twoWayIpc.IpcAction
 import androidx.datastore.core.twoWayIpc.IpcUnit
 import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
 import androidx.datastore.testing.TestMessageProto.FooProto
-import androidx.kruth.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -565,12 +564,11 @@ class MultiProcessDataStoreIpcTest {
         delay(100)
 
         // process A (could be another thread than 1.) waits to hold file lock 2 (still held by B)
-        assertThrows<IOException> {
+        val localUpdate2 = async {
             datastore2.updateData {
                 it.toBuilder().setInteger(4).build()
             }
-        }.hasMessageThat()
-            .contains("Resource deadlock would occur")
+        }
 
         blockWrite.complete(Unit)
         commitWriteLatch1.complete(subject2, IpcUnit)
@@ -579,9 +577,11 @@ class MultiProcessDataStoreIpcTest {
         setTextAction1.await()
         setTextAction2.await()
         localUpdate1.await()
+        localUpdate2.await()
 
         assertThat(datastore1.data.first().text).isEqualTo("remoteValue")
         assertThat(datastore1.data.first().integer).isEqualTo(3)
         assertThat(datastore2.data.first().text).isEqualTo("remoteValue")
+        assertThat(datastore2.data.first().integer).isEqualTo(4)
     }
 }
