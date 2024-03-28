@@ -18,16 +18,28 @@ package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Modifier.Node
+import androidx.compose.ui.background
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.LayoutCoordinatesStub
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
@@ -715,6 +727,126 @@ class ApproachLayoutTest {
         measureWithFixedConstraints = true
         rule.runOnIdle {
             assertEquals(Offset(-100f, -100f), position)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testIsApproachCompleteCalledWhenSiblingRemovedInScroll() {
+        var isInColumn by mutableStateOf(false)
+
+        var lastTargetPosition by mutableStateOf(Offset.Zero)
+        var lastPosition by mutableStateOf(Offset.Zero)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                val movableContent = remember {
+                    movableContentOf {
+                        Box(
+                            Modifier
+                                .let {
+                                    if (isInColumn) {
+                                        // Same layout as all other boxes in the Column
+                                        it
+                                            .height(100.dp)
+                                            .fillMaxWidth()
+                                    } else {
+                                        it.size(50.dp)
+                                    }
+                                }
+                        )
+                    }
+                }
+
+                LookaheadScope {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                    ) {
+                        Column(
+                            Modifier
+                                .fillMaxSize()
+                                // Scroll is part of the trigger that skips ApproachLayout
+                                .verticalScroll(rememberScrollState(0))
+                        ) {
+                            // First, fixed box.
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp)
+                            )
+                            // Second box is movableContent if `isInColumn` is `true`
+                            if (isInColumn) {
+                                movableContent()
+                            }
+
+                            // Last box. We keep track of its ApproachLayout placement callbacks.
+                            // It should receive an isPlacementIsComplete as part of its post
+                            // lookahead pass whenever the state changes and the movableContent is
+                            // placed as a sibling or the secondary slot.
+                            Box(
+                                Modifier
+                                    .approachLayout(
+                                        isMeasurementApproachComplete = {
+                                            return@approachLayout true
+                                        },
+                                        isPlacementApproachComplete = { coordinates ->
+                                            lastTargetPosition =
+                                                lookaheadScopeCoordinates.localLookaheadPositionOf(
+                                                    coordinates
+                                                )
+                                            return@approachLayout true
+                                        },
+                                        approachMeasure = { measurable, constraints ->
+                                            val placeable = measurable.measure(constraints)
+                                            layout(placeable.width, placeable.height) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
+                                    )
+                                    .onPlaced {
+                                        // Also consume the coordinates here, this is necessary to
+                                        // trigger the right access flags
+                                        lastPosition = it.positionInParent()
+                                    }
+                                    .padding(10.dp)
+                                    .background(Color.Cyan)
+                                    .height(100.dp)
+                                    .fillMaxWidth()
+                            )
+                        }
+                        // Secondary slot - when not in Column
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            if (!isInColumn) {
+                                movableContent()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            // Second item in column
+            assertEquals(100f, lastTargetPosition.y)
+            assertEquals(100f, lastPosition.y)
+        }
+
+        isInColumn = true
+        rule.runOnIdle {
+            // Third item in column
+            assertEquals(200f, lastTargetPosition.y)
+            assertEquals(200f, lastPosition.y)
+        }
+
+        isInColumn = false
+        rule.runOnIdle {
+            // Second item in column
+            assertEquals(100f, lastTargetPosition.y)
+            assertEquals(100f, lastPosition.y)
         }
     }
 

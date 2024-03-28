@@ -237,6 +237,66 @@ internal class LayoutNodeLayoutDelegate(
         }
 
     /**
+     * Equivalent flag of [coordinatesAccessedDuringPlacement] but for [lookaheadPassDelegate].
+     */
+    var lookaheadCoordinatesAccessedDuringPlacement = false
+        set(value) {
+            val oldValue = field
+            if (oldValue != value) {
+                field = value
+                if (value && !lookaheadCoordinatesAccessedDuringModifierPlacement) {
+                    // if first out of both flags changes to true increment
+                    childrenAccessingLookaheadCoordinatesDuringPlacement++
+                } else if (!value && !lookaheadCoordinatesAccessedDuringModifierPlacement) {
+                    // if both flags changes to false decrement
+                    childrenAccessingLookaheadCoordinatesDuringPlacement--
+                }
+            }
+        }
+
+    /**
+     * Equivalent flag of [coordinatesAccessedDuringModifierPlacement] but for
+     * [lookaheadPassDelegate].
+     */
+    var lookaheadCoordinatesAccessedDuringModifierPlacement = false
+        set(value) {
+            val oldValue = field
+            if (oldValue != value) {
+                field = value
+                if (value && !lookaheadCoordinatesAccessedDuringPlacement) {
+                    // if first out of both flags changes to true increment
+                    childrenAccessingLookaheadCoordinatesDuringPlacement++
+                } else if (!value && !lookaheadCoordinatesAccessedDuringPlacement) {
+                    // if both flags changes to false decrement
+                    childrenAccessingLookaheadCoordinatesDuringPlacement--
+                }
+            }
+        }
+
+    /**
+     * Equivalent flag of [childrenAccessingCoordinatesDuringPlacement] but for
+     * [lookaheadPassDelegate].
+     *
+     * Naturally, this flag should only be affected by the lookahead coordinates access flags.
+     */
+    var childrenAccessingLookaheadCoordinatesDuringPlacement = 0
+        set(value) {
+            val oldValue = field
+            field = value
+            if ((oldValue == 0) != (value == 0)) {
+                // A child is either newly listening for coordinates or stopped listening
+                val parentLayoutDelegate = layoutNode.parent?.layoutDelegate
+                if (parentLayoutDelegate != null) {
+                    if (value == 0) {
+                        parentLayoutDelegate.childrenAccessingLookaheadCoordinatesDuringPlacement--
+                    } else {
+                        parentLayoutDelegate.childrenAccessingLookaheadCoordinatesDuringPlacement++
+                    }
+                }
+            }
+        }
+
+    /**
      * measurePassDelegate manages the measure/layout and alignmentLine related queries for the
      * actual measure/layout pass.
      */
@@ -266,11 +326,10 @@ internal class LayoutNodeLayoutDelegate(
             }
         }
         if (state == LayoutState.LookaheadLayingOut) {
-            // TODO lookahead should have its own flags b/284153462
             if (lookaheadPassDelegate?.layingOutChildren == true) {
-                coordinatesAccessedDuringPlacement = true
+                lookaheadCoordinatesAccessedDuringPlacement = true
             } else {
-                coordinatesAccessedDuringModifierPlacement = true
+                lookaheadCoordinatesAccessedDuringModifierPlacement = true
             }
         }
     }
@@ -1135,7 +1194,7 @@ internal class LayoutNodeLayoutDelegate(
                 val oldLayoutState = layoutState
                 layoutState = LayoutState.LookaheadLayingOut
                 val owner = layoutNode.requireOwner()
-                coordinatesAccessedDuringPlacement = false
+                lookaheadCoordinatesAccessedDuringPlacement = false
                 owner.snapshotObserver.observeLayoutSnapshotReads(layoutNode) {
                     clearPlaceOrder()
                     forEachChildAlignmentLinesOwner { child ->
@@ -1160,7 +1219,7 @@ internal class LayoutNodeLayoutDelegate(
                     }
                 }
                 layoutState = oldLayoutState
-                if (coordinatesAccessedDuringPlacement &&
+                if (lookaheadCoordinatesAccessedDuringPlacement &&
                     lookaheadDelegate.isPlacingForAlignment
                 ) {
                     requestLayout()
@@ -1242,17 +1301,18 @@ internal class LayoutNodeLayoutDelegate(
          * parents change their position on the same frame), it might be worth using a flag
          * so that this call becomes cheap after the first one.
          */
-        fun notifyChildrenUsingCoordinatesWhilePlacing() {
-            if (childrenAccessingCoordinatesDuringPlacement > 0) {
+        fun notifyChildrenUsingLookaheadCoordinatesWhilePlacing() {
+            if (childrenAccessingLookaheadCoordinatesDuringPlacement > 0) {
                 layoutNode.forEachChild { child ->
                     val childLayoutDelegate = child.layoutDelegate
-                    val accessed = childLayoutDelegate.coordinatesAccessedDuringPlacement ||
-                        childLayoutDelegate.coordinatesAccessedDuringModifierPlacement
-                    if (accessed && !childLayoutDelegate.layoutPending) {
+                    val accessed =
+                        childLayoutDelegate.lookaheadCoordinatesAccessedDuringPlacement ||
+                            childLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement
+                    if (accessed && !childLayoutDelegate.lookaheadLayoutPending) {
                         child.requestLookaheadRelayout()
                     }
                     childLayoutDelegate.lookaheadPassDelegate
-                        ?.notifyChildrenUsingCoordinatesWhilePlacing()
+                        ?.notifyChildrenUsingLookaheadCoordinatesWhilePlacing()
                 }
             }
         }
@@ -1383,12 +1443,12 @@ internal class LayoutNodeLayoutDelegate(
             placedOnce = true
             onNodePlacedCalled = false
             if (position != lastPosition) {
-                if (coordinatesAccessedDuringModifierPlacement ||
-                    coordinatesAccessedDuringPlacement
+                if (lookaheadCoordinatesAccessedDuringModifierPlacement ||
+                    lookaheadCoordinatesAccessedDuringPlacement
                 ) {
                     lookaheadLayoutPending = true
                 }
-                notifyChildrenUsingCoordinatesWhilePlacing()
+                notifyChildrenUsingLookaheadCoordinatesWhilePlacing()
             }
             val owner = layoutNode.requireOwner()
 
@@ -1396,7 +1456,7 @@ internal class LayoutNodeLayoutDelegate(
                 outerCoordinator.lookaheadDelegate!!.placeSelfApparentToRealOffset(position)
                 onNodePlaced()
             } else {
-                coordinatesAccessedDuringModifierPlacement = false
+                lookaheadCoordinatesAccessedDuringModifierPlacement = false
                 alignmentLines.usedByModifierLayout = false
                 owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
                     val scope = if (layoutNode.isOutMostLookaheadRoot()) {
