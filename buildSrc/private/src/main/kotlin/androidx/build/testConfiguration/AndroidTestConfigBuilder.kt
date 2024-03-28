@@ -110,21 +110,14 @@ class ConfigBuilder {
         sb.append(MODULE_METADATA_TAG_OPTION.replace("APPLICATION_ID", applicationId))
             .append(WIFI_DISABLE_OPTION)
             .append(FLAKY_TEST_OPTION)
-        if (isMicrobenchmark) {
-            if (isPostsubmit) {
-                sb.append(MICROBENCHMARK_POSTSUBMIT_OPTIONS)
-            } else {
-                sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
-            }
+        if (!isPostsubmit && (isMicrobenchmark || isMacrobenchmark)) {
+            sb.append(BENCHMARK_PRESUBMIT_INST_ARGS)
         }
         instrumentationArgsMap.forEach { (key, value) ->
             sb.append("""
                 <option name="instrumentation-arg" key="$key" value="$value" />
 
                 """.trimIndent())
-        }
-        if (isMacrobenchmark) {
-            sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)
         }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
@@ -148,6 +141,16 @@ class ConfigBuilder {
         sb.append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
+            .apply {
+                if (isPostsubmit) {
+                    // These listeners should be unified eventually (b/331974955)
+                    if (isMicrobenchmark) {
+                        sb.append(MICROBENCHMARK_POSTSUBMIT_LISTENERS)
+                    } else if (isMacrobenchmark) {
+                        sb.append(MACROBENCHMARK_POSTSUBMIT_LISTENERS)
+                    }
+                }
+            }
             .append(TEST_BLOCK_CLOSE)
         sb.append(CONFIGURATION_CLOSE)
         return sb.toString()
@@ -358,25 +361,25 @@ private val PACKAGE_OPTION =
 """
         .trimIndent()
 
-private val MICROBENCHMARK_PRESUBMIT_OPTION =
+private val BENCHMARK_PRESUBMIT_INST_ARGS =
     """
     <option name="instrumentation-arg" key="androidx.benchmark.dryRunMode.enable" value="true" />
 
 """
         .trimIndent()
 
-// NOTE: can only specify one "listener" key, must manually concat within that
-private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
+private val MICROBENCHMARK_POSTSUBMIT_LISTENERS =
     """
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener,androidx.benchmark.junit4.SideEffectRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
 
-// NOTE: can only specify one "listener" key, must manually concat within that
-private val MACROBENCHMARK_POSTSUBMIT_OPTIONS =
+private val MACROBENCHMARK_POSTSUBMIT_LISTENERS =
     """
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener,androidx.benchmark.macro.junit4.SideEffectRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
