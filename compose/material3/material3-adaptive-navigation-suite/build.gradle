@@ -115,4 +115,5 @@ androidx {
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Navigation Suite Library"
+    samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
 }

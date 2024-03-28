@@ -153,6 +153,7 @@ androidx {
     inceptionYear = "2018"
     description = "Compose Material Design Components library"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material:material:material-samples"))
 }
 
 // Screenshot tests related setup

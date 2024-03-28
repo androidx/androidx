@@ -146,6 +146,7 @@ androidx {
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose Material You Design Components library"
+    samples(project(":compose:material3:material3:material3-samples"))
 }
 
 // Screenshot tests related setup

@@ -143,6 +143,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
 }
 
 androidxCompose {

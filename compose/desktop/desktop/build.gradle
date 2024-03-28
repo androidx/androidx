@@ -102,6 +102,7 @@ androidx {
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true
     runApiTasks = new RunApiTasks.No("Not supported yet, see b/163110180")
+    // samples(project(":compose:desktop:desktop:desktop-samples")) // doesn't publish source jars
 
     // Project parser does not support dynamic configuration of `publish`.
     runProjectParser = false
