@@ -147,7 +147,7 @@ private class SaveableStateRegistryImpl(
             if (list.size == 1) {
                 val value = list[0].invoke()
                 if (value != null) {
-                    check(canBeSaved(value)) { "item can't be saved" }
+                    check(canBeSaved(value)) { generateCannotBeSavedErrorMessage(value) }
                     map[key] = arrayListOf<Any?>(value)
                 }
             } else {
@@ -159,7 +159,7 @@ private class SaveableStateRegistryImpl(
                 map[key] = List(list.size) { index ->
                     val value = list[index].invoke()
                     if (value != null) {
-                        check(canBeSaved(value)) { "item can't be saved" }
+                        check(canBeSaved(value)) { generateCannotBeSavedErrorMessage(value) }
                     }
                     value
                 }
