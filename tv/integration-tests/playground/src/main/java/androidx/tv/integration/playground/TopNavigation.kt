@@ -46,7 +46,6 @@ enum class Navigation(val displayName: String, val action: @Composable () -> Uni
     ModalNavigationDrawer("Modal Navigation Drawer", { ModalNavigationDrawer() }),
     LazyRowsAndColumns("Lazy Rows and Columns", { LazyRowsAndColumns() }),
     FeaturedCarousel("Featured Carousel", { FeaturedCarouselContent() }),
-    ImmersiveList("Immersive List", { ImmersiveListContent() }),
     TextField("Text Field", { TextFieldContent() }),
     StickyHeader("Sticky Header", { StickyHeaderContent() });
 
