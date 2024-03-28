@@ -28,6 +28,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,6 +56,11 @@ class CameraInfoAdapterTest {
         val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         val camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
         cameraInfoAdapter = camera.cameraInfo.toCameraInfoAdapter()
+    }
+
+    @After
+    fun tearDown() {
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test
