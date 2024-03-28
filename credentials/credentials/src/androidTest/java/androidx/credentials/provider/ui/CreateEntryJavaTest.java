@@ -27,7 +27,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
+import android.hardware.biometrics.BiometricManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+import androidx.credentials.provider.BiometricPromptData;
 import androidx.credentials.provider.CreateEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -39,8 +44,10 @@ import org.junit.runner.RunWith;
 
 import java.time.Instant;
 
+import javax.crypto.NullCipher;
+
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 public class CreateEntryJavaTest {
     private static final CharSequence ACCOUNT_NAME = "account_name";
@@ -51,6 +58,12 @@ public class CreateEntryJavaTest {
     private static final Long LAST_USED_TIME = 10L;
     private static final Icon ICON = Icon.createWithBitmap(Bitmap.createBitmap(
             100, 100, Bitmap.Config.ARGB_8888));
+
+    @RequiresApi(28) // CryptoObject necessitates a minimum API level of 28
+    private static final BiometricPromptData TEST_BIOMETRIC_DATA = new BiometricPromptData.Builder()
+            .setCryptoObject(new BiometricPrompt.CryptoObject(new NullCipher()))
+            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .build();
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();
@@ -72,8 +85,18 @@ public class CreateEntryJavaTest {
     }
 
     @Test
-    public void constructor_allParameters_success() {
-        CreateEntry entry = constructEntryWithAllParams();
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void constructor_allParametersAboveApiO_success() {
+        CreateEntry entry = constructEntryWithAllParams(TEST_BIOMETRIC_DATA);
+
+        assertNotNull(entry);
+        assertEntryWithAllParams(entry);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void constructor_allParametersApiOAndBelow_success() {
+        CreateEntry entry = constructEntryWithAllParams(null);
 
         assertNotNull(entry);
         assertEntryWithAllParams(entry);
@@ -116,7 +139,7 @@ public class CreateEntryJavaTest {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void fromSlice_allParams_success() {
-        CreateEntry originalEntry = constructEntryWithAllParams();
+        CreateEntry originalEntry = constructEntryWithAllParams(TEST_BIOMETRIC_DATA);
 
         CreateEntry entry = CreateEntry.fromSlice(
                 CreateEntry.toSlice(originalEntry));
@@ -129,7 +152,7 @@ public class CreateEntryJavaTest {
     @SdkSuppress(minSdkVersion = 34)
     @SuppressWarnings("deprecation")
     public void fromCreateEntry_allParams_success() {
-        CreateEntry originalEntry = constructEntryWithAllParams();
+        CreateEntry originalEntry = constructEntryWithAllParams(TEST_BIOMETRIC_DATA);
         android.app.slice.Slice slice = CreateEntry.toSlice(originalEntry);
         assertNotNull(slice);
 
@@ -147,18 +170,22 @@ public class CreateEntryJavaTest {
     private void assertEntryWithRequiredParams(CreateEntry entry) {
         assertThat(ACCOUNT_NAME.equals(entry.getAccountName()));
         assertThat(mPendingIntent).isEqualTo(entry.getPendingIntent());
+        assertThat(entry.getBiometricPromptData()).isNull();
     }
 
-    private CreateEntry constructEntryWithAllParams() {
-        return new CreateEntry.Builder(
+    private CreateEntry constructEntryWithAllParams(BiometricPromptData biometricPromptData) {
+        CreateEntry.Builder testBuilder = new CreateEntry.Builder(
                 ACCOUNT_NAME,
                 mPendingIntent)
                 .setIcon(ICON)
                 .setLastUsedTime(Instant.ofEpochMilli(LAST_USED_TIME))
                 .setPasswordCredentialCount(PASSWORD_COUNT)
                 .setPublicKeyCredentialCount(PUBLIC_KEY_CREDENTIAL_COUNT)
-                .setTotalCredentialCount(TOTAL_COUNT)
-                .build();
+                .setTotalCredentialCount(TOTAL_COUNT);
+        if (biometricPromptData != null) {
+            testBuilder.setBiometricPromptData(biometricPromptData);
+        }
+        return testBuilder.build();
     }
 
     private void assertEntryWithAllParams(CreateEntry entry) {
@@ -169,5 +196,17 @@ public class CreateEntryJavaTest {
         assertThat(PASSWORD_COUNT).isEqualTo(entry.getPasswordCredentialCount());
         assertThat(PUBLIC_KEY_CREDENTIAL_COUNT).isEqualTo(entry.getPublicKeyCredentialCount());
         assertThat(TOTAL_COUNT).isEqualTo(entry.getTotalCredentialCount());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                && entry.getBiometricPromptData() != null) {
+            assertAboveApiP(entry);
+        } else {
+            assertThat(entry.getBiometricPromptData()).isNull();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private static void assertAboveApiP(CreateEntry entry) {
+        assertThat(entry.getBiometricPromptData().getAllowedAuthenticators()).isEqualTo(
+                TEST_BIOMETRIC_DATA.getAllowedAuthenticators());
     }
 }
