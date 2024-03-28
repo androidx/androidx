@@ -946,6 +946,7 @@ class DiffRunner(object):
     print("Done trying to transform the contents of passing path:\n " + self.originalPassingPath + "\ninto the contents of failing path:\n " + self.originalFailingPath)
     print("Of " + str(self.originalNumDifferences) + " differences, could not accept: " + filesDescription)
     print("The final accepted state can be seen at " + self.bestState_path)
+    print("Ran " + str(numCompletedTests) + " tests")
     if timedOut:
       print("Note that these results might not be optimal due to reaching the timeout of " + str(self.timeoutSeconds) + " seconds")
     return wasSuccessful
