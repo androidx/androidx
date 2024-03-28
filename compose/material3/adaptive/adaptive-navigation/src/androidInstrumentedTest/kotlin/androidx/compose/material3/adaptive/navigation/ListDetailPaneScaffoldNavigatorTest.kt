@@ -572,6 +572,7 @@ private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
     horizontalPartitionSpacerSize = 0.dp,
     maxVerticalPartitions = 1,
     verticalPartitionSpacerSize = 0.dp,
+    defaultPanePreferredWidth = 360.dp,
     excludedBounds = emptyList()
 )
 
@@ -581,6 +582,7 @@ private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
     horizontalPartitionSpacerSize = 16.dp,
     maxVerticalPartitions = 1,
     verticalPartitionSpacerSize = 0.dp,
+    defaultPanePreferredWidth = 360.dp,
     excludedBounds = emptyList()
 )
 

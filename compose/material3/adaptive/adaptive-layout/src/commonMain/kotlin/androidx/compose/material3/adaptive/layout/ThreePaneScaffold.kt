@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
@@ -495,8 +494,7 @@ private class ThreePaneContentMeasurePolicy(
                                 primaryMeasurables,
                                 ThreePaneScaffoldDefaults.PrimaryPanePriority,
                                 role,
-                                ThreePaneScaffoldDefaults.PrimaryPanePreferredWidth
-                                    .roundToPx()
+                                scaffoldDirective.defaultPanePreferredWidth.roundToPx()
                             )
                         }
 
@@ -505,8 +503,7 @@ private class ThreePaneContentMeasurePolicy(
                                 secondaryMeasurables,
                                 ThreePaneScaffoldDefaults.SecondaryPanePriority,
                                 role,
-                                ThreePaneScaffoldDefaults.SecondaryPanePreferredWidth
-                                    .roundToPx()
+                                scaffoldDirective.defaultPanePreferredWidth.roundToPx()
                             )
                         }
 
@@ -515,8 +512,7 @@ private class ThreePaneContentMeasurePolicy(
                                 tertiaryMeasurables,
                                 ThreePaneScaffoldDefaults.TertiaryPanePriority,
                                 role,
-                                ThreePaneScaffoldDefaults.TertiaryPanePreferredWidth
-                                    .roundToPx()
+                                scaffoldDirective.defaultPanePreferredWidth.roundToPx()
                             )
                         }
                     }
@@ -866,22 +862,6 @@ internal object ThreePaneScaffoldDefaults {
         ThreePaneScaffoldRole.Secondary,
         ThreePaneScaffoldRole.Tertiary
     )
-
-    /**
-     * The default preferred width of [ThreePaneScaffoldRole.Secondary]. See more details in
-     * [ThreePaneScaffoldScope.preferredWidth].
-     */
-    val SecondaryPanePreferredWidth = 412.dp
-
-    /**
-     * The default preferred width of [ThreePaneScaffoldRole.Tertiary]. See more details in
-     * [ThreePaneScaffoldScope.preferredWidth].
-     */
-    val TertiaryPanePreferredWidth = 412.dp
-
-    // Make it the same as the secondary and tertiary panes, so we can have a semi-50-50-split on
-    // narrower windows by default.
-    val PrimaryPanePreferredWidth = 412.dp
 
     // TODO(conradchen): consider declaring a value class for priority
     const val PrimaryPanePriority = 10

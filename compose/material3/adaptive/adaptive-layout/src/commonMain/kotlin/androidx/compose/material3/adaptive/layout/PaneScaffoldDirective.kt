@@ -76,11 +76,15 @@ fun calculatePaneScaffoldDirective(
         horizontalSpacerSize = 0.dp
     }
 
+    // TODO(conradchen): add 412.dp for L/XL window size class when they are available
+    val defaultPanePreferredWidth = 360.dp
+
     return PaneScaffoldDirective(
         maxHorizontalPartitions,
         verticalSpacerSize,
         maxVerticalPartitions,
         horizontalSpacerSize,
+        defaultPanePreferredWidth,
         getExcludedVerticalBounds(windowAdaptiveInfo.windowPosture, verticalHingePolicy)
     )
 }
@@ -135,11 +139,15 @@ fun calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
         horizontalSpacerSize = 0.dp
     }
 
+    // TODO(conradchen): add 412.dp for L/XL window size class when they are available
+    val defaultPanePreferredWidth = 360.dp
+
     return PaneScaffoldDirective(
         maxHorizontalPartitions,
         verticalSpacerSize,
         maxVerticalPartitions,
         horizontalSpacerSize,
+        defaultPanePreferredWidth,
         getExcludedVerticalBounds(windowAdaptiveInfo.windowPosture, verticalHingePolicy)
     )
 }
@@ -167,6 +175,9 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
  *        be split into.
  * @param verticalPartitionSpacerSize Size of the spacers between vertical partitions.
  *        It's equivalent to the top/bottom margins of the vertical partitions.
+ * @param defaultPanePreferredWidth Default preferred width of panes that will be used by
+ *        the scaffold if there's no [Modifier.preferredWidth] provided with a pane. See
+ *        [Modifier.preferredWidth] for more info about how and when preferred width will be used.
  * @param excludedBounds the bounds of all areas in the window that the layout needs to avoid
  *        displaying anything upon it. Usually these bounds represent where physical hinges are.
  */
@@ -177,6 +188,7 @@ class PaneScaffoldDirective(
     val horizontalPartitionSpacerSize: Dp,
     val maxVerticalPartitions: Int,
     val verticalPartitionSpacerSize: Dp,
+    val defaultPanePreferredWidth: Dp,
     val excludedBounds: List<Rect>
 ) {
     override fun equals(other: Any?): Boolean {
@@ -186,6 +198,7 @@ class PaneScaffoldDirective(
         if (horizontalPartitionSpacerSize != other.horizontalPartitionSpacerSize) return false
         if (maxVerticalPartitions != other.maxVerticalPartitions) return false
         if (verticalPartitionSpacerSize != other.verticalPartitionSpacerSize) return false
+        if (defaultPanePreferredWidth != other.defaultPanePreferredWidth) return false
         return true
     }
 
@@ -194,6 +207,7 @@ class PaneScaffoldDirective(
         result = 31 * result + horizontalPartitionSpacerSize.hashCode()
         result = 31 * result + maxVerticalPartitions
         result = 31 * result + verticalPartitionSpacerSize.hashCode()
+        result = 31 * result + defaultPanePreferredWidth.hashCode()
         return result
     }
 
@@ -202,6 +216,7 @@ class PaneScaffoldDirective(
             "horizontalPartitionSpacerSize=$horizontalPartitionSpacerSize, " +
             "maxVerticalPartitions=$maxVerticalPartitions, " +
             "verticalPartitionSpacerSize=$verticalPartitionSpacerSize, " +
+            "defaultPanePreferredWidth=$defaultPanePreferredWidth, " +
             "number of excluded bounds=${excludedBounds.size})"
     }
 }

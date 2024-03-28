@@ -57,12 +57,14 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class PaneScaffoldDirective {
-    ctor public PaneScaffoldDirective(int maxHorizontalPartitions, float horizontalPartitionSpacerSize, int maxVerticalPartitions, float verticalPartitionSpacerSize, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    ctor public PaneScaffoldDirective(int maxHorizontalPartitions, float horizontalPartitionSpacerSize, int maxVerticalPartitions, float verticalPartitionSpacerSize, float defaultPanePreferredWidth, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    method public float getDefaultPanePreferredWidth();
     method public java.util.List<androidx.compose.ui.geometry.Rect> getExcludedBounds();
     method public float getHorizontalPartitionSpacerSize();
     method public int getMaxHorizontalPartitions();
     method public int getMaxVerticalPartitions();
     method public float getVerticalPartitionSpacerSize();
+    property public final float defaultPanePreferredWidth;
     property public final java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds;
     property public final float horizontalPartitionSpacerSize;
     property public final int maxHorizontalPartitions;
