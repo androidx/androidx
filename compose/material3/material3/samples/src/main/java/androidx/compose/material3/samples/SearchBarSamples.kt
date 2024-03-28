@@ -35,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +57,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -67,16 +68,20 @@ fun SearchBarSample() {
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .semantics { traversalIndex = -1f },
-            query = text,
-            onQueryChange = { text = it },
-            onSearch = { active = false },
-            active = active,
-            onActiveChange = {
-                active = it
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = text,
+                    onQueryChange = { text = it },
+                    onSearch = { expanded = false },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    placeholder = { Text("Hinted search text") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                )
             },
-            placeholder = { Text("Hinted search text") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
         ) {
             repeat(4) { idx ->
                 val resultText = "Suggestion $idx"
@@ -88,7 +93,7 @@ fun SearchBarSample() {
                     modifier = Modifier
                         .clickable {
                             text = resultText
-                            active = false
+                            expanded = false
                         }
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp)
@@ -119,7 +124,7 @@ fun SearchBarSample() {
 @Composable
 fun DockedSearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -131,14 +136,20 @@ fun DockedSearchBarSample() {
                 .align(Alignment.TopCenter)
                 .padding(top = 8.dp)
                 .semantics { traversalIndex = -1f },
-            query = text,
-            onQueryChange = { text = it },
-            onSearch = { active = false },
-            active = active,
-            onActiveChange = { active = it },
-            placeholder = { Text("Hinted search text") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = text,
+                    onQueryChange = { text = it },
+                    onSearch = { expanded = false },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    placeholder = { Text("Hinted search text") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                )
+            },
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
         ) {
             repeat(4) { idx ->
                 val resultText = "Suggestion $idx"
@@ -150,7 +161,7 @@ fun DockedSearchBarSample() {
                     modifier = Modifier
                         .clickable {
                             text = resultText
-                            active = false
+                            expanded = false
                         }
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp)
