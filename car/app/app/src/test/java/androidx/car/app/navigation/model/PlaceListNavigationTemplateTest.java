@@ -51,6 +51,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 /** Tests for {@link PlaceListNavigationTemplate}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class PlaceListNavigationTemplateTest {
     private static final Header DEFAULT_HEADER = new Header.Builder()
             .setTitle("Title")
