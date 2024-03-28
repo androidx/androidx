@@ -1409,6 +1409,7 @@ class AndroidGraphicsLayerTest {
                 root.buildLayer(Density(1f, 1f), Ltr, IntSize(width.toInt(), height.toInt())) {
                     block(graphicsContext)
                 }
+                rootGraphicsLayer = root
             }
             root.draw(androidx.compose.ui.graphics.Canvas(canvas), null)
         }
