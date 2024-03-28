@@ -20,6 +20,7 @@ package androidx.lifecycle.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
+import androidx.lifecycle.viewmodel.internal.canonicalName
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
@@ -54,7 +55,7 @@ public constructor() {
         initializer: CreationExtras.() -> T,
     ) {
         require(clazz !in initializers) {
-            "A `initializer` with the same `clazz` has already been added: ${clazz.qualifiedName}."
+            "A `initializer` with the same `clazz` has already been added: ${clazz.canonicalName}."
         }
         initializers[clazz] = ViewModelInitializer(clazz, initializer)
     }
