@@ -1358,7 +1358,7 @@ package androidx.compose.foundation.pager {
     method public final float getCurrentPageOffsetFraction();
     method public final androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method public final androidx.compose.foundation.pager.PagerLayoutInfo getLayoutInfo();
-    method public final float getOffsetFractionForPage(int page);
+    method public final float getOffsetDistanceInPages(int page);
     method public abstract int getPageCount();
     method public final int getSettledPage();
     method public final int getTargetPage();

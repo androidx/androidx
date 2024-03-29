@@ -714,10 +714,17 @@ abstract class PagerState(
      * the value calculate by this function can be larger than these numbers if [page] is different
      * than [currentPage].
      *
+     * For instance, if currentPage=0 and we call getOffsetDistanceInPages for page 3, the result
+     * will be -3, meaning the given page is 3 pages away from the current page (the sign represent
+     * the direction of the offset, negative is forward, positive is backwards). This offset also
+     * works in conjunction with [currentPageOffsetFraction], so if currentPage is out of its
+     * snapped position (i.e. currentPageOffsetFraction!=0) then the calculated value will still
+     * represent the offset in number of pages (in this case, not whole pages).
+     *
      * @param page The page to calculate the offset from. This should be between 0 and [pageCount].
      * @return The offset of [page] with respect to [currentPage].
      */
-    fun getOffsetFractionForPage(page: Int): Float {
+    fun getOffsetDistanceInPages(page: Int): Float {
         require(page in 0..pageCount) {
             "page $page is not within the range 0 to $pageCount"
         }
