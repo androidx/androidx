@@ -255,7 +255,7 @@ dependencies {
     docs(project(":lifecycle:lifecycle-reactivestreams"))
     docs(project(":lifecycle:lifecycle-reactivestreams-ktx"))
     kmpDocs(project(":lifecycle:lifecycle-runtime"))
-    docs(project(":lifecycle:lifecycle-runtime-compose"))
+    kmpDocs(project(":lifecycle:lifecycle-runtime-compose"))
     samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
     kmpDocs(project(":lifecycle:lifecycle-runtime-ktx"))
     docs(project(":lifecycle:lifecycle-runtime-testing"))
