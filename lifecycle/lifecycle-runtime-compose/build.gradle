@@ -47,13 +47,6 @@ androidXMultiplatform {
 
         androidMain {
             dependsOn(commonMain)
-            dependencies {
-                // Although this artifact is empty, it ensures that upgrading
-                // `lifecycle-runtime-compose` also updates `lifecycle-runtime-ktx`
-                // in cases where our constraints fail (e.g., internally in AndroidX
-                // when using project dependencies).
-                api(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
-            }
         }
 
         androidInstrumentedTest {
