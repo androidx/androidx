@@ -647,7 +647,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             mPhysicalCameraInfos = new HashSet<>();
             for (String physicalCameraId : mCameraCharacteristicsCompat.getPhysicalCameraIds()) {
                 try {
-                    CameraInfo physicalCameraInfo = new Camera2CameraInfoImpl(
+                    CameraInfo physicalCameraInfo = new Camera2PhysicalCameraInfoImpl(
                             physicalCameraId,
                             mCameraManager);
                     mPhysicalCameraInfos.add(physicalCameraInfo);
