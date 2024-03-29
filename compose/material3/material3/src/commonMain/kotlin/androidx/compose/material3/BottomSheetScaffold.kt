@@ -226,20 +226,25 @@ private fun StandardBottomSheet(
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
     val peekHeightPx = with(LocalDensity.current) { peekHeight.toPx() }
+    val nestedScroll = if (sheetSwipeEnabled) {
+        Modifier.nestedScroll(
+            remember(state.anchoredDraggableState) {
+                ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+                    sheetState = state,
+                    orientation = orientation,
+                    onFling = { scope.launch { state.settle(it) } }
+                )
+            }
+        )
+    } else {
+        Modifier
+    }
     Surface(
         modifier = Modifier
             .widthIn(max = sheetMaxWidth)
             .fillMaxWidth()
             .requiredHeightIn(min = peekHeight)
-            .nestedScroll(
-                remember(state.anchoredDraggableState) {
-                    ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                        sheetState = state,
-                        orientation = orientation,
-                        onFling = { scope.launch { state.settle(it) } }
-                    )
-                }
-            )
+            .then(nestedScroll)
             .draggableAnchors(state.anchoredDraggableState, orientation) { sheetSize, constraints ->
                 val layoutHeight = constraints.maxHeight.toFloat()
                 val sheetHeight = sheetSize.height.toFloat()
