@@ -33,7 +33,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 internal class ViewModelImpl {
 
-    private val lock = Lock()
+    private val lock = SynchronizedObject()
 
     /**
      * Holds a mapping between [String] keys and [AutoCloseable] resources that have been associated
@@ -47,7 +47,7 @@ internal class ViewModelImpl {
      * 2. [closeables][AutoCloseable.close]
      * 3. [ViewModel.onCleared]
      *
-     * **Note:** Manually [Lock] is necessary to prevent issues on Android API 21 and 22.
+     * **Note:** Manually [SynchronizedObject] is necessary to prevent issues on Android API 21 and 22.
      * This avoids potential problems found in older versions of `ConcurrentHashMap`.
      *
      * @see <a href="https://issuetracker.google.com/37042460">b/37042460</a>
@@ -83,7 +83,7 @@ internal class ViewModelImpl {
         if (isCleared) return
 
         isCleared = true
-        lock.withLock {
+        synchronized(lock) {
             // 1. Closes resources added without a key.
             // 2. Closes resources added with a key.
             for (closeable in closeables + keyToCloseables.values) {
@@ -105,7 +105,7 @@ internal class ViewModelImpl {
             return
         }
 
-        val oldCloseable = lock.withLock { keyToCloseables.put(key, closeable) }
+        val oldCloseable = synchronized(lock) { keyToCloseables.put(key, closeable) }
         closeWithRuntimeException(oldCloseable)
     }
 
@@ -119,13 +119,13 @@ internal class ViewModelImpl {
             return
         }
 
-        lock.withLock { closeables += closeable }
+        synchronized(lock) { closeables += closeable }
     }
 
     /** @see [ViewModel.getCloseable] */
     fun <T : AutoCloseable> getCloseable(key: String): T? =
         @Suppress("UNCHECKED_CAST")
-        lock.withLock { keyToCloseables[key] as T? }
+        synchronized(lock) { keyToCloseables[key] as T? }
 
     private fun closeWithRuntimeException(closeable: AutoCloseable?) {
         try {

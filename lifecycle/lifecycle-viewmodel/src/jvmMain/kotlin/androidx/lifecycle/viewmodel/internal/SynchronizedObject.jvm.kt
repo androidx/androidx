@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.lifecycle.viewmodel.internal
 
-internal actual class Lock actual constructor() {
-    actual inline fun <T> withLock(crossinline block: () -> T): T =
-        synchronized(lock = this, block)
-}
+internal actual class SynchronizedObject actual constructor()
+
+internal actual inline fun <T> synchronizedImpl(
+    lock: SynchronizedObject,
+    crossinline action: () -> T
+): T = kotlin.synchronized(lock, action)
