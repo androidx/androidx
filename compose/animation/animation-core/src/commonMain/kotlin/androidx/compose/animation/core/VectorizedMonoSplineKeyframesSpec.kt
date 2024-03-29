@@ -27,7 +27,8 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
     private val timestamps: IntList,
     private val keyframes: IntObjectMap<Pair<V, Easing>>,
     override val durationMillis: Int,
-    override val delayMillis: Int
+    override val delayMillis: Int,
+    private val periodicBias: Float,
 ) : VectorizedDurationBasedAnimationSpec<V> {
     // Objects initialized lazily once
     private lateinit var valueVector: V
@@ -99,7 +100,7 @@ internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
                         FloatArray(dimension, targetValue::get)
                 }
             }
-            monoSpline = MonoSpline(times, values)
+            monoSpline = MonoSpline(times, values, periodicBias)
         }
     }
 
