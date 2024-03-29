@@ -384,11 +384,14 @@ class AnimationModifierTest {
 internal class TestModifier : LayoutModifier {
     var width: Int = 0
     var height: Int = 0
+    var lookaheadSize: IntSize? = null
+        private set
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
+        if (isLookingAhead) lookaheadSize = IntSize(placeable.width, placeable.height)
         width = placeable.width
         height = placeable.height
         return layout(width, height) {

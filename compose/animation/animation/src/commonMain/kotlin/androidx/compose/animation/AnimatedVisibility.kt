@@ -818,17 +818,25 @@ internal fun <T> AnimatedEnterExitImpl(
             Layout(
                 content = { scope.content() },
                 modifier = modifier
-                    .then(childTransition.createModifier(enter, exit, "Built-in")
+                    .then(childTransition
+                        .createModifier(enter, exit, "Built-in")
                         .then(if (onLookaheadMeasured != null) {
                             Modifier.layout { measurable, constraints ->
-                                measurable.measure(constraints).run {
-                                    if (isLookingAhead) {
-                                        onLookaheadMeasured.invoke(IntSize(width, height))
+                                measurable
+                                    .measure(constraints)
+                                    .run {
+                                        if (isLookingAhead) {
+                                            onLookaheadMeasured.invoke(
+                                                IntSize(
+                                                    width,
+                                                    height
+                                                )
+                                            )
+                                        }
+                                        layout(width, height) {
+                                            place(0, 0)
+                                        }
                                     }
-                                    layout(width, height) {
-                                        place(0, 0)
-                                    }
-                                }
                             }
                         } else Modifier)
                     ),
@@ -845,6 +853,7 @@ private val Transition<EnterExitState>.exitFinished
 private class AnimatedEnterExitMeasurePolicy(
     val scope: AnimatedVisibilityScopeImpl
 ) : MeasurePolicy {
+    var hasLookaheadOccurred = false
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints
@@ -853,7 +862,13 @@ private class AnimatedEnterExitMeasurePolicy(
         val maxWidth: Int = placeables.fastMaxBy { it.width }?.width ?: 0
         val maxHeight = placeables.fastMaxBy { it.height }?.height ?: 0
         // Position the children.
-        scope.targetSize.value = IntSize(maxWidth, maxHeight)
+        if (isLookingAhead) {
+            hasLookaheadOccurred = true
+            scope.targetSize.value = IntSize(maxWidth, maxHeight)
+        } else if (!hasLookaheadOccurred) {
+            // Not in lookahead scope.
+            scope.targetSize.value = IntSize(maxWidth, maxHeight)
+        }
         return layout(maxWidth, maxHeight) {
             placeables.fastForEach {
                 it.place(0, 0)
