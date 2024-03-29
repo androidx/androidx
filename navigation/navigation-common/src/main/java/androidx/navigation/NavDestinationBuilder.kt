@@ -34,7 +34,8 @@ public annotation class NavDestinationDsl
 @NavDestinationDsl
 public open class NavDestinationBuilder<out D : NavDestination> internal constructor(
     /**
-     * The navigator the destination was created from
+     * The navigator the destination that will be used in [instantiateDestination]
+     * to create the destination.
      */
     protected val navigator: Navigator<out D>,
     /**
@@ -121,6 +122,14 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
     }
 
+    /**
+     * Add a [NavArgument] to this destination.
+     */
+    @Suppress("BuilderSetStyle")
+    public fun argument(name: String, argument: NavArgument) {
+        arguments[name] = argument
+    }
+
     private var deepLinks = mutableListOf<NavDeepLink>()
 
     /**
@@ -166,6 +175,28 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
         deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
     }
 
+    /**
+     * Add a deep link to this destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * *    Uris without a scheme are assumed as http and https. For example,
+     *      `www.example.com` will match `http://www.example.com` and
+     *      `https://www.example.com`.
+     * *    Placeholders in the form of `{placeholder_name}` matches 1 or more
+     *      characters. The String value of the placeholder will be available in the arguments
+     *      [Bundle] with a key of the same name. For example,
+     *      `http://www.example.com/users/{id}` will match
+     *      `http://www.example.com/users/4`.
+     * *    The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * @param navDeepLink the NavDeepLink to be added to this destination
+     */
+    @Suppress("BuilderSetStyle")
+    public fun deepLink(navDeepLink: NavDeepLink) {
+        deepLinks.add(navDeepLink)
+    }
+
     private var actions = mutableMapOf<Int, NavAction>()
 
     /**
@@ -180,10 +211,19 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
     }
 
     /**
+     * Instantiate a new instance of [D] that will be passed to [build].
+     *
+     * By default, this calls [Navigator.createDestination] on [navigator], but can
+     * be overridden to call a custom constructor, etc.
+     */
+    @Suppress("BuilderSetStyle")
+    protected open fun instantiateDestination(): D = navigator.createDestination()
+
+    /**
      * Build the NavDestination by calling [Navigator.createDestination].
      */
     public open fun build(): D {
-        return navigator.createDestination().also { destination ->
+        return instantiateDestination().also { destination ->
             destination.label = label
             arguments.forEach { (name, argument) ->
                 destination.addArgument(name, argument)
