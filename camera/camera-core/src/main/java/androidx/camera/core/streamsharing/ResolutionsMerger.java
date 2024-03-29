@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -619,6 +620,15 @@ public class ResolutionsMerger {
         Collections.sort(resolutions, new CompareSizesByArea(true));
     }
 
+    /** Removes duplicate sizes and preserves the order. */
+    @NonNull
+    private static List<Size> removeDuplicates(@NonNull List<Size> resolutions) {
+        if (resolutions.isEmpty()) {
+            return resolutions;
+        }
+        return new ArrayList<>(new LinkedHashSet<>(resolutions));
+    }
+
     /**
      * Returns a list of resolution that all resolutions are with the input aspect-ratio.
      *
@@ -690,6 +700,10 @@ public class ResolutionsMerger {
         if (childSizes.isEmpty() || parentSizes.isEmpty()) {
             return new ArrayList<>();
         }
+        // This method requires no duplicate parentSizes to correctly remove the last item.
+        // For example, if parentSizes = [1280x720, 1280x720] and 1280x720 can cover childSizes,
+        // removing the last item would cause 1280x720 to be mistakenly considered too large.
+        parentSizes = removeDuplicates(parentSizes);
 
         List<Size> result = new ArrayList<>();
         for (Size parentSize : parentSizes) {

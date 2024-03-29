@@ -629,6 +629,17 @@ class ResolutionsMergerTest {
     }
 
     @Test
+    fun getParentSizesThatAreTooLarge_containsDuplicateParentSize() {
+        val parentSizes = listOf(
+            SIZE_1920_1440,
+            SIZE_1920_1440, // duplicate
+            SIZE_1280_960,
+        )
+        val childSizes = setOf(SIZE_1920_1080)
+        assertThat(getParentSizesThatAreTooLarge(childSizes, parentSizes)).isEmpty()
+    }
+
+    @Test
     fun hasUpscaling_return_false_whenTwoSizesAreEqualed() {
         assertThat(hasUpscaling(SIZE_1280_960, SIZE_1280_960)).isFalse()
         assertThat(hasUpscaling(SIZE_1920_1080, SIZE_1920_1080)).isFalse()
