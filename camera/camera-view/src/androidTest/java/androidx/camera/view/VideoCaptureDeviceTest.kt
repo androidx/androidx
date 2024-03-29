@@ -220,6 +220,7 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToMediaStore() {
+        if (Build.VERSION.SDK_INT == 28) return // b/264902324
         assumeTrue(
             "Ignore the test since the MediaStore.Video has compatibility issues.",
             DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
@@ -281,6 +282,7 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToFile_withoutAudio_whenAudioDisabled() {
+        if (Build.VERSION.SDK_INT == 28) return // b/264902324
         // Arrange.
         val file = createTempFile()
         val outputOptions = FileOutputOptions.Builder(file).build()
@@ -299,6 +301,7 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToFile_whenLifecycleStops() {
+        if (Build.VERSION.SDK_INT == 28) return // b/264902324
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
 
         // Arrange.
@@ -374,6 +377,7 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToFile_rightAfterPreviousRecordingStopped() {
+        if (Build.VERSION.SDK_INT == 30) return // b/264902324
         // Arrange.
         val file1 = createTempFile()
         val file2 = createTempFile()
