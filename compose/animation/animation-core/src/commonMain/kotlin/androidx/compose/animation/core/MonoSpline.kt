@@ -23,7 +23,7 @@ import kotlin.math.hypot
  * time is an array of all positions and y is a list of arrays each with the values at each point
  */
 @ExperimentalAnimationSpecApi
-internal class MonoSpline(time: FloatArray, y: Array<FloatArray>) {
+internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: Float) {
     private val timePoints: FloatArray
     private val values: Array<FloatArray>
     private val tangents: Array<FloatArray>
@@ -47,6 +47,17 @@ internal class MonoSpline(time: FloatArray, y: Array<FloatArray>) {
                 }
             }
             tangent[n - 1][j] = slope[n - 2][j]
+        }
+        if (!periodicBias.isNaN()) {
+            for (j in 0 until dim) {
+                // Slope indicated by bias, where 0.0f is the last slope and 1f is the initial slope
+                val adjustedSlope =
+                    (slope[n - 2][j] * (1 - periodicBias)) + (slope[0][j] * periodicBias)
+                slope[0][j] = adjustedSlope
+                slope[n - 2][j] = adjustedSlope
+                tangent[n - 1][j] = adjustedSlope
+                tangent[0][j] = adjustedSlope
+            }
         }
         for (i in 0 until n - 1) {
             for (j in 0 until dim) {
@@ -208,14 +219,24 @@ internal class MonoSpline(time: FloatArray, y: Array<FloatArray>) {
      * You may provide [index] to simplify searching for the correct keyframe for the given [time].
      */
     fun getSlope(time: Float, v: AnimationVector, index: Int = 0) {
-        var t = time
+        val t = time
         val n = timePoints.size
         val dim = values[0].size
+
+        // If time is 0, max or out of range we directly return the corresponding slope value
         if (t <= timePoints[0]) {
-            t = timePoints[0]
+            for (j in 0 until dim) {
+                v[j] = tangents[0][j]
+            }
+            return
         } else if (t >= timePoints[n - 1]) {
-            t = timePoints[n - 1]
+            for (j in 0 until dim) {
+                v[j] = tangents[n - 1][j]
+            }
+            return
         }
+
+        // Otherwise, calculate interpolated velocity
         for (i in index until n - 1) {
             if (t <= timePoints[i + 1]) {
                 val h = timePoints[i + 1] - timePoints[i]

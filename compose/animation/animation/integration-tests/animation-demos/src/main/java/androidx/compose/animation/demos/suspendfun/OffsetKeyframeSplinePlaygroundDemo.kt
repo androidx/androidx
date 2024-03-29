@@ -18,7 +18,10 @@ package androidx.compose.animation.demos.suspendfun
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.ExperimentalAnimationSpecApi
+import androidx.compose.animation.core.InfiniteRepeatableSpec
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.keyframesWithSpline
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -35,15 +38,18 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -52,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
@@ -77,6 +84,7 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.math.sin
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @Preview
@@ -148,6 +156,11 @@ fun OffsetKeyframeSplinePlaygroundDemo() {
 private class SplineKeyframesPlaygroundModel(
     private val scope: CoroutineScope
 ) {
+    private val zero2DVector = AnimationVector2D(0f, 0f)
+
+    // TODO: This is extremely hacky, find a way to improve
+    private var modificationIndicator by mutableLongStateOf(0L)
+
     private val pointCount = 6
     private val animatedOffset = Animatable(Offset.Zero, Offset.VectorConverter)
     private val anchors = mutableStateListOf<Offset>()
@@ -158,6 +171,8 @@ private class SplineKeyframesPlaygroundModel(
     private val durationPerAnchor = mutableFloatStateOf(600f)
 
     private val pathPoints = mutableStateListOf<Offset>()
+    private val samplePoints = mutableListOf<Offset>()
+    private val sampleCount = 100
 
     val totalDuration by derivedStateOf { anchors.size * durationPerAnchor.floatValue }
 
@@ -171,13 +186,14 @@ private class SplineKeyframesPlaygroundModel(
         }
     }
 
+    private val diamondPath = Path()
     private val diamondColor = Color(0xFFFF9800)
     private val diamondSize = 5.dp
     private val textOffset = 6.dp
     private val pathColor = diamondColor.copy(alpha = 0.7f)
     private val pathWidth = 2.dp
-    private val pathOn = 6.dp
-    private val pathOff = 4.dp
+    private val pathOn = 3.dp
+    private val pathOff = 6.dp
 
     @Composable
     fun DrawContent(modifier: Modifier = Modifier) {
@@ -186,6 +202,18 @@ private class SplineKeyframesPlaygroundModel(
         val fontFamilyResolver = LocalFontFamilyResolver.current
         val textMeasurer = remember { TextMeasurer(fontFamilyResolver, density, layoutDirection) }
         val textColor = MaterialTheme.colors.onSurface
+
+        remember(density.density) {
+            val diamondSizePx = with(density) { diamondSize.toPx() }
+            diamondPath.reset()
+            diamondPath.moveTo(0f, -diamondSizePx)
+            diamondPath.lineTo(diamondSizePx, 0f)
+            diamondPath.lineTo(0f, diamondSizePx)
+            diamondPath.lineTo(-diamondSizePx, 0f)
+            diamondPath.close()
+            false
+        }
+
         init(density)
 
         Box(
@@ -201,8 +229,9 @@ private class SplineKeyframesPlaygroundModel(
                     translate(center.x, center.y) {
                         drawPoints(
                             points = pathPoints,
-                            pointMode = PointMode.Lines,
+                            pointMode = PointMode.Polygon,
                             color = pathColor,
+                            cap = StrokeCap.Round,
                             strokeWidth = pathWidthPx,
                             pathEffect = pathEffect
                         )
@@ -212,24 +241,16 @@ private class SplineKeyframesPlaygroundModel(
                     if (anchors.isEmpty()) {
                         return@drawBehind
                     }
-                    val diamondSizePx = with(this) { diamondSize.toPx() }
                     val textOffsetPx = with(this) {
                         Offset(textOffset.toPx(), textOffset.toPx())
                     }
 
                     // Draw anchors
-                    val path = Path()
                     translate(center.x, center.y) {
                         anchors.forEachIndexed { index, anchorPosition ->
                             translate(anchorPosition.x, anchorPosition.y) {
-                                path.reset()
-                                path.moveTo(0f, -diamondSizePx)
-                                path.lineTo(diamondSizePx, 0f)
-                                path.lineTo(0f, diamondSizePx)
-                                path.lineTo(-diamondSizePx, 0f)
-                                path.close()
                                 drawPath(
-                                    path = path,
+                                    path = diamondPath,
                                     color = diamondColor,
                                     style = Fill
                                 )
@@ -269,6 +290,37 @@ private class SplineKeyframesPlaygroundModel(
                     .graphicsLayer { rotationZ = angle.floatValue - 90f }
             )
         }
+
+        // TODO: This is extremely hacky, find a way to improve
+        LaunchedEffect(modificationIndicator) {
+            samplePoints.clear()
+            var i = 0
+            val vectorized = keyframesWithSpline(0.5f) {
+                durationMillis = totalDuration.roundToInt()
+
+                anchors.forEachIndexed { index, offset ->
+                    val fraction = (index + 1f) / (anchorCount + 1)
+                    offset atFraction fraction
+                }
+            }.vectorize(Offset.VectorConverter)
+
+            var timeMillis = 0f
+            val step = vectorized.durationMillis.toFloat() / sampleCount
+            while (isActive && i < sampleCount) {
+                val vectorValue = vectorized.getValueFromNanos(
+                    playTimeNanos = timeMillis.roundToLong() * 1_000_000,
+                    initialValue = zero2DVector,
+                    targetValue = zero2DVector,
+                    initialVelocity = zero2DVector
+                )
+                samplePoints.add(Offset(vectorValue.v1, vectorValue.v2))
+                timeMillis += step
+                i++
+            }
+            samplePoints.add(Offset.Zero)
+            pathPoints.clear()
+            pathPoints.addAll(samplePoints)
+        }
     }
 
     fun onNewDuration(newTotalDuration: Float) {
@@ -277,21 +329,22 @@ private class SplineKeyframesPlaygroundModel(
 
     fun addAnchor(density: Density) {
         scope.launch { animatedOffset.snapTo(Offset.Zero) }
-        pathPoints.clear()
         anchors.add(getNextPosition(density))
+        modificationIndicator++
     }
 
     fun removeAnchor() {
         if (anchors.size > 1) {
             scope.launch { animatedOffset.snapTo(Offset.Zero) }
-            pathPoints.clear()
             anchors.removeLast()
+            modificationIndicator++
         }
     }
 
     private val minDuration = 600f
     private val baseMaxDuration = 10000f
     private val durationIncrement = minDuration
+
     val range: ClosedFloatingPointRange<Float>
         get() =
             if (totalDuration < baseMaxDuration) {
@@ -307,21 +360,22 @@ private class SplineKeyframesPlaygroundModel(
     private val angle = mutableFloatStateOf(0f)
 
     fun onRun() {
-        pathPoints.clear()
         scope.launch {
             animatedOffset.snapTo(Offset.Zero)
             animatedOffset.animateTo(
                 targetValue = Offset.Zero,
-                animationSpec = keyframesWithSpline {
-                    durationMillis = totalDuration.roundToInt()
+                animationSpec = InfiniteRepeatableSpec(
+                    keyframesWithSpline(0.5f) {
+                        durationMillis = totalDuration.roundToInt()
 
-                    anchors.forEachIndexed { index, offset ->
-                        val fraction = (index + 1f) / (anchorCount + 2)
-                        offset atFraction fraction
-                    }
-                }
+                        anchors.forEachIndexed { index, offset ->
+                            val fraction = (index + 1f) / (anchorCount + 1)
+                            offset atFraction fraction
+                        }
+                    },
+                    RepeatMode.Restart
+                )
             ) {
-                pathPoints.add(this.value)
                 angle.floatValue =
                     Math.toDegrees(atan2(y = velocity.y, x = velocity.x).toDouble()).toFloat() + 90f
             }
@@ -383,7 +437,6 @@ private class SplineKeyframesPlaygroundModel(
     // TODO: Consider using a threshold like this to find the anchor quicker
     //   private val diffThreshold = 10 * 10 * 2
     private fun onDragStart(position: Offset, size: IntSize) {
-        pathPoints.clear()
         scope.launch { animatedOffset.snapTo(Offset.Zero) }
         val relPosition = Offset(
             position.x - (size.width * 0.5f),
@@ -413,6 +466,7 @@ private class SplineKeyframesPlaygroundModel(
         val index = draggingIndex.intValue
         if (index >= 0) {
             anchors[index] = anchors[index] + dragAmount
+            modificationIndicator++
         }
     }
 
