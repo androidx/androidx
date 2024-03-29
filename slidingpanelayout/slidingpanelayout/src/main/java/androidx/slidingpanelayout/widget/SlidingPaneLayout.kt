@@ -187,8 +187,19 @@ private class FoldBoundsCalculator {
     }
 }
 
+/**
+ * Pulls the string interpolation and exception throwing bytecode out of the inlined
+ * [spLayoutParams] property at each call site
+ */
+private fun layoutParamsError(childView: View, layoutParams: LayoutParams?): Nothing {
+    error("SlidingPaneLayout child $childView had unexpected LayoutParams $layoutParams")
+}
+
 private inline val View.spLayoutParams: SlidingPaneLayout.LayoutParams
-    get() = layoutParams as SlidingPaneLayout.LayoutParams
+    get() = when (val layoutParams = layoutParams) {
+        is SlidingPaneLayout.LayoutParams -> layoutParams
+        else -> layoutParamsError(this, layoutParams)
+    }
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
