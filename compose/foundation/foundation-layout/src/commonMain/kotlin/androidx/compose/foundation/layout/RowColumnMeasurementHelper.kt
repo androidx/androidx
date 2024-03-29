@@ -150,8 +150,33 @@ internal class RowColumnMeasurementHelper(
                 (targetSpace - fixedSpace - arrangementSpacingTotal).coerceAtLeast(0)
 
             val weightUnitSpace = if (totalWeight > 0) remainingToTarget / totalWeight else 0f
-            var remainder = remainingToTarget - (startIndex until endIndex).sumOf {
-                (weightUnitSpace * rowColumnParentData[it].weight).roundToInt()
+            var remainder = remainingToTarget
+            for (i in startIndex until endIndex) {
+                val itemWeight = rowColumnParentData[i].weight
+                val weightedSize = (weightUnitSpace * itemWeight)
+                try {
+                    remainder -= weightedSize.roundToInt()
+                } catch (e: IllegalArgumentException) {
+                    throw IllegalArgumentException(
+                        "This log indicates a hard-to-reproduce Compose issue, " +
+                            "modified with additional debugging details. " +
+                            "Please help us by adding your experiences to the bug link provided. " +
+                            "Thank you for helping us improve Compose. " +
+                            "https://issuetracker.google.com/issues/297974033 " +
+                            "mainAxisMax " + constraints.mainAxisMax +
+                            "mainAxisMin " + constraints.mainAxisMin +
+                            "targetSpace " + targetSpace +
+                            "arrangementSpacingPx " + arrangementSpacingPx +
+                            "weightChildrenCount " + weightChildrenCount +
+                            "fixedSpace " + fixedSpace +
+                            "arrangementSpacingTotal " + arrangementSpacingTotal +
+                            "remainingToTarget " + remainingToTarget +
+                            "totalWeight " + totalWeight +
+                            "weightUnitSpace " + weightUnitSpace +
+                            "itemWeight " + itemWeight +
+                            "weightedSize " + weightedSize
+                    ).initCause(e)
+                }
             }
 
             for (i in startIndex until endIndex) {
@@ -165,12 +190,16 @@ internal class RowColumnMeasurementHelper(
                     // loss or gain remainder evenly to the first children.
                     val remainderUnit = remainder.sign
                     remainder -= remainderUnit
+
+                    val weightedSize = (weightUnitSpace * weight)
                     val childMainAxisSize = max(
                         0,
-                        (weightUnitSpace * weight).roundToInt() + remainderUnit
+                        weightedSize.roundToInt() + remainderUnit
                     )
-                    val placeable = child.measure(
-                        OrientationIndependentConstraints(
+
+                    val childConstraints: Constraints
+                    try {
+                        childConstraints = OrientationIndependentConstraints(
                             if (parentData.fill && childMainAxisSize != Constraints.Infinity) {
                                 childMainAxisSize
                             } else {
@@ -180,7 +209,30 @@ internal class RowColumnMeasurementHelper(
                             0,
                             constraints.crossAxisMax
                         ).toBoxConstraints(orientation)
-                    )
+                    } catch (e: IllegalArgumentException) {
+                        throw IllegalArgumentException(
+                            "This log indicates a hard-to-reproduce Compose issue, " +
+                                "modified with additional debugging details. " +
+                                "Please help us by adding your experiences to the bug link " +
+                                "provided. Thank you for helping us improve Compose. " +
+                                "https://issuetracker.google.com/issues/300280216 " +
+                                "mainAxisMax " + constraints.mainAxisMax +
+                                "mainAxisMin " + constraints.mainAxisMin +
+                                "targetSpace " + targetSpace +
+                                "arrangementSpacingPx " + arrangementSpacingPx +
+                                "weightChildrenCount " + weightChildrenCount +
+                                "fixedSpace " + fixedSpace +
+                                "arrangementSpacingTotal " + arrangementSpacingTotal +
+                                "remainingToTarget " + remainingToTarget +
+                                "totalWeight " + totalWeight +
+                                "weightUnitSpace " + weightUnitSpace +
+                                "weight " + weight +
+                                "weightedSize " + weightedSize +
+                                "remainderUnit " + remainderUnit +
+                                "childMainAxisSize " + childMainAxisSize
+                        ).initCause(e)
+                    }
+                    val placeable = child.measure(childConstraints)
                     weightedSpace += placeable.mainAxisSize()
                     crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
                     anyAlignBy = anyAlignBy || parentData.isRelative
