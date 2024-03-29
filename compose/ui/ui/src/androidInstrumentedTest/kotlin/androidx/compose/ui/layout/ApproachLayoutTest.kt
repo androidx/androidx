@@ -53,7 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.test.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,16 +70,16 @@ class ApproachLayoutTest {
     val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     // Test that measurement approach has no effect on parent or child when
-    // isMeasurementApproachComplete returns true
+    // isMeasurementApproachProgress returns false
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun toggleIsMeasurementApproachComplete() {
+    fun toggleIsMeasurementApproachInProgress() {
         var isComplete by mutableStateOf(true)
         var parentLookaheadSize = IntSize(-1, -1)
         var childLookaheadConstraints: Constraints? = null
         var childLookaheadSize = IntSize(-1, -1)
         // This fraction change triggers a lookahead pass, which will be required to
-        // do a `isMeasurementApproachComplete` after its prior completion.
+        // do a `isMeasurementApproachInProgress` after its prior completion.
         var fraction by mutableStateOf(0.5f)
         var lookaheadPositionInParent = androidx.compose.ui.geometry.Offset(Float.NaN, Float.NaN)
         rule.setContent {
@@ -104,7 +106,7 @@ class ApproachLayoutTest {
                             }
                     }
                     .approachLayout(
-                        isMeasurementApproachComplete = { isComplete }
+                        isMeasurementApproachInProgress = { !isComplete }
                     ) { measurable, _ ->
                         // Intentionally use different constraints, placement and report different
                         // measure result than lookahead, to verify that they have no effect on
@@ -214,8 +216,8 @@ class ApproachLayoutTest {
                             }
                     }
                     .approachLayout(
-                        isMeasurementApproachComplete = { isMeasurementApproachComplete },
-                        isPlacementApproachComplete = { isPlacementApproachComplete }
+                        isMeasurementApproachInProgress = { !isMeasurementApproachComplete },
+                        isPlacementApproachInProgress = { !isPlacementApproachComplete }
                     ) { measurable, _ ->
                         // Intentionally use different constraints, placement and report different
                         // measure result than lookahead, to verify that they have no effect on
@@ -334,8 +336,8 @@ class ApproachLayoutTest {
         var childLookaheadSize: IntSize? = null
         var childApproachSize: IntSize? = null
         val parentApproachNode = object : TestApproachLayoutModifierNode() {
-            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-                return parentMeasureApproachComplete
+            override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+                return !parentMeasureApproachComplete
             }
 
             @ExperimentalComposeUiApi
@@ -392,7 +394,7 @@ class ApproachLayoutTest {
                                         }
                                     }
                             }
-                            .approachLayout({ childMeasureApproachComplete }) { m, _ ->
+                            .approachLayout({ !childMeasureApproachComplete }) { m, _ ->
                                 m
                                     .measure(Constraints.fixed(500, 500))
                                     .run {
@@ -470,8 +472,8 @@ class ApproachLayoutTest {
         var childLookaheadSize: IntSize? = null
         var childApproachSize: IntSize? = null
         val parentApproachNode = object : TestApproachLayoutModifierNode() {
-            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-                return parentMeasureApproachComplete
+            override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+                return !parentMeasureApproachComplete
             }
 
             @ExperimentalComposeUiApi
@@ -528,7 +530,7 @@ class ApproachLayoutTest {
                                         }
                                     }
                             }
-                            .approachLayout({ childMeasureApproachComplete }) { m, _ ->
+                            .approachLayout({ !childMeasureApproachComplete }) { m, _ ->
                                 m
                                     .measure(Constraints.fixed(500, 500))
                                     .run {
@@ -596,8 +598,8 @@ class ApproachLayoutTest {
     fun testDefaultPlacementApproachComplete() {
         var measurementComplete = true
         val node = object : ApproachLayoutModifierNode {
-            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-                return measurementComplete
+            override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+                return !measurementComplete
             }
 
             @ExperimentalComposeUiApi
@@ -615,23 +617,23 @@ class ApproachLayoutTest {
             override val node: Node = object : Node() {}
         }
 
-        assertEquals(true, node.isMeasurementApproachComplete(IntSize.Zero))
+        assertFalse(node.isMeasurementApproachInProgress(IntSize.Zero))
         with(TestPlacementScope()) {
             with(node) {
-                isPlacementApproachComplete(LayoutCoordinatesStub())
+                isPlacementApproachInProgress(LayoutCoordinatesStub())
             }
         }.also {
-            assertEquals(true, it)
+            assertFalse(it)
         }
 
         measurementComplete = false
-        assertEquals(false, node.isMeasurementApproachComplete(IntSize.Zero))
+        assertTrue(node.isMeasurementApproachInProgress(IntSize.Zero))
         with(TestPlacementScope()) {
             with(node) {
-                isPlacementApproachComplete(LayoutCoordinatesStub())
+                isPlacementApproachInProgress(LayoutCoordinatesStub())
             }
         }.also {
-            assertEquals(true, it)
+            assertFalse(it)
         }
     }
 
@@ -644,14 +646,14 @@ class ApproachLayoutTest {
         var measureWithFixedConstraints by mutableStateOf(false)
         var removeChild by mutableStateOf(false)
         val parentNode = object : TestApproachLayoutModifierNode() {
-            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-                return false
+            override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+                return true
             }
 
-            override fun Placeable.PlacementScope.isPlacementApproachComplete(
+            override fun Placeable.PlacementScope.isPlacementApproachInProgress(
                 lookaheadCoordinates: LayoutCoordinates
             ): Boolean {
-                return true
+                return false
             }
 
             @ExperimentalComposeUiApi
@@ -673,14 +675,14 @@ class ApproachLayoutTest {
         }
 
         val childNode = object : TestApproachLayoutModifierNode() {
-            override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-                return true
+            override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+                return false
             }
 
-            override fun Placeable.PlacementScope.isPlacementApproachComplete(
+            override fun Placeable.PlacementScope.isPlacementApproachInProgress(
                 lookaheadCoordinates: LayoutCoordinates
             ): Boolean {
-                return true
+                return false
             }
 
             @ExperimentalComposeUiApi
@@ -788,15 +790,15 @@ class ApproachLayoutTest {
                             Box(
                                 Modifier
                                     .approachLayout(
-                                        isMeasurementApproachComplete = {
-                                            return@approachLayout true
+                                        isMeasurementApproachInProgress = {
+                                            return@approachLayout false
                                         },
-                                        isPlacementApproachComplete = { coordinates ->
+                                        isPlacementApproachInProgress = { coordinates ->
                                             lastTargetPosition =
                                                 lookaheadScopeCoordinates.localLookaheadPositionOf(
                                                     coordinates
                                                 )
-                                            return@approachLayout true
+                                            return@approachLayout false
                                         },
                                         approachMeasure = { measurable, constraints ->
                                             val placeable = measurable.measure(constraints)
