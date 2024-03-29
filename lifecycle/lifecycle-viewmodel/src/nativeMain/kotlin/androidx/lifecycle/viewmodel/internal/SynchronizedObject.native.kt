@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.lifecycle.viewmodel.internal
 
 import kotlin.native.internal.createCleaner
@@ -30,7 +29,6 @@ import platform.posix.pthread_mutexattr_destroy
 import platform.posix.pthread_mutexattr_init
 import platform.posix.pthread_mutexattr_settype
 import platform.posix.pthread_mutexattr_t
-
 /**
  * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which
  * is represented as kotlin.Int on darwin platforms and kotlin.UInt on linuxX64
@@ -38,26 +36,24 @@ import platform.posix.pthread_mutexattr_t
  */
 internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 
-internal actual class Lock actual constructor() {
+internal actual class SynchronizedObject actual constructor() {
 
     private val resource = Resource()
 
     @Suppress("unused") // The returned Cleaner must be assigned to a property
     @OptIn(ExperimentalStdlibApi::class)
-    private val cleaner = createCleaner(resource, Resource::destroy)
+    private val cleaner = createCleaner(resource, Resource::dispose)
 
-    actual inline fun <T> withLock(crossinline block: () -> T): T {
+    fun lock() {
         resource.lock()
-        return try {
-            block()
-        } finally {
-            resource.unlock()
-        }
+    }
+
+    fun unlock() {
+        resource.unlock()
     }
 
     @OptIn(ExperimentalForeignApi::class)
-    @PublishedApi
-    internal class Resource {
+    private class Resource {
         private val arena: Arena = Arena()
         private val attr: pthread_mutexattr_t = arena.alloc()
         private val mutex: pthread_mutex_t = arena.alloc()
@@ -68,17 +64,26 @@ internal actual class Lock actual constructor() {
             pthread_mutex_init(mutex.ptr, attr.ptr)
         }
 
-        @PublishedApi
-        internal fun lock(): Int = pthread_mutex_lock(mutex.ptr)
+        fun lock(): Int = pthread_mutex_lock(mutex.ptr)
 
-        @PublishedApi
-        internal fun unlock(): Int = pthread_mutex_unlock(mutex.ptr)
+        fun unlock(): Int = pthread_mutex_unlock(mutex.ptr)
 
-        @PublishedApi
-        internal fun destroy() {
+        fun dispose() {
             pthread_mutex_destroy(mutex.ptr)
             pthread_mutexattr_destroy(attr.ptr)
             arena.clear()
         }
+    }
+}
+
+internal actual inline fun <T> synchronizedImpl(
+    lock: SynchronizedObject,
+    crossinline action: () -> T
+): T {
+    lock.lock()
+    return try {
+        action()
+    } finally {
+        lock.unlock()
     }
 }

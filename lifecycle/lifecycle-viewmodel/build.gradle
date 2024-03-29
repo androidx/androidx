@@ -47,6 +47,10 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
+
         commonMain {
             dependencies {
                 api(project(":annotation:annotation"))
