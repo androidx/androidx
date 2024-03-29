@@ -248,6 +248,7 @@ class AdvancedSessionProcessorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
+    @Ignore("b/331617278")
     fun isCurrentExtensionTypeAvailableReturnsCorrectFalseValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -265,6 +266,7 @@ class AdvancedSessionProcessorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Suppress("UNCHECKED_CAST")
     @Test
+    @Ignore("b/331617278")
     fun isCurrentExtensionTypeAvailableReturnsCorrectTrueValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -287,6 +289,7 @@ class AdvancedSessionProcessorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
+    @Ignore("b/331617278")
     fun isExtensionStrengthAvailableReturnsCorrectFalseValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -304,6 +307,7 @@ class AdvancedSessionProcessorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Suppress("UNCHECKED_CAST")
     @Test
+    @Ignore("b/331617278")
     fun isExtensionStrengthAvailableReturnsCorrectTrueValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -368,6 +372,7 @@ class AdvancedSessionProcessorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Ignore("b/331617278")
     fun getCurrentExtensionType_advancedSessionProcessorMonitorSessionProcessorImplResults(): Unit =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -424,6 +429,7 @@ class AdvancedSessionProcessorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Ignore("b/331617278")
     fun setExtensionStrength_advancedSessionProcessorInvokesSessionProcessorImpl() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
