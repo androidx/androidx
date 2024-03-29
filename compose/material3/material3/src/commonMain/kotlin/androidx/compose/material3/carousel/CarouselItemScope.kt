@@ -19,10 +19,24 @@ package androidx.compose.material3.carousel
 import androidx.compose.material3.ExperimentalMaterial3Api
 
 /**
- * Receiver scope for [Carousel].
+ * Receiver scope for [Carousel] item content.
  */
 @ExperimentalMaterial3Api
-sealed interface CarouselScope
+sealed interface CarouselItemScope {
+    /**
+     * Information regarding the carousel item, such as its minimum and maximum size.
+     *
+     * The item information is updated after every scroll. If you use it in a composable function,
+     * it will be recomposed on every change causing potential performance issues. Avoid using it
+     * in the composition.
+     */
+    val carouselItemInfo: CarouselItemInfo
+}
 
 @ExperimentalMaterial3Api
-internal object CarouselScopeImpl : CarouselScope
+internal class CarouselItemScopeImpl(
+    private val itemInfo: CarouselItemInfo
+) : CarouselItemScope {
+    override val carouselItemInfo: CarouselItemInfo
+        get() = itemInfo
+}

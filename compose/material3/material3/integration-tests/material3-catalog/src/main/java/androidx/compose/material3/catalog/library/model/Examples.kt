@@ -67,6 +67,7 @@ import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonTextSample
+import androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
 import androidx.compose.material3.samples.FancyIndicatorContainerTabs
 import androidx.compose.material3.samples.FancyIndicatorTabs
 import androidx.compose.material3.samples.FancyTabs
@@ -340,6 +341,13 @@ val CarouselExamples = listOf(
         sourceUrl = CarouselExampleSourceUrl
     ) {
         HorizontalUncontainedCarouselSample()
+    },
+    Example(
+        name = ::FadingHorizontalMultiBrowseCarouselSample.name,
+        description = CarouselExampleDescription,
+        sourceUrl = CarouselExampleSourceUrl
+    ) {
+        FadingHorizontalMultiBrowseCarouselSample()
     }
 )
 
