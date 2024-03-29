@@ -22,6 +22,7 @@ import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 
 @Sampled
 fun createCompositionLocal() {
@@ -33,6 +34,31 @@ fun compositionLocalProvider() {
     @Composable
     fun App(user: User) {
         CompositionLocalProvider(ActiveUser provides user) {
+            SomeScreen()
+        }
+    }
+}
+
+@Sampled
+fun compositionLocalComputedByDefault() {
+    val LocalBaseValue = compositionLocalOf { 10 }
+    val LocalLargerValue = compositionLocalWithComputedDefaultOf {
+        LocalBaseValue.currentValue + 10
+    }
+}
+
+@Sampled
+fun compositionLocalProvidedComputed() {
+    val LocalValue = compositionLocalOf { 10 }
+    val LocalLargerValue = compositionLocalOf { 12 }
+
+    @Composable
+    fun App() {
+        CompositionLocalProvider(
+            LocalLargerValue providesComputed {
+                LocalValue.currentValue + 10
+            }
+        ) {
             SomeScreen()
         }
     }

@@ -21,6 +21,8 @@ GetterSetterNames: androidx.compose.runtime.Composition#getHasInvalidations():
     Getter for boolean property `hasInvalidations` is named `getHasInvalidations` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.runtime.ControlledComposition#getHasPendingChanges():
     Getter for boolean property `hasPendingChanges` is named `getHasPendingChanges` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.compose.runtime.ProvidedValue#getCanOverride():
+    Getter for boolean property `canOverride` is named `getCanOverride` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.runtime.Recomposer#getHasPendingWork():
     Getter for boolean property `hasPendingWork` is named `getHasPendingWork` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.runtime.RecomposerInfo#getHasPendingWork():
