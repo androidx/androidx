@@ -145,6 +145,7 @@ package androidx.window.extensions.embedding {
     method public float getPrimaryMaxRatio();
     method public float getPrimaryMinRatio();
     method @Dimension public int getWidthDp();
+    method public boolean isDraggingToFullscreenAllowed();
     field public static final int DIVIDER_TYPE_DRAGGABLE = 2; // 0x2
     field public static final int DIVIDER_TYPE_FIXED = 1; // 0x1
     field public static final float RATIO_SYSTEM_DEFAULT = -1.0f;
@@ -156,6 +157,7 @@ package androidx.window.extensions.embedding {
     ctor public DividerAttributes.Builder(int);
     method public androidx.window.extensions.embedding.DividerAttributes build();
     method public androidx.window.extensions.embedding.DividerAttributes.Builder setDividerColor(@ColorInt int);
+    method public androidx.window.extensions.embedding.DividerAttributes.Builder setDraggingToFullscreenAllowed(boolean);
     method public androidx.window.extensions.embedding.DividerAttributes.Builder setPrimaryMaxRatio(float);
     method public androidx.window.extensions.embedding.DividerAttributes.Builder setPrimaryMinRatio(float);
     method public androidx.window.extensions.embedding.DividerAttributes.Builder setWidthDp(@Dimension int);
