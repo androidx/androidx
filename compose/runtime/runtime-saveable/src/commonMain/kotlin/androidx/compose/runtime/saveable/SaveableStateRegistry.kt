@@ -93,7 +93,7 @@ val LocalSaveableStateRegistry = staticCompositionLocalOf<SaveableStateRegistry?
 // CharSequence.isBlank() allocates an iterator because it calls indices.all{}
 private fun CharSequence.fastIsBlank(): Boolean {
     var blank = true
-    for (i in 0 until length - 1) {
+    for (i in 0 until length) {
         if (!this[i].isWhitespace()) {
             blank = false
             break
