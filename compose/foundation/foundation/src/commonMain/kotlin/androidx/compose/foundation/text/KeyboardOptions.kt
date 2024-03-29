@@ -195,6 +195,8 @@ class KeyboardOptions(
     internal val showKeyboardOnFocusOrDefault: Boolean
         get() = showKeyboardOnFocus
             ?: true
+    private val hintLocalesOrDefault: LocaleList
+        get() = hintLocales ?: LocaleList.Empty
 
     private val isCompletelyUnspecified: Boolean
         get() = capitalization == KeyboardCapitalization.Unspecified &&
@@ -218,7 +220,7 @@ class KeyboardOptions(
         keyboardType = keyboardTypeOrDefault,
         imeAction = imeActionOrDefault,
         platformImeOptions = platformImeOptions,
-        hintLocales = hintLocales
+        hintLocales = hintLocalesOrDefault
     )
 
     /**

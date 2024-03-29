@@ -27,7 +27,8 @@ import androidx.compose.ui.text.TextStyle
  * locale-sensitive operation— the number should be formatted according to the customs and
  * conventions of the user's native country, region, or culture.
  *
- * @param platformLocale Platform specific Locale object that provides basic functionality.
+ * @param platformLocale Platform specific Locale object that provides the actual values for the
+ * members of this class.
  *
  * @see TextStyle
  * @see SpanStyle
