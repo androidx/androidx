@@ -247,7 +247,7 @@
     <string name="sign_in_instructions" msgid="9044850228284294762">"Introdueix les teves credencials"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"El nom d\'usuari ha de ser una adreça electrònica vàlida"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"El nom d\'usuari ha de tenir com a mínim %s caràcters"</string>
-    <string name="invalid_password_error_msg" msgid="1090359893902674610">"La contrasenya no és vàlida"</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"Contrasenya no vàlida"</string>
     <string name="password_hint" msgid="2869107073860012864">"contrasenya"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nom d\'usuari"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Escriu aquest PIN al telèfon"</string>
