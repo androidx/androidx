@@ -980,12 +980,6 @@ private fun Placeable.PlacementScope.place(
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
 
-    // placed center vertically and to the end edge horizontally
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
-
     // label position is animated
     // in single line text field, label is centered vertically before animation starts
     labelPlaceable?.let {
@@ -1022,11 +1016,6 @@ private fun Placeable.PlacementScope.place(
         calculateVerticalPosition(prefixPlaceable)
     )
 
-    suffixPlaceable?.placeRelative(
-        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
-        calculateVerticalPosition(suffixPlaceable)
-    )
-
     val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
 
     textFieldPlaceable.placeRelative(
@@ -1038,6 +1027,17 @@ private fun Placeable.PlacementScope.place(
     placeholderPlaceable?.placeRelative(
         textHorizontalPosition,
         calculateVerticalPosition(placeholderPlaceable)
+    )
+
+    suffixPlaceable?.placeRelative(
+        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
+        calculateVerticalPosition(suffixPlaceable)
+    )
+
+    // placed center vertically and to the end edge horizontally
+    trailingPlaceable?.placeRelative(
+        width - trailingPlaceable.width,
+        Alignment.CenterVertically.align(trailingPlaceable.height, height)
     )
 
     // place supporting text

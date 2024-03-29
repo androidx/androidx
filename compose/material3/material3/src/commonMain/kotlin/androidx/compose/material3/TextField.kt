@@ -964,10 +964,6 @@ private fun Placeable.PlacementScope.placeWithLabel(
         0,
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
     labelPlaceable?.let {
         // if it's a single line, the label's start position is in the center of the
         // container. When it's a multiline text field, the label's start position is at the
@@ -985,14 +981,20 @@ private fun Placeable.PlacementScope.placeWithLabel(
     }
 
     prefixPlaceable?.placeRelative(widthOrZero(leadingPlaceable), textPosition)
+
+    val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
+    textfieldPlaceable.placeRelative(textHorizontalPosition, textPosition)
+    placeholderPlaceable?.placeRelative(textHorizontalPosition, textPosition)
+
     suffixPlaceable?.placeRelative(
         width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
         textPosition,
     )
 
-    val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
-    textfieldPlaceable.placeRelative(textHorizontalPosition, textPosition)
-    placeholderPlaceable?.placeRelative(textHorizontalPosition, textPosition)
+    trailingPlaceable?.placeRelative(
+        width - trailingPlaceable.width,
+        Alignment.CenterVertically.align(trailingPlaceable.height, height)
+    )
 
     supportingPlaceable?.placeRelative(0, height)
 }
@@ -1028,10 +1030,6 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
         0,
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
 
     // Single line text field without label places its text components centered vertically.
     // Multiline text field without label places its text components at the top with padding.
@@ -1048,11 +1046,6 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
         calculateVerticalPosition(prefixPlaceable)
     )
 
-    suffixPlaceable?.placeRelative(
-        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
-        calculateVerticalPosition(suffixPlaceable),
-    )
-
     val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
 
     textPlaceable.placeRelative(textHorizontalPosition, calculateVerticalPosition(textPlaceable))
@@ -1060,6 +1053,16 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
     placeholderPlaceable?.placeRelative(
         textHorizontalPosition,
         calculateVerticalPosition(placeholderPlaceable)
+    )
+
+    suffixPlaceable?.placeRelative(
+        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
+        calculateVerticalPosition(suffixPlaceable),
+    )
+
+    trailingPlaceable?.placeRelative(
+        width - trailingPlaceable.width,
+        Alignment.CenterVertically.align(trailingPlaceable.height, height)
     )
 
     supportingPlaceable?.placeRelative(0, height)
