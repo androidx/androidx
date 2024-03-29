@@ -112,7 +112,7 @@ fun HorizontalMultiBrowseCarousel(
     minSmallItemWidth: Dp = CarouselDefaults.MinSmallItemSize,
     maxSmallItemWidth: Dp = CarouselDefaults.MaxSmallItemSize,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    content: @Composable CarouselScope.(itemIndex: Int) -> Unit
+    content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit
 ) {
     val density = LocalDensity.current
     Carousel(
@@ -174,7 +174,7 @@ fun HorizontalUncontainedCarousel(
     itemSpacing: Dp = 0.dp,
     flingBehavior: TargetedFlingBehavior = CarouselDefaults.noSnapFlingBehavior(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    content: @Composable CarouselScope.(itemIndex: Int) -> Unit
+    content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit
 ) {
     val density = LocalDensity.current
     Carousel(
@@ -228,7 +228,7 @@ internal fun Carousel(
     itemSpacing: Dp = 0.dp,
     flingBehavior: TargetedFlingBehavior =
         CarouselDefaults.singleAdvanceFlingBehavior(state = state),
-    content: @Composable CarouselScope.(itemIndex: Int) -> Unit
+    content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val beforeContentPadding = contentPadding.calculateBeforeContentPadding(orientation)
@@ -240,7 +240,6 @@ internal fun Carousel(
     val beyondViewportPageCount = remember(pageSize.strategy.itemMainAxisSize) {
         calculateBeyondViewportPageCount(pageSize.strategy)
     }
-    val carouselScope = CarouselScopeImpl
 
     val snapPositionMap = remember(pageSize.strategy.itemMainAxisSize) {
         calculateSnapPositions(
@@ -265,16 +264,20 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
+            val carouselItemInfo = remember { CarouselItemInfoImpl() }
+            val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
+
             Box(
                 modifier = Modifier.carouselItem(
                     index = page,
                     state = state,
                     strategy = pageSize.strategy,
                     itemPositionMap = snapPositionMap,
+                    carouselItemInfo = carouselItemInfo,
                     isRtl = isRtl
                 )
             ) {
-                carouselScope.content(page)
+                scope.content(page)
             }
         }
     } else if (orientation == Orientation.Vertical) {
@@ -292,16 +295,20 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
+            val carouselItemInfo = remember { CarouselItemInfoImpl() }
+            val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
+
             Box(
                 modifier = Modifier.carouselItem(
                     index = page,
                     state = state,
                     strategy = pageSize.strategy,
                     itemPositionMap = snapPositionMap,
+                    carouselItemInfo = carouselItemInfo,
                     isRtl = isRtl
                 )
             ) {
-                carouselScope.content(page)
+                scope.content(page)
             }
         }
     }
@@ -401,6 +408,7 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param state the carousel state
  * @param strategy the strategy used to mask and translate items in the carousel
  * @param itemPositionMap the position of each index when it is the current item
+ * @param carouselItemInfo the item info that should be updated with the changes in this modifier
  * @param isRtl true if the layout direction is right-to-left
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -409,6 +417,7 @@ internal fun Modifier.carouselItem(
     state: CarouselState,
     strategy: Strategy,
     itemPositionMap: IntIntMap,
+    carouselItemInfo: CarouselItemInfoImpl,
     isRtl: Boolean
 ): Modifier {
     if (!strategy.isValid()) return this
@@ -442,6 +451,11 @@ internal fun Modifier.carouselItem(
         val maxScrollOffset = calculateMaxScrollOffset(state, strategy)
         // TODO: Reduce the number of times a keyline for the same scroll offset is calculated
         val keylines = strategy.getKeylineListForScrollOffset(scrollOffset, maxScrollOffset)
+        val roundedKeylines = strategy.getKeylineListForScrollOffset(
+            scrollOffset = scrollOffset,
+            maxScrollOffset = maxScrollOffset,
+            roundToNearestStep = true
+        )
 
         // Find center of the item at this index
         val itemSizeWithSpacing = strategy.itemMainAxisSize + strategy.itemSpacing
@@ -458,6 +472,26 @@ internal fun Modifier.carouselItem(
         val interpolatedKeyline = lerp(keylineBefore, keylineAfter, progress)
         val isOutOfKeylineBounds = keylineBefore == keylineAfter
 
+        val centerX =
+            if (isVertical) size.height / 2f else strategy.itemMainAxisSize / 2f
+        val centerY =
+            if (isVertical) strategy.itemMainAxisSize / 2f else size.height / 2f
+        val halfMaskWidth =
+            if (isVertical) size.width / 2f else interpolatedKeyline.size / 2f
+        val halfMaskHeight =
+            if (isVertical) interpolatedKeyline.size / 2f else size.height / 2f
+        val maskRect = Rect(
+            left = centerX - halfMaskWidth,
+            top = centerY - halfMaskHeight,
+            right = centerX + halfMaskWidth,
+            bottom = centerY + halfMaskHeight
+        )
+
+        // Update carousel item info
+        carouselItemInfo.sizeState.floatValue = interpolatedKeyline.size
+        carouselItemInfo.minSizeState.floatValue = roundedKeylines.minBy { it.size }.size
+        carouselItemInfo.maxSizeState.floatValue = roundedKeylines.firstFocal.size
+
         // Clip the item
         clip = true
         shape = object : Shape {
@@ -469,29 +503,15 @@ internal fun Modifier.carouselItem(
                 layoutDirection: LayoutDirection,
                 density: Density
             ): Outline {
-                val centerX =
-                    if (isVertical) size.height / 2f else strategy.itemMainAxisSize / 2f
-                val centerY =
-                    if (isVertical) strategy.itemMainAxisSize / 2f else size.height / 2f
-                val halfMaskWidth =
-                    if (isVertical) size.width / 2f else interpolatedKeyline.size / 2f
-                val halfMaskHeight =
-                    if (isVertical) interpolatedKeyline.size / 2f else size.height / 2f
-                val rect = Rect(
-                    left = centerX - halfMaskWidth,
-                    top = centerY - halfMaskHeight,
-                    right = centerX + halfMaskWidth,
-                    bottom = centerY + halfMaskHeight
-                )
                 val cornerSize =
                     roundedCornerShape.topStart.toPx(
-                        Size(rect.width, rect.height),
+                        Size(maskRect.width, maskRect.height),
                         density
                     )
                 val cornerRadius = CornerRadius(cornerSize)
                 return Outline.Rounded(
                     RoundRect(
-                        rect = rect,
+                        rect = maskRect,
                         topLeft = cornerRadius,
                         topRight = cornerRadius,
                         bottomRight = cornerRadius,
