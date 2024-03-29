@@ -1293,7 +1293,6 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   @androidx.compose.ui.graphics.drawscope.DrawScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface DrawScope extends androidx.compose.ui.unit.Density {
-    method public default androidx.compose.ui.graphics.layer.GraphicsLayer buildLayer(androidx.compose.ui.graphics.layer.GraphicsLayer, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public void drawArc(androidx.compose.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
     method public void drawArc(long color, float startAngle, float sweepAngle, boolean useCenter, optional long topLeft, optional long size, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
     method public void drawCircle(androidx.compose.ui.graphics.Brush brush, optional float radius, optional long center, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.drawscope.DrawStyle style, optional androidx.compose.ui.graphics.ColorFilter? colorFilter, optional int blendMode);
@@ -1317,6 +1316,7 @@ package androidx.compose.ui.graphics.drawscope {
     method public androidx.compose.ui.graphics.drawscope.DrawContext getDrawContext();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public default long getSize();
+    method public default void record(androidx.compose.ui.graphics.layer.GraphicsLayer, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     property public default long center;
     property public abstract androidx.compose.ui.graphics.drawscope.DrawContext drawContext;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
@@ -1421,7 +1421,6 @@ package androidx.compose.ui.graphics.layer {
   }
 
   public final class GraphicsLayer {
-    method public androidx.compose.ui.graphics.layer.GraphicsLayer buildLayer(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public float getAlpha();
     method public long getAmbientShadowColor();
     method public int getBlendMode();
@@ -1446,6 +1445,7 @@ package androidx.compose.ui.graphics.layer {
     method public float getTranslationX();
     method public float getTranslationY();
     method public boolean isReleased();
+    method public void record(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public void setAlpha(float);
     method public void setAmbientShadowColor(long);
     method public void setBlendMode(int);

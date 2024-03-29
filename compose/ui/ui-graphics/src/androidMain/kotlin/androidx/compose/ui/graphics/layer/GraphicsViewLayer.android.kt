@@ -370,7 +370,7 @@ internal class GraphicsViewLayer(
         }
     }
 
-    override fun buildLayer(
+    override fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,

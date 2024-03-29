@@ -335,15 +335,15 @@ class CacheDrawScope internal constructor() : Density {
         graphicsContextProvider!!.invoke().createGraphicsLayer()
 
     /**
-     * Create a [GraphicsLayer] with the [Density], [LayoutDirection] and [Size] are given from the
-     * provided [CacheDrawScope]
+     * Record the drawing commands into the [GraphicsLayer] with the [Density], [LayoutDirection]
+     * and [Size] are given from the provided [CacheDrawScope]
      */
-    fun GraphicsLayer.buildLayer(
+    fun GraphicsLayer.record(
         density: Density = this@CacheDrawScope,
         layoutDirection: LayoutDirection = this@CacheDrawScope.layoutDirection,
         size: IntSize = this@CacheDrawScope.size.toIntSize(),
         block: ContentDrawScope.() -> Unit
-    ): GraphicsLayer = buildLayer(density, layoutDirection, size) {
+    ) = record(density, layoutDirection, size) {
         val contentDrawScope = this@CacheDrawScope.contentDrawScope!!
         drawIntoCanvas { canvas ->
             contentDrawScope.draw(

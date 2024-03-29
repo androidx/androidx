@@ -360,7 +360,6 @@ package androidx.compose.ui.draw {
   }
 
   public final class CacheDrawScope implements androidx.compose.ui.unit.Density {
-    method public androidx.compose.ui.graphics.layer.GraphicsLayer buildLayer(androidx.compose.ui.graphics.layer.GraphicsLayer, optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> block);
     method public float getDensity();
     method public float getFontScale();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
@@ -368,6 +367,7 @@ package androidx.compose.ui.draw {
     method public androidx.compose.ui.graphics.layer.GraphicsLayer obtainGraphicsLayer();
     method public androidx.compose.ui.draw.DrawResult onDrawBehind(kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public androidx.compose.ui.draw.DrawResult onDrawWithContent(kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> block);
+    method public void record(androidx.compose.ui.graphics.layer.GraphicsLayer, optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit> block);
     property public float density;
     property public float fontScale;
     property public final androidx.compose.ui.unit.LayoutDirection layoutDirection;

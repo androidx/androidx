@@ -110,7 +110,7 @@ internal class GraphicsLayerOwnerLayer(
 
     override fun updateDisplayList() {
         if (isDirty) {
-            graphicsLayer.buildLayer(density, layoutDirection, size) {
+            graphicsLayer.record(density, layoutDirection, size) {
                 drawIntoCanvas { canvas ->
                     drawBlock?.let { it(canvas) }
                 }

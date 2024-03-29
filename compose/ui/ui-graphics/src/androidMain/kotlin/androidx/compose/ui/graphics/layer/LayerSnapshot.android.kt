@@ -60,7 +60,7 @@ internal object LayerSnapshotV28 : LayerSnapshotImpl {
 
         override fun endRecording() {
             // NO-OP. The GraphicsLayer used here already has its drawing commands recorded via
-            // GraphicsLayer.buildLayer, so there is no additional work to be done here.
+            // GraphicsLayer.record, so there is no additional work to be done here.
         }
 
         override fun getWidth(): Int = graphicsLayer.size.width
