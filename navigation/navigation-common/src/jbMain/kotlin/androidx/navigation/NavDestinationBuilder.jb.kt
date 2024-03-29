@@ -55,17 +55,30 @@ public actual constructor(
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
     }
 
+    @Suppress("BuilderSetStyle")
+    public actual fun argument(name: String, argument: NavArgument) {
+        arguments[name] = argument
+    }
 
     private var deepLinks = mutableListOf<NavDeepLink>()
 
     public actual fun deepLink(uriPattern: String) {
         deepLinks.add(NavDeepLink(uriPattern))
     }
+
+    @Suppress("BuilderSetStyle")
+    public actual fun deepLink(navDeepLink: NavDeepLink) {
+        deepLinks.add(navDeepLink)
+    }
+
+    @Suppress("BuilderSetStyle")
+    protected actual open fun instantiateDestination(): D = navigator.createDestination()
+
     /**
      * Build the NavDestination by calling [Navigator.createDestination].
      */
     public actual open fun build(): D {
-        return navigator.createDestination().also { destination ->
+        return instantiateDestination().also { destination ->
             destination.label = label
             arguments.forEach { (name, argument) ->
                 destination.addArgument(name, argument)

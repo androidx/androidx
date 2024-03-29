@@ -116,6 +116,7 @@ class NavDestinationTest {
             argument("testArg2") {
                 type = NavType.StringType
             }
+            argument("testArg3", NavArgument.Builder().setDefaultValue("123").build())
         }
         assertWithMessage("NavDestination should have default arguments set")
             .that(destination.arguments.get("testArg")?.defaultValue)
@@ -123,6 +124,9 @@ class NavDestinationTest {
         assertWithMessage("NavArgument shouldn't have a default value")
             .that(destination.arguments.get("testArg2")?.isDefaultValuePresent)
             .isFalse()
+        assertWithMessage("NavDestination should have implicit default arguments set")
+            .that(destination.arguments.get("testArg3")?.defaultValue)
+            .isEqualTo("123")
     }
 
     @Test
