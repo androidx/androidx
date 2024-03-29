@@ -935,17 +935,17 @@ interface DrawScope : Density {
      * This will retarget the underlying canvas of the provided DrawScope to draw within the layer
      * itself and reset it to the original canvas on the conclusion of this method call.
      */
-    fun GraphicsLayer.buildLayer(
+    fun GraphicsLayer.record(
         size: IntSize = this@DrawScope.size.toIntSize(),
         block: DrawScope.() -> Unit
-    ): GraphicsLayer = buildLayer(
+    ) = record(
         this@DrawScope,
         this@DrawScope.layoutDirection,
         size
     ) {
         this@DrawScope.draw(
-            // we can use this@buildLayer.drawContext directly as the values in this@DrawScope
-            // and this@buildLayer are the same
+            // we can use this@record.drawContext directly as the values in this@DrawScope
+            // and this@record are the same
             drawContext.density,
             drawContext.layoutDirection,
             drawContext.canvas,
