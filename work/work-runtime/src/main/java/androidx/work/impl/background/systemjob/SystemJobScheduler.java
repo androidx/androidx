@@ -80,7 +80,8 @@ public class SystemJobScheduler implements Scheduler {
                 workDatabase,
                 configuration,
                 getWmJobScheduler(context),
-                new SystemJobInfoConverter(context, configuration.getClock())
+                new SystemJobInfoConverter(context, configuration.getClock(),
+                        configuration.isMarkingJobsAsImportantWhileForeground())
         );
     }
 
