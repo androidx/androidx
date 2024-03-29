@@ -168,8 +168,11 @@ internal fun RowColumnMeasurePolicy.measure(
                 remainder -= weightedSize.fastRoundToInt()
             } catch (e: IllegalArgumentException) {
                 throw IllegalArgumentException(
-                    e.message + " Tracked at " +
-                        "https://issuetracker.google.com/issues/297974033" +
+                    "This log indicates a hard-to-reproduce Compose issue, " +
+                        "modified with additional debugging details. " +
+                        "Please help us by adding your experiences to the bug link provided. " +
+                        "Thank you for helping us improve Compose. " +
+                        "https://issuetracker.google.com/issues/297974033 " +
                         "mainAxisMax " + mainAxisMax +
                         "mainAxisMin " + mainAxisMin +
                         "targetSpace " + targetSpace +
@@ -224,8 +227,11 @@ internal fun RowColumnMeasurePolicy.measure(
                     )
                 } catch (e: IllegalArgumentException) {
                     throw IllegalArgumentException(
-                        e.message + " Tracked at " +
-                            "https://issuetracker.google.com/issues/300280216" +
+                        "This log indicates a hard-to-reproduce Compose issue, " +
+                            "modified with additional debugging details. " +
+                            "Please help us by adding your experiences to the bug link provided. " +
+                            "Thank you for helping us improve Compose. " +
+                            "https://issuetracker.google.com/issues/300280216 " +
                             "mainAxisMax " + mainAxisMax +
                             "mainAxisMin " + mainAxisMin +
                             "targetSpace " + targetSpace +
