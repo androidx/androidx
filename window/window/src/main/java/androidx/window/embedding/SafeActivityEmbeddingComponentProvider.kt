@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
 import android.view.WindowMetrics
@@ -32,6 +33,7 @@ import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.AnimationBackground
+import androidx.window.extensions.embedding.EmbeddedActivityWindowInfo
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
 import androidx.window.extensions.embedding.SplitInfo
@@ -175,11 +177,15 @@ internal class SafeActivityEmbeddingComponentProvider(
     /**
      * Vendor API level 6 includes the following methods:
      * - [ActivityEmbeddingComponent.clearActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.clearEmbeddedActivityWindowInfoCallback]
      * - [ActivityEmbeddingComponent.getActivityStackToken]
+     * - [ActivityEmbeddingComponent.getEmbeddedActivityWindowInfo]
      * - [ActivityEmbeddingComponent.getParentContainerInfo]
      * - [ActivityEmbeddingComponent.setActivityStackAttributesCalculator]
+     * - [ActivityEmbeddingComponent.setEmbeddedActivityWindowInfoCallback]
      * - [ActivityEmbeddingComponent.updateActivityStackAttributes]
      * - [ActivityStack.getTag]
+     * - [EmbeddedActivityWindowInfo]
      * - [ParentContainerInfo]
      */
     // TODO(b/316493273): Guard other AEComponentMethods
@@ -192,7 +198,11 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodGetParentContainerInfoValid() &&
             isMethodSetActivityStackAttributesCalculatorValid() &&
             isMethodClearActivityStackAttributesCalculatorValid() &&
-            isMethodUpdateActivityStackAttributesValid()
+            isMethodUpdateActivityStackAttributesValid() &&
+            isClassEmbeddedActivityWindowInfoValid() &&
+            isMethodGetEmbeddedActivityWindowInfoValid() &&
+            isMethodSetEmbeddedActivityWindowInfoCallbackValid() &&
+            isMethodClearEmbeddedActivityWindowInfoCallbackValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -510,7 +520,69 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
     }
 
-    private val activityEmbeddingComponentClass: Class<*>
+    private fun isClassEmbeddedActivityWindowInfoValid(): Boolean =
+        validateReflection("Class EmbeddedActivityWindowInfo is not valid") {
+            val embeddedActivityWindowInfoClass = EmbeddedActivityWindowInfo::class.java
+            val getActivityMethod = embeddedActivityWindowInfoClass.getMethod("getActivity")
+            val isEmbeddedMethod = embeddedActivityWindowInfoClass.getMethod("isEmbedded")
+            val getActivityBoundsMethod = embeddedActivityWindowInfoClass.getMethod(
+                "getActivityBounds"
+            )
+            val getTaskBoundsMethod = embeddedActivityWindowInfoClass.getMethod("getTaskBounds")
+            val getActivityStackBoundsMethod = embeddedActivityWindowInfoClass.getMethod(
+                "getActivityStackBounds"
+            )
+            getActivityMethod.isPublic &&
+                getActivityMethod.doesReturn(Activity::class.java) &&
+                isEmbeddedMethod.isPublic &&
+                isEmbeddedMethod.doesReturn(Boolean::class.javaPrimitiveType!!) &&
+                getActivityBoundsMethod.isPublic &&
+                getActivityBoundsMethod.doesReturn(Rect::class.java) &&
+                getTaskBoundsMethod.isPublic &&
+                getTaskBoundsMethod.doesReturn(Rect::class.java) &&
+                getActivityStackBoundsMethod.isPublic &&
+                getActivityStackBoundsMethod.doesReturn(Rect::class.java)
+        }
+
+    private fun isMethodGetEmbeddedActivityWindowInfoValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#getEmbeddedActivityWindowInfo is not valid"
+        ) {
+            val getEmbeddedActivityWindowInfoMethod = activityEmbeddingComponentClass.getMethod(
+                "getEmbeddedActivityWindowInfo",
+                Activity::class.java
+            )
+            getEmbeddedActivityWindowInfoMethod.isPublic &&
+                getEmbeddedActivityWindowInfoMethod.doesReturn(
+                    EmbeddedActivityWindowInfo::class.java
+                )
+        }
+
+    private fun isMethodSetEmbeddedActivityWindowInfoCallbackValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#setEmbeddedActivityWindowInfoCallback is not valid"
+        ) {
+            val setEmbeddedActivityWindowInfoCallbackMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "setEmbeddedActivityWindowInfoCallback",
+                    Executor::class.java,
+                    Consumer::class.java
+                )
+            setEmbeddedActivityWindowInfoCallbackMethod.isPublic
+        }
+
+    private fun isMethodClearEmbeddedActivityWindowInfoCallbackValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#clearEmbeddedActivityWindowInfoCallback is not valid"
+        ) {
+            val clearEmbeddedActivityWindowInfoCallbackMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "clearEmbeddedActivityWindowInfoCallback"
+                )
+            clearEmbeddedActivityWindowInfoCallbackMethod.isPublic
+        }
+
+        private val activityEmbeddingComponentClass: Class<*>
         get() {
             return loader.loadClass(ACTIVITY_EMBEDDING_COMPONENT_CLASS)
         }
