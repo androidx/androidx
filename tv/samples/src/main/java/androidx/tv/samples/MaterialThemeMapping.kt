@@ -24,6 +24,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun mapColorScheme(tvColorScheme: TvColorScheme): ColorScheme {
+    @Suppress("Deprecation")
     return ColorScheme(
         primary = tvColorScheme.primary,
         onPrimary = tvColorScheme.onPrimary,
