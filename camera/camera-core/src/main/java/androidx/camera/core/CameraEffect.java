@@ -104,6 +104,15 @@ public abstract class CameraEffect {
     }
 
     /**
+     * Options for how many outputs the effect handles.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(value = {OUTPUT_OPTION_ONE_FOR_ALL_TARGETS, OUTPUT_OPTION_ONE_FOR_EACH_TARGET})
+    public @interface OutputOptions {
+    }
+
+    /**
      * Bitmask options for the effect buffer formats.
      */
     @Retention(RetentionPolicy.SOURCE)
@@ -173,8 +182,34 @@ public abstract class CameraEffect {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TRANSFORMATION_PASSTHROUGH = 2;
 
+    /**
+     * Use this option to receive one output Surface for all the output targets.
+     *
+     * <p>When the effect targets multiple UseCases, e.g. Preview, VideoCapture, the effect will
+     * only receive one output Surface for all the outputs. CameraX is responsible for copying the
+     * processed frames to different output Surfaces.
+     *
+     * <p>Use this option if all UseCases receive the same content.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int OUTPUT_OPTION_ONE_FOR_ALL_TARGETS = 0;
+
+    /**
+     * Use this option to receive one output Surface for each corresponding output target.
+     *
+     * <p>When the effect targets multiple UseCases, e.g. Preview, VideoCapture, the effect will
+     * receive two output Surfaces, one for Preview and one for VideoCapture. The effect is
+     * responsible for drawing the processed frames to the corresponding output Surfaces.
+     *
+     * <p>Use this option if each UseCase receives different content.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int OUTPUT_OPTION_ONE_FOR_EACH_TARGET = 1;
+
     @Targets
     private final int mTargets;
+    @OutputOptions
+    private final int mOutputOption;
     @Transformations
     private final int mTransformation;
     @NonNull
@@ -208,10 +243,22 @@ public abstract class CameraEffect {
                 "Currently ImageProcessor can only target IMAGE_CAPTURE.");
         mTargets = targets;
         mTransformation = TRANSFORMATION_ARBITRARY;
+        mOutputOption = OUTPUT_OPTION_ONE_FOR_ALL_TARGETS;
         mExecutor = executor;
         mSurfaceProcessor = null;
         mImageProcessor = imageProcessor;
         mErrorListener = errorListener;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected CameraEffect(
+            @Targets int targets,
+            @Transformations int transformation,
+            @NonNull Executor executor,
+            @NonNull SurfaceProcessor surfaceProcessor,
+            @NonNull Consumer<Throwable> errorListener) {
+        this(targets, OUTPUT_OPTION_ONE_FOR_ALL_TARGETS, transformation, executor, surfaceProcessor,
+                errorListener);
     }
 
     /**
@@ -226,6 +273,7 @@ public abstract class CameraEffect {
      *                         </ul>
      *                         Targeting other {@link UseCase} combinations will throw
      *                         {@link IllegalArgumentException}.
+     * @param outputOption     the option to specify how many output Surface the effect will handle.
      * @param transformation   the transformation that the {@link SurfaceProcessor} will handle.
      * @param executor         the {@link Executor} on which the {@param imageProcessor} and
      *                         {@param errorListener} will be invoked.
@@ -241,12 +289,14 @@ public abstract class CameraEffect {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected CameraEffect(
             @Targets int targets,
+            @OutputOptions int outputOption,
             @Transformations int transformation,
             @NonNull Executor executor,
             @NonNull SurfaceProcessor surfaceProcessor,
             @NonNull Consumer<Throwable> errorListener) {
         checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
         mTargets = targets;
+        mOutputOption = outputOption;
         mTransformation = transformation;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;
@@ -282,13 +332,8 @@ public abstract class CameraEffect {
             @NonNull Executor executor,
             @NonNull SurfaceProcessor surfaceProcessor,
             @NonNull Consumer<Throwable> errorListener) {
-        checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
-        mTargets = targets;
-        mTransformation = TRANSFORMATION_ARBITRARY;
-        mExecutor = executor;
-        mSurfaceProcessor = surfaceProcessor;
-        mImageProcessor = null;
-        mErrorListener = errorListener;
+        this(targets, OUTPUT_OPTION_ONE_FOR_ALL_TARGETS, TRANSFORMATION_ARBITRARY, executor,
+                surfaceProcessor, errorListener);
     }
 
     /**
@@ -306,6 +351,15 @@ public abstract class CameraEffect {
     @Transformations
     public int getTransformation() {
         return mTransformation;
+    }
+
+    /**
+     * Gets the target option.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OutputOptions
+    public int getOutputOption() {
+        return mOutputOption;
     }
 
     /**
