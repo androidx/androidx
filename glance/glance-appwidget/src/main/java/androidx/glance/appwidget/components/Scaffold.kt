@@ -42,7 +42,7 @@ import androidx.glance.unit.ColorProvider
 fun Scaffold(
     titleBar: @Composable () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
-    backgroundColor: ColorProvider = GlanceTheme.colors.surface,
+    backgroundColor: ColorProvider = GlanceTheme.colors.widgetBackground,
     content: @Composable () -> Unit,
     ) {
     Box(modifier
