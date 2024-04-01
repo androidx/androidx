@@ -309,7 +309,9 @@ internal class Strategy(
                             defaultKeylines,
                             carouselMainAxisSize,
                             itemSpacing,
-                            beforeContentPadding
+                            beforeContentPadding,
+                            defaultKeylines.firstFocal,
+                            defaultKeylines.firstFocalIndex
                         )
                     )
                 }
@@ -364,7 +366,9 @@ internal class Strategy(
                     steps.last(),
                     carouselMainAxisSize,
                     itemSpacing,
-                    beforeContentPadding
+                    beforeContentPadding,
+                    steps.last().firstFocal,
+                    steps.last().firstFocalIndex
                 )
             }
 
@@ -402,7 +406,9 @@ internal class Strategy(
                         defaultKeylines,
                         carouselMainAxisSize,
                         itemSpacing,
-                        -afterContentPadding
+                        -afterContentPadding,
+                        defaultKeylines.lastFocal,
+                        defaultKeylines.lastFocalIndex
                     ))
                 }
                 return steps
@@ -456,7 +462,9 @@ internal class Strategy(
                     steps.last(),
                     carouselMainAxisSize,
                     itemSpacing,
-                    -afterContentPadding
+                    -afterContentPadding,
+                    steps.last().lastFocal,
+                    steps.last().lastFocalIndex
                 )
             }
 
@@ -471,7 +479,9 @@ internal class Strategy(
             from: KeylineList,
             carouselMainAxisSize: Float,
             itemSpacing: Float,
-            contentPadding: Float
+            contentPadding: Float,
+            pivot: Keyline,
+            pivotIndex: Int
         ): KeylineList {
             val numberOfNonAnchorKeylines = from.fastFilter { !it.isAnchor }.count()
             val sizeReduction = contentPadding / numberOfNonAnchorKeylines
@@ -480,8 +490,8 @@ internal class Strategy(
             val newKeylines = keylineListOf(
                 carouselMainAxisSize = carouselMainAxisSize,
                 itemSpacing = itemSpacing,
-                pivotIndex = from.pivotIndex,
-                pivotOffset = from.pivot.offset + contentPadding - (sizeReduction / 2f)
+                pivotIndex = pivotIndex,
+                pivotOffset = pivot.offset - (sizeReduction / 2f) + contentPadding
             ) {
                 from.fastForEach { k -> add(k.size - abs(sizeReduction), k.isAnchor) }
             }
