@@ -376,9 +376,11 @@ private val MICROBENCHMARK_POSTSUBMIT_LISTENERS =
 """
         .trimIndent()
 
+// NOTE: listeners are duplicated in macro package due to no common module w/ junit dependency
+// See b/331974955
 private val MACROBENCHMARK_POSTSUBMIT_LISTENERS =
     """
-    <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.macro.junit4.InstrumentationResultsRunListener" />
     <option name="device-listeners" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
 """
