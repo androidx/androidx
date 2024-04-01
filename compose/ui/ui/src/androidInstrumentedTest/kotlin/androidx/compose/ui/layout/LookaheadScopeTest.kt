@@ -211,10 +211,10 @@ class LookaheadScopeTest {
                     Modifier
                         .requiredSize(targetSize.width.dp, targetSize.height.dp)
                         .createIntermediateElement(object : TestApproachLayoutModifierNode() {
-                            override fun isMeasurementApproachComplete(
+                            override fun isMeasurementApproachInProgress(
                                 lookaheadSize: IntSize
                             ): Boolean {
-                                return iteration > 6
+                                return iteration <= 6
                             }
 
                             @ExperimentalComposeUiApi
@@ -428,10 +428,10 @@ class LookaheadScopeTest {
                             .createIntermediateElement(object :
                                 TestApproachLayoutModifierNode() {
 
-                                override fun isMeasurementApproachComplete(
+                                override fun isMeasurementApproachInProgress(
                                     lookaheadSize: IntSize
                                 ): Boolean {
-                                    return rootPostPlace >= 12
+                                    return rootPostPlace < 12
                                 }
 
                                 @ExperimentalComposeUiApi
@@ -471,10 +471,10 @@ class LookaheadScopeTest {
                                         .createIntermediateElement(object :
                                             TestApproachLayoutModifierNode() {
 
-                                            override fun isMeasurementApproachComplete(
+                                            override fun isMeasurementApproachInProgress(
                                                 lookaheadSize: IntSize
                                             ): Boolean {
-                                                return rootPostPlace >= 12
+                                                return rootPostPlace < 12
                                             }
 
                                             @ExperimentalComposeUiApi
@@ -556,7 +556,7 @@ class LookaheadScopeTest {
                             MyLookaheadLayout {
                                 Box(modifier = Modifier
                                     .approachLayout(
-                                        isMeasurementApproachComplete = { scaleFactor > 3f }
+                                        isMeasurementApproachInProgress = { scaleFactor <= 3f }
                                     ) { measurable, constraints ->
                                         assertEquals(width, lookaheadSize.width)
                                         assertEquals(height, lookaheadSize.height)
@@ -2777,8 +2777,8 @@ class LookaheadScopeTest {
         with(scope) {
             this@composed
                 .createIntermediateElement(object : TestApproachLayoutModifierNode() {
-                    override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
-                        return true
+                    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+                        return false
                     }
 
                     @ExperimentalComposeUiApi
@@ -2892,7 +2892,7 @@ class LookaheadScopeTest {
             measurable: Measurable,
             constraints: Constraints,
         ) -> MeasureResult,
-    ): Modifier = approachLayout({ testFinished }, approachMeasure = measure)
+    ): Modifier = approachLayout({ !testFinished }, approachMeasure = measure)
 }
 
 private fun Modifier.createIntermediateElement(node: TestApproachLayoutModifierNode): Modifier =

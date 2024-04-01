@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.NodeMeasuringIntrinsics
 import androidx.compose.ui.unit.Constraints
@@ -42,65 +41,65 @@ import androidx.compose.ui.unit.IntSize
  * measure results without modification. This can be overridden as needed. [approachMeasure]
  * will be invoked during the approach pass after lookahead.
  *
- * [isMeasurementApproachComplete] signals whether the measurement has already reached the
+ * [isMeasurementApproachInProgress] signals whether the measurement is in progress of approaching
  * destination size. It will be queried after the destination has been determined by the lookahead
  * pass, before [approachMeasure] is invoked. The lookahead size is provided to
- * [isMeasurementApproachComplete] for convenience in deciding whether the destination size has
+ * [isMeasurementApproachInProgress] for convenience in deciding whether the destination size has
  * been reached.
  *
- * [isPlacementApproachComplete] indicates whether the position has approached
+ * [isPlacementApproachInProgress] indicates whether the position is actively approaching
  * destination defined by the lookahead, hence it's a signal to the system for whether additional
- * approach placements are necessary. [isPlacementApproachComplete] will be invoked after the
+ * approach placements are necessary. [isPlacementApproachInProgress] will be invoked after the
  * destination position has been determined by lookahead pass, and before the placement phase in
  * [approachMeasure].
  *
  * **IMPORTANT**:
- * When both [isMeasurementApproachComplete] and [isPlacementApproachComplete] become true, the
+ * When both [isMeasurementApproachInProgress] and [isPlacementApproachInProgress] become false, the
  * approach is considered complete. Approach pass will subsequently snap the measurement and
  * placement to lookahead measurement and placement. Once approach is complete, [approachMeasure]
- * may never be invoked until either [isMeasurementApproachComplete] or
- * [isPlacementApproachComplete] becomes false again. Therefore it is important to ensure
+ * may never be invoked until either [isMeasurementApproachInProgress] or
+ * [isPlacementApproachInProgress] becomes true again. Therefore it is important to ensure
  * [approachMeasure] and [measure] result in the same measurement and placement when the approach is
  * complete. Otherwise, there may be visual discontinuity when we snap the measurement and placement
  * to lookahead.
  *
- * It is important to be accurate in [isPlacementApproachComplete] and
- * [isMeasurementApproachComplete]. A prolonged indication of incomplete approach will prevent the
+ * It is important to be accurate in [isPlacementApproachInProgress] and
+ * [isMeasurementApproachInProgress]. A prolonged indication of incomplete approach will prevent the
  * system from potentially skipping approach pass when possible.
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  */
 interface ApproachLayoutModifierNode : LayoutModifierNode {
     /**
-     * [isMeasurementApproachComplete] signals whether the measurement has already reached the
+     * [isMeasurementApproachInProgress] signals whether the measurement is currently approaching
      * destination size. It will be queried after the destination has been determined by the
      * lookahead pass, before [approachMeasure] is invoked. The lookahead size is provided to
-     * [isMeasurementApproachComplete] for convenience in deciding whether the destination size has
-     * been reached.
+     * [isMeasurementApproachInProgress] for convenience in deciding whether the destination size
+     * has been reached.
      *
-     * Note: It is important to be accurate in [isPlacementApproachComplete] and
-     * [isMeasurementApproachComplete]. A prolonged indication of incomplete approach will prevent
+     * Note: It is important to be accurate in [isPlacementApproachInProgress] and
+     * [isMeasurementApproachInProgress]. A prolonged indication of incomplete approach will prevent
      * the system from potentially skipping approach pass when possible.
      */
-    fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean
+    fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean
 
     /**
-     * [isPlacementApproachComplete] indicates whether the position has approached destination
+     * [isPlacementApproachInProgress] indicates whether the position is approaching destination
      * defined by the lookahead, hence it's a signal to the system for whether additional
-     * approach placements are necessary. [isPlacementApproachComplete] will be invoked after the
+     * approach placements are necessary. [isPlacementApproachInProgress] will be invoked after the
      * destination position has been determined by lookahead pass, and before the placement phase in
      * [approachMeasure].
      *
-     * Note: It is important to be accurate in [isPlacementApproachComplete] and
-     * [isMeasurementApproachComplete]. A prolonged indication of incomplete approach will prevent
+     * Note: It is important to be accurate in [isPlacementApproachInProgress] and
+     * [isMeasurementApproachInProgress]. A prolonged indication of incomplete approach will prevent
      * the system from potentially skipping approach pass when possible.
      *
-     * By default, [isPlacementApproachComplete] returns true.
+     * By default, [isPlacementApproachInProgress] returns false.
      */
-    fun Placeable.PlacementScope.isPlacementApproachComplete(
+    fun Placeable.PlacementScope.isPlacementApproachInProgress(
         lookaheadCoordinates: LayoutCoordinates
     ): Boolean {
-        return true
+        return false
     }
 
     override fun MeasureScope.measure(
@@ -125,13 +124,12 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
      * achieved.
      *
      * Note: [approachMeasure] is only guaranteed to be invoked when either
-     * [isPlacementApproachComplete] or [isMeasurementApproachComplete] is false. Otherwise, the
+     * [isMeasurementApproachInProgress] or [isMeasurementApproachInProgress] is true. Otherwise, the
      * system will consider the approach complete (i.e. destination reached) and may skip the
      * approach pass when possible.
      *
      * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
      */
-    @ExperimentalComposeUiApi
     fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
         constraints: Constraints
@@ -140,7 +138,6 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /**
      * The function used to calculate minIntrinsicWidth for the approach pass changes.
      */
-    @ExperimentalComposeUiApi
     fun ApproachIntrinsicMeasureScope.minApproachIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int
@@ -156,7 +153,6 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /**
      * The function used to calculate minIntrinsicHeight for the approach pass changes.
      */
-    @ExperimentalComposeUiApi
     fun ApproachIntrinsicMeasureScope.minApproachIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int
@@ -172,7 +168,6 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /**
      * The function used to calculate maxIntrinsicWidth for the approach pass changes.
      */
-    @ExperimentalComposeUiApi
     fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int
@@ -188,7 +183,6 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
     /**
      * The function used to calculate maxIntrinsicHeight for the approach pass changes.
      */
-    @ExperimentalComposeUiApi
     fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int

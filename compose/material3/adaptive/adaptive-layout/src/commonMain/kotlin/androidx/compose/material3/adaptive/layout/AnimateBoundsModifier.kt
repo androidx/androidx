@@ -50,11 +50,11 @@ internal fun Modifier.animateBounds(
         return@composed this
     }
     this.approachLayout(
-        isMeasurementApproachComplete = {
-            animateFraction == 1f
+        isMeasurementApproachInProgress = {
+            animateFraction != 1f
         },
-        isPlacementApproachComplete = {
-            animateFraction == 1f
+        isPlacementApproachInProgress = {
+            animateFraction != 1f
         },
     ) { measurable, _ ->
         // When layout changes, the lookahead pass will calculate a new final size for the

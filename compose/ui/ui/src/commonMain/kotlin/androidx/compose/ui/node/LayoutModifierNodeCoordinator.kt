@@ -158,7 +158,7 @@ internal class LayoutModifierNodeCoordinator(
                 // approachMeasureScope is created/updated when layoutModifierNode is set. An
                 // ApproachLayoutModifierNode will lead to a non-null approachMeasureScope.
                 with(scope.approachNode) {
-                    scope.approachMeasureRequired = !isMeasurementApproachComplete(
+                    scope.approachMeasureRequired = isMeasurementApproachInProgress(
                         scope.lookaheadSize
                     ) || constraints != lookaheadConstraints
                     if (!scope.approachMeasureRequired) {
@@ -257,7 +257,7 @@ internal class LayoutModifierNodeCoordinator(
         approachMeasureScope?.let {
             with(it.approachNode) {
                 val approachComplete = with(placementScope) {
-                    isPlacementApproachComplete(
+                    !isPlacementApproachInProgress(
                         lookaheadDelegate!!.lookaheadLayoutCoordinates
                     ) && !it.approachMeasureRequired &&
                         size == lookaheadDelegate?.size &&

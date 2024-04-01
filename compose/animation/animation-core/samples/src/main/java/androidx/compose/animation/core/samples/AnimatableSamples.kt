@@ -252,12 +252,12 @@ fun DeferredTargetAnimationSample() {
         sizeAnimation: DeferredTargetAnimation<IntSize, AnimationVector2D>,
         coroutineScope: CoroutineScope
     ) = this.approachLayout(
-        isMeasurementApproachComplete = { lookaheadSize ->
+        isMeasurementApproachInProgress = { lookaheadSize ->
             // Update the target of the size animation.
             sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
-            // Return true if the size animation has no pending target change and has finished
+            // Return true if the size animation has pending target change or is currently
             // running.
-            sizeAnimation.isIdle
+            !sizeAnimation.isIdle
         }
     ) { measurable, _ ->
         // In the measurement approach, the goal is to gradually reach the destination size
