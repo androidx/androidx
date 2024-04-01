@@ -217,7 +217,7 @@ fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = c
             } ?: IntOffset(0, 0)
         }
     }
-    this.approachLayout({ provider.progress == 1f }) { measurable, _ ->
+    this.approachLayout({ provider.progress != 1f }) { measurable, _ ->
         val (width, height) = calculateSize(lookaheadSize)
         val animatedConstraints = Constraints.fixed(width, height)
         val placeable = measurable.measure(animatedConstraints)

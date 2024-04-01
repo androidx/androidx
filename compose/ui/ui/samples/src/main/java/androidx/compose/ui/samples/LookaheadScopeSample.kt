@@ -82,12 +82,12 @@ fun approachLayoutSample() {
         sizeAnimation: DeferredTargetAnimation<IntSize, AnimationVector2D>,
         coroutineScope: CoroutineScope
     ) = this.approachLayout(
-        isMeasurementApproachComplete = { lookaheadSize ->
+        isMeasurementApproachInProgress = { lookaheadSize ->
             // Update the target of the size animation.
             sizeAnimation.updateTarget(lookaheadSize, coroutineScope)
-            // Return true if the size animation has no pending target change and has finished
+            // Return true if the size animation has pending target change or hasn't finished
             // running.
-            sizeAnimation.isIdle
+            !sizeAnimation.isIdle
         }
     ) { measurable, _ ->
         // In the measurement approach, the goal is to gradually reach the destination size
@@ -150,21 +150,21 @@ fun LookaheadLayoutCoordinatesSample() {
                 IntOffset.VectorConverter
             )
 
-        override fun isMeasurementApproachComplete(lookaheadSize: IntSize): Boolean {
+        override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
             // Since we only animate the placement here, we can consider measurement approach
             // complete.
-            return true
+            return false
         }
 
-        // Returns true when the offset animation is complete, false otherwise.
-        override fun Placeable.PlacementScope.isPlacementApproachComplete(
+        // Returns true when the offset animation is in progress, false otherwise.
+        override fun Placeable.PlacementScope.isPlacementApproachInProgress(
             lookaheadCoordinates: LayoutCoordinates
         ): Boolean {
             val target = with(lookaheadScope) {
                 lookaheadScopeCoordinates.localLookaheadPositionOf(lookaheadCoordinates).round()
             }
             offsetAnimation.updateTarget(target, coroutineScope)
-            return offsetAnimation.isIdle
+            return !offsetAnimation.isIdle
         }
 
         @ExperimentalComposeUiApi

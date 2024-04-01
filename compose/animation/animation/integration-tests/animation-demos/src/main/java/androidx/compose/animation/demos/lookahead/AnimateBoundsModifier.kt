@@ -81,18 +81,18 @@ fun Modifier.animateBounds(
             }
         }
         .approachLayout(
-            isMeasurementApproachComplete = {
+            isMeasurementApproachInProgress = {
                 outerSizeAnimation.updateTarget(it, coroutineScope, sizeAnimationSpec)
-                outerSizeAnimation.isIdle
+                !outerSizeAnimation.isIdle
             },
-            isPlacementApproachComplete = {
+            isPlacementApproachInProgress = {
                 val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
                 outerOffsetAnimation.updateTarget(
                     target.round(),
                     coroutineScope,
                     positionAnimationSpec
                 )
-                outerOffsetAnimation.isIdle
+                !outerOffsetAnimation.isIdle
             }
         ) { measurable, constraints ->
             val (w, h) = outerSizeAnimation.updateTarget(
@@ -126,18 +126,18 @@ fun Modifier.animateBounds(
             }
         }
         .approachLayout(
-            isMeasurementApproachComplete = {
+            isMeasurementApproachInProgress = {
                 sizeAnimation.updateTarget(it, coroutineScope, sizeAnimationSpec)
-                sizeAnimation.isIdle
+                !sizeAnimation.isIdle
             },
-            isPlacementApproachComplete = {
+            isPlacementApproachInProgress = {
                 val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
                 offsetAnimation.updateTarget(
                     target.round(),
                     coroutineScope,
                     positionAnimationSpec
                 )
-                offsetAnimation.isIdle
+                !offsetAnimation.isIdle
             }
         ) { measurable, _ ->
             // When layout changes, the lookahead pass will calculate a new final size for the

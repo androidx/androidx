@@ -163,14 +163,14 @@ fun Modifier.animateBoundsInScope(): Modifier = composed {
     val offsetAnim = remember { DeferredTargetAnimation(IntOffset.VectorConverter) }
     val scope = rememberCoroutineScope()
     this.approachLayout(
-        isMeasurementApproachComplete = {
+        isMeasurementApproachInProgress = {
             sizeAnim.updateTarget(it, scope)
-            sizeAnim.isIdle
+            !sizeAnim.isIdle
         },
-        isPlacementApproachComplete = {
+        isPlacementApproachInProgress = {
             val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
             offsetAnim.updateTarget(target.round(), scope, spring())
-            offsetAnim.isIdle
+            !offsetAnim.isIdle
         }
     ) { measurable, _ ->
         val (animWidth, animHeight) = sizeAnim.updateTarget(
