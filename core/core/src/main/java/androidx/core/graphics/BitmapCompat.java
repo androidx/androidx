@@ -52,7 +52,10 @@ public final class BitmapCompat {
      * @return true if the renderer should attempt to use mipmaps,
      * false otherwise
      * @see Bitmap#hasMipMap()
+     * @deprecated Call {@link Bitmap#hasMipMap()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "bitmap.hasMipMap()")
     public static boolean hasMipMap(@NonNull Bitmap bitmap) {
         return bitmap.hasMipMap();
     }
@@ -76,7 +79,10 @@ public final class BitmapCompat {
      * @param hasMipMap indicates whether the renderer should attempt
      *                  to use mipmaps
      * @see Bitmap#setHasMipMap(boolean)
+     * @deprecated Call {@link Bitmap#setHasMipMap()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "bitmap.setHasMipMap(hasMipMap)")
     public static void setHasMipMap(@NonNull Bitmap bitmap, boolean hasMipMap) {
         bitmap.setHasMipMap(hasMipMap);
     }
@@ -87,7 +93,10 @@ public final class BitmapCompat {
      * This value will not change over the lifetime of a Bitmap.
      *
      * @see Bitmap#getAllocationByteCount()
+     * @deprecated Call {@link Bitmap#getAllocationByteCount()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "bitmap.getAllocationByteCount()")
     public static int getAllocationByteCount(@NonNull Bitmap bitmap) {
         return bitmap.getAllocationByteCount();
     }

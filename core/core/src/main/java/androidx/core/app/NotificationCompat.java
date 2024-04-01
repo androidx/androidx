@@ -8953,7 +8953,10 @@ public class NotificationCompat {
      * Gets the {@link Notification#extras} field from a notification in a backwards
      * compatible manner. Extras field was supported from JellyBean (Api level 16)
      * forwards. This function will return {@code null} on older api levels.
+     * @deprecated Call {@link Notification#extras} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "notification.extras")
     @Nullable
     public static Bundle getExtras(@NonNull Notification notification) {
         return notification.extras;

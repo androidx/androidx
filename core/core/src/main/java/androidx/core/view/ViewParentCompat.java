@@ -62,6 +62,7 @@ public final class ViewParentCompat {
      * @deprecated Use {@link ViewParent#requestSendAccessibilityEvent(View, AccessibilityEvent)}
      * directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "parent.requestSendAccessibilityEvent(child, event)")
     @Deprecated
     public static boolean requestSendAccessibilityEvent(
             ViewParent parent, View child, AccessibilityEvent event) {
@@ -504,7 +505,10 @@ public final class ViewParentCompat {
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_TEXT}
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *            </ul>
+     * @deprecated Call {@link ViewParent#notifySubtreeAccessibilityStateChanged()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "parent.notifySubtreeAccessibilityStateChanged(child, source, changeType)")
     public static void notifySubtreeAccessibilityStateChanged(@NonNull ViewParent parent,
             @NonNull View child, @NonNull View source, int changeType) {
         parent.notifySubtreeAccessibilityStateChanged(child, source, changeType);

@@ -136,7 +136,10 @@ public class AccessibilityRecordCompat {
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param root The root of the virtual subtree.
      * @param virtualDescendantId The id of the virtual descendant.
+     * @deprecated Call {@link AccessibilityRecord#setSource()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.setSource(root, virtualDescendantId)")
     public static void setSource(@NonNull AccessibilityRecord record, @Nullable View root,
             int virtualDescendantId) {
         record.setSource(root, virtualDescendantId);
@@ -479,7 +482,10 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @return The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#getMaxScrollX()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.getMaxScrollX()")
     public static int getMaxScrollX(@NonNull AccessibilityRecord record) {
         return record.getMaxScrollX();
     }
@@ -501,7 +507,10 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param maxScrollX The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#setMaxScrollX()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.setMaxScrollX(maxScrollX)")
     public static void setMaxScrollX(@NonNull AccessibilityRecord record, int maxScrollX) {
         record.setMaxScrollX(maxScrollX);
     }
@@ -523,7 +532,10 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @return The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#getMaxScrollY()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.getMaxScrollY()")
     public static int getMaxScrollY(@NonNull AccessibilityRecord record) {
         return record.getMaxScrollY();
     }
@@ -545,7 +557,10 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param maxScrollY The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#setMaxScrollY()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.setMaxScrollY(maxScrollY)")
     public static void setMaxScrollY(@NonNull AccessibilityRecord record, int maxScrollY) {
         record.setMaxScrollY(maxScrollY);
     }
