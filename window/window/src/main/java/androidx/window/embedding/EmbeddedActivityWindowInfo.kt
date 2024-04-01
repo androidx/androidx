@@ -17,13 +17,11 @@
 package androidx.window.embedding
 
 import android.graphics.Rect
-import androidx.annotation.RestrictTo
 
 /**
  * Describes the embedded window related info of an activity.
  * @see ActivityEmbeddingController.embeddedActivityWindowInfo
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EmbeddedActivityWindowInfo internal constructor(
     /**
      * Whether this activity is embedded and its presentation may be customized by the host
