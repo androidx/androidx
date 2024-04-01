@@ -507,7 +507,7 @@ private val goldenDefaultConfigMacroBenchmark = """
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
     <option name="runner" value="com.example.Runner"/>
     <option name="package" value="com.androidx.placeholder.Placeholder" />
-    <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.macro.junit4.InstrumentationResultsRunListener" />
     <option name="device-listeners" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
     </test>
     </configuration>
