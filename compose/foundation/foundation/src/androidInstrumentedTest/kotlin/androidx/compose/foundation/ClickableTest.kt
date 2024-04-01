@@ -52,6 +52,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
@@ -143,7 +144,9 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable {}
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable {}
                 )
             }
         }
@@ -160,7 +163,9 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable(enabled = false) {}
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(enabled = false) {}
                 )
             }
         }
@@ -179,7 +184,8 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable")
+                    modifier = Modifier
+                        .testTag("myClickable")
                         .clickable(enabled = enabled, role = role) {}
                 )
             }
@@ -1324,7 +1330,9 @@ class ClickableTest {
     private fun Modifier.dynamicPointerInputModifier(
         enabled: Boolean,
         key: Any? = Unit,
-        onPress: () -> Unit
+        onPress: () -> Unit = { },
+        onMove: () -> Unit = { },
+        onRelease: () -> Unit = { },
     ) = if (enabled) {
         pointerInput(key) {
             awaitPointerEventScope {
@@ -1332,6 +1340,10 @@ class ClickableTest {
                     val event = awaitPointerEvent()
                     if (event.type == PointerEventType.Press) {
                         onPress()
+                    } else if (event.type == PointerEventType.Move) {
+                        onMove()
+                    } else if (event.type == PointerEventType.Release) {
+                        onRelease()
                     }
                 }
             }
@@ -1557,9 +1569,13 @@ class ClickableTest {
             Box(Modifier
                 .size(200.dp)
                 .testTag("myClickable")
-                .dynamicPointerInputModifier(activateDynamicPointerInput, "unique_key_123") {
-                    dynamicPressCounter++
-                }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    key = "unique_key_123",
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
                 .clickable {
                     clickableClickCounter++
                     activateDynamicPointerInput = true
@@ -1593,7 +1609,12 @@ class ClickableTest {
             Box(Modifier
                 .size(200.dp)
                 .testTag("myClickable")
-                .dynamicPointerInputModifier(activateDynamicPointerInput) { dynamicPressCounter++ }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
                 .clickable {
                     clickableClickCounter++
                     activateDynamicPointerInput = true
@@ -1616,6 +1637,132 @@ class ClickableTest {
         }
     }
 
+    // Tests a dynamic pointer input AND a dynamic clickable{} above an existing pointer input.
+    @Test
+    fun dynamicInputModifiersInTouchStream_addsAboveClickableWithUnitKey_triggersAllModifiers() {
+        var activeDynamicClickable by mutableStateOf(false)
+        var dynamicClickableCounter by mutableStateOf(0)
+
+        var activeDynamicPointerInput by mutableStateOf(false)
+        var dynamicPointerInputPressCounter by mutableStateOf(0)
+        var dynamicPointerInputMoveCounter by mutableStateOf(0)
+        var dynamicPointerInputReleaseCounter by mutableStateOf(0)
+
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activeDynamicPointerInput,
+                    onPress = {
+                        dynamicPointerInputPressCounter++
+                    },
+                    onMove = {
+                        dynamicPointerInputMoveCounter++
+                    },
+                    onRelease = {
+                        dynamicPointerInputReleaseCounter++
+                        activeDynamicClickable = true
+                    }
+                )
+                .dynamicClickableModifier(activeDynamicClickable) {
+                    dynamicClickableCounter++
+                }
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activeDynamicPointerInput = true
+                        }
+                    }
+                }
+            )
+        }
+
+        // Even though we are enabling the dynamic pointer input, it will NOT receive events until
+        // the next event stream (after the click is over) which is why you see zeros below.
+        // Only two events are triggered for click (down/up)
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // With these events, we enable the dynamic pointer input
+            assertEquals(2, originalPointerInputEventCounter)
+
+            assertEquals(0, dynamicPointerInputPressCounter)
+            assertEquals(0, dynamicPointerInputMoveCounter)
+            assertEquals(0, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            down(Offset(0f, 0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+
+            assertEquals(1, dynamicPointerInputPressCounter)
+            assertEquals(0, dynamicPointerInputMoveCounter)
+            assertEquals(0, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            moveTo(Offset(1f, 1f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(4, originalPointerInputEventCounter)
+
+            assertEquals(1, dynamicPointerInputPressCounter)
+            assertEquals(1, dynamicPointerInputMoveCounter)
+            assertEquals(0, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            up()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(5, originalPointerInputEventCounter)
+
+            assertEquals(1, dynamicPointerInputPressCounter)
+            assertEquals(1, dynamicPointerInputMoveCounter)
+            // With this release counter, we enable the dynamic clickable{}
+            assertEquals(1, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        // Only two events are triggered for click (down/up)
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(7, originalPointerInputEventCounter)
+
+            assertEquals(2, dynamicPointerInputPressCounter)
+            assertEquals(1, dynamicPointerInputMoveCounter)
+            assertEquals(2, dynamicPointerInputReleaseCounter)
+
+            assertEquals(1, dynamicClickableCounter)
+        }
+    }
+
     /*
      * Tests adding dynamic modifier with COMPLETE mouse events, that is, the expected events from
      * using a hardware device with an Android device.
@@ -1632,9 +1779,13 @@ class ClickableTest {
             Box(Modifier
                 .size(200.dp)
                 .testTag("myClickable")
-                .dynamicPointerInputModifier(activateDynamicPointerInput, "unique_key_123") {
-                    dynamicPressCounter++
-                }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    key = "unique_key_123",
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
                 .clickable {
                     clickableClickCounter++
                     activateDynamicPointerInput = true
@@ -1680,7 +1831,12 @@ class ClickableTest {
             Box(Modifier
                 .size(200.dp)
                 .testTag("myClickable")
-                .dynamicPointerInputModifier(activateDynamicPointerInput) { dynamicPressCounter++ }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
                 .clickable {
                     clickableClickCounter++
                     activateDynamicPointerInput = true
@@ -1704,6 +1860,153 @@ class ClickableTest {
             click()
             exit()
         }
+        rule.runOnIdle {
+            assertEquals(2, clickableClickCounter)
+            assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    /* Tests dynamically adding a pointer input DURING an event stream (specifically, Hover).
+     * Hover is the only scenario where you can add a new pointer input modifier during the event
+     * stream AND receive events in the same active stream from that new pointer input modifier.
+     * It isn't possible in the down/up scenario because you add the new modifier during the down
+     * but you don't get another down until the next event stream.
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierHoverMouse_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    },
+                    onRelease = {
+                        dynamicReleaseCounter++
+                    }
+                )
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            press()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            release()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(4, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* This is the same as the test above, but
+     *   1. Using clickable{}
+     *   2. It enables the dynamic pointer input and starts the hover event stream in a more
+     * hacky way (using mouse click without hover which triggers hover enter on release).
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierIncompleteMouse_addsAboveClickableHackyEvents_triggersBothModifiers() {
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var dynamicPressCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
+                .clickable {
+                    clickableClickCounter++
+                    activateDynamicPointerInput = true
+                }
+            )
+        }
+
+        // Usually, a proper event stream from hardware for mouse input would be:
+        // - enter() (hover enter)
+        // - click()
+        // - exit()
+        // However, in this case, I'm just calling click() which triggers actions:
+        // - press
+        // - release
+        // - hover enter
+        // This starts a hover event stream (in a more hacky way) and also enables the dynamic
+        // pointer input to start recording events.
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, clickableClickCounter)
+            assertEquals(0, dynamicPressCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
         rule.runOnIdle {
             assertEquals(2, clickableClickCounter)
             assertEquals(1, dynamicPressCounter)
@@ -2614,7 +2917,10 @@ class ClickableTest {
             inputModeManager = LocalInputModeManager.current
             // Add focusable to the top so that when initial focus is dispatched, the clickable
             // doesn't become focused
-            Box(Modifier.padding(10.dp).focusable()) {
+            Box(
+                Modifier
+                    .padding(10.dp)
+                    .focusable()) {
                 Box(
                     modifier = Modifier
                         .testTag("clickable")
@@ -2623,7 +2929,10 @@ class ClickableTest {
                             indication = indication
                         ) {}
                 ) {
-                    Box(Modifier.focusRequester(focusRequester).focusable())
+                    Box(
+                        Modifier
+                            .focusRequester(focusRequester)
+                            .focusable())
                 }
             }
         }
