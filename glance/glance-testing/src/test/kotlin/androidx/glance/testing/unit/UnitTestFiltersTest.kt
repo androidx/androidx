@@ -16,6 +16,7 @@
 
 package androidx.glance.testing.unit
 
+import androidx.glance.EmittableButton
 import androidx.glance.GlanceModifier
 import androidx.glance.layout.EmittableColumn
 import androidx.glance.semantics.semantics
@@ -58,6 +59,19 @@ class UnitTestFiltersTest {
     fun hasTextEqualTo_match_returnsTrue() {
         val testSingleNode = GlanceMappedNode(
             EmittableText().apply {
+                text = "existing text"
+            }
+        )
+
+        val result = hasTextEqualTo("existing text").matches(testSingleNode)
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun hasTextOnButton_match_returnsTrue() {
+        val testSingleNode = GlanceMappedNode(
+            EmittableButton().apply {
                 text = "existing text"
             }
         )
