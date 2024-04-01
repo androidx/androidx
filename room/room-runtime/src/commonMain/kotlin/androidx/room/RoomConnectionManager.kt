@@ -194,8 +194,10 @@ abstract class BaseRoomConnectionManager {
                     null
                 }
             }
-
-            if (openDelegate.identityHash != identityHash) {
+            if (
+                openDelegate.identityHash != identityHash &&
+                openDelegate.legacyIdentityHash != identityHash
+            ) {
                 error(
                     "Room cannot verify the data integrity. Looks like" +
                         " you've changed schema but forgot to update the version number. You can" +
