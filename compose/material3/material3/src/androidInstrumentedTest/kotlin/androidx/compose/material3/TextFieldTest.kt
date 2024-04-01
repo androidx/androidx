@@ -46,6 +46,7 @@ import androidx.compose.material3.internal.MinSupportingTextLineHeight
 import androidx.compose.material3.internal.MinTextLineHeight
 import androidx.compose.material3.internal.Strings.Companion.DefaultErrorMessage
 import androidx.compose.material3.internal.SupportingTopPadding
+import androidx.compose.material3.internal.TextFieldAnimationDuration
 import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
@@ -1728,8 +1729,8 @@ class TextFieldTest {
             focusRequester.requestFocus()
         }
 
-        // animation duration is 150, advancing by 75 to get into middle of animation
-        rule.mainClock.advanceTimeBy(75)
+        // advance to middle of animation
+        rule.mainClock.advanceTimeBy(TextFieldAnimationDuration.toLong() / 2)
 
         rule.runOnIdle {
             assertThat(textStyle.color).isEqualTo(expectedLabelColor)
