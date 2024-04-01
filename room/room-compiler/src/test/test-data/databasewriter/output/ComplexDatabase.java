@@ -30,7 +30,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     @Override
     @NonNull
     protected RoomOpenDelegate createOpenDelegate() {
-        final RoomOpenDelegate _openDelegate = new RoomOpenDelegate(1923, "12b646c55443feeefb567521e2bece85") {
+        final RoomOpenDelegate _openDelegate = new RoomOpenDelegate(1923, "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2") {
             @Override
             public void createAllTables(@NonNull final SQLiteConnection connection) {
                 SQLiteKt.execSQL(connection, "CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");

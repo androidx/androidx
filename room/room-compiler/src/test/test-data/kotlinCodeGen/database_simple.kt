@@ -33,7 +33,7 @@ public class MyDatabase_Impl : MyDatabase() {
 
   protected override fun createOpenDelegate(): RoomOpenDelegate {
     val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1,
-        "195d7974660177325bd1a32d2c7b8b8c") {
+        "195d7974660177325bd1a32d2c7b8b8c", "7458a901120796c5bbc554e2fefd262f") {
       public override fun createAllTables(connection: SQLiteConnection) {
         connection.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, PRIMARY KEY(`pk`))")
         connection.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
