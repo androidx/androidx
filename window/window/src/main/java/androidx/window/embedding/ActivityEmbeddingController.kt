@@ -58,11 +58,10 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
     /**
      * Sets the launching [ActivityStack] to the given [Bundle].
      *
-     * Apps can launch an [Activity] into the [ActivityStack] associated with [token] by
-     * [Activity.startActivity].
+     * Apps can launch an [Activity] into the [ActivityStack] by [Activity.startActivity].
      *
-     * @param options The [Bundle] to be updated.
-     * @param token The token of the [ActivityStack] to be set.
+     * @param options the [Bundle] to be updated.
+     * @param activityStack the [ActivityStack] to be set.
      */
     @RequiresWindowSdkExtension(5)
     internal fun setLaunchingActivityStack(
