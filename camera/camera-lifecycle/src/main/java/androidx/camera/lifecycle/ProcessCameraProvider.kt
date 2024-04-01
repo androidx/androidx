@@ -632,41 +632,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          *
          * For example, to select a front camera and a back camera and bind to [LifecycleOwner] with
          * preview [UseCase], this function could be used with [bindToLifecycle].
-         * ```
-         * Preview previewFront = new Preview.Builder()
-         *                 .build();
-         * CameraSelector cameraSelectorPrimary = null;
-         * CameraSelector cameraSelectorSecondary = null;
-         * for (List<CameraInfo> cameraInfoList : cameraProvider.getAvailableConcurrentCameraInfos()) {
-         *     for (CameraInfo cameraInfo : cameraInfoList) {
-         *         if (cameraInfo.getLensFacing() == CameraSelector.LENS_FACING_FRONT) {
-         *             cameraSelectorPrimary = cameraInfo.getCameraSelector();
-         *         } else if (cameraInfo.getLensFacing() == CameraSelector.LENS_FACING_BACK) {
-         *             cameraSelectorSecondary = cameraInfo.getCameraSelector();
-         *         }
-         *     }
-         * }
-         * if (cameraSelectorPrimary == null || cameraSelectorSecondary == null) {
-         *     return;
-         * }
-         * previewFront.setSurfaceProvider(frontPreviewView.getSurfaceProvider());
-         * SingleCameraConfig primary = new SingleCameraConfig(
-         *         cameraSelectorPrimary,
-         *         new UseCaseGroup.Builder()
-         *                 .addUseCase(previewFront)
-         *                 .build(),
-         *         lifecycleOwner);
-         * Preview previewBack = new Preview.Builder()
-         *         .build();
-         * previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider());
-         * SingleCameraConfig secondary = new SingleCameraConfig(
-         *         cameraSelectorSecondary,
-         *         new UseCaseGroup.Builder()
-         *                 .addUseCase(previewBack)
-         *                 .build(),
-         *         lifecycleOwner);
-         * cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
-         * ```
+         *
+         * @sample androidx.camera.lifecycle.samples.bindConcurrentCameraSample
          *
          * @return List of combinations of [CameraInfo].
          */
@@ -862,49 +829,19 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          * [bindToLifecycle].
          *
          * The instance's configuration may be customized by subclassing the application's
-         * [Application] class and implementing [CameraXConfig.Provider]. For example, the following
-         * will initialize this process camera provider with a
-         * [Camera2 implementation][androidx.camera.camera2.Camera2Config] from
+         * [Application] class and implementing [CameraXConfig.Provider]. For example, the sample
+         * implements [CameraXConfig.Provider.getCameraXConfig] and initializes this process camera
+         * provider with a [Camera2 implementation][androidx.camera.camera2.Camera2Config] from
          * [androidx.camera.camera2], and with a custom executor.
          *
-         * ```
-         * public class MyApplication extends Application implements CameraXConfig.Provider {
-         *     {@literal @}Override
-         *     public CameraXConfig getCameraXConfig() {
-         *         return CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-         *                    .setCameraExecutor(myExecutor)
-         *                    .setSchedulerHandler(mySchedulerHandler)
-         *                    .build();
-         *     }
-         *
-         *     . . .
-         * }
-         * ```
+         * @sample androidx.camera.lifecycle.samples.getCameraXConfigSample
          *
          * If it isn't possible to subclass the [Application] class, such as in library code, then
          * the singleton can be configured via [configureInstance] before the first invocation of
-         * `getInstance(context)`, as in the following example.
+         * `getInstance(context)`, the sample implements a customized camera provider that
+         * configures the instance before getting it.
          *
-         * ```
-         * class MyCustomizedCameraProvider {
-         *
-         *     private static boolean configured = false;
-         *
-         *     static ListenableFuture<ProcessCameraProvider> getInstance(Context context) {
-         *         synchronized(MyCustomizedCameraProvider.class) {
-         *             if (!configured) {
-         *                 configured = true;
-         *                 ProcessCameraProvider.configureInstance(
-         *                     CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-         *                           .setCameraExecutor(myExecutor)
-         *                           .setSchedulerHandler(mySchedulerHandler)
-         *                           .build());
-         *             }
-         *         }
-         *         return ProcessCameraProvider.getInstance(context);
-         *     }
-         * }
-         * ```
+         * @sample androidx.camera.lifecycle.samples.configureAndGetInstanceSample
          *
          * If no [CameraXConfig.Provider] is implemented by [Application], or if the
          * singleton has not been configured via [configureInstance] a default
