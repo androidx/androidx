@@ -30,7 +30,15 @@
             android:id="@+id/activity_embedded_status_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Activity is embedded" />
+            android:text="Activity is embedded"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/activity_embedded_bounds_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Embedded bounds not available"
+            android:visibility="gone" />
 
         <CheckBox
             android:id="@+id/splitMainCheckBox"
