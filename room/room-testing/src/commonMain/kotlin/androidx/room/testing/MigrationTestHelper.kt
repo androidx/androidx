@@ -224,7 +224,11 @@ private class DefaultTestConnectionManager(
 
 private sealed class TestOpenDelegate(
     databaseBundle: DatabaseBundle
-) : RoomOpenDelegate(databaseBundle.version, databaseBundle.identityHash) {
+) : RoomOpenDelegate(
+    version = databaseBundle.version,
+    identityHash = databaseBundle.identityHash,
+    legacyIdentityHash = databaseBundle.identityHash
+) {
     override fun onCreate(connection: SQLiteConnection) {}
     override fun onPreMigrate(connection: SQLiteConnection) {}
     override fun onPostMigrate(connection: SQLiteConnection) {}

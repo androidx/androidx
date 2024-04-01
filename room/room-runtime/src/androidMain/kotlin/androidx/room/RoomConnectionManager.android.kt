@@ -164,7 +164,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
      * A no op implementation of [RoomOpenDelegate] used in compatibility mode with old gen code
      * that relies on [RoomOpenHelper].
      */
-    private class NoOpOpenDelegate : RoomOpenDelegate(-1, "") {
+    private class NoOpOpenDelegate : RoomOpenDelegate(-1, "", "") {
         override fun onCreate(connection: SQLiteConnection) {
             error("NOP delegate should never be called")
         }

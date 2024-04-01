@@ -564,7 +564,7 @@ class InvalidationTrackerTest {
         }
 
         override fun createOpenDelegate(): RoomOpenDelegateMarker {
-            return object : RoomOpenDelegate(0, "") {
+            return object : RoomOpenDelegate(0, "", "") {
                 override fun onCreate(connection: SQLiteConnection) {}
                 override fun onPreMigrate(connection: SQLiteConnection) {}
                 override fun onValidateSchema(connection: SQLiteConnection) =

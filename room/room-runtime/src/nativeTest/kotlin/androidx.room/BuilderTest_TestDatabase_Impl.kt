@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 
 internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
     override fun createOpenDelegate(): RoomOpenDelegateMarker {
-        return object : RoomOpenDelegate(0, "") {
+        return object : RoomOpenDelegate(0, "", "") {
             override fun onCreate(connection: SQLiteConnection) { }
             override fun onPreMigrate(connection: SQLiteConnection) { }
             override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
