@@ -54,7 +54,10 @@ public final class NavUtils {
      * @param targetIntent An intent representing the target destination for up navigation
      * @return true if navigating up should recreate a new task stack, false if the same task
      *         should be used for the destination
+     * @deprecated Call {@link Activity#shouldUpRecreateTask()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "sourceActivity.shouldUpRecreateTask(targetIntent)")
     public static boolean shouldUpRecreateTask(@NonNull Activity sourceActivity,
             @NonNull Intent targetIntent) {
         return sourceActivity.shouldUpRecreateTask(targetIntent);
@@ -98,7 +101,10 @@ public final class NavUtils {
      *
      * @param sourceActivity The current activity from which the user is attempting to navigate up
      * @param upIntent An intent representing the target destination for up navigation
+     * @deprecated Call {@link Activity#navigateUpTo()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "sourceActivity.navigateUpTo(upIntent)")
     public static void navigateUpTo(@NonNull Activity sourceActivity, @NonNull Intent upIntent) {
         sourceActivity.navigateUpTo(upIntent);
     }

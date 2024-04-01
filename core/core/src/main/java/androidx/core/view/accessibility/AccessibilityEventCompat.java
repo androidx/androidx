@@ -363,6 +363,7 @@ public final class AccessibilityEventCompat {
      *
      * @deprecated Use {@link AccessibilityEvent#getRecordCount()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "event.getRecordCount()")
     @Deprecated
     public static int getRecordCount(AccessibilityEvent event) {
         return event.getRecordCount();
@@ -379,6 +380,7 @@ public final class AccessibilityEventCompat {
      *
      * @deprecated Use {@link AccessibilityEvent#appendRecord(AccessibilityRecord)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "event.appendRecord(record)")
     @SuppressWarnings("deprecation")
     @Deprecated
     public static void appendRecord(AccessibilityEvent event, AccessibilityRecordCompat record) {
@@ -429,7 +431,10 @@ public final class AccessibilityEventCompat {
      * @param changeTypes The bit mask of change types.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see #getContentChangeTypes(AccessibilityEvent)
+     * @deprecated Call {@link AccessibilityEvent#setContentChangeTypes()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "event.setContentChangeTypes(changeTypes)")
     public static void setContentChangeTypes(@NonNull AccessibilityEvent event,
             @ContentChangeType int changeTypes) {
         event.setContentChangeTypes(changeTypes);
@@ -448,7 +453,10 @@ public final class AccessibilityEventCompat {
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_TEXT}
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *         </ul>
+     * @deprecated Call {@link AccessibilityEvent#getContentChangeTypes()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "event.getContentChangeTypes()")
     @SuppressLint("WrongConstant")
     @ContentChangeType
     public static int getContentChangeTypes(@NonNull AccessibilityEvent event) {
@@ -462,7 +470,10 @@ public final class AccessibilityEventCompat {
      * @param granularity The granularity.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
+     * @deprecated Call {@link AccessibilityEvent#setMovementGranularity()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "event.setMovementGranularity(granularity)")
     public static void setMovementGranularity(@NonNull AccessibilityEvent event, int granularity) {
         event.setMovementGranularity(granularity);
     }
@@ -471,7 +482,10 @@ public final class AccessibilityEventCompat {
      * Gets the movement granularity that was traversed.
      *
      * @return The granularity.
+     * @deprecated Call {@link AccessibilityEvent#getMovementGranularity()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "event.getMovementGranularity()")
     public static int getMovementGranularity(@NonNull AccessibilityEvent event) {
         return event.getMovementGranularity();
     }
@@ -493,7 +507,10 @@ public final class AccessibilityEventCompat {
      * @param action The action.
      * @throws IllegalStateException If called from an AccessibilityService.
      * @see AccessibilityNodeInfoCompat#performAction(int)
+     * @deprecated Call {@link AccessibilityEvent#setAction()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "event.setAction(action)")
     public static void setAction(@NonNull AccessibilityEvent event, int action) {
         event.setAction(action);
     }
@@ -502,7 +519,10 @@ public final class AccessibilityEventCompat {
      * Gets the performed action that triggered this event.
      *
      * @return The action.
+     * @deprecated Call {@link AccessibilityEvent#getAction()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "event.getAction()")
     public static int getAction(@NonNull AccessibilityEvent event) {
         return event.getAction();
     }
