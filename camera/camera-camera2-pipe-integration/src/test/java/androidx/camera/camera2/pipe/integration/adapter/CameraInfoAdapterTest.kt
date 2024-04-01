@@ -31,6 +31,8 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.internal.DOLBY_VISION_10B_UNCONSTRAINED
 import androidx.camera.camera2.pipe.integration.internal.HLG10_UNCONSTRAINED
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
@@ -433,6 +435,29 @@ class CameraInfoAdapterTest {
 
         assertThrows(IllegalArgumentException::class.java) {
             cameraInfo.querySupportedDynamicRanges(emptySet())
+        }
+    }
+
+    @Test
+    fun cameraInfo_queryLogicalMultiCameraSupported() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter()
+
+        assertThat(cameraInfo.isLogicalMultiCameraSupported).isTrue()
+    }
+
+    @OptIn(ExperimentalCamera2Interop::class)
+    @Test
+    fun cameraInfo_getPhysicalCameraInfos() {
+        val physicalCameraIds = setOf(
+            CameraId.fromCamera2Id("5"),
+            CameraId.fromCamera2Id("6"))
+        val cameraInfo: CameraInfo = createCameraInfoAdapter()
+
+        assertThat(cameraInfo.physicalCameraInfos).isNotNull()
+        assertThat(cameraInfo.physicalCameraInfos.size).isEqualTo(2)
+        for (info in cameraInfo.physicalCameraInfos) {
+            assertThat(physicalCameraIds).contains(
+                CameraId(Camera2CameraInfo.from(info).getCameraId()))
         }
     }
 

@@ -26,6 +26,7 @@ import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOUR
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
+import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
@@ -397,6 +398,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         }
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     @Override
     public boolean isZslSupported() {
