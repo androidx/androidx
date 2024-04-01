@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.glance.appwidget.components.ScaffoldKt#Scaffold(androidx.glance.GlanceModifier, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.glance.unit.ColorProvider, float, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Added method androidx.glance.appwidget.components.ScaffoldKt.Scaffold(androidx.glance.GlanceModifier,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.glance.unit.ColorProvider,float,kotlin.jvm.functions.Function0<kotlin.Unit>)
+
+
+RemovedMethod: androidx.glance.appwidget.components.ScaffoldKt#Scaffold(kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.glance.GlanceModifier, androidx.glance.unit.ColorProvider, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Removed method androidx.glance.appwidget.components.ScaffoldKt.Scaffold(kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.glance.GlanceModifier,androidx.glance.unit.ColorProvider,kotlin.jvm.functions.Function0<kotlin.Unit>)
