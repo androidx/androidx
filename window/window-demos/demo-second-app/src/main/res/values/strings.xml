@@ -22,4 +22,6 @@
     <string name="untrusted_embedding_activity">Untrusted Embedding Activity</string>
     <string name="untrusted_embedding_activity_detail">Activity allows embedding in untrusted mode
         via opt-in.</string>
+    <string name="embedded_window_info_unavailable">EmbeddedActivityWindowInfo not available
+    </string>
 </resources>
