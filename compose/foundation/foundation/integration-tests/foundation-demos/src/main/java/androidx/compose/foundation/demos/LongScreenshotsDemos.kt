@@ -61,7 +61,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.scrollcapture.ComposeFeatureFlag_LongScreenshotsEnabled
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -93,8 +92,6 @@ private fun SingleEagerListDemo() {
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FeatureFlagToggle()
-
         Text(
             "This is some scrollable content. When a screenshot is taken, it should let you " +
                 "capture the entire content, not just the part currently visible.",
@@ -145,8 +142,6 @@ private fun SingleLazyListDemo() {
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FeatureFlagToggle()
-
         Text(
             "This is some scrollable content. When a screenshot is taken, it should let you " +
                 "capture the entire content, not just the part currently visible.",
@@ -176,8 +171,6 @@ private fun SingleLazyListDemo() {
 @Composable
 private fun SingleFullScreenListDemo() {
     Column {
-        FeatureFlagToggle()
-
         LazyColumn(Modifier.fillMaxSize()) {
             items(50) { index ->
                 Button(
@@ -196,8 +189,6 @@ private fun SingleFullScreenListDemo() {
 @Composable
 private fun LazyListContentPaddingDemo() {
     Column {
-        FeatureFlagToggle()
-
         Scaffold(
             modifier = Modifier
                 .padding(8.dp)
@@ -244,8 +235,6 @@ private fun BigInLittleDemo() {
             .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FeatureFlagToggle()
-
         Text(
             "This is a small scroll container that has a much larger scroll container inside it. " +
                 "The inner scroll container should be captured.",
@@ -290,8 +279,6 @@ private fun BigInLittleDemo() {
 @Composable
 private fun InDialogDemo() {
     Column {
-        FeatureFlagToggle()
-
         // Need a scrolling list in the below screen to check that the scrollable in the dialog is
         // selected instead.
         LazyColumn(Modifier.fillMaxSize()) {
@@ -345,8 +332,6 @@ private fun AndroidViewDemo() {
     }
 
     Column {
-        FeatureFlagToggle()
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -377,8 +362,6 @@ private fun LegacyTextFieldInScrollableDemo() {
             .fillMaxSize()
             .imePadding()
     ) {
-        item { FeatureFlagToggle() }
-
         repeat(10) {
             item {
                 var text by remember { mutableStateOf("") }
@@ -417,7 +400,6 @@ fun LegacySingleGiantTextFieldDemo() {
             .fillMaxSize()
             .imePadding()
     ) {
-        FeatureFlagToggle()
         TextField(
             value = text,
             onValueChange = { text = it },
@@ -433,8 +415,6 @@ private fun TextFieldInScrollableDemo() {
             .fillMaxSize()
             .imePadding()
     ) {
-        item { FeatureFlagToggle() }
-
         repeat(10) {
             item {
                 val text = rememberTextFieldState()
@@ -470,7 +450,6 @@ fun SingleGiantTextFieldDemo() {
             .fillMaxSize()
             .imePadding()
     ) {
-        FeatureFlagToggle()
         BasicTextField(
             state = text,
             modifier = Modifier.fillMaxSize()
@@ -482,8 +461,6 @@ fun SingleGiantTextFieldDemo() {
 @Composable
 private fun LazyListWithStickiesDemo() {
     LazyColumn(Modifier.fillMaxSize()) {
-        item { FeatureFlagToggle() }
-
         // Header with a big section.
         stickyHeader {
             Text(
@@ -526,33 +503,5 @@ private fun LazyListWithStickiesDemo() {
                 )
             }
         }
-    }
-}
-
-@Suppress("DEPRECATION")
-@Composable
-private fun FeatureFlagToggle() {
-    Column(Modifier.background(Color.Yellow.copy(alpha = 0.5f))) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text("Enable long screenshots")
-                Text(
-                    "The long screenshots feature is behind a feature flag while under " +
-                        "development. ",
-                    style = MaterialTheme.typography.caption
-                )
-            }
-            Switch(
-                checked = ComposeFeatureFlag_LongScreenshotsEnabled,
-                onCheckedChange = { ComposeFeatureFlag_LongScreenshotsEnabled = it },
-            )
-        }
-        Divider()
     }
 }

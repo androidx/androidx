@@ -37,8 +37,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,18 +50,6 @@ class ScrollCaptureDrawTest {
     val rule = createComposeRule()
 
     private val captureTester = ScrollCaptureTester(rule)
-
-    @Before
-    fun setUp() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = true
-    }
-
-    @After
-    fun tearDown() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = false
-    }
 
     @Test
     fun capture_drawsScrollContents_fromTop_withCaptureHeight1px() = captureTester.runTest {

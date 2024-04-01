@@ -50,8 +50,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,18 +68,6 @@ class ScrollCaptureTest {
     val rule = createComposeRule()
 
     private val captureTester = ScrollCaptureTester(rule)
-
-    @Before
-    fun setUp() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = true
-    }
-
-    @After
-    fun tearDown() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = false
-    }
 
     @Test
     fun search_findsScrollableTarget() = captureTester.runTest {
@@ -216,19 +202,6 @@ class ScrollCaptureTest {
         assertThat(targets).hasSize(1)
         val target = targets.single()
         assertThat(target.localVisibleRect).isEqualTo(Rect(0, 0, 10, 10))
-    }
-
-    @Test
-    fun search_doesNotFindTarget_whenFeatureFlagDisabled() = captureTester.runTest {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = false
-
-        captureTester.setContent {
-            TestVerticalScrollable()
-        }
-
-        val targets = captureTester.findCaptureTargets()
-        assertThat(targets).isEmpty()
     }
 
     @Test
