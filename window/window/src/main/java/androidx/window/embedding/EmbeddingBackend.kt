@@ -108,6 +108,17 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(5)
     fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
 
+    @RequiresWindowSdkExtension(6)
+    fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
+
+    @RequiresWindowSdkExtension(6)
+    fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
+
     companion object {
 
         private var decorator: (EmbeddingBackend) -> EmbeddingBackend =

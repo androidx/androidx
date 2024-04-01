@@ -50,6 +50,7 @@ internal class EmbeddingCompat(
     private val applicationContext: Context,
     @get:VisibleForTesting
     internal val overlayController: OverlayControllerImpl?,
+    private val activityWindowInfoCallbackController: ActivityWindowInfoCallbackController?,
 ) : EmbeddingInterfaceCompat {
 
     private val windowSdkExtensions = WindowSdkExtensions.getInstance()
@@ -297,6 +298,23 @@ internal class EmbeddingCompat(
     @RequiresWindowSdkExtension(6)
     override fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
         overlayController?.removeOverlayInfoCallback(overlayInfoCallback)
+    }
+
+    @RequiresWindowSdkExtension(6)
+    override fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: JetpackConsumer<EmbeddedActivityWindowInfo>
+    ) {
+        activityWindowInfoCallbackController?.addCallback(activity, callback) ?: apply {
+            Log.w(TAG, "EmbeddedActivityWindowInfo is not supported on device less than version 6")
+        }
+    }
+
+    @RequiresWindowSdkExtension(6)
+    override fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: JetpackConsumer<EmbeddedActivityWindowInfo>
+    ) {
+        activityWindowInfoCallbackController?.removeCallback(callback)
     }
 
     companion object {
