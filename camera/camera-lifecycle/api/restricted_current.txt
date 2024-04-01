@@ -28,5 +28,9 @@ package androidx.camera.lifecycle {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.ProcessCameraProvider> getInstance(android.content.Context context);
   }
 
+  public final class ProcessCameraProviderExtKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? awaitInstance(androidx.camera.lifecycle.ProcessCameraProvider.Companion, android.content.Context context, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.ProcessCameraProvider>);
+  }
+
 }
 
