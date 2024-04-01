@@ -589,6 +589,40 @@ class StrategyTest {
         assertThat(firstNonAnchorLeft).isWithin(.01f).of(0f)
     }
 
+    @Test
+    fun testStartStrategy_twoLargeOneSmall_shouldAccountForPadding() {
+        val strategy = Strategy { availableSpace, itemSpacing ->
+            keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
+                add(10f, isAnchor = true)
+                add(186f)
+                add(186f)
+                add(56f)
+                add(10f, isAnchor = true)
+            }
+        }.apply(
+            availableSpace = 444f,
+            itemSpacing = 8f,
+            beforeContentPadding = 16f,
+            afterContentPadding = 16f
+        )
+
+        assertThat(strategy.itemMainAxisSize).isEqualTo(186f)
+
+        val lastStartStepSmallItem = strategy.startKeylineSteps.last()[3]
+        assertThat(lastStartStepSmallItem.offset + (lastStartStepSmallItem.size / 2f))
+            .isWithin(.001f)
+            .of(444f)
+
+        val lastEndSteps = strategy.endKeylineSteps.last()
+        assertThat(lastEndSteps[1].size + 8f + lastEndSteps[2].size + 8f + lastEndSteps[3].size)
+            .isEqualTo(444f - 16f)
+
+        val lastEndStepSmallItem = strategy.endKeylineSteps.last()[1]
+        assertThat(lastEndStepSmallItem.offset - (lastEndStepSmallItem.size / 2f))
+            .isWithin(.001f)
+            .of(0f)
+    }
+
     private fun assertEqualWithFloatTolerance(
         tolerance: Float,
         actual: Keyline,
