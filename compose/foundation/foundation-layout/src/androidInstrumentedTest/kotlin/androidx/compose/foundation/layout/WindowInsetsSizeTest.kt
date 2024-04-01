@@ -36,10 +36,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.Insets as AndroidXInsets
 import androidx.core.view.DisplayCutoutCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -54,9 +58,22 @@ class WindowInsetsSizeTest {
 
     private lateinit var insetsView: InsetsView
 
+    private lateinit var finishLatch: CountDownLatch
+    private val finishLatchGetter
+        get() = finishLatch
+    private val observer = object : DefaultLifecycleObserver {
+        override fun onDestroy(owner: LifecycleOwner) {
+            finishLatchGetter.countDown()
+        }
+    }
+
     @Before
     fun setup() {
         WindowInsetsHolder.setUseTestInsets(true)
+        finishLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            rule.activity.lifecycle.addObserver(observer)
+        }
     }
 
     @After
@@ -65,6 +82,7 @@ class WindowInsetsSizeTest {
         rule.runOnUiThread {
             rule.activity.finish()
         }
+        assertThat(finishLatch.await(1, TimeUnit.SECONDS)).isTrue()
     }
 
     @OptIn(ExperimentalLayoutApi::class)
