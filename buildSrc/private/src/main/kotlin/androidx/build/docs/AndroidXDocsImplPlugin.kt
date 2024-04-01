@@ -276,9 +276,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             "mergeMultiplatformMetadata",
             MergeMultiplatformMetadataTask::class.java
         ) {
-            it.dependsOn(unzipMultiplatformSources)
             it.mergedProjectMetadata.set(mergedProjectMetadata)
-            it.inputDirectory.set(tempMultiplatformMetadataDirectory)
+            it.inputDirectory.set(unzipMultiplatformSources.flatMap { it.metadataOutput })
         }
     }
 
@@ -503,9 +502,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     )
                 )
                 task.apply {
+                    // Remove once there is property version of Copy#destinationDir
+                    // Use samplesDir.set(unzipSamplesTask.flatMap { it.destinationDirectory })
+                    // https://github.com/gradle/gradle/issues/25824
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)
-                    dependsOn(generateMetadataTask)
                     dependsOn(configureMultiplatformSourcesTask)
 
                     description =
@@ -532,7 +533,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     excludedPackages.set(hiddenPackages.toSet())
                     excludedPackagesForJava.set(hiddenPackagesJava)
                     excludedPackagesForKotlin.set(emptySet())
-                    libraryMetadataFile.set(getMetadataRegularFile(project))
+                    libraryMetadataFile.set(generateMetadataTask.flatMap { it.destinationFile })
                     projectStructureMetadataFile.set(mergedProjectMetadata)
                     // See go/dackka-source-link for details on these links.
                     baseSourceLink.set("https://cs.android.com/search?q=file:%s+class:%s")
@@ -563,8 +564,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val zipTask =
             project.tasks.register("zipDocs", Zip::class.java) { task ->
                 task.apply {
-                    dependsOn(dackkaTask)
-                    from(generatedDocsDir)
+                    from(dackkaTask.flatMap { it.destinationDir })
 
                     val baseName = "docs-$docsType"
                     val buildId = getBuildId()
