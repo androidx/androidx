@@ -85,6 +85,9 @@ internal abstract class NodeCoordinator(
     override val coordinates: LayoutCoordinates
         get() = this
 
+    override val isPositionedByParentWithDirectManipulation: Boolean
+        get() = isDirectManipulationPlacement
+
     private var released = false
 
     private fun headNode(includeTail: Boolean): Modifier.Node? {
@@ -830,10 +833,20 @@ internal abstract class NodeCoordinator(
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
+    ): Offset = localPositionOf(sourceCoordinates, relativeToSource, false)
+
+    override fun localPositionOf(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset,
+        excludeDirectManipulationOffset: Boolean
     ): Offset {
         if (sourceCoordinates is LookaheadLayoutCoordinates) {
             sourceCoordinates.coordinator.onCoordinatesUsed()
-            return -sourceCoordinates.localPositionOf(this, -relativeToSource)
+            return -sourceCoordinates.localPositionOf(
+                sourceCoordinates = this,
+                relativeToSource = -relativeToSource,
+                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            )
         }
 
         val nodeCoordinator = sourceCoordinates.toCoordinator()
@@ -843,11 +856,11 @@ internal abstract class NodeCoordinator(
         var position = relativeToSource
         var coordinator = nodeCoordinator
         while (coordinator !== commonAncestor) {
-            position = coordinator.toParentPosition(position)
+            position = coordinator.toParentPosition(position, excludeDirectManipulationOffset)
             coordinator = coordinator.wrappedBy!!
         }
 
-        return ancestorToLocal(commonAncestor, position)
+        return ancestorToLocal(commonAncestor, position, excludeDirectManipulationOffset)
     }
 
     override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {
@@ -927,15 +940,22 @@ internal abstract class NodeCoordinator(
         return bounds.toRect()
     }
 
-    private fun ancestorToLocal(ancestor: NodeCoordinator, offset: Offset): Offset {
+    private fun ancestorToLocal(
+        ancestor: NodeCoordinator,
+        offset: Offset,
+        excludeDirectManipulationOffset: Boolean,
+    ): Offset {
         if (ancestor === this) {
             return offset
         }
         val wrappedBy = wrappedBy
         if (wrappedBy == null || ancestor == wrappedBy) {
-            return fromParentPosition(offset)
+            return fromParentPosition(offset, excludeDirectManipulationOffset)
         }
-        return fromParentPosition(wrappedBy.ancestorToLocal(ancestor, offset))
+        return fromParentPosition(
+            position = wrappedBy.ancestorToLocal(ancestor, offset, excludeDirectManipulationOffset),
+            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+        )
     }
 
     private fun ancestorToLocal(
@@ -974,18 +994,33 @@ internal abstract class NodeCoordinator(
      * Converts [position] in the local coordinate system to a [Offset] in the
      * [parentLayoutCoordinates] coordinate system.
      */
-    open fun toParentPosition(position: Offset): Offset {
+    open fun toParentPosition(
+        position: Offset,
+        excludeDirectManipulationOffset: Boolean = false
+    ): Offset {
         val layer = layer
         val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
-        return targetPosition + this.position
+        return if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+            targetPosition
+        } else {
+            targetPosition + this.position
+        }
     }
 
     /**
      * Converts [position] in the [parentLayoutCoordinates] coordinate system to a [Offset] in the
      * local coordinate system.
      */
-    open fun fromParentPosition(position: Offset): Offset {
-        val relativeToPosition = position - this.position
+    open fun fromParentPosition(
+        position: Offset,
+        excludeDirectManipulationOffset: Boolean = false
+    ): Offset {
+        val relativeToPosition =
+            if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+                position
+            } else {
+                position - this.position
+            }
         val layer = layer
         return layer?.mapOffset(relativeToPosition, inverse = true)
             ?: relativeToPosition

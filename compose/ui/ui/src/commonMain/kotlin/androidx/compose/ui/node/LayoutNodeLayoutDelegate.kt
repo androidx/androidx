@@ -338,8 +338,8 @@ internal class LayoutNodeLayoutDelegate(
      * [MeasurePassDelegate] manages the measure/layout and alignmentLine related queries for the
      * actual measure/layout pass.
      */
-    inner class MeasurePassDelegate : Measurable, Placeable(), AlignmentLinesOwner {
-
+    inner class MeasurePassDelegate : Measurable, Placeable(), AlignmentLinesOwner,
+        DirectManipulationDelegate {
         /**
          * Is true during [replace] invocation. Helps to differentiate between the cases when our
          * parent is measuring us during the measure block, and when we are remeasured individually
@@ -769,6 +769,26 @@ internal class LayoutNodeLayoutDelegate(
             placeSelf(position, zIndex, null, layer)
         }
 
+        /**
+         * Flag to indicate when we need to propagate coordinates updates that are not related to a
+         * position change.
+         *
+         * @see isDirectManipulationPlacement
+         */
+        private var needsCoordinatesUpdate = false
+
+        override var isDirectManipulationPlacement: Boolean = false
+            set(new) {
+                // Delegated to outerCoordinator
+                val old = outerCoordinator.isDirectManipulationPlacement
+                if (new != old) {
+                    outerCoordinator.isDirectManipulationPlacement = old
+                    // Affects coordinates measurements
+                    this.needsCoordinatesUpdate = true
+                }
+                field = new
+            }
+
         private fun placeSelf(
             position: IntOffset,
             zIndex: Float,
@@ -776,11 +796,13 @@ internal class LayoutNodeLayoutDelegate(
             layer: GraphicsLayer?
         ) {
             isPlacedByParent = true
-            if (position != lastPosition) {
+            if (position != lastPosition || needsCoordinatesUpdate) {
                 if (coordinatesAccessedDuringModifierPlacement ||
-                    coordinatesAccessedDuringPlacement
+                    coordinatesAccessedDuringPlacement ||
+                    needsCoordinatesUpdate
                 ) {
                     layoutPending = true
+                    needsCoordinatesUpdate = false
                 }
                 notifyChildrenUsingCoordinatesWhilePlacing()
             }
@@ -1101,7 +1123,8 @@ internal class LayoutNodeLayoutDelegate(
      * [LookaheadPassDelegate] manages the measure/layout and alignmentLine related queries for
      * the lookahead pass.
      */
-    inner class LookaheadPassDelegate : Placeable(), Measurable, AlignmentLinesOwner {
+    inner class LookaheadPassDelegate : Placeable(), Measurable, AlignmentLinesOwner,
+        DirectManipulationDelegate {
 
         /**
          * Is true during [replace] invocation. Helps to differentiate between the cases when our
@@ -1148,6 +1171,7 @@ internal class LayoutNodeLayoutDelegate(
             private set
 
         override var isPlaced: Boolean = false
+
         override val innerCoordinator: NodeCoordinator
             get() = layoutNode.innerCoordinator
         override val alignmentLines: AlignmentLines = LookaheadAlignmentLines(this)
@@ -1155,6 +1179,10 @@ internal class LayoutNodeLayoutDelegate(
         private val _childDelegates = MutableVector<LookaheadPassDelegate>()
 
         internal var childDelegatesDirty: Boolean = true
+
+        /**
+         * [Measurable]s provided to layout during lookahead pass.
+         */
         internal val childDelegates: List<LookaheadPassDelegate>
             get() {
                 layoutNode.children.let {
@@ -1429,6 +1457,16 @@ internal class LayoutNodeLayoutDelegate(
         ) {
             placeSelf(position, zIndex, null, layer)
         }
+
+        override var isDirectManipulationPlacement: Boolean = false
+            set(new) {
+                // Delegated to outerCoordinator
+                val old = outerCoordinator.lookaheadDelegate?.isDirectManipulationPlacement
+                if (new != old) {
+                    outerCoordinator.lookaheadDelegate?.isDirectManipulationPlacement = new
+                }
+                field = new
+            }
 
         private fun placeSelf(
             position: IntOffset,
@@ -1893,4 +1931,23 @@ internal interface AlignmentLinesOwner : Measurable {
      * lookahead pass.
      */
     fun requestMeasure()
+}
+
+/**
+ * Interface for layout delegates, so that they can set the
+ * [LookaheadCapablePlaceable.isDirectManipulationPlacement] to the proper placeable.
+ */
+internal interface DirectManipulationDelegate {
+
+    /**
+     * Called when a layout is about to be placed.
+     *
+     * The corresponding [LookaheadCapablePlaceable] should have their
+     * [LookaheadCapablePlaceable.isDirectManipulationPlacement] flag updated to the given value.
+     *
+     * The placeable should be tagged such that its corresponding coordinates reflect the
+     * flag in [androidx.compose.ui.layout.LayoutCoordinates.isPositionedByParentWithDirectManipulation].
+     * This also means that coordinates consumers (onPlaced readers) are expected to be updated.
+     */
+    var isDirectManipulationPlacement: Boolean
 }

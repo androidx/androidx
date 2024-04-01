@@ -40,6 +40,7 @@ internal class LayoutModifierNodeCoordinator(
     layoutNode: LayoutNode,
     measureNode: LayoutModifierNode,
 ) : NodeCoordinator(layoutNode) {
+
     var layoutModifierNode: LayoutModifierNode = measureNode
         internal set(value) {
             if (value != field) {
