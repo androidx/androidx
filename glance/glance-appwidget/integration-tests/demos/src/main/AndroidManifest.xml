@@ -258,7 +258,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/progress_indicator_demo_widget_info" />
         </receiver>
 
         <receiver

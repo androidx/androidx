@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  Copyright 2021 The Android Open Source Project
+  Copyright 2024 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,10 +15,9 @@
   -->
 
 <resources>
-    <dimen name="corner_radius">16dp</dimen>
-    <dimen name="external_padding">8dp</dimen>
+    <!-- Dimension for large screens such as tablets -->
 
     <!-- Default drop size for widgets that display lists-->
-    <integer name="list_widget_target_cell_width">4</integer>
+    <integer name="list_widget_target_cell_width">2</integer>
     <integer name="list_widget_target_cell_height">2</integer>
 </resources>
