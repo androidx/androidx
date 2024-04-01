@@ -2139,9 +2139,11 @@ package androidx.compose.material3.carousel {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemInfo {
+    method public androidx.compose.ui.geometry.Rect getMaskRect();
     method public float getMaxSize();
     method public float getMinSize();
     method public float getSize();
+    property public abstract androidx.compose.ui.geometry.Rect maskRect;
     property public abstract float maxSize;
     property public abstract float minSize;
     property public abstract float size;
@@ -2175,9 +2177,7 @@ package androidx.compose.material3.carousel {
   }
 
   public final class CarouselStateKt {
-    method public static float endOffset(androidx.compose.material3.carousel.CarouselItemInfo);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.carousel.CarouselState rememberCarouselState(optional int initialItem, kotlin.jvm.functions.Function0<java.lang.Integer> itemCount);
-    method public static float startOffset(androidx.compose.material3.carousel.CarouselItemInfo);
   }
 
 }

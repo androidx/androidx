@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
-import androidx.compose.material3.carousel.startOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -72,8 +71,7 @@ fun HorizontalMultiBrowseCarouselSample() {
     ) { i ->
         val item = items[i]
         Card(
-            modifier = Modifier
-                .height(205.dp)
+            modifier = Modifier.height(205.dp)
         ) {
             Image(
                 painter = painterResource(id = item.imageResId),
@@ -177,7 +175,7 @@ fun FadingHorizontalMultiBrowseCarouselSample() {
                 Text(
                     text = "sample text",
                     modifier = Modifier.graphicsLayer {
-                        translationX = carouselItemInfo.startOffset()
+                        translationX = carouselItemInfo.maskRect.left
                     }
                 )
             }

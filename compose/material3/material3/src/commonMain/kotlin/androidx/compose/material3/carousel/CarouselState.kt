@@ -23,11 +23,14 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
 
 /**
  * The state that can be used to control all types of carousels.
@@ -133,56 +136,28 @@ sealed interface CarouselItemInfo {
      * at a focal position
      */
     val maxSize: Float
-}
 
-/**
- * Gets the start offset of the carousel item from its full size. This offset can be used to pin any
- * carousel item content to the left side of the item (or right if RTL).
- */
-@OptIn(ExperimentalMaterial3Api::class)
-fun CarouselItemInfo.startOffset(): Float {
-    return (maxSize - size) / 2f
-}
-
-/**
- * Gets the end offset of the carousel item from its full size. This offset can be used to pin any
- * carousel item content to the right side of the item (or left if RTL).
- */
-@OptIn(ExperimentalMaterial3Api::class)
-fun CarouselItemInfo.endOffset(): Float {
-    return maxSize - (maxSize - size) / 2f
+    /** The rect by which the carousel item is being clipped. */
+    val maskRect: Rect
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 internal class CarouselItemInfoImpl : CarouselItemInfo {
 
-    val sizeState = mutableFloatStateOf(0f)
+    var sizeState by mutableFloatStateOf(0f)
+    var minSizeState by mutableFloatStateOf(0f)
+    var maxSizeState by mutableFloatStateOf(0f)
+    var maskRectState by mutableStateOf(Rect.Zero)
+
     override val size: Float
-        get() = sizeState.floatValue
+        get() = sizeState
 
-    val minSizeState = mutableFloatStateOf(0f)
     override val minSize: Float
-        get() = minSizeState.floatValue
+        get() = minSizeState
 
-    val maxSizeState = mutableFloatStateOf(0f)
     override val maxSize: Float
-        get() = maxSizeState.floatValue
+        get() = maxSizeState
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CarouselItemInfoImpl) return false
-
-        if (sizeState != other.sizeState) return false
-        if (minSizeState != other.minSizeState) return false
-        if (maxSizeState != other.maxSizeState) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = sizeState.hashCode()
-        result = 31 * result + minSizeState.hashCode()
-        result = 31 * result + maxSizeState.hashCode()
-        return result
-    }
+    override val maskRect: Rect
+        get() = maskRectState
 }
