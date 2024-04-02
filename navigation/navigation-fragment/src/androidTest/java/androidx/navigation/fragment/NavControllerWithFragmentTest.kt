@@ -154,9 +154,10 @@ class NavControllerWithFragmentTest {
             fragment<EmptyFragment>("first")
             fragment<EmptyFragment, TestClass>()
         }
-        navController.navigate(TestClass())
-
         val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        navController.navigate(TestClass())
         fm?.executePendingTransactions()
 
         assertThat(navController.currentBackStackEntry?.destination?.route)
@@ -172,9 +173,10 @@ class NavControllerWithFragmentTest {
             fragment<EmptyFragment>("first")
             fragment<EmptyFragment, TestClassArg>()
         }
-        navController.navigate(TestClassArg(15))
-
         val fm = supportFragmentManager.findFragmentById(R.id.nav_host)?.childFragmentManager
+        fm?.executePendingTransactions()
+
+        navController.navigate(TestClassArg(15))
         fm?.executePendingTransactions()
 
         assertThat(navController.currentBackStackEntry?.destination?.route)
