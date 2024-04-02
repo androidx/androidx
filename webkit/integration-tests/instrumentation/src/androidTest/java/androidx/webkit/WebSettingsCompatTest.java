@@ -305,5 +305,10 @@ public class WebSettingsCompatTest {
                 WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_APP);
         Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_APP,
                 WebSettingsCompat.getWebAuthenticationSupport(settings));
+
+        WebSettingsCompat.setWebAuthenticationSupport(settings,
+                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_BROWSER);
+        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_BROWSER,
+                WebSettingsCompat.getWebAuthenticationSupport(settings));
     }
 }

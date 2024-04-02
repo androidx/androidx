@@ -908,7 +908,8 @@ public class WebSettingsCompat {
     }
 
     @IntDef({WEB_AUTHENTICATION_SUPPORT_NONE,
-            WEB_AUTHENTICATION_SUPPORT_APP})
+            WEB_AUTHENTICATION_SUPPORT_APP,
+            WEB_AUTHENTICATION_SUPPORT_BROWSER})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @interface WebAuthenticationSupport {
@@ -933,6 +934,15 @@ public class WebSettingsCompat {
             WebSettingsBoundaryInterface.WebauthnSupport.APP;
 
     /**
+     * The support level that allows apps to make WebAuthn calls for any website. See
+     * <a href="https://developer.android.com/training/sign-in/privileged-apps">Privileged apps</a>
+     * to learn how to make WebAuthn calls for any website.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int WEB_AUTHENTICATION_SUPPORT_BROWSER =
+            WebSettingsBoundaryInterface.WebauthnSupport.BROWSER;
+
+    /**
      * Sets the support level for the given {@link WebSettings}.
      *
      * <p>
@@ -944,6 +954,7 @@ public class WebSettingsCompat {
      * @param support  The new support level which this WebView will use.
      * @see #WEB_AUTHENTICATION_SUPPORT_NONE
      * @see #WEB_AUTHENTICATION_SUPPORT_APP
+     * @see #WEB_AUTHENTICATION_SUPPORT_BROWSER
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_AUTHENTICATION,
@@ -972,6 +983,7 @@ public class WebSettingsCompat {
      * @see #setWebAuthenticationSupport(WebSettings, int)
      * @see #WEB_AUTHENTICATION_SUPPORT_NONE
      * @see #WEB_AUTHENTICATION_SUPPORT_APP
+     * @see #WEB_AUTHENTICATION_SUPPORT_BROWSER
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_AUTHENTICATION,
