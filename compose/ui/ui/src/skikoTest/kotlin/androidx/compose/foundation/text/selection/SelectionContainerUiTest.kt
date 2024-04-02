@@ -38,7 +38,7 @@ import kotlin.test.assertEquals
  * is that [PointerIconService] is needed for some of the tests, and it is internal in `ui`.
  */
 @OptIn(ExperimentalTestApi::class)
-class SelectionContainerTest {
+class SelectionContainerUiTest {
     @Test
     fun selectionContainerSetsTextPointerIcon() = runComposeUiTest {
         lateinit var pointerIconService: PointerIconService
