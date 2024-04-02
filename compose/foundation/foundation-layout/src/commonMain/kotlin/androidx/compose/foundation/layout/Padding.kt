@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.layout.PaddingValues.Absolute
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -212,6 +213,14 @@ interface PaddingValues {
         @Stable
         private val bottom: Dp = 0.dp
     ) : PaddingValues {
+
+        init {
+            require(left.value >= 0) { "Left padding must be non-negative" }
+            require(top.value >= 0) { "Top padding must be non-negative" }
+            require(right.value >= 0) { "Right padding must be non-negative" }
+            require(bottom.value >= 0) { "Bottom padding must be non-negative" }
+        }
+
         override fun calculateLeftPadding(layoutDirection: LayoutDirection) = left
 
         override fun calculateTopPadding() = top
@@ -299,6 +308,14 @@ internal class PaddingValuesImpl(
     @Stable
     val bottom: Dp = 0.dp
 ) : PaddingValues {
+
+    init {
+        require(start.value >= 0) { "Start padding must be non-negative" }
+        require(top.value >= 0) { "Top padding must be non-negative" }
+        require(end.value >= 0) { "End padding must be non-negative" }
+        require(bottom.value >= 0) { "Bottom padding must be non-negative" }
+    }
+
     override fun calculateLeftPadding(layoutDirection: LayoutDirection) =
         if (layoutDirection == LayoutDirection.Ltr) start else end
 
