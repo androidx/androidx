@@ -211,7 +211,7 @@ fun DropdownMenu(
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
     replaceWith = ReplaceWith(
-        expression = "DropdownMenu(expanded,onDismissRequest, focusable, modifier, offset, " +
+        expression = "DropdownMenu(state, onDismissRequest, focusable, modifier, offset, " +
             "rememberScrollState(), content)",
         "androidx.compose.foundation.rememberScrollState"
     ),
@@ -298,9 +298,9 @@ private fun OpenDropdownMenu(
     focusable: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
-){
-    var focusManager: FocusManager? by mutableStateOf(null)
-    var inputModeManager: InputModeManager? by mutableStateOf(null)
+) {
+    var focusManager: FocusManager? by remember { mutableStateOf(null) }
+    var inputModeManager: InputModeManager? by remember { mutableStateOf(null) }
     Popup(
         onDismissRequest = onDismissRequest,
         popupPositionProvider = popupPositionProvider,
