@@ -132,9 +132,9 @@ fun DialogWindow(
  * ```
  * @Composable
  * fun main() = application {
- *     val isDialogOpen by remember { mutableStateOf(true) }
+ *     var isDialogOpen by remember { mutableStateOf(true) }
  *     if (isDialogOpen) {
- *         Dialog(onCloseRequest = { isDialogOpen = false })
+ *         Dialog(onCloseRequest = { isDialogOpen = false }) {}
  *     }
  * }
  * ```
