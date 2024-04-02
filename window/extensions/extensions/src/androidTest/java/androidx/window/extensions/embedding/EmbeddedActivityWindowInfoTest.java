@@ -49,15 +49,13 @@ public class EmbeddedActivityWindowInfoTest {
 
     @Test
     public void testGetter() {
-        final Rect activityBounds = new Rect(0, 0, 500, 1000);
         final Rect taskBounds = new Rect(0, 0, 1000, 2000);
         final Rect activityStackBounds = new Rect(0, 0, 1000, 1000);
         final EmbeddedActivityWindowInfo info = new EmbeddedActivityWindowInfo(mActivity,
-                true /* isEmbedded */, activityBounds, taskBounds, activityStackBounds);
+                true /* isEmbedded */, taskBounds, activityStackBounds);
 
         assertEquals(mActivity, info.getActivity());
         assertTrue(info.isEmbedded());
-        assertEquals(activityBounds, info.getActivityBounds());
         assertEquals(taskBounds, info.getTaskBounds());
         assertEquals(activityStackBounds, info.getActivityStackBounds());
     }
@@ -66,37 +64,26 @@ public class EmbeddedActivityWindowInfoTest {
     public void testEqualsAndHashCode() {
         final EmbeddedActivityWindowInfo info1 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
-                new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
         final EmbeddedActivityWindowInfo info2 = new EmbeddedActivityWindowInfo(mActivity2,
                 true /* isEmbedded */,
-                new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
         final EmbeddedActivityWindowInfo info3 = new EmbeddedActivityWindowInfo(mActivity,
                 false /* isEmbedded */,
-                new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
         final EmbeddedActivityWindowInfo info4 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
                 new Rect(0, 0, 1000, 1000),
-                new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
         final EmbeddedActivityWindowInfo info5 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
-                new Rect(0, 0, 500, 1000),
-                new Rect(0, 0, 1000, 1000),
-                new Rect(0, 0, 1000, 1000));
-        final EmbeddedActivityWindowInfo info6 = new EmbeddedActivityWindowInfo(mActivity,
-                true /* isEmbedded */,
-                new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1500));
-        final EmbeddedActivityWindowInfo info7 = new EmbeddedActivityWindowInfo(mActivity,
+        final EmbeddedActivityWindowInfo info6 = new EmbeddedActivityWindowInfo(mActivity,
                 true /* isEmbedded */,
-                new Rect(0, 0, 500, 1000),
                 new Rect(0, 0, 1000, 2000),
                 new Rect(0, 0, 1000, 1000));
 
@@ -104,14 +91,12 @@ public class EmbeddedActivityWindowInfoTest {
         assertNotEquals(info1, info3);
         assertNotEquals(info1, info4);
         assertNotEquals(info1, info5);
-        assertNotEquals(info1, info6);
-        assertEquals(info1, info7);
+        assertEquals(info1, info6);
 
         assertNotEquals(info1.hashCode(), info2.hashCode());
         assertNotEquals(info1.hashCode(), info3.hashCode());
         assertNotEquals(info1.hashCode(), info4.hashCode());
         assertNotEquals(info1.hashCode(), info5.hashCode());
-        assertNotEquals(info1.hashCode(), info6.hashCode());
-        assertEquals(info1.hashCode(), info7.hashCode());
+        assertEquals(info1.hashCode(), info6.hashCode());
     }
 }
