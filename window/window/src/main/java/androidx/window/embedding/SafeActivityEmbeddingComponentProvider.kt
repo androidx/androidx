@@ -525,9 +525,6 @@ internal class SafeActivityEmbeddingComponentProvider(
             val embeddedActivityWindowInfoClass = EmbeddedActivityWindowInfo::class.java
             val getActivityMethod = embeddedActivityWindowInfoClass.getMethod("getActivity")
             val isEmbeddedMethod = embeddedActivityWindowInfoClass.getMethod("isEmbedded")
-            val getActivityBoundsMethod = embeddedActivityWindowInfoClass.getMethod(
-                "getActivityBounds"
-            )
             val getTaskBoundsMethod = embeddedActivityWindowInfoClass.getMethod("getTaskBounds")
             val getActivityStackBoundsMethod = embeddedActivityWindowInfoClass.getMethod(
                 "getActivityStackBounds"
@@ -536,8 +533,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getActivityMethod.doesReturn(Activity::class.java) &&
                 isEmbeddedMethod.isPublic &&
                 isEmbeddedMethod.doesReturn(Boolean::class.javaPrimitiveType!!) &&
-                getActivityBoundsMethod.isPublic &&
-                getActivityBoundsMethod.doesReturn(Rect::class.java) &&
                 getTaskBoundsMethod.isPublic &&
                 getTaskBoundsMethod.doesReturn(Rect::class.java) &&
                 getActivityStackBoundsMethod.isPublic &&
