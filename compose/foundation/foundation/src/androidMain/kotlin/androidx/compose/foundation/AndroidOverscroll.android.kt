@@ -452,7 +452,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         val consumedPixelsY =
             when {
                 delta.y == 0f -> 0f
-                edgeEffectWrapper.isTopStretched() -> {
+                edgeEffectWrapper.isTopStretched() && delta.y < 0f -> {
                     pullTop(delta).also {
                         // Release / reset state if we have fully relaxed the stretch
                         if (!edgeEffectWrapper.isTopStretched()) {
@@ -460,7 +460,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
                         }
                     }
                 }
-                edgeEffectWrapper.isBottomStretched() -> {
+                edgeEffectWrapper.isBottomStretched() && delta.y > 0f -> {
                     pullBottom(delta).also {
                         // Release / reset state if we have fully relaxed the stretch
                         if (!edgeEffectWrapper.isBottomStretched()) {
@@ -473,7 +473,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         val consumedPixelsX =
             when {
                 delta.x == 0f -> 0f
-                edgeEffectWrapper.isLeftStretched() -> {
+                edgeEffectWrapper.isLeftStretched() && delta.x < 0f -> {
                     pullLeft(delta).also {
                         // Release / reset state if we have fully relaxed the stretch
                         if (!edgeEffectWrapper.isLeftStretched()) {
@@ -481,7 +481,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
                         }
                     }
                 }
-                edgeEffectWrapper.isRightStretched() -> {
+                edgeEffectWrapper.isRightStretched() && delta.x > 0f -> {
                     pullRight(delta).also {
                         // Release / reset state if we have fully relaxed the stretch
                         if (!edgeEffectWrapper.isRightStretched()) {
@@ -541,20 +541,20 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
         // Relax existing stretches before performing fling
         val consumedX =
-            if (velocity.x > 0f && edgeEffectWrapper.isLeftStretched()) {
+            if (edgeEffectWrapper.isLeftStretched() && velocity.x < 0f) {
                 edgeEffectWrapper.getOrCreateLeftEffect().onAbsorbCompat(velocity.x.roundToInt())
                 velocity.x
-            } else if (velocity.x < 0 && edgeEffectWrapper.isRightStretched()) {
+            } else if (edgeEffectWrapper.isRightStretched() && velocity.x > 0f) {
                 edgeEffectWrapper.getOrCreateRightEffect().onAbsorbCompat(-velocity.x.roundToInt())
                 velocity.x
             } else {
                 0f
             }
         val consumedY =
-            if (velocity.y > 0f && edgeEffectWrapper.isTopStretched()) {
+            if (edgeEffectWrapper.isTopStretched() && velocity.y < 0f) {
                 edgeEffectWrapper.getOrCreateTopEffect().onAbsorbCompat(velocity.y.roundToInt())
                 velocity.y
-            } else if (velocity.y < 0f && edgeEffectWrapper.isBottomStretched()) {
+            } else if (edgeEffectWrapper.isBottomStretched() && velocity.y > 0f) {
                 edgeEffectWrapper.getOrCreateBottomEffect().onAbsorbCompat(-velocity.y.roundToInt())
                 velocity.y
             } else {
