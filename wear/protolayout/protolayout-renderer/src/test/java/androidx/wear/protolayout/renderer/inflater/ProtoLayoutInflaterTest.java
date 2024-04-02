@@ -708,7 +708,7 @@ public class ProtoLayoutInflaterTest {
 
         // This tests that minimum dimension is correctly set.
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
-        expect.that(tv.getMinimumWidth()).isEqualTo(width);
+        expect.that(tv.getMeasuredWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
     }
 
@@ -741,13 +741,9 @@ public class ProtoLayoutInflaterTest {
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
         View spacerAfterMutation = boxAfterMutation.getChildAt(0);
 
-        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
-        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(0);
-        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(0);
-
-        // This tests that minimum dimension is correctly set.
-        expect.that(spacerAfterMutation.getMinimumWidth()).isEqualTo(newWidth);
-        expect.that(spacerAfterMutation.getMinimumHeight()).isEqualTo(newHeight);
+        // This tests that the layout dimension is correctly set.
+        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(newWidth);
+        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(newHeight);
     }
 
     @Test
@@ -799,7 +795,7 @@ public class ProtoLayoutInflaterTest {
         Renderer renderer = renderer(layout1);
         ViewGroup inflatedViewParent = renderer.inflate();
 
-        Layout layout2 = layoutBoxWithSpacer(newHeight, newWidth, modifiers);
+        Layout layout2 = layoutBoxWithSpacer(newWidth, newHeight, modifiers);
 
         // Compute the mutation.
         ViewGroupMutation mutation =
@@ -815,8 +811,8 @@ public class ProtoLayoutInflaterTest {
         View spacerAfterMutation = boxAfterMutation.getChildAt(0);
 
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
-        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(0);
-        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(0);
+        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(newWidth);
+        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(newHeight);
     }
 
     @Test
