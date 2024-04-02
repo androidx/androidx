@@ -649,6 +649,185 @@ class NavGraphBuilderTest {
                 "NavType. Make sure to provide custom NavType for this argument."
         )
     }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testDialogKClass() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+            navController.navigatorProvider.addNavigator(DialogNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                dialog<TestClass> { }
+            }
+        }
+        composeTestRule.runOnIdle {
+            assertThat(firstRoute in navController.graph).isTrue()
+            assertThat(TestClass::class in navController.graph).isTrue()
+            assertThat(navController.graph[TestClass::class].route).isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testDialogKClassArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(DialogNavigator())
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                dialog<TestClassArg> { }
+            }
+        }
+        composeTestRule.runOnIdle {
+            assertThat(TestClassArg::class in navController.graph).isTrue()
+            val dest = navController.graph[TestClassArg::class]
+            assertThat(dest.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(dest.arguments["arg"]).isNotNull()
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testDialogKClassArgsCustomType() {
+        @Serializable
+        class TestClass(val arg: CustomType)
+
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(DialogNavigator())
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                dialog<TestClass>(typeMap = mapOf(typeOf<CustomType>() to customNavType)) { }
+            }
+        }
+        composeTestRule.runOnIdle {
+            val dest = navController.graph[TestClass::class]
+            assertThat(dest.arguments["arg"]).isNotNull()
+            assertThat(dest.arguments["arg"]!!.type).isEqualTo(customNavType)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNestedDialogKClassArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(DialogNavigator())
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation(startDestination = TEST_CLASS_ARG_ROUTE, route = secondRoute,
+                ) {
+                    dialog<TestClassArg> {}
+                }
+            }
+        }
+        composeTestRule.runOnIdle {
+            val nestedGraph = navController.graph[secondRoute] as NavGraph
+            val dest = nestedGraph.findNode<TestClassArg>()
+            assertThat(dest).isNotNull()
+            assertThat(dest!!.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(dest.arguments["arg"]).isNotNull()
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testDialogKClassArgsMissingCustomType() {
+        @Serializable
+        class TestClass(val arg: CustomType)
+
+        lateinit var exception: String
+        lateinit var navController: TestNavHostController
+        try {
+            composeTestRule.setContent {
+                navController = TestNavHostController(LocalContext.current)
+                navController.navigatorProvider.addNavigator(DialogNavigator())
+                navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+                NavHost(navController, startDestination = firstRoute) {
+                    composable(firstRoute) { }
+                    composable<TestClass> { }
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            exception = e.message!!
+        }
+        assertThat(exception).isEqualTo(
+            "Cannot cast arg of type androidx.navigation.compose.CustomType to a " +
+                "NavType. Make sure to provide custom NavType for this argument."
+        )
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationDialogObjectStartArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(DialogNavigator())
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = TestClassArg(15)) {
+                dialog<TestClassArg> { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ARG_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(TestClassArg::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+                .isEqualTo(15)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationDialogNestedObjectStartArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+            navController.navigatorProvider.addNavigator(DialogNavigator())
+
+            NavHost(navController, startDestination = TestClass::class) {
+                navigation<TestClass>(startDestination = TestClassArg(15)) {
+                    dialog<TestClassArg> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ARG_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(TestClass::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+                .isEqualTo(15)
+        }
+    }
 }
 
 private const val firstRoute = "first"

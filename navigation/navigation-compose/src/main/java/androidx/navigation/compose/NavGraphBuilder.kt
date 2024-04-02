@@ -560,3 +560,40 @@ public fun NavGraphBuilder.dialog(
         }
     )
 }
+
+/**
+ * Add the [Composable] to the [NavGraphBuilder] that will be hosted within a
+ * [androidx.compose.ui.window.Dialog]. This is suitable only when this dialog represents
+ * a separate screen in your app that needs its own lifecycle and saved state, independent
+ * of any other destination in your navigation graph. For use cases such as `AlertDialog`,
+ * you should use those APIs directly in the [composable] destination that wants to show that
+ * dialog.
+ *
+ * @param T route from a KClass for the destination
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. Required only when [T] contains custom NavTypes.
+ * @param deepLinks list of deep links to associate with the destinations
+ * @param dialogProperties properties that should be passed to [androidx.compose.ui.window.Dialog].
+ * @param content composable content for the destination that will be hosted within the Dialog
+ */
+@ExperimentalSafeArgsApi
+public inline fun <reified T : Any> NavGraphBuilder.dialog(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    deepLinks: List<NavDeepLink> = emptyList(),
+    dialogProperties: DialogProperties = DialogProperties(),
+    noinline content: @Composable (NavBackStackEntry) -> Unit
+) {
+    destination(
+        DialogNavigatorDestinationBuilder(
+            provider[DialogNavigator::class],
+            T::class,
+            typeMap,
+            dialogProperties,
+            content
+        ).apply {
+            deepLinks.forEach { deepLink ->
+                deepLink(deepLink)
+            }
+        }
+    )
+}
