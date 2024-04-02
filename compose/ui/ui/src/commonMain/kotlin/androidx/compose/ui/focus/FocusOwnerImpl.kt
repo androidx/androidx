@@ -104,12 +104,14 @@ internal class FocusOwnerImpl(
      * focus to one of the focus modifiers in the component hierarchy.
      */
     override fun takeFocus() {
-        // If the focus state is not Inactive, it indicates that the focus state is already
-        // set (possibly by dispatchWindowFocusChanged). So we don't update the state.
-        if (rootFocusNode.focusState == Inactive) {
-            rootFocusNode.focusState = Active
-            // TODO(b/152535715): propagate focus to children based on child focusability.
-            //  moveFocus(FocusDirection.Enter)
+        return focusTransactionManager.withExistingTransaction {  // cherry-picked from 8f81d46e
+            // If the focus state is not Inactive, it indicates that the focus state is already
+            // set (possibly by dispatchWindowFocusChanged). So we don't update the state.
+            if (rootFocusNode.focusState == Inactive) {
+                rootFocusNode.focusState = Active
+                // TODO(b/152535715): propagate focus to children based on child focusability.
+                //  moveFocus(FocusDirection.Enter)
+            }
         }
     }
 
@@ -120,7 +122,9 @@ internal class FocusOwnerImpl(
      * all the focus modifiers in the component hierarchy.
      */
     override fun releaseFocus() {
-        rootFocusNode.clearFocus(forced = true, refreshFocusEvents = true)
+        focusTransactionManager.withExistingTransaction {  // cherry-picked from 8f81d46e
+            rootFocusNode.clearFocus(forced = true, refreshFocusEvents = true)
+        }
     }
 
     /**
