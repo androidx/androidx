@@ -21,6 +21,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 /**
@@ -35,6 +36,9 @@ final class FeaturesImpl implements Features {
         mContext = Preconditions.checkNotNull(context);
     }
 
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
@@ -70,6 +74,10 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
+            // Android V Features
+            case Features.ENTERPRISE_GLOBAL_SEARCH_SESSION:
+                return BuildCompat.isAtLeastV();
+
             // Beyond Android U features
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
                 // TODO(b/258715421) : Update to reflect support in Android U+ once this feature has
@@ -101,9 +109,6 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
                 // TODO(b/296088047) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.ENTERPRISE_GLOBAL_SEARCH_SESSION:
-                // TODO(b/237388235) : Update when feature is ready in service-appsearch.
                 return false;
             default:
                 return false;
