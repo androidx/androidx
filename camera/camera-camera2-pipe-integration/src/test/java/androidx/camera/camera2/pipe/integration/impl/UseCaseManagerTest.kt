@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
@@ -520,6 +521,8 @@ class UseCaseManagerTest {
             callbackMap = CameraCallbackMap(),
             requestListener = ComboRequestListener(),
             builder = useCaseCameraComponentBuilder,
+            cameraControl = fakeCamera.cameraControlInternal,
+            zslControl = ZslControlNoOpImpl(),
             controls = controls as java.util.Set<UseCaseCameraControl>,
             cameraProperties = FakeCameraProperties(
                 metadata = fakeCameraMetadata,

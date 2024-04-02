@@ -32,7 +32,6 @@ import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CompletableDeferred
@@ -71,6 +70,7 @@ class CaptureConfigAdapterTest {
             cameraStateAdapter = CameraStateAdapter(),
         ),
         cameraProperties = fakeCameraProperties,
+        zslControl = ZslControlNoOpImpl(),
         threads = fakeUseCaseThreads,
     )
 
@@ -148,7 +148,7 @@ class CaptureConfigAdapterTest {
 
         // Assert
         runBlocking {
-            Truth.assertThat(
+            assertThat(
                 withTimeoutOrNull(timeMillis = 5000) {
                     callbackAborted.await()
                 }
