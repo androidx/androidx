@@ -280,7 +280,7 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testPngWithoutExif() throws Throwable {
         File imageFile =
-                copyFromResourceToFile(R.raw.png_with_exif_byte_order_ii, "png_without_exif.png");
+                copyFromResourceToFile(R.raw.png_without_exif, "png_without_exif.png");
         writeToFilesWithoutExif(imageFile);
     }
 
