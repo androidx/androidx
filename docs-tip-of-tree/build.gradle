@@ -418,6 +418,7 @@ dependencies {
     samples(project(":wear:watchface:watchface-samples"))
     docs(project(":wear:watchface:watchface-style"))
     docs(project(":wear:wear"))
+    docs(project(":wear:wear-core"))
     stubs(fileTree(dir: "../wear/wear_stubs/", include: ["com.google.android.wearable-stubs.jar"]))
     docs(project(":wear:wear-input"))
     samples(project(":wear:wear-input-samples"))
