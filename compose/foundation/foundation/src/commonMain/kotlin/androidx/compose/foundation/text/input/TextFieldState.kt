@@ -126,7 +126,7 @@ class TextFieldState internal constructor(
      * @see edit
      * @see snapshotFlow
      */
-    val text: CharSequence get() = value.getBackingCharSequence()
+    val text: CharSequence get() = value.text
 
     /**
      * The current selection range. If the selection is collapsed, it represents cursor location.
