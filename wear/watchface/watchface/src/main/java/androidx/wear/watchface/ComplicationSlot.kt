@@ -22,7 +22,6 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.support.wearable.complications.ComplicationData as WireComplicationData
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.Px
@@ -50,6 +49,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.ArrayList
 import java.util.Objects
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -1047,7 +1047,13 @@ internal constructor(
      * [complicationData] is selected.
      */
     private var timelineComplicationData: ComplicationData = NoDataComplicationData()
-    private var timelineEntries: List<WireComplicationData>? = null
+    private var timelineEntries: List<ApiTimelineEntry>? = null
+
+    private class ApiTimelineEntry(
+        val timelineStartEpochSecond: Long?,
+        val timelineEndEpochSecond: Long?,
+        val complicationData: ComplicationData
+    )
 
     /**
      * Sets the current [ComplicationData] and if it's a timeline, the correct override for
@@ -1098,7 +1104,15 @@ internal constructor(
     private fun setTimelineData(data: ComplicationData, instant: Instant) {
         lastComplicationUpdate = instant
         timelineComplicationData = data
-        timelineEntries = data.asWireComplicationData().timelineEntries?.toList()
+        timelineEntries = data.asWireComplicationData()
+            .timelineEntries
+            ?.mapTo(ArrayList<ApiTimelineEntry>()) {
+                ApiTimelineEntry(
+                    it.timelineStartEpochSecond,
+                    it.timelineEndEpochSecond,
+                    it.toApiComplicationData()
+                )
+            }
     }
 
     private fun loadData(data: ComplicationData, loadDrawablesAsynchronous: Boolean = false) {
@@ -1121,14 +1135,14 @@ internal constructor(
 
         // Select the shortest valid timeline entry.
         timelineEntries?.let {
-            for (wireEntry in it) {
-                val start = wireEntry.timelineStartEpochSecond
-                val end = wireEntry.timelineEndEpochSecond
+            for (entry in it) {
+                val start = entry.timelineStartEpochSecond
+                val end = entry.timelineEndEpochSecond
                 if (start != null && end != null && time >= start && time < end) {
                     val duration = end - start
                     if (duration < previousShortest) {
                         previousShortest = duration
-                        best = wireEntry.toApiComplicationData()
+                        best = entry.complicationData
                     }
                 }
             }
