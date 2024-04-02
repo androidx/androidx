@@ -54,11 +54,14 @@ class SystemJobInfoConverter {
 
     private final ComponentName mWorkServiceComponent;
     private final Clock mClock;
+    private final boolean mMarkImportantWhileForeground;
 
-    SystemJobInfoConverter(@NonNull Context context, Clock clock) {
+    SystemJobInfoConverter(@NonNull Context context,
+            Clock clock, boolean markImportantWhileForeground) {
         mClock = clock;
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
+        mMarkImportantWhileForeground = markImportantWhileForeground;
     }
 
     /**
@@ -107,7 +110,7 @@ class SystemJobInfoConverter {
             if (offset > 0) {
                 // Only set a minimum latency when applicable.
                 builder.setMinimumLatency(offset);
-            } else if (!workSpec.expedited) {
+            } else if (!workSpec.expedited && mMarkImportantWhileForeground) {
                 // Only set this if the workSpec is not expedited.
                 builder.setImportantWhileForeground(true);
             }
