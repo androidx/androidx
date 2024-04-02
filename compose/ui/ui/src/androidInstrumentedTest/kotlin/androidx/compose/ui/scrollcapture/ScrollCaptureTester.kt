@@ -36,13 +36,14 @@ import android.view.Surface
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.platform.AndroidComposeView
+import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.resume
 import kotlin.math.roundToInt
 import kotlin.test.fail
@@ -59,22 +60,53 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 /**
  * Helps tests pretend to be the Android platform performing scroll capture search and image
- * capture. Tests must call [setContent] on this class instead of on [rule].
+ * capture. Tests must call [setContent] on this class instead of on [rule], and the entire test
+ * should be run in the coroutine started by the [runTest] method on this class.
  */
 @RequiresApi(31)
 class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
+
+    interface CaptureSessionScope {
+        val windowHeight: Int
+
+        suspend fun performCapture(): CaptureResult
+        fun shiftWindowBy(offset: Int)
+    }
+
+    class CaptureResult(
+        val bitmap: Bitmap?,
+        val capturedRect: Rect
+    )
+
     private var view: View? = null
-    private var coroutineScope: CoroutineScope? = null
 
     fun setContent(content: @Composable () -> Unit) {
         rule.setContent {
             this.view = LocalView.current
-            this.coroutineScope = rememberCoroutineScope()
             content()
         }
+    }
+
+    /**
+     * Workaround for standard kotlin runTest because it deadlocks when a composition coroutine
+     * calls `delay()`.
+     */
+    fun runTest(timeoutMillis: Long = 5_000, block: suspend CoroutineScope.() -> Unit) {
+        val scope = CoroutineScope(AndroidUiDispatcher.Main)
+        val latch = CountDownLatch(1)
+        var result: Result<Unit>? = null
+        scope.launch {
+            result = runCatching {
+                block()
+            }
+            latch.countDown()
+        }
+        rule.waitUntil("Test coroutine completed", timeoutMillis) { result != null }
+        return result!!.getOrThrow()
     }
 
     /**
@@ -82,60 +114,46 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
      * from [setContent] for scroll containers, and returns all the [ScrollCaptureTarget]s produced
      * that would be given to the platform in production.
      */
-    fun findCaptureTargets(): List<ScrollCaptureTarget> = rule.runOnIdle {
-        val view = checkNotNull(view as? AndroidComposeView) {
-            "Must call setContent on ScrollCaptureTester before capturing."
+    suspend fun findCaptureTargets(): List<ScrollCaptureTarget> {
+        rule.awaitIdle()
+        return withContext(AndroidUiDispatcher.Main) {
+            val view = checkNotNull(view as? AndroidComposeView) {
+                "Must call setContent on ScrollCaptureTester before capturing."
+            }
+            val localVisibleRect = Rect().also(view::getLocalVisibleRect)
+            val windowOffset = view.calculatePositionInWindow(Offset.Zero).roundToPoint()
+            val targets = mutableListOf<ScrollCaptureTarget>()
+            view.onScrollCaptureSearch(localVisibleRect, windowOffset, targets::add)
+            targets
         }
-        val localVisibleRect = Rect().also(view::getLocalVisibleRect)
-        val windowOffset = view.calculatePositionInWindow(Offset.Zero).roundToPoint()
-        val targets = mutableListOf<ScrollCaptureTarget>()
-        view.onScrollCaptureSearch(localVisibleRect, windowOffset, targets::add)
-        targets
     }
 
     /**
-     * Emulates (roughly) how the platform interacts with [ScrollCaptureCallback] to iteratively
-     * assemble a screenshot of the entire contents of the [target]. Unlike the platform, this
-     * method will not limit itself to a certain size, it always captures the entire scroll
-     * contents, so tests should make sure to use small enough scroll contents or the test might
-     * run out of memory.
+     * Runs a capture session. [block] should call methods on [CaptureSessionScope] to incrementally
+     * capture bitmaps of [target].
      *
-     * @param captureHeight The height of the capture window. Must not be greater than viewport
+     * @param captureWindowHeight The height of the capture window. Must not be greater than viewport
      * height.
      */
-    fun captureBitmapsVertically(target: ScrollCaptureTarget, captureHeight: Int): List<Bitmap> {
-        val scope = rule.runOnIdle {
-            checkNotNull(coroutineScope) {
-                "Must call setContent on ScrollCaptureTest before capturing."
-            }
-        }
-        val bitmapsFromTop = mutableListOf<Bitmap>()
-
-        // This coroutine will run on the main thread, no need to use runOnUiThread.
-        val captureJob = scope.launch {
-            runCaptureSession(target, captureHeight, onBitmap = bitmapsFromTop::add)
-        }
-
-        rule.waitUntil(3_000) { captureJob.isCompleted }
-        return bitmapsFromTop
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun runCaptureSession(
+    suspend fun <T> capture(
         target: ScrollCaptureTarget,
-        captureHeight: Int,
-        onBitmap: (Bitmap) -> Unit
-    ) {
+        captureWindowHeight: Int,
+        block: suspend CaptureSessionScope.() -> T
+    ): T = withContext(AndroidUiDispatcher.Main) {
         val callback = target.callback
         // Use the bounds returned from the callback, not the ones from the target, because that's
         // what the system does.
         val scrollBounds = callback.onScrollCaptureSearch()
         val captureWidth = scrollBounds.width()
-        requirePrecondition(captureHeight <= scrollBounds.height()) {
-            "Expected windowSize ($captureHeight) ≤ viewport height (${scrollBounds.height()})"
+        requirePrecondition(captureWindowHeight <= scrollBounds.height()) {
+            "Expected windowSize ($captureWindowHeight) ≤ viewport height " +
+                "(${scrollBounds.height()})"
         }
 
-        withSurfaceBitmaps(captureWidth, captureHeight) { surface, bitmapsFromSurface ->
+        val result = withSurfaceBitmaps(
+            captureWidth,
+            captureWindowHeight
+        ) { surface, bitmapsFromSurface ->
             val session = ScrollCaptureSession(
                 surface,
                 scrollBounds,
@@ -143,97 +161,83 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
             )
             callback.onScrollCaptureStart(session)
 
-            var captureOffset = Point(0, 0)
-            var goingUp = true
-            // Starting with the original viewport, scrolls all the way to the top, then all the way
-            // back down, capturing images on the way down until it hits the bottom.
-            while (true) {
-                val requestedCaptureArea = Rect(
-                    captureOffset.x,
-                    captureOffset.y,
-                    captureOffset.x + captureWidth,
-                    captureOffset.y + captureHeight
-                )
-                val resultCaptureArea =
-                    callback.onScrollCaptureImageRequest(session, requestedCaptureArea)
+            block(object : CaptureSessionScope {
+                private var captureOffset = Point(0, 0)
 
-                // Empty results shouldn't produce an image.
-                if (!resultCaptureArea.isEmpty) {
-                    val bitmap = bitmapsFromSurface.receiveWithTimeout(1_000) {
-                        "No bitmap received after 1 second for capture area $resultCaptureArea"
-                    }
+                override val windowHeight: Int
+                    get() = captureWindowHeight
 
-                    // Only collect the returned images on the way down.
-                    if (!goingUp) {
-                        onBitmap(bitmap)
-                    } else {
-                        bitmap.recycle()
-                    }
+                override fun shiftWindowBy(offset: Int) {
+                    captureOffset = Point(0, captureOffset.y + offset)
                 }
 
-                if (resultCaptureArea != requestedCaptureArea) {
-                    // We found the top or bottom.
-                    if (goingUp) {
-                        // "Bounce" off the top: Change direction and start re-capturing down.
-                        goingUp = false
-                        captureOffset = Point(0, resultCaptureArea.top)
+                override suspend fun performCapture(): CaptureResult {
+                    val requestedCaptureArea = Rect(
+                        captureOffset.x,
+                        captureOffset.y,
+                        captureOffset.x + captureWidth,
+                        captureOffset.y + captureWindowHeight
+                    )
+                    val resultCaptureArea =
+                        callback.onScrollCaptureImageRequest(session, requestedCaptureArea)
+
+                    // Empty results shouldn't produce an image.
+                    val bitmap = if (!resultCaptureArea.isEmpty) {
+                        bitmapsFromSurface.receiveWithTimeout(1_000) {
+                            "No bitmap received after 1 second for capture area " +
+                                resultCaptureArea
+                        }
                     } else {
-                        // If we hit the bottom then we're done.
-                        break
+                        null
                     }
-                } else {
-                    // We can keep going in the same direction, offset the capture window and loop.
-                    captureOffset = if (goingUp) {
-                        Point(0, resultCaptureArea.top - captureHeight)
-                    } else {
-                        Point(0, resultCaptureArea.bottom)
-                    }
+                    return CaptureResult(
+                        bitmap = bitmap,
+                        capturedRect = resultCaptureArea
+                    )
                 }
-            }
+            })
         }
-
         callback.onScrollCaptureEnd()
+        return@withContext result
     }
 
     /**
      * Creates a [Surface] passes it to [block] along with a channel that will receive all images
      * written to the [Surface].
      */
-    private suspend inline fun withSurfaceBitmaps(
+    private suspend inline fun <T> withSurfaceBitmaps(
         width: Int,
         height: Int,
-        crossinline block: suspend (Surface, ReceiveChannel<Bitmap>) -> Unit
-    ) {
-        coroutineScope {
-            // ImageReader gives us the Surface that we'll provide to the session.
-            ImageReader.newInstance(
-                width,
-                height,
-                PixelFormat.RGBA_8888,
-                // Each image is read, processed, and closed before the next request to draw is made,
-                // so we don't need multiple images.
-                /* maxImages= */ 1,
-                USAGE_GPU_SAMPLED_IMAGE or USAGE_GPU_COLOR_OUTPUT
-            ).use { imageReader ->
-                val bitmapsChannel = Channel<Bitmap>(capacity = Channel.RENDEZVOUS)
+        crossinline block: suspend (Surface, ReceiveChannel<Bitmap>) -> T
+    ): T = coroutineScope {
+        // ImageReader gives us the Surface that we'll provide to the session.
+        ImageReader.newInstance(
+            width,
+            height,
+            PixelFormat.RGBA_8888,
+            // Each image is read, processed, and closed before the next request to draw is made,
+            // so we don't need multiple images.
+            /* maxImages= */ 1,
+            USAGE_GPU_SAMPLED_IMAGE or USAGE_GPU_COLOR_OUTPUT
+        ).use { imageReader ->
+            val bitmapsChannel = Channel<Bitmap>(capacity = Channel.RENDEZVOUS)
 
-                // Must register the OnImageAvailableListener before any code in block runs to avoid
-                // race conditions.
-                val imageCollectorJob = launch(start = CoroutineStart.UNDISPATCHED) {
-                    imageReader.collectImages {
-                        val bitmap = it.toSoftwareBitmap()
-                        bitmapsChannel.send(bitmap)
-                    }
+            // Must register the OnImageAvailableListener before any code in block runs to avoid
+            // race conditions.
+            val imageCollectorJob = launch(start = CoroutineStart.UNDISPATCHED) {
+                imageReader.collectImages {
+                    val bitmap = it.toSoftwareBitmap()
+                    bitmapsChannel.send(bitmap)
                 }
+            }
 
-                try {
-                    block(imageReader.surface, bitmapsChannel)
-                    // ImageReader has no signal that it's finished, so in the happy path we have to
-                    // stop the collector job explicitly.
-                    imageCollectorJob.cancel()
-                } finally {
-                    bitmapsChannel.close()
-                }
+            try {
+                block(imageReader.surface, bitmapsChannel)
+            } finally {
+                // ImageReader has no signal that it's finished, so in the happy path we have to
+                // stop the collector job explicitly.
+                imageCollectorJob.cancel()
+                bitmapsChannel.close()
             }
         }
     }
@@ -297,6 +301,69 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
     ): E = select {
         onReceive { it }
         onTimeout(timeoutMillis) { fail(timeoutMessage()) }
+    }
+}
+
+/**
+ * Emulates (roughly) how the platform interacts with [ScrollCaptureCallback] to iteratively
+ * assemble a screenshot of the entire contents of the [target]. Unlike the platform, this
+ * method will not limit itself to a certain size, it always captures the entire scroll
+ * contents, so tests should make sure to use small enough scroll contents or the test might
+ * run out of memory.
+ *
+ * @param captureHeight The height of the capture window. Must not be greater than viewport
+ * height.
+ */
+@RequiresApi(31)
+suspend fun ScrollCaptureTester.captureBitmapsVertically(
+    target: ScrollCaptureTarget,
+    captureHeight: Int
+): List<Bitmap> = capture(target, captureHeight) {
+    buildList {
+        captureAllFromTop(::add)
+    }
+}
+
+@RequiresApi(31)
+suspend fun ScrollCaptureTester.CaptureSessionScope.captureAllFromTop(
+    onBitmap: suspend (Bitmap) -> Unit
+) {
+    // Starting with the original viewport, scrolls all the way to the top, then all the way
+    // back down, capturing images on the way down until it hits the bottom.
+    var goingUp = true
+    while (true) {
+        val result = performCapture()
+        val bitmap = result.bitmap
+        if (bitmap != null) {
+            // Only collect the returned images on the way down.
+            if (!goingUp) {
+                onBitmap(bitmap)
+            } else {
+                bitmap.recycle()
+            }
+        }
+
+        val consumed = result.capturedRect.height()
+        if (consumed < windowHeight) {
+            // We found the top or bottom.
+            if (goingUp) {
+                // "Bounce" off the top: Change direction and start re-capturing down.
+                goingUp = false
+                // Move the window to the top of the content.
+                shiftWindowBy(windowHeight - consumed)
+            } else {
+                // If we hit the bottom then we're done.
+                break
+            }
+        } else {
+            // We can keep going in the same direction, offset the capture window and
+            // loop.
+            if (goingUp) {
+                shiftWindowBy(-windowHeight)
+            } else {
+                shiftWindowBy(windowHeight)
+            }
+        }
     }
 }
 
