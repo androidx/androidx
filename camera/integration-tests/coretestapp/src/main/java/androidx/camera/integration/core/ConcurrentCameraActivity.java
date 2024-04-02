@@ -22,7 +22,7 @@ import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -184,7 +184,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-    @SuppressLint("RestrictedApiAndroidX")
     void bindPreviewForSingle(@NonNull ProcessCameraProvider cameraProvider) {
         cameraProvider.unbindAll();
         mSideBySideLayout.setVisibility(GONE);
@@ -265,8 +264,8 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mBackPreviewView);
     }
 
+    @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    @SuppressLint({"RestrictedApiAndroidX", "NullAnnotationGroup"})
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,
@@ -290,7 +289,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             for (CameraInfo info : cameraInfoPrimary.getPhysicalCameraInfos()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     if (Camera2CameraInfo.from(info).getCameraCharacteristic(LENS_POSE_REFERENCE)
-                            == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA) {
+                            == CameraMetadata.LENS_POSE_REFERENCE_PRIMARY_CAMERA) {
                         innerPhysicalCameraId = Camera2CameraInfo.from(info).getCameraId();
                     } else {
                         outerPhysicalCameraId = Camera2CameraInfo.from(info).getCameraId();
