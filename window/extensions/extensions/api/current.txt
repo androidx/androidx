@@ -163,7 +163,6 @@ package androidx.window.extensions.embedding {
 
   public class EmbeddedActivityWindowInfo {
     method public android.app.Activity getActivity();
-    method public android.graphics.Rect getActivityBounds();
     method public android.graphics.Rect getActivityStackBounds();
     method public android.graphics.Rect getTaskBounds();
     method public boolean isEmbedded();

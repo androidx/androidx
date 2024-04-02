@@ -36,18 +36,21 @@ public class EmbeddedActivityWindowInfo {
     private final Activity mActivity;
     private final boolean mIsEmbedded;
     @NonNull
-    private final Rect mActivityBounds;
-    @NonNull
     private final Rect mTaskBounds;
     @NonNull
     private final Rect mActivityStackBounds;
 
+    // TODO(b/287582673): remove after extensions drop
     EmbeddedActivityWindowInfo(@NonNull Activity activity, boolean isEmbedded,
             @NonNull Rect activityBounds, @NonNull Rect taskBounds,
             @NonNull Rect activityStackBounds) {
+        this(activity, isEmbedded, taskBounds, activityStackBounds);
+    }
+
+    EmbeddedActivityWindowInfo(@NonNull Activity activity, boolean isEmbedded,
+            @NonNull Rect taskBounds, @NonNull Rect activityStackBounds) {
         mActivity = Objects.requireNonNull(activity);
         mIsEmbedded = isEmbedded;
-        mActivityBounds = Objects.requireNonNull(activityBounds);
         mTaskBounds = Objects.requireNonNull(taskBounds);
         mActivityStackBounds = Objects.requireNonNull(activityStackBounds);
     }
@@ -68,15 +71,6 @@ public class EmbeddedActivityWindowInfo {
     @RequiresVendorApiLevel(level = 6)
     public boolean isEmbedded() {
         return mIsEmbedded;
-    }
-
-    /**
-     * Returns the bounds of the Activity window in display space.
-     */
-    @RequiresVendorApiLevel(level = 6)
-    @NonNull
-    public Rect getActivityBounds() {
-        return mActivityBounds;
     }
 
     /**
@@ -106,7 +100,6 @@ public class EmbeddedActivityWindowInfo {
         final EmbeddedActivityWindowInfo that = (EmbeddedActivityWindowInfo) o;
         return mActivity.equals(that.mActivity)
                 && mIsEmbedded == that.mIsEmbedded
-                && mActivityBounds.equals(that.mActivityBounds)
                 && mTaskBounds.equals(that.mTaskBounds)
                 && mActivityStackBounds.equals(that.mActivityStackBounds);
     }
@@ -115,7 +108,6 @@ public class EmbeddedActivityWindowInfo {
     public int hashCode() {
         int result = mActivity.hashCode();
         result = result * 31 + (mIsEmbedded ? 1 : 0);
-        result = result * 31 + mActivityBounds.hashCode();
         result = result * 31 + mTaskBounds.hashCode();
         result = result * 31 + mActivityStackBounds.hashCode();
         return result;
@@ -127,7 +119,6 @@ public class EmbeddedActivityWindowInfo {
         return "EmbeddedActivityWindowInfo{"
                 + "activity=" + mActivity
                 + ", isEmbedded=" + mIsEmbedded
-                + ", activityBounds=" + mActivityBounds
                 + ", taskBounds=" + mTaskBounds
                 + ", activityStackBounds=" + mActivityStackBounds
                 + "}";
