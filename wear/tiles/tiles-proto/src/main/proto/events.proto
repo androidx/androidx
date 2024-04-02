@@ -8,26 +8,59 @@ option java_outer_classname = "EventProto";
 
 // Event fired when a tile has been added to the carousel.
 message TileAddEvent {
-  // The ID of the tile added to the carousel.
+  // Instance ID of the added tile, allocated when the tile instance was added
+  // to the carousel. This ID will remain the same for this tile instance as
+  // long it is not removed from the carousel.
   uint32 tile_id = 1;
 }
 
 // Event fired when a tile has been removed from the carousel.
 message TileRemoveEvent {
-  // The ID of the tile removed from the carousel.
+  // Instance ID of the removed tile, allocated when the tile instance
+  // was added to the carousel.
   uint32 tile_id = 1;
 }
 
 // Event fired when a tile is swiped to by the user (i.e. it's visible on
 // screen).
 message TileEnterEvent {
-  // The ID of the entered tile.
+  // Instance ID of the tile, allocated when the tile instance is added to the
+  // carousel. This ID will remain the same for this tile instance as long it is
+  // not removed from the carousel.
   uint32 tile_id = 1;
 }
 
 // Event fired when a tile is swiped away from by the user (i.e. it's no longer
 // visible on screen).
 message TileLeaveEvent {
-  // The ID of the tile.
+  // Instance ID of the tile, allocated when the tile instance is added to the
+  // carousel. This ID will remain the same for this tile instance as long it is
+  // not removed from the carousel.
   uint32 tile_id = 1;
+}
+
+// Event reported when a user interacts with a tile (e.g. entering or leaving a tile).
+message TileInteractionEvent {
+  // Instance ID of the tile, allocated when the tile instance is added to the
+  // carousel. This ID will remain the same for this tile instance as long it is
+  // not removed from the carousel.
+  uint32 tile_id = 1;
+  // The timestamp of when the interaction was reported.
+  uint64 timestamp_epoch_millis = 2;
+  oneof inner {
+    // Enter event
+    TileEnter enter = 3;
+    // Leave event
+    TileLeave leave = 4;
+  }
+}
+
+// Event reported when a tile is swiped to by the user (i.e. it's visible on
+// screen).
+message TileEnter {
+}
+
+// Event reported when a tile is swiped away from by the user (i.e. it's no longer
+// visible on screen).
+message TileLeave {
 }
