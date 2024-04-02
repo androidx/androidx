@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
  * - Secondary (S)
  * - Tertiary (T)
  */
-@ExperimentalMaterial3CommonApi
 class TonalPalette(
     // The neutral tonal range from the generated dynamic color palette.
     // Ordered from the lightest shade [neutral100] to the darkest shade [neutral0].
@@ -139,7 +138,6 @@ class TonalPalette(
     val tertiary0: Color
 )
 
-@ExperimentalMaterial3CommonApi
 object TonalPaletteDefaults {
     /**
      * Baseline colors in Material.
