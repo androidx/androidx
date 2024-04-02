@@ -71,7 +71,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_finds_verticalScrollModifier() {
+    fun search_finds_verticalScrollModifier() = captureTester.runTest {
         captureTester.setContent {
             with(LocalDensity.current) {
                 Box(
@@ -92,7 +92,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_doesNotFind_horizontalScrollModifier() {
+    fun search_doesNotFind_horizontalScrollModifier() = captureTester.runTest {
         captureTester.setContent {
             with(LocalDensity.current) {
                 Box(
@@ -110,7 +110,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_finds_LazyColumn() {
+    fun search_finds_LazyColumn() = captureTester.runTest {
         captureTester.setContent {
             with(LocalDensity.current) {
                 LazyColumn(Modifier.size(10.toDp())) {
@@ -129,7 +129,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_doesNotFind_LazyRow() {
+    fun search_doesNotFind_LazyRow() = captureTester.runTest {
         captureTester.setContent {
             with(LocalDensity.current) {
                 LazyRow(Modifier.size(10.toDp())) {
@@ -145,7 +145,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_finds_LazyVerticalGrid() {
+    fun search_finds_LazyVerticalGrid() = captureTester.runTest {
         captureTester.setContent {
             with(LocalDensity.current) {
                 LazyVerticalGrid(
@@ -165,7 +165,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_finds_LazyVerticalStaggeredGrid() {
+    fun search_finds_LazyVerticalStaggeredGrid() = captureTester.runTest {
         captureTester.setContent {
             with(LocalDensity.current) {
                 LazyVerticalStaggeredGrid(
@@ -185,7 +185,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_doesNotFind_TextField1_singleLine() {
+    fun search_doesNotFind_TextField1_singleLine() = captureTester.runTest {
         captureTester.setContent {
             BasicTextField(
                 "really long value to ensure that the field will scroll horizontally",
@@ -200,7 +200,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_doesNotFind_TextField1_multiLine_scrollable() {
+    fun search_doesNotFind_TextField1_multiLine_scrollable() = captureTester.runTest {
         captureTester.setContent {
             BasicTextField(
                 "lots\n\nof\n\nnewlines\n\nto\n\nmake\n\nvertically\n\nscrollable",
@@ -215,7 +215,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_doesNotFind_TextField2_singleLine() {
+    fun search_doesNotFind_TextField2_singleLine() = captureTester.runTest {
         val state =
             TextFieldState("really long value to ensure that the field will scroll horizontally")
         captureTester.setContent {
@@ -231,7 +231,7 @@ class ScrollCaptureIntegrationTest {
     }
 
     @Test
-    fun search_doesNotFind_TextField2_multiLine_scrollable() {
+    fun search_doesNotFind_TextField2_multiLine_scrollable() = captureTester.runTest {
         val state =
             TextFieldState("lots\n\nof\n\nnewlines\n\nto\n\nmake\n\nvertically\n\nscrollable")
         captureTester.setContent {
