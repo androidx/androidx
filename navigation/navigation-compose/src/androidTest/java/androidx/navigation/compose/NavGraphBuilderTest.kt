@@ -303,6 +303,239 @@ class NavGraphBuilderTest {
 
     @OptIn(ExperimentalSafeArgsApi::class)
     @Test
+    fun testNavigationObjectStart() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = TestClass()) {
+                composable<TestClass> { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(TestClass::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route).isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationObjectStartArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = TestClassArg(15)) {
+                composable<TestClassArg> { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ARG_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(TestClassArg::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+                .isEqualTo(15)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationNestedObjectStart() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = TestClassArg::class) {
+                navigation<TestClassArg>(startDestination = TestClass()) {
+                    composable<TestClass> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(TestClassArg::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationNestedObjectStartArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = TestClass::class) {
+                navigation<TestClass>(startDestination = TestClassArg(15)) {
+                    composable<TestClassArg> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ARG_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(TestClass::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+                .isEqualTo(15)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationNestedAllObjectsStart() {
+        @Serializable
+        class NestedGraph
+
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = NestedGraph()) {
+                navigation<NestedGraph>(startDestination = TestClass()) {
+                    composable<TestClass> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(NestedGraph::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationNestedAllObjectsStartArgs() {
+        @Serializable
+        class NestedGraph(val graphArg: Boolean)
+
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = NestedGraph(false)) {
+                navigation<NestedGraph>(startDestination = TestClassArg(15)) {
+                    composable<TestClassArg> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                TEST_CLASS_ARG_ROUTE
+            )
+            assertWithMessage("Destination should be added to the graph")
+                .that(NestedGraph::class in navController.graph)
+                .isTrue()
+            assertThat(navController.graph.findStartDestination().route)
+                .isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentBackStackEntry?.arguments?.getBoolean("graphArg"))
+                .isEqualTo(false)
+            assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+                .isEqualTo(15)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationObjectNestedInGraph() {
+        @Serializable
+        class NestedGraph
+
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation<NestedGraph>(startDestination = TestClass()) {
+                    composable<TestClass> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(NestedGraph())
+            assertWithMessage("Destination should be added to the graph")
+                .that(NestedGraph::class in navController.graph)
+                .isTrue()
+            val nestedGraph = navController.graph.findNode<NestedGraph>() as NavGraph
+            assertThat(nestedGraph.findStartDestination().route).isEqualTo(TEST_CLASS_ROUTE)
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNavigationObjectArgsNestedInGraph() {
+        @Serializable
+        class NestedGraph
+
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation<NestedGraph>(startDestination = TestClassArg(15)) {
+                    composable<TestClassArg> { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(NestedGraph())
+            assertWithMessage("Destination should be added to the graph")
+                .that(NestedGraph::class in navController.graph)
+                .isTrue()
+            val nestedGraph = navController.graph.findNode<NestedGraph>() as NavGraph
+            assertThat(nestedGraph.findStartDestination().route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg"))
+                .isEqualTo(15)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
     fun testComposableKClass() {
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
