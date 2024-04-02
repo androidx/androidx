@@ -109,8 +109,9 @@ fun InputTransformation?.then(next: InputTransformation?): InputTransformation? 
  * Creates a filter chain that will run [next] after this. Filters are applied sequentially, so any
  * changes made by this filter will be visible to [next].
  *
- * The returned filter will use the [KeyboardOptions] from [next] if non-null, otherwise it will
- * use the options from this transformation.
+ * The returned filter will [merge][KeyboardOptions.merge] this transformation's [KeyboardOptions]
+ * with those from [next], preferring options from [next] where both transformations specify the
+ * same option.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationChainingSample
  *
@@ -173,8 +174,8 @@ private class FilterChain(
 ) : InputTransformation {
 
     override val keyboardOptions: KeyboardOptions?
-        // TODO(b/295951492) Do proper merging.
-        get() = second.keyboardOptions ?: first.keyboardOptions
+        get() = second.keyboardOptions?.fillUnspecifiedValuesWith(first.keyboardOptions)
+            ?: first.keyboardOptions
 
     override fun SemanticsPropertyReceiver.applySemantics() {
         with(first) { applySemantics() }
