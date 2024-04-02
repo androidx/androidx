@@ -703,7 +703,7 @@ public class GenericDocument {
     }
 
     /**
-     * Retrieves an {@code EmbeddingVector[]} property by path.
+     * Retrieves an {@code EmbeddingVector} property by path.
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
      *
