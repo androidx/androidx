@@ -30,6 +30,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.usagereporting.ClickAction;
+import androidx.appsearch.app.usagereporting.TakenAction;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.test.core.app.ApplicationProvider;
@@ -151,39 +152,67 @@ public class PutDocumentsRequestCtsTest {
 
     @Test
     public void addTakenActions() throws Exception {
-        ClickAction clickAction1 = new ClickAction.Builder("namespace", "id1").build();
-        ClickAction clickAction2 = new ClickAction.Builder("namespace", "id2").build();
+        ClickAction clickAction1 =
+                new ClickAction.Builder("namespace", "click1", /* actionTimestampMillis= */1000)
+                        .build();
+        ClickAction clickAction2 =
+                new ClickAction.Builder("namespace", "click2", /* actionTimestampMillis= */2000)
+                        .build();
+        ClickAction clickAction3 =
+                new ClickAction.Builder("namespace", "click3", /* actionTimestampMillis= */3000)
+                        .build();
+        ClickAction clickAction4 =
+                new ClickAction.Builder("namespace", "click4", /* actionTimestampMillis= */4000)
+                        .build();
+        ClickAction clickAction5 =
+                new ClickAction.Builder("namespace", "click5", /* actionTimestampMillis= */5000)
+                        .build();
 
         PutDocumentsRequest request = new PutDocumentsRequest.Builder()
-                .addTakenActions(clickAction1, clickAction2)
+                .addTakenActions(clickAction1, clickAction2, clickAction3, clickAction4,
+                        clickAction5)
                 .build();
 
         // Generic documents should contain nothing.
         assertThat(request.getGenericDocuments()).isEmpty();
 
         // Taken action generic documents should contain correct taken action generic documents.
-        assertThat(request.getTakenActionGenericDocuments()).hasSize(2);
-        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("id1");
-        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
+        assertThat(request.getTakenActionGenericDocuments()).hasSize(5);
+        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("click1");
+        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("click2");
+        assertThat(request.getTakenActionGenericDocuments().get(2).getId()).isEqualTo("click3");
+        assertThat(request.getTakenActionGenericDocuments().get(3).getId()).isEqualTo("click4");
+        assertThat(request.getTakenActionGenericDocuments().get(4).getId()).isEqualTo("click5");
     }
 
     @Test
     public void addTakenActions_byCollection() throws Exception {
-        Set<ClickAction> clickActions = ImmutableSet.of(
-                new ClickAction.Builder("namespace", "id1").build(),
-                new ClickAction.Builder("namespace", "id2").build());
+        Set<TakenAction> takenActions = ImmutableSet.of(
+                new ClickAction.Builder("namespace", "click1", /* actionTimestampMillis= */1000)
+                        .build(),
+                new ClickAction.Builder("namespace", "click2", /* actionTimestampMillis= */2000)
+                        .build(),
+                new ClickAction.Builder("namespace", "click3", /* actionTimestampMillis= */3000)
+                        .build(),
+                new ClickAction.Builder("namespace", "click4", /* actionTimestampMillis= */4000)
+                        .build(),
+                new ClickAction.Builder("namespace", "click5", /* actionTimestampMillis= */5000)
+                        .build());
 
         PutDocumentsRequest request = new PutDocumentsRequest.Builder()
-                .addTakenActions(clickActions)
+                .addTakenActions(takenActions)
                 .build();
 
         // Generic documents should contain nothing.
         assertThat(request.getGenericDocuments()).isEmpty();
 
         // Taken action generic documents should contain correct taken action generic documents.
-        assertThat(request.getTakenActionGenericDocuments()).hasSize(2);
-        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("id1");
-        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
+        assertThat(request.getTakenActionGenericDocuments()).hasSize(5);
+        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("click1");
+        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("click2");
+        assertThat(request.getTakenActionGenericDocuments().get(2).getId()).isEqualTo("click3");
+        assertThat(request.getTakenActionGenericDocuments().get(3).getId()).isEqualTo("click4");
+        assertThat(request.getTakenActionGenericDocuments().get(4).getId()).isEqualTo("click5");
     }
 // @exportToFramework:endStrip()
 }

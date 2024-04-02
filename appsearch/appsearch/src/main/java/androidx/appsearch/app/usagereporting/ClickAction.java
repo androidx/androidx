@@ -20,30 +20,21 @@ package androidx.appsearch.app.usagereporting;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.Features;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * {@link ClickAction} is a built-in AppSearch document type that contains different metrics.
- * <ul>
- *     <li>Clients can report the user's actions (e.g. click) on a
- *     {@link androidx.appsearch.app.SearchResult} document.
- *     <li>Also several other types of actions can be analyzed and extracted from fields in
- *     {@link ClickAction}. For example, query abandonment will be derived from
- *     {@link ClickAction#getPreviousQueries} and {@link ClickAction#getFinalQuery}.
- * </ul>
+ * Clients can report the user's click actions on a {@link androidx.appsearch.app.SearchResult}
+ * document.
  *
  * <p>In order to use this document type, the client must explicitly set this schema type via
  * {@link androidx.appsearch.app.SetSchemaRequest.Builder#addDocumentClasses}.
  *
- * <p>These actions can be used as signals to boost ranking via
+ * <p>Click actions can be used as signals to boost ranking via
  * {@link androidx.appsearch.app.JoinSpec} API in future search requests.
  *
  * <p>Since {@link ClickAction} is an AppSearch document, the client can handle deletion via
@@ -58,35 +49,15 @@ import java.util.List;
         enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
         name = Features.JOIN_SPEC_AND_QUALIFIED_ID)
 @Document(name = "builtin:ClickAction")
-public class ClickAction implements TakenAction {
-    /** Default TTL for {@link ClickAction} document: 60 days. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final long DEFAULT_DOCUMENT_TTL_MILLIS = 60L * 24 * 60 * 60 * 1000;
+public class ClickAction extends TakenAction {
+    @Nullable
+    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+    private final String mQuery;
 
-    @Document.Namespace
-    private final String mNamespace;
-
-    @Document.Id
-    private final String mId;
-
-    @Document.CreationTimestampMillis
-    private final long mCreationTimestampMillis;
-
-    @Document.TtlMillis
-    private final long mDocumentTtlMillis;
-
-    @Document.StringProperty
-    private final String mName;
-
+    @Nullable
     @Document.StringProperty(joinableValueType =
             StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
     private final String mReferencedQualifiedId;
-
-    @Document.StringProperty
-    private final List<String> mPreviousQueries;
-
-    @Document.StringProperty(indexingType = StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
-    private final String mFinalQuery;
 
     @Document.LongProperty
     private final int mResultRankInBlock;
@@ -97,85 +68,31 @@ public class ClickAction implements TakenAction {
     @Document.LongProperty
     private final long mTimeStayOnResultMillis;
 
-    ClickAction(@NonNull String namespace, @NonNull String id,
-            long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
-            @Nullable String referencedQualifiedId, @Nullable List<String> previousQueries,
-            @Nullable String finalQuery, int resultRankInBlock, int resultRankGlobal,
-            long timeStayOnResultMillis) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mId = Preconditions.checkNotNull(id);
-        mCreationTimestampMillis = creationTimestampMillis;
-        mDocumentTtlMillis = documentTtlMillis;
-        mName = name;
+    ClickAction(@NonNull String namespace, @NonNull String id, long documentTtlMillis,
+            long actionTimestampMillis, @TakenAction.ActionType int actionType,
+            @Nullable String query, @Nullable String referencedQualifiedId, int resultRankInBlock,
+            int resultRankGlobal, long timeStayOnResultMillis) {
+        super(namespace, id, documentTtlMillis, actionTimestampMillis, actionType);
+
+        mQuery = query;
         mReferencedQualifiedId = referencedQualifiedId;
-        if (previousQueries == null) {
-            mPreviousQueries = Collections.emptyList();
-        } else {
-            mPreviousQueries = Collections.unmodifiableList(previousQueries);
-        }
-        mFinalQuery = finalQuery;
         mResultRankInBlock = resultRankInBlock;
         mResultRankGlobal = resultRankGlobal;
         mTimeStayOnResultMillis = timeStayOnResultMillis;
     }
 
-    /** Returns the namespace of the {@link ClickAction}. */
-    @NonNull
-    public String getNamespace() {
-        return mNamespace;
-    }
-
-    /** Returns the unique identifier of the {@link ClickAction}. */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
     /**
-     * Returns the creation timestamp of the {@link ClickAction} document, in milliseconds since
-     * Unix epoch.
-     *
-     * <p>This timestamp refers to the creation time of the document, not when it is written
-     * into AppSearch.
-     *
-     * <p>If not set, then the current timestamp will be used.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-     * information on creation timestamp.
-     */
-    public long getCreationTimestampMillis() {
-        return mCreationTimestampMillis;
-    }
-
-    /**
-     * Returns the time-to-live (TTL) of the {@link ClickAction} document as a duration in
-     * milliseconds.
-     *
-     * <p>The document will be automatically deleted when the TTL expires (since
-     * {@link #getCreationTimestampMillis()}).
-     *
-     * <p>The default TTL for {@link ClickAction} document is 60 days.
-     *
-     * <p>See {@link androidx.appsearch.annotation.Document.TtlMillis} for more information on TTL.
-     */
-    public long getDocumentTtlMillis() {
-        return mDocumentTtlMillis;
-    }
-
-    /**
-     * Returns the name of the {@link ClickAction}.
-     *
-     * <p>Name is an optional custom field that allows the client to tag and categorize
-     * {@link ClickAction}.
+     * Returns the user-entered search input (without any operators or rewriting) that yielded the
+     * {@link androidx.appsearch.app.SearchResult} on which the user clicked.
      */
     @Nullable
-    public String getName() {
-        return mName;
+    public String getQuery() {
+        return mQuery;
     }
 
     /**
      * Returns the qualified id of the {@link androidx.appsearch.app.SearchResult} document that the
-     * user takes action on.
+     * user clicked on.
      *
      * <p>A qualified id is a string generated by package, database, namespace, and document id. See
      * {@link androidx.appsearch.util.DocumentIdUtil#createQualifiedId(String,String,String,String)}
@@ -184,24 +101,6 @@ public class ClickAction implements TakenAction {
     @Nullable
     public String getReferencedQualifiedId() {
         return mReferencedQualifiedId;
-    }
-
-    /**
-     * Returns the list of all previous user-entered search inputs, without any operators or
-     * rewriting, collected during this search session in chronological order.
-     */
-    @NonNull
-    public List<String> getPreviousQueries() {
-        return mPreviousQueries;
-    }
-
-    /**
-     * Returns the final user-entered search input (without any operators or rewriting) that yielded
-     * the {@link androidx.appsearch.app.SearchResult} on which the user took action.
-     */
-    @Nullable
-    public String getFinalQuery() {
-        return mFinalQuery;
     }
 
     /**
@@ -252,38 +151,56 @@ public class ClickAction implements TakenAction {
     // TODO(b/314026345): redesign builder to enable inheritance for ClickAction.
     /** Builder for {@link ClickAction}. */
     @Document.BuilderProducer
-    public static final class Builder {
-        private final String mNamespace;
-        private final String mId;
-        private long mCreationTimestampMillis;
-        private long mDocumentTtlMillis;
-        private String mName;
+    public static final class Builder extends BuilderImpl<Builder> {
+        private String mQuery;
         private String mReferencedQualifiedId;
-        private List<String> mPreviousQueries;
-        private String mFinalQuery;
         private int mResultRankInBlock;
         private int mResultRankGlobal;
         private long mTimeStayOnResultMillis;
-        private boolean mBuilt = false;
 
         /**
-         * Constructs {@link ClickAction.Builder} with given {@code namespace} and {@code id}.
+         * Constructor for {@link ClickAction.Builder}.
          *
-         * @param namespace The namespace of the {@link ClickAction} document.
-         * @param id        The id of the {@ClickAction} document.
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
          */
-        public Builder(@NonNull String namespace, @NonNull String id) {
-            mNamespace = Preconditions.checkNotNull(namespace);
-            mId = Preconditions.checkNotNull(id);
+        public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
+            this(namespace, id, actionTimestampMillis, ACTION_TYPE_CLICK);
+        }
 
-            // Default for unset creationTimestampMillis. AppSearch will internally convert this
-            // to current time when creating the GenericDocument.
-            mCreationTimestampMillis = -1;
+        /**
+         * Constructs {@link ClickAction.Builder} by copying existing values from the given
+         * {@link ClickAction}.
+         *
+         * @param clickAction an existing {@link ClickAction} object.
+         */
+        public Builder(@NonNull ClickAction clickAction) {
+            super(Preconditions.checkNotNull(clickAction));
 
-            // Default for mDocumentTtlMillis.
-            mDocumentTtlMillis = ClickAction.DEFAULT_DOCUMENT_TTL_MILLIS;
+            mQuery = clickAction.getQuery();
+            mReferencedQualifiedId = clickAction.getReferencedQualifiedId();
+            mResultRankInBlock = clickAction.getResultRankInBlock();
+            mResultRankGlobal = clickAction.getResultRankGlobal();
+            mTimeStayOnResultMillis = clickAction.getTimeStayOnResultMillis();
+        }
 
-            mPreviousQueries = new ArrayList<>();
+        /**
+         * Constructor for {@link ClickAction.Builder}.
+         *
+         * <p>It is required by {@link Document.BuilderProducer}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         * @param actionType            Action type enum for the Document. See
+         *                              {@link TakenAction.ActionType}.
+         */
+        Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis,
+                @TakenAction.ActionType int actionType) {
+            super(namespace, id, actionTimestampMillis, actionType);
 
             // Default for unset result rank fields. Since negative number is invalid for ranking,
             // -1 is used as an unset value and AppSearch will ignore it.
@@ -296,71 +213,13 @@ public class ClickAction implements TakenAction {
         }
 
         /**
-         * Constructs {@link ClickAction.Builder} by copying existing values from the given
-         * {@link ClickAction}.
-         *
-         * @param clickAction an existing {@link ClickAction} object.
+         * Sets the user-entered search input (without any operators or rewriting) that yielded
+         * the {@link androidx.appsearch.app.SearchResult} on which the user clicked.
          */
-        public Builder(@NonNull ClickAction clickAction) {
-            this(clickAction.getNamespace(), clickAction.getId());
-            mCreationTimestampMillis = clickAction.getCreationTimestampMillis();
-            mDocumentTtlMillis = clickAction.getDocumentTtlMillis();
-            mName = clickAction.getName();
-            mReferencedQualifiedId = clickAction.getReferencedQualifiedId();
-            mPreviousQueries = new ArrayList<>(clickAction.getPreviousQueries());
-            mFinalQuery = clickAction.getFinalQuery();
-            mResultRankInBlock = clickAction.getResultRankInBlock();
-            mResultRankGlobal = clickAction.getResultRankGlobal();
-            mTimeStayOnResultMillis = clickAction.getTimeStayOnResultMillis();
-        }
-
-        /**
-         * Sets the creation timestamp of the {@link ClickAction} document, in milliseconds since
-         * Unix epoch.
-         *
-         * <p>This timestamp refers to the creation time of the document, not when it is written
-         * into AppSearch.
-         *
-         * <p>If not set, then the current timestamp will be used.
-         *
-         * <p>See {@link androidx.appsearch.annotation.Document.CreationTimestampMillis} for more
-         * information on creation timestamp.
-         */
+        @CanIgnoreReturnValue
         @NonNull
-        public Builder setCreationTimestampMillis(long creationTimestampMillis) {
-            resetIfBuilt();
-            mCreationTimestampMillis = creationTimestampMillis;
-            return this;
-        }
-
-        /**
-         * Sets the time-to-live (TTL) of the {@link ClickAction} document as a duration in
-         * milliseconds.
-         *
-         * <p>The document will be automatically deleted when the TTL expires (since
-         * {@link ClickAction#getCreationTimestampMillis()}).
-         *
-         * <p>The default TTL for {@link ClickAction} document is 60 days.
-         *
-         * <p>See {@link androidx.appsearch.annotation.Document.TtlMillis} for more information on
-         * TTL.
-         */
-        @NonNull
-        public Builder setDocumentTtlMillis(long documentTtlMillis) {
-            resetIfBuilt();
-            mDocumentTtlMillis = documentTtlMillis;
-            return this;
-        }
-
-        /**
-         * Sets the action type name of the {@link ClickAction}.
-         *
-         * @see ClickAction#getName
-         */
-        @NonNull
-        public Builder setName(@Nullable String name) {
-            resetIfBuilt();
-            mName = name;
+        public Builder setQuery(@Nullable String query) {
+            mQuery = query;
             return this;
         }
 
@@ -372,46 +231,10 @@ public class ClickAction implements TakenAction {
          * See {@link androidx.appsearch.util.DocumentIdUtil#createQualifiedId(
          * String,String,String,String)} for more details.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setReferencedQualifiedId(@Nullable String referencedQualifiedId) {
-            resetIfBuilt();
             mReferencedQualifiedId = referencedQualifiedId;
-            return this;
-        }
-
-        /**
-         * Adds one previous user-entered search input, without any operators or rewriting,
-         * collected during this search session in chronological order.
-         */
-        @NonNull
-        public Builder addPreviousQuery(@NonNull String query) {
-            resetIfBuilt();
-            mPreviousQueries.add(query);
-            return this;
-        }
-
-        /**
-         * Sets a list of previous user-entered search inputs, without any operators or rewriting,
-         * collected during this search session in chronological order.
-         */
-        @NonNull
-        public Builder setPreviousQueries(@Nullable List<String> previousQueries) {
-            resetIfBuilt();
-            clearPreviousQueries();
-            if (previousQueries != null) {
-                mPreviousQueries.addAll(previousQueries);
-            }
-            return this;
-        }
-
-        /**
-         * Sets the final user-entered search input (without any operators or rewriting) that
-         * yielded the {@link androidx.appsearch.app.SearchResult} on which the user took action.
-         */
-        @NonNull
-        public Builder setFinalQuery(@Nullable String finalQuery) {
-            resetIfBuilt();
-            mFinalQuery = finalQuery;
             return this;
         }
 
@@ -421,9 +244,9 @@ public class ClickAction implements TakenAction {
          *
          * @see ClickAction#getResultRankInBlock
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setResultRankInBlock(int resultRankInBlock) {
-            resetIfBuilt();
             mResultRankInBlock = resultRankInBlock;
             return this;
         }
@@ -433,9 +256,9 @@ public class ClickAction implements TakenAction {
          *
          * @see ClickAction#getResultRankGlobal
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setResultRankGlobal(int resultRankGlobal) {
-            resetIfBuilt();
             mResultRankGlobal = resultRankGlobal;
             return this;
         }
@@ -444,38 +267,20 @@ public class ClickAction implements TakenAction {
          * Sets the time in milliseconds that user stays on the
          * {@link androidx.appsearch.app.SearchResult} document after clicking it.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setTimeStayOnResultMillis(long timeStayOnResultMillis) {
-            resetIfBuilt();
             mTimeStayOnResultMillis = timeStayOnResultMillis;
             return this;
         }
 
-        /**
-         * Clear all the previous queries which were previously added by {@link #addPreviousQuery}
-         * or set by {@link #setPreviousQueries}.
-         */
-        private void clearPreviousQueries() {
-            mPreviousQueries.clear();
-        }
-
-        /**
-         * If built, make a copy of previous data for every field so that the builder can be reused.
-         */
-        private void resetIfBuilt() {
-            if (mBuilt) {
-                mPreviousQueries = new ArrayList<>(mPreviousQueries);
-                mBuilt = false;
-            }
-        }
-
         /** Builds a {@link ClickAction}. */
+        @Override
         @NonNull
         public ClickAction build() {
-            mBuilt = true;
-            return new ClickAction(mNamespace, mId, mCreationTimestampMillis, mDocumentTtlMillis,
-                    mName, mReferencedQualifiedId, mPreviousQueries, mFinalQuery,
-                    mResultRankInBlock, mResultRankGlobal, mTimeStayOnResultMillis);
+            return new ClickAction(mNamespace, mId, mDocumentTtlMillis, mActionTimestampMillis,
+                    mActionType, mQuery, mReferencedQualifiedId, mResultRankInBlock,
+                    mResultRankGlobal, mTimeStayOnResultMillis);
         }
     }
 }
