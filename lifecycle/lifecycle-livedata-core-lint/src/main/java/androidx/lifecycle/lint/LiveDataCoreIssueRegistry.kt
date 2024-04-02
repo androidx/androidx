@@ -18,11 +18,10 @@ package androidx.lifecycle.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
-import com.android.tools.lint.detector.api.CURRENT_API
 
 @Suppress("UnstableApiUsage")
 class LiveDataCoreIssueRegistry : IssueRegistry() {
-    override val minApi = CURRENT_API
+    override val minApi = 10 // Only compatible with the latest lint
     override val api = 14
     override val issues get() = listOf(NonNullableMutableLiveDataDetector.ISSUE)
     override val vendor = Vendor(
