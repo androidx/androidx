@@ -16,13 +16,24 @@
 
 package androidx.window.demo2.embedding
 
-import android.app.Activity
 import android.os.Bundle
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
 import androidx.window.demo.common.util.PictureInPictureUtil
+import androidx.window.demo2.R
 import androidx.window.demo2.databinding.ActivityEmbeddedBinding
+import androidx.window.embedding.ActivityEmbeddingController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-open class EmbeddedActivityBase : Activity() {
+open class EmbeddedActivityBase : AppCompatActivity() {
     lateinit var viewBinding: ActivityEmbeddedBinding
+    private lateinit var activityEmbeddingController: ActivityEmbeddingController
+    private lateinit var windowInfoView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,5 +42,41 @@ open class EmbeddedActivityBase : Activity() {
         viewBinding.buttonPip.setOnClickListener {
             PictureInPictureUtil.startPictureInPicture(this, false)
         }
+
+        activityEmbeddingController = ActivityEmbeddingController.getInstance(this)
+        initializeEmbeddedActivityInfoCallback()
+    }
+
+    private fun initializeEmbeddedActivityInfoCallback() {
+        val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
+        if (extensionVersion < 6) {
+            // EmbeddedActivityWindowInfo is only available on 6+.
+            return
+        }
+
+        windowInfoView = viewBinding.windowIntoText
+        lifecycleScope.launch(Dispatchers.Main) {
+            // Collect EmbeddedActivityWindowInfo when STARTED and stop when STOPPED.
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // After register, the flow will be triggered immediately if the activity is
+                // embedded.
+                // However, if the activity is changed to non-embedded state in background (after
+                // STOPPED), the flow will not report the change (because it has been unregistered).
+                // Reset before start listening.
+                resetWindowInfoView()
+                activityEmbeddingController.embeddedActivityWindowInfo(this@EmbeddedActivityBase)
+                    .collect { info ->
+                        if (info.isEmbedded) {
+                            windowInfoView.text = info.toString()
+                        } else {
+                            resetWindowInfoView()
+                        }
+                    }
+            }
+        }
+    }
+
+    private fun resetWindowInfoView() {
+        windowInfoView.text = getString(R.string.embedded_window_info_unavailable)
     }
 }
