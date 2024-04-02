@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
@@ -38,7 +37,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param activity the [Activity] to check.
      */
-    // TODO(b/204399167) Migrate to a Flow
     fun isActivityEmbedded(activity: Activity): Boolean =
         backend.isActivityEmbedded(activity)
 
@@ -177,8 +175,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @param activity the [Activity] that is interested in getting the embedded window info.
      * @return a [Flow] of [EmbeddedActivityWindowInfo] of the [activity].
      */
-    // TODO(b/287582673): expose the API
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresWindowSdkExtension(6)
     fun embeddedActivityWindowInfo(activity: Activity): Flow<EmbeddedActivityWindowInfo> =
         callbackFlow {

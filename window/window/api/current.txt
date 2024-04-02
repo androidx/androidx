@@ -127,6 +127,7 @@ package androidx.window.core {
 package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public kotlinx.coroutines.flow.Flow<androidx.window.embedding.EmbeddedActivityWindowInfo> embeddedActivityWindowInfo(android.app.Activity activity);
     method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
     method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
@@ -173,6 +174,15 @@ package androidx.window.embedding {
     method public operator boolean contains(android.app.Activity activity);
     method public boolean isEmpty();
     property public final boolean isEmpty;
+  }
+
+  public final class EmbeddedActivityWindowInfo {
+    method public android.graphics.Rect getBoundsInParentHost();
+    method public android.graphics.Rect getParentHostBounds();
+    method public boolean isEmbedded();
+    property public final android.graphics.Rect boundsInParentHost;
+    property public final boolean isEmbedded;
+    property public final android.graphics.Rect parentHostBounds;
   }
 
   public abstract class EmbeddingAnimationBackground {
