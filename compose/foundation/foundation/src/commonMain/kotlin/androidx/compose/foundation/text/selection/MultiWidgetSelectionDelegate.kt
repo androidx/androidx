@@ -217,8 +217,8 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     val bounds = Rect(
         0.0f,
         0.0f,
-        textLayoutResult.multiParagraph.width.toFloat(),
-        textLayoutResult.multiParagraph.height.toFloat()
+        textLayoutResult.size.width.toFloat(),
+        textLayoutResult.size.height.toFloat()
     )
 
     val currentXDirection = getXDirection(localPosition, bounds)
