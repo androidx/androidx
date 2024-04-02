@@ -23,12 +23,12 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_SENSOR
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy
-import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.interfaces.Detector
 import com.google.mlkit.vision.interfaces.Detector.TYPE_BARCODE_SCANNING
