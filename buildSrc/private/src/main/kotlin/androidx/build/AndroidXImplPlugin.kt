@@ -41,6 +41,7 @@ import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
@@ -573,8 +574,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun configureWithAppPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.extensions.getByType<AppExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
-            configureAndroidApplicationOptions(project, androidXExtension)
             excludeVersionFiles(packagingOptions.resources)
+        }
+
+        project.extensions.getByType<ApplicationExtension>().apply {
+            configureAndroidApplicationOptions(project, androidXExtension)
         }
 
         project.extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
@@ -598,8 +602,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     private fun configureWithTestPlugin(project: Project, androidXExtension: AndroidXExtension) {
         project.extensions.getByType<TestExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
-            project.addAppApkToTestConfigGeneration(androidXExtension)
             excludeVersionFiles(packagingOptions.resources)
+        }
+
+        project.extensions.getByType<com.android.build.api.dsl.TestExtension>().apply {
+            project.configureTestConfigGeneration(this)
+            project.addAppApkToTestConfigGeneration(androidXExtension)
         }
 
         project.configureJavaCompilationWarnings(androidXExtension)
@@ -781,7 +789,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         val libraryExtension =
             project.extensions.getByType<LibraryExtension>().apply {
                 configureAndroidBaseOptions(project, androidXExtension)
-                project.addAppApkToTestConfigGeneration(androidXExtension)
                 configureAndroidLibraryOptions(project, androidXExtension)
 
                 // Make sure the main Kotlin source set doesn't contain anything under
@@ -811,6 +818,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.extensions.getByType<com.android.build.api.dsl.LibraryExtension>().apply {
             publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
+            project.configureTestConfigGeneration(this)
+            project.addAppApkToTestConfigGeneration(androidXExtension)
         }
 
         libraryAndroidComponentsExtension.apply {
@@ -1069,7 +1078,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.configureTestConfigGeneration(this)
         project.configureFtlRunner(
             project.extensions.getByType(AndroidComponentsExtension::class.java)
         )
@@ -1250,7 +1258,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun AppExtension.configureAndroidApplicationOptions(
+    private fun ApplicationExtension.configureAndroidApplicationOptions(
         project: Project,
         androidXExtension: AndroidXExtension
     ) {
@@ -1259,6 +1267,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             versionName = "1.0"
         }
 
+        project.configureTestConfigGeneration(this)
         project.addAppApkToTestConfigGeneration(androidXExtension)
         project.addAppApkToFtlRunner()
     }
