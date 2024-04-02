@@ -22,6 +22,9 @@ import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.maxTextLength
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -143,6 +146,40 @@ class InputTransformationTest {
         val chain = filter1.then(filter2)
 
         assertThat(chain.keyboardOptions).isSameInstanceAs(options2)
+    }
+
+    @Test
+    fun chainedFilters_mergeKeyboardOptions_withPrecedenceToNext() {
+        val options1 = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            capitalization = KeyboardCapitalization.Sentences
+        )
+        val options2 = KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = ImeAction.Search
+        )
+        val filter1 = object : InputTransformation {
+            override val keyboardOptions = options1
+
+            override fun TextFieldBuffer.transformInput() {
+            }
+        }
+        val filter2 = object : InputTransformation {
+            override val keyboardOptions = options2
+
+            override fun TextFieldBuffer.transformInput() {
+            }
+        }
+
+        val chain = filter1.then(filter2)
+
+        assertThat(chain.keyboardOptions).isEqualTo(
+            KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Search
+            )
+        )
     }
 
     @Test
