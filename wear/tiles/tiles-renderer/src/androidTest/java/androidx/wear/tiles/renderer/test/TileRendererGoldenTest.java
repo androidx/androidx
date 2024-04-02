@@ -41,7 +41,6 @@ import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource;
 import androidx.wear.protolayout.proto.ResourceProto.Resources;
 import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.tiles.renderer.TileRenderer;
-import androidx.wear.tiles.renderer.TileRenderer.Config;
 
 import com.google.protobuf.TextFormat;
 
@@ -236,12 +235,11 @@ public class TileRendererGoldenTest {
         LayoutElement rootElement = LayoutElement.parseFrom(contents);
 
         TileRenderer renderer =
-                new TileRenderer(
-                        new Config.Builder(
-                                        appContext,
-                                        ContextCompat.getMainExecutor(getApplicationContext()),
-                                        i -> {})
-                                .build());
+                new TileRenderer.Builder(
+                                appContext,
+                                ContextCompat.getMainExecutor(getApplicationContext()),
+                                i -> {})
+                        .build();
 
         View firstChild =
                 renderer.inflateAsync(
