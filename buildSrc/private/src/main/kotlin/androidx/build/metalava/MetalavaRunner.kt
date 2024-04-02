@@ -73,6 +73,10 @@ fun runMetalavaWithArgs(
                 "DeprecationMismatch",
                 "--hide",
                 "DocumentExceptions",
+
+                // Don't track annotations that aren't needed for review or checking compat.
+                "--exclude-annotation",
+                "androidx.annotation.ReplaceWith",
             )
     val workQueue = workerExecutor.processIsolation()
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
