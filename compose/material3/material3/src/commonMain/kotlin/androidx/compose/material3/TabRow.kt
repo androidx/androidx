@@ -73,6 +73,7 @@ import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
+import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -123,7 +124,7 @@ import kotlinx.coroutines.launch
  * color of the same FancyIndicator from before, also adding a physics based 'spring' effect to
  * the indicator in the direction of motion:
  *
- * @sample androidx.compose.material3.samples.FancyAnimatedIndicator
+ * @sample androidx.compose.material3.samples.FancyAnimatedIndicatorWithModifier
  *
  * We can now just pass this indicator directly to TabRow:
  *
@@ -271,7 +272,7 @@ fun SecondaryTabRow(
  * color of the same FancyIndicator from before, also adding a physics based 'spring' effect to
  * the indicator in the direction of motion:
  *
- * @sample androidx.compose.material3.samples.FancyAnimatedIndicator
+ * @sample androidx.compose.material3.samples.FancyAnimatedIndicatorWithModifier
  *
  * We can now just pass this indicator directly to TabRow:
  *
@@ -313,6 +314,205 @@ fun TabRow(
     tabs: @Composable () -> Unit
 ) {
     TabRowWithSubcomposeImpl(modifier, containerColor, contentColor, indicator, divider, tabs)
+}
+
+/**
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design Scrollable Primary tabs</a>
+ *
+ * Primary tabs are placed at the top of the content pane under a top app bar. They display the main
+ * content destinations. When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable
+ * tabs can use longer text labels and a larger number of tabs. They are best used for browsing on
+ * touch interfaces.
+ *
+ * A scrollable tab row contains a row of [Tab]s, and displays an indicator underneath the currently
+ * selected tab. A scrollable tab row places its tabs offset from the starting edge, and allows
+ * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
+ * scrolling, and evenly places its tabs, see [PrimaryTabRow].
+ *
+ * @param selectedTabIndex the index of the currently selected tab
+ * @param modifier the [Modifier] to be applied to this tab row
+ * @param scrollState the [ScrollState] of this tab row
+ * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
+ * to have no color.
+ * @param contentColor the preferred color for content inside this tab row. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
+ * and the tabs inside the row. This padding helps inform the user that this tab row can be
+ * scrolled, unlike a [TabRow].
+ * @param indicator the indicator that represents which tab is currently selected. By default this
+ * will be a [TabRowDefaults.PrimaryIndicator], using a [TabRowDefaults.tabIndicatorOffset] modifier
+ * to animate its position.
+ * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
+ * separation between the tab row and the content displayed underneath.
+ * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
+ * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
+ */
+@ExperimentalMaterial3Api
+@Composable
+fun PrimaryScrollableTabRow(
+    selectedTabIndex: Int,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    containerColor: Color = TabRowDefaults.primaryContainerColor,
+    contentColor: Color = TabRowDefaults.primaryContentColor,
+    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
+    indicator: @Composable TabIndicatorScope.() -> Unit = @Composable {
+        TabRowDefaults.PrimaryIndicator(
+            Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = true),
+            width = Dp.Unspecified,
+        )
+    },
+    divider: @Composable () -> Unit = @Composable {
+        HorizontalDivider()
+    },
+    tabs: @Composable () -> Unit
+) {
+    ScrollableTabRowImpl(
+        selectedTabIndex = selectedTabIndex,
+        indicator = indicator,
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        edgePadding = edgePadding,
+        divider = divider,
+        tabs = tabs,
+        scrollState = scrollState,
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design Scrollable Secondary tabs</a>
+ *
+ * Material Design scrollable tabs.
+ *
+ * Secondary tabs are used within a content area to further separate related content and establish
+ * hierarchy. When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use
+ * longer text labels and a larger number of tabs. They are best used for browsing on touch
+ * interfaces.
+ *
+ * A scrollable tab row contains a row of [Tab]s, and displays an indicator underneath the currently
+ * selected tab. A scrollable tab row places its tabs offset from the starting edge, and allows
+ * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
+ * scrolling, and evenly places its tabs, see [SecondaryTabRow].
+ *
+ * @param selectedTabIndex the index of the currently selected tab
+ * @param modifier the [Modifier] to be applied to this tab row
+ * @param scrollState the [ScrollState] of this tab row
+ * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
+ * to have no color.
+ * @param contentColor the preferred color for content inside this tab row. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
+ * and the tabs inside the row. This padding helps inform the user that this tab row can be
+ * scrolled, unlike a [TabRow].
+ * @param indicator the indicator that represents which tab is currently selected. By default this
+ * will be a [TabRowDefaults.SecondaryIndicator], using a [TabRowDefaults.tabIndicatorOffset]
+ * modifier to animate its position. Note that this indicator will be forced to fill up the entire
+ * tab row, so you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual
+ * drawn indicator inside this space, and provide an offset from the start.
+ * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
+ * separation between the tab row and the content displayed underneath.
+ * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
+ * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
+ */
+@ExperimentalMaterial3Api
+@Composable
+fun SecondaryScrollableTabRow(
+    selectedTabIndex: Int,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    containerColor: Color = TabRowDefaults.secondaryContainerColor,
+    contentColor: Color = TabRowDefaults.secondaryContentColor,
+    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
+    indicator: @Composable TabIndicatorScope.() -> Unit = @Composable {
+        TabRowDefaults.SecondaryIndicator(
+            Modifier.tabIndicatorOffset(selectedTabIndex, matchContentSize = false)
+        )
+    },
+    divider: @Composable () -> Unit = @Composable {
+        HorizontalDivider()
+    },
+    tabs: @Composable () -> Unit
+) {
+    ScrollableTabRowImpl(
+        selectedTabIndex = selectedTabIndex,
+        indicator = indicator,
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        edgePadding = edgePadding,
+        divider = divider,
+        tabs = tabs,
+        scrollState = scrollState
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tabs</a>
+ *
+ * Material Design scrollable tabs.
+ *
+ * For primary indicator tabs, use [PrimaryScrollableTabRow]. For secondary indicator tabs, use
+ * [SecondaryScrollableTabRow].
+ *
+ * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
+ * labels and a larger number of tabs. They are best used for browsing on touch interfaces.
+ *
+ * A ScrollableTabRow contains a row of [Tab]s, and displays an indicator underneath the currently
+ * selected tab. A ScrollableTabRow places its tabs offset from the starting edge, and allows
+ * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
+ * scrolling, and evenly places its tabs, see [TabRow].
+ *
+ * @param selectedTabIndex the index of the currently selected tab
+ * @param modifier the [Modifier] to be applied to this tab row
+ * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
+ * to have no color.
+ * @param contentColor the preferred color for content inside this tab row. Defaults to either the
+ * matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
+ * and the tabs inside the row. This padding helps inform the user that this tab row can be
+ * scrolled, unlike a [TabRow].
+ * @param indicator the indicator that represents which tab is currently selected. By default this
+ * will be a [TabRowDefaults.SecondaryIndicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
+ * animate its position. Note that this indicator will be forced to fill up the entire tab row, so
+ * you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual drawn
+ * indicator inside this space, and provide an offset from the start.
+ * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
+ * separation between the tab row and the content displayed underneath.
+ * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
+ * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
+ */
+@Composable
+fun ScrollableTabRow(
+    selectedTabIndex: Int,
+    modifier: Modifier = Modifier,
+    containerColor: Color = TabRowDefaults.primaryContainerColor,
+    contentColor: Color = TabRowDefaults.primaryContentColor,
+    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
+    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
+        TabRowDefaults.SecondaryIndicator(
+            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+        )
+    },
+    divider: @Composable () -> Unit = @Composable {
+        HorizontalDivider()
+    },
+    tabs: @Composable () -> Unit
+) {
+    ScrollableTabRowWithSubcomposeImpl(
+        selectedTabIndex = selectedTabIndex,
+        indicator = indicator,
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        edgePadding = edgePadding,
+        divider = divider,
+        tabs = tabs,
+        scrollState = rememberScrollState()
+    )
 }
 
 /**
@@ -482,6 +682,169 @@ private fun TabRowImpl(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ScrollableTabRowImpl(
+    selectedTabIndex: Int,
+    modifier: Modifier,
+    containerColor: Color,
+    contentColor: Color,
+    edgePadding: Dp,
+    scrollState: ScrollState,
+    indicator: @Composable TabIndicatorScope.() -> Unit,
+    divider: @Composable () -> Unit,
+    tabs: @Composable () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentSize(align = Alignment.CenterStart)
+            .horizontalScroll(scrollState)
+            .selectableGroup()
+            .clipToBounds(),
+        color = containerColor,
+        contentColor = contentColor
+    ) {
+        val coroutineScope = rememberCoroutineScope()
+        val scrollableTabData = remember(scrollState, coroutineScope) {
+            ScrollableTabData(
+                scrollState = scrollState,
+                coroutineScope = coroutineScope
+            )
+        }
+
+        val scope = remember {
+            object : TabIndicatorScope, TabPositionsHolder {
+
+                val tabPositions = mutableStateOf<(List<TabPosition>)>(listOf())
+
+                override fun Modifier.tabIndicatorLayout(
+                    measure: MeasureScope.(
+                        Measurable,
+                        Constraints,
+                        List<TabPosition>,
+                    ) -> MeasureResult
+                ): Modifier =
+                    this.layout { measurable: Measurable, constraints: Constraints ->
+                        measure(
+                            measurable,
+                            constraints,
+                            tabPositions.value,
+                        )
+                    }
+
+                override fun Modifier.tabIndicatorOffset(
+                    selectedTabIndex: Int,
+                    matchContentSize: Boolean
+                ): Modifier =
+                    this.then(
+                        TabIndicatorModifier(
+                            tabPositions,
+                            selectedTabIndex,
+                            matchContentSize
+                        )
+                    )
+
+                override fun setTabPositions(positions: List<TabPosition>) {
+                    tabPositions.value = positions
+                }
+            }
+        }
+
+        Layout(
+            contents = listOf(
+                tabs,
+                divider,
+                { scope.indicator() },
+            )
+        ) { (tabMeasurables, dividerMeasurables, indicatorMeasurables), constraints ->
+            val padding = edgePadding.roundToPx()
+            val tabCount = tabMeasurables.size
+            val minTabWidth = ScrollableTabRowMinimumTabWidth.roundToPx()
+            val layoutHeight = tabMeasurables.fastFold(initial = 0) { curr, measurable ->
+                maxOf(curr, measurable.maxIntrinsicHeight(Constraints.Infinity))
+            }
+            var layoutWidth = padding * 2
+            val tabConstraints = constraints.copy(
+                minWidth = minTabWidth,
+                minHeight = layoutHeight,
+                maxHeight = layoutHeight,
+            )
+
+            var left = edgePadding
+            val tabPlaceables = tabMeasurables.fastMap {
+                it.measure(tabConstraints)
+            }
+
+            val positions = List(tabCount) { index ->
+                val tabWidth = maxOf(
+                    ScrollableTabRowMinimumTabWidth,
+                    tabPlaceables[index].width.toDp()
+                )
+                layoutWidth += tabWidth.roundToPx()
+                // Enforce minimum touch target of 24.dp
+                val contentWidth = maxOf(tabWidth - (HorizontalTextPadding * 2), 24.dp)
+                val tabPosition = TabPosition(
+                    left = left,
+                    width = tabWidth,
+                    contentWidth = contentWidth
+                )
+                left += tabWidth
+                tabPosition
+            }
+            scope.setTabPositions(positions)
+
+            val dividerPlaceables = dividerMeasurables.fastMap {
+                it.measure(
+                    constraints.copy(
+                        minHeight = 0,
+                        minWidth = layoutWidth,
+                        maxWidth = layoutWidth
+                    )
+                )
+            }
+
+            val indicatorPlaceables = indicatorMeasurables.fastMap {
+                it.measure(
+                    constraints.copy(
+                        minWidth = 0,
+                        maxWidth = positions[selectedTabIndex].width.roundToPx(),
+                        minHeight = 0,
+                        maxHeight = layoutHeight
+                    )
+                )
+            }
+
+            layout(layoutWidth, layoutHeight) {
+                left = edgePadding
+                tabPlaceables.fastForEachIndexed { index, placeable ->
+                    placeable.placeRelative(left.roundToPx(), 0)
+                    left += positions[index].width
+                }
+
+                dividerPlaceables.fastForEach { placeable ->
+                    placeable.placeRelative(0, layoutHeight - placeable.height)
+                }
+
+                indicatorPlaceables.fastForEach {
+                    val relativeOffset = max(
+                        0,
+                        (positions[selectedTabIndex].width.roundToPx() - it.width) / 2
+                    )
+                    it.placeRelative(relativeOffset, layoutHeight - it.height)
+                }
+
+                scrollableTabData.onLaidOut(
+                    density = this@Layout,
+                    edgeOffset = padding,
+                    tabPositions = positions,
+                    selectedTab = selectedTabIndex
+                )
+            }
+        }
+    }
+}
+
 internal data class TabIndicatorModifier(
     val tabPositionsState: State<List<TabPosition>>,
     val selectedTabIndex: Int,
@@ -526,20 +889,25 @@ internal class TabIndicatorOffsetNode(
             return layout(0, 0) { }
         }
 
-        val currentTabWidth = tabPositionsState.value[selectedTabIndex].contentWidth
-        if (followContentSize) {
-            if (initialWidth != null) {
-                val widthAnim =
-                    widthAnimatable ?: Animatable(initialWidth!!, Dp.VectorConverter).also {
-                        widthAnimatable = it
-                    }
+        val currentTabWidth = if (followContentSize) {
+            tabPositionsState.value[selectedTabIndex].contentWidth
+        } else {
+            tabPositionsState.value[selectedTabIndex].width
+        }
 
-                if (currentTabWidth != widthAnim.targetValue) {
-                    coroutineScope.launch { widthAnim.animateTo(currentTabWidth) }
+        if (initialWidth != null) {
+            val widthAnim =
+                widthAnimatable ?: Animatable(initialWidth!!, Dp.VectorConverter).also {
+                    widthAnimatable = it
                 }
-            } else {
-                initialWidth = currentTabWidth
+
+            if (currentTabWidth != widthAnim.targetValue) {
+                coroutineScope.launch {
+                    widthAnim.animateTo(currentTabWidth, TabRowIndicatorSpec)
+                }
             }
+        } else {
+            initialWidth = currentTabWidth
         }
 
         val indicatorOffset = tabPositionsState.value[selectedTabIndex].left
@@ -551,7 +919,7 @@ internal class TabIndicatorOffsetNode(
                 }
 
             if (indicatorOffset != offsetAnim.targetValue) {
-                coroutineScope.launch { offsetAnim.animateTo(indicatorOffset) }
+                coroutineScope.launch { offsetAnim.animateTo(indicatorOffset, TabRowIndicatorSpec) }
             }
         } else {
             initialOffset = indicatorOffset
@@ -559,13 +927,10 @@ internal class TabIndicatorOffsetNode(
 
         val offset = offsetAnimatable?.value ?: indicatorOffset
 
+        val width = widthAnimatable?.value ?: currentTabWidth
+
         val placeable = measurable.measure(
-            if (followContentSize) {
-                val width = widthAnimatable?.value ?: currentTabWidth
-                constraints.copy(minWidth = width.roundToPx(), maxWidth = width.roundToPx())
-            } else {
-                constraints
-            }
+            constraints.copy(minWidth = width.roundToPx(), maxWidth = width.roundToPx())
         )
 
         return layout(placeable.width, placeable.height) {
@@ -640,210 +1005,8 @@ private fun TabRowWithSubcomposeImpl(
     }
 }
 
-/**
- * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design Scrollable Primary tabs</a>
- *
- * Primary tabs are placed at the top of the content pane under a top app bar. They display the main
- * content destinations. When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable
- * tabs can use longer text labels and a larger number of tabs. They are best used for browsing on
- * touch interfaces.
- *
- * A scrollable tab row contains a row of [Tab]s, and displays an indicator underneath the currently
- * selected tab. A scrollable tab row places its tabs offset from the starting edge, and allows
- * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
- * scrolling, and evenly places its tabs, see [PrimaryTabRow].
- *
- * @param selectedTabIndex the index of the currently selected tab
- * @param modifier the [Modifier] to be applied to this tab row
- * @param scrollState the [ScrollState] of this tab row
- * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
- * to have no color.
- * @param contentColor the preferred color for content inside this tab row. Defaults to either the
- * matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme.
- * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
- * and the tabs inside the row. This padding helps inform the user that this tab row can be
- * scrolled, unlike a [TabRow].
- * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.PrimaryIndicator], using a [TabRowDefaults.tabIndicatorOffset] modifier
- * to animate its position.
- * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
- * separation between the tab row and the content displayed underneath.
- * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
- * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
- */
-@ExperimentalMaterial3Api
 @Composable
-fun PrimaryScrollableTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-    containerColor: Color = TabRowDefaults.primaryContainerColor,
-    contentColor: Color = TabRowDefaults.primaryContentColor,
-    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
-    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-        if (selectedTabIndex < tabPositions.size) {
-            val width by animateDpAsState(targetValue = tabPositions[selectedTabIndex].contentWidth)
-            TabRowDefaults.PrimaryIndicator(
-                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                width = width
-            )
-        }
-    },
-    divider: @Composable () -> Unit = @Composable {
-        HorizontalDivider()
-    },
-    tabs: @Composable () -> Unit
-) {
-    ScrollableTabRowImp(
-        selectedTabIndex = selectedTabIndex,
-        indicator = indicator,
-        modifier = modifier,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        edgePadding = edgePadding,
-        divider = divider,
-        tabs = tabs,
-        scrollState = scrollState,
-    )
-}
-
-/**
- * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design Scrollable Secondary tabs</a>
- *
- * Material Design scrollable tabs.
- *
- * Secondary tabs are used within a content area to further separate related content and establish
- * hierarchy. When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use
- * longer text labels and a larger number of tabs. They are best used for browsing on touch
- * interfaces.
- *
- * A scrollabel tab row contains a row of [Tab]s, and displays an indicator underneath the currently
- * selected tab. A scrollable tab row places its tabs offset from the starting edge, and allows
- * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
- * scrolling, and evenly places its tabs, see [SecondaryTabRow].
- *
- * @param selectedTabIndex the index of the currently selected tab
- * @param modifier the [Modifier] to be applied to this tab row
- * @param scrollState the [ScrollState] of this tab row
- * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
- * to have no color.
- * @param contentColor the preferred color for content inside this tab row. Defaults to either the
- * matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme.
- * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
- * and the tabs inside the row. This padding helps inform the user that this tab row can be
- * scrolled, unlike a [TabRow].
- * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.SecondaryIndicator], using a [TabRowDefaults.tabIndicatorOffset]
- * modifier to animate its position. Note that this indicator will be forced to fill up the entire
- * tab row, so you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual
- * drawn indicator inside this space, and provide an offset from the start.
- * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
- * separation between the tab row and the content displayed underneath.
- * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
- * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
- */
-@ExperimentalMaterial3Api
-@Composable
-fun SecondaryScrollableTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-    containerColor: Color = TabRowDefaults.secondaryContainerColor,
-    contentColor: Color = TabRowDefaults.secondaryContentColor,
-    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
-    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-        TabRowDefaults.SecondaryIndicator(
-            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-        )
-    },
-    divider: @Composable () -> Unit = @Composable {
-        HorizontalDivider()
-    },
-    tabs: @Composable () -> Unit
-) {
-    ScrollableTabRowImp(
-        selectedTabIndex = selectedTabIndex,
-        indicator = indicator,
-        modifier = modifier,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        edgePadding = edgePadding,
-        divider = divider,
-        tabs = tabs,
-        scrollState = scrollState
-    )
-}
-
-/**
- * <a href="https://m3.material.io/components/tabs/overview" class="external" target="_blank">Material Design tabs</a>
- *
- * Material Design scrollable tabs.
- *
- * For primary indicator tabs, use [PrimaryScrollableTabRow]. For secondary indicator tabs, use
- * [SecondaryScrollableTabRow].
- *
- * When a set of tabs cannot fit on screen, use scrollable tabs. Scrollable tabs can use longer text
- * labels and a larger number of tabs. They are best used for browsing on touch interfaces.
- *
- * A ScrollableTabRow contains a row of [Tab]s, and displays an indicator underneath the currently
- * selected tab. A ScrollableTabRow places its tabs offset from the starting edge, and allows
- * scrolling to tabs that are placed off screen. For a fixed tab row that does not allow
- * scrolling, and evenly places its tabs, see [TabRow].
- *
- * @param selectedTabIndex the index of the currently selected tab
- * @param modifier the [Modifier] to be applied to this tab row
- * @param containerColor the color used for the background of this tab row. Use [Color.Transparent]
- * to have no color.
- * @param contentColor the preferred color for content inside this tab row. Defaults to either the
- * matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme.
- * @param edgePadding the padding between the starting and ending edge of the scrollable tab row,
- * and the tabs inside the row. This padding helps inform the user that this tab row can be
- * scrolled, unlike a [TabRow].
- * @param indicator the indicator that represents which tab is currently selected. By default this
- * will be a [TabRowDefaults.SecondaryIndicator], using a [TabRowDefaults.tabIndicatorOffset] modifier to
- * animate its position. Note that this indicator will be forced to fill up the entire tab row, so
- * you should use [TabRowDefaults.tabIndicatorOffset] or similar to animate the actual drawn
- * indicator inside this space, and provide an offset from the start.
- * @param divider the divider displayed at the bottom of the tab row. This provides a layer of
- * separation between the tab row and the content displayed underneath.
- * @param tabs the tabs inside this tab row. Typically this will be multiple [Tab]s. Each element
- * inside this lambda will be measured and placed evenly across the row, each taking up equal space.
- */
-@Composable
-fun ScrollableTabRow(
-    selectedTabIndex: Int,
-    modifier: Modifier = Modifier,
-    containerColor: Color = TabRowDefaults.primaryContainerColor,
-    contentColor: Color = TabRowDefaults.primaryContentColor,
-    edgePadding: Dp = TabRowDefaults.ScrollableTabRowEdgeStartPadding,
-    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
-        TabRowDefaults.SecondaryIndicator(
-            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
-        )
-    },
-    divider: @Composable () -> Unit = @Composable {
-        HorizontalDivider()
-    },
-    tabs: @Composable () -> Unit
-) {
-    ScrollableTabRowImp(
-        selectedTabIndex = selectedTabIndex,
-        indicator = indicator,
-        modifier = modifier,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        edgePadding = edgePadding,
-        divider = divider,
-        tabs = tabs,
-        scrollState = rememberScrollState()
-    )
-}
-
-@Composable
-private fun ScrollableTabRowImp(
+private fun ScrollableTabRowWithSubcomposeImpl(
     selectedTabIndex: Int,
     indicator: @Composable (tabPositions: List<TabPosition>) -> Unit,
     modifier: Modifier = Modifier,
@@ -1136,11 +1299,11 @@ object TabRowDefaults {
     ) {
         val currentTabWidth by animateDpAsState(
             targetValue = currentTabPosition.width,
-            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+            animationSpec = TabRowIndicatorSpec
         )
         val indicatorOffset by animateDpAsState(
             targetValue = currentTabPosition.left,
-            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+            animationSpec = TabRowIndicatorSpec
         )
         fillMaxWidth()
             .wrapContentSize(Alignment.BottomStart)
@@ -1219,6 +1382,14 @@ private val ScrollableTabRowMinimumTabWidth = 90.dp
  * [AnimationSpec] used when scrolling to a tab that is not fully visible.
  */
 private val ScrollableTabRowScrollSpec: AnimationSpec<Float> = tween(
+    durationMillis = 250,
+    easing = FastOutSlowInEasing
+)
+
+/**
+ * [AnimationSpec] used when an indicator is updating width and/or offset.
+ */
+private val TabRowIndicatorSpec: AnimationSpec<Dp> = tween(
     durationMillis = 250,
     easing = FastOutSlowInEasing
 )

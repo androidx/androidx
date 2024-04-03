@@ -17,15 +17,11 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,11 +31,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -54,8 +47,6 @@ import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabIndicatorScope
 import androidx.compose.material3.TabPosition
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -74,7 +65,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -272,15 +262,7 @@ fun ScrollingPrimaryTextTabs() {
         "Tab 10"
     )
     Column {
-        PrimaryScrollableTabRow(selectedTabIndex = state, indicator = @Composable { tabPositions ->
-            if (state < tabPositions.size) {
-                val width by animateDpAsState(targetValue = tabPositions[state].contentWidth)
-                TabRowDefaults.PrimaryIndicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[state]),
-                    width = width
-                )
-            }
-        }) {
+        PrimaryScrollableTabRow(selectedTabIndex = state) {
             titles.forEachIndexed { index, title ->
                 Tab(
                     selected = state == index,
@@ -570,14 +552,11 @@ fun ScrollingFancyIndicatorContainerTabs() {
         "Tab 9 with lots of text",
         "Tab 10"
     )
-    val indicator = @Composable { tabPositions: List<TabPosition> ->
-        FancyAnimatedIndicator(tabPositions = tabPositions, selectedTabIndex = state)
-    }
 
     Column {
         SecondaryScrollableTabRow(
             selectedTabIndex = state,
-            indicator = indicator
+            indicator = { FancyAnimatedIndicatorWithModifier(state) }
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(
@@ -622,61 +601,4 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
             )
         }
     }
-}
-
-@Sampled
-@Composable
-fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: Int) {
-    val colors = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.tertiary,
-    )
-    val transition = updateTransition(selectedTabIndex, label = "")
-    val indicatorStart by transition.animateDp(
-        transitionSpec = {
-            // Handle directionality here, if we are moving to the right, we
-            // want the right side of the indicator to move faster, if we are
-            // moving to the left, we want the left side to move faster.
-            if (initialState < targetState) {
-                spring(dampingRatio = 1f, stiffness = 50f)
-            } else {
-                spring(dampingRatio = 1f, stiffness = 1000f)
-            }
-        }, label = "fancy_indicator"
-    ) {
-        tabPositions[it].left
-    }
-
-    val indicatorEnd by transition.animateDp(
-        transitionSpec = {
-            // Handle directionality here, if we are moving to the right, we
-            // want the right side of the indicator to move faster, if we are
-            // moving to the left, we want the left side to move faster.
-            if (initialState < targetState) {
-                spring(dampingRatio = 1f, stiffness = 1000f)
-            } else {
-                spring(dampingRatio = 1f, stiffness = 50f)
-            }
-        }, label = "indicator_position"
-    ) {
-        tabPositions[it].right
-    }
-
-    val indicatorColor by transition.animateColor(label = "indicator_color") {
-        colors[it % colors.size]
-    }
-
-    FancyIndicator(
-        // Pass the current color to the indicator
-        indicatorColor,
-        modifier = Modifier
-            // Fill up the entire TabRow, and place the indicator at the start
-            .fillMaxSize()
-            .wrapContentSize(align = Alignment.BottomStart)
-            // Apply an offset from the start to correctly position the indicator around the tab
-            .offset { IntOffset(x = indicatorStart.roundToPx(), y = 0) }
-            // Make the width of the indicator follow the animated width as we move between tabs
-            .width(indicatorEnd - indicatorStart)
-    )
 }

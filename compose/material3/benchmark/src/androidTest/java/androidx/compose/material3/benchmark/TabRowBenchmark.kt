@@ -18,6 +18,7 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -62,6 +63,15 @@ internal class TabRowTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     override fun MeasuredContent() {
         val titles = listOf("TAB 1", "TAB 2", "TAB 3")
         PrimaryTabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
+        }
+        PrimaryScrollableTabRow(selectedTabIndex = state) {
             titles.forEachIndexed { index, title ->
                 Tab(
                     text = { Text(title) },
