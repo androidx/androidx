@@ -199,6 +199,8 @@ class RecorderTest(
             DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null
         )
         assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
+        // Skip for b/331618729
+        assumeNotBrokenEmulator()
 
         CameraXUtil.initialize(
             context,

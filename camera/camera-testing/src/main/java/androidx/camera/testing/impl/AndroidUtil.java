@@ -73,5 +73,10 @@ public final class AndroidUtil {
                 "Emulator API 28 crashes running this test.",
                 Build.VERSION.SDK_INT == 28 && isEmulator()
         );
+        // Skip test for b/331618729
+        assumeFalse(
+                "Emulator API 30 crashes running this test.",
+                Build.VERSION.SDK_INT == 30 && isEmulator()
+        );
     }
 }
