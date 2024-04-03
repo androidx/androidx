@@ -1051,14 +1051,14 @@ internal class AndroidComposeView(
         // `traversalAfter` from a non-sealed instance of an ANI
         when (extraDataKey) {
             composeAccessibilityDelegate.ExtraDataTestTraversalBeforeVal -> {
-                composeAccessibilityDelegate.idToBeforeMap[virtualViewId]?.let {
-                    info.extras.putInt(extraDataKey, it)
-                }
+                composeAccessibilityDelegate.idToBeforeMap
+                    .getOrDefault(virtualViewId, -1)
+                    .let { if (it != -1) { info.extras.putInt(extraDataKey, it) } }
             }
             composeAccessibilityDelegate.ExtraDataTestTraversalAfterVal -> {
-                composeAccessibilityDelegate.idToAfterMap[virtualViewId]?.let {
-                    info.extras.putInt(extraDataKey, it)
-                }
+                composeAccessibilityDelegate.idToAfterMap
+                    .getOrDefault(virtualViewId, -1)
+                    .let { if (it != -1) { info.extras.putInt(extraDataKey, it) } }
             }
             else -> {}
         }
@@ -1132,8 +1132,9 @@ internal class AndroidComposeView(
                     info.setParent(thisView, parentId)
                     val semanticsId = layoutNode.semanticsId
 
-                    val beforeId = composeAccessibilityDelegate.idToBeforeMap[semanticsId]
-                    beforeId?.let {
+                    val beforeId =
+                        composeAccessibilityDelegate.idToBeforeMap.getOrDefault(semanticsId, -1)
+                    if (beforeId != -1) {
                         val beforeView = androidViewsHandler.semanticsIdToView(beforeId)
                         if (beforeView != null) {
                             // If the node that should come before this one is a view, we want to
@@ -1143,7 +1144,7 @@ internal class AndroidComposeView(
                         } else {
                             // Otherwise, we'll just set the "before" value by passing in
                             // the semanticsId.
-                            info.setTraversalBefore(thisView, it)
+                            info.setTraversalBefore(thisView, beforeId)
                         }
                         addExtraDataToAccessibilityNodeInfoHelper(
                             semanticsId, info.unwrap(),
@@ -1151,13 +1152,14 @@ internal class AndroidComposeView(
                         )
                     }
 
-                    val afterId = composeAccessibilityDelegate.idToAfterMap[semanticsId]
-                    afterId?.let {
+                    val afterId =
+                        composeAccessibilityDelegate.idToAfterMap.getOrDefault(semanticsId, -1)
+                    if (afterId != -1) {
                         val afterView = androidViewsHandler.semanticsIdToView(afterId)
                         if (afterView != null) {
                             info.setTraversalAfter(afterView)
                         } else {
-                            info.setTraversalAfter(thisView, it)
+                            info.setTraversalAfter(thisView, afterId)
                         }
                         addExtraDataToAccessibilityNodeInfoHelper(
                             semanticsId, info.unwrap(),
