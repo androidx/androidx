@@ -186,7 +186,8 @@ class PerfettoTraceProcessorTest {
                     rowOf(
                         "name" to "activityStart",
                         "ts" to 186975009436431L,
-                        "dur" to 29580628L)
+                        "dur" to 29580628L
+                    )
                 ),
                 actual = query(
                     "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
@@ -255,11 +256,13 @@ class PerfettoTraceProcessorTest {
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         val startups = PerfettoTraceProcessor.runServer {
             loadTrace(PerfettoTrace(traceFile.absolutePath)) {
-                query("""
+                query(
+                    """
                     INCLUDE PERFETTO MODULE android.startup.startups;
 
                     SELECT * FROM android_startups;
-                """.trimIndent()).toList()
+                """.trimIndent()
+                ).toList()
             }
         }
         // minimal validation, just verifying query worked
@@ -362,6 +365,24 @@ class PerfettoTraceProcessorTest {
 
         // Check server is not running
         assertTrue(!isRunning())
+    }
+
+    @Test
+    fun testParseTracesWithProcessTracks() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val slices = querySlices("launching:%", packageName = null)
+            assertEquals(
+                expected = listOf(
+                    Slice(
+                        name = "launching: androidx.benchmark.integration.macrobenchmark.target",
+                        ts = 186974946587883,
+                        dur = 137401159
+                    )
+                ), slices
+            )
+        }
     }
 
     @LargeTest
