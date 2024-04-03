@@ -17,11 +17,16 @@
 package androidx.navigation.compose
 
 import android.net.Uri
+import android.os.Bundle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDeepLinkRequest
+import androidx.navigation.NavGraph
+import androidx.navigation.NavType
 import androidx.navigation.contains
+import androidx.navigation.get
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
@@ -30,7 +35,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.typeOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.serialization.Serializable
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -212,8 +219,142 @@ class NavGraphBuilderTest {
             ).isTrue()
         }
     }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testComposableKClass() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                composable<TestClass> { }
+            }
+        }
+        composeTestRule.runOnIdle {
+            assertThat(firstRoute in navController.graph).isTrue()
+            assertThat(TestClass::class in navController.graph).isTrue()
+            assertThat(navController.graph[TestClass::class].route).isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testComposableKClassArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                composable<TestClassArg> { }
+            }
+        }
+        composeTestRule.runOnIdle {
+            assertThat(TestClassArg::class in navController.graph).isTrue()
+            val dest = navController.graph[TestClassArg::class]
+            assertThat(dest.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(dest.arguments["arg"]).isNotNull()
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testComposableKClassArgsCustomType() {
+        @Serializable
+        class TestClass(val arg: CustomType)
+
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                composable<TestClass>(typeMap = mapOf(typeOf<CustomType>() to customNavType)) { }
+            }
+        }
+        composeTestRule.runOnIdle {
+            val dest = navController.graph[TestClass::class]
+            assertThat(dest.arguments["arg"]).isNotNull()
+            assertThat(dest.arguments["arg"]!!.type).isEqualTo(customNavType)
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testNestedComposableKClassArgs() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(LocalContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation(startDestination = TEST_CLASS_ARG_ROUTE, route = secondRoute,
+                ) {
+                    composable<TestClassArg> {}
+                }
+            }
+        }
+        composeTestRule.runOnIdle {
+            val nestedGraph = navController.graph[secondRoute] as NavGraph
+            val dest = nestedGraph.findNode<TestClassArg>()
+            assertThat(dest).isNotNull()
+            assertThat(dest!!.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(dest.arguments["arg"]).isNotNull()
+        }
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun testComposableKClassArgsMissingCustomType() {
+        @Serializable
+        class TestClass(val arg: CustomType)
+
+        lateinit var exception: String
+        lateinit var navController: TestNavHostController
+        try {
+            composeTestRule.setContent {
+                navController = TestNavHostController(LocalContext.current)
+                navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+                NavHost(navController, startDestination = firstRoute) {
+                    composable(firstRoute) { }
+                    composable<TestClass> { }
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            exception = e.message!!
+        }
+        assertThat(exception).isEqualTo(
+            "Cannot cast arg of type androidx.navigation.compose.CustomType to a " +
+                "NavType. Make sure to provide custom NavType for this argument."
+        )
+    }
 }
 
 private const val firstRoute = "first"
 private const val secondRoute = "second"
 private const val thirdRoute = "third"
+internal const val TEST_CLASS_ROUTE = "androidx.navigation.compose.TestClass"
+internal const val TEST_CLASS_ARG_ROUTE = "androidx.navigation.compose.TestClassArg/{arg}"
+
+@Serializable
+internal class TestClass
+
+@Serializable
+internal class TestClassArg(val arg: Int)
+
+@Serializable
+internal class CustomType
+
+internal val customNavType = object : NavType<CustomType>(false) {
+    override fun put(bundle: Bundle, key: String, value: CustomType) { }
+    override fun get(bundle: Bundle, key: String): CustomType? = null
+    override fun parseValue(value: String): CustomType = CustomType()
+    override fun serializeAsValue(value: CustomType) = "customValue"
+}
