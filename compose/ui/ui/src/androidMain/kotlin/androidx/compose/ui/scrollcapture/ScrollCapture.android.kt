@@ -62,7 +62,11 @@ var ComposeFeatureFlag_LongScreenshotsEnabled by mutableStateOf(false)
  * Separate class to host the implementation of scroll capture for dex verification.
  */
 @RequiresApi(31)
-internal object ScrollCapture {
+internal class ScrollCapture : ComposeScrollCaptureCallback.ScrollCaptureSessionListener {
+
+    var scrollCaptureInProgress: Boolean by mutableStateOf(false)
+        private set
+
     /**
      * Implements scroll capture (long screenshots) support for a composition. Finds a single
      * [ScrollCaptureTarget] to propose to the platform. Searches over the semantics tree to find
@@ -110,6 +114,7 @@ internal object ScrollCapture {
             node = candidate.node,
             viewportBoundsInWindow = candidate.viewportBoundsInWindow,
             coroutineScope = coroutineScope,
+            listener = this
         )
         val localVisibleRectOfCandidate = candidate.coordinates.boundsInRoot()
         val windowOffsetOfCandidate = candidate.viewportBoundsInWindow.topLeft
@@ -123,6 +128,14 @@ internal object ScrollCapture {
                 scrollBounds = candidate.viewportBoundsInWindow.toAndroidRect()
             }
         )
+    }
+
+    override fun onSessionStarted() {
+        scrollCaptureInProgress = true
+    }
+
+    override fun onSessionEnded() {
+        scrollCaptureInProgress = false
     }
 }
 
