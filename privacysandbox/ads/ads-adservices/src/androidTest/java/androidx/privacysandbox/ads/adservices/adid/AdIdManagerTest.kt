@@ -28,6 +28,7 @@ import androidx.test.filters.SmallTest
 import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -35,13 +36,13 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.kotlin.any
 
 @SmallTest
 @SuppressWarnings("NewApi")
@@ -61,7 +62,7 @@ class AdIdManagerTest {
             // when the static method .get() is called
             mSession = ExtendedMockito.mockitoSession()
                 .mockStatic(android.adservices.adid.AdIdManager::class.java)
-                .startMocking();
+                .startMocking()
         }
     }
 
@@ -80,7 +81,7 @@ class AdIdManagerTest {
 
     @Test
     fun testAdIdManagerNoClassDefFoundError() {
-        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion)
 
         `when`(android.adservices.adid.AdIdManager.get(any())).thenThrow(NoClassDefFoundError())
         assertThat(AdIdManager.obtain(mContext)).isNull()
@@ -101,7 +102,10 @@ class AdIdManagerTest {
         }
 
         // Verify that the compat code was invoked correctly.
-        verify(adIdManager).getAdId(any(), any())
+        verify(adIdManager).getAdId(
+            any<Executor>(),
+            any<OutcomeReceiver<android.adservices.adid.AdId, java.lang.Exception>>()
+        )
 
         // Verify that the result of the compat call is correct.
         verifyResponse(result)
@@ -139,8 +143,8 @@ class AdIdManagerTest {
             }
             doAnswer(answer)
                 .`when`(adIdManager).getAdId(
-                    any(),
-                    any()
+                    any<Executor>(),
+                    any<OutcomeReceiver<android.adservices.adid.AdId, java.lang.Exception>>()
                 )
         }
 

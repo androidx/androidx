@@ -170,6 +170,7 @@ class TopicsManagerTest {
             return topicsManager
         }
 
+        @Suppress("deprecation")
         private fun setupTopicsResponse(topicsManager: TopicsManager) {
             // Set up the response that TopicsManager will return when the compat code calls it.
             val topic1 = Topic(1, 1, 1)

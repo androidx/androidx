@@ -29,6 +29,7 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 import kotlin.test.assertNotEquals
 import org.junit.After
 import org.junit.Assert
@@ -36,11 +37,11 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.kotlin.any
 
 @SmallTest
 @SuppressWarnings("NewApi")
@@ -97,7 +98,10 @@ class AdIdManagerFuturesTest {
         verifyResponse(result.get())
 
         // Verify that the compat code was invoked correctly.
-        Mockito.verify(adIdManager).getAdId(ArgumentMatchers.any(), ArgumentMatchers.any())
+        Mockito.verify(adIdManager).getAdId(
+            any<Executor>(),
+            any<OutcomeReceiver<android.adservices.adid.AdId, java.lang.Exception>>()
+        )
     }
 
     @SdkSuppress(minSdkVersion = 30)
@@ -111,7 +115,7 @@ class AdIdManagerFuturesTest {
             val adIdManager = Mockito.mock(android.adservices.adid.AdIdManager::class.java)
             // mock the .get() method if using extServices version, otherwise mock getSystemService
             if (isExtServices) {
-                `when`(android.adservices.adid.AdIdManager.get(ArgumentMatchers.any()))
+                `when`(android.adservices.adid.AdIdManager.get(any()))
                     .thenReturn(adIdManager)
             } else {
                 `when`(spyContext.getSystemService(
@@ -132,8 +136,8 @@ class AdIdManagerFuturesTest {
             }
             Mockito.doAnswer(answer)
                 .`when`(adIdManager).getAdId(
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.any()
+                    any<Executor>(),
+                    any<OutcomeReceiver<android.adservices.adid.AdId, java.lang.Exception>>()
                 )
         }
 
