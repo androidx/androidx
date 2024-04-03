@@ -50,9 +50,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Drag
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Fling
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Wheel
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.UserInput
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -447,7 +446,7 @@ private class ScrollableNode(
             // lazily launch one coroutine (with the first event) and use a Channel
             // to communicate the scroll amount to the UI thread.
             coroutineScope.launch {
-                scrollingLogic.dispatchUserInputDelta(scrollAmount, Wheel)
+                scrollingLogic.dispatchUserInputDelta(scrollAmount, UserInput)
             }
             true
         } else {
@@ -482,7 +481,7 @@ private class ScrollableNode(
                 // lazily launch one coroutine (with the first event) and use a Channel
                 // to communicate the scroll amount to the UI thread.
                 coroutineScope.launch {
-                    scrollingLogic.dispatchUserInputDelta(scrollAmount, Wheel)
+                    scrollingLogic.dispatchUserInputDelta(scrollAmount, UserInput)
                 }
                 event.changes.fastForEach { it.consume() }
             }
@@ -611,7 +610,7 @@ private class ScrollingLogic(
     )
 
     private var latestScrollScope: ScrollScope = NoOpScrollScope
-    private var latestScrollSource: NestedScrollSource = Drag
+    private var latestScrollSource: NestedScrollSource = UserInput
 
     private val performScroll: (delta: Offset) -> Offset = { delta ->
         val consumedByPreScroll =
@@ -642,14 +641,13 @@ private class ScrollingLogic(
      */
     private fun ScrollScope.dispatchScroll(
         initialAvailableDelta: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
+        overscrollEnabledForSource: Boolean
     ): Offset {
         latestScrollSource = source
         latestScrollScope = this
         val overscroll = overscrollEffect
-        return if (source == Wheel) {
-            performScroll(initialAvailableDelta)
-        } else if (overscroll != null && shouldDispatchOverscroll) {
+        return if (overscroll != null && shouldDispatchOverscroll && overscrollEnabledForSource) {
             overscroll.applyToScroll(initialAvailableDelta, source, performScroll)
         } else {
             performScroll(initialAvailableDelta)
@@ -699,7 +697,11 @@ private class ScrollingLogic(
         var result: Velocity = available
         scrollableState.scroll {
             val outerScopeScroll: (Offset) -> Offset = { delta ->
-                dispatchScroll(delta.reverseIfNeeded(), Fling).reverseIfNeeded()
+                dispatchScroll(
+                    delta.reverseIfNeeded(),
+                    SideEffect,
+                    overscrollEnabledForSource = true
+                ).reverseIfNeeded()
             }
             val scope = object : ScrollScope {
                 override fun scrollBy(pixels: Float): Float {
@@ -725,7 +727,7 @@ private class ScrollingLogic(
 
     suspend fun dispatchUserInputDelta(delta: Offset, source: NestedScrollSource) {
         scrollableState.scroll(MutatePriority.UserInput) {
-            dispatchScroll(delta, source)
+            dispatchScroll(delta, source, overscrollEnabledForSource = false)
         }
     }
 
@@ -734,7 +736,11 @@ private class ScrollingLogic(
     ) {
         scrollableState.scroll(MutatePriority.UserInput) {
             forEachDelta {
-                dispatchScroll(it.delta.singleAxisOffset(), Drag)
+                dispatchScroll(
+                    it.delta.singleAxisOffset(),
+                    UserInput,
+                    overscrollEnabledForSource = true
+                )
             }
         }
     }

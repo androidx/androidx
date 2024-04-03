@@ -495,7 +495,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         val leftForOverscroll = leftForDelta - consumedByDelta
 
         var needsInvalidation = false
-        if (source == NestedScrollSource.Drag) {
+        if (source == NestedScrollSource.UserInput) {
             // Ignore small deltas (< 0.5) as this usually comes from floating point rounding issues
             // and can cause scrolling to lock up (b/265363356)
             val appliedHorizontalOverscroll = if (leftForOverscroll.x > 0.5f) {

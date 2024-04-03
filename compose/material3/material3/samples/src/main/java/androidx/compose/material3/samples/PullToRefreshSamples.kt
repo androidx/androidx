@@ -223,7 +223,7 @@ fun PullToRefreshSampleCustomState() {
                         available: Offset,
                         source: NestedScrollSource,
                     ): Offset = when {
-                        source == NestedScrollSource.Drag && available.y < 0 -> {
+                        source == NestedScrollSource.UserInput && available.y < 0 -> {
                             // Swiping up
                             val y = if (isRefreshing) 0f else {
                                 val newOffset = (verticalOffset + available.y).coerceAtLeast(0f)
@@ -242,7 +242,7 @@ fun PullToRefreshSampleCustomState() {
                         available: Offset,
                         source: NestedScrollSource
                     ): Offset = when {
-                        source == NestedScrollSource.Drag && available.y > 0 -> {
+                        source == NestedScrollSource.UserInput && available.y > 0 -> {
                             // Swiping Down
                             val y = if (isRefreshing) 0f else {
                                 val newOffset = (verticalOffset + available.y).coerceAtLeast(0f)
