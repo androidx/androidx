@@ -33,7 +33,7 @@ class InstrumentationResultsTest {
         // flush any scheduled ide warnings so that tests below aren't affected
         InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(MetricResult("Metric", listOf(0.0))),
                 sampledMetrics = emptyList()
             )
@@ -125,7 +125,7 @@ class InstrumentationResultsTest {
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metricResult),
                 sampledMetrics = emptyList()
             ),
@@ -156,7 +156,7 @@ class InstrumentationResultsTest {
         val metric2 = MetricResult("Metric2", listOf(222.0, 111.0, 0.0))
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metric1, metric2),
                 sampledMetrics = emptyList()
             ),
@@ -188,7 +188,7 @@ class InstrumentationResultsTest {
         val metricResult = MetricResult("Metric1", List(101) { it.toDouble() })
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = emptyList(),
                 sampledMetrics = listOf(metricResult)
             ),
@@ -220,7 +220,7 @@ class InstrumentationResultsTest {
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(single),
                 sampledMetrics = listOf(sampled)
             ),
@@ -254,7 +254,7 @@ class InstrumentationResultsTest {
         InstrumentationResults.scheduleIdeWarningOnNextReport("warning\nstring")
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metricResult),
                 sampledMetrics = emptyList()
             ),
@@ -279,7 +279,7 @@ class InstrumentationResultsTest {
         InstrumentationResults.scheduleIdeWarningOnNextReport("warning\nstring")
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metricResult),
                 sampledMetrics = emptyList()
             ),
@@ -312,7 +312,7 @@ class InstrumentationResultsTest {
     fun ideSummary_requireMeasurementsNotEmpty() {
         assertFailsWith<IllegalArgumentException> {
             InstrumentationResults.ideSummary(
-                measurements = BenchmarkResult.Measurements(
+                measurements = Measurements(
                     singleMetrics = emptyList(),
                     sampledMetrics = emptyList()
                 ),

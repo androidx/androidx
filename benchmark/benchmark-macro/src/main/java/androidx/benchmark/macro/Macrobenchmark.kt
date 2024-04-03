@@ -25,7 +25,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
-import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
@@ -35,6 +34,7 @@ import androidx.benchmark.Shell
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
 import androidx.benchmark.inMemoryTrace
+import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -398,12 +398,12 @@ private fun macrobenchmark(
             else -> 0
         }
 
-        ResultWriter.appendReport(
-            BenchmarkResult(
+        ResultWriter.appendTestResult(
+            BenchmarkData.TestResult(
                 className = className,
-                testName = testName,
+                name = testName,
                 totalRunTimeNs = System.nanoTime() - startTime,
-                metrics = measurements,
+                metrics = measurements.singleMetrics + measurements.sampledMetrics,
                 repeatIterations = iterations,
                 thermalThrottleSleepSeconds = 0,
                 warmupIterations = warmupIterations
