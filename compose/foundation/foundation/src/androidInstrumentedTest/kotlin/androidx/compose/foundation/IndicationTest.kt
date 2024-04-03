@@ -341,6 +341,9 @@ class IndicationTest {
             )
         }
 
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawnNode == 1 }
+
         rule.runOnIdle {
             assertThat(createCalls).isEqualTo(1)
             assertThat(drawnNode).isEqualTo(1)
@@ -356,6 +359,9 @@ class IndicationTest {
                 }
             )
         }
+
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawnNode == 2 }
 
         rule.runOnIdle {
             // New instance that doesn't compare equal, so we should create again
