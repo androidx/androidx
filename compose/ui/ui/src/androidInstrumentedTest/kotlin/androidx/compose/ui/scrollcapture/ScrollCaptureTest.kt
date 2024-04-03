@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.scrollcapture
 
+import android.content.Context
 import android.graphics.Rect
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +32,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalScrollCaptureInProgress
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.invisibleToUser
@@ -40,6 +43,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -394,6 +398,55 @@ class ScrollCaptureTest {
         }
     }
 
+    @Test
+    fun captureSession_setsScrollCaptureInProgress_inSameComposition() = captureTester.runTest {
+        var isScrollCaptureInProgressValue = false
+        captureTester.setContent {
+            isScrollCaptureInProgressValue = LocalScrollCaptureInProgress.current
+            TestVerticalScrollable(size = 10)
+        }
+
+        rule.awaitIdle()
+        assertThat(isScrollCaptureInProgressValue).isFalse()
+
+        val target = captureTester.findCaptureTargets().single()
+        assertThat(isScrollCaptureInProgressValue).isFalse()
+        captureTester.capture(target, captureWindowHeight = 5) {
+            rule.awaitIdle()
+            assertThat(isScrollCaptureInProgressValue).isTrue()
+        }
+        rule.awaitIdle()
+        assertThat(isScrollCaptureInProgressValue).isFalse()
+    }
+
+    @Test
+    fun captureSession_setsScrollCaptureInProgress_inSubComposition() = captureTester.runTest {
+        var isScrollCaptureInProgressValue = false
+
+        class ChildComposeView(context: Context) : AbstractComposeView(context) {
+            @Composable
+            override fun Content() {
+                isScrollCaptureInProgressValue = LocalScrollCaptureInProgress.current
+            }
+        }
+        captureTester.setContent {
+            AndroidView(::ChildComposeView)
+            TestVerticalScrollable(size = 10)
+        }
+
+        rule.awaitIdle()
+        assertThat(isScrollCaptureInProgressValue).isFalse()
+
+        val target = captureTester.findCaptureTargets().single()
+        assertThat(isScrollCaptureInProgressValue).isFalse()
+        captureTester.capture(target, captureWindowHeight = 5) {
+            rule.awaitIdle()
+            assertThat(isScrollCaptureInProgressValue).isTrue()
+        }
+        rule.awaitIdle()
+        assertThat(isScrollCaptureInProgressValue).isFalse()
+    }
+
     /**
      * A component that publishes all the right semantics to be considered a scrollable.
      */
@@ -424,9 +477,4 @@ class ScrollCaptureTest {
             )
         }
     }
-
-    private suspend fun ScrollCaptureTester.CaptureSessionScope.performCaptureDiscardingBitmap() =
-        performCapture()
-            .also { it.bitmap?.recycle() }
-            .capturedRect
 }

@@ -796,13 +796,21 @@ internal class AndroidComposeView(
         } ?: super.getFocusedRect(rect)
     }
 
+    private val scrollCapture = if (SDK_INT >= 31) ScrollCapture() else null
+    internal val scrollCaptureInProgress: Boolean
+        get() = if (SDK_INT >= 31) {
+            scrollCapture?.scrollCaptureInProgress ?: false
+        } else {
+            false
+        }
+
     override fun onScrollCaptureSearch(
         localVisibleRect: Rect,
         windowOffset: Point,
         targets: Consumer<ScrollCaptureTarget>
     ) {
         if (SDK_INT >= 31) {
-            ScrollCapture.onScrollCaptureSearch(
+            scrollCapture?.onScrollCaptureSearch(
                 view = this,
                 semanticsOwner = semanticsOwner,
                 coroutineContext = coroutineContext,

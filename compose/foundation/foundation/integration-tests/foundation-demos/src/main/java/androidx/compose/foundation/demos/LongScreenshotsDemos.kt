@@ -21,6 +21,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.scrollcapture.ComposeFeatureFlag_LongScreenshotsEnabled
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -77,6 +79,7 @@ val LongScreenshotsDemos = listOf(
     ComposableDemo("Single giant text field (legacy)") { LegacySingleGiantTextFieldDemo() },
     ComposableDemo("TextField in scrollable") { TextFieldInScrollableDemo() },
     ComposableDemo("Single giant text field") { SingleGiantTextFieldDemo() },
+    ComposableDemo("Lazy list with sticky headers") { LazyListWithStickiesDemo() },
 )
 
 @Composable
@@ -268,7 +271,6 @@ private fun BigInLittleDemo() {
                     Modifier
                         .background(Color.Magenta)
                         .fillParentMaxHeight(0.5f)
-//                        .height(400.dp)
                         .padding(horizontal = 16.dp)
                 ) {
                     SingleFullScreenListDemo()
@@ -473,6 +475,57 @@ fun SingleGiantTextFieldDemo() {
             state = text,
             modifier = Modifier.fillMaxSize()
         )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun LazyListWithStickiesDemo() {
+    LazyColumn(Modifier.fillMaxSize()) {
+        item { FeatureFlagToggle() }
+
+        // Header with a big section.
+        stickyHeader {
+            Text(
+                "Header 1",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .background(Color.Green)
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+        }
+        item {
+            Box(
+                Modifier
+                    .background(Color.Magenta)
+                    .fillMaxWidth()
+                    .fillParentMaxHeight()
+            )
+        }
+
+        // Headers with small sections.
+        val sectionCount = 4
+        repeat(sectionCount) {
+            stickyHeader {
+                Text(
+                    "Header ${it + 2}",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .background(Color.Green)
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
+            item {
+                Box(
+                    Modifier
+                        .background(Color.Magenta)
+                        .fillMaxWidth()
+                        .fillParentMaxHeight(1f / (sectionCount - 1))
+                )
+            }
+        }
     }
 }
 

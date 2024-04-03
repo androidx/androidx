@@ -60,6 +60,7 @@ internal class ComposeScrollCaptureCallback(
     private val node: SemanticsNode,
     private val viewportBoundsInWindow: IntRect,
     coroutineScope: CoroutineScope,
+    private val listener: ScrollCaptureSessionListener,
 ) : ScrollCaptureCallback {
     // Don't animate scrollByOffset calls.
     private val coroutineScope = coroutineScope + DisableAnimationMotionDurationScale
@@ -86,7 +87,7 @@ internal class ComposeScrollCaptureCallback(
         onReady: Runnable
     ) {
         scrollTracker.reset()
-        // TODO(b/329296635) Notify target when capture session starts.
+        listener.onSessionStarted()
         onReady.run()
     }
 
@@ -169,7 +170,7 @@ internal class ComposeScrollCaptureCallback(
     override fun onScrollCaptureEnd(onReady: Runnable) {
         coroutineScope.launch(NonCancellable) {
             scrollTracker.scrollTo(0f)
-            // TODO(b/329296635) Notify target when capture session ends.
+            listener.onSessionEnded()
             onReady.run()
         }
     }
@@ -199,6 +200,11 @@ internal class ComposeScrollCaptureCallback(
             circlePaint
         )
         drawCircle(0f, height.toFloat(), circleRadius, circlePaint)
+    }
+
+    interface ScrollCaptureSessionListener {
+        fun onSessionStarted()
+        fun onSessionEnded()
     }
 }
 
