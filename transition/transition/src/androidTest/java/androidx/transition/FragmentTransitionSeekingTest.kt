@@ -133,11 +133,15 @@ class FragmentTransitionSeekingTest {
             }
             var startedEnter = false
             val fragment1 = TransitionFragment(R.layout.scene1)
+            val transitionEndCountDownLatch = CountDownLatch(1)
             fragment1.setReenterTransition(Fade().apply {
                 duration = 300
                 addListener(object : TransitionListenerAdapter() {
                     override fun onTransitionStart(transition: Transition) {
                         startedEnter = true
+                    }
+                    override fun onTransitionEnd(transition: Transition) {
+                        transitionEndCountDownLatch.countDown()
                     }
                 })
             })
@@ -200,6 +204,8 @@ class FragmentTransitionSeekingTest {
 
             // Make sure the original fragment was correctly readded to the container
             assertThat(fragment2.requireView()).isNotNull()
+
+            assertThat(transitionEndCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 
