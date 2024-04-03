@@ -63,8 +63,7 @@ internal suspend fun <T : IInterface> execute(
             }
             deathRecipient = localRecipient
             binder.linkToDeath(localRecipient, 0)
-            dispatcher.execute(iInterface, object : IWorkManagerImplCallback {
-                override fun asBinder() = binder
+            dispatcher.execute(iInterface, object : IWorkManagerImplCallback.Stub() {
 
                 override fun onSuccess(response: ByteArray) = continuation.resume(response)
 
