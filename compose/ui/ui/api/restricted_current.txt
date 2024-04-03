@@ -3263,16 +3263,6 @@ package androidx.compose.ui.res {
 
 }
 
-package androidx.compose.ui.scrollcapture {
-
-  public final class ScrollCapture_androidKt {
-    method @Deprecated public static boolean getComposeFeatureFlag_LongScreenshotsEnabled();
-    method @Deprecated public static void setComposeFeatureFlag_LongScreenshotsEnabled(boolean);
-    property @Deprecated public static final boolean ComposeFeatureFlag_LongScreenshotsEnabled;
-  }
-
-}
-
 package androidx.compose.ui.semantics {
 
   public final class AccessibilityAction<T extends kotlin.Function<? extends java.lang.Boolean>> {
