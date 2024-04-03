@@ -142,9 +142,6 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
 /** If true, don't restrict usage of compileSdk property. */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
-/** Whether to update gradle signature verification metadata */
-const val UPDATE_SIGNATURES = "androidx.update.signatures"
-
 /**
  * Comma-delimited list of project path prefixes which have been opted-out of the Suppress
  * Compatibility migration.
@@ -200,7 +197,6 @@ val ALL_ANDROIDX_PROPERTIES =
         ALLOW_MISSING_LINT_CHECKS_PROJECT,
         XCODEGEN_DOWNLOAD_URI,
         ALLOW_CUSTOM_COMPILE_SDK,
-        UPDATE_SIGNATURES,
         FilteredAnchorTask.PROP_TASK_NAME,
         FilteredAnchorTask.PROP_PATH_PREFIX,
         INCLUDE_OPTIONAL_PROJECTS,

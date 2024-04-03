@@ -59,7 +59,7 @@ function regenerateVerificationMetadata() {
   if [ "$dryrun" == "true" ]; then
     dryrunArg="--dry-run"
   fi
-  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys $dryrunArg --clean -Pandroidx.update.signatures=true -Pandroid.dependencyResolutionAtConfigurationTime.disallow=false -Pandroidx.enabled.kmp.target.platforms=+native $task
+  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys $dryrunArg --clean -Pandroid.dependencyResolutionAtConfigurationTime.disallow=false -Pandroidx.enabled.kmp.target.platforms=+native $task
 
   # update verification metadata file
 
