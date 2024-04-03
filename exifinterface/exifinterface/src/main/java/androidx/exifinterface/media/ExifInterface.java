@@ -42,6 +42,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.exifinterface.media.ExifInterfaceUtils.Api21Impl;
 import androidx.exifinterface.media.ExifInterfaceUtils.Api23Impl;
 
@@ -3074,14 +3075,11 @@ public class ExifInterface {
     };
 
     // A class for indicating EXIF rational type.
-    private static class Rational {
+    // TODO: b/308978831 - Migrate to android.util.Rational when the min API is 21.
+    @VisibleForTesting
+    static class Rational {
         public final long numerator;
         public final long denominator;
-
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        Rational(double value) {
-            this((long) (value * 10000), 10000);
-        }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         Rational(long numerator, long denominator) {
@@ -3093,6 +3091,43 @@ public class ExifInterface {
             }
             this.numerator = numerator;
             this.denominator = denominator;
+        }
+
+        /**
+         * Creates a new {@code Rational} which approximates the provided {@code double} value by
+         * using <a href="https://en.wikipedia.org/wiki/Continued_fraction">continued fractions</a>.
+         */
+        @NonNull
+        public static Rational createFromDouble(double value) {
+            if (value >= Long.MAX_VALUE || value <= Long.MIN_VALUE) {
+                // value is too large to represent as a long, so just return the max/min value.
+                return new Rational(
+                        /* numerator= */ value > 0 ? Long.MAX_VALUE : Long.MIN_VALUE,
+                        /* denominator= */ 1);
+            }
+
+            double absoluteValue = Math.abs(value);
+            double threshold = 0.00000001 * absoluteValue;
+            double remainingValue = absoluteValue;
+            long numerator = 1;
+            long previousNumerator = 0;
+            long denominator = 0;
+            long previousDenominator = 1;
+            do {
+                double remainder = remainingValue % 1;
+                long wholePart = (long) (remainingValue - remainder);
+                long tmp = numerator;
+                numerator = wholePart * numerator + previousNumerator;
+                previousNumerator = tmp;
+
+                tmp = denominator;
+                denominator = wholePart * denominator + previousDenominator;
+                previousDenominator = tmp;
+
+                remainingValue = 1 / remainder;
+            } while ((Math.abs(absoluteValue - numerator / (double) denominator) > threshold));
+
+            return new Rational(value < 0 ? -numerator : numerator, denominator);
         }
 
         @NonNull
@@ -4248,7 +4283,7 @@ public class ExifInterface {
             } else {
                 try {
                     double doubleValue = Double.parseDouble(value);
-                    value = new Rational(doubleValue).toString();
+                    value = Rational.createFromDouble(doubleValue).toString();
                 } catch (NumberFormatException e) {
                     Log.w(TAG, "Invalid value for " + tag + " : " + value);
                     return;
@@ -5058,8 +5093,10 @@ public class ExifInterface {
         setAltitude(location.getAltitude());
         // Location objects store speeds in m/sec. Translates it to km/hr here.
         setAttribute(TAG_GPS_SPEED_REF, "K");
-        setAttribute(TAG_GPS_SPEED, new Rational(location.getSpeed()
-                * TimeUnit.HOURS.toSeconds(1) / 1000).toString());
+        setAttribute(
+                TAG_GPS_SPEED,
+                Rational.createFromDouble(location.getSpeed() * TimeUnit.HOURS.toSeconds(1) / 1000)
+                        .toString());
         String[] dateTime = sFormatterPrimary.format(
                 new Date(location.getTime())).split("\\s+", -1);
         setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateTime[0]);
@@ -5111,7 +5148,7 @@ public class ExifInterface {
      */
     public void setAltitude(double altitude) {
         String ref = altitude >= 0 ? "0" : "1";
-        setAttribute(TAG_GPS_ALTITUDE, new Rational(Math.abs(altitude)).toString());
+        setAttribute(TAG_GPS_ALTITUDE, Rational.createFromDouble(Math.abs(altitude)).toString());
         setAttribute(TAG_GPS_ALTITUDE_REF, ref);
     }
 
