@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("NullAnnotationGroup") // b/331484152
+
 package androidx.navigation.compose
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
+import androidx.navigation.NavType
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * DSL for constructing a new [ComposeNavigator.Destination]
@@ -63,6 +70,26 @@ public class ComposeNavigatorDestinationBuilder :
         route: String,
         content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
     ) : super(navigator, route) {
+        this.composeNavigator = navigator
+        this.content = content
+    }
+
+    /**
+     * DSL for constructing a new [ComposeNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route from a [KClass]
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. Required only when destination contains custom NavTypes.
+     * @param content composable for the destination
+     */
+    @ExperimentalSafeArgsApi
+    public constructor(
+        navigator: ComposeNavigator,
+        route: KClass<*>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+    ) : super(navigator, route, typeMap) {
         this.composeNavigator = navigator
         this.content = content
     }
