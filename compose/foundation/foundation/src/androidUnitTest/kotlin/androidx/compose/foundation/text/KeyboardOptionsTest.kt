@@ -64,7 +64,7 @@ class KeyboardOptionsTest {
                 autoCorrect = true,
                 singleLine = false,
                 platformImeOptions = null,
-                hintLocales = null
+                hintLocales = LocaleList.Empty
             )
         )
     }

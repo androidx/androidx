@@ -165,13 +165,16 @@ private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 internal object LocaleListHelper {
     @RequiresApi(24)
     @DoNotInline
-    fun setHintLocales(editorInfo: EditorInfo, localeList: LocaleList?) {
-        if (localeList == null) {
-            editorInfo.hintLocales = null
-            return
+    fun setHintLocales(editorInfo: EditorInfo, localeList: LocaleList) {
+        when (localeList) {
+            LocaleList.Empty -> {
+                editorInfo.hintLocales = null
+            }
+            else -> {
+                editorInfo.hintLocales = android.os.LocaleList(
+                    *localeList.map { it.platformLocale }.toTypedArray()
+                )
+            }
         }
-        editorInfo.hintLocales = android.os.LocaleList(
-            *localeList.map { it.platformLocale }.toTypedArray()
-        )
     }
 }

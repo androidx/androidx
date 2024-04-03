@@ -53,8 +53,7 @@ class ImeOptions(
     val keyboardType: KeyboardType = KeyboardType.Text,
     val imeAction: ImeAction = ImeAction.Default,
     val platformImeOptions: PlatformImeOptions? = null,
-    @get:Suppress("NullableCollection")
-    val hintLocales: LocaleList? = null
+    val hintLocales: LocaleList = LocaleList.Empty
 ) {
     companion object {
         /**
@@ -81,7 +80,7 @@ class ImeOptions(
         keyboardType = keyboardType,
         imeAction = imeAction,
         platformImeOptions = platformImeOptions,
-        hintLocales = null
+        hintLocales = LocaleList.Empty
     )
 
     @Deprecated(
@@ -110,7 +109,7 @@ class ImeOptions(
         keyboardType: KeyboardType = this.keyboardType,
         imeAction: ImeAction = this.imeAction,
         platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
-        hintLocales: LocaleList? = this.hintLocales
+        hintLocales: LocaleList = this.hintLocales
     ): ImeOptions {
         return ImeOptions(
             singleLine = singleLine,
