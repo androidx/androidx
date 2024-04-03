@@ -22,9 +22,9 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -134,7 +134,7 @@ internal fun Pager(
         PagerWrapperFlingBehavior(flingBehavior, state)
     }
 
-    val defaultBringIntoViewSpec = ScrollableDefaults.bringIntoViewSpec()
+    val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
     val pagerBringIntoViewSpec = remember(state, defaultBringIntoViewSpec) {
         PagerBringIntoViewSpec(
             state,
