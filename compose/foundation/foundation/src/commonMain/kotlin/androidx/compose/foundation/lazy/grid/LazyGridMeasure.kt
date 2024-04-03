@@ -88,6 +88,7 @@ internal fun measureLazyGrid(
             remeasureNeeded = false,
             density = density,
             slotsPerLine = spanLayoutProvider.slotsPerLine,
+            coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever
         )
     } else {
@@ -178,7 +179,8 @@ internal fun measureLazyGrid(
 
             currentMainAxisOffset += measuredLine.mainAxisSizeWithSpacings
             if (currentMainAxisOffset <= minOffset &&
-                measuredLine.items.last().index != itemsCount - 1) {
+                measuredLine.items.last().index != itemsCount - 1
+            ) {
                 // this line is offscreen and will not be visible. advance firstVisibleLineIndex
                 currentFirstLineIndex = index + 1
                 currentFirstLineScrollOffset -= measuredLine.mainAxisSizeWithSpacings
@@ -251,7 +253,8 @@ internal fun measureLazyGrid(
             for (i in visibleLines.indices) {
                 val size = visibleLines[i].mainAxisSizeWithSpacings
                 if (currentFirstLineScrollOffset != 0 && size <= currentFirstLineScrollOffset &&
-                    i != visibleLines.lastIndex) {
+                    i != visibleLines.lastIndex
+                ) {
                     currentFirstLineScrollOffset -= size
                     firstLine = visibleLines[i + 1]
                 } else {
@@ -302,7 +305,7 @@ internal fun measureLazyGrid(
             firstVisibleLine = firstLine,
             firstVisibleLineScrollOffset = currentFirstLineScrollOffset,
             canScrollForward =
-                lastItemIndex != itemsCount - 1 || currentMainAxisOffset > maxOffset,
+            lastItemIndex != itemsCount - 1 || currentMainAxisOffset > maxOffset,
             consumedScroll = consumedScroll,
             measureResult = layout(layoutWidth, layoutHeight) {
                 positionedItems.fastForEach { it.place(this) }
@@ -326,6 +329,7 @@ internal fun measureLazyGrid(
             remeasureNeeded = remeasureNeeded,
             density = density,
             slotsPerLine = spanLayoutProvider.slotsPerLine,
+            coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever
         )
     }
