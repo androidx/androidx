@@ -75,7 +75,6 @@ androidx {
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
-    metalavaK2UastEnabled = true
     samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }
 
