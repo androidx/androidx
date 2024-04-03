@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+apply from: "settingsScripts/out-setup.groovy"
+getGradle().beforeProject { project ->
+    init.chooseBuildDirectory(
+            new File("${buildscript.sourceFile.parent}/../../.."), rootProject.name, project
+    )
+}
+
 include ":jetpad-integration"
 include ":plugins"
 include ":private"
