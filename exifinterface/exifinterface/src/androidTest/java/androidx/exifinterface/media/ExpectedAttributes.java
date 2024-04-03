@@ -23,6 +23,7 @@ import androidx.annotation.RawRes;
 import androidx.exifinterface.test.R;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
 
 import java.io.IOException;
@@ -238,6 +239,7 @@ final class ExpectedAttributes {
 
         // XMP information.
         private boolean mHasXmp;
+        @Nullable private String mXmp;
         @Nullable private Integer mXmpResourceId;
         private long mXmpOffset;
         private long mXmpLength;
@@ -280,6 +282,7 @@ final class ExpectedAttributes {
             mIso = attributes.iso;
             mOrientation = attributes.orientation;
             mHasXmp = attributes.hasXmp;
+            mXmp = attributes.mXmp;
             mXmpResourceId = attributes.mXmpResourceId;
             mXmpOffset = attributes.xmpOffset;
             mXmpLength = attributes.xmpLength;
@@ -488,9 +491,26 @@ final class ExpectedAttributes {
             return this;
         }
 
-        /** Sets the resource ID of the expected XMP data. */
+        /**
+         * Sets the expected XMP data.
+         *
+         * <p>Clears any value set by {@link #setXmpResourceId}.
+         */
+        public Builder setXmp(String xmp) {
+            mHasXmp = true;
+            mXmp = xmp;
+            mXmpResourceId = null;
+            return this;
+        }
+
+        /**
+         * Sets the resource ID of the expected XMP data.
+         *
+         * <p>Clears any value set by {@link #setXmp}.
+         */
         public Builder setXmpResourceId(@RawRes int xmpResourceId) {
             mHasXmp = true;
+            mXmp = null;
             mXmpResourceId = xmpResourceId;
             return this;
         }
@@ -514,6 +534,7 @@ final class ExpectedAttributes {
 
         public Builder clearXmp() {
             mHasXmp = false;
+            mXmp = null;
             mXmpResourceId = null;
             mXmpOffset = 0;
             mXmpLength = 0;
@@ -578,6 +599,7 @@ final class ExpectedAttributes {
     public final int orientation;
 
     // XMP information.
+    @Nullable private final String mXmp;
     @Nullable private final Integer mXmpResourceId;
     @Nullable private String mMemoizedXmp;
     public final boolean hasXmp;
@@ -621,14 +643,19 @@ final class ExpectedAttributes {
         iso = builder.mIso;
         orientation = builder.mOrientation;
         hasXmp = builder.mHasXmp;
+        mXmp = builder.mXmp;
         mXmpResourceId = builder.mXmpResourceId;
+        Preconditions.checkArgument(
+                mXmp == null || mXmpResourceId == null,
+                "At most one of mXmp or mXmpResourceId may be set");
+        mMemoizedXmp = mXmp;
         xmpOffset = builder.mXmpOffset;
         xmpLength = builder.mXmpLength;
     }
 
     /**
-     * Returns the expected XMP data read from {@code resources} using {@link
-     * Builder#setXmpResourceId}.
+     * Returns the expected XMP data set directly with {@link Builder#setXmp} or read from {@code
+     * resources} using {@link Builder#setXmpResourceId}.
      *
      * <p>Returns null if no expected XMP data was set.
      */
