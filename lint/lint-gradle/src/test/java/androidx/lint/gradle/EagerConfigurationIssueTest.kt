@@ -21,9 +21,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class EagerConfigurationDetectorTest : GradleLintDetectorTest(
-    detector = EagerConfigurationDetector(),
-    issues = listOf(EagerConfigurationDetector.ISSUE)
+class EagerConfigurationIssueTest : GradleLintDetectorTest(
+    detector = DiscouragedGradleMethodDetector(),
+    issues = listOf(DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE)
 ) {
     @Test
     fun `Test usage of TaskContainer#create`() {
@@ -228,7 +228,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method getByPath [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method getByPath [EagerGradleConfiguration]
                 project.tasks.getByPath("example")
                               ~~~~~~~~~
             1 errors, 0 warnings
@@ -250,7 +250,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method findByName [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method findByName [EagerGradleConfiguration]
                 project.tasks.findByName("example")
                               ~~~~~~~~~~
             1 errors, 0 warnings
@@ -272,7 +272,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method findByPath [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method findByPath [EagerGradleConfiguration]
                 project.tasks.findByPath("example")
                               ~~~~~~~~~~
             1 errors, 0 warnings
@@ -294,7 +294,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method replace [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method replace [EagerGradleConfiguration]
                 project.tasks.replace("example")
                               ~~~~~~~
             1 errors, 0 warnings
@@ -316,7 +316,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method remove [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method remove [EagerGradleConfiguration]
                 project.tasks.remove(task)
                               ~~~~~~
             1 errors, 0 warnings
@@ -338,7 +338,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method findByPath [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method findByPath [EagerGradleConfiguration]
                 project.tasks.findByPath("example")
                               ~~~~~~~~~~
             1 errors, 0 warnings
@@ -361,7 +361,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:5: Error: Avoid using eager method findAll [EagerGradleConfiguration]
+            src/test.kt:5: Error: Avoid using method findAll [EagerGradleConfiguration]
                 project.tasks.findAll(closure)
                               ~~~~~~~
             1 errors, 0 warnings
@@ -384,7 +384,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:5: Error: Avoid using eager method matching [EagerGradleConfiguration]
+            src/test.kt:5: Error: Avoid using method matching [EagerGradleConfiguration]
                 project.tasks.matching(closure)
                               ~~~~~~~~
             1 errors, 0 warnings
@@ -406,7 +406,7 @@ class EagerConfigurationDetectorTest : GradleLintDetectorTest(
         )
 
         val expected = """
-            src/test.kt:4: Error: Avoid using eager method get [EagerGradleConfiguration]
+            src/test.kt:4: Error: Avoid using method get [EagerGradleConfiguration]
                 project.tasks.register("example").get()
                                                   ~~~
             1 errors, 0 warnings
