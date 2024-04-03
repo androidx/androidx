@@ -32,6 +32,7 @@ class GradleIssueRegistry : IssueRegistry() {
         InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
         InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
         WithPluginClasspathUsageDetector.ISSUE,
+        WithTypeWithoutConfigureEachUsageDetector.ISSUE,
     )
 
     override val vendor = Vendor(

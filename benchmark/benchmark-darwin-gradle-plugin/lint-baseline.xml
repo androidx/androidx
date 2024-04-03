@@ -10,4 +10,13 @@
             file="src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt"/>
     </issue>
 
+    <issue
+        id="WithTypeWithoutConfigureEach"
+        message="Avoid passing a closure to withType, use withType().configureEach instead"
+        errorLine1="        project.plugins.withType(KotlinMultiplatformPluginWrapper::class.java) {"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt"/>
+    </issue>
+
 </issues>
