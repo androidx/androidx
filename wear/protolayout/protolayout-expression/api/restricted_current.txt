@@ -347,6 +347,7 @@ package androidx.wear.protolayout.expression {
     ctor public PlatformDataValues.Builder();
     method public androidx.wear.protolayout.expression.PlatformDataValues build();
     method public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.expression.PlatformDataValues.Builder put(androidx.wear.protolayout.expression.PlatformDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
+    method public androidx.wear.protolayout.expression.PlatformDataValues.Builder putAll(androidx.wear.protolayout.expression.PlatformDataValues);
   }
 
   public class PlatformHealthSources {
