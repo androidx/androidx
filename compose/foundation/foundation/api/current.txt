@@ -1700,7 +1700,8 @@ package androidx.compose.foundation.text.input {
     method public char charAt(int index);
     method public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList getChanges();
     method public int getLength();
-    method public androidx.compose.foundation.text.input.TextFieldCharSequence getOriginalValue();
+    method public long getOriginalSelection();
+    method public CharSequence getOriginalText();
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public long getSelection();
     method public boolean hasSelection();
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public void placeCursorAfterCharAt(int index);
@@ -1711,7 +1712,8 @@ package androidx.compose.foundation.text.input {
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList changes;
     property public final boolean hasSelection;
     property public final int length;
-    property public final androidx.compose.foundation.text.input.TextFieldCharSequence originalValue;
+    property public final long originalSelection;
+    property public final CharSequence originalText;
     property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final long selection;
   }
 
@@ -1729,20 +1731,6 @@ package androidx.compose.foundation.text.input {
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void insert(androidx.compose.foundation.text.input.TextFieldBuffer, int index, String text);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void placeCursorAtEnd(androidx.compose.foundation.text.input.TextFieldBuffer);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static void selectAll(androidx.compose.foundation.text.input.TextFieldBuffer);
-  }
-
-  public sealed interface TextFieldCharSequence extends java.lang.CharSequence {
-    method public boolean contentEquals(CharSequence other);
-    method public boolean equals(Object? other);
-    method public androidx.compose.ui.text.TextRange? getComposition();
-    method public long getSelection();
-    method public int hashCode();
-    property public abstract androidx.compose.ui.text.TextRange? composition;
-    property public abstract long selection;
-  }
-
-  public final class TextFieldCharSequenceKt {
-    method public static androidx.compose.foundation.text.input.TextFieldCharSequence TextFieldCharSequence(optional String text, optional long selection);
   }
 
   public fun interface TextFieldDecorator {
