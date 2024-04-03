@@ -43,6 +43,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntIntMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.collection.MutableObjectIntMap
@@ -315,8 +316,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     private var paneDisplayed = MutableIntSet()
 
-    internal var idToBeforeMap = MutableIntObjectMap<Int>()
-    internal var idToAfterMap = MutableIntObjectMap<Int>()
+    internal var idToBeforeMap = MutableIntIntMap()
+    internal var idToAfterMap = MutableIntIntMap()
     internal val ExtraDataTestTraversalBeforeVal =
         @Suppress("SpellCheckingInspection")
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
@@ -1218,8 +1219,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode)
 
         // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
-        val beforeId = idToBeforeMap[virtualViewId]
-        beforeId?.let {
+        val beforeId = idToBeforeMap.getOrDefault(virtualViewId, -1)
+        if (beforeId != -1) {
             val beforeView = view.androidViewsHandler.semanticsIdToView(beforeId)
             if (beforeView != null) {
                 // If the node that should come before this one is a view, we want to pass in the
@@ -1234,8 +1235,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             )
         }
 
-        val afterId = idToAfterMap[virtualViewId]
-        afterId?.let {
+        val afterId = idToAfterMap.getOrDefault(virtualViewId, -1)
+        if (afterId != -1) {
             val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
             // Specially use `traversalAfter` value if the node after is a View,
             // as expressing the order using traversalBefore in this case would require mutating the
@@ -1952,13 +1953,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // This extra is just for testing: needed a way to retrieve `traversalBefore` and
         // `traversalAfter` from a non-sealed instance of an ANI
         if (extraDataKey == ExtraDataTestTraversalBeforeVal) {
-            idToBeforeMap[virtualViewId]?.let {
-                info.extras.putInt(extraDataKey, it)
-            }
+            idToBeforeMap
+                .getOrDefault(virtualViewId, -1)
+                .let { if (it != -1) { info.extras.putInt(extraDataKey, it) } }
         } else if (extraDataKey == ExtraDataTestTraversalAfterVal) {
-            idToAfterMap[virtualViewId]?.let {
-                info.extras.putInt(extraDataKey, it)
-            }
+            idToAfterMap
+                .getOrDefault(virtualViewId, -1)
+                .let { if (it != -1) { info.extras.putInt(extraDataKey, it) } }
         } else if (node.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult) &&
             arguments != null && extraDataKey == EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
         ) {
