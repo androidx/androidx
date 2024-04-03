@@ -954,8 +954,8 @@ class SuspendingPointerInputFilterTest {
             // MotionEvent, Compose won't process the entire event or any following events
             // until the bad data is removed.
             down(Offset(Float.NaN, Float.NaN)) // Compose ignores
-            moveBy(0, Offset(10f, 10f)) // Compose ignores
-            up() // Compose ignores
+            moveBy(0, Offset(10f, 10f)) // Compose ignores because first was invalid
+            up() // Compose ignores because first was invalid
         }
         assertThat(events).hasSize(0)
         assertThat(events).containsExactly()

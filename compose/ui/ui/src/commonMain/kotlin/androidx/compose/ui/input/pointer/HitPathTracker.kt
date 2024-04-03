@@ -437,14 +437,24 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                     // And translate their position relative to the parent coordinates, to give us a
                     // change local to the PointerInputFilter's coordinates
                     val historical = ArrayList<HistoricalChange>(change.historical.size)
+
                     change.historical.fastForEach {
-                        historical.add(
-                            HistoricalChange(
-                                it.uptimeMillis,
-                                coordinates!!.localPositionOf(parentCoordinates, it.position),
-                                it.originalEventPosition
+                        val historicalPosition = it.position
+                        // In some rare cases, historic data may have an invalid position, that is,
+                        // Offset.Unspecified. In those cases, we don't want to include it in the
+                        // data returned to the developer because the values are invalid.
+                        if (historicalPosition.isValid()) {
+                            historical.add(
+                                HistoricalChange(
+                                    it.uptimeMillis,
+                                    coordinates!!.localPositionOf(
+                                        parentCoordinates,
+                                        historicalPosition
+                                    ),
+                                    it.originalEventPosition
+                                )
                             )
-                        )
+                        }
                     }
 
                     relevantChanges.put(keyValue, change.copy(
