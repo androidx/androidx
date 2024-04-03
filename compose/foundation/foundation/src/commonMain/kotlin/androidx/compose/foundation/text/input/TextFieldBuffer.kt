@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.InputTransformation.Companion.transformInput
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
@@ -42,15 +43,12 @@ import androidx.compose.ui.text.TextRange
  *
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
- *
- * @property originalValue The value reverted to when [revertAllChanges] is called. This is not
- * necessarily `initialValue`.
  */
 @OptIn(ExperimentalFoundationApi::class)
 class TextFieldBuffer internal constructor(
     initialValue: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null,
-    val originalValue: TextFieldCharSequence = initialValue,
+    internal val originalValue: TextFieldCharSequence = initialValue,
     private val offsetMappingCalculator: OffsetMappingCalculator? = null,
 ) : Appendable {
 
@@ -70,6 +68,20 @@ class TextFieldBuffer internal constructor(
      * The number of characters in the text field.
      */
     val length: Int get() = buffer.length
+
+    /**
+     * Original text content of the buffer before any changes were applied. Calling
+     * [revertAllChanges] will set the contents of this buffer to this value.
+     */
+    val originalText: CharSequence
+        get() = originalValue.text
+
+    /**
+     * Original selection before the changes. Calling [revertAllChanges] will set the selection
+     * to this value.
+     */
+    val originalSelection: TextRange
+        get() = originalValue.selection
 
     /**
      * The [ChangeList] represents the changes made to this value and is inherently mutable. This

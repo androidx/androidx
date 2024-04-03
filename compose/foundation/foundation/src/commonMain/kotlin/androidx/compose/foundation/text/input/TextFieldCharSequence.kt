@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.toCharArray
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
@@ -31,15 +30,28 @@ import androidx.compose.ui.text.coerceIn
  * This class also may contain the range being composed by the IME, if any, although this is not
  * exposed.
  *
+ * @param text If this TextFieldCharSequence is actually a copy of another, make sure to use the
+ * backing CharSequence object to stop unnecessary nesting and logic that depends on exact equality
+ * of CharSequence comparison that's using [CharSequence.equals].
+ *
  * @see TextFieldBuffer
  */
-sealed interface TextFieldCharSequence : CharSequence {
+internal class TextFieldCharSequence(
+    text: CharSequence = "",
+    selection: TextRange = TextRange.Zero,
+    composition: TextRange? = null
+) : CharSequence {
+
+    override val length: Int
+        get() = text.length
+
+    val text: CharSequence = if (text is TextFieldCharSequence) text.text else text
+
     /**
      * The selection range. If the selection is collapsed, it represents cursor
      * location. When selection range is out of bounds, it is constrained with the text length.
      */
-    @ExperimentalFoundationApi
-    val selection: TextRange
+    val selection: TextRange = selection.coerceIn(0, text.length)
 
     /**
      * Composition range created by IME. If null, there is no composition range.
@@ -51,81 +63,7 @@ sealed interface TextFieldCharSequence : CharSequence {
      *
      * Composition can only be set by the system.
      */
-    @ExperimentalFoundationApi
-    val composition: TextRange?
-
-    /**
-     * Returns true if the text in this object is equal to the text in [other], disregarding any
-     * other properties of this (such as selection) or [other].
-     */
-    fun contentEquals(other: CharSequence): Boolean
-
-    abstract override fun toString(): String
-    abstract override fun equals(other: Any?): Boolean
-    abstract override fun hashCode(): Int
-}
-
-fun TextFieldCharSequence(
-    text: String = "",
-    selection: TextRange = TextRange.Zero
-): TextFieldCharSequence = TextFieldCharSequenceWrapper(text, selection, composition = null)
-
-internal fun TextFieldCharSequence(
-    text: CharSequence,
-    selection: TextRange,
-    composition: TextRange? = null
-): TextFieldCharSequence = TextFieldCharSequenceWrapper(text, selection, composition)
-
-/**
- * Returns the backing CharSequence object that this TextFieldCharSequence is wrapping. This is
- * useful for external equality comparisons that cannot use [TextFieldCharSequence.contentEquals].
- */
-internal fun TextFieldCharSequence.getBackingCharSequence(): CharSequence {
-    return when (this) {
-        is TextFieldCharSequenceWrapper -> this.text
-    }
-}
-
-/**
- * Copies the contents of this sequence from [[sourceStartIndex], [sourceEndIndex]) into
- * [destination] starting at [destinationOffset].
- */
-internal fun TextFieldCharSequence.toCharArray(
-    destination: CharArray,
-    destinationOffset: Int,
-    sourceStartIndex: Int,
-    sourceEndIndex: Int
-) = (this as TextFieldCharSequenceWrapper).toCharArray(
-    destination,
-    destinationOffset,
-    sourceStartIndex,
-    sourceEndIndex
-)
-
-@OptIn(ExperimentalFoundationApi::class)
-private class TextFieldCharSequenceWrapper(
-    text: CharSequence,
-    selection: TextRange,
-    composition: TextRange?
-) : TextFieldCharSequence {
-
-    /**
-     * If this TextFieldCharSequence is actually a copy of another, make sure to use the backing
-     * CharSequence object to stop unnecessary nesting and logic that depends on exact equality of
-     * CharSequence comparison that's using [CharSequence.equals].
-     */
-    val text: CharSequence = if (text is TextFieldCharSequenceWrapper) {
-        text.text
-    } else {
-        text
-    }
-
-    override val length: Int
-        get() = text.length
-
-    override val selection: TextRange = selection.coerceIn(0, text.length)
-
-    override val composition: TextRange? = composition?.coerceIn(0, text.length)
+    val composition: TextRange? = composition?.coerceIn(0, text.length)
 
     override operator fun get(index: Int): Char = text[index]
 
@@ -134,8 +72,12 @@ private class TextFieldCharSequenceWrapper(
 
     override fun toString(): String = text.toString()
 
-    override fun contentEquals(other: CharSequence): Boolean = text.contentEquals(other)
+    fun contentEquals(other: CharSequence): Boolean = text.contentEquals(other)
 
+    /**
+     * Copies the contents of this sequence from [[sourceStartIndex], [sourceEndIndex]) into
+     * [destination] starting at [destinationOffset].
+     */
     fun toCharArray(
         destination: CharArray,
         destinationOffset: Int,
@@ -154,7 +96,7 @@ private class TextFieldCharSequenceWrapper(
         if (other === null) return false
         if (this::class != other::class) return false
 
-        other as TextFieldCharSequenceWrapper
+        other as TextFieldCharSequence
 
         if (selection != other.selection) return false
         if (composition != other.composition) return false
@@ -179,7 +121,6 @@ private class TextFieldCharSequenceWrapper(
  *
  * @see TextRange.min
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
     subSequence(kotlin.math.max(0, selection.min - maxChars), selection.min)
 
@@ -191,13 +132,11 @@ internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSe
  *
  * @see TextRange.max
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
     subSequence(selection.max, kotlin.math.min(selection.max + maxChars, length))
 
 /**
  * Returns the currently selected text.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldCharSequence.getSelectedText(): CharSequence =
     subSequence(selection.min, selection.max)

@@ -16,11 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldCharSequence
-import androidx.compose.foundation.text.input.toCharArray
 
-@OptIn(ExperimentalFoundationApi::class)
 internal actual fun CharSequence.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
