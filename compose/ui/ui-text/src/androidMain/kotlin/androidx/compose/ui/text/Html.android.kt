@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTextApi::class)
-
 package androidx.compose.ui.text
 
 import android.graphics.Typeface
@@ -52,14 +50,15 @@ import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.XMLReader
 
-actual fun String.parseAsHtml(
+actual fun AnnotatedString.Companion.fromHtml(
+    htmlString: String,
     linkStyle: SpanStyle?,
     linkFocusedStyle: SpanStyle?,
     linkHoveredStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString {
     // Check ContentHandlerReplacementTag kdoc for more details
-    val stringToParse = "<$ContentHandlerReplacementTag />$this"
+    val stringToParse = "<$ContentHandlerReplacementTag />$htmlString"
     val spanned = HtmlCompat.fromHtml(
         stringToParse,
         HtmlCompat.FROM_HTML_MODE_COMPACT,

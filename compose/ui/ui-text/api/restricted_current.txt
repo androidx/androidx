@@ -118,7 +118,7 @@ package androidx.compose.ui.text {
   }
 
   public final class Html_androidKt {
-    method public static androidx.compose.ui.text.AnnotatedString parseAsHtml(String, optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method public static androidx.compose.ui.text.AnnotatedString fromHtml(androidx.compose.ui.text.AnnotatedString.Companion, String htmlString, optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is internal API that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface InternalTextApi {
