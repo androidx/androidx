@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
@@ -95,8 +96,8 @@ class TestUseCaseCamera(
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
         val cameraGraphConfig = createCameraGraphConfig(
-            sessionConfigAdapter, streamConfigMap,
-            callbackMap, requestListener, cameraConfig, cameraQuirks, null
+            sessionConfigAdapter, streamConfigMap, callbackMap, requestListener, cameraConfig,
+            cameraQuirks, null, ZslControlNoOpImpl()
         )
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 

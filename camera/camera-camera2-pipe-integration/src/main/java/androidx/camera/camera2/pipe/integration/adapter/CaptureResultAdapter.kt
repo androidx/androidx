@@ -79,7 +79,7 @@ class PartialCaptureResultAdapter(
 class CaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
     private val frameNumber: FrameNumber,
-    private val result: FrameInfo
+    internal val result: FrameInfo
 ) : CameraCaptureResult, UnsafeWrapper {
     override fun getAfMode(): AfMode = result.metadata.getAfMode()
     override fun getAfState(): AfState = result.metadata.getAfState()
@@ -104,7 +104,13 @@ class CaptureResultAdapter(
             "Failed to unwrap $this as TotalCaptureResult"
         }
 
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = result.unwrapAs(type)
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? {
+        return when (type) {
+            FrameInfo::class -> result as T
+            else -> result.unwrapAs(type)
+        }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
