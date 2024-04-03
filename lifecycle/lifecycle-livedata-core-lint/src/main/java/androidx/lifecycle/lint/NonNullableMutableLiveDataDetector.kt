@@ -33,8 +33,15 @@ import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.PsiImmediateClassType
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.calls.KtCall
+import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
+import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
+import org.jetbrains.kotlin.analysis.api.types.KtNonErrorClassType
+import org.jetbrains.kotlin.analysis.api.types.KtTypeParameterType
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.uast.UAnnotated
@@ -119,6 +126,24 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
             }
 
             override fun visitCallExpression(node: UCallExpression) {
+                var isGeneric = false
+                val ktCallExpression = node.sourcePsi as? KtCallExpression
+                    ?: node.sourcePsi as? KtNameReferenceExpression ?: return
+                analyze(ktCallExpression) {
+                    val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
+                    val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
+                    val receiver = callee?.extensionReceiver ?: callee?.dispatchReceiver
+                    var receiverType = receiver?.type as? KtNonErrorClassType
+                    while (!isGeneric && receiverType != null) {
+                        val typeArgument = receiverType.ownTypeArguments.singleOrNull()?.type
+                        if (typeArgument is KtTypeParameterType) {
+                            isGeneric = true
+                        }
+                        receiverType = typeArgument as? KtNonErrorClassType
+                    }
+                }
+                if (isGeneric) return
+
                 if (!isKotlin(node.lang) || !methods.contains(node.methodName) ||
                     !context.evaluator.isMemberInSubClassOf(
                             node.resolve()!!, "androidx.lifecycle.LiveData", false
