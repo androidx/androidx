@@ -16,11 +16,9 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -155,7 +153,9 @@ fun Modifier.scrollable(
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
  * @param bringIntoViewSpec The configuration that this scrollable should use to perform
- * scrolling when scroll requests are received from the focus system.
+ * scrolling when scroll requests are received from the focus system. If null is provided the
+ * system will use the behavior provided by [LocalBringIntoViewSpec] which by default has a
+ * platform dependent implementation.
  *
  * Note: This API is experimental as it brings support for some experimental features:
  * [overscrollEffect] and [bringIntoViewSpec].
@@ -170,7 +170,7 @@ fun Modifier.scrollable(
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null,
-    bringIntoViewSpec: BringIntoViewSpec = ScrollableDefaults.bringIntoViewSpec()
+    bringIntoViewSpec: BringIntoViewSpec? = null
 ) = this then ScrollableElement(
     state,
     orientation,
@@ -191,7 +191,7 @@ private class ScrollableElement(
     val reverseDirection: Boolean,
     val flingBehavior: FlingBehavior?,
     val interactionSource: MutableInteractionSource?,
-    val bringIntoViewSpec: BringIntoViewSpec
+    val bringIntoViewSpec: BringIntoViewSpec?
 ) : ModifierNodeElement<ScrollableNode>() {
     override fun create(): ScrollableNode {
         return ScrollableNode(
@@ -270,7 +270,7 @@ private class ScrollableNode(
     enabled: Boolean,
     reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
-    bringIntoViewSpec: BringIntoViewSpec
+    private val bringIntoViewSpec: BringIntoViewSpec?
 ) : DragGestureNode(
     canDrag = CanDragCalculation,
     enabled = enabled,
@@ -355,7 +355,7 @@ private class ScrollableNode(
         reverseDirection: Boolean,
         flingBehavior: FlingBehavior?,
         interactionSource: MutableInteractionSource?,
-        bringIntoViewSpec: BringIntoViewSpec
+        bringIntoViewSpec: BringIntoViewSpec?
     ) {
 
         if (this.enabled != enabled) { // enabled changed
@@ -491,80 +491,6 @@ private class ScrollableNode(
 }
 
 /**
- * The configuration of how a scrollable reacts to bring into view requests.
- *
- * Note: API shape and naming are still being refined, therefore API is marked as experimental.
- */
-@ExperimentalFoundationApi
-@Stable
-interface BringIntoViewSpec {
-
-    /**
-     * A retargetable Animation Spec to be used as the animation to run to fulfill the
-     * BringIntoView requests.
-     */
-    val scrollAnimationSpec: AnimationSpec<Float> get() = DefaultScrollAnimationSpec
-
-    /**
-     * Calculate the offset needed to bring one of the scrollable container's child into view.
-     *
-     * @param offset from the side closest to the origin (For the x-axis this is 'left',
-     * for the y-axis this is 'top').
-     * @param size is the child size.
-     * @param containerSize Is the main axis size of the scrollable container.
-     *
-     * All distances above are represented in pixels.
-     *
-     * @return The necessary amount to scroll to satisfy the bring into view request.
-     * Returning zero from here means that the request was satisfied and the scrolling animation
-     * should stop.
-     *
-     * This will be called for every frame of the scrolling animation. This means that, as the
-     * animation progresses, the offset will naturally change to fulfill the scroll request.
-     */
-    fun calculateScrollDistance(
-        offset: Float,
-        size: Float,
-        containerSize: Float
-    ): Float
-
-    companion object {
-
-        /**
-         * The default animation spec used by [Modifier.scrollable] to run Bring Into View requests.
-         */
-        val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
-
-        internal val DefaultBringIntoViewSpec = object : BringIntoViewSpec {
-
-            override val scrollAnimationSpec: AnimationSpec<Float> = DefaultScrollAnimationSpec
-
-            override fun calculateScrollDistance(
-                offset: Float,
-                size: Float,
-                containerSize: Float
-            ): Float {
-                val trailingEdge = offset + size
-                @Suppress("UnnecessaryVariable") val leadingEdge = offset
-                return when {
-
-                    // If the item is already visible, no need to scroll.
-                    leadingEdge >= 0 && trailingEdge <= containerSize -> 0f
-
-                    // If the item is visible but larger than the parent, we don't scroll.
-                    leadingEdge < 0 && trailingEdge > containerSize -> 0f
-
-                    // Find the minimum scroll needed to make one of the edges coincide with the parent's
-                    // edge.
-                    abs(leadingEdge) < abs(trailingEdge - containerSize) -> leadingEdge
-                    else -> trailingEdge - containerSize
-                }
-            }
-        }
-    }
-}
-
-/**
  * Contains the default values used by [scrollable]
  */
 object ScrollableDefaults {
@@ -620,6 +546,13 @@ object ScrollableDefaults {
      * A default implementation for [BringIntoViewSpec] that brings a child into view
      * using the least amount of effort.
      */
+    @Deprecated(
+        "This has been replaced by composition locals LocalBringIntoViewSpec",
+        replaceWith = ReplaceWith(
+            "LocalBringIntoView.current",
+            "androidx.compose.foundation.gestures.LocalBringIntoViewSpec"
+        )
+    )
     @ExperimentalFoundationApi
     fun bringIntoViewSpec(): BringIntoViewSpec = DefaultBringIntoViewSpec
 }
