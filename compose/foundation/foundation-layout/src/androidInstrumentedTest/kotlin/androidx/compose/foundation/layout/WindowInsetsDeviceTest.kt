@@ -159,7 +159,7 @@ class WindowInsetsDeviceTest {
                 dispatcher.dispatchPostScroll(
                     Offset.Zero,
                     Offset(0f, -10f),
-                    NestedScrollSource.Drag
+                    NestedScrollSource.UserInput
                 )
                 Snapshot.sendApplyNotifications()
                 iteration++

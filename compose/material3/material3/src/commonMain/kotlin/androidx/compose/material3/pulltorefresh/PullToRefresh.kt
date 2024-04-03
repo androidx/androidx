@@ -318,7 +318,7 @@ internal class PullToRefreshStateImpl(
         ): Offset = when {
             !enabled() -> Offset.Zero
             // Swiping up
-            source == NestedScrollSource.Drag && available.y < 0 -> {
+            source == NestedScrollSource.UserInput && available.y < 0 -> {
                 consumeAvailableOffset(available)
             }
             else -> Offset.Zero
@@ -331,7 +331,7 @@ internal class PullToRefreshStateImpl(
         ): Offset = when {
             !enabled() -> Offset.Zero
             // Swiping down
-            source == NestedScrollSource.Drag && available.y > 0 -> {
+            source == NestedScrollSource.UserInput && available.y > 0 -> {
                 consumeAvailableOffset(available)
             }
             else -> Offset.Zero
