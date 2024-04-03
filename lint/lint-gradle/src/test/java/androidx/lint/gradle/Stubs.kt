@@ -78,6 +78,7 @@ internal val STUBS =
 
                 class Project {
                     val tasks: TaskContainer
+                    fun findProperty(propertyName: String): Object? = null
                 }
 
                 interface NamedDomainObjectCollection<T> : Collection<T>, DomainObjectCollection<T>, Iterable<T> {
