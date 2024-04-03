@@ -425,9 +425,11 @@ class SplashScreen private constructor(activity: Activity) {
 
         override fun install() {
             setPostSplashScreenTheme(activity.theme, TypedValue())
-            (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(
-                hierarchyListener
-            )
+            if (SDK_INT < 33) {
+                (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(
+                    hierarchyListener
+                )
+            }
         }
 
         override fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
@@ -454,7 +456,9 @@ class SplashScreen private constructor(activity: Activity) {
             exitAnimationListener: OnExitAnimationListener
         ) {
             activity.splashScreen.setOnExitAnimationListener { splashScreenView ->
-                applyAppSystemUiTheme()
+                if (SDK_INT < 33) {
+                    applyAppSystemUiTheme()
+                }
                 val splashScreenViewProvider = SplashScreenViewProvider(splashScreenView, activity)
                 exitAnimationListener.onSplashScreenExit(splashScreenViewProvider)
             }

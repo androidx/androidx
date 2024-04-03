@@ -133,10 +133,12 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
 
         override fun remove() {
             platformView.remove()
-            ThemeUtils.Api31.applyThemesSystemBarAppearance(
-                activity.theme,
-                activity.window.decorView
-            )
+            if (Build.VERSION.SDK_INT < 33) {
+                ThemeUtils.Api31.applyThemesSystemBarAppearance(
+                    activity.theme,
+                    activity.window.decorView
+                )
+            }
         }
     }
 }
