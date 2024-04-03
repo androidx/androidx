@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -55,7 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -305,6 +303,102 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
+    @Test
+    fun obfuscationMethodHidden_usesCustomObfuscationCharacter() {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.Hidden,
+                textObfuscationCharacter = '&',
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("abc")
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text)
+                .isEqualTo("&&&")
+            performTextInput("d")
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text)
+                .isEqualTo("&&&&")
+        }
+    }
+
+    @Test
+    fun obfuscationMethodRevealLastTyped_usesCustomObfuscationCharacter() {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationCharacter = '&',
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
+            rule.mainClock.advanceTimeBy(1500)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&")
+        }
+    }
+
+    @Test
+    fun obfuscationMethodHidden_toggleObfuscationCharacter() {
+        var character by mutableStateOf('*')
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.Hidden,
+                textObfuscationCharacter = character,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("abc")
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text)
+                .isEqualTo("***")
+            character = '&'
+            rule.mainClock.advanceTimeByFrame()
+            assertThat(fetchTextLayoutResult().layoutInput.text.text)
+                .isEqualTo("&&&")
+        }
+    }
+
+    @Test
+    fun obfuscationMethodRevealLastTyped_toggleObfuscationCharacter() {
+        var character by mutableStateOf('*')
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+                textObfuscationCharacter = character,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            performTextInput("a")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
+            rule.mainClock.advanceTimeBy(1500)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("*")
+
+            character = '&'
+
+            performTextInput("b")
+            rule.mainClock.advanceTimeBy(200)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&b")
+            rule.mainClock.advanceTimeBy(1500)
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&&")
+        }
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_copy() {
@@ -410,15 +504,5 @@ internal class BasicSecureTextFieldTest {
             imm.expectCall("updateSelection(0, 0, -1, -1)")
             imm.expectNoMoreCalls()
         }
-    }
-
-    private fun requestFocus(tag: String) =
-        rule.onNodeWithTag(tag).requestFocus()
-
-    private fun assertTextSelection(expected: TextRange) {
-        val selection = rule.onNodeWithTag(Tag).fetchSemanticsNode()
-            .config.getOrNull(SemanticsProperties.TextSelectionRange)
-        assertWithMessage("Expected selection to be $expected")
-            .that(selection).isEqualTo(expected)
     }
 }
