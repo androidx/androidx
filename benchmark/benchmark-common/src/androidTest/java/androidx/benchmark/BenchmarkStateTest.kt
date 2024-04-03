@@ -78,12 +78,12 @@ class BenchmarkStateTest {
         }
         // The point of these asserts are to verify that pause/resume work, and that metrics that
         // come out are reasonable, not perfect - this isn't always run in stable perf environments
-        val medianTime = state.getTestResult().metrics["timeNs"]!!.median.toLong()
+        val medianTime = state.peekTestResult().metrics["timeNs"]!!.median.toLong()
         assertTrue(
             "median time (ns) $medianTime should be roughly 300us",
             medianTime in us2ns(280)..us2ns(900)
         )
-        val medianAlloc = state.getTestResult().metrics["allocationCount"]!!.median.toInt()
+        val medianAlloc = state.peekTestResult().metrics["allocationCount"]!!.median.toInt()
         assertTrue(
             "median allocs $medianAlloc should be approximately 40",
             medianAlloc in 40..50
@@ -160,7 +160,7 @@ class BenchmarkStateTest {
             total++
         }
 
-        val testResult = state.getTestResult()
+        val testResult = state.peekTestResult()
 
         // '50' assumes we're not running in a special mode
         // that affects repeat count (dry run)
@@ -236,7 +236,7 @@ class BenchmarkStateTest {
     fun notStarted() {
         val initialPriority = ThreadPriority.get()
         try {
-            BenchmarkState().getTestResult().metrics["timeNs"]!!.median
+            BenchmarkState().peekTestResult().metrics["timeNs"]!!.median
             fail("expected exception")
         } catch (e: IllegalStateException) {
             assertEquals(initialPriority, ThreadPriority.get())
@@ -250,7 +250,7 @@ class BenchmarkStateTest {
         try {
             BenchmarkState().run {
                 keepRunning()
-                getTestResult().metrics["timeNs"]!!.median
+                peekTestResult().metrics["timeNs"]!!.median
             }
             fail("expected exception")
         } catch (e: IllegalStateException) {
@@ -284,7 +284,8 @@ class BenchmarkStateTest {
             ),
             repeatIterations = 1,
             thermalThrottleSleepSeconds = 0,
-            warmupIterations = 1
+            warmupIterations = 1,
+            profilerOutputs = null,
         )
         assertEquals(expectedReport, ResultWriter.reports.last())
     }

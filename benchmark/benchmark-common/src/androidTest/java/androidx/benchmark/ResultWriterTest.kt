@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class ResultWriterTest {
+class ResultWriterTest {
     @get:Rule
     val tempFolder: TemporaryFolder = TemporaryFolder()
 
@@ -56,7 +56,8 @@ public class ResultWriterTest {
         metrics = metricResults,
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
-        warmupIterations = 8000
+        warmupIterations = 8000,
+        profilerOutputs = null
     )
     private val reportB = BenchmarkData.TestResult(
         name = "MethodB",
@@ -65,11 +66,12 @@ public class ResultWriterTest {
         metrics = metricResults + sampledMetricResults,
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
-        warmupIterations = 8000
+        warmupIterations = 8000,
+        profilerOutputs = null
     )
 
     @Test
-    public fun shouldClearExistingContent() {
+    fun shouldClearExistingContent() {
         val tempFile = tempFolder.newFile()
 
         val fakeText = "This text should not be in the final output"
@@ -80,7 +82,7 @@ public class ResultWriterTest {
     }
 
     @Test
-    public fun validateJson() {
+    fun validateJson() {
         val tempFile = tempFolder.newFile()
 
         val sustainedPerformanceModeInUse = IsolationActivity.sustainedPerformanceModeInUse
@@ -176,6 +178,55 @@ public class ResultWriterTest {
     }
 
     @Test
+    fun validateJsonWithProfilingResults() {
+        val reportWithParams = BenchmarkData.TestResult(
+            name = "MethodWithProfilingResults",
+            className = "package.Class",
+            totalRunTimeNs = 900000000,
+            metrics = metricResults,
+            repeatIterations = 100000,
+            thermalThrottleSleepSeconds = 90000000,
+            warmupIterations = 8000,
+            profilerOutputs = listOf(
+                Profiler.ResultFile.ofPerfettoTrace(
+                    label = "Trace",
+                    absolutePath = Outputs.outputDirectory.absolutePath + "/trace.perfetto-trace"
+                ),
+                Profiler.ResultFile.of(
+                    label = "Method Trace",
+                    type = BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
+                    outputRelativePath = "trace.trace",
+                    source = MethodTracing
+                )
+            ).map {
+                BenchmarkData.TestResult.ProfilerOutput(it)
+            }
+        )
+
+        val tempFile = tempFolder.newFile()
+        ResultWriter.writeReport(tempFile, listOf(reportWithParams))
+        val reportText = tempFile.readText()
+
+        assertContains(
+            reportText,
+            """
+                |            "profilerOutputs": [
+                |                {
+                |                    "type": "PerfettoTrace",
+                |                    "label": "Trace",
+                |                    "filename": "trace.perfetto-trace"
+                |                },
+                |                {
+                |                    "type": "MethodTrace",
+                |                    "label": "Method Trace",
+                |                    "filename": "trace.trace"
+                |                }
+                |            ]
+                """.trimMargin()
+        )
+    }
+
+    @Test
     fun validateJsonWithParams() {
         val reportWithParams = BenchmarkData.TestResult(
             name = "MethodWithParams[number=2,primeNumber=true]",
@@ -184,7 +235,8 @@ public class ResultWriterTest {
             metrics = metricResults,
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
-            warmupIterations = 8000
+            warmupIterations = 8000,
+            profilerOutputs = null
         )
 
         val tempFile = tempFolder.newFile()
@@ -204,7 +256,7 @@ public class ResultWriterTest {
     }
 
     @Test
-    public fun validateJsonWithInvalidParams() {
+    fun validateJsonWithInvalidParams() {
         val reportWithInvalidParams = BenchmarkData.TestResult(
             name = "MethodWithParams[number=2,=true,]",
             className = "package.Class",
@@ -212,7 +264,8 @@ public class ResultWriterTest {
             metrics = metricResults,
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
-            warmupIterations = 8000
+            warmupIterations = 8000,
+            profilerOutputs = null
         )
 
         val tempFile = tempFolder.newFile()

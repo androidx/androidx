@@ -514,7 +514,11 @@ class BenchmarkState internal constructor(
             " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
     }
 
-    private fun getTestResult(testName: String, className: String) = BenchmarkData.TestResult(
+    private fun getTestResult(
+        testName: String,
+        className: String,
+        perfettoTracePath: String?
+    ) = BenchmarkData.TestResult(
         name = testName,
         className = className,
         totalRunTimeNs = totalRunTimeNs,
@@ -522,13 +526,32 @@ class BenchmarkState internal constructor(
         warmupIterations = warmupRepeats,
         repeatIterations = iterationsPerRepeat,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
+        profilerOutputs = listOfNotNull(
+            perfettoTracePath?.let {
+                BenchmarkData.TestResult.ProfilerOutput(
+                    Profiler.ResultFile.ofPerfettoTrace(
+                        label = "Trace",
+                        absolutePath = perfettoTracePath
+                    )
+                )
+            },
+            profilerResult?.let {
+                BenchmarkData.TestResult.ProfilerOutput(it)
+            }
+        )
     )
 
     @ExperimentalBenchmarkStateApi
     fun getMeasurementTimeNs(): List<Double> =
         metricResults.first { it.name == "timeNs" }.data
 
-    internal fun getTestResult() = checkFinished().run { getTestResult("", "") }
+    internal fun peekTestResult() = checkFinished().run {
+        getTestResult(
+            testName = "",
+            className = "",
+            perfettoTracePath = null
+        )
+    }
 
     /**
      * Acquires a status report bundle
@@ -555,7 +578,12 @@ class BenchmarkState internal constructor(
                 sampledMetrics = emptyList()
             ),
             profilerResults = listOfNotNull(
-                tracePath?.let { Profiler.ResultFile(label = "Trace", absolutePath = tracePath) },
+                tracePath?.let {
+                    Profiler.ResultFile.ofPerfettoTrace(
+                        label = "Trace",
+                        absolutePath = tracePath
+                    )
+                },
                 profilerResult
             )
         )
@@ -567,14 +595,14 @@ class BenchmarkState internal constructor(
         fullClassName: String,
         simpleClassName: String,
         methodName: String,
-        tracePath: String?
+        perfettoTracePath: String?
     ) {
         if (phaseIndex == -1) {
             return // nothing to report, BenchmarkState wasn't used
         }
 
-        if (tracePath != null) {
-            profilerResult?.embedInPerfettoTrace(tracePath)
+        if (perfettoTracePath != null) {
+            profilerResult?.embedInPerfettoTrace(perfettoTracePath)
         }
 
         checkFinished() // this method is triggered externally
@@ -582,13 +610,14 @@ class BenchmarkState internal constructor(
         val bundle = getFullStatusReport(
             key = fullTestName,
             reportMetrics = !Arguments.dryRunMode,
-            tracePath = tracePath
+            tracePath = perfettoTracePath
         )
         reportBundle(bundle)
         ResultWriter.appendTestResult(
             getTestResult(
                 testName = PREFIX + methodName,
-                className = fullClassName
+                className = fullClassName,
+                perfettoTracePath = perfettoTracePath
             )
         )
     }
@@ -689,7 +718,8 @@ class BenchmarkState internal constructor(
                 metrics = metrics,
                 repeatIterations = repeatIterations,
                 thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-                warmupIterations = warmupIterations
+                warmupIterations = warmupIterations,
+                profilerOutputs = null,
             )
             // Report value to Studio console
             val fullTestName = PREFIX +

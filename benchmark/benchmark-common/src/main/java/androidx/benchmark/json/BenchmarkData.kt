@@ -19,6 +19,7 @@ package androidx.benchmark.json
 import androidx.benchmark.CpuInfo
 import androidx.benchmark.IsolationActivity
 import androidx.benchmark.MemInfo
+import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import com.squareup.moshi.JsonClass
 
@@ -110,8 +111,19 @@ data class BenchmarkData(
         val sampledMetrics: Map<String, SampledMetricResult>,
         val warmupIterations: Int?,
         val repeatIterations: Int?,
-        val thermalThrottleSleepSeconds: Long?
+        val thermalThrottleSleepSeconds: Long?,
+        val profilerOutputs: List<ProfilerOutput>?,
     ) {
+        init {
+            profilerOutputs?.let { profilerOutput ->
+                val labels = profilerOutput.map { it.label }
+                require(labels.toSet().size == profilerOutput.size) {
+                    "Each profilerOutput must have a distinct label. Labels seen: " +
+                        labels.joinToString()
+                }
+            }
+        }
+
         constructor(
             name: String,
             className: String,
@@ -119,7 +131,8 @@ data class BenchmarkData(
             metrics: List<androidx.benchmark.MetricResult>,
             warmupIterations: Int,
             repeatIterations: Int,
-            thermalThrottleSleepSeconds: Long
+            thermalThrottleSleepSeconds: Long,
+            profilerOutputs: List<ProfilerOutput>?
         ) : this(
             name = name,
             params = ResultWriter.getParams(name),
@@ -137,8 +150,43 @@ data class BenchmarkData(
             },
             warmupIterations = warmupIterations,
             repeatIterations = repeatIterations,
-            thermalThrottleSleepSeconds = thermalThrottleSleepSeconds
+            thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
+            profilerOutputs = profilerOutputs,
         )
+
+        @JsonClass(generateAdapter = true)
+        data class ProfilerOutput(
+            /**
+             * Type of trace.
+             *
+             * Note that multiple data formats may use the same type here, like simpleperf vs art
+             * stack sampling traces.
+             *
+             * This isn't meant to be a specific data format, but more conceptual category.
+             */
+            val type: Type,
+            /**
+             * User facing label for the profiler output.
+             *
+             * If more than one profiler output has the same type, this label gives context
+             * explaining the distinction.
+             */
+            val label: String,
+            /** Filename of trace file. */
+            val filename: String
+        ) {
+            constructor(profilerResult: Profiler.ResultFile) : this(
+                type = profilerResult.type,
+                label = profilerResult.label,
+                filename = profilerResult.outputRelativePath,
+            )
+
+            enum class Type {
+                MethodTrace,
+                PerfettoTrace,
+                StackSamplingTrace
+            }
+        }
 
         sealed class MetricResult
 

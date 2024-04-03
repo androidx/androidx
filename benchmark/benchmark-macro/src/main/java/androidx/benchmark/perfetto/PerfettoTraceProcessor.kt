@@ -173,7 +173,7 @@ class PerfettoTraceProcessor {
                     val label = "Trace with processing error: ${t.message?.take(50)?.trim()}..."
                     reportSummaryToIde(
                         profilerResults = listOf(
-                            Profiler.ResultFile(
+                            Profiler.ResultFile.ofPerfettoTrace(
                                 label = label,
                                 absolutePath = trace.path
                             )
