@@ -851,6 +851,36 @@ package androidx.tv.material3 {
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class SelectableChipShape {
   }
 
+  @androidx.compose.runtime.Immutable public final class SelectableSurfaceBorder {
+  }
+
+  @androidx.compose.runtime.Immutable public final class SelectableSurfaceColors {
+  }
+
+  public final class SelectableSurfaceDefaults {
+    method public androidx.tv.material3.SelectableSurfaceBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border selectedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedSelectedBorder, optional androidx.tv.material3.Border focusedDisabledBorder, optional androidx.tv.material3.Border pressedSelectedBorder, optional androidx.tv.material3.Border selectedDisabledBorder, optional androidx.tv.material3.Border focusedSelectedDisabledBorder);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.SelectableSurfaceColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long selectedContainerColor, optional long selectedContentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long focusedSelectedContainerColor, optional long focusedSelectedContentColor, optional long pressedSelectedContainerColor, optional long pressedSelectedContentColor);
+    method public androidx.tv.material3.SelectableSurfaceGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow, optional androidx.tv.material3.Glow selectedGlow, optional androidx.tv.material3.Glow focusedSelectedGlow, optional androidx.tv.material3.Glow pressedSelectedGlow);
+    method public androidx.tv.material3.SelectableSurfaceScale scale(optional float scale, optional float focusedScale, optional float pressedScale, optional float selectedScale, optional float disabledScale, optional float focusedSelectedScale, optional float focusedDisabledScale, optional float pressedSelectedScale, optional float selectedDisabledScale, optional float focusedSelectedDisabledScale);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.SelectableSurfaceShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape selectedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape, optional androidx.compose.ui.graphics.Shape pressedSelectedShape, optional androidx.compose.ui.graphics.Shape selectedDisabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedDisabledShape);
+    field public static final androidx.tv.material3.SelectableSurfaceDefaults INSTANCE;
+  }
+
+  @androidx.compose.runtime.Immutable public final class SelectableSurfaceGlow {
+  }
+
+  @androidx.compose.runtime.Immutable public final class SelectableSurfaceScale {
+    field public static final androidx.tv.material3.SelectableSurfaceScale.Companion Companion;
+  }
+
+  public static final class SelectableSurfaceScale.Companion {
+    method public androidx.tv.material3.SelectableSurfaceScale getNone();
+    property public final androidx.tv.material3.SelectableSurfaceScale None;
+  }
+
+  @androidx.compose.runtime.Immutable public final class SelectableSurfaceShape {
+  }
+
   public final class ShapeDefaults {
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
@@ -895,7 +925,7 @@ package androidx.tv.material3 {
 
   public final class SurfaceKt {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void Surface(optional androidx.compose.ui.Modifier modifier, optional float tonalElevation, optional androidx.compose.ui.graphics.Shape shape, optional androidx.tv.material3.NonInteractiveSurfaceColors colors, optional androidx.tv.material3.Border border, optional androidx.tv.material3.Glow glow, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void Surface(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional float tonalElevation, optional androidx.tv.material3.ToggleableSurfaceShape shape, optional androidx.tv.material3.ToggleableSurfaceColors colors, optional androidx.tv.material3.ToggleableSurfaceScale scale, optional androidx.tv.material3.ToggleableSurfaceBorder border, optional androidx.tv.material3.ToggleableSurfaceGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Surface(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional float tonalElevation, optional androidx.tv.material3.SelectableSurfaceShape shape, optional androidx.tv.material3.SelectableSurfaceColors colors, optional androidx.tv.material3.SelectableSurfaceScale scale, optional androidx.tv.material3.SelectableSurfaceBorder border, optional androidx.tv.material3.SelectableSurfaceGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Surface(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional boolean enabled, optional float tonalElevation, optional androidx.tv.material3.ClickableSurfaceShape shape, optional androidx.tv.material3.ClickableSurfaceColors colors, optional androidx.tv.material3.ClickableSurfaceScale scale, optional androidx.tv.material3.ClickableSurfaceBorder border, optional androidx.tv.material3.ClickableSurfaceGlow glow, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalAbsoluteTonalElevation();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalAbsoluteTonalElevation;
@@ -988,36 +1018,6 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
-  }
-
-  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceBorder {
-  }
-
-  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceColors {
-  }
-
-  public final class ToggleableSurfaceDefaults {
-    method public androidx.tv.material3.ToggleableSurfaceBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder, optional androidx.tv.material3.Border selectedBorder, optional androidx.tv.material3.Border disabledBorder, optional androidx.tv.material3.Border focusedSelectedBorder, optional androidx.tv.material3.Border focusedDisabledBorder, optional androidx.tv.material3.Border pressedSelectedBorder, optional androidx.tv.material3.Border selectedDisabledBorder, optional androidx.tv.material3.Border focusedSelectedDisabledBorder);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ToggleableSurfaceColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor, optional long selectedContainerColor, optional long selectedContentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long focusedSelectedContainerColor, optional long focusedSelectedContentColor, optional long pressedSelectedContainerColor, optional long pressedSelectedContentColor);
-    method public androidx.tv.material3.ToggleableSurfaceGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow, optional androidx.tv.material3.Glow selectedGlow, optional androidx.tv.material3.Glow focusedSelectedGlow, optional androidx.tv.material3.Glow pressedSelectedGlow);
-    method public androidx.tv.material3.ToggleableSurfaceScale scale(optional float scale, optional float focusedScale, optional float pressedScale, optional float selectedScale, optional float disabledScale, optional float focusedSelectedScale, optional float focusedDisabledScale, optional float pressedSelectedScale, optional float selectedDisabledScale, optional float focusedSelectedDisabledScale);
-    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.ToggleableSurfaceShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape, optional androidx.compose.ui.graphics.Shape selectedShape, optional androidx.compose.ui.graphics.Shape disabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedShape, optional androidx.compose.ui.graphics.Shape focusedDisabledShape, optional androidx.compose.ui.graphics.Shape pressedSelectedShape, optional androidx.compose.ui.graphics.Shape selectedDisabledShape, optional androidx.compose.ui.graphics.Shape focusedSelectedDisabledShape);
-    field public static final androidx.tv.material3.ToggleableSurfaceDefaults INSTANCE;
-  }
-
-  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceGlow {
-  }
-
-  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceScale {
-    field public static final androidx.tv.material3.ToggleableSurfaceScale.Companion Companion;
-  }
-
-  public static final class ToggleableSurfaceScale.Companion {
-    method public androidx.tv.material3.ToggleableSurfaceScale getNone();
-    property public final androidx.tv.material3.ToggleableSurfaceScale None;
-  }
-
-  @androidx.compose.runtime.Immutable public final class ToggleableSurfaceShape {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {

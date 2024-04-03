@@ -406,16 +406,16 @@ private fun SelectableChip(
     interactionSource: MutableInteractionSource?
 ) {
     Surface(
-        checked = selected,
-        onCheckedChange = { onClick() },
+        selected = selected,
+        onClick = onClick,
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         onLongClick = onLongClick,
-        shape = shape.toToggleableSurfaceShape(),
-        colors = colors.toToggleableSurfaceColors(),
-        scale = scale.toToggleableSurfaceScale(),
-        border = border.toToggleableSurfaceBorder(),
-        glow = glow.toToggleableSurfaceGlow(),
+        shape = shape.toSelectableSurfaceShape(),
+        colors = colors.toSelectableSurfaceColors(),
+        scale = scale.toSelectableSurfaceScale(),
+        border = border.toSelectableSurfaceBorder(),
+        glow = glow.toSelectableSurfaceGlow(),
         interactionSource = interactionSource
     ) {
         ChipContent(
