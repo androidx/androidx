@@ -707,19 +707,24 @@ abstract class PagerState(
     }
 
     /**
-     * An utility function to help to calculate a given page's offset. Since this is based off
-     * [currentPageOffsetFraction] the same concept applies: a fraction offset that represents
-     * how far [page] is from the settled position (represented by [currentPage] offset). The
-     * difference here is that [currentPageOffsetFraction] is a value between -0.5 and 0.5 and
-     * the value calculate by this function can be larger than these numbers if [page] is different
-     * than [currentPage].
+     * An utility function to help to calculate a given page's offset. This is an offset that
+     * represents how far [page] is from the settled position (represented by [currentPage]
+     * offset). The difference here is that [currentPageOffsetFraction] is a value between -0.5 and
+     * 0.5 and the value calculated by this function can be larger than these numbers if [page] is
+     * different than [currentPage].
      *
-     * For instance, if currentPage=0 and we call getOffsetDistanceInPages for page 3, the result
-     * will be -3, meaning the given page is 3 pages away from the current page (the sign represent
-     * the direction of the offset, negative is forward, positive is backwards). This offset also
-     * works in conjunction with [currentPageOffsetFraction], so if currentPage is out of its
-     * snapped position (i.e. currentPageOffsetFraction!=0) then the calculated value will still
-     * represent the offset in number of pages (in this case, not whole pages).
+     * For instance, if currentPage=0 and we call [getOffsetDistanceInPages] for page 3, the result
+     * will be 3, meaning the given page is 3 pages away from the current page (the sign represent
+     * the direction of the offset, positive is forward, negative is backwards). Another example is
+     * if currentPage=3 and we call [getOffsetDistanceInPages] for page 1, the result would be -2,
+     * meaning we're 2 pages away (moving backwards) to the current page.
+     *
+     * This offset also works in conjunction with [currentPageOffsetFraction], so if [currentPage]
+     * is out of its snapped position (i.e. currentPageOffsetFraction!=0) then the calculated value
+     * will still represent the offset in number of pages (in this case, not whole pages).
+     * For instance, if currentPage=1 and we're slightly offset, currentPageOffsetFraction=0.2,
+     * if we call this to page 2, the result would be 0.8, that is 0.8 page away from current page
+     * (moving forward).
      *
      * @param page The page to calculate the offset from. This should be between 0 and [pageCount].
      * @return The offset of [page] with respect to [currentPage].
@@ -728,7 +733,7 @@ abstract class PagerState(
         require(page in 0..pageCount) {
             "page $page is not within the range 0 to $pageCount"
         }
-        return (currentPage - page) + currentPageOffsetFraction
+        return page - currentPage - currentPageOffsetFraction
     }
 
     /**
