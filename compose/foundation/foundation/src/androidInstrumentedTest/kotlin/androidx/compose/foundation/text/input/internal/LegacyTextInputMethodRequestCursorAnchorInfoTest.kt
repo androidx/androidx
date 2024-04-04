@@ -90,6 +90,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         )
         textInputService.startInput(
             value = TextFieldValue(""),
+            textInputNode = null,
             imeOptions = ImeOptions.Default,
             onEditCommand = {},
             onImeActionPerformed = {}

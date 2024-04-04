@@ -23,7 +23,9 @@ import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -86,7 +88,13 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         startInput {
-            it.startInput(value, imeOptions, onEditCommand, onImeActionPerformed)
+            it.startInput(
+                value,
+                textInputModifierNode,
+                imeOptions,
+                onEditCommand,
+                onImeActionPerformed
+            )
         }
     }
 
@@ -197,6 +205,8 @@ internal class LegacyTextInputMethodRequest(
      */
     private var onEditCommand: (List<EditCommand>) -> Unit = {}
     private var onImeActionPerformed: (ImeAction) -> Unit = {}
+    private var legacyTextFieldState: LegacyTextFieldState? = null
+    private var textFieldSelectionManager: TextFieldSelectionManager? = null
 
     // Visible for testing
     var state = TextFieldValue(text = "", selection = TextRange.Zero)
@@ -230,6 +240,7 @@ internal class LegacyTextInputMethodRequest(
 
     fun startInput(
         value: TextFieldValue,
+        textInputNode: LegacyPlatformTextInputServiceAdapter.LegacyPlatformTextInputNode?,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
@@ -238,6 +249,8 @@ internal class LegacyTextInputMethodRequest(
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
         this.onImeActionPerformed = onImeActionPerformed
+        this.legacyTextFieldState = textInputNode?.legacyTextFieldState
+        this.textFieldSelectionManager = textInputNode?.textFieldSelectionManager
     }
 
     override fun createInputConnection(outAttributes: EditorInfo): RecordingInputConnection {
@@ -286,7 +299,9 @@ internal class LegacyTextInputMethodRequest(
                         }
                     }
                 }
-            }
+            },
+            legacyTextFieldState = legacyTextFieldState,
+            textFieldSelectionManager = textFieldSelectionManager
         ).also {
             ics.add(WeakReference(it))
             if (DEBUG) {

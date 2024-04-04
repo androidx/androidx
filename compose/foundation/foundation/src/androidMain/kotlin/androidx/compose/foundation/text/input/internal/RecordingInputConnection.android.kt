@@ -27,8 +27,14 @@ import android.view.inputmethod.CorrectionInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
+import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.text.LegacyTextFieldState
+import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
@@ -42,6 +48,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText
 import androidx.compose.ui.text.input.getTextAfterSelection
 import androidx.compose.ui.text.input.getTextBeforeSelection
+import java.util.concurrent.Executor
+import java.util.function.IntConsumer
 
 internal const val DEBUG = false
 internal const val TAG = "RecordingIC"
@@ -57,7 +65,9 @@ private const val DEBUG_CLASS = "RecordingInputConnection"
 internal class RecordingInputConnection(
     initState: TextFieldValue,
     val eventCallback: InputEventCallback2,
-    val autoCorrect: Boolean
+    val autoCorrect: Boolean,
+    val legacyTextFieldState: LegacyTextFieldState? = null,
+    val textFieldSelectionManager: TextFieldSelectionManager? = null
 ) : InputConnection {
 
     /** The depth of the batch session. 0 means no session. */
@@ -394,6 +404,25 @@ internal class RecordingInputConnection(
         return true
     }
 
+    override fun performHandwritingGesture(
+        gesture: HandwritingGesture,
+        executor: Executor?,
+        consumer: IntConsumer?
+    ) {
+        if (DEBUG) { logDebug("performHandwritingGestures($gesture, $executor, $consumer)") }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Api34LegacyPerformHandwritingGestureImpl.performHandwritingGesture(
+                legacyTextFieldState,
+                textFieldSelectionManager,
+                gesture,
+                executor,
+                consumer
+            ) {
+                addEditCommandWithBatch(it)
+            }
+        }
+    }
+
     // endregion
     // region Unsupported callbacks
 
@@ -470,4 +499,33 @@ private fun TextFieldValue.toExtractedText(): ExtractedText {
     res.selectionEnd = selection.max
     res.flags = if ('\n' in text) 0 else ExtractedText.FLAG_SINGLE_LINE
     return res
+}
+
+@RequiresApi(34)
+private object Api34LegacyPerformHandwritingGestureImpl {
+
+    @DoNotInline
+    fun performHandwritingGesture(
+        legacyTextFieldState: LegacyTextFieldState?,
+        textFieldSelectionManager: TextFieldSelectionManager?,
+        gesture: HandwritingGesture,
+        executor: Executor?,
+        consumer: IntConsumer?,
+        editCommandConsumer: (EditCommand) -> Unit
+    ) {
+        val result = legacyTextFieldState?.performHandwritingGesture(
+            gesture,
+            textFieldSelectionManager,
+            editCommandConsumer
+        ) ?: InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
+
+        if (consumer == null) return
+        if (executor != null) {
+            executor.execute {
+                consumer.accept(result)
+            }
+        } else {
+            consumer.accept(result)
+        }
+    }
 }

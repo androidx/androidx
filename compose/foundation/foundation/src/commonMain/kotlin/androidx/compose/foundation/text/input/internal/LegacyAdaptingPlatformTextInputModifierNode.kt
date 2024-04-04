@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.LegacyTextFieldState
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,19 +43,34 @@ import kotlinx.coroutines.launch
  * function.
  */
 internal fun Modifier.legacyTextInputAdapter(
-    serviceAdapter: LegacyPlatformTextInputServiceAdapter
-): Modifier = this then LegacyAdaptingPlatformTextInputModifier(serviceAdapter)
+    serviceAdapter: LegacyPlatformTextInputServiceAdapter,
+    legacyTextFieldState: LegacyTextFieldState,
+    textFieldSelectionManager: TextFieldSelectionManager
+): Modifier =
+    this then LegacyAdaptingPlatformTextInputModifier(
+        serviceAdapter,
+        legacyTextFieldState,
+        textFieldSelectionManager
+    )
 
 private data class LegacyAdaptingPlatformTextInputModifier(
-    val serviceAdapter: LegacyPlatformTextInputServiceAdapter
+    val serviceAdapter: LegacyPlatformTextInputServiceAdapter,
+    val legacyTextFieldState: LegacyTextFieldState,
+    val textFieldSelectionManager: TextFieldSelectionManager
 ) : ModifierNodeElement<LegacyAdaptingPlatformTextInputModifierNode>() {
 
     override fun create(): LegacyAdaptingPlatformTextInputModifierNode {
-        return LegacyAdaptingPlatformTextInputModifierNode(serviceAdapter)
+        return LegacyAdaptingPlatformTextInputModifierNode(
+            serviceAdapter,
+            legacyTextFieldState,
+            textFieldSelectionManager
+        )
     }
 
     override fun update(node: LegacyAdaptingPlatformTextInputModifierNode) {
         node.setServiceAdapter(serviceAdapter)
+        node.legacyTextFieldState = legacyTextFieldState
+        node.textFieldSelectionManager = textFieldSelectionManager
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -67,7 +84,9 @@ private data class LegacyAdaptingPlatformTextInputModifier(
  * [LegacyPlatformTextInputServiceAdapter].
  */
 internal class LegacyAdaptingPlatformTextInputModifierNode(
-    private var serviceAdapter: LegacyPlatformTextInputServiceAdapter
+    private var serviceAdapter: LegacyPlatformTextInputServiceAdapter,
+    override var legacyTextFieldState: LegacyTextFieldState,
+    override var textFieldSelectionManager: TextFieldSelectionManager
 ) : Modifier.Node(),
     PlatformTextInputModifierNode,
     CompositionLocalConsumerModifierNode,
