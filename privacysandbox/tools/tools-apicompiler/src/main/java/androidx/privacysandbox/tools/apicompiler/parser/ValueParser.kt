@@ -20,7 +20,6 @@ import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ValueProperty
-import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
@@ -28,7 +27,6 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import com.google.devtools.ksp.symbol.NonExistLocation
 
 internal class ValueParser(private val logger: KSPLogger, private val typeParser: TypeParser) {
     fun parseValue(annotatedValue: KSAnnotated): AnnotatedValue? {
@@ -55,7 +53,6 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
         ensureNoCompanion(value, name)
         ensureNoTypeParameters(value, name)
         ensureNoSuperTypes(value, name)
-        ensureNoMethods(value, name)
 
         return if (isDataClass) {
             AnnotatedDataClass(
@@ -63,28 +60,11 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
                 properties = value.getAllProperties().map(::parseProperty).toList()
             )
         } else {
-            parseEnumClass(value, name)
+            parseEnumClass(value)
         }
     }
 
-    private fun parseEnumClass(
-        classDeclaration: KSClassDeclaration,
-        name: String
-    ): AnnotatedEnumClass {
-        classDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
-            .forEach { ensureNoMethods(it, name) }
-
-        val properties =
-            classDeclaration.getDeclaredProperties().filter { it.location !is NonExistLocation }
-        if (properties.count() > 0) {
-            logger.error(
-                "Error in $name: Enum classes annotated with @PrivacySandboxValue " +
-                    "may not declare properties (${
-                        properties.map { it.simpleName.getShortName() }.joinToString()
-                    })"
-            )
-        }
-
+    private fun parseEnumClass(classDeclaration: KSClassDeclaration): AnnotatedEnumClass {
         val variants = classDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
             .map { it.simpleName.asString() }
             .toList()
@@ -125,22 +105,6 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
             logger.error(
                 "Error in $name: values annotated with @PrivacySandboxValue may not " +
                     "inherit other types (${supertypes.joinToString(limit = 3)})"
-            )
-        }
-    }
-
-    private fun ensureNoMethods(classDeclaration: KSClassDeclaration, name: String) {
-        val methods =
-            classDeclaration.getAllFunctions()
-                .filter {
-                    it.simpleName.getShortName() != "<init>" && it.location !is NonExistLocation
-                }
-        if (methods.count() > 0) {
-            logger.error(
-                "Error in $name: types annotated with @PrivacySandboxValue may" +
-                    " not declare methods (${
-                        methods.map { it.simpleName.getShortName() }.joinToString(limit = 3)
-                    })"
             )
         }
     }
