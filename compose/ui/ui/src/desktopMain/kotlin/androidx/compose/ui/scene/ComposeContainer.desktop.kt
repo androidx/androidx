@@ -23,6 +23,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.LayerType
+import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
@@ -128,7 +129,6 @@ internal class ComposeContainer(
             exceptionHandler?.onException(it) ?: throw it
         },
         eventListener = AwtEventListeners(
-            OnlyValidPrimaryMouseButtonFilter,
             DetectEventOutsideLayer(),
             FocusableLayerEventFilter()
         ),
@@ -462,11 +462,11 @@ internal class ComposeContainer(
         }
     }
 
-    private inner class FocusableLayerEventFilter : AwtEventListener {
+    private inner class FocusableLayerEventFilter : AwtEventFilter() {
         private val noFocusableLayers get() = layers.all { !it.focusable }
 
-        override fun onMouseEvent(event: AwtMouseEvent): Boolean = !noFocusableLayers
-        override fun onKeyEvent(event: AwtKeyEvent): Boolean = !noFocusableLayers
+        override fun shouldSendMouseEvent(event: AwtMouseEvent): Boolean = noFocusableLayers
+        override fun shouldSendKeyEvent(event: AwtKeyEvent): Boolean = noFocusableLayers
     }
 }
 

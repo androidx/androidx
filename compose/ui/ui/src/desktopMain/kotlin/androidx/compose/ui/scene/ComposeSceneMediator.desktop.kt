@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.awt.AwtEventListener
+import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.SwingInteropContainer
 import androidx.compose.ui.focus.FocusDirection
@@ -99,7 +100,7 @@ internal class ComposeSceneMediator(
     private val container: Container,
     private val windowContext: PlatformWindowContext,
     private var exceptionHandler: WindowExceptionHandler?,
-    private val eventListener: AwtEventListener = OnlyValidPrimaryMouseButtonFilter,
+    eventListener: AwtEventListener? = null,
 
     /**
      * @see PlatformContext.measureDrawLayerBounds
@@ -238,6 +239,12 @@ internal class ComposeSceneMediator(
         override fun keyPressed(event: KeyEvent) = onKeyEvent(event)
         override fun keyReleased(event: KeyEvent) = onKeyEvent(event)
         override fun keyTyped(event: KeyEvent) = onKeyEvent(event)
+    }
+
+    private val eventListener = if (eventListener != null) {
+        AwtEventListeners(OnlyValidPrimaryMouseButtonFilter, eventListener)
+    } else {
+        OnlyValidPrimaryMouseButtonFilter
     }
 
     var currentInputMethodRequests: InputMethodRequests? = null
