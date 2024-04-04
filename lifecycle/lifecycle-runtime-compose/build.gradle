@@ -41,7 +41,7 @@ androidXMultiplatform {
             dependencies {
                 api(projectOrArtifact(":lifecycle:lifecycle-runtime"))
                 api(project(":annotation:annotation"))
-                api(project(":compose:runtime:runtime"))
+                api("androidx.compose.runtime:runtime:1.6.5")
             }
         }
 
