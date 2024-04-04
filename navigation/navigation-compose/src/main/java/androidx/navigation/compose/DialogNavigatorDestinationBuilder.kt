@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("NullAnnotationGroup") // b/331484152
+
 package androidx.navigation.compose
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
+import androidx.navigation.NavType
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * DSL for constructing a new [DialogNavigator.Destination]
@@ -48,6 +55,30 @@ public class DialogNavigatorDestinationBuilder :
         dialogProperties: DialogProperties,
         content: @Composable (NavBackStackEntry) -> Unit
     ) : super(navigator, route) {
+        this.dialogNavigator = navigator
+        this.dialogProperties = dialogProperties
+        this.content = content
+    }
+
+    /**
+     * DSL for constructing a new [DialogNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route from a [KClass]
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. Required only when [route] contains custom NavTypes.
+     * @param dialogProperties properties that should be passed to
+     * [androidx.compose.ui.window.Dialog].
+     * @param content composable for the destination
+     */
+    @ExperimentalSafeArgsApi
+    public constructor(
+        navigator: DialogNavigator,
+        route: KClass<*>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        dialogProperties: DialogProperties,
+        content: @Composable (NavBackStackEntry) -> Unit
+    ) : super(navigator, route, typeMap) {
         this.dialogNavigator = navigator
         this.dialogProperties = dialogProperties
         this.content = content
