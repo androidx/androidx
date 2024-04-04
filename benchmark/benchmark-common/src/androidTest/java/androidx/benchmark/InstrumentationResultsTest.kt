@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import androidx.benchmark.json.BenchmarkData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import java.io.File
@@ -100,9 +101,10 @@ class InstrumentationResultsTest {
                 benchmarkName = "foo",
                 nanos = 1000.0,
                 allocations = null,
-                listOf(Profiler.ResultFile(
+                listOf(Profiler.ResultFile.of(
                     label = "Trace Label",
                     outputRelativePath = "tracePath.trace",
+                    type = BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
                     source = MethodTracing
                 ))
             )
