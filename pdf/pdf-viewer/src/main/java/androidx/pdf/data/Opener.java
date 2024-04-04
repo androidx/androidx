@@ -131,7 +131,7 @@ public class Opener {
             try {
                 return mAsset.getLength();
             } catch (IllegalArgumentException iax) {
-                // TODO: Fix IAE. Check bug in legacy code.
+                // TODO: IllegalArgumentException in Opener#OpenContent
                 return AssetFileDescriptor.UNKNOWN_LENGTH;
             }
         }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer.pdf;
+package androidx.pdf.viewer;
 
 import androidx.annotation.RestrictTo;
 import androidx.pdf.aidl.MatchRects;

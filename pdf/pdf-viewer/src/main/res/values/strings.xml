@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Content description for an icon representing the file's type (e.g. image or pdf). If
+     we know the exact file type, it will be appended to this description, and result in e.g.
+     "file type: Image" [CHAR LIMIT=25] -->
+    <string name="desc_file_type">File type</string>
+
+    <!-- Label for displaying the current page, e.g. "1 / 500 [CHAR LIMIT=20] -->
+    <string name="label_page_single"><xliff:g example="1" id="page">%1$d</xliff:g> / <xliff:g example="500" id="total">%2$d</xliff:g></string>
+
+    <!-- Label description of the current page display, e.g. "page 1 of 500" [CHAR LIMIT=50] -->
+    <string name="desc_page_single">page <xliff:g example="1" id="page">%1$d</xliff:g> of <xliff:g example="500" id="total">%2$d</xliff:g></string>
+
+    <!-- Label description of the current zoom display, e.g. "zoom 66 percent". If you choose to use
+         the '%' sign instead of the word 'percent', use double percent, '%%'. [CHAR LIMIT=40] -->
+    <string name="desc_zoom">zoom <xliff:g example="66" id="first">%1$d</xliff:g> percent</string>
+
+    <!-- Content description for a page of a paginated document, eg "page 3". [CHAR LIMIT=50] -->
+    <string name="desc_page">page <xliff:g example="3" id="page">%1$d</xliff:g></string>
+
+    <!-- Content description for the draggable handle at the start of the selected text. [CHAR LIMIT=50] -->
+    <string name="desc_selection_start">selection start</string>
+
+    <!-- Content description for the draggable handle at the end of the selected text. [CHAR LIMIT=50] -->
+    <string name="desc_selection_stop">selection end</string>
+
+    <!-- Label for displaying the current page range, e.g. "1-5 / 500" [CHAR LIMIT=20] -->
+    <string name="label_page_range"><xliff:g example="1" id="first">%1$d</xliff:g>-<xliff:g example="5" id="last">%2$d</xliff:g> / <xliff:g example="500" id="total">%3$d</xliff:g></string>
+
+    <!-- Label description of the current page range display, e.g. "pages 1 to 5 of 500" [CHAR LIMIT=50] -->
+    <string name="desc_page_range">pages <xliff:g example="1" id="first">%1$d</xliff:g> to <xliff:g example="5" id="last">%2$d</xliff:g> of <xliff:g example="500" id="total">%3$d</xliff:g></string>
+
+    <!-- Content description for an image within a document that contains alt text.
+         The alt text will also be included in the description, so this label only contains the word "image" to give the user context. [CHAR LIMIT=20] -->
+    <string name="desc_image_alt_text">Image: <xliff:g example="A wolf howling in front of the moon" id="alt_text">%1$s</xliff:g></string>
+
+</resources>
