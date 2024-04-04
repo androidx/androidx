@@ -68,8 +68,8 @@ fun TabRowScope.Tab(
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
-        checked = selected,
-        onCheckedChange = { onClick() },
+        selected = selected,
+        onClick = onClick,
         modifier = modifier
             .onFocusChanged {
                 if (it.isFocused) {
@@ -80,13 +80,13 @@ fun TabRowScope.Tab(
                 this.selected = selected
                 this.role = Role.Tab
             },
-        colors = colors.toToggleableSurfaceColors(
+        colors = colors.toSelectableSurfaceColors(
             doesTabRowHaveFocus = hasFocus,
             enabled = enabled,
         ),
         enabled = enabled,
-        scale = ToggleableSurfaceScale.None,
-        shape = ToggleableSurfaceDefaults.shape(shape = RectangleShape),
+        scale = SelectableSurfaceScale.None,
+        shape = SelectableSurfaceDefaults.shape(shape = RectangleShape),
         interactionSource = interactionSource,
     ) {
         Row(
@@ -220,11 +220,11 @@ object TabDefaults {
 }
 
 @Composable
-internal fun TabColors.toToggleableSurfaceColors(
+internal fun TabColors.toSelectableSurfaceColors(
     doesTabRowHaveFocus: Boolean,
     enabled: Boolean,
 ) =
-    ToggleableSurfaceDefaults.colors(
+    SelectableSurfaceDefaults.colors(
         contentColor = if (doesTabRowHaveFocus) contentColor else inactiveContentColor,
         selectedContentColor = if (enabled) selectedContentColor else disabledSelectedContentColor,
         focusedContentColor = focusedContentColor,
