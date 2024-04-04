@@ -1761,7 +1761,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
-    @OptIn(InternalSerializationApi::class)
+    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
     @MainThread
     public open fun navigate(
         @IdRes resId: Int,
@@ -1968,7 +1968,7 @@ public open class NavController(
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
+    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
     @MainThread
     private fun navigate(
         node: NavDestination,

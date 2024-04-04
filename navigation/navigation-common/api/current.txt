@@ -372,8 +372,8 @@ package androidx.navigation {
     method @Deprecated @IdRes public int getPopUpTo();
     method @IdRes public int getPopUpToId();
     method public String? getPopUpToRoute();
-    method public kotlin.reflect.KClass<?>? getPopUpToRouteClass();
-    method public Object? getPopUpToRouteObject();
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public kotlin.reflect.KClass<?>? getPopUpToRouteClass();
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public Object? getPopUpToRouteObject();
     method public boolean isPopUpToInclusive();
     method public boolean shouldLaunchSingleTop();
     method public boolean shouldPopUpToSaveState();
@@ -384,8 +384,8 @@ package androidx.navigation {
     property @AnimRes @AnimatorRes public final int popExitAnim;
     property @IdRes public final int popUpToId;
     property public final String? popUpToRoute;
-    property public final kotlin.reflect.KClass<?>? popUpToRouteClass;
-    property public final Object? popUpToRouteObject;
+    property @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public final kotlin.reflect.KClass<?>? popUpToRouteClass;
+    property @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public final Object? popUpToRouteObject;
   }
 
   public static final class NavOptions.Builder {
