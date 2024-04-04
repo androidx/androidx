@@ -19,12 +19,9 @@ package androidx.compose.ui.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentCompositionLocalContext
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
@@ -172,27 +169,24 @@ internal fun rememberComposeSceneLayer(
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val parentComposition = rememberCompositionContext()
-    val compositionLocalContext by rememberUpdatedState(currentCompositionLocalContext)
+    val compositionLocalContext = currentCompositionLocalContext
     val layer = remember {
         scene.createLayer(
             density = density,
             layoutDirection = layoutDirection,
             focusable = focusable,
             compositionContext = parentComposition,
-        ).also {
-            it.compositionLocalContext = compositionLocalContext
-        }
+        )
     }
     layer.focusable = focusable
+    layer.compositionLocalContext = compositionLocalContext
+    layer.density = density
+    layer.layoutDirection = layoutDirection
+
     DisposableEffect(Unit) {
         onDispose {
             layer.close()
         }
-    }
-    SideEffect {
-        layer.density = density
-        layer.layoutDirection = layoutDirection
-        layer.compositionLocalContext = compositionLocalContext
     }
     return layer
 }
