@@ -16,8 +16,6 @@ buildscript {
 dependencies {
     implementation(project(":jetpad-integration"))
 }
-apply from: "${buildscript.sourceFile.parent}/out.gradle"
-init.chooseBuildSrcBuildDir()
 
 apply from: "${buildscript.sourceFile.parent}/shared-dependencies.gradle"
 
