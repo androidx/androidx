@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import org.jetbrains.skiko.SkikoKey
 
 // TODO(https://github.com/JetBrains/compose-multiplatform/issues/3341): support isComposeRootInScrollableContainer
 internal actual fun CompositionLocalConsumerModifierNode
@@ -34,12 +34,12 @@ internal actual fun CompositionLocalConsumerModifierNode
  */
 internal actual val KeyEvent.isClick: Boolean
     get() = type == KeyEventType.KeyUp && when (nativeKeyEvent.key) {
-        SkikoKey.KEY_ENTER -> true
+        Key.Enter -> true
         else -> false
     }
 
 internal actual val KeyEvent.isPress: Boolean
     get() = type == KeyEventType.KeyDown && when (nativeKeyEvent.key) {
-        SkikoKey.KEY_ENTER -> true
+        Key.Enter -> true
         else -> false
     }

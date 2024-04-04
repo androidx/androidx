@@ -19,10 +19,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.NativeKeyEvent
 import org.jetbrains.skiko.SkikoInputModifiers
-import org.jetbrains.skiko.SkikoKey
-import org.jetbrains.skiko.SkikoKeyboardEvent
-import org.jetbrains.skiko.SkikoKeyboardEventKind
 
 /**
  * The [KeyEvent] is usually created by the system. This function creates an instance of
@@ -34,19 +32,12 @@ internal actual fun keyEvent(
     modifiers: Int
 ): KeyEvent {
     return KeyEvent(
-        SkikoKeyboardEvent(
-            key = SkikoKey.values().firstOrNull {
-                it.platformKeyCode.toLong() == key.keyCode
-            } ?: error("SkikoKey not found for key=$key"),
-            modifiers = SkikoInputModifiers(modifiers),
-            kind = when (keyEventType) {
-                KeyEventType.KeyUp -> SkikoKeyboardEventKind.UP
-                KeyEventType.KeyDown -> SkikoKeyboardEventKind.DOWN
-                else -> error("Unknown key event type: $keyEventType")
-
-            },
-            timestamp = 0L,
-            platform = null
+        NativeKeyEvent(
+            key = key,
+            value = null,
+            modifiers = modifiers,
+            kind = keyEventType,
+            timestamp = 0L
         )
     )
 }

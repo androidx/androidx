@@ -2002,8 +2002,6 @@ public final class androidx/compose/ui/input/pointer/PointerEvent_skikoKt {
 	public static final fun isShiftPressed-5xRPYO0 (I)Z
 	public static final fun isSymPressed-5xRPYO0 (I)Z
 	public static final fun isTertiaryPressed-aHzCx-E (I)Z
-	public static final fun toCompose (Lorg/jetbrains/skiko/SkikoPointerDevice;)I
-	public static final fun toCompose (Lorg/jetbrains/skiko/SkikoPointerEventKind;)I
 }
 
 public abstract interface class androidx/compose/ui/input/pointer/PointerIcon {

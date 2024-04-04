@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.MacosTextInputService
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -53,8 +52,7 @@ private class ComposeWindow(
         }
     private val layer = ComposeLayer(
         layer = SkiaLayer(),
-        platformContext = platformContext,
-        input = SkikoInput.Empty
+        platformContext = platformContext
     )
 
     private val windowStyle =

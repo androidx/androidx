@@ -22,11 +22,14 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
@@ -53,8 +56,6 @@ import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.LocalKeyboardOverlapHeight
 import androidx.compose.ui.uikit.systemDensity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.asCGRect
@@ -79,9 +80,6 @@ import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkikoKey
-import org.jetbrains.skiko.SkikoKeyboardEvent
-import org.jetbrains.skiko.SkikoKeyboardEventKind
 import platform.CoreGraphics.CGAffineTransformIdentity
 import platform.CoreGraphics.CGAffineTransformInvert
 import platform.CoreGraphics.CGPoint
@@ -329,20 +327,20 @@ internal class ComposeSceneMediator(
             performEscape = {
                 val down = onKeyboardEvent(
                     KeyEvent(
-                        SkikoKeyboardEvent(
-                            SkikoKey.KEY_ESCAPE,
-                            kind = SkikoKeyboardEventKind.DOWN,
-                            platform = null
+                        NativeKeyEvent(
+                            Key.Escape,
+                            value = null,
+                            kind = KeyEventType.KeyDown
                         )
                     )
                 )
 
                 val up = onKeyboardEvent(
                     KeyEvent(
-                        SkikoKeyboardEvent(
-                            SkikoKey.KEY_ESCAPE,
-                            kind = SkikoKeyboardEventKind.UP,
-                            platform = null
+                        NativeKeyEvent(
+                            Key.Escape,
+                            value = null,
+                            kind = KeyEventType.KeyUp
                         )
                     )
                 )
@@ -365,7 +363,7 @@ internal class ComposeSceneMediator(
 
     private val keyboardEventHandler: KeyboardEventHandler by lazy {
         object : KeyboardEventHandler {
-            override fun onKeyboardEvent(event: SkikoKeyboardEvent) {
+            override fun onKeyboardEvent(event: NativeKeyEvent) {
                 onKeyboardEvent(KeyEvent(event))
             }
         }
