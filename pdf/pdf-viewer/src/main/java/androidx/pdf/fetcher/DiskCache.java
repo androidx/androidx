@@ -38,7 +38,6 @@ public class DiskCache {
 
     private final File mCacheRoot;
     private final File mTmpCacheRoot;
-
     public DiskCache(Context context) {
         mCacheRoot = getDiskCacheDir(context);
         mTmpCacheRoot = getTmpCacheDir(context);

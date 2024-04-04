@@ -46,15 +46,19 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(libs.guavaTestlib)
+    testImplementation(libs.testExtTruth)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.mockitoCore4)
-    androidTestImplementation(libs.robolectric)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
 }
 
 android {
