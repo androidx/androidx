@@ -316,7 +316,7 @@ class NavGraphBuilderTest {
         class NestedGraph(val arg: Int)
 
         val graph = provider.navigation(startDestination = NestedGraph::class) {
-            navigation(startDestination = TestClass::class, route = NestedGraph::class) {
+            navigation<NestedGraph>(startDestination = TestClass::class) {
                 navDestination(TestClass::class) {}
             }
         }
@@ -347,7 +347,7 @@ class NavGraphBuilderTest {
         class NestedGraph(val arg: Int)
 
         val graph = provider.navigation(startDestination = NestedGraph::class) {
-            navigation(startDestination = TestClass(15), route = NestedGraph::class) {
+            navigation<NestedGraph>(startDestination = TestClass(15)) {
                 navDestination(TestClass::class) {}
             }
         }
@@ -380,7 +380,7 @@ class NavGraphBuilderTest {
         class NestedGraph(val arg: Int)
 
         val graph = provider.navigation(startDestination = NestedGraph(0)) {
-            navigation(startDestination = TestClass(15), route = NestedGraph::class) {
+            navigation<NestedGraph>(startDestination = TestClass(15)) {
                 navDestination(TestClass::class) {}
             }
         }

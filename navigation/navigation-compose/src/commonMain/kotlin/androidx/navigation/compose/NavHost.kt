@@ -50,10 +50,13 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.Navigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 private class ComposeViewModelStoreOwner: ViewModelStoreOwner {
     override val viewModelStore: ViewModelStore = ViewModelStore()
@@ -211,6 +214,126 @@ public fun NavHost(
         navController,
         remember(route, startDestination, builder) {
             navController.createGraph(startDestination, route, builder)
+        },
+        modifier,
+        contentAlignment,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition,
+        sizeTransform
+    )
+}
+
+/**
+ * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * @param navController the navController for this host
+ * @param startDestination the route from a [KClass] for the start destination
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param route the route from a [KClass] for the graph
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. Required only when route contains custom NavTypes.
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param sizeTransform callback to define the size transform for destinations in this host
+ * @param builder the builder used to construct the graph
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: KClass<*>,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    enterTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        { fadeIn(animationSpec = tween(700)) },
+    exitTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        { fadeOut(animationSpec = tween(700)) },
+    popEnterTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) = enterTransition,
+    popExitTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) = exitTransition,
+    sizeTransform: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null,
+    builder: NavGraphBuilder.() -> Unit
+) {
+    NavHost(
+        navController,
+        remember(route, startDestination, builder) {
+            navController.createGraph(startDestination, route, typeMap, builder)
+        },
+        modifier,
+        contentAlignment,
+        enterTransition,
+        exitTransition,
+        popEnterTransition,
+        popExitTransition,
+        sizeTransform
+    )
+}
+
+/**
+ * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ *
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
+ *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
+ * @param navController the navController for this host
+ * @param startDestination the route from a an Object for the start destination
+ * @param modifier The modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param route the route from a [KClass] for the graph
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. Required only when route contains custom NavTypes.
+ * @param enterTransition callback to define enter transitions for destination in this host
+ * @param exitTransition callback to define exit transitions for destination in this host
+ * @param popEnterTransition callback to define popEnter transitions for destination in this host
+ * @param popExitTransition callback to define popExit transitions for destination in this host
+ * @param sizeTransform callback to define the size transform for destinations in this host
+ * @param builder the builder used to construct the graph
+ */
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: Any,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    enterTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
+        { fadeIn(animationSpec = tween(700)) },
+    exitTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
+        { fadeOut(animationSpec = tween(700)) },
+    popEnterTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) = enterTransition,
+    popExitTransition: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) = exitTransition,
+    sizeTransform: (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null,
+    builder: NavGraphBuilder.() -> Unit
+) {
+    NavHost(
+        navController,
+        remember(route, startDestination, builder) {
+            navController.createGraph(startDestination, route, typeMap, builder)
         },
         modifier,
         contentAlignment,
