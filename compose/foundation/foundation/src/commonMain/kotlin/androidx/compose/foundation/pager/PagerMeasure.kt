@@ -36,6 +36,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutMeasureScope.measurePager(
@@ -58,6 +59,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
     pinnedPages: List<Int>,
     snapPosition: SnapPosition,
     placementScopeInvalidator: ObservableScopeInvalidator,
+    coroutineScope: CoroutineScope,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -89,7 +91,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
             currentPage = null,
             currentPageOffsetFraction = 0.0f,
             snapPosition = snapPosition,
-            remeasureNeeded = false
+            remeasureNeeded = false,
+            coroutineScope = coroutineScope
         )
     } else {
 
@@ -471,7 +474,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
             snapPosition = snapPosition,
             remeasureNeeded = remeasureNeeded,
             extraPagesBefore = positionedPagesBefore,
-            extraPagesAfter = positionedPagesAfter
+            extraPagesAfter = positionedPagesAfter,
+            coroutineScope = coroutineScope
         )
     }
 }
