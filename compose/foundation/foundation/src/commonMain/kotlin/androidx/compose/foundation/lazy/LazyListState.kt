@@ -300,7 +300,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
         scrollOffset: Int = 0
     ) {
         scroll {
-            snapToItemIndexInternal(index, scrollOffset)
+            snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
@@ -336,15 +336,11 @@ class LazyListState @ExperimentalFoundationApi constructor(
         snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
     }
 
-    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
-    }
-
     /**
      * Snaps to the requested scroll position. Synchronously executes remeasure if [forceRemeasure]
      * is true, and schedules a remeasure if false.
      */
-    private fun snapToItemIndexInternal(
+    internal fun snapToItemIndexInternal(
         index: Int,
         scrollOffset: Int,
         forceRemeasure: Boolean

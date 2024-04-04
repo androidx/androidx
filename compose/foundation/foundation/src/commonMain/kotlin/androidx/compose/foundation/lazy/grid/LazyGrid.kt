@@ -162,6 +162,7 @@ private fun rememberLazyGridMeasurePolicy(
     verticalArrangement,
 ) {
     { containerConstraints ->
+        state.measurementScopeInvalidator.attachToScope()
         checkScrollableContainerConstraints(
             containerConstraints,
             if (isVertical) Orientation.Vertical else Orientation.Horizontal
