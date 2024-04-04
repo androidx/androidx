@@ -46,8 +46,7 @@ internal fun ContextMenuArea(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    // TODO(b/331690843) add gesture modifier
-    Box(modifier, propagateMinConstraints = true) {
+    Box(modifier.contextMenuGestures(state), propagateMinConstraints = true) {
         content()
         ContextMenu(
             state = state,
