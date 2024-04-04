@@ -31,6 +31,7 @@ dependencies {
     implementation(project(":compose:material:material"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     implementation project(':compose:material3:material3')
+    implementation project(":navigation:navigation-compose")
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 

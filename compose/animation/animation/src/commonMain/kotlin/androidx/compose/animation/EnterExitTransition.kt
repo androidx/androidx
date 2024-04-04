@@ -854,6 +854,7 @@ internal operator fun ExitTransition.get(key: Any): ModifierNodeElement<out Modi
 internal fun Transition<EnterExitState>.createModifier(
     enter: EnterTransition,
     exit: ExitTransition,
+    isEnabled: () -> Boolean = { true },
     label: String
 ): Modifier {
     val activeEnter = trackActiveEnter(enter = enter)
@@ -884,11 +885,13 @@ internal fun Transition<EnterExitState>.createModifier(
 
     val graphicsLayerBlock = createGraphicsLayerBlock(activeEnter, activeExit, label)
     return Modifier
-        .graphicsLayer(clip = !disableClip)
+        .graphicsLayer {
+            clip = !disableClip && isEnabled()
+        }
         .then(
             EnterExitTransitionElement(
                 this, sizeAnimation, offsetAnimation, slideAnimation,
-                activeEnter, activeExit, graphicsLayerBlock
+                activeEnter, activeExit, isEnabled, graphicsLayerBlock
             )
         )
 }
@@ -1058,6 +1061,7 @@ private class EnterExitTransitionModifierNode(
     var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
     var enter: EnterTransition,
     var exit: ExitTransition,
+    var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit
 ) : LayoutModifierNodeWithPassThroughIntrinsics() {
 
@@ -1149,7 +1153,7 @@ private class EnterExitTransitionModifierNode(
             return layout(measuredSize.width, measuredSize.height) {
                 placeable.place(0, 0)
             }
-        } else {
+        } else if (isEnabled()) {
             val layerBlock = graphicsLayerBlock.init()
             // Measure the content based on the current constraints passed down from parent.
             // AnimatedContent will measure outgoing children with a cached constraints to avoid
@@ -1175,6 +1179,13 @@ private class EnterExitTransitionModifierNode(
                 placeable.placeWithLayer(
                     offset.x + offsetDelta.x, offset.y + offsetDelta.y, 0f, layerBlock
                 )
+            }
+        } else {
+            // If not enabled, skip all animations
+            return measurable.measure(constraints).run {
+                layout(width, height) {
+                    place(0, 0)
+                }
             }
         }
     }
@@ -1216,12 +1227,13 @@ private data class EnterExitTransitionElement(
     var slideAnimation: Transition<EnterExitState>.DeferredAnimation<IntOffset, AnimationVector2D>?,
     var enter: EnterTransition,
     var exit: ExitTransition,
+    var isEnabled: () -> Boolean,
     var graphicsLayerBlock: GraphicsLayerBlockForEnterExit
 ) : ModifierNodeElement<EnterExitTransitionModifierNode>() {
     override fun create(): EnterExitTransitionModifierNode =
         EnterExitTransitionModifierNode(
             transition, sizeAnimation, offsetAnimation, slideAnimation, enter, exit,
-            graphicsLayerBlock
+            isEnabled, graphicsLayerBlock
         )
 
     override fun update(node: EnterExitTransitionModifierNode) {
@@ -1231,6 +1243,7 @@ private data class EnterExitTransitionElement(
         node.slideAnimation = slideAnimation
         node.enter = enter
         node.exit = exit
+        node.isEnabled = isEnabled
         node.graphicsLayerBlock = graphicsLayerBlock
     }
 
