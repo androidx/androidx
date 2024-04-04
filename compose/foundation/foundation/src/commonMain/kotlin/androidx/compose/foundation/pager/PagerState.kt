@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -26,6 +27,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
@@ -55,10 +57,13 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates and remember a [PagerState] to be used with a [Pager]
@@ -482,7 +487,7 @@ abstract class PagerState(
             "pageOffsetFraction $pageOffsetFraction is not within the range -0.5 to 0.5"
         }
         val targetPage = page.coerceInPageRange()
-        snapToItem(targetPage, pageOffsetFraction)
+        snapToItem(targetPage, pageOffsetFraction, forceRemeasure = true)
     }
 
     /**
@@ -504,7 +509,7 @@ abstract class PagerState(
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
     ) {
         with(animatedScrollScope) {
-            snapToItem(page, pageOffsetFraction)
+            snapToItem(page, pageOffsetFraction, forceRemeasure = true)
         }
     }
 
@@ -524,9 +529,42 @@ abstract class PagerState(
         programmaticScrollTargetPage = targetPage.coerceInPageRange()
     }
 
-    internal fun snapToItem(page: Int, offsetFraction: Float) {
-        scrollPosition.requestPosition(page, offsetFraction)
-        remeasurement?.forceRemeasure() // trigger remeasure
+    internal fun snapToItem(page: Int, offsetFraction: Float, forceRemeasure: Boolean) {
+        scrollPosition.requestPositionAndForgetLastKnownKey(page, offsetFraction)
+        if (forceRemeasure) {
+            remeasurement?.forceRemeasure()
+        } else {
+            measurementScopeInvalidator.invalidateScope()
+        }
+    }
+
+    internal val measurementScopeInvalidator = ObservableScopeInvalidator()
+
+    /**
+     * Requests the [page] to be at the snapped position during the next remeasure,
+     * offset by [pageOffsetFraction], and schedules a remeasure.
+     *
+     * The scroll position will be updated to the requested position rather than maintain
+     * the index based on the current page key (when a data set change will also be
+     * applied during the next remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param page the index to which to scroll. Must be non-negative.
+     * @param pageOffsetFraction the offset fraction that the page should end up after the scroll.
+     */
+    fun requestScrollToPage(
+        @AndroidXIntRange(from = 0) page: Int,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            pagerLayoutInfoState.value.coroutineScope.launch {
+                stopScroll()
+            }
+        }
+
+        snapToItem(page, pageOffsetFraction, forceRemeasure = false)
     }
 
     /**
@@ -785,7 +823,8 @@ internal val EmptyLayoutInfo = PagerMeasureResult(
 
         override fun placeChildren() {}
     },
-    remeasureNeeded = false
+    remeasureNeeded = false,
+    coroutineScope = CoroutineScope(EmptyCoroutineContext)
 )
 
 private val UnitDensity = object : Density {

@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
 internal class PagerMeasureResult(
     override val visiblePagesInfo: List<MeasuredPage>,
@@ -42,7 +43,8 @@ internal class PagerMeasureResult(
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
     val extraPagesBefore: List<MeasuredPage> = emptyList(),
-    val extraPagesAfter: List<MeasuredPage> = emptyList()
+    val extraPagesAfter: List<MeasuredPage> = emptyList(),
+    val coroutineScope: CoroutineScope
 ) : PagerLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)
