@@ -1885,6 +1885,7 @@ package androidx.compose.foundation.text.input {
     method @androidx.compose.runtime.Composable public static androidx.compose.foundation.text.input.TextFieldState rememberTextFieldState(optional String initialText, optional long initialSelection);
     method public static void setTextAndPlaceCursorAtEnd(androidx.compose.foundation.text.input.TextFieldState, String text);
     method public static void setTextAndSelectAll(androidx.compose.foundation.text.input.TextFieldState, String text);
+    method public static androidx.compose.foundation.text.input.TextFieldBuffer toTextFieldBuffer(androidx.compose.foundation.text.input.TextFieldState);
   }
 
   @kotlin.jvm.JvmInline public final value class TextObfuscationMode {

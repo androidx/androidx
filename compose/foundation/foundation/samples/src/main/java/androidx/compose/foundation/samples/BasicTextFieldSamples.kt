@@ -52,6 +52,7 @@ import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.then
+import androidx.compose.foundation.text.input.toTextFieldBuffer
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -562,4 +563,18 @@ fun BasicTextFieldDecoratorSample() {
             }
         }
     )
+}
+
+@Suppress("UNUSED_VARIABLE")
+@Sampled
+@Composable
+fun TextFieldStateApplyOutputTransformation() {
+    val state = TextFieldState("Hello, World")
+    val outputTransformation = OutputTransformation { insert(0, "> ") }
+
+    val buffer = state.toTextFieldBuffer()
+    with(outputTransformation) { buffer.transformOutput() }
+
+    val transformedText = buffer.asCharSequence()
+    val transformedSelection = buffer.selection
 }
