@@ -262,6 +262,7 @@ class PointerInputEventProcessorTest {
         assertThat(result.dispatchedToAPointerInputModifier).isTrue()
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun process_downMoveUp_convertedCorrectlyAndTraversesAllPassesInCorrectOrder() {
 
