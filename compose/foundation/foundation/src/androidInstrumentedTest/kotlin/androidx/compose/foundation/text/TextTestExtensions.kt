@@ -15,6 +15,9 @@
  */
 package androidx.compose.foundation.text
 
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -32,3 +35,39 @@ val TEST_FONT = Font(
 )
 
 val TEST_FONT_FAMILY = TEST_FONT.toFontFamily()
+
+/**
+ * Insert the given [string] at the given [index].
+ */
+internal fun String.insert(index: Int, string: String): String {
+    return substring(0, index) + string + substring(index)
+}
+
+/**
+ * Helper function that returns the minimal [Rect] which contains the given [substring].
+ */
+internal fun TextLayoutResult.boundingBoxOf(substring: String): Rect {
+    val index = layoutInput.text.indexOf(substring)
+
+    return boundingBoxOf(*Array(substring.length) { getBoundingBox(index + it) })
+}
+
+/**
+ * Helper function that returns the [TextRange] of the given string.
+ */
+internal fun CharSequence.rangeOf(string: String): TextRange {
+    val index = indexOf(string)
+    return TextRange(index, index + string.length)
+}
+
+/**
+ * Helper function that returns the minimal [Rect] which contains all the given [rects].
+ */
+private fun boundingBoxOf(vararg rects: Rect): Rect {
+    return Rect(
+        left = rects.minOf { it.left },
+        top = rects.minOf { it.top },
+        right = rects.maxOf { it.right },
+        bottom = rects.maxOf { it.bottom }
+    )
+}

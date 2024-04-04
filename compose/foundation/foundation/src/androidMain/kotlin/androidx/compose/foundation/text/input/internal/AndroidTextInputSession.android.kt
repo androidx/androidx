@@ -18,13 +18,17 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
+import android.view.inputmethod.HandwritingGesture
+import android.view.inputmethod.InputConnection
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.text.input.TextFieldCharSequence
+import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -138,6 +142,13 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
 
                 override fun requestCursorUpdates(cursorUpdateMode: Int) {
                     cursorUpdatesController.requestUpdates(cursorUpdateMode)
+                }
+
+                override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        return state.performHandwritingGesture(gesture, layoutState)
+                    }
+                    return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
                 }
             }
 

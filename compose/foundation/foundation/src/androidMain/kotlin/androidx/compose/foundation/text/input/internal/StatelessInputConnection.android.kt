@@ -29,6 +29,7 @@ import android.view.inputmethod.CorrectionInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
+import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputContentInfo
@@ -51,6 +52,8 @@ import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
 import androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener
 import androidx.core.view.inputmethod.InputContentInfoCompat
+import java.util.concurrent.Executor
+import java.util.function.IntConsumer
 
 @VisibleForTesting
 internal const val SIC_DEBUG = false
@@ -334,6 +337,21 @@ internal class StatelessInputConnection(
         return true
     }
 
+    override fun performHandwritingGesture(
+        gesture: HandwritingGesture,
+        executor: Executor?,
+        consumer: IntConsumer?
+    ) {
+        logDebug("performHandwritingGesture($gesture, $executor, $consumer)")
+        // This InputConnection#performHandwritingGesture is added on Api 34. No need to support
+        // it on earlier versions. Also, IntConsumer.accept() needs Api 24. And we have to create
+        // an object class for it.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+
+        Api34PerformHandwritingGestureImpl
+            .performHandwritingGesture(session, gesture, executor, consumer)
+    }
+
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
         logDebug("getExtractedText($request, $flags)")
 //        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0
@@ -490,6 +508,28 @@ private object Api25CommitContentImpl {
         opts: Bundle?
     ): Boolean {
         return inputConnection.commitContent(inputContentInfo, flags, opts)
+    }
+}
+
+@RequiresApi(34)
+private object Api34PerformHandwritingGestureImpl {
+    @DoNotInline
+    fun performHandwritingGesture(
+        session: TextInputSession,
+        gesture: HandwritingGesture,
+        executor: Executor?,
+        intConsumer: IntConsumer?
+    ) {
+        val result = session.performHandwritingGesture(gesture)
+        if (intConsumer == null) return
+
+        if (executor != null) {
+            executor.execute {
+                intConsumer.accept(result)
+            }
+        } else {
+            intConsumer.accept(result)
+        }
     }
 }
 

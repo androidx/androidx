@@ -18,7 +18,9 @@ package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
 import android.text.InputType
+import android.view.inputmethod.DeleteGesture
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.SelectGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.TextRange
@@ -152,6 +154,10 @@ internal fun EditorInfo.update(
     }
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        EditorInfoApi34.setHandwritingGestures(this)
+    }
 }
 
 private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
@@ -176,5 +182,16 @@ internal object LocaleListHelper {
                 )
             }
         }
+    }
+}
+
+@RequiresApi(34)
+private object EditorInfoApi34 {
+    @DoNotInline
+    fun setHandwritingGestures(editorInfo: EditorInfo) {
+        editorInfo.supportedHandwritingGestures = listOf(
+            SelectGesture::class.java,
+            DeleteGesture::class.java
+        )
     }
 }
