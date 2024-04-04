@@ -72,6 +72,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-livedata:2.6.2")
     api("androidx.startup:startup-runtime:1.1.1")
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")
+    implementation("androidx.tracing:tracing-ktx:1.2.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinCoroutinesTest)

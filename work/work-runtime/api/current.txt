@@ -595,6 +595,7 @@ package androidx.work {
     method @RequiresApi(26) public B setInitialDelay(java.time.Duration duration);
     method public B setInitialDelay(long duration, java.util.concurrent.TimeUnit timeUnit);
     method public final B setInputData(androidx.work.Data inputData);
+    method public final B setTraceTag(String traceTag);
   }
 
   public static final class WorkRequest.Companion {
