@@ -30,7 +30,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -72,7 +72,7 @@ class BasicTextSemanticsTest {
         rule.setContent {
             BasicText(
                 text = buildAnnotatedString {
-                    withAnnotation(LinkAnnotation.Clickable("tag")) { append("text") }
+                    withLink(LinkAnnotation.Clickable("tag") {}) { append("text") }
                 }
             )
         }

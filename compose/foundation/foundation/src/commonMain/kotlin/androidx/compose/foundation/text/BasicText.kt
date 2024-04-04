@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
@@ -517,7 +516,6 @@ private fun Modifier.textModifier(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LayoutWithLinksAndInlineContent(
     modifier: Modifier,
@@ -539,6 +537,14 @@ private fun LayoutWithLinksAndInlineContent(
     val textScope = if (text.hasLinks()) {
         remember(text) { TextLinkScope(text) }
     } else null
+
+    // only adds additional span styles to the existing link annotations, doesn't semantically
+    // change the text
+    val styledText: () -> AnnotatedString = if (text.hasLinks()) {
+        remember(text, textScope) {
+            { textScope?.applyAnnotators() ?: text }
+        }
+    } else { { text } }
 
     // do the inline content allocs
     val (placeholders, inlineComposables) = if (hasInlineContent) {
@@ -566,7 +572,7 @@ private fun LayoutWithLinksAndInlineContent(
             // TODO(b/274781644): Remove this graphicsLayer
             .graphicsLayer()
             .textModifier(
-                text = text,
+                text = styledText(),
                 style = style,
                 onTextLayout = {
                     textScope?.textLayoutResult = it

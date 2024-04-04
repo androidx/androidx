@@ -38,7 +38,6 @@ class AnnotatedString internal constructor(
     internal val paragraphStylesOrNull: List<Range<ParagraphStyle>>? = null,
     internal val annotations: List<Range<out Any>>? = null
 ) : CharSequence {
-
     /**
      * All [SpanStyle] that have been applied to a range of this String
      */
@@ -570,8 +569,8 @@ class AnnotatedString internal constructor(
         /**
          * Set a [LinkAnnotation.Clickable] for the given [range].
          *
-         * When clicking on the text in [range], a handler will be triggered with the tag
-         * corresponding to the [clickable] object.
+         * When clicking on the text in [range], a [LinkInteractionListener] will be triggered
+         * with the [clickable] object.
          *
          * Clickable link may be treated specially by screen readers, including being identified
          * while reading text with an audio icon or being summarized in a links menu.
@@ -747,6 +746,9 @@ class AnnotatedString internal constructor(
     companion object {
         /**
          * The default [Saver] implementation for [AnnotatedString].
+         *
+         * Note this Saver doesn't preserve the [LinkInteractionListener] of the links. You should
+         * handle this case manually if required.
          */
         val Saver: Saver<AnnotatedString, *> = AnnotatedStringSaver
     }
@@ -1138,20 +1140,22 @@ inline fun <R : Any> Builder.withAnnotation(
 }
 
 /**
- * Pushes an [LinkAnnotation] to the [AnnotatedString.Builder], executes [block] and then pops the
+ * Pushes a [LinkAnnotation] to the [AnnotatedString.Builder], executes [block] and then pops the
  * annotation.
  *
- * @param link A [LinkAnnotation] object that stores the URL or clic being linked to.
+ * @param link A [LinkAnnotation] object representing a clickable part of the text
  * @param block function to be executed
  *
  * @return result of the [block]
  *
- * @see AnnotatedString.Builder.pushStringAnnotation
- * @see AnnotatedString.Builder.pop
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
+ *
  */
-inline fun <R : Any> Builder.withAnnotation(
+inline fun <R : Any> Builder.withLink(
     link: LinkAnnotation,
-    crossinline block: Builder.() -> R
+    block: Builder.() -> R
 ): R {
     val index = pushLink(link)
     return try {

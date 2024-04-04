@@ -54,6 +54,7 @@ import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
@@ -501,7 +502,7 @@ class AndroidAccessibilitySpannableStringTest {
 
     @Test
     fun clickableSpansSame_forSameAnnotationAndRange_forClickables() {
-        val link = LinkAnnotation.Clickable("Tag")
+        val link = LinkAnnotation.Clickable("Tag", linkInteractionListener = null)
         val linkActions = longObjectMapOf(packInts(0, 9), {})
 
         val string = buildAnnotatedString {
@@ -531,8 +532,8 @@ class AndroidAccessibilitySpannableStringTest {
         )
 
         val string = buildAnnotatedString {
-            withAnnotation(link) { append("link") }
-            withAnnotation(link) { append("link") }
+            withLink(link) { append("link") }
+            withLink(link) { append("link") }
         }
 
         val spannable = string.toAccessibilitySpannableString(
@@ -546,15 +547,15 @@ class AndroidAccessibilitySpannableStringTest {
 
     @Test
     fun clickableSpansDifferent_forSameAnnotatedStringWithDifferentRange_forClickables() {
-        val link = LinkAnnotation.Clickable("tag")
+        val link = LinkAnnotation.Clickable("tag", linkInteractionListener = null)
         val linkActions = longObjectMapOf(
             packInts(0, 4), {},
             packInts(4, 8), {}
         )
 
         val string = buildAnnotatedString {
-            withAnnotation(link) { append("link") }
-            withAnnotation(link) { append("link") }
+            withLink(link) { append("link") }
+            withLink(link) { append("link") }
         }
 
         val spannable = string.toAccessibilitySpannableString(
@@ -572,8 +573,8 @@ class AndroidAccessibilitySpannableStringTest {
         val linkActions = longObjectMapOf(packInts(0, 4), {})
 
         val string = buildAnnotatedString {
-            withAnnotation(link) { append("link") }
-            withAnnotation(link) { append("link") }
+            withLink(link) { append("link") }
+            withLink(link) { append("link") }
         }
 
         val spannable1 = string.toAccessibilitySpannableString(
@@ -591,12 +592,12 @@ class AndroidAccessibilitySpannableStringTest {
 
     @Test
     fun clickableSpansDifferent_forSameAnnotationAndRange_differentNodeInfo_forClickables() {
-        val link = LinkAnnotation.Clickable("tag")
+        val link = LinkAnnotation.Clickable("tag", linkInteractionListener = null)
         val linkActions = longObjectMapOf(packInts(0, 4), {})
 
         val string = buildAnnotatedString {
-            withAnnotation(link) { append("link") }
-            withAnnotation(link) { append("link") }
+            withLink(link) { append("link") }
+            withLink(link) { append("link") }
         }
 
         val spannable1 = string.toAccessibilitySpannableString(

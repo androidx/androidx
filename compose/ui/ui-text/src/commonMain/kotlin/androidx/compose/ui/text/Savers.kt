@@ -227,7 +227,7 @@ private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
 
 private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
     save = { save(it.tag) },
-    restore = { LinkAnnotation.Clickable(restore(it)!!) }
+    restore = { LinkAnnotation.Clickable(restore(it)!!, linkInteractionListener = null) }
 )
 
 internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(

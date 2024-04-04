@@ -334,7 +334,7 @@ class AnnotatedStringFromHtmlTest {
         spannable.append("a", URLSpan("url"), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
 
         val expected = buildAnnotatedString {
-            withAnnotation(LinkAnnotation.Url("url")) { append("a") }
+            withLink(LinkAnnotation.Url("url")) { append("a") }
         }
         assertThat(spannable.toAnnotatedString().text).isEqualTo(expected.text)
         assertThat(spannable.toAnnotatedString().getLinkAnnotations(0, 1))
