@@ -33,6 +33,7 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import java.util.concurrent.Executor
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
@@ -40,8 +41,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
@@ -50,6 +49,8 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.quality.Strictness
 
 @SmallTest
@@ -91,7 +92,7 @@ class MeasurementManagerTest {
 
     @Test
     fun testMeasurementManagerNoClassDefFoundError() {
-        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion)
 
         `when`(MeasurementManager.get(any())).thenThrow(NoClassDefFoundError())
         assertThat(obtain(mContext)).isNull()
@@ -111,7 +112,11 @@ class MeasurementManagerTest {
             receiver.onResult(Object())
             null
         }
-        doAnswer(answer).`when`(measurementManager).deleteRegistrations(any(), any(), any())
+        doAnswer(answer).`when`(measurementManager).deleteRegistrations(
+            any<android.adservices.measurement.DeletionRequest>(),
+            any<Executor>(),
+            any<OutcomeReceiver<Any, java.lang.Exception>>()
+        )
 
         // Actually invoke the compat code.
         runBlocking {
@@ -130,7 +135,11 @@ class MeasurementManagerTest {
         val captor = ArgumentCaptor.forClass(
             android.adservices.measurement.DeletionRequest::class.java
         )
-        verify(measurementManager).deleteRegistrations(captor.capture(), any(), any())
+        verify(measurementManager).deleteRegistrations(
+            captor.capture(),
+            any<Executor>(),
+            any<OutcomeReceiver<Any, java.lang.Exception>>()
+        )
 
         // Verify that the request that the compat code makes to the platform is correct.
         verifyDeletionRequest(captor.value)
@@ -150,7 +159,12 @@ class MeasurementManagerTest {
             receiver.onResult(Object())
             null
         }
-        doAnswer(answer).`when`(measurementManager).registerSource(any(), any(), any(), any())
+        doAnswer(answer).`when`(measurementManager).registerSource(
+            any<Uri>(),
+            any<InputEvent>(),
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>()
+        )
 
         // Actually invoke the compat code.
         runBlocking {
@@ -163,8 +177,8 @@ class MeasurementManagerTest {
         verify(measurementManager).registerSource(
             captor1.capture(),
             captor2.capture(),
-            any(),
-            any())
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>())
 
         // Verify that the request that the compat code makes to the platform is correct.
         assertThat(captor1.value == uri1)
@@ -183,7 +197,8 @@ class MeasurementManagerTest {
             receiver.onResult(Object())
             null
         }
-        doAnswer(answer).`when`(measurementManager).registerTrigger(any(), any(), any())
+        doAnswer(answer).`when`(measurementManager)
+            .registerTrigger(any<Uri>(), any<Executor>(), any<OutcomeReceiver<Any, Exception>>())
 
         // Actually invoke the compat code.
         runBlocking {
@@ -194,8 +209,8 @@ class MeasurementManagerTest {
         val captor1 = ArgumentCaptor.forClass(Uri::class.java)
         verify(measurementManager).registerTrigger(
             captor1.capture(),
-            any(),
-            any())
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>())
 
         // Verify that the request that the compat code makes to the platform is correct.
         assertThat(captor1.value).isEqualTo(uri1)
@@ -213,7 +228,11 @@ class MeasurementManagerTest {
             receiver.onResult(Object())
             null
         }
-        doAnswer(answer).`when`(measurementManager).registerWebSource(any(), any(), any())
+        doAnswer(answer).`when`(measurementManager).registerWebSource(
+            any<android.adservices.measurement.WebSourceRegistrationRequest>(),
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>()
+        )
 
         val request = WebSourceRegistrationRequest.Builder(
             listOf(WebSourceParams(uri1, false)), uri1)
@@ -230,8 +249,8 @@ class MeasurementManagerTest {
             android.adservices.measurement.WebSourceRegistrationRequest::class.java)
         verify(measurementManager).registerWebSource(
             captor1.capture(),
-            any(),
-            any())
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>())
 
         // Verify that the request that the compat code makes to the platform is correct.
         val actualRequest = captor1.value
@@ -258,7 +277,12 @@ class MeasurementManagerTest {
             null
         }
         doAnswer(successCallback).`when`(measurementManager)
-            .registerSource(any(), any(), any(), any())
+            .registerSource(
+                any<Uri>(),
+                any<InputEvent>(),
+                any<Executor>(),
+                any<OutcomeReceiver<Any, Exception>>()
+            )
 
         val request = SourceRegistrationRequest(listOf(uri1, uri2), mockInputEvent)
 
@@ -271,8 +295,8 @@ class MeasurementManagerTest {
         verify(measurementManager, times(2)).registerSource(
             any(),
             eq(mockInputEvent),
-            any(),
-            any()
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>()
         )
     }
 
@@ -302,10 +326,20 @@ class MeasurementManagerTest {
             val uri = Uri.parse("www.uri$i.com")
             if (i == 15) {
                 doAnswer(errorCallback).`when`(measurementManager)
-                    .registerSource(eq(uri), any(), any(), any())
+                    .registerSource(
+                        eq(uri),
+                        any<InputEvent>(),
+                        any<Executor>(),
+                        any<OutcomeReceiver<Any, Exception>>()
+                    )
             } else {
                 doAnswer(successCallback).`when`(measurementManager)
-                    .registerSource(eq(uri), any(), any(), any())
+                    .registerSource(
+                        eq(uri),
+                        any<InputEvent>(),
+                        any<Executor>(),
+                        any<OutcomeReceiver<Any, Exception>>()
+                    )
             }
             uri
         }.toList()
@@ -327,16 +361,16 @@ class MeasurementManagerTest {
             verify(measurementManager).registerSource(
                 eq(Uri.parse("www.uri$i.com")),
                 eq(mockInputEvent),
-                any(),
-                any()
+                any<Executor>(),
+                any<OutcomeReceiver<Any, Exception>>()
             )
         }
         (16..20).forEach { i ->
             verify(measurementManager, never()).registerSource(
                 eq(Uri.parse("www.uri$i.com")),
                 eq(mockInputEvent),
-                any(),
-                any()
+                any<Executor>(),
+                any<OutcomeReceiver<Any, Exception>>()
             )
         }
     }
@@ -353,7 +387,11 @@ class MeasurementManagerTest {
             receiver.onResult(Object())
             null
         }
-        doAnswer(answer).`when`(measurementManager).registerWebTrigger(any(), any(), any())
+        doAnswer(answer).`when`(measurementManager).registerWebTrigger(
+            any<android.adservices.measurement.WebTriggerRegistrationRequest>(),
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>()
+        )
 
         val request = WebTriggerRegistrationRequest(
             listOf(WebTriggerParams(uri1, false)), uri2)
@@ -368,8 +406,8 @@ class MeasurementManagerTest {
             android.adservices.measurement.WebTriggerRegistrationRequest::class.java)
         verify(measurementManager).registerWebTrigger(
             captor1.capture(),
-            any(),
-            any())
+            any<Executor>(),
+            any<OutcomeReceiver<Any, Exception>>())
 
         // Verify that the request that the compat code makes to the platform is correct.
         val actualRequest = captor1.value
@@ -441,7 +479,8 @@ class MeasurementManagerTest {
                 receiver.onResult(state)
                 null
             }
-            doAnswer(answer).`when`(measurementManager).getMeasurementApiStatus(any(), any())
+            doAnswer(answer).`when`(measurementManager)
+                .getMeasurementApiStatus(any<Executor>(), any<OutcomeReceiver<Int, Exception>>())
 
             // Actually invoke the compat code.
             val actualResult = runBlocking {
@@ -449,7 +488,10 @@ class MeasurementManagerTest {
             }
 
             // Verify that the compat code was invoked correctly.
-            verify(measurementManager).getMeasurementApiStatus(any(), any())
+            verify(measurementManager).getMeasurementApiStatus(
+                any<Executor>(),
+                any<OutcomeReceiver<Int, Exception>>()
+            )
 
             // Verify that the request that the compat code makes to the platform is correct.
             assertThat(actualResult == expectedResult)
