@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -77,6 +78,33 @@ class BenchmarkDataTest {
             assertEquals(mapOf("compilation" to "None", "startup" to "COLD"), params)
             assertEquals(2, metrics["methodsJitCompiled"]!!.runs.size)
             assertEquals(2, metrics["timeToInitialDisplayMs"]!!.runs.size)
+        }
+    }
+
+    @Test
+    fun distinctLabels() {
+        assertFailsWith<IllegalArgumentException> {
+            BenchmarkData.TestResult(
+                name = "name",
+                className = "className",
+                totalRunTimeNs = 1,
+                metrics = emptyList(),
+                warmupIterations = 1,
+                repeatIterations = 1,
+                thermalThrottleSleepSeconds = 0,
+                profilerOutputs = listOf(
+                    BenchmarkData.TestResult.ProfilerOutput(
+                        BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
+                        "duplicate label",
+                        "filename1.trace"
+                    ),
+                    BenchmarkData.TestResult.ProfilerOutput(
+                        BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
+                        "duplicate label",
+                        "filename2.trace"
+                    )
+                )
+            )
         }
     }
 

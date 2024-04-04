@@ -313,7 +313,7 @@ private fun macrobenchmark(
                             }
                             if (launchWithMethodTracing && scope.isMethodTracing) {
                                 val (label, tracePath) = scope.stopMethodTracing(fileLabel)
-                                val resultFile = Profiler.ResultFile(
+                                val resultFile = Profiler.ResultFile.ofPerfettoTrace(
                                     label = label,
                                     absolutePath = tracePath
                                 )
@@ -392,12 +392,19 @@ private fun macrobenchmark(
             }
         }
 
-        @Suppress("NewApi") // Suppress spurious NewApi lint checks when using the `is` operator.
         val warmupIterations = when (compilationMode) {
             is CompilationMode.Partial -> compilationMode.warmupIterations
             else -> 0
         }
 
+        val mergedProfilerOutputs = (tracePaths.mapIndexed { index, it ->
+            Profiler.ResultFile.ofPerfettoTrace(
+                label = "Trace Iteration $index",
+                absolutePath = it
+            )
+        } + methodTracingResultFiles).map {
+            BenchmarkData.TestResult.ProfilerOutput(it)
+        }
         ResultWriter.appendTestResult(
             BenchmarkData.TestResult(
                 className = className,
@@ -406,7 +413,8 @@ private fun macrobenchmark(
                 metrics = measurements.singleMetrics + measurements.sampledMetrics,
                 repeatIterations = iterations,
                 thermalThrottleSleepSeconds = 0,
-                warmupIterations = warmupIterations
+                warmupIterations = warmupIterations,
+                profilerOutputs = mergedProfilerOutputs
             )
         )
     } finally {

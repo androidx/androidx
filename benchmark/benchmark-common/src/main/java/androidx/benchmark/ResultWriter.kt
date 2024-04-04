@@ -38,7 +38,7 @@ public object ResultWriter {
             .adapter(BenchmarkData::class.java)
             .indent("    ") // chosen for test compat, will be changed later
 
-    public fun appendTestResult(testResult: BenchmarkData.TestResult) {
+    fun appendTestResult(testResult: BenchmarkData.TestResult) {
         reports.add(testResult)
         if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
