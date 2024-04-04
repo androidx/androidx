@@ -300,7 +300,7 @@ class NavControllerRouteTest {
         navController.graph = navController.createGraph(
             startDestination = NestedGraph::class
         ) {
-            navigation(route = NestedGraph::class, startDestination = TestClass::class) {
+            navigation<NestedGraph>(startDestination = TestClass::class) {
                 test(route = TestClass::class)
             }
         }
@@ -466,7 +466,7 @@ class NavControllerRouteTest {
         navController.graph = navController.createGraph(
             startDestination = NestedGraph(0)
         ) {
-            navigation(route = NestedGraph::class, startDestination = TestClass(1)) {
+            navigation<NestedGraph>(startDestination = TestClass(1)) {
                 test(route = TestClass::class)
             }
         }
