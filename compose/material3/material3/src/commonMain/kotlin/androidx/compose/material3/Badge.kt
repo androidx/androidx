@@ -92,13 +92,15 @@ fun BadgedBox(
         },
         modifier = modifier
             .onGloballyPositioned { coordinates ->
-                layoutAbsoluteLeft = coordinates.boundsInWindow().left
-                layoutAbsoluteTop = coordinates.boundsInWindow().top
+                val windowBoundsRect = coordinates.boundsInWindow()
+                layoutAbsoluteLeft = windowBoundsRect.left
+                layoutAbsoluteTop = windowBoundsRect.top
                 val layoutGreatGrandParent =
                     coordinates.parentLayoutCoordinates?.parentLayoutCoordinates?.parentCoordinates
                 layoutGreatGrandParent?.let {
-                    greatGrandParentAbsoluteRight = it.boundsInWindow().right
-                    greatGrandParentAbsoluteTop = it.boundsInWindow().top
+                    val greatGrandParentWindowBoundsRect = it.boundsInWindow()
+                    greatGrandParentAbsoluteRight = greatGrandParentWindowBoundsRect.right
+                    greatGrandParentAbsoluteTop = greatGrandParentWindowBoundsRect.top
                 }
             }
     ) { measurables, constraints ->
