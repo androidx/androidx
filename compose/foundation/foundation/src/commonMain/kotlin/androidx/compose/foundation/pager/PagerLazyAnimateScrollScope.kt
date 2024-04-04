@@ -43,7 +43,7 @@ internal fun PagerLazyAnimateScrollScope(state: PagerState): LazyLayoutAnimateSc
 
         override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
             val offsetFraction = scrollOffset / state.pageSizeWithSpacing.toFloat()
-            state.snapToItem(index, offsetFraction)
+            state.snapToItem(index, offsetFraction, forceRemeasure = true)
         }
 
         override fun calculateDistanceTo(targetIndex: Int): Float {

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -51,6 +52,7 @@ internal fun rememberPagerMeasurePolicy(
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
     snapPosition: SnapPosition,
+    coroutineScope: CoroutineScope,
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
@@ -63,9 +65,11 @@ internal fun rememberPagerMeasurePolicy(
     pageSize,
     snapPosition,
     pageCount,
-    beyondViewportPageCount
+    beyondViewportPageCount,
+    coroutineScope
 ) {
     { containerConstraints ->
+        state.measurementScopeInvalidator.attachToScope()
         val isVertical = orientation == Orientation.Vertical
         checkScrollableContainerConstraints(
             containerConstraints,
@@ -185,6 +189,7 @@ internal fun rememberPagerMeasurePolicy(
                 pinnedPages = pinnedPages,
                 snapPosition = snapPosition,
                 placementScopeInvalidator = state.placementScopeInvalidator,
+                coroutineScope = coroutineScope,
                 layout = { width, height, placement ->
                     layout(
                         containerConstraints.constrainWidth(width + totalHorizontalPadding),
