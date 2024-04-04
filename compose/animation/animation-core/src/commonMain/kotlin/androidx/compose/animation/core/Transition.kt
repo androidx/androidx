@@ -55,6 +55,7 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -645,7 +646,7 @@ class SeekableTransitionState<S>(
                                     initialValue = runningAnimation.start,
                                     targetValue = Target1,
                                     initialVelocity =
-                                        runningAnimation.initialVelocity ?: ZeroVelocity
+                                    runningAnimation.initialVelocity ?: ZeroVelocity
                                 )
                             } else if (runningAnimation == null ||
                                 runningAnimation.progressNanos == 0L
@@ -750,21 +751,28 @@ class SeekableTransitionState<S>(
         // The current progress with respect to the animationSpec if it exists or
         // durationNanos if animationSpec is null
         var progressNanos: Long = 0L
+
         // The AnimationSpec used in this animation, or null if it is a linear animation with
         // duration of durationNanos
         var animationSpec: VectorizedAnimationSpec<AnimationVector1D>? = null
+
         // Used by initial value animations to mark when the animation should continue
         var isComplete = false
+
         // The current fraction of the animation
         var value: Float = 0f
+
         // The start value of the animation
         var start: AnimationVector1D = AnimationVector1D(0f)
+
         // The initial velocity of the animation
         var initialVelocity: AnimationVector1D? = null
+
         // The total duration of the transition's animations. This is the totalDurationNanos
         // at the time that this was created for initial value animations. Note that this can
         // be different from the animationSpec's duration.
         var durationNanos: Long = 0L
+
         // The total duration of the animationSpec. This is kept cached because Spring
         // animations can take time to calculate their durations
         var animationSpecDuration: Long = 0L
@@ -773,6 +781,7 @@ class SeekableTransitionState<S>(
     private companion object {
         // AnimationVector1D with 0 value, kept so that we don't have to allocate unnecessarily
         val ZeroVelocity = AnimationVector1D(0f)
+
         // AnimationVector1D with 1 value, used as the target value of 1f
         val Target1 = AnimationVector1D(1f)
     }
@@ -881,7 +890,8 @@ fun <T> updateTransition(
 @Stable
 class Transition<S> internal constructor(
     private val transitionState: TransitionState<S>,
-    private val parentTransition: Transition<*>?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val parentTransition: Transition<*>?,
     val label: String? = null
 ) {
     @PublishedApi
@@ -1206,12 +1216,7 @@ class Transition<S> internal constructor(
                     // frame. This is important as this initializes the state.
                     coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                         val durationScale = coroutineContext.durationScale
-                        withFrameNanos {
-                            if (!isSeeking) {
-                                onFrame(it / AnimationDebugDurationScale, durationScale)
-                            }
-                        }
-                        while (isRunning) {
+                        while (isActive) {
                             withFrameNanos {
                                 // This check is very important, as isSeeking may be changed
                                 // off-band between the last check in composition and this callback
@@ -1334,11 +1339,13 @@ class Transition<S> internal constructor(
         // Changed during composition, may rollback
         private var targetValue: T by mutableStateOf(initialValue)
 
+        private val defaultSpring = spring<T>()
+
         /**
          * [AnimationSpec] that is used for current animation run. This can change when
          * [targetState] changes.
          */
-        var animationSpec: FiniteAnimationSpec<T> by mutableStateOf(spring())
+        var animationSpec: FiniteAnimationSpec<T> by mutableStateOf(defaultSpring)
             private set
 
         /**
@@ -1726,12 +1733,16 @@ class Transition<S> internal constructor(
 
 // When a TransitionAnimation doesn't need to be reset
 private const val NoReset = -1f
+
 // When the animation needs to be changed because of a target update
 private const val ResetNoSnap = -2f
+
 // When the animation should be reset to have the same start and end value
 private const val ResetAnimationSnap = -3f
+
 // Snap to the current state and set the initial and target values to the same thing
 private const val ResetAnimationSnapCurrent = -4f
+
 // Snap to the target state and set the initial and target values to the same thing
 private const val ResetAnimationSnapTarget = -5f
 

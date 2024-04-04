@@ -670,7 +670,7 @@ interface AnimatedVisibilityScope {
             properties["label"] = label
         }
     ) {
-        this.then(transition.createModifier(enter, exit, label))
+        this.then(transition.createModifier(enter, exit, label = label))
     }
 }
 
@@ -812,7 +812,7 @@ internal fun <T> AnimatedEnterExitImpl(
                 content = { scope.content() },
                 modifier = modifier
                     .then(childTransition
-                        .createModifier(enter, exit, "Built-in")
+                        .createModifier(enter, exit, label = "Built-in")
                         .then(if (onLookaheadMeasured != null) {
                             Modifier.layout { measurable, constraints ->
                                 measurable
