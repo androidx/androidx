@@ -19,13 +19,16 @@ package androidx.appsearch.platformstorage.converter;
 import android.annotation.SuppressLint;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +48,9 @@ public final class SearchSuggestionSpecToPlatformConverter {
     // methods are not defined as returning the same constants as the corresponding setter
     // expects, but they do
     @SuppressLint("WrongConstant")
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SearchSuggestionSpec toPlatformSearchSuggestionSpec(
             @NonNull SearchSuggestionSpec jetpackSearchSuggestionSpec) {
@@ -64,11 +70,31 @@ public final class SearchSuggestionSpecToPlatformConverter {
                     documentIdFilters.getValue());
         }
 
-        if (!jetpackSearchSuggestionSpec.getFilterProperties().isEmpty()) {
-            // TODO(b/296088047): Convert this once property filters become available in framework.
-            throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
+        Map<String, List<String>> jetpackFilterProperties =
+                jetpackSearchSuggestionSpec.getFilterProperties();
+        if (!jetpackFilterProperties.isEmpty()) {
+            if (!BuildCompat.isAtLeastV()) {
+                throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
                         + " is not available on this AppSearch implementation.");
+            }
+            for (Map.Entry<String, List<String>> entry : jetpackFilterProperties.entrySet()) {
+                ApiHelperForV.addFilterProperties(
+                        platformBuilder, entry.getKey(), entry.getValue());
+            }
         }
         return platformBuilder.build();
+    }
+
+    @RequiresApi(35)
+    private static class ApiHelperForV {
+        private ApiHelperForV() {}
+
+        @DoNotInline
+        static void addFilterProperties(
+                android.app.appsearch.SearchSuggestionSpec.Builder platformBuilder,
+                String schema,
+                Collection<String> propertyPaths) {
+            platformBuilder.addFilterProperties(schema, propertyPaths);
+        }
     }
 }

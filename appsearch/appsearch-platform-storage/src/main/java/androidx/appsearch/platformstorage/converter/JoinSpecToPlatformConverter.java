@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.JoinSpec;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 /**
@@ -38,6 +39,9 @@ public class JoinSpecToPlatformConverter {
      */
     @SuppressLint("WrongConstant")
     @NonNull
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     public static android.app.appsearch.JoinSpec toPlatformJoinSpec(@NonNull JoinSpec jetpackSpec) {
         Preconditions.checkNotNull(jetpackSpec);
         return new android.app.appsearch.JoinSpec.Builder(jetpackSpec.getChildPropertyExpression())

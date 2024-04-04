@@ -26,10 +26,13 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -47,6 +50,9 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
@@ -88,16 +94,34 @@ public final class SetSchemaRequestToPlatformConverter {
         }
 
         if (!jetpackRequest.getPubliclyVisibleSchemas().isEmpty()) {
-            // TODO(b/275592563): Update this to check version once synced to framework
-            throw new UnsupportedOperationException("Publicly visible schema are not supported on "
-                    + "this AppSearch implementation.");
+            if (!BuildCompat.isAtLeastV()) {
+                throw new UnsupportedOperationException(
+                        "Publicly visible schema are not supported on this AppSearch "
+                                + "implementation.");
+            }
+            for (Map.Entry<String, PackageIdentifier> entry :
+                    jetpackRequest.getPubliclyVisibleSchemas().entrySet()) {
+                PackageIdentifier publiclyVisibleTargetPackage = entry.getValue();
+                ApiHelperForV.setPubliclyVisibleSchema(
+                        platformBuilder,
+                        entry.getKey(),
+                        new android.app.appsearch.PackageIdentifier(
+                                publiclyVisibleTargetPackage.getPackageName(),
+                                publiclyVisibleTargetPackage.getSha256Certificate()));
+            }
         }
 
         if (!jetpackRequest.getSchemasVisibleToConfigs().isEmpty()) {
-            // TODO(b/275592563): Update this to check version once synced to framework
-            throw new UnsupportedOperationException("Schema visible to config are not supported on"
-                    + " this AppSearch implementation.");
-
+            if (!BuildCompat.isAtLeastV()) {
+                throw new UnsupportedOperationException(
+                        "Schema visible to config are not supported on this AppSearch "
+                                + "implementation.");
+            }
+            for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
+                    jetpackRequest.getSchemasVisibleToConfigs().entrySet()) {
+                ApiHelperForV.addSchemaTypeVisibleToConfig(
+                        platformBuilder, entry.getKey(), entry.getValue());
+            }
         }
 
         for (Map.Entry<String, Migrator> entry : jetpackRequest.getMigrators().entrySet()) {
@@ -188,6 +212,68 @@ public final class SetSchemaRequestToPlatformConverter {
                 android.app.appsearch.SetSchemaRequest.Builder platformBuilder,
                 String schemaType, Set<Integer> permissions) {
             platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(schemaType, permissions);
+        }
+    }
+
+    @RequiresApi(35)
+    private static class ApiHelperForV {
+        private ApiHelperForV() {}
+
+        @DoNotInline
+        static void setPubliclyVisibleSchema(
+                android.app.appsearch.SetSchemaRequest.Builder platformBuilder,
+                String schemaType,
+                android.app.appsearch.PackageIdentifier publiclyVisibleTargetPackage) {
+            platformBuilder.setPubliclyVisibleSchema(schemaType, publiclyVisibleTargetPackage);
+        }
+
+        @DoNotInline
+        public static void addSchemaTypeVisibleToConfig(
+                android.app.appsearch.SetSchemaRequest.Builder platformBuilder,
+                String schemaType,
+                Set<SchemaVisibilityConfig> jetpackConfigs) {
+            for (SchemaVisibilityConfig jetpackConfig : jetpackConfigs) {
+                android.app.appsearch.SchemaVisibilityConfig platformConfig =
+                        toPlatformSchemaVisibilityConfig(jetpackConfig);
+                platformBuilder.addSchemaTypeVisibleToConfig(schemaType, platformConfig);
+            }
+        }
+
+        /**
+         * Translates a jetpack {@link SchemaVisibilityConfig} into a platform
+         * {@link android.app.appsearch.SchemaVisibilityConfig}.
+         */
+        @NonNull
+        private static android.app.appsearch.SchemaVisibilityConfig
+                toPlatformSchemaVisibilityConfig(@NonNull SchemaVisibilityConfig jetpackConfig) {
+            Preconditions.checkNotNull(jetpackConfig);
+            android.app.appsearch.SchemaVisibilityConfig.Builder platformBuilder =
+                    new android.app.appsearch.SchemaVisibilityConfig.Builder();
+
+            // Translate allowedPackages
+            List<PackageIdentifier> allowedPackages = jetpackConfig.getAllowedPackages();
+            for (int i = 0; i < allowedPackages.size(); i++) {
+                platformBuilder.addAllowedPackage(new android.app.appsearch.PackageIdentifier(
+                        allowedPackages.get(i).getPackageName(),
+                        allowedPackages.get(i).getSha256Certificate()));
+            }
+
+            // Translate requiredPermissions
+            for (Set<Integer> requiredPermissions : jetpackConfig.getRequiredPermissions()) {
+                platformBuilder.addRequiredPermissions(requiredPermissions);
+            }
+
+            // Translate publiclyVisibleTargetPackage
+            PackageIdentifier publiclyVisibleTargetPackage =
+                    jetpackConfig.getPubliclyVisibleTargetPackage();
+            if (publiclyVisibleTargetPackage != null) {
+                platformBuilder.setPubliclyVisibleTargetPackage(
+                        new android.app.appsearch.PackageIdentifier(
+                                publiclyVisibleTargetPackage.getPackageName(),
+                                publiclyVisibleTargetPackage.getSha256Certificate()));
+            }
+
+            return platformBuilder.build();
         }
     }
 }
