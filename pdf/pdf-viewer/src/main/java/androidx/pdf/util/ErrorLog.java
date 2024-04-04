@@ -36,7 +36,8 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ErrorLog {
 
-    private ErrorLog() {}
+    private ErrorLog() {
+    }
 
     /** Logs and tracks the error message. */
     public static void log(String tag, String message) {

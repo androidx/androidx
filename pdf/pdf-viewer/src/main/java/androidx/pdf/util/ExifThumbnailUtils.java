@@ -50,7 +50,7 @@ public class ExifThumbnailUtils {
     public static int getExifOrientation(Uri contentUri, ContentResolver contentResolver) {
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             // On Q and above, the system takes care of applying the exif orientation to the
-          // thumbnail.
+            // thumbnail.
             return 0;
         }
         try {

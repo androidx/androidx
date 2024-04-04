@@ -27,7 +27,8 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class StrictModeUtils {
 
-    private StrictModeUtils() {}
+    private StrictModeUtils() {
+    }
 
     /** Temporarily disable StrictMode, execute a code block and return the result. */
     public static <T> T bypassAndReturn(@NonNull CallbackWithReturnValue<T> callback) {
