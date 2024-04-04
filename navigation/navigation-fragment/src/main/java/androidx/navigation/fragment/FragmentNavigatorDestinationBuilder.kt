@@ -97,7 +97,7 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when destination contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 @ExperimentalSafeArgsApi
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
@@ -109,7 +109,7 @@ public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragme
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when destination contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
 @ExperimentalSafeArgsApi
@@ -179,7 +179,7 @@ public class FragmentNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param route the route from a [KClass] of the destination
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. Required only when destination contains custom NavTypes.
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param fragmentClass The class name of the Fragment to show when you navigate to this
      * destination
      */
