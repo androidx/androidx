@@ -19,11 +19,8 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.InitializerViewModelFactory
-import androidx.lifecycle.viewmodel.ViewModelInitializer
 import androidx.lifecycle.viewmodel.ViewModelProviderImpl
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
 public actual class ViewModelProvider private constructor(
@@ -45,12 +42,6 @@ public actual class ViewModelProvider private constructor(
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T = ViewModelProviders.unsupportedCreateViewModel()
-
-        public actual companion object {
-            @JvmStatic
-            public actual fun from(vararg initializers: ViewModelInitializer<*>): Factory =
-                ViewModelProviders.createInitializerFactory(*initializers)
-        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

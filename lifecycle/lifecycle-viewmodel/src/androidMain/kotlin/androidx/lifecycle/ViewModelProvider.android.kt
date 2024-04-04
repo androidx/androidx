@@ -157,9 +157,17 @@ public actual open class ViewModelProvider private constructor(
             extras: CreationExtras,
         ): T = create(modelClass.java, extras)
 
-        public actual companion object {
+        public companion object {
+            /**
+             * Creates an [InitializerViewModelFactory] using the given initializers.
+             *
+             * @param initializers the class initializer pairs used for the factory to create
+             * simple view models
+             *
+             * @see [InitializerViewModelFactory]
+             */
             @JvmStatic
-            public actual fun from(vararg initializers: ViewModelInitializer<*>): Factory =
+            public fun from(vararg initializers: ViewModelInitializer<*>): Factory =
                 ViewModelProviders.createInitializerFactory(*initializers)
         }
     }

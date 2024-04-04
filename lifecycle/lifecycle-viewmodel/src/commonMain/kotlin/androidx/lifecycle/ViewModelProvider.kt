@@ -19,11 +19,8 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.InitializerViewModelFactory
-import androidx.lifecycle.viewmodel.ViewModelInitializer
 import androidx.lifecycle.viewmodel.internal.DefaultViewModelProviderFactory
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
 /**
@@ -83,19 +80,6 @@ public expect class ViewModelProvider {
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T
-
-        public companion object {
-            /**
-             * Creates an [InitializerViewModelFactory] using the given initializers.
-             *
-             * @param initializers the class initializer pairs used for the factory to create
-             * simple view models
-             *
-             * @see [InitializerViewModelFactory]
-             */
-            @JvmStatic
-            public fun from(vararg initializers: ViewModelInitializer<*>): Factory
-        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
