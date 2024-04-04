@@ -109,7 +109,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
  * @param textObfuscationCharacter Which character to use while obfuscating the text. It doesn't
  * have an effect when [textObfuscationMode] is set to [TextObfuscationMode.Visible].
  */
-@ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
@@ -194,6 +193,17 @@ fun BasicSecureTextField(
             codepointTransformation = codepointTransformation,
             decorator = decorator,
         )
+    }
+}
+
+/**
+ * Enables chaining nullable transformations with the regular chaining order.
+ */
+private fun InputTransformation?.then(next: InputTransformation?): InputTransformation? {
+    return when {
+        this == null -> next
+        next == null -> this
+        else -> this.then(next)
     }
 }
 
