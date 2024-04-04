@@ -18,20 +18,18 @@ package room.testapp
 
 import androidx.room.*
 
-@Database(entities = [NativeEntity::class], version = 1)
+@Database(entities = [JvmEntity::class], version = 1)
 abstract class MyDatabase : RoomDatabase() {
     abstract fun getMyDao(): MyDao
 }
 
 @Entity
-data class NativeEntity(
+data class JvmEntity(
     @PrimaryKey val id: Long
 )
 
 @Dao
 interface MyDao {
-    @Query("SELECT * FROM NativeEntity")
-    suspend fun getEntity(): NativeEntity
-
-    // Insert-change
+    @Query("SELECT * FROM JvmEntity")
+    suspend fun getEntity(): JvmEntity
 }

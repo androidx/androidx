@@ -43,3 +43,7 @@ internal fun runGradle(
 internal fun BuildResult.assertTaskOutcome(taskPath: String, outcome: TaskOutcome) {
     assertThat(this.task(taskPath)!!.outcome).isEqualTo(outcome)
 }
+
+internal fun searchAndReplace(file: File, search: String, replace: String) {
+    file.writeText(file.readText().replace(search, replace))
+}

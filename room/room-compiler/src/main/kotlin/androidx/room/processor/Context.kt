@@ -312,4 +312,18 @@ class Context private constructor(
             }?.toBoolean()
         }
     }
+
+    /**
+     * Check if the target platform is only Android.
+     *
+     * Note that there is no 'Android' target in the `targetPlatforms` list,
+     * so instead we check for JVM and also validate that an Android only class
+     * [Context] is in the classpath.
+     */
+    fun isAndroidOnlyTarget(): Boolean {
+        val targetPlatforms = this.processingEnv.targetPlatforms
+        return targetPlatforms.size == 1 &&
+            targetPlatforms.contains(XProcessingEnv.Platform.JVM) &&
+            this.processingEnv.findType("android.content.Context") != null
+    }
 }

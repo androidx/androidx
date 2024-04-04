@@ -1150,4 +1150,12 @@ object ProcessorErrors {
         "`room { schemaDirectory(...) }`."
 
     val INVALID_DATABASE_VERSION = "Database version must be greater than 0"
+
+    val JAVA_CODEGEN_ON_NON_ANDROID_TARGET = "Cannot generate Java targeting a non-Android " +
+        "platform. To generate Java, you must only have Android as a target platform. " +
+        "To process a non-Android target platform, you must enable Kotlin code " +
+        "generation in KSP."
+
+    val INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID = "Only suspend functions are allowed in DAOs" +
+        " declared in source sets targeting non-Android platforms."
 }

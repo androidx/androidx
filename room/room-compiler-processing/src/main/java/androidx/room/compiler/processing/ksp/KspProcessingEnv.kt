@@ -30,7 +30,9 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.processing.JsPlatformInfo
 import com.google.devtools.ksp.processing.JvmPlatformInfo
+import com.google.devtools.ksp.processing.NativePlatformInfo
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.ClassKind
@@ -59,6 +61,16 @@ internal class KspProcessingEnv(
     private val jvmPlatformInfo by lazy {
         delegate.platforms.filterIsInstance<JvmPlatformInfo>().firstOrNull()
     }
+
+    override val targetPlatforms: Set<XProcessingEnv.Platform> =
+        delegate.platforms.map { platform ->
+            when (platform) {
+                is JvmPlatformInfo -> XProcessingEnv.Platform.JVM
+                is NativePlatformInfo -> XProcessingEnv.Platform.NATIVE
+                is JsPlatformInfo -> XProcessingEnv.Platform.JS
+                else -> XProcessingEnv.Platform.UNKNOWN
+            }
+        }.toSet()
 
     override val jvmVersion by lazy {
        when (val jvmTarget = jvmPlatformInfo?.jvmTarget) {

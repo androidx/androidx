@@ -129,21 +129,14 @@ abstract class MethodProcessorDelegate(
     }
 }
 
-fun MethodProcessorDelegate.isSuspendAndReturnsDeferredType(): Boolean {
-    if (!executableElement.isSuspendFunction()) {
-        return false
-    }
-
+fun MethodProcessorDelegate.returnsDeferredType(): Boolean {
     val deferredTypes = DEFERRED_TYPES.mapNotNull {
         context.processingEnv.findType(it.canonicalName)
     }
-
     val returnType = extractReturnType()
-    val hasDeferredReturnType = deferredTypes.any { deferredType ->
+    return deferredTypes.any { deferredType ->
         deferredType.rawType.isAssignableFrom(returnType.rawType)
     }
-
-    return hasDeferredReturnType
 }
 
 /**
