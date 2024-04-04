@@ -84,7 +84,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      * @param navigator navigator used to create the destination
      * @param route the [KClass] of the destination
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. Required only when destination contains custom NavTypes.
+     * [NavType]. May be empty if destination does not use custom NavTypes.
      *
      * @return the newly constructed [NavDestination]
      */

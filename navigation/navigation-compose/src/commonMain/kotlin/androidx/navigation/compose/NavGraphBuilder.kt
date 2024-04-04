@@ -305,7 +305,7 @@ public fun NavGraphBuilder.navigation(
  * @param T the destination's unique route from a KClass
  * @param startDestination the starting destination's route from [KClass] for this NavGraph
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when [T] contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param deepLinks list of deep links to associate with the destinations
  * @param enterTransition callback to define enter transitions for destination in this NavGraph
  * @param exitTransition callback to define exit transitions for destination in this NavGraph
@@ -390,7 +390,7 @@ public fun NavGraphBuilder.navigation(
  * @param T the destination's unique route from a KClass
  * @param startDestination the starting destination's route from an Object for this NavGraph
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when [T] contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param deepLinks list of deep links to associate with the destinations
  * @param enterTransition callback to define enter transitions for destination in this NavGraph
  * @param exitTransition callback to define exit transitions for destination in this NavGraph
@@ -515,7 +515,7 @@ public fun NavGraphBuilder.dialog(
  *
  * @param T route from a KClass for the destination
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when [T] contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param deepLinks list of deep links to associate with the destinations
  * @param dialogProperties properties that should be passed to [androidx.compose.ui.window.Dialog].
  * @param content composable content for the destination that will be hosted within the Dialog

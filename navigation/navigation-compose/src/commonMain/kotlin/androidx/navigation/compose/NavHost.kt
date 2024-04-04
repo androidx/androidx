@@ -240,7 +240,7 @@ public fun NavHost(
  * @param contentAlignment The [Alignment] of the [AnimatedContent]
  * @param route the route from a [KClass] for the graph
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when route contains custom NavTypes.
+ * [NavType]. May be empty if [route] does not use custom NavTypes.
  * @param enterTransition callback to define enter transitions for destination in this host
  * @param exitTransition callback to define exit transitions for destination in this host
  * @param popEnterTransition callback to define popEnter transitions for destination in this host
@@ -300,7 +300,7 @@ public fun NavHost(
  * @param contentAlignment The [Alignment] of the [AnimatedContent]
  * @param route the route from a [KClass] for the graph
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when route contains custom NavTypes.
+ * [NavType]. May be empty if [route] does not use custom NavTypes.
  * @param enterTransition callback to define enter transitions for destination in this host
  * @param exitTransition callback to define exit transitions for destination in this host
  * @param popEnterTransition callback to define popEnter transitions for destination in this host

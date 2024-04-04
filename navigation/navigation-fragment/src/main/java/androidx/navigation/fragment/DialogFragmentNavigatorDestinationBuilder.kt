@@ -95,7 +95,7 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when destination contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -106,7 +106,7 @@ public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when destination contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
@@ -178,7 +178,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
      * @param route the destination's unique route from a [KClass]. This sets the [route] on
      * the newly constructed [NavDestination].
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. Required only when destination contains custom NavTypes.
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
      * destination
      */
