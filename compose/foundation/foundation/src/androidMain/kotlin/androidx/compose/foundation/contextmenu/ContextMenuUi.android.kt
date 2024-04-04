@@ -138,9 +138,8 @@ internal fun ContextMenuItem(
      * Lambda called when this item is clicked.
      *
      * Note: If you want the context menu to close when this item is clicked,
-     * you will have to do it in this lambda.
+     * you will have to do it in this lambda via [ContextMenuState.close].
      */
-    // TODO(b/331690843) add how to do this to the kdoc above.
     onClick: () -> Unit,
 ) {
     Row(
@@ -231,9 +230,8 @@ internal class ContextMenuScope internal constructor() {
          * Lambda called when this item is clicked.
          *
          * Note: If you want the context menu to close when this item is clicked,
-         * you will have to do it in this lambda.
+         * you will have to do it in this lambda via [ContextMenuState.close].
          */
-        // TODO(b/331690843) add how to do this to the kdoc above.
         onClick: () -> Unit,
     ) {
         check(label.isNotBlank()) { "Label must not be blank" }
