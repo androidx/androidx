@@ -18,20 +18,18 @@ package room.testapp
 
 import androidx.room.*
 
-@Database(entities = [NativeEntity::class], version = 1)
-abstract class MyDatabase : RoomDatabase() {
-    abstract fun getMyDao(): MyDao
+@Database(entities = [CommonEntity::class], version = 1)
+abstract class CommonDatabase : RoomDatabase() {
+    abstract fun getCommonDao(): CommonDao
 }
 
 @Entity
-data class NativeEntity(
+data class CommonEntity(
     @PrimaryKey val id: Long
 )
 
 @Dao
-interface MyDao {
-    @Query("SELECT * FROM NativeEntity")
-    suspend fun getEntity(): NativeEntity
-
-    // Insert-change
+interface CommonDao {
+    @Query("SELECT * FROM CommonEntity")
+    suspend fun getEntity(): CommonEntity
 }
