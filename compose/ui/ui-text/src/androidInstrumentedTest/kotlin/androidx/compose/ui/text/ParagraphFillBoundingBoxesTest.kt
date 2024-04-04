@@ -51,6 +51,26 @@ class ParagraphFillBoundingBoxesTest {
     private val fontSize = 10.sp
     private val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
 
+    private fun hasEdgeLetterSpacingBugFix(): Boolean {
+        val text = "a"
+        val fontSize = 10.sp
+        val singleLetterLetterSpacing = Paragraph(
+            text = text,
+            style = TextStyle(fontSize = fontSize, letterSpacing = 10.sp),
+            width = Float.MAX_VALUE)
+
+        val singleLetterWithoutLetterSpacing = Paragraph(
+            text = text,
+            style = TextStyle(fontSize = fontSize),
+            width = Float.MAX_VALUE)
+
+        // If the platform has a letter spacing fix, the letter spacing will not be added before and
+        // after the visually left most letter and visually right most letter. Therefore, if the fix
+        // is available, the letter spacing is no-op for single letter text.
+        return singleLetterLetterSpacing.getLineWidth(0) ==
+            singleLetterWithoutLetterSpacing.getLineWidth(0)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun negativeStart() {
         val paragraph = Paragraph("a")
@@ -438,20 +458,61 @@ class ParagraphFillBoundingBoxesTest {
         assertThat(
             paragraph.getBoundingBoxes(TextRange(0, text.length))
         ).isEqualToWithTolerance(
-            arrayOf(
-                // a
-                Rect(0f, 0f, 2 * fontSizeInPx, fontSizeInPx),
-                // b
-                Rect(2 * fontSizeInPx, 0f, 4 * fontSizeInPx, fontSizeInPx),
-                // c
-                Rect(4 * fontSizeInPx, 0f, 6 * fontSizeInPx, fontSizeInPx),
-                // \n
-                Rect(6 * fontSizeInPx, 0f, 6 * fontSizeInPx, fontSizeInPx),
-                // c
-                Rect(0f, fontSizeInPx, 2 * fontSizeInPx, 2 * fontSizeInPx),
-                // d
-                Rect(2 * fontSizeInPx, fontSizeInPx, 4 * fontSizeInPx, 2 * fontSizeInPx)
-            )
+            if (hasEdgeLetterSpacingBugFix()) {
+                // If the letter spacing bugfix is included, the first and last letters in a line
+                // will not have leading and trailing letter spacing.
+                val letterSpaceHalf = fontSizeInPx / 2
+                arrayOf(
+                    // a
+                    Rect(0f,
+                        0f,
+                        2 * fontSizeInPx - letterSpaceHalf, // left letter spacing is not added.
+                        fontSizeInPx),
+                    // b
+                    Rect(2 * fontSizeInPx - letterSpaceHalf, // the prev letter width is half letter
+                                                             // spacing smaller because there is no
+                                                             // left letter spacing.
+                        0f,
+                        4 * fontSizeInPx - letterSpaceHalf,
+                        fontSizeInPx),
+                    // c
+                    Rect(4 * fontSizeInPx - letterSpaceHalf,
+                        0f,
+                        6 * fontSizeInPx - letterSpaceHalf * 2, // right letter spacing is not
+                                                                // added.
+                        fontSizeInPx),
+                    // \n
+                    Rect(6 * fontSizeInPx - letterSpaceHalf * 2,
+                        0f,
+                        6 * fontSizeInPx - letterSpaceHalf * 2,
+                        fontSizeInPx),
+                    // c
+                    Rect(0f,
+                        fontSizeInPx,
+                        2 * fontSizeInPx - letterSpaceHalf, // left letter spacing is not added.
+                        2 * fontSizeInPx),
+                    // d
+                    Rect(2 * fontSizeInPx - letterSpaceHalf,
+                        fontSizeInPx,
+                        4 * fontSizeInPx - letterSpaceHalf * 2,
+                        2 * fontSizeInPx)
+                )
+            } else {
+                arrayOf(
+                    // a
+                    Rect(0f, 0f, 2 * fontSizeInPx, fontSizeInPx),
+                    // b
+                    Rect(2 * fontSizeInPx, 0f, 4 * fontSizeInPx, fontSizeInPx),
+                    // c
+                    Rect(4 * fontSizeInPx, 0f, 6 * fontSizeInPx, fontSizeInPx),
+                    // \n
+                    Rect(6 * fontSizeInPx, 0f, 6 * fontSizeInPx, fontSizeInPx),
+                    // c
+                    Rect(0f, fontSizeInPx, 2 * fontSizeInPx, 2 * fontSizeInPx),
+                    // d
+                    Rect(2 * fontSizeInPx, fontSizeInPx, 4 * fontSizeInPx, 2 * fontSizeInPx)
+                )
+            }
         )
     }
 
