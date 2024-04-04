@@ -285,17 +285,17 @@ private fun BaseListItem(
         .then(modifier)
 
     Surface(
-        checked = selected,
-        onCheckedChange = { onClick.invoke() },
+        selected = selected,
+        onClick = onClick,
         modifier = semanticModifier,
         enabled = enabled,
         onLongClick = onLongClick,
         tonalElevation = tonalElevation,
-        shape = shape.toToggleableSurfaceShape(),
-        colors = colors.toToggleableSurfaceColors(),
-        scale = scale.toToggleableSurfaceScale(),
-        border = border.toToggleableSurfaceBorder(),
-        glow = glow.toToggleableSurfaceGlow(),
+        shape = shape.toSelectableSurfaceShape(),
+        colors = colors.toSelectableSurfaceColors(),
+        scale = scale.toSelectableSurfaceScale(),
+        border = border.toSelectableSurfaceBorder(),
+        glow = glow.toSelectableSurfaceGlow(),
         interactionSource = interactionSource
     ) {
         Row(
@@ -421,8 +421,8 @@ private fun listItemMinHeight(
     }
 }
 
-internal fun ListItemShape.toToggleableSurfaceShape() =
-    ToggleableSurfaceShape(
+internal fun ListItemShape.toSelectableSurfaceShape() =
+    SelectableSurfaceShape(
         shape = shape,
         focusedShape = focusedShape,
         pressedShape = pressedShape,
@@ -435,8 +435,8 @@ internal fun ListItemShape.toToggleableSurfaceShape() =
         focusedSelectedDisabledShape = focusedDisabledShape
     )
 
-internal fun ListItemColors.toToggleableSurfaceColors() =
-    ToggleableSurfaceColors(
+internal fun ListItemColors.toSelectableSurfaceColors() =
+    SelectableSurfaceColors(
         containerColor = containerColor,
         contentColor = contentColor,
         focusedContainerColor = focusedContainerColor,
@@ -453,8 +453,8 @@ internal fun ListItemColors.toToggleableSurfaceColors() =
         pressedSelectedContentColor = pressedSelectedContentColor
     )
 
-internal fun ListItemScale.toToggleableSurfaceScale() =
-    ToggleableSurfaceScale(
+internal fun ListItemScale.toSelectableSurfaceScale() =
+    SelectableSurfaceScale(
         scale = scale,
         focusedScale = focusedScale,
         pressedScale = pressedScale,
@@ -467,8 +467,8 @@ internal fun ListItemScale.toToggleableSurfaceScale() =
         focusedSelectedDisabledScale = focusedDisabledScale
     )
 
-internal fun ListItemBorder.toToggleableSurfaceBorder() =
-    ToggleableSurfaceBorder(
+internal fun ListItemBorder.toSelectableSurfaceBorder() =
+    SelectableSurfaceBorder(
         border = border,
         focusedBorder = focusedBorder,
         pressedBorder = pressedBorder,
@@ -481,8 +481,8 @@ internal fun ListItemBorder.toToggleableSurfaceBorder() =
         focusedSelectedDisabledBorder = focusedDisabledBorder
     )
 
-internal fun ListItemGlow.toToggleableSurfaceGlow() =
-    ToggleableSurfaceGlow(
+internal fun ListItemGlow.toSelectableSurfaceGlow() =
+    SelectableSurfaceGlow(
         glow = glow,
         focusedGlow = focusedGlow,
         pressedGlow = pressedGlow,
