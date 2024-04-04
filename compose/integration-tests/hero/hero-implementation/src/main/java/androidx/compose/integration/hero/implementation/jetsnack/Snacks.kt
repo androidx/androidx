@@ -45,6 +45,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -157,7 +158,11 @@ fun SnackItem(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .clickable(onClick = { onSnackClick(snack.id) })
+                .clickable(
+                    interactionSource = null,
+                    indication = ripple(),
+                    onClick = { onSnackClick(snack.id) }
+                )
                 .padding(8.dp)
         ) {
             SnackImage(
@@ -193,7 +198,11 @@ private fun HighlightSnackItem(
     ) {
         Column(
             modifier = Modifier
-                .clickable(onClick = { onSnackClick(snack.id) })
+                .clickable(
+                    interactionSource = null,
+                    indication = ripple(),
+                    onClick = { onSnackClick(snack.id) }
+                )
                 .fillMaxSize()
         ) {
             Box(
