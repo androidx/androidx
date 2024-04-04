@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("NullAnnotationGroup") // b/331484152
-
 package androidx.navigation.compose
 
 import android.annotation.SuppressLint

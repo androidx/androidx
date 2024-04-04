@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("NullAnnotationGroup") // b/331484152
-
 package androidx.navigation.compose
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
