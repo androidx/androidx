@@ -57,7 +57,7 @@ import androidx.navigation.get
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -95,7 +95,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -150,7 +150,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -207,7 +207,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -231,7 +231,7 @@ public fun NavHost(
 ) = NavHost(navController, graph, modifier)
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -278,7 +278,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
