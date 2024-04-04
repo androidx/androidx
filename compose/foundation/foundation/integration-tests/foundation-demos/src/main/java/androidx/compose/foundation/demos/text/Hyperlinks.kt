@@ -29,11 +29,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,13 +45,16 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
+import androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
+import androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private const val WebLink = "https://developer.android.com"
+private const val WebLink = "https://google.com"
 private const val LongWebLink =
     "https://developer.android.com/design/ui/mobile/guides/foundations/system-bars"
 private const val PhoneUri = "tel:+123456789"
@@ -67,11 +70,31 @@ fun Hyperlinks() {
             .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+
+        val dac = "https://developer.android.com/develop/ui/compose/"
+
+        Sample("Through Builder with state-based styling") {
+            Text(buildAnnotatedString {
+                append("Text and a ")
+                withLink(
+                    LinkAnnotation.Url(
+                        url = "$dac/accessibility",
+                        style = SpanStyle(color = Color.Magenta),
+                        focusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
+                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+                    )
+                ) {
+                    append("DEVELOPER ANDROID COM LINK")
+                }
+                append(" immediately following.")
+            }
+            )
+        }
         Sample("Single link styling with SpanStyle") {
             val stringWithLink = buildAnnotatedString {
                 append("Example with a custom style ")
                 withStyle(SpanStyle(fontSize = 26.sp)) {
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                    withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                 }
                 append(" link and a phone number ")
                 withStyle(
@@ -80,16 +103,19 @@ fun Hyperlinks() {
                         textDecoration = TextDecoration.None
                     )
                 ) {
-                    withAnnotation(LinkAnnotation.Url(PhoneUri)) { append("+1 (234) 567890") }
+                    withLink(LinkAnnotation.Url(PhoneUri)) { append("+1 (234) 567890") }
                 }
                 append(" with a custom style.")
             }
             Text(text = stringWithLink)
         }
-        Sample("BasicText styling") {
-            BasicText(buildAnnotatedString {
+        Sample("Basic styling") {
+            val linkColor = MaterialTheme.colors.primary
+            Text(buildAnnotatedString {
                 append("BasicText with ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                withLink(LinkAnnotation.Url(WebLink, style = SpanStyle(color = linkColor))) {
+                    append("developer.android.com")
+                }
                 append(" link.")
             })
         }
@@ -97,19 +123,19 @@ fun Hyperlinks() {
         Sample("Long links") {
             val text = buildAnnotatedString {
                 append("Example that contains ")
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append("a very very very very very very long long long long link")
                 }
                 append(" followed by another long link ")
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) { append(LongWebLink) }
+                withLink(LinkAnnotation.Url(LongWebLink)) { append(LongWebLink) }
             }
             Text(text)
         }
         Sample("Links with overlapped bounds") {
             val text = buildAnnotatedString {
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) { append("The first link") }
+                withLink(LinkAnnotation.Url(LongWebLink)) { append("The first link") }
                 append(" immediately followed by ")
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append("the second quite long link")
                 }
                 append(" so their bounds are overlapped")
@@ -119,7 +145,7 @@ fun Hyperlinks() {
         Sample("Link inside clickable text") {
             Text(buildAnnotatedString {
                 append("Clickable text with a ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                 append(" link.")
             }, Modifier.clickable { })
         }
@@ -127,7 +153,7 @@ fun Hyperlinks() {
             SelectionContainer {
                 Text(buildAnnotatedString {
                     append("Selectable text with a ")
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                    withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                     append(" link.")
                 })
             }
@@ -145,7 +171,7 @@ fun Hyperlinks() {
                 append("A ")
                 appendInlineContent("box")
                 append(" inline content and a ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                 append(" link.")
             }, inlineContent = mapOf("box" to inlineTextContent))
         }
@@ -153,7 +179,7 @@ fun Hyperlinks() {
             Text(
                 buildAnnotatedString {
                     append("Attached ")
-                    withAnnotation(LinkAnnotation.Url("asdf")) {
+                    withLink(LinkAnnotation.Url("asdf")) {
                         withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
                             append("link")
                         }
@@ -164,11 +190,11 @@ fun Hyperlinks() {
         }
         Sample("RTL text") {
             val text = buildAnnotatedString {
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append(loremIpsum(Language.Arabic, 2))
                 }
                 append(loremIpsum(Language.Arabic, 5))
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append(loremIpsum(Language.Arabic, 3))
                 }
                 append(loremIpsum(Language.Arabic, 5))
@@ -178,12 +204,17 @@ fun Hyperlinks() {
         Sample("Bidi text") {
             val text = buildAnnotatedString {
                 append(loremIpsum(Language.Arabic, 2))
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append(" developer.android.com ")
                 }
                 append(loremIpsum(Language.Arabic, 5))
             }
             Text(text)
+        }
+        Sample("Samples") {
+            AnnotatedStringWithLinkSample()
+            AnnotatedStringWithHoveredLinkStylingSample()
+            AnnotatedStringWithListenerSample()
         }
     }
 }

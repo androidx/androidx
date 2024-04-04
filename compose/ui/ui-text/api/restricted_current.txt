@@ -93,10 +93,10 @@ package androidx.compose.ui.text {
     method public static androidx.compose.ui.text.AnnotatedString decapitalize(androidx.compose.ui.text.AnnotatedString, optional androidx.compose.ui.text.intl.LocaleList localeList);
     method public static androidx.compose.ui.text.AnnotatedString toLowerCase(androidx.compose.ui.text.AnnotatedString, optional androidx.compose.ui.text.intl.LocaleList localeList);
     method public static androidx.compose.ui.text.AnnotatedString toUpperCase(androidx.compose.ui.text.AnnotatedString, optional androidx.compose.ui.text.intl.LocaleList localeList);
-    method public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.LinkAnnotation link, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.TtsAnnotation ttsAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.UrlAnnotation urlAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, String tag, String annotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
+    method public static inline <R> R withLink(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.LinkAnnotation link, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.SpanStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
   }
@@ -125,18 +125,46 @@ package androidx.compose.ui.text {
   }
 
   public abstract class LinkAnnotation {
+    method public abstract androidx.compose.ui.text.SpanStyle? getFocusedStyle();
+    method public abstract androidx.compose.ui.text.SpanStyle? getHoveredStyle();
+    method public abstract androidx.compose.ui.text.LinkInteractionListener? getLinkInteractionListener();
+    method public abstract androidx.compose.ui.text.SpanStyle? getStyle();
+    property public abstract androidx.compose.ui.text.SpanStyle? focusedStyle;
+    property public abstract androidx.compose.ui.text.SpanStyle? hoveredStyle;
+    property public abstract androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener;
+    property public abstract androidx.compose.ui.text.SpanStyle? style;
   }
 
   public static final class LinkAnnotation.Clickable extends androidx.compose.ui.text.LinkAnnotation {
-    ctor public LinkAnnotation.Clickable(String tag);
+    ctor public LinkAnnotation.Clickable(String tag, optional androidx.compose.ui.text.SpanStyle? style, optional androidx.compose.ui.text.SpanStyle? focusedStyle, optional androidx.compose.ui.text.SpanStyle? hoveredStyle, androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method public androidx.compose.ui.text.SpanStyle? getFocusedStyle();
+    method public androidx.compose.ui.text.SpanStyle? getHoveredStyle();
+    method public androidx.compose.ui.text.LinkInteractionListener? getLinkInteractionListener();
+    method public androidx.compose.ui.text.SpanStyle? getStyle();
     method public String getTag();
+    property public androidx.compose.ui.text.SpanStyle? focusedStyle;
+    property public androidx.compose.ui.text.SpanStyle? hoveredStyle;
+    property public androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener;
+    property public androidx.compose.ui.text.SpanStyle? style;
     property public final String tag;
   }
 
   public static final class LinkAnnotation.Url extends androidx.compose.ui.text.LinkAnnotation {
-    ctor public LinkAnnotation.Url(String url);
+    ctor public LinkAnnotation.Url(String url, optional androidx.compose.ui.text.SpanStyle? style, optional androidx.compose.ui.text.SpanStyle? focusedStyle, optional androidx.compose.ui.text.SpanStyle? hoveredStyle, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method public androidx.compose.ui.text.SpanStyle? getFocusedStyle();
+    method public androidx.compose.ui.text.SpanStyle? getHoveredStyle();
+    method public androidx.compose.ui.text.LinkInteractionListener? getLinkInteractionListener();
+    method public androidx.compose.ui.text.SpanStyle? getStyle();
     method public String getUrl();
+    property public androidx.compose.ui.text.SpanStyle? focusedStyle;
+    property public androidx.compose.ui.text.SpanStyle? hoveredStyle;
+    property public androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener;
+    property public androidx.compose.ui.text.SpanStyle? style;
     property public final String url;
+  }
+
+  @androidx.compose.runtime.Stable public fun interface LinkInteractionListener {
+    method public void onClicked(androidx.compose.ui.text.LinkAnnotation link);
   }
 
   public final class MultiParagraph {
