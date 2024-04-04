@@ -548,7 +548,7 @@ public open class NavController(
     @MainThread
     @JvmOverloads
     @ExperimentalSafeArgsApi
-    public inline fun <reified T> popBackStack(
+    public inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean = popBackStack(serializer<T>().hashCode(), inclusive, saveState)
@@ -892,7 +892,7 @@ public open class NavController(
      */
     @MainThread
     @ExperimentalSafeArgsApi
-    public inline fun <reified T> clearBackStack(): Boolean =
+    public inline fun <reified T : Any> clearBackStack(): Boolean =
         clearBackStack(serializer<T>().hashCode())
 
     /**
