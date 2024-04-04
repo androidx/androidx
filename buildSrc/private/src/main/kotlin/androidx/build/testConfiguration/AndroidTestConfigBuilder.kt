@@ -73,9 +73,11 @@ class ConfigBuilder {
     fun buildJson(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
         val instrumentationArgsList = mutableListOf<InstrumentationArg>()
-        instrumentationArgsMap.forEach { (key, value) ->
-            instrumentationArgsList.add(InstrumentationArg(key, value))
-        }
+        instrumentationArgsMap
+            .filter { it.key !in INST_ARG_BLOCKLIST }
+            .forEach { (key, value) ->
+                instrumentationArgsList.add(InstrumentationArg(key, value))
+            }
         instrumentationArgsList.addAll(
             if (isMicrobenchmark && !isPostsubmit) {
                 listOf(
@@ -113,12 +115,16 @@ class ConfigBuilder {
         if (!isPostsubmit && (isMicrobenchmark || isMacrobenchmark)) {
             sb.append(BENCHMARK_PRESUBMIT_INST_ARGS)
         }
-        instrumentationArgsMap.forEach { (key, value) ->
-            sb.append("""
-                <option name="instrumentation-arg" key="$key" value="$value" />
+        instrumentationArgsMap
+            .filter { it.key !in INST_ARG_BLOCKLIST }
+            .forEach { (key, value) ->
+                sb.append(
+                    """
+                    <option name="instrumentation-arg" key="$key" value="$value" />
 
-                """.trimIndent())
-        }
+                    """.trimIndent()
+                )
+            }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
         initialSetupApks.forEach { apk ->
@@ -367,6 +373,13 @@ private val BENCHMARK_PRESUBMIT_INST_ARGS =
 
 """
         .trimIndent()
+
+/**
+ * These args may never be passed in CI, even if they are set per module
+ */
+private val INST_ARG_BLOCKLIST = listOf(
+    "androidx.benchmark.profiling.skipWhenDurationRisksAnr"
+)
 
 private val MICROBENCHMARK_POSTSUBMIT_LISTENERS =
     """
