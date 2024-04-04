@@ -17,6 +17,7 @@
 package androidx.camera.viewfinder.compose
 
 import android.annotation.SuppressLint
+import android.graphics.RectF
 import android.util.Size
 import android.view.Surface
 import androidx.camera.viewfinder.compose.internal.SurfaceTransformationUtil
@@ -55,6 +56,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @param implementationMode Determines the underlying implementation of the [Surface].
  * @param transformationInfo Specifies the required transformations for the media being displayed.
  * @param modifier Modifier to be applied to the [Viewfinder]
+ * @param coordinateTransformer Coordinate transformer that can be used to convert Compose space
+ *      coordinates such as touch coordinates to surface space coordinates.
+ *      When the Viewfinder is displaying content from the camera, this transformer can be used to
+ *      translate touch events into camera sensor coordinates for focus and metering actions.
  *
  * TODO(b/322420487): Add a sample with `@sample`
  */
@@ -63,7 +68,8 @@ fun Viewfinder(
     surfaceRequest: ViewfinderSurfaceRequest,
     implementationMode: ImplementationMode,
     transformationInfo: TransformationInfo,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    coordinateTransformer: MutableCoordinateTransformer? = null,
 ) {
     val resolution = surfaceRequest.resolution
 
@@ -85,6 +91,7 @@ fun Viewfinder(
 
                     // TODO(b/322420176): Properly handle onSurfaceChanged()
                 },
+                coordinateTransformer,
             )
         }
     }
@@ -107,6 +114,7 @@ private fun TransformedSurface(
     transformationInfo: TransformationInfo,
     implementationMode: ImplementationMode,
     onInit: AndroidExternalSurfaceScope.() -> Unit,
+    coordinateTransformer: MutableCoordinateTransformer?,
 ) {
     // For TextureView, correct the orientation to match the target rotation.
     val correctionMatrix = Matrix()
@@ -134,12 +142,24 @@ private fun TransformedSurface(
             val heightOffset = 0.coerceAtLeast((placeable.height - constraints.maxHeight) / 2)
             layout(placeable.width, placeable.height) {
                 placeable.placeWithLayer(widthOffset, heightOffset) {
-                    val surfaceRectInViewfinder =
-                        SurfaceTransformationUtil.getTransformedSurfaceRect(
-                            resolution,
+                    val surfaceToViewFinderMatrix =
+                        SurfaceTransformationUtil.getTransformedSurfaceMatrix(
                             transformationInfo,
                             Size(constraints.maxWidth, constraints.maxHeight)
                         )
+
+                    coordinateTransformer?.transformMatrix = Matrix().apply {
+                        setFrom(surfaceToViewFinderMatrix)
+                        invert()
+                    }
+
+                    val surfaceRectInViewfinder = RectF(
+                        0f,
+                        0f,
+                        resolution.width.toFloat(),
+                        resolution.height.toFloat()
+                    )
+                    surfaceToViewFinderMatrix.mapRect(surfaceRectInViewfinder)
 
                     transformOrigin = TransformOrigin(0f, 0f)
                     scaleX = surfaceRectInViewfinder.width() / resolution.width

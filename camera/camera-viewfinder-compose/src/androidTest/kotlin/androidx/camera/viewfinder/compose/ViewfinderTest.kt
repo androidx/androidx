@@ -26,6 +26,8 @@ import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -55,6 +57,80 @@ class ViewfinderTest {
     @Test
     fun canRetrieveCompatibleSurface() = runBlocking {
         assertCanRetrieveSurface(implementationMode = ImplementationMode.COMPATIBLE)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    fun coordinatesTransformationSameSizeNoRotation(): Unit = runBlocking {
+
+        val coordinateTransformer = MutableCoordinateTransformer()
+
+        val surfaceRequest = ViewfinderSurfaceRequest.Builder(TEST_RESOLUTION).build()
+        rule.setContent {
+            with(LocalDensity.current) {
+                Viewfinder(
+                    modifier = Modifier.size(540.toDp(), 960.toDp()),
+                    surfaceRequest = surfaceRequest,
+                    transformationInfo = TEST_TRANSFORMATION_INFO,
+                    implementationMode = ImplementationMode.PERFORMANCE,
+                    coordinateTransformer = coordinateTransformer
+                )
+            }
+        }
+
+        val expectedMatrix = Matrix(
+            values = floatArrayOf(
+                1f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                0f, 0f, 0f, 1f
+            )
+        )
+
+        assertThat(coordinateTransformer.transformMatrix.values)
+            .isEqualTo(expectedMatrix.values)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    @Test
+    fun coordinatesTransformationSameSizeWithHalfCrop(): Unit = runBlocking {
+        // Viewfinder size: 1080x1920
+        // Surface size: 1080x1920
+        // Crop rect size: 540x960
+
+        val coordinateTransformer = MutableCoordinateTransformer()
+
+        val surfaceRequest = ViewfinderSurfaceRequest.Builder(TEST_RESOLUTION).build()
+        rule.setContent {
+            with(LocalDensity.current) {
+                Viewfinder(
+                    modifier = Modifier.size(540.toDp(), 960.toDp()),
+                    surfaceRequest = surfaceRequest,
+                    transformationInfo = TransformationInfo(
+                        sourceRotation = 0,
+                        cropRectLeft = 0,
+                        cropRectRight = 270,
+                        cropRectTop = 0,
+                        cropRectBottom = 480,
+                        shouldMirror = false
+                    ),
+                    implementationMode = ImplementationMode.PERFORMANCE,
+                    coordinateTransformer = coordinateTransformer
+                )
+            }
+        }
+
+        val expectedMatrix = Matrix(
+            values = floatArrayOf(
+                0.5f, 0f, 0f, 0f,
+                0f, 0.5f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                0f, 0f, 0f, 1f
+            )
+        )
+
+        assertThat(coordinateTransformer.transformMatrix.values)
+            .isEqualTo(expectedMatrix.values)
     }
 
     @RequiresApi(Build.VERSION_CODES.M) // Needed for Surface.lockHardwareCanvas()
@@ -87,7 +163,7 @@ class ViewfinderTest {
 
     companion object {
         val TEST_VIEWFINDER_SIZE = DpSize(360.dp, 640.dp)
-        val TEST_RESOLUTION = Size(1080, 1920)
+        val TEST_RESOLUTION = Size(540, 960)
         val TEST_TRANSFORMATION_INFO = TransformationInfo(
             sourceRotation = 0,
             cropRectLeft = 0,
