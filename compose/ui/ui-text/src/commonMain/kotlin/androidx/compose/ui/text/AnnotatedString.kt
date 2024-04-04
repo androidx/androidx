@@ -748,7 +748,8 @@ class AnnotatedString internal constructor(
          * The default [Saver] implementation for [AnnotatedString].
          *
          * Note this Saver doesn't preserve the [LinkInteractionListener] of the links. You should
-         * handle this case manually if required.
+         * handle this case manually if required (check
+         * https://issuetracker.google.com/issues/332901550 for an example).
          */
         val Saver: Saver<AnnotatedString, *> = AnnotatedStringSaver
     }

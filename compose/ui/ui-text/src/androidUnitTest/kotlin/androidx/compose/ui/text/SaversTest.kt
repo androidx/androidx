@@ -348,8 +348,23 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("4") }
             withAnnotation(UrlAnnotation("url1")) { append("5") }
             withAnnotation(UrlAnnotation("url2")) { append("6") }
-            withLink(LinkAnnotation.Url("url3")) { append("7") }
-            withLink(LinkAnnotation.Clickable("tag3", linkInteractionListener = null)) {
+            withLink(
+                LinkAnnotation.Url(
+                    "url3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue)
+                )
+            ) { append("7") }
+            withLink(
+                LinkAnnotation.Clickable(
+                    "tag3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue),
+                    null
+                )
+            ) {
                 append("8")
             }
         }
@@ -375,8 +390,23 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("8") }
             withAnnotation(UrlAnnotation("url1")) { append("9") }
             withAnnotation(UrlAnnotation("url2")) { append("10") }
-            withLink(LinkAnnotation.Url("url3")) { append("11") }
-            withLink(LinkAnnotation.Clickable("tag3", linkInteractionListener = null)) {
+            withLink(
+                LinkAnnotation.Url(
+                    "url3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue)
+                )
+            ) { append("11") }
+            withLink(
+                LinkAnnotation.Clickable(
+                    "tag3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue),
+                    null
+                )
+            ) {
                 append("12")
             }
         }
