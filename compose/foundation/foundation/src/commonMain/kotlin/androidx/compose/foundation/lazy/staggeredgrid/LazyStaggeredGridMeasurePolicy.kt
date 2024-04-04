@@ -58,6 +58,7 @@ internal fun rememberStaggeredGridMeasurePolicy(
     slots
 ) {
     { constraints ->
+        state.measurementScopeInvalidator.attachToScope()
         checkScrollableContainerConstraints(
             constraints,
             orientation

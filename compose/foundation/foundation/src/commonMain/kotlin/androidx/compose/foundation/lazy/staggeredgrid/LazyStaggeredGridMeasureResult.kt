@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Information about layout state of individual item in lazy staggered grid.
@@ -157,7 +159,8 @@ internal class LazyStaggeredGridMeasureResult(
     override val viewportEndOffset: Int,
     override val beforeContentPadding: Int,
     override val afterContentPadding: Int,
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
+    val coroutineScope: CoroutineScope
 ) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -256,5 +259,6 @@ internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
     mainAxisItemSpacing = 0,
     slots = LazyStaggeredGridSlots(EmptyArray, EmptyArray),
     spanProvider = LazyStaggeredGridSpanProvider(MutableIntervalList()),
-    density = Density(1f)
+    density = Density(1f),
+    coroutineScope = CoroutineScope(EmptyCoroutineContext)
 )

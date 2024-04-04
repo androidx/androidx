@@ -39,7 +39,7 @@ internal class LazyStaggeredGridAnimateScrollScope(
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         with(state) {
-            snapToItemInternal(index, scrollOffset)
+            snapToItemInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
