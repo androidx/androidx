@@ -29,9 +29,11 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.establishTextInputSession
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -109,6 +111,9 @@ internal class LegacyAdaptingPlatformTextInputModifierNode(
             this.serviceAdapter.registerModifier(this)
         }
     }
+
+    override val viewConfiguration: ViewConfiguration
+        get() = currentValueOf(LocalViewConfiguration)
 
     override fun onAttach() {
         serviceAdapter.registerModifier(this)

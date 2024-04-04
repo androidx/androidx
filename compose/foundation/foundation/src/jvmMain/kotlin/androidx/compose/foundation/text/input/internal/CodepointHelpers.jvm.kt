@@ -21,3 +21,6 @@ internal actual fun CharSequence.codePointAt(index: Int): Int =
 
 internal actual fun charCount(codePoint: Int): Int =
     java.lang.Character.charCount(codePoint)
+
+internal actual fun CharSequence.codePointBefore(index: Int): Int =
+    java.lang.Character.codePointBefore(this, index)
