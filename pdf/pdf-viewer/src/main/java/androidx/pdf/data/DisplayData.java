@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,12 +94,14 @@ public class DisplayData {
     }
 
     /**
+     *
      */
     public long length() {
         return mOpenable.length();
     }
 
     /**
+     *
      */
     @NonNull
     private Open open(Opener opener) throws IOException {
@@ -107,6 +109,7 @@ public class DisplayData {
     }
 
     /**
+     *
      */
     @NonNull
     public Bundle asBundle() {
@@ -119,6 +122,7 @@ public class DisplayData {
     }
 
     /**
+     *
      */
     @NonNull
     @SuppressWarnings("deprecation")
