@@ -39,14 +39,16 @@ dependencies {
 
 SdkResourceGenerator.generateForHostTest(project)
 
-tasks.findByPath("test").dependsOn(
-        tasks.findByPath(":annotation:annotation:publish"),
-        tasks.findByPath(":annotation:annotation-experimental:publish"),
-        tasks.findByPath(":room:room-common:publish"),
-        tasks.findByPath(":room:room-runtime:publish"),
-        tasks.findByPath(":room:room-migration:publish"),
-        tasks.findByPath(":room:room-compiler:publish"),
-        tasks.findByPath(":room:room-compiler-processing:publish"),
-        tasks.findByPath(":sqlite:sqlite:publish"),
-        tasks.findByPath(":sqlite:sqlite-framework:publish"),
-)
+tasks.withType(Test).configureEach { test ->
+    test.dependsOn(
+            ":annotation:annotation:publish",
+            ":annotation:annotation-experimental:publish",
+            ":room:room-common:publish",
+            ":room:room-runtime:publish",
+            ":room:room-migration:publish",
+            ":room:room-compiler:publish",
+            ":room:room-compiler-processing:publish",
+            ":sqlite:sqlite:publish",
+            ":sqlite:sqlite-framework:publish",
+    )
+}

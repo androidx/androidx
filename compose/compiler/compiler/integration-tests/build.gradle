@@ -38,10 +38,11 @@ dependencies {
 
 SdkResourceGenerator.generateForHostTest(project)
 
-def testTask = tasks.findByPath("test")
-testTask.dependsOn(tasks.findByPath(":compose:compiler:compiler:publish"))
-if (!isPlayground(project)) {
-    testTask.dependsOn(tasks.findByPath(":compose:runtime:runtime:publish"))
-    testTask.dependsOn(tasks.findByPath(":collection:collection:publish"))
-    testTask.dependsOn(tasks.findByPath(":annotation:annotation:publish"))
+tasks.withType(Test).configureEach { test ->
+    test.dependsOn(":compose:compiler:compiler:publish")
+    if (!isPlayground(project)) {
+        test.dependsOn(":compose:runtime:runtime:publish")
+        test.dependsOn(":collection:collection:publish")
+        test.dependsOn(":annotation:annotation:publish")
+    }
 }

@@ -101,18 +101,16 @@ android {
     namespace "androidx.compose.runtime.tests"
 }
 
-afterEvaluate {
-    tasks.withType(Test) { t ->
-        t.dependsOn(":compose:compiler:compiler:embeddedPlugin")
-
-        maxHeapSize("1024m")
-        t.jvmArgs += ["--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED"]
+tasks.withType(Test).configureEach { test ->
+    test.dependsOn(":compose:compiler:compiler:embeddedPlugin")
+    test.maxHeapSize("1024m")
+    test.jvmArgs += ["--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED"]
+    if (test.name == "test") {
+        // The compose compiler debugger runs on desktop in AndroidStudio, and so the debugger test is
+        // implemented as a desktop test to avoid the need to inject tools.jar (from desktop jvm) into
+        // android tests
+        test.dependsOn("desktopTest")
     }
-
-    // The compose compiler debugger runs on desktop in AndroidStudio, and so the debugger test is
-    // implemented as a desktop test to avoid the need to inject tools.jar (from desktop jvm) into
-    // android tests
-    tasks.findByPath("test").dependsOn(tasks.findByPath("desktopTest"))
 }
 
 androidx {
