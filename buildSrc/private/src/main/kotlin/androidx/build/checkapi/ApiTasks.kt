@@ -28,7 +28,6 @@ import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.version
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.LibraryVariant
-import com.android.build.gradle.LibraryExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
@@ -39,7 +38,6 @@ import org.gradle.kotlin.dsl.getByType
 sealed class ApiTaskConfig
 
 data class LibraryApiTaskConfig(
-    val library: LibraryExtension,
     val variant: LibraryVariant
 ) : ApiTaskConfig()
 
@@ -162,19 +160,10 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
         val androidManifest: Provider<RegularFile>?
         when (config) {
             is LibraryApiTaskConfig -> {
-                val variant =
-                    config.library.libraryVariants.find {
-                        it.name == Release.DEFAULT_PUBLISH_CONFIG
-                    } ?: return@afterEvaluate
-
-                javaInputs =
-                    JavaCompileInputs.fromLibraryVariant(
-                        variant,
-                        project,
-                        // Note, in addition to androidx, bootClasspath will also include stub jars
-                        // from android { useLibrary "android.foo" } block.
-                        files(config.library.bootClasspath)
-                    )
+                if (config.variant.name != Release.DEFAULT_PUBLISH_CONFIG) {
+                    return@afterEvaluate
+                }
+                javaInputs = JavaCompileInputs.fromLibraryVariant(config.variant, project)
                 androidManifest = config.variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
             }
             is AndroidMultiplatformApiTaskConfig -> {

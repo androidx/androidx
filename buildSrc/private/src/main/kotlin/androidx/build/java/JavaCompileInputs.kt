@@ -19,6 +19,8 @@ package androidx.build.java
 import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.LibraryVariant
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
@@ -46,22 +48,25 @@ data class JavaCompileInputs(
 ) {
     companion object {
         // Constructs a JavaCompileInputs from a library and its variant
-        @Suppress("DEPRECATION") // BaseVariant
         fun fromLibraryVariant(
-            variant: com.android.build.gradle.api.BaseVariant,
-            project: Project,
-            bootClasspath: FileCollection
+            variant: LibraryVariant,
+            project: Project
         ): JavaCompileInputs {
             val sourceCollection = getSourceCollection(variant, project)
             val commonModuleSourceCollection = getCommonModuleSourceCollection(variant, project)
 
-            val dependencyClasspath = variant.getCompileClasspath(null).filter { it.exists() }
+            val dependencyClasspath = variant.compileClasspath
+
+            val bootClasspath = project
+                .extensions.findByType(LibraryAndroidComponentsExtension::class.java)!!
+                .sdkComponents
+                .bootClasspath
 
             return JavaCompileInputs(
                 sourcePaths = sourceCollection,
                 commonModuleSourcePaths = commonModuleSourceCollection,
                 dependencyClasspath = dependencyClasspath,
-                bootClasspath = bootClasspath
+                bootClasspath = project.files(bootClasspath)
             )
         }
 
@@ -143,16 +148,20 @@ data class JavaCompileInputs(
             )
         }
 
-        @Suppress("DEPRECATION") // BaseVariant, SourceKind
         private fun getSourceCollection(
-            variant: com.android.build.gradle.api.BaseVariant,
+            variant: LibraryVariant,
             project: Project
         ): FileCollection {
             // If the project has the kotlin-multiplatform plugin, we want to return a combined
             // collection of all the source files inside '*main' source sets. i.e., given a module
             // with a common and Android source set, this will look inside commonMain and
             // androidMain.
-            val taskDependencies = mutableListOf<Any>(variant.javaCompileProvider)
+
+            // Remove task dependency when b/332711506 is fixed, which should get us an API
+            // to get all sources (static and generated)
+            val taskDependencies = mutableListOf<Any>(
+                project.tasks.named("compileReleaseJavaWithJavac")
+            )
             val sourceCollection: ConfigurableFileCollection =
                 project.multiplatformExtension?.let { kmpExtension ->
                     project.sourceFiles(
@@ -163,14 +172,7 @@ data class JavaCompileInputs(
                 }
                     ?: project.files(
                            project.provider {
-                               variant
-                                   .getSourceFolders(com.android.build.gradle.api.SourceKind.JAVA)
-                                   .map { folder ->
-                                       for (builtBy in folder.builtBy) {
-                                           taskDependencies.add(builtBy)
-                                       }
-                                       folder.dir
-                                   }
+                               variant.sources.java!!.all
                            }
                        )
 
@@ -180,16 +182,20 @@ data class JavaCompileInputs(
             return sourceCollection
         }
 
-        @Suppress("DEPRECATION") // BaseVariant, SourceKind
         private fun getCommonModuleSourceCollection(
-            variant: com.android.build.gradle.api.BaseVariant,
+            variant: LibraryVariant,
             project: Project
         ): FileCollection {
             // If the project has the kotlin-multiplatform plugin, we want to return a combined
             // collection of all the source files inside '*main' source sets. I.e, given a module
             // with a common and Android source set, this will look inside commonMain and
             // androidMain.
-            val taskDependencies = mutableListOf<Any>(variant.javaCompileProvider)
+
+            // Remove task dependency when b/332711506 is fixed, which should get us an API
+            // to get all sources (static and generated)
+            val taskDependencies = mutableListOf<Any>(
+                project.tasks.named("compileReleaseJavaWithJavac")
+            )
             val sourceCollection: ConfigurableFileCollection =
                 project.multiplatformExtension?.let { kmpExtension ->
                     project.commonModuleSourcePaths(

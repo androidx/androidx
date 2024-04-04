@@ -870,7 +870,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             if (variant.buildType == DEFAULT_PUBLISH_CONFIG) {
                 // Standard docs, resource API, and Metalava configuration for AndroidX projects.
                 project.configureProjectForApiTasks(
-                    LibraryApiTaskConfig(libraryExtension, variant),
+                    LibraryApiTaskConfig(variant),
                     androidXExtension
                 )
             }
