@@ -302,13 +302,13 @@ public class WebSettingsCompatTest {
                 WebSettingsCompat.getWebAuthenticationSupport(settings));
 
         WebSettingsCompat.setWebAuthenticationSupport(settings,
-                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_APP);
-        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_APP,
+                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP);
+        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP,
                 WebSettingsCompat.getWebAuthenticationSupport(settings));
 
         WebSettingsCompat.setWebAuthenticationSupport(settings,
-                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_BROWSER);
-        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_BROWSER,
+                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER);
+        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER,
                 WebSettingsCompat.getWebAuthenticationSupport(settings));
     }
 }

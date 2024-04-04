@@ -610,7 +610,6 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
      * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework WEB_AUTHENTICATION = new ApiFeature.NoFramework(
             WebViewFeature.WEB_AUTHENTICATION, Features.WEB_AUTHENTICATION);
 
