@@ -389,11 +389,11 @@ public actual open class NavGraph actual constructor(
      *
      * This will override any previously set [startDestinationId]
      *
-     * @param startDestRoute The route of the destination as a [KClass] to be shown when navigating
+     * @param T The route of the destination as a [KClass] to be shown when navigating
      * to this NavGraph.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public inline fun <reified T> setStartDestination() {
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T : Any> setStartDestination() {
         setStartDestination(serializer<T>()) { startDestination ->
             startDestination.route!!
         }
@@ -562,7 +562,7 @@ public inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): Nav
  */
 @Suppress("NOTHING_TO_INLINE")
 @ExperimentalSafeArgsApi
-public inline operator fun <T> NavGraph.get(route: T): NavDestination =
+public inline operator fun <T : Any> NavGraph.get(route: T): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
@@ -580,7 +580,7 @@ public inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>)
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 @ExperimentalSafeArgsApi
-public operator fun <T> NavGraph.contains(route: T): Boolean = findNode(route) != null
+public operator fun <T : Any> NavGraph.contains(route: T): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an
