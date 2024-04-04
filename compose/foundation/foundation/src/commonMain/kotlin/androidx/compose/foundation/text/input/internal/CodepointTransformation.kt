@@ -46,7 +46,6 @@ internal fun interface CodepointTransformation {
 /**
  * Creates a masking [CodepointTransformation] that maps all codepoints to a specific [character].
  */
-@ExperimentalFoundationApi
 @Stable
 internal fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
     MaskCodepointTransformation(character)
