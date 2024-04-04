@@ -22,6 +22,7 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
@@ -46,8 +47,11 @@ import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates a [LazyGridState] that is remembered across compositions.
@@ -245,11 +249,43 @@ class LazyGridState constructor(
         scrollOffset: Int = 0
     ) {
         scroll {
-            snapToItemIndexInternal(index, scrollOffset)
+            snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
-    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
+    internal val measurementScopeInvalidator = ObservableScopeInvalidator()
+
+    /**
+     * Requests the item at [index] to be at the start of the viewport during the next
+     * remeasure, offset by [scrollOffset], and schedules a remeasure.
+     *
+     * The scroll position will be updated to the requested position rather than maintain
+     * the index based on the first visible item key (when a data set change will also be
+     * applied during the next remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset the offset that the item should end up after the scroll. Note that
+     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     * scroll the item further upward (taking it partly offscreen).
+     */
+    fun requestScrollToItem(
+        @AndroidXIntRange(from = 0)
+        index: Int,
+        scrollOffset: Int = 0
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            layoutInfoState.value.coroutineScope.launch {
+                stopScroll()
+            }
+        }
+
+        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
+    }
+
+    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int, forceRemeasure: Boolean) {
         val positionChanged = scrollPosition.index != index ||
             scrollPosition.scrollOffset != scrollOffset
         // sometimes this method is called not to scroll, but to stay on the same index when
@@ -264,7 +300,11 @@ class LazyGridState constructor(
             placementAnimator.reset()
         }
         scrollPosition.requestPositionAndForgetLastKnownKey(index, scrollOffset)
-        remeasurement?.forceRemeasure()
+        if (forceRemeasure) {
+            remeasurement?.forceRemeasure()
+        } else {
+            measurementScopeInvalidator.invalidateScope()
+        }
     }
 
     /**
@@ -488,6 +528,7 @@ private val EmptyLazyGridLayoutInfo = LazyGridMeasureResult(
     measureResult = object : MeasureResult {
         override val width: Int = 0
         override val height: Int = 0
+
         @Suppress("PrimitiveInCollection")
         override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
         override fun placeChildren() {}
@@ -503,5 +544,6 @@ private val EmptyLazyGridLayoutInfo = LazyGridMeasureResult(
     remeasureNeeded = false,
     density = Density(1f),
     slotsPerLine = 0,
+    coroutineScope = CoroutineScope(EmptyCoroutineContext),
     prefetchInfoRetriever = { emptyList() }
 )
