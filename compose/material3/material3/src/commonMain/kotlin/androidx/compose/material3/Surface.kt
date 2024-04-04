@@ -470,7 +470,13 @@ private fun Modifier.surface(
     border: BorderStroke?,
     shadowElevation: Float,
 ) = this
-    .graphicsLayer(shadowElevation = shadowElevation, shape = shape, clip = false)
+    .then(
+        if (shadowElevation > 0f) {
+            Modifier.graphicsLayer(shadowElevation = shadowElevation, shape = shape, clip = false)
+        } else {
+            Modifier
+        }
+    )
     .then(if (border != null) Modifier.border(border, shape) else Modifier)
     .background(color = backgroundColor, shape = shape)
     .clip(shape)
