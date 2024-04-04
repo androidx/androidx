@@ -46,6 +46,7 @@ import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.AudioUtil
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
@@ -191,6 +192,11 @@ class RecorderTest(
             "Skip tests for Cuttlefish MediaCodec issues",
             Build.MODEL.contains("Cuttlefish") &&
                 (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
+        )
+        // Skip for b/331618729
+        assumeFalse(
+            "Emulator API 28 crashes running this test.",
+            Build.VERSION.SDK_INT == 28 && isEmulator()
         )
         // Skip for b/241876294
         assumeFalse(
