@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -244,5 +245,19 @@ public class UiDeviceTest {
 
         mDevice.waitForIdle(123L);
         verify(mUiAutomation, times(1)).waitForIdle(anyLong(), eq(123L));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testWaitForIdle_watcher() throws Exception {
+        UiWatcher watcher = () -> {
+            mDevice.waitForIdle();
+            return true;
+        };
+        mDevice.registerWatcher(WATCHER_NAME, watcher);
+        mDevice.runWatchers();
+
+        // Wait for idle skipped during watcher execution.
+        verify(mUiAutomation, never()).waitForIdle(anyLong(), anyLong());
     }
 }
