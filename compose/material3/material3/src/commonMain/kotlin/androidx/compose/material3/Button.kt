@@ -343,7 +343,7 @@ fun OutlinedButton(
     shape: Shape = ButtonDefaults.outlinedShape,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder,
+    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
@@ -840,9 +840,31 @@ object ButtonDefaults {
     /** The default [BorderStroke] used by [OutlinedButton]. */
     val outlinedButtonBorder: BorderStroke
         @Composable
+        @Deprecated(
+            message = "Please use the version that takes an `enabled` param to get the " +
+                "`BorderStroke` with the correct opacity",
+            replaceWith = ReplaceWith("outlinedButtonBorder(enabled)")
+        )
         get() = BorderStroke(
             width = OutlinedButtonTokens.OutlineWidth,
             color = OutlinedButtonTokens.OutlineColor.value,
+        )
+
+    /** The default [BorderStroke] used by [OutlinedButton].
+     *
+     * @param enabled whether the button is enabled
+     */
+    @Composable
+    fun outlinedButtonBorder(enabled: Boolean = true): BorderStroke =
+        BorderStroke(
+            width = OutlinedButtonTokens.OutlineWidth,
+            color = if (enabled) {
+                OutlinedButtonTokens.OutlineColor.value
+            } else {
+                OutlinedButtonTokens.OutlineColor.value.copy(
+                    alpha = OutlinedButtonTokens.DisabledOutlineOpacity
+                )
+            }
         )
 }
 
