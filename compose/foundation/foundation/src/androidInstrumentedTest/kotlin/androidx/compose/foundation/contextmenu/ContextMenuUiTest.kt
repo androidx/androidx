@@ -84,18 +84,6 @@ class ContextMenuUiTest {
     private val tag = "testTag"
     private val longText = "M ".repeat(200).trimEnd()
 
-    private fun ContextMenuScope.testItem(
-        label: String = "Item",
-        modifier: Modifier = Modifier,
-        onClick: () -> Unit = {},
-    ) {
-        item(
-            label = label,
-            modifier = modifier,
-            onClick = onClick,
-        )
-    }
-
     // region ContextMenuItem Tests
     @Composable
     private fun TestItem(
