@@ -47,6 +47,7 @@ import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverte
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -103,6 +104,9 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return future;
     }
 
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public SearchResults search(
@@ -131,6 +135,9 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         return future;
     }
 
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,

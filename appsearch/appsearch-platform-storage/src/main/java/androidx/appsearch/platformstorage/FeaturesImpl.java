@@ -75,41 +75,32 @@ final class FeaturesImpl implements Features {
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
             // Android V Features
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
+                // fall through
+            case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
+                // fall through
+            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // fall through
             case Features.ENTERPRISE_GLOBAL_SEARCH_SESSION:
                 return BuildCompat.isAtLeastV();
 
-            // Beyond Android U features
-            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
-                // TODO(b/258715421) : Update to reflect support in Android U+ once this feature has
-                // an extservices sdk that includes it.
-                // fall through
-            case Features.SCHEMA_ADD_PARENT_TYPE:
-                // TODO(b/269295094) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
-                // TODO(b/289150947) : Update when feature is ready in service-appsearch.
+            // Beyond Android V Features
+            case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
+                // TODO(b/326656531) : Update when feature is ready in service-appsearch.
                 // fall through
             case Features.SCHEMA_SET_DESCRIPTION:
                 // TODO(b/326987971) : Update when feature is ready in service-appsearch.
                 // fall through
-            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
-                // TODO(b/296088047) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
-                // TODO(b/309826655) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
-                // TODO(b/326656531) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
-                // TODO(b/309826655) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
-                // TODO(b/296088047) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
-                // TODO(b/296088047) : Update when feature is ready in service-appsearch.
-                return false;
             default:
                 return false;
         }

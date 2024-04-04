@@ -34,6 +34,7 @@ import androidx.appsearch.platformstorage.converter.RequestToPlatformConverter;
 import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverter;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -48,6 +49,9 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(35)
+// TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+//  BuildCompat.isAtLeastV() is removed.
+@BuildCompat.PrereleaseSdkCheck
 class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession {
     private final android.app.appsearch.EnterpriseGlobalSearchSession mPlatformSession;
     private final Executor mExecutor;

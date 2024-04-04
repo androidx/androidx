@@ -18,6 +18,7 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -27,6 +28,7 @@ import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.ReportUsageRequest;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -45,6 +47,9 @@ public final class RequestToPlatformConverter {
      * Translates a jetpack {@link PutDocumentsRequest} into a platform
      * {@link android.app.appsearch.PutDocumentsRequest}.
      */
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.PutDocumentsRequest toPlatformPutDocumentsRequest(
             @NonNull PutDocumentsRequest jetpackRequest) {
@@ -59,11 +64,19 @@ public final class RequestToPlatformConverter {
         // Convert taken action generic documents.
         for (GenericDocument jetpackTakenActionGenericDocument :
                 jetpackRequest.getTakenActionGenericDocuments()) {
-            // TODO(b/314026345): add into taken action generic document list when it's ready in the
-            //  framework. Currently we convert it to normal generic documents.
-            platformBuilder.addGenericDocuments(
-                    GenericDocumentToPlatformConverter.toPlatformGenericDocument(
-                            jetpackTakenActionGenericDocument));
+            if (BuildCompat.isAtLeastV()) {
+                ApiHelperForV.addTakenActionGenericDocuments(
+                        platformBuilder,
+                        GenericDocumentToPlatformConverter.toPlatformGenericDocument(
+                                jetpackTakenActionGenericDocument));
+            } else {
+                // This version of platform-storage doesn't support the dedicated
+                // addTakenActionGenericDocuments API, but we can still add them to the index via
+                // the put API (just without logging).
+                platformBuilder.addGenericDocuments(
+                        GenericDocumentToPlatformConverter.toPlatformGenericDocument(
+                                jetpackTakenActionGenericDocument));
+            }
         }
         return platformBuilder.build();
     }
@@ -131,5 +144,25 @@ public final class RequestToPlatformConverter {
                 jetpackRequest.getDocumentId())
                 .setUsageTimestampMillis(jetpackRequest.getUsageTimestampMillis())
                 .build();
+    }
+
+    @RequiresApi(35)
+    private static class ApiHelperForV {
+        private ApiHelperForV() {}
+
+        @DoNotInline
+        static void addTakenActionGenericDocuments(
+                android.app.appsearch.PutDocumentsRequest.Builder platformBuilder,
+                android.app.appsearch.GenericDocument platformTakenActionGenericDocument) {
+            try {
+                platformBuilder.addTakenActionGenericDocuments(platformTakenActionGenericDocument);
+            } catch (android.app.appsearch.exceptions.AppSearchException e) {
+                // This method incorrectly declares that it throws AppSearchException, whereas in
+                // fact there's nothing in its implementation that would do so. Suppress it here
+                // instead of piping all the way through the stack.
+                throw new RuntimeException(
+                        "Unexpected AppSearchException which should not be possible", e);
+            }
+        }
     }
 }
