@@ -28,9 +28,10 @@ internal fun down(
     id: Long,
     durationMillis: Long = 0L,
     x: Float = 0f,
-    y: Float = 0f
-): PointerInputChange =
-    PointerInputChange(
+    y: Float = 0f,
+    historicalData: List<HistoricalChange>? = null
+): PointerInputChange {
+    val pointerInputChange = PointerInputChange(
         PointerId(id),
         durationMillis,
         Offset(x, y),
@@ -41,6 +42,15 @@ internal fun down(
         false,
         isInitiallyConsumed = false
     )
+
+    if (!historicalData.isNullOrEmpty()) {
+        return pointerInputChange.copy(
+            historical = historicalData
+        )
+    }
+
+    return pointerInputChange
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputChange.moveTo(durationMillis: Long, x: Float = 0f, y: Float = 0f) =
