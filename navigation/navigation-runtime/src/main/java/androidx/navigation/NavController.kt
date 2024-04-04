@@ -2852,8 +2852,8 @@ public inline fun NavController.createGraph(
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
  * respective NavDestination must be added as a [KClass] in order to match.
  * @param route the graph's unique route from a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
- * if [route] uses custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
+ * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
 @ExperimentalSafeArgsApi
@@ -2870,8 +2870,8 @@ public inline fun NavController.createGraph(
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
  * respective NavDestination must be added as a [KClass] in order to match.
  * @param route the graph's unique route from a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
- * if [route] uses custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
+ * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
 @ExperimentalSafeArgsApi
