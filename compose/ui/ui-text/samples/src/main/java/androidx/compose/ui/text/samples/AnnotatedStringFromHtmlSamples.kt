@@ -20,7 +20,9 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.parseAsHtml
+import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
 @Sampled
@@ -31,7 +33,9 @@ fun AnnotatedStringFromHtml() {
     val string = stringResource(id = R.string.example)
 
     // Next, convert a string marked with HTML tags into AnnotatedString to be displayed by Text
-    val styledAnnotatedString = string.parseAsHtml()
+    val styledAnnotatedString = string.parseAsHtml(
+        linkStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+    )
 
     BasicText(styledAnnotatedString)
 }

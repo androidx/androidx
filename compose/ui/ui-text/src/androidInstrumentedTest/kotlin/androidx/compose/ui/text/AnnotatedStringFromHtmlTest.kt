@@ -17,6 +17,7 @@
 package androidx.compose.ui.text
 
 import android.graphics.Typeface
+import android.os.Build
 import android.text.Layout
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -31,9 +32,14 @@ import android.text.style.SuperscriptSpan
 import android.text.style.TypefaceSpan
 import android.text.style.URLSpan
 import android.text.style.UnderlineSpan
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -329,6 +335,7 @@ class AnnotatedStringFromHtmlTest {
         assertThat(actual.spanStyles).containsExactlyElementsIn(expected.spanStyles)
     }
 
+    @Test
     fun verify_urlSpan() {
         val spannable = SpannableStringBuilder()
         spannable.append("a", URLSpan("url"), Spanned.SPAN_INCLUSIVE_INCLUSIVE)
@@ -339,6 +346,61 @@ class AnnotatedStringFromHtmlTest {
         assertThat(spannable.toAnnotatedString().text).isEqualTo(expected.text)
         assertThat(spannable.toAnnotatedString().getLinkAnnotations(0, 1))
             .containsExactlyElementsIn(expected.getLinkAnnotations(0, 1))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_appliesColorFromMethod() {
+        val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
+        val annotatedString = stringWithColoredLink.parseAsHtml(
+            linkStyle = SpanStyle(color = Color.Green)
+        )
+
+        rule.setContent {
+            BasicText(text = annotatedString)
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertDoesNotContainColor(Color.Blue)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_mergesDecorationFromMethod() {
+        val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
+        val annotatedString = stringWithColoredLink.parseAsHtml(
+            linkStyle = SpanStyle(background = Color.Red)
+        )
+
+        rule.setContent {
+            BasicText(text = annotatedString)
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertContainsColor(Color.Red)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun linkAnnotation_constructedFromMethodArguments() {
+        val stringWithLink = "<a href=\"url\">link</a>"
+        val annotatedString = stringWithLink.parseAsHtml(
+            linkStyle = SpanStyle(color = Color.Red),
+            linkFocusedStyle = SpanStyle(color = Color.Green),
+            linkHoveredStyle = SpanStyle(color = Color.Blue),
+            linkInteractionListener = {}
+        )
+
+        val link = annotatedString.getLinkAnnotations(0, 4).first().item as LinkAnnotation.Url
+        assertThat(link.url).isEqualTo("url")
+        assertThat(link.style).isEqualTo(SpanStyle(color = Color.Red))
+        assertThat(link.focusedStyle).isEqualTo(SpanStyle(color = Color.Green))
+        assertThat(link.hoveredStyle).isEqualTo(SpanStyle(color = Color.Blue))
+        assertThat(link.linkInteractionListener).isNotNull()
     }
 
     private fun buildSpannableString(span: Any) = SpannableStringBuilder().also {
