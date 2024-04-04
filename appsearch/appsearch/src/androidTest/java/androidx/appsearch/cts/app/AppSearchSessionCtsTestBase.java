@@ -7676,6 +7676,70 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testGetSchema_indexableNestedPropsList() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures()
+                        .isFeatureSupported(Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES));
+
+        AppSearchSchema personSchema =
+                new AppSearchSchema.Builder("Person")
+                        .addProperty(
+                                new StringPropertyConfig.Builder("name")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setIndexingType(
+                                                StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                        .build())
+                        .addProperty(
+                                new AppSearchSchema.DocumentPropertyConfig.Builder(
+                                        "worksFor", "Organization")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setShouldIndexNestedProperties(false)
+                                        .addIndexableNestedProperties(Collections.singleton("name"))
+                                        .build())
+                        .build();
+        AppSearchSchema organizationSchema =
+                new AppSearchSchema.Builder("Organization")
+                        .addProperty(
+                                new StringPropertyConfig.Builder("name")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setIndexingType(
+                                                StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                        .build())
+                        .addProperty(
+                                new StringPropertyConfig.Builder("notes")
+                                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                                        .setIndexingType(
+                                                StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                        .build())
+                        .build();
+
+        SetSchemaRequest setSchemaRequest =
+                new SetSchemaRequest.Builder()
+                        .addSchemas(personSchema, organizationSchema)
+                        .build();
+        mDb1.setSchemaAsync(setSchemaRequest).get();
+
+        Set<AppSearchSchema> actual = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual).hasSize(2);
+        assertThat(actual).isEqualTo(setSchemaRequest.getSchemas());
+
+        for (AppSearchSchema schema : actual) {
+            if (schema.getSchemaType().equals("Person")) {
+                for (PropertyConfig property : schema.getProperties()) {
+                    if (property.getName().equals("worksFor")) {
+                        assertThat(
+                                ((DocumentPropertyConfig) property)
+                                        .getIndexableNestedProperties()).containsExactly("name");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     public void testSetSchema_dataTypeIncompatibleWithParentTypes() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
         AppSearchSchema messageSchema =
