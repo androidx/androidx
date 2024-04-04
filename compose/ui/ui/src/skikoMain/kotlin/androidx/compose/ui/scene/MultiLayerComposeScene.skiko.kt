@@ -512,7 +512,13 @@ private class MultiLayerComposeSceneImpl(
          * This scenario is important when user code relies on hover events to show tooltips.
          */
         override var boundsInWindow: IntRect by mutableStateOf(IntRect.Zero)
+
+        @Deprecated(
+            message = "Should not be used in this implementation",
+            level = DeprecationLevel.ERROR
+        )
         override var compositionLocalContext: CompositionLocalContext? = null
+
         override var scrimColor: Color? by mutableStateOf(null)
         override var focusable: Boolean = focusable
             set(value) {
@@ -583,7 +589,14 @@ private class MultiLayerComposeSceneImpl(
             composition?.dispose()
             composition = owner.setContent(
                 parent = this@AttachedComposeSceneLayer.compositionContext,
-                { this@AttachedComposeSceneLayer.compositionLocalContext }
+                {
+                    /*
+                     * Do not use `compositionLocalContext` here - composition locals already
+                     * available from `compositionContext` and explicitly overriding it might cause
+                     * issues. See https://github.com/JetBrains/compose-multiplatform/issues/4558
+                     */
+                    null
+                }
             ) {
                 owner.setRootModifier(background then keyInput)
                 content()
