@@ -543,7 +543,15 @@ private class SupportSQLiteMigrationTestHelper(
             this.driverWrapper = DriverWrapper(supportDriver)
         }
 
-        override fun openConnection() = driverWrapper.open(configuration.name ?: ":memory:")
+        override fun openConnection(): SQLiteConnection {
+            val name = configuration.name
+            val filename = if (configuration.name != null) {
+                configuration.context.getDatabasePath(name).absolutePath
+            } else {
+                ":memory:"
+            }
+            return driverWrapper.open(filename)
+        }
 
         inner class SupportOpenHelperCallback(
             version: Int

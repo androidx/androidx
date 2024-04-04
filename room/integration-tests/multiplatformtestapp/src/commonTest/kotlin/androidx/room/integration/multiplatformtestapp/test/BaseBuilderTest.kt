@@ -19,9 +19,18 @@ package androidx.room.integration.multiplatformtestapp.test
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room.RoomDatabase
+import androidx.room.useReaderConnection
 import androidx.sqlite.SQLiteConnection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseBuilderTest {
@@ -67,6 +76,68 @@ abstract class BaseBuilderTest {
         assertThat(onOpenInvoked).isEqualTo(2)
 
         db2.close()
+    }
+
+    @Test
+    fun onOpenExactlyOnce() = runTest {
+        var onOpenInvoked = 0
+
+        val onOpenBlocker = CompletableDeferred<Unit>()
+        val database = getRoomDatabaseBuilder()
+            .addCallback(
+                object : RoomDatabase.Callback() {
+                    // This onOpen callback will block database initialization until the
+                    // onOpenLatch is released.
+                    override fun onOpen(connection: SQLiteConnection) {
+                        onOpenInvoked++
+                        runBlocking { onOpenBlocker.await() }
+                    }
+                }
+            )
+            .build()
+
+        // Start 4 concurrent coroutines that try to open the database and use its connections,
+        // initialization should be done exactly once
+        val launchBlockers = List(4) { CompletableDeferred<Unit>() }
+        val jobs = List(4) { index ->
+            launch(Dispatchers.IO) {
+                launchBlockers[index].complete(Unit)
+                database.useReaderConnection { }
+            }
+        }
+
+        // Wait all launch coroutines to start then release the latch
+        launchBlockers.awaitAll()
+        delay(100) // A bit more waiting so useReaderConnection reaches the exclusive lock
+        onOpenBlocker.complete(Unit)
+
+        jobs.joinAll()
+        database.close()
+
+        // Initialization should be done exactly once
+        assertThat(onOpenInvoked).isEqualTo(1)
+    }
+
+    @Test
+    fun onOpenRecursive() = runTest {
+        var database: SampleDatabase? = null
+        database = getRoomDatabaseBuilder()
+            .setQueryCoroutineContext(Dispatchers.Unconfined)
+            .addCallback(
+                object : RoomDatabase.Callback() {
+                    // Use a bad open callback that will recursively try to open the database
+                    // again, this is a user error.
+                    override fun onOpen(connection: SQLiteConnection) {
+                        runBlocking {
+                            checkNotNull(database).dao().getItemList()
+                        }
+                    }
+                }
+            ).build()
+        assertThrows<IllegalStateException> {
+            database.dao().getItemList()
+        }.hasMessageThat().contains("Recursive database initialization detected.")
+        database.close()
     }
 
     @Test

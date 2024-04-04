@@ -187,6 +187,7 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-bundled"))
+                implementation(libs.okio)
             }
         }
         targets.all { target ->

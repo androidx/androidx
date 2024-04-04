@@ -80,6 +80,20 @@ class BuilderTest {
     }
 
     @Test
+    fun specialMemoryName() {
+        try {
+            databaseBuilder(
+                mock(), RoomDatabase::class.java, ":memory:"
+            ).build()
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message).isEqualTo(
+                "Cannot build a database with the special name ':memory:'. If you are trying " +
+                    "to create an in memory database, use Room.inMemoryDatabaseBuilder"
+            )
+        }
+    }
+
+    @Test
     fun executors_setQueryExecutor() {
         val executor: Executor = mock()
         val db = databaseBuilder(
