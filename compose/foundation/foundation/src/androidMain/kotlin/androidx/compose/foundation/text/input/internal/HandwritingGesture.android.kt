@@ -183,7 +183,12 @@ internal object HandwritingGestureApi34 {
         return when (gesture) {
             is SelectGesture ->
                 performSelectGesture(gesture, textFieldSelectionManager, editCommandConsumer)
-            is DeleteGesture -> performDeleteGesture(gesture, text, editCommandConsumer)
+            is DeleteGesture ->
+                performDeleteGesture(gesture, text, editCommandConsumer)
+            is SelectRangeGesture ->
+                performSelectRangeGesture(gesture, textFieldSelectionManager, editCommandConsumer)
+            is DeleteRangeGesture ->
+                performDeleteRangeGesture(gesture, text, editCommandConsumer)
             else -> InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
     }
@@ -200,10 +205,7 @@ internal object HandwritingGestureApi34 {
             TextInclusionStrategy.ContainsCenter
         ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
 
-        editCommandConsumer.invoke(SetSelectionCommand(range.start, range.end))
-        textSelectionManager?.enterSelectionMode(true)
-        showFloatingToolbar = true
-
+        performSelectionOnLegacyTextField(range, textSelectionManager, editCommandConsumer)
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
@@ -220,7 +222,87 @@ internal object HandwritingGestureApi34 {
             TextInclusionStrategy.ContainsCenter
         ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
 
-        val finalRange = if (granularity == TextGranularity.Word) {
+        performDeletionOnLegacyTextField(
+            range = range,
+            text = text,
+            adjustRange = granularity == TextGranularity.Word,
+            editCommandConsumer = editCommandConsumer
+        )
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.performSelectRangeGesture(
+        gesture: SelectRangeGesture,
+        textSelectionManager: TextFieldSelectionManager?,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        val startRange = getRangeForScreenRect(
+            gesture.selectionStartArea.toComposeRect(),
+            gesture.granularity.toTextGranularity(),
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+
+        val endRange = getRangeForScreenRect(
+            gesture.selectionEndArea.toComposeRect(),
+            gesture.granularity.toTextGranularity(),
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+
+        performSelectionOnLegacyTextField(
+            range = enclosure(startRange, endRange),
+            textSelectionManager = textSelectionManager,
+            editCommandConsumer = editCommandConsumer
+        )
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.performDeleteRangeGesture(
+        gesture: DeleteRangeGesture,
+        text: AnnotatedString,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        val granularity = gesture.granularity.toTextGranularity()
+        val startRange = getRangeForScreenRect(
+            gesture.deletionStartArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+
+        val endRange = getRangeForScreenRect(
+            gesture.deletionEndArea.toComposeRect(),
+            granularity,
+            TextInclusionStrategy.ContainsCenter
+        ) ?: return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+
+        performDeletionOnLegacyTextField(
+            range = enclosure(startRange, endRange),
+            text = text,
+            adjustRange = granularity == TextGranularity.Word,
+            editCommandConsumer = editCommandConsumer
+        )
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun performSelectionOnLegacyTextField(
+        range: TextRange,
+        textSelectionManager: TextFieldSelectionManager?,
+        editCommandConsumer: (EditCommand) -> Unit
+    ) {
+        editCommandConsumer.invoke(SetSelectionCommand(range.start, range.end))
+        textSelectionManager?.enterSelectionMode(showFloatingToolbar = true)
+    }
+
+    @DoNotInline
+    private fun performDeletionOnLegacyTextField(
+        range: TextRange,
+        text: AnnotatedString,
+        adjustRange: Boolean,
+        editCommandConsumer: (EditCommand) -> Unit
+    ) {
+        val finalRange = if (adjustRange) {
             range.adjustHandwritingDeleteGestureRange(text)
         } else {
             range
@@ -235,7 +317,6 @@ internal object HandwritingGestureApi34 {
                 )
             )
         )
-        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
     @DoNotInline
