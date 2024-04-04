@@ -27,7 +27,6 @@ import kotlin.reflect.KClass
  * `androidx.lifecycle.ViewModel`s.
  */
 public expect abstract class AbstractSavedStateViewModelFactory :
-    ViewModelProvider.OnRequeryFactory,
     ViewModelProvider.Factory {
 
     /**

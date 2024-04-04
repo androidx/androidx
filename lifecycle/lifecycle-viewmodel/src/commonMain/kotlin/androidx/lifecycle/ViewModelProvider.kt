@@ -99,7 +99,7 @@ public expect class ViewModelProvider {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open class OnRequeryFactory() {
+    public open class OnRequeryFactory {
         public open fun onRequery(viewModel: ViewModel)
     }
 
