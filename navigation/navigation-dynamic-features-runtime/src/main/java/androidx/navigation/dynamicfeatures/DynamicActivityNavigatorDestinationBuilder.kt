@@ -22,9 +22,13 @@ import android.content.ComponentName
 import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.navigation.ActivityNavigator
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
+import androidx.navigation.NavType
 import androidx.navigation.get
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Construct a new [DynamicActivityNavigator.Destination]
@@ -60,6 +64,25 @@ public inline fun DynamicNavGraphBuilder.activity(
 )
 
 /**
+ * Construct a new [DynamicActivityNavigator.Destination]
+ * @param T Destination route from a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if [T]
+ * does not use custom NavTypes.
+ * @param builder the builder used to construct the graph
+ */
+@ExperimentalSafeArgsApi
+public inline fun <reified T : Any> DynamicNavGraphBuilder.activity(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    DynamicActivityNavigatorDestinationBuilder(
+        provider[DynamicActivityNavigator::class],
+        T::class,
+        typeMap
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [DynamicActivityNavigator.Destination]
  */
 @NavDestinationDsl
@@ -85,6 +108,23 @@ public class DynamicActivityNavigatorDestinationBuilder :
         activityNavigator: DynamicActivityNavigator,
         route: String
     ) : super(activityNavigator, route) {
+        this.activityNavigator = activityNavigator
+    }
+
+    /**
+     * DSL for constructing a new [DynamicActivityNavigator.Destination]
+     *
+     * @param activityNavigator navigator used to create the destination
+     * @param route the route from a [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     */
+    @ExperimentalSafeArgsApi
+    public constructor(
+        activityNavigator: DynamicActivityNavigator,
+        route: KClass<*>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+    ) : super(activityNavigator, route, typeMap) {
         this.activityNavigator = activityNavigator
     }
 
