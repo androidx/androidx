@@ -42,20 +42,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -65,7 +70,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -230,6 +237,56 @@ class SharedTransitionScope internal constructor(
         private set
 
     /**
+     * [scaleInSharedContentToBounds] creates a [EnterTransition] that scales the child content
+     * to the animated size during bounds transform.
+     *
+     * The content will first be measured with lookahead constraints to obtain the size of
+     * the stable layout. Then the scale for both width and height will be derived based
+     * on 1) the stable size of the layout, 2) the animated size of the parent (i.e. the
+     * space to fit the stable content in), and 3) the [contentScale] provided. The resulting
+     * effect is that the child layout does not re-layout during the size animation. Instead, it
+     * will animate the scale of the stable layout based on the animated size.
+     *
+     * [alignment] will be used to calculate the placement of the scaled content. It is
+     * [Alignment.Center] by default.
+     *
+     * The returned [EnterTransition] can be combined with any other [EnterTransition].
+     * The specific order of [EnterTransition] doesn't matter.
+     * [fadeIn] + [scaleInSharedContentToBounds] is the default [EnterTransition] for
+     * [sharedBounds].
+     */
+    fun scaleInSharedContentToBounds(
+        contentScale: ContentScale = ContentScale.Fit,
+        alignment: Alignment = Alignment.Center
+    ): EnterTransition =
+        EnterTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
+
+    /**
+     * [scaleOutSharedContentToBounds] creates an [ExitTransition] that scales the child content
+     * to the animated size during bounds transform.
+     *
+     * The content will first be measured with lookahead constraints to obtain the size of
+     * the stable layout. Then the scale for both width and height will be derived based
+     * on 1) the stable size of the layout, 2) the animated size of the parent (i.e. the
+     * space to fit the stable content in), and 3) the [contentScale] provided. The resulting
+     * effect is that the child layout does not re-layout during the size animation. Instead, it
+     * will animate the scale of the stable layout based on the animated size.
+     *
+     * [alignment] will be used to calculate the placement of the scaled content. It is
+     * [Alignment.Center] by default.
+     *
+     * The returned [ExitTransition] can be combined with any other [ExitTransition].
+     * The specific order of [ExitTransition] doesn't matter.
+     * [fadeOut] + [scaleOutSharedContentToBounds] is the default [ExitTransition] for
+     * [sharedBounds].
+     */
+    fun scaleOutSharedContentToBounds(
+        contentScale: ContentScale = ContentScale.Fit,
+        alignment: Alignment = Alignment.Center
+    ): ExitTransition =
+        ExitTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
+
+    /**
      * [skipToLookaheadSize] enables a layout to measure its child with the lookahead constraints,
      * therefore laying out the child as if the transition has finished. This is particularly
      * helpful for layouts where re-flowing content based on animated constraints is undesirable,
@@ -239,7 +296,7 @@ class SharedTransitionScope internal constructor(
      * difference:
      * @sample androidx.compose.animation.samples.NestedSharedBoundsSample
      */
-    fun Modifier.skipToLookaheadSize(): Modifier = this.then(SkipToLookaheadElement)
+    fun Modifier.skipToLookaheadSize(): Modifier = this.then(SkipToLookaheadElement())
 
     /**
      * Renders the content in the [SharedTransitionScope]'s overlay, where shared content (i.e.
@@ -339,7 +396,7 @@ class SharedTransitionScope internal constructor(
      *
      * While the shared elements are rendered in overlay during the transition, its
      * [zIndexInOverlay] can be specified to allow shared elements to render in a different order
-     * than their placement/zOrder when not in the overlay. For example, the tile of a page is
+     * than their placement/zOrder when not in the overlay. For example, the title of a page is
      * typically placed and rendered before the content below. During the transition, it may be
      * desired to animate the title over on top of the other shared elements on that page to
      * indicate significance or a point of interest. [zIndexInOverlay] can be used to facilitate
@@ -396,9 +453,15 @@ class SharedTransitionScope internal constructor(
      * In contrast to [sharedElement], [sharedBounds] is designed for shared content that has the
      * visually different content. While the [sharedBounds] keeps the continuity of the bounds,
      * the incoming and outgoing content within the [sharedBounds] will enter and exit in an
-     * enter/exit transition using [enter]/[exit]. They fade in/out by default.
-     * The target bounds for [sharedBounds] are determined by the bounds of the [sharedBounds]
-     * becoming visible based on the target state of [animatedVisibilityScope].
+     * enter/exit transition using [enter]/[exit]. By default,
+     * [fadeIn] + [scaleInSharedContentToBounds] and [fadeOut] + [scaleOutSharedContentToBounds]
+     * are used to fade the content in or out while scale the content to [fit][ContentScale.Fit]
+     * within the animating bounds. The target bounds for [sharedBounds] are determined by the
+     * bounds of the [sharedBounds] becoming visible based on the target state of
+     * [animatedVisibilityScope]. If there's a need to relayout content (rather than scaling)
+     * based on the animated bounds size (e.g. dynamically resizing a Row), suggest using
+     * [EnterTransition] and [ExitTransition] that don't include [scaleInSharedContentToBounds]
+     * and [scaleOutSharedContentToBounds].
      *
      * **Important**:
      * When a shared bounds finds its match and starts a transition, it will be rendered into
@@ -418,7 +481,7 @@ class SharedTransitionScope internal constructor(
      *
      * While the shared bounds are rendered in overlay during the transition, its
      * [zIndexInOverlay] can be specified to allow them to render in a different order
-     * than their placement/zOrder when not in the overlay. For example, the tile of a page is
+     * than their placement/zOrder when not in the overlay. For example, the title of a page is
      * typically placed and rendered before the content below. During the transition, it may be
      * desired to animate the title over on top of the other shared elements on that page to
      * indicate significance or a point of interest. [zIndexInOverlay] can be used to facilitate
@@ -439,6 +502,13 @@ class SharedTransitionScope internal constructor(
      * layout dynamically adjusts the layout to accommodate the animated size of the shared
      * elements.
      *
+     * @sample androidx.compose.animation.samples.SharedElementInAnimatedContentSample
+     *
+     * Since [sharedBounds] show both incoming and outgoing content in its bounds, it affords
+     * opportunities to do interesting transitions where additional [sharedElement] and
+     * [sharedBounds] can be nested in a parent [sharedBounds]. See the sample code below
+     * for a more complex example with nested shared bounds/elements.
+     *
      * @sample androidx.compose.animation.samples.NestedSharedBoundsSample
      * @see [sharedBounds]
      */
@@ -446,8 +516,9 @@ class SharedTransitionScope internal constructor(
     fun Modifier.sharedBounds(
         sharedContentState: SharedContentState,
         animatedVisibilityScope: AnimatedVisibilityScope,
-        enter: EnterTransition = fadeIn(),
-        exit: ExitTransition = fadeOut(),
+        enter: EnterTransition =
+            fadeIn() + scaleInSharedContentToBounds(ContentScale.Fit),
+        exit: ExitTransition = fadeOut() + scaleOutSharedContentToBounds(ContentScale.Fit),
         boundsTransform: BoundsTransform = DefaultBoundsTransform,
         placeHolderSize: PlaceHolderSize = contentSize,
         renderInOverlayDuringTransition: Boolean = true,
@@ -467,12 +538,31 @@ class SharedTransitionScope internal constructor(
                 renderOnlyWhenVisible = false
             )
             .composed {
-                animatedVisibilityScope.transition.createModifier(
-                    enter = enter,
-                    exit = exit,
-                    isEnabled = { sharedContentState.isMatchFound },
-                    label = "enter/exit for ${sharedContentState.key}"
-                )
+                enter[ContentScaleTransitionEffect]?.isEnabled = {
+                    // Since we don't know if a match is found when this is composed,
+                    // we have to defer the decision to enable or disable content
+                    // scaling until later in the frame. This later time could be
+                    // later in the composition, or during measurement/placement from
+                    // subcomposition.
+                    sharedContentState.isMatchFound
+                }
+                exit[ContentScaleTransitionEffect]?.isEnabled = {
+                    sharedContentState.isMatchFound
+                }
+                animatedVisibilityScope.transition
+                    .createModifier(
+                        enter = enter,
+                        exit = exit,
+                        isEnabled = {
+                            // Since we don't know if a match is found when this is composed,
+                            // we have to defer the decision to enable or disable content
+                            // scaling until later in the frame. This later time could be
+                            // later in the composition, or during measurement/placement from
+                            // subcomposition.
+                            sharedContentState.isMatchFound
+                        },
+                        label = "enter/exit for ${sharedContentState.key}"
+                    )
             }
 
     /**
@@ -523,7 +613,7 @@ class SharedTransitionScope internal constructor(
      *
      * While the shared elements are rendered in overlay during the transition, its
      * [zIndexInOverlay] can be specified to allow shared elements to render in a different order
-     * than their placement/zOrder when not in the overlay. For example, the tile of a page is
+     * than their placement/zOrder when not in the overlay. For example, the title of a page is
      * typically placed and rendered before the content below. During the transition, it may be
      * desired to animate the title over on top of the other shared elements on that page to
      * indicate significance or a point of interest. [zIndexInOverlay] can be used to facilitate
@@ -614,7 +704,7 @@ class SharedTransitionScope internal constructor(
      *
      * While the shared bounds are rendered in overlay during the transition, its
      * [zIndexInOverlay] can be specified to allow shared bounds to render in a different order
-     * than their placement/zOrder when not in the overlay. For example, the tile of a page is
+     * than their placement/zOrder when not in the overlay. For example, the title of a page is
      * typically placed and rendered before other layouts. During the transition, it may be
      * desired to animate the title over on top of the other shared elements on that page to
      * indicate significance or a point of interest. [zIndexInOverlay] can be used to facilitate
@@ -919,29 +1009,53 @@ class SharedTransitionScope internal constructor(
     }
 }
 
-private object SkipToLookaheadElement : ModifierNodeElement<SkipToLookaheadNode>() {
+private val DefaultEnabled: () -> Boolean = { true }
+
+internal fun Modifier.createContentScaleModifier(
+    contentScaleTransitionEffect: ContentScaleTransitionEffect,
+    isEnabled: () -> Boolean
+): Modifier =
+    this.then(
+        if (contentScaleTransitionEffect.contentScale == ContentScale.Crop) {
+            Modifier.graphicsLayer {
+                clip = isEnabled()
+            }
+        } else
+            Modifier
+    ) then SkipToLookaheadElement(contentScaleTransitionEffect, isEnabled)
+
+private data class SkipToLookaheadElement(
+    val contentScaleTransitionEffect: ContentScaleTransitionEffect? = null,
+    val isEnabled: () -> Boolean = DefaultEnabled,
+
+    ) : ModifierNodeElement<SkipToLookaheadNode>() {
     override fun create(): SkipToLookaheadNode {
-        return SkipToLookaheadNode()
+        return SkipToLookaheadNode(contentScaleTransitionEffect, isEnabled)
     }
 
-    override fun hashCode(): Int {
-        return SkipToLookaheadElement::class.hashCode()
+    override fun update(node: SkipToLookaheadNode) {
+        node.contentScaleTransitionEffect = contentScaleTransitionEffect
+        node.isEnabled = isEnabled
     }
-
-    override fun equals(other: Any?): Boolean {
-        return other is SkipToLookaheadElement
-    }
-
-    override fun update(node: SkipToLookaheadNode) {}
 
     override fun InspectorInfo.inspectableProperties() {
         name = "skipToLookahead"
+        properties["contentScaleTransitionEffect"] = contentScaleTransitionEffect
+        properties["isEnabled"] = isEnabled
     }
 }
 
-private class SkipToLookaheadNode : LayoutModifierNode,
+private class SkipToLookaheadNode(
+    contentScaleTransitionEffect: ContentScaleTransitionEffect?,
+    isEnabled: () -> Boolean
+) : LayoutModifierNode,
     Modifier.Node() {
     var lookaheadConstraints: Constraints? = null
+    var contentScaleTransitionEffect: ContentScaleTransitionEffect? by mutableStateOf(
+        contentScaleTransitionEffect
+    )
+    var isEnabled: () -> Boolean by mutableStateOf(isEnabled)
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -950,9 +1064,37 @@ private class SkipToLookaheadNode : LayoutModifierNode,
             lookaheadConstraints = constraints
         }
         val p = measurable.measure(lookaheadConstraints!!)
-        val (w, h) = constraints.constrain(IntSize(p.width, p.height))
-        return layout(w, h) {
-            p.place(0, 0)
+        val contentSize = IntSize(p.width, p.height)
+        val constrainedSize = constraints.constrain(contentSize)
+        return layout(constrainedSize.width, constrainedSize.height) {
+            val contentScaleTransitionEffect = contentScaleTransitionEffect
+            if (!isEnabled() || contentScaleTransitionEffect == null) {
+                p.place(0, 0)
+            } else {
+                val contentScale = contentScaleTransitionEffect.contentScale
+                val resolvedScale =
+                    if (contentSize.width == 0 || contentSize.height == 0) {
+                        ScaleFactor(1f, 1f)
+                    } else
+                        contentScale.computeScaleFactor(
+                            contentSize.toSize(),
+                            constrainedSize.toSize()
+                        )
+
+                val (x, y) = contentScaleTransitionEffect.alignment.align(
+                    IntSize(
+                        (contentSize.width * resolvedScale.scaleX).roundToInt(),
+                        (contentSize.height * resolvedScale.scaleY).roundToInt()
+                    ),
+                    constrainedSize,
+                    layoutDirection
+                )
+                p.placeWithLayer(x, y) {
+                    scaleX = resolvedScale.scaleX
+                    scaleY = resolvedScale.scaleY
+                    transformOrigin = TransformOrigin(0f, 0f)
+                }
+            }
         }
     }
 }
@@ -986,3 +1128,5 @@ private val DefaultClipInOverlayDuringTransition: (LayoutDirection, Density) -> 
 
 @ExperimentalSharedTransitionApi
 private val DefaultBoundsTransform = BoundsTransform { _, _ -> DefaultSpring }
+
+internal const val VisualDebugging = false

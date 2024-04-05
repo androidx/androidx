@@ -20,7 +20,6 @@ package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -107,7 +106,7 @@ fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selecte
     }
 }
 
-context(SharedTransitionScope)
+context(SharedTransitionScope, AnimatedVisibilityScope)
 @Composable
 fun Details(kitty: Kitty) {
     Column(
@@ -125,7 +124,12 @@ fun Details(kitty: Kitty) {
                 Text(
                     kitty.name,
                     fontSize = 25.sp,
-                    modifier = Modifier.padding(start = 10.dp)
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        .sharedBounds(
+                            rememberSharedContentState(key = kitty.name + kitty.id),
+                            this@AnimatedVisibilityScope
+                        )
                 )
                 Text(
                     kitty.breed,
@@ -133,6 +137,10 @@ fun Details(kitty: Kitty) {
                     color = Color.Gray,
                     modifier = Modifier
                         .padding(start = 10.dp)
+                        .sharedBounds(
+                            rememberSharedContentState(key = kitty.breed + kitty.id),
+                            this@AnimatedVisibilityScope
+                        )
                 )
                 Spacer(Modifier.size(10.dp))
             }
@@ -189,7 +197,6 @@ fun Details(kitty: Kitty) {
                 " Fusce nisl ex, fermentum a ultrices id, rhoncus vitae urna. Aliquam quis" +
                 " lobortis turpis.\n" +
                 "\n",
-            modifier = Modifier.skipToLookaheadSize(),
             color = Color.Gray,
             fontSize = 15.sp,
         )
@@ -207,8 +214,12 @@ fun DetailView(
     Column(
         Modifier
             .sharedBounds(
-                rememberSharedContentState(key = "container + ${selected.id}"),
+                rememberSharedContentState(
+                    key = "container + ${selected.id}"
+                ),
                 this@AnimatedVisibilityScope,
+                scaleInSharedContentToBounds(contentScale = ContentScale.Crop),
+                scaleOutSharedContentToBounds(contentScale = ContentScale.Crop),
                 clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp))
             )
     ) {
@@ -247,7 +258,6 @@ fun DetailView(
 }
 
 context(AnimatedVisibilityScope, SharedTransitionScope)
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun GridView(model: MyModel) {
     Box(Modifier.background(lessVibrantPurple)) {
@@ -259,9 +269,10 @@ fun GridView(model: MyModel) {
         ) {
             SearchBar()
         }
-        LazyVerticalGrid(columns = GridCells.Fixed(2),
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(top = 90.dp)
-            ) {
+        ) {
             items(6) {
                 KittyItem(model.items[it])
             }
@@ -312,7 +323,12 @@ fun KittyItem(kitty: Kitty) {
         Text(
             kitty.name,
             fontSize = 18.sp,
-            modifier = Modifier.padding(start = 10.dp)
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .sharedBounds(
+                    rememberSharedContentState(key = kitty.name + kitty.id),
+                    this@AnimatedVisibilityScope
+                )
         )
         Spacer(Modifier.size(5.dp))
         Text(
@@ -321,6 +337,10 @@ fun KittyItem(kitty: Kitty) {
             color = Color.Gray,
             modifier = Modifier
                 .padding(start = 10.dp)
+                .sharedBounds(
+                    rememberSharedContentState(key = kitty.breed + kitty.id),
+                    this@AnimatedVisibilityScope
+                )
         )
         Spacer(Modifier.size(10.dp))
     }
