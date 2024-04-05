@@ -11,10 +11,13 @@ sourceSets {
     main.resources.srcDirs += "${supportRootFolder}/benchmark/benchmark-darwin-gradle-plugin/src/main/resources"
 
     // Baseline profile
-    main.java.srcDirs += "${supportRootFolder}" +
-            "/benchmark/baseline-profile-gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}" +
-            "/benchmark/baseline-profile-gradle-plugin/src/main/resources"
+    // we update /benchmark/baseline-profile-gradle-plugin from upstream, but don't uppdate /buildSrc
+    // this leads to compilation errors
+    // we don't use in our fork
+//    main.java.srcDirs += "${supportRootFolder}" +
+//            "/benchmark/baseline-profile-gradle-plugin/src/main/kotlin"
+//    main.resources.srcDirs += "${supportRootFolder}" +
+//            "/benchmark/baseline-profile-gradle-plugin/src/main/resources"
 
     // Compose
     main.java.srcDirs += "${supportRootFolder}/compose/material/material/icons/generator/src/main" +
