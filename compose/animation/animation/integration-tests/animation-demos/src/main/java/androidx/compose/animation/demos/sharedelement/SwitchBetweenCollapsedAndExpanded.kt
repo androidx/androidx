@@ -19,7 +19,6 @@
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -49,6 +48,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -62,7 +62,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -75,30 +74,24 @@ import androidx.compose.ui.zIndex
 @Preview
 @Composable
 fun SwitchBetweenCollapsedAndExpanded() {
-    var expanded by remember { mutableStateOf(false) }
+    var showExpandedCard by remember { mutableStateOf(false) }
     Box(
         Modifier.clickable(onClick = {
-            expanded = !expanded
+            showExpandedCard = !showExpandedCard
         },
             indication = null,
             interactionSource = remember { MutableInteractionSource() }
         )) {
         SharedTransitionLayout {
-            CollapsedCard(!expanded)
-            AnimatedVisibility(
-                visible = expanded, Modifier.fillMaxSize(),
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                ExpandedCard()
-            }
+            HomePage(!showExpandedCard)
+            ExpandedCard(showExpandedCard)
         }
     }
 }
 
 context(SharedTransitionScope)
 @Composable
-fun CollapsedCard(showSharedElement: Boolean) {
+fun HomePage(showCard: Boolean) {
     Box(
         Modifier
             .fillMaxSize()
@@ -111,13 +104,10 @@ fun CollapsedCard(showSharedElement: Boolean) {
                     .fillMaxWidth()
                     .aspectRatio(1.1f)
             ) {
-                this@Column.AnimatedVisibility(visible = showSharedElement) {
+                androidx.compose.animation.AnimatedVisibility(visible = showCard) {
                     Column(
                         Modifier
                             .padding(top = 10.dp, start = 10.dp, end = 10.dp)
-                            .graphicsLayer {
-                                this.alpha = alpha
-                            }
                             .sharedBounds(
                                 rememberSharedContentState(key = "container"),
                                 this@AnimatedVisibility,
@@ -126,7 +116,7 @@ fun CollapsedCard(showSharedElement: Boolean) {
                                 )
                             )
                             .clip(shape = RoundedCornerShape(20.dp))
-                            .background(color = Color(0xff333338)),
+                            .background(color = cardBackgroundColor),
                     ) {
                         Box {
                             Column {
@@ -193,22 +183,15 @@ fun CollapsedCard(showSharedElement: Boolean) {
                             Modifier
                                 .fillMaxWidth()
                                 .zIndex(1f)
-                                .padding(start = 15.dp, end = 15.dp, top = 10.dp, bottom = 10.dp)
                                 .sharedElementWithCallerManagedVisibility(
                                     rememberSharedContentState(key = "install_bar"),
-                                    showSharedElement,
+                                    showCard,
                                 )
                         )
                     }
                 }
             }
-            Image(
-                painterResource(R.drawable.app_hero_cluster), contentDescription = null,
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(align = Alignment.Top, unbounded = true),
-                contentScale = ContentScale.FillWidth
-            )
+            Cluster()
         }
         Image(
             painterResource(R.drawable.navigation_bar), contentDescription = null,
@@ -220,105 +203,142 @@ fun CollapsedCard(showSharedElement: Boolean) {
     }
 }
 
-context(SharedTransitionScope, AnimatedVisibilityScope)
 @Composable
-fun ExpandedCard() {
-    Box(
+fun Cluster() {
+    Text(
+        text = "Lorem ipsum",
+        Modifier.padding(top = 20.dp, bottom = 10.dp, start = 20.dp),
+        color = Color.Black,
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.W500,
+        fontSize = 25.sp
+    )
+    Row(
         Modifier
-            .fillMaxSize()
-            .background(Color(0x55000000))
+            .wrapContentWidth(align = Alignment.Start, unbounded = true)
     ) {
-        Column(
+        Image(
+            painterResource(R.drawable.item0), contentDescription = null,
+            modifier = Modifier
+                .requiredHeight(200.dp)
+                .padding(start = 10.dp, top = 10.dp, bottom = 10.dp)
+                .clip(RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.FillHeight
+        )
+        Image(
+            painterResource(R.drawable.item1), contentDescription = null,
+            modifier = Modifier
+                .requiredHeight(200.dp)
+                .padding(10.dp)
+                .clip(RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.FillHeight
+        )
+    }
+}
+
+context(SharedTransitionScope)
+@Composable
+fun ExpandedCard(visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible, Modifier.fillMaxSize(),
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
             Modifier
-                .align(Alignment.Center)
-                .padding(20.dp)
-                .sharedBounds(
-                    rememberSharedContentState(key = "container"),
-                    this@AnimatedVisibilityScope,
-                    enter = EnterTransition.None,
-                    exit = ExitTransition.None,
-                    clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp))
-                )
-                .clip(shape = RoundedCornerShape(20.dp))
-                .background(Color(0xff333338))
+                .fillMaxSize()
+                .background(Color(0x55000000))
         ) {
             Column(
                 Modifier
-                    .renderInSharedTransitionScopeOverlay(
-                        zIndexInOverlay = 1f
+                    .align(Alignment.Center)
+                    .padding(20.dp)
+                    .sharedBounds(
+                        rememberSharedContentState(key = "container"),
+                        this@AnimatedVisibility,
+                        enter = EnterTransition.None,
+                        exit = ExitTransition.None,
+                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp))
                     )
-                    .animateEnterExit(
-                        fadeIn() + slideInVertically { it / 3 },
-                        fadeOut() + slideOutVertically { it / 3 }
-                    )
-                    .skipToLookaheadSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color.Transparent, Color.Black, Color.Transparent)
-                        )
-                    )
-                    .padding(start = 20.dp, end = 20.dp),
+                    .clip(shape = RoundedCornerShape(20.dp))
+                    .background(cardBackgroundColor)
             ) {
-                Text(
-                    text = "Lorem ipsum",
+                Column(
                     Modifier
-                        .padding(top = 20.dp, bottom = 10.dp)
-                        .background(Color.LightGray, shape = RoundedCornerShape(15.dp))
-                        .padding(top = 8.dp, bottom = 8.dp, start = 15.dp, end = 15.dp),
-                    color = Color.Black,
-                    fontFamily = FontFamily.Default,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp
+                        .renderInSharedTransitionScopeOverlay(
+                            zIndexInOverlay = 1f
+                        )
+                        .animateEnterExit(
+                            fadeIn() + slideInVertically { it / 3 },
+                            fadeOut() + slideOutVertically { it / 3 }
+                        )
+                        .skipToLookaheadSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color.Transparent, Color.Black, Color.Transparent)
+                            )
+                        )
+                        .padding(start = 20.dp, end = 20.dp),
+                ) {
+                    Text(
+                        text = "Lorem ipsum",
+                        Modifier
+                            .padding(top = 20.dp, bottom = 10.dp)
+                            .background(Color.LightGray, shape = RoundedCornerShape(15.dp))
+                            .padding(top = 8.dp, bottom = 8.dp, start = 15.dp, end = 15.dp),
+                        color = Color.Black,
+                        fontFamily = FontFamily.Default,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                    Text(
+                        text = title,
+                        color = Color.White,
+                        fontSize = 30.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp)
+                    )
+                }
+                Image(
+                    painterResource(R.drawable.quiet_night), contentDescription = null,
+                    modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .sharedElement(
+                            rememberSharedContentState("quiet_night"),
+                            this@AnimatedVisibility,
+                        ),
+                    contentScale = ContentScale.FillWidth
                 )
+
                 Text(
-                    text = title,
-                    color = Color.White,
-                    fontSize = 30.sp,
+                    text = longText,
+                    color = Color.Gray,
+                    fontSize = 15.sp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 20.dp)
+                        .padding(start = 15.dp, end = 10.dp, top = 10.dp)
+                        .height(50.dp)
+                        .sharedElement(
+                            rememberSharedContentState("longText"),
+                            this@AnimatedVisibility,
+                        )
+                        .clipToBounds()
+                        .wrapContentHeight(align = Alignment.Top, unbounded = true)
+                        .skipToLookaheadSize(),
+                )
+
+                InstallBar(
+                    Modifier
+                        .fillMaxWidth()
+                        .zIndex(1f)
+                        .sharedElement(
+                            rememberSharedContentState("install_bar"),
+                            this@AnimatedVisibility,
+                        )
                 )
             }
-            Image(
-                painterResource(R.drawable.quiet_night), contentDescription = null,
-                modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .sharedElement(
-                        rememberSharedContentState("quiet_night"),
-                        this@AnimatedVisibilityScope,
-                    ),
-                contentScale = ContentScale.FillWidth
-            )
-
-            Text(
-                text = longText,
-                color = Color.Gray,
-                fontSize = 15.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 15.dp, end = 10.dp, top = 10.dp)
-                    .height(50.dp)
-                    .sharedElement(
-                        rememberSharedContentState("longText"),
-                        this@AnimatedVisibilityScope,
-                    )
-                    .clipToBounds()
-                    .wrapContentHeight(align = Alignment.Top, unbounded = true)
-                    .skipToLookaheadSize(),
-            )
-
-            InstallBar(
-                Modifier
-                    .fillMaxWidth()
-                    .zIndex(1f)
-                    .background(Color(0xff333338))
-                    .padding(start = 15.dp, end = 15.dp, top = 10.dp, bottom = 10.dp)
-                    .sharedElement(
-                        rememberSharedContentState("install_bar"),
-                        this@AnimatedVisibilityScope,
-                    )
-            )
         }
     }
 }
@@ -345,6 +365,8 @@ private fun SearchBarAndTabs() {
 private fun InstallBar(modifier: Modifier) {
     Row(
         modifier
+            .background(Color(0xff444448))
+            .padding(start = 5.dp, end = 15.dp, top = 10.dp, bottom = 10.dp)
             .fillMaxWidth()
             .requiredHeight(60.dp)
     ) {
@@ -370,9 +392,9 @@ private fun InstallBar(modifier: Modifier) {
         Text(
             text = "Lorem",
             Modifier
-                .background(Color.Gray, shape = RoundedCornerShape(15.dp))
+                .background(Color.Gray, shape = RoundedCornerShape(25.dp))
                 .align(Alignment.CenterVertically)
-                .padding(top = 8.dp, bottom = 8.dp, start = 15.dp, end = 15.dp),
+                .padding(top = 8.dp, bottom = 8.dp, start = 25.dp, end = 25.dp),
             color = Color.White,
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Bold,
@@ -392,3 +414,5 @@ private const val longText =
         "dolor morbi. A lacus vestibulum sed arcu non odio euismod. Integer enim neque volutpat" +
         " ac tincidunt vitae. Nunc lobortis mattis aliquam faucibus purus in. In egestas erat " +
         "imperdiet sed euismod nisi porta lorem. Fermentum leo vel orci porta non."
+
+private val cardBackgroundColor = Color(0xff222222)
