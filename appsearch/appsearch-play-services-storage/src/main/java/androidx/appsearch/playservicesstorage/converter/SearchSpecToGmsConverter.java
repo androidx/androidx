@@ -94,6 +94,11 @@ public final class SearchSpecToGmsConverter {
                 throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
                         + " is not available on this AppSearch implementation.");
             }
+            if (jetpackSearchSpec.isListFilterTokenizeFunctionEnabled()) {
+                // TODO(b/332620561): Remove this once 'tokenize' is supported.
+                throw new UnsupportedOperationException(Features.LIST_FILTER_TOKENIZE_FUNCTION
+                        + " is not available on this AppSearch implementation.");
+            }
         }
 
         if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {

@@ -257,6 +257,21 @@ public interface AppSearchSession extends Closeable {
      *     <li>Complex: (foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)) AND bar</li>
      * </ul>
      *
+     * <p>{@link Features#LIST_FILTER_TOKENIZE_FUNCTION}: This feature covers the
+     * "tokenize" function in query expressions, which takes a string and treats the entire string
+     * as plain text. This string is then segmented, normalized and stripped of punctuation-only
+     * segments. The remaining tokens are then AND'd together. This function is useful for callers
+     * who wish to provide user input, but want to ensure that that user input does not invoke any
+     * query operators.
+     *
+     * <p>Ex. `foo OR tokenize("bar OR baz.")`. The string "bar OR baz." will be segmented into
+     * "bar", "OR", "baz", ".". Punctuation is removed and the segments are normalized to "bar",
+     * "or", "baz". This query will be equivalent to `foo OR (bar AND or AND baz)`.
+     *
+     * <p>Ex. `tokenize("\"bar\" OR \\baz")`. Quotation marks and escape characters must be escaped.
+     * This query will be segmented into "\"", "bar", "\"", "OR", "\", "baz". Once stripped of
+     * punctuation and normalized, this will be equivalent to the query `bar AND or AND baz`.
+     *
      * <p>The availability of each of these features can be checked by calling
      * {@link Features#isFeatureSupported} with the desired feature.
      *
