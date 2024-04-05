@@ -22,6 +22,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
+import androidx.compose.ui.events.EventTargetListener
 import androidx.compose.ui.events.toNativeDragEvent
 import androidx.compose.ui.events.toNativePointerEvent
 import androidx.compose.ui.events.toNativeScrollEvent
@@ -72,9 +73,16 @@ private interface ComposeWindowState {
     fun init() {}
     fun sizeFlow(): Flow<IntSize>
 
+    val globalEvents: EventTargetListener
+
+    fun dispose() {
+        globalEvents.dispose()
+    }
+
     companion object {
         fun createFromLambda(lambda: suspend () -> IntSize): ComposeWindowState {
             return object : ComposeWindowState {
+                override val globalEvents = EventTargetListener(window)
                 override fun sizeFlow(): Flow<IntSize> = flow {
                     while (coroutineContext.isActive) {
                         emit(lambda())
@@ -88,10 +96,13 @@ private interface ComposeWindowState {
 private class DefaultWindowState(private val viewportContainer: Element) : ComposeWindowState {
     private val channel = Channel<IntSize>(CONFLATED)
 
+    override val globalEvents = EventTargetListener(window)
+
     override fun init() {
-        window.addEventListener("resize", {
+
+        globalEvents.addDisposableEvent("resize") {
             channel.trySend(getParentContainerBox())
-        })
+        }
 
         initMediaEventListener {
             channel.trySend(getParentContainerBox())
@@ -133,6 +144,9 @@ private class ComposeWindow(
     private val _windowInfo = WindowInfoImpl().apply {
         isWindowFocused = true
     }
+
+    private val canvasEvents = EventTargetListener(canvas)
+
     private val jsTextInputService = JSTextInputService()
     private val platformContext: PlatformContext =
         object : PlatformContext by PlatformContext.Empty {
@@ -163,7 +177,7 @@ private class ComposeWindow(
         type: String,
         handler: (event: T) -> Unit
     ) {
-        canvas.addEventListener(type, { event -> handler(event as T) })
+        canvasEvents.addDisposableEvent(type) { event -> handler(event as T) }
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
@@ -234,13 +248,13 @@ private class ComposeWindow(
             if (processed) event.preventDefault()
         }
 
-        window.addEventListener("focus", {
+        state.globalEvents.addDisposableEvent("focus") {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        })
+        }
 
-        window.addEventListener("blur", {
+        state.globalEvents.addDisposableEvent("blur") {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        })
+        }
 
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
@@ -296,6 +310,10 @@ private class ComposeWindow(
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         layer.dispose()
         systemThemeObserver.dispose()
+        state.dispose()
+        // modern browsers supposed to garbage collect all events on the element disposed
+        // but actually we never can be sure dom element was collected in first place
+        canvasEvents.dispose()
     }
 }
 
