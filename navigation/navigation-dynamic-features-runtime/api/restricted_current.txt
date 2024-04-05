@@ -89,6 +89,7 @@ package androidx.navigation.dynamicfeatures {
   @androidx.navigation.NavDestinationDsl public final class DynamicIncludeNavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
     ctor @Deprecated public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, @IdRes int id, String moduleName, String graphResourceName);
     ctor public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, String route, String moduleName, String graphResourceName);
+    ctor @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, kotlin.reflect.KClass<?> route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap, String moduleName, String graphResourceName);
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph build();
     method public String? getGraphPackage();
     method public void setGraphPackage(String?);
@@ -100,6 +101,8 @@ package androidx.navigation.dynamicfeatures {
     method @Deprecated public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
     method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String moduleName, String graphResourceName);
     method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String moduleName, String graphResourceName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public static inline <reified T> void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String moduleName, String graphResourceName, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public static inline <reified T> void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String moduleName, String graphResourceName, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public class DynamicInstallManager {
