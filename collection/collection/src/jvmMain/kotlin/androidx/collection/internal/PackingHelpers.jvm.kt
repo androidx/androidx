@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy.layout
+@file:Suppress("NOTHING_TO_INLINE")
 
-actual fun getDefaultLazyLayoutKey(index: Int): Any = DefaultLazyKey(index)
+package androidx.collection.internal
 
-private data class DefaultLazyKey(private val index: Int)
+@PublishedApi
+internal actual inline fun floatFromBits(bits: Int): Float = java.lang.Float.intBitsToFloat(bits)
