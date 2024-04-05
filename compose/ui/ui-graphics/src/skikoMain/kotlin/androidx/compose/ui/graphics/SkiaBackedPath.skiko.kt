@@ -43,6 +43,7 @@ fun Path.asSkiaPath(): org.jetbrains.skia.Path =
         throw UnsupportedOperationException("Unable to obtain org.jetbrains.skia.Path")
     }
 
+@Suppress("OVERRIDE_DEPRECATION")
 internal class SkiaBackedPath(
     internalPath: org.jetbrains.skia.Path = org.jetbrains.skia.Path()
 ) : Path {
@@ -51,10 +52,10 @@ internal class SkiaBackedPath(
 
     override var fillType: PathFillType
         get() {
-            if (internalPath.fillMode == PathFillMode.EVEN_ODD) {
-                return PathFillType.EvenOdd
+            return if (internalPath.fillMode == PathFillMode.EVEN_ODD) {
+                PathFillType.EvenOdd
             } else {
-                return PathFillType.NonZero
+                PathFillType.NonZero
             }
         }
 
@@ -87,7 +88,15 @@ internal class SkiaBackedPath(
         internalPath.quadTo(x1, y1, x2, y2)
     }
 
+    override fun quadraticTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+        internalPath.quadTo(x1, y1, x2, y2)
+    }
+
     override fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
+        internalPath.rQuadTo(dx1, dy1, dx2, dy2)
+    }
+
+    override fun relativeQuadraticTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
         internalPath.rQuadTo(dx1, dy1, dx2, dy2)
     }
 
@@ -132,8 +141,24 @@ internal class SkiaBackedPath(
         internalPath.addRect(rect.toSkiaRect(), PathDirection.COUNTER_CLOCKWISE)
     }
 
+    override fun addRect(rect: Rect, direction: Path.Direction) {
+        internalPath.addRect(rect.toSkiaRect(), direction.toSkiaPathDirection())
+    }
+
     override fun addOval(oval: Rect) {
         internalPath.addOval(oval.toSkiaRect(), PathDirection.COUNTER_CLOCKWISE)
+    }
+
+    override fun addOval(oval: Rect, direction: Path.Direction) {
+        internalPath.addOval(oval.toSkiaRect(), direction.toSkiaPathDirection())
+    }
+
+    override fun addRoundRect(roundRect: RoundRect) {
+        internalPath.addRRect(roundRect.toSkiaRRect(), PathDirection.COUNTER_CLOCKWISE)
+    }
+
+    override fun addRoundRect(roundRect: RoundRect, direction: Path.Direction) {
+        internalPath.addRRect(roundRect.toSkiaRRect(), direction.toSkiaPathDirection())
     }
 
     override fun addArcRad(oval: Rect, startAngleRadians: Float, sweepAngleRadians: Float) {
@@ -142,10 +167,6 @@ internal class SkiaBackedPath(
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
         internalPath.addArc(oval.toSkiaRect(), startAngleDegrees, sweepAngleDegrees)
-    }
-
-    override fun addRoundRect(roundRect: RoundRect) {
-        internalPath.addRRect(roundRect.toSkiaRRect(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addPath(path: Path, offset: Offset) {
@@ -214,7 +235,7 @@ internal class SkiaBackedPath(
 
     override val isEmpty: Boolean get() = internalPath.isEmpty
 
-    fun Matrix33.setFrom(matrix: Matrix) {
+    private fun Matrix33.setFrom(matrix: Matrix) {
         require(
             matrix[0, 2] == 0f &&
                 matrix[1, 2] == 0f &&
@@ -272,4 +293,9 @@ internal class SkiaBackedPath(
         v[Matrix.Perspective1] = persp1 // 7
         v[8] = v8 // 8
     }
+}
+
+private fun Path.Direction.toSkiaPathDirection() = when (this) {
+    Path.Direction.CounterClockwise -> PathDirection.COUNTER_CLOCKWISE
+    Path.Direction.Clockwise -> PathDirection.CLOCKWISE
 }
