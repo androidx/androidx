@@ -194,7 +194,7 @@ fun RowScope.NavigationBarItem(
 
     val styledLabel: @Composable (() -> Unit)? = label?.let {
         @Composable {
-            val style = MaterialTheme.typography.fromToken(NavigationBarTokens.LabelTextFont)
+            val style = NavigationBarTokens.LabelTextFont.value
             val textColor by animateColorAsState(
                 targetValue = colors.textColor(selected = selected, enabled = enabled),
                 animationSpec = tween(ItemAnimationDurationMillis)

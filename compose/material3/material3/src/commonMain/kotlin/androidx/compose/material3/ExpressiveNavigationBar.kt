@@ -97,7 +97,7 @@ internal fun ExpressiveNavigationBarItem(
         selected = selected,
         onClick = onClick,
         icon = icon,
-        labelTextStyle = MaterialTheme.typography.fromToken(LabelTextFont),
+        labelTextStyle = LabelTextFont.value,
         indicatorShape = ActiveIndicatorShape.value,
         indicatorWidth = VerticalItemActiveIndicatorWidth,
         indicatorHorizontalPadding = indicatorHorizontalPadding,

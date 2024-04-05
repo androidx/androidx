@@ -104,7 +104,7 @@ fun DatePickerDialog(
                     ProvideContentColorTextStyle(
                         contentColor = DialogTokens.ActionLabelTextColor.value,
                         textStyle =
-                        MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
+                        DialogTokens.ActionLabelTextFont.value
                     ) {
                         AlertDialogFlowRow(
                             mainAxisSpacing = DialogButtonsMainAxisSpacing,

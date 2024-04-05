@@ -1088,7 +1088,7 @@ class ChipTest {
             SuggestionChip(onClick = {}, label = {
                 textStyle = LocalTextStyle.current
                 body2TextStyle =
-                    MaterialTheme.typography.fromToken(SuggestionChipTokens.LabelTextFont)
+                    SuggestionChipTokens.LabelTextFont.value
             })
         }
 

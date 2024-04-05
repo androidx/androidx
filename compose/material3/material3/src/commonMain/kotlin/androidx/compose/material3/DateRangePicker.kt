@@ -129,9 +129,7 @@ fun DateRangePicker(
         } else {
             null
         },
-        headlineTextStyle = MaterialTheme.typography.fromToken(
-            DatePickerModalTokens.RangeSelectionHeaderHeadlineFont
-        ),
+        headlineTextStyle = DatePickerModalTokens.RangeSelectionHeaderHeadlineFont.value,
         headerMinHeight = DatePickerModalTokens.RangeSelectionHeaderContainerHeight -
             HeaderHeightOffset,
         colors = colors,
@@ -784,7 +782,7 @@ private fun VerticalMonthsList(
         )
     }
     ProvideTextStyle(
-        MaterialTheme.typography.fromToken(DatePickerModalTokens.DateLabelTextFont)
+        DatePickerModalTokens.DateLabelTextFont.value
     ) {
         val coroutineScope = rememberCoroutineScope()
         val scrollToPreviousMonthLabel = getString(Strings.DateRangePickerScrollToShowPreviousMonth)
@@ -827,9 +825,7 @@ private fun VerticalMonthsList(
                     modifier = Modifier.fillParentMaxWidth()
                 ) {
                     ProvideTextStyle(
-                        MaterialTheme.typography.fromToken(
-                            DatePickerModalTokens.RangeSelectionMonthSubheadFont
-                        )
+                        DatePickerModalTokens.RangeSelectionMonthSubheadFont.value
                     ) {
                         Text(
                             text = dateFormatter.formatMonthYear(

@@ -74,16 +74,18 @@ actual fun CaretScope.PlainTooltip(
         if (caretProperties != null) {
             val density = LocalDensity.current
             val configuration = LocalConfiguration.current
-            Modifier.drawCaret { anchorLayoutCoordinates ->
-                drawCaretWithPath(
-                    CaretType.Plain,
-                    density,
-                    configuration,
-                    containerColor,
-                    caretProperties,
-                    anchorLayoutCoordinates
-                )
-            }.then(modifier)
+            Modifier
+                .drawCaret { anchorLayoutCoordinates ->
+                    drawCaretWithPath(
+                        CaretType.Plain,
+                        density,
+                        configuration,
+                        containerColor,
+                        caretProperties,
+                        anchorLayoutCoordinates
+                    )
+                }
+                .then(modifier)
         } else modifier
     Surface(
         modifier = drawCaretModifier,
@@ -92,16 +94,17 @@ actual fun CaretScope.PlainTooltip(
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
     ) {
-        Box(modifier = Modifier
-            .sizeIn(
-                minWidth = TooltipMinWidth,
-                maxWidth = PlainTooltipMaxWidth,
-                minHeight = TooltipMinHeight
-            )
-            .padding(PlainTooltipContentPadding)
+        Box(
+            modifier = Modifier
+                .sizeIn(
+                    minWidth = TooltipMinWidth,
+                    maxWidth = PlainTooltipMaxWidth,
+                    minHeight = TooltipMinHeight
+                )
+                .padding(PlainTooltipContentPadding)
         ) {
             val textStyle =
-                MaterialTheme.typography.fromToken(PlainTooltipTokens.SupportingTextFont)
+                PlainTooltipTokens.SupportingTextFont.value
 
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
@@ -153,16 +156,18 @@ actual fun CaretScope.RichTooltip(
         if (caretProperties != null) {
             val density = LocalDensity.current
             val configuration = LocalConfiguration.current
-            Modifier.drawCaret { anchorLayoutCoordinates ->
-                drawCaretWithPath(
-                    CaretType.Rich,
-                    density,
-                    configuration,
-                    elevatedColor,
-                    caretProperties,
-                    anchorLayoutCoordinates
-                )
-            }.then(modifier)
+            Modifier
+                .drawCaret { anchorLayoutCoordinates ->
+                    drawCaretWithPath(
+                        CaretType.Rich,
+                        density,
+                        configuration,
+                        elevatedColor,
+                        caretProperties,
+                        anchorLayoutCoordinates
+                    )
+                }
+                .then(modifier)
         } else modifier
     Surface(
         modifier = drawCaretModifier
@@ -176,12 +181,9 @@ actual fun CaretScope.RichTooltip(
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
     ) {
-        val actionLabelTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.ActionLabelTextFont)
-        val subheadTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.SubheadFont)
-        val supportingTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.SupportingTextFont)
+        val actionLabelTextStyle = RichTooltipTokens.ActionLabelTextFont.value
+        val subheadTextStyle = RichTooltipTokens.SubheadFont.value
+        val supportingTextStyle = RichTooltipTokens.SupportingTextFont.value
 
         Column(
             modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)
@@ -257,7 +259,11 @@ private fun CacheDrawScope.drawCaretWithPath(
         val tooltipWidth = this.size.width
         val tooltipHeight = this.size.height
         val isCaretTop = anchorTop - tooltipHeight - tooltipAnchorSpacing < 0
-        val caretY = if (isCaretTop) { 0f } else { tooltipHeight }
+        val caretY = if (isCaretTop) {
+            0f
+        } else {
+            tooltipHeight
+        }
 
         val position: Offset
         if (caretType == CaretType.Plain) {

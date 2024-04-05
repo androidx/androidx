@@ -102,8 +102,7 @@ fun Tab(
 ) {
     val styledText: @Composable (() -> Unit)? = text?.let {
         @Composable {
-            val style =
-                MaterialTheme.typography.fromToken(PrimaryNavigationTabTokens.LabelTextFont)
+            val style = PrimaryNavigationTabTokens.LabelTextFont.value
                 .copy(textAlign = TextAlign.Center)
             ProvideTextStyle(style, content = text)
         }
@@ -187,7 +186,7 @@ fun LeadingIconTab(
         ) {
             icon()
             Spacer(Modifier.requiredWidth(TextDistanceFromLeadingIcon))
-            val style = MaterialTheme.typography.fromToken(PrimaryNavigationTabTokens.LabelTextFont)
+            val style = PrimaryNavigationTabTokens.LabelTextFont.value
                 .copy(textAlign = TextAlign.Center)
             ProvideTextStyle(style, content = text)
         }
@@ -436,10 +435,13 @@ internal val HorizontalTextPadding = 16.dp
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon
 private val SingleLineTextBaselineWithIcon = 14.dp
+
 // Distance from the top of the indicator to the last text baseline when there are two lines of text
 // and an icon
 private val DoubleLineTextBaselineWithIcon = 6.dp
+
 // Distance from the first text baseline to the bottom of the icon in a combined tab
 private val IconDistanceFromBaseline = 20.sp
+
 // Distance from the end of the leading icon to the start of the text
 private val TextDistanceFromLeadingIcon = 8.dp
