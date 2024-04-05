@@ -140,10 +140,12 @@ class LazyStaggeredGridState private constructor(
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
-    override val isLastScrollForward: Boolean
-        get() = scrollableState.isLastScrollForward
-    override val isLastScrollBackward: Boolean
-        get() = scrollableState.isLastScrollBackward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
 
     /** implementation of [LazyLayoutAnimateScrollScope] scope required for [animateScrollToItem] */
     private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)

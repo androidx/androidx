@@ -399,7 +399,7 @@ abstract class PagerState(
         } else {
             // act on scroll only
             if (abs(this.currentPageOffsetFraction) >= abs(positionThresholdFraction)) {
-                if (isLastScrollForward) {
+                if (lastScrolledForward) {
                     firstVisiblePage + 1
                 } else {
                     firstVisiblePage
@@ -637,10 +637,12 @@ abstract class PagerState(
     private val isLastScrollForwardState = mutableStateOf(false)
     private val isLastScrollBackwardState = mutableStateOf(false)
 
-    override val isLastScrollForward: Boolean
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
         get() = isLastScrollForwardState.value
 
-    override val isLastScrollBackward: Boolean
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
         get() = isLastScrollBackwardState.value
 
     /**
