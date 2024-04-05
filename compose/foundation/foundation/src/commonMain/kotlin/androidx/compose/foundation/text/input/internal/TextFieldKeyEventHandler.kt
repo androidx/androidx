@@ -41,6 +41,11 @@ import androidx.compose.ui.text.TextRange
 internal expect fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler
 
 /**
+ * Returns whether this key event is created by the software keyboard.
+ */
+internal expect val KeyEvent.isFromSoftKeyboard: Boolean
+
+/**
  * Handles KeyEvents coming to a BasicTextField. This is mostly to support hardware keyboard but
  * any KeyEvent can also be sent by the IME or other platform systems.
  *
@@ -87,7 +92,9 @@ internal abstract class TextFieldKeyEventHandler {
             if (codePoint != null) {
                 val text = StringBuilder(2).appendCodePointX(codePoint).toString()
                 return if (editable) {
-                    textFieldState.editUntransformedTextAsUser {
+                    textFieldState.editUntransformedTextAsUser(
+                        restartImeIfContentChanges = !event.isFromSoftKeyboard
+                    ) {
                         commitComposition()
                         commitText(text, 1)
                     }
@@ -104,7 +111,7 @@ internal abstract class TextFieldKeyEventHandler {
             return false
         }
         var consumed = true
-        preparedSelectionContext(textFieldState, textLayoutState) {
+        preparedSelectionContext(textFieldState, textLayoutState, event.isFromSoftKeyboard) {
             when (command) {
                 KeyCommand.COPY -> textFieldSelectionState.copy(false)
                 KeyCommand.PASTE -> textFieldSelectionState.paste()
@@ -226,6 +233,7 @@ internal abstract class TextFieldKeyEventHandler {
     private inline fun preparedSelectionContext(
         state: TransformedTextFieldState,
         textLayoutState: TextLayoutState,
+        isFromSoftKeyboard: Boolean,
         block: TextFieldPreparedSelection.() -> Unit
     ) {
         val layoutResult = textLayoutState.layoutResult ?: return
@@ -233,6 +241,7 @@ internal abstract class TextFieldKeyEventHandler {
         val preparedSelection = TextFieldPreparedSelection(
             state = state,
             textLayoutResult = layoutResult,
+            isFromSoftKeyboard = isFromSoftKeyboard,
             visibleTextLayoutHeight = visibleTextLayoutHeight,
             textPreparedSelectionState = preparedSelectionState
         )
