@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -114,9 +115,8 @@ internal class ExposedDropdownMenuTestCase(
                 expanded = expanded,
                 onExpandedChange = {},
             ) {
-                Spacer(modifier = Modifier.size(100.dp).menuAnchor())
-                // Can't test ExposedDropdownMenu directly because
-                // Popup can't be benchmarked
+                Spacer(Modifier.size(100.dp).menuAnchor(MenuAnchorType.PrimaryNotEditable))
+                // Can't test ExposedDropdownMenu directly because Popup can't be benchmarked
             }
         }
     }

@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -51,8 +52,10 @@ fun ExposedDropdownMenuSample() {
         onExpandedChange = { expanded = it },
     ) {
         TextField(
-            // The `menuAnchor` modifier must be passed to the text field for correctness.
-            modifier = Modifier.menuAnchor(),
+            // The `menuAnchor` modifier must be passed to the text field to handle
+            // expanding/collapsing the menu on click. A read-only text field has
+            // the anchor type `PrimaryNotEditable`.
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
             value = text,
             onValueChange = {},
             readOnly = true,
@@ -99,21 +102,29 @@ fun EditableExposedDropdownMenuSample() {
         onExpandedChange = setExpanded,
     ) {
         TextField(
-            // The `menuAnchor` modifier must be passed to the text field for correctness.
-            modifier = Modifier.menuAnchor(),
+            // The `menuAnchor` modifier must be passed to the text field to handle
+            // expanding/collapsing the menu on click. An editable text field has
+            // the anchor type `PrimaryEditable`.
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
             value = text,
             onValueChange = { text = it },
             singleLine = true,
             label = { Text("Label") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded,
+                    // If the text field is editable, it is recommended to make the
+                    // trailing icon a `menuAnchor` of type `SecondaryEditable`. This
+                    // provides a better experience for certain accessibility services
+                    // to choose a menu option without typing.
+                    modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable),
+                )
+            },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { setExpanded(false) },
-            // If the text field is editable, the menu should not be focusable
-            // in order to prevent stealing focus from the input method.
-            focusable = false,
         ) {
             filteredOptions.forEach { option ->
                 DropdownMenuItem(
