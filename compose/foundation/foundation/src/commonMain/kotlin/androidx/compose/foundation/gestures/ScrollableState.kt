@@ -112,7 +112,8 @@ interface ScrollableState {
      * - This [ScrollableState] is currently scrolling forward.
      * - This [ScrollableState] was scrolling forward in its last scroll action.
      */
-    val isLastScrollForward: Boolean
+    @get:Suppress("GetterSetterNames")
+    val lastScrolledForward: Boolean
         get() = false
 
     /**
@@ -120,7 +121,8 @@ interface ScrollableState {
      * - This [ScrollableState] is currently scrolling backward.
      * - This [ScrollableState] was scrolling backward in its last scroll action.
      */
-    val isLastScrollBackward: Boolean
+    @get:Suppress("GetterSetterNames")
+    val lastScrolledBackward: Boolean
         get() = false
 }
 
@@ -213,9 +215,9 @@ private class DefaultScrollableState(val onDelta: (Float) -> Float) : Scrollable
     override val isScrollInProgress: Boolean
         get() = isScrollingState.value
 
-    override val isLastScrollForward: Boolean
+    override val lastScrolledForward: Boolean
         get() = isLastScrollForwardState.value
 
-    override val isLastScrollBackward: Boolean
+    override val lastScrolledBackward: Boolean
         get() = isLastScrollBackwardState.value
 }

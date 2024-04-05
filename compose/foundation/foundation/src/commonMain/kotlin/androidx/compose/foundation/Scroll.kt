@@ -165,10 +165,13 @@ class ScrollState(initial: Int) : ScrollableState {
 
     override val canScrollBackward: Boolean by derivedStateOf { value > 0 }
 
-    override val isLastScrollForward: Boolean
-        get() = scrollableState.isLastScrollForward
-    override val isLastScrollBackward: Boolean
-        get() = scrollableState.isLastScrollBackward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
 
     /**
      * Scroll to position in pixels with animation.
