@@ -56,6 +56,8 @@ internal actual value class Strings constructor(val value: Int) {
             get() = Strings(MaterialR.string.m3c_dropdown_menu_expanded)
         actual inline val MenuCollapsed
             get() = Strings(MaterialR.string.m3c_dropdown_menu_collapsed)
+        actual inline val ToggleDropdownMenu
+            get() = Strings(MaterialR.string.m3c_dropdown_menu_toggle)
         actual inline val SnackbarDismiss get() = Strings(MaterialR.string.m3c_snackbar_dismiss)
         actual inline val SearchBarSearch get() = Strings(MaterialR.string.m3c_search_bar_search)
         actual inline val SuggestionsAvailable

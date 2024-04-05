@@ -34,6 +34,7 @@ internal actual fun getString(string: Strings): String {
         Strings.Dialog -> "Dialog"
         Strings.MenuExpanded -> "Expanded"
         Strings.MenuCollapsed -> "Collapsed"
+        Strings.ToggleDropdownMenu -> "Toggle dropdown menu"
         Strings.SnackbarDismiss -> "Dismiss"
         Strings.SearchBarSearch -> "Search"
         Strings.SuggestionsAvailable -> "Suggestions below"
@@ -43,7 +44,6 @@ internal actual fun getString(string: Strings): String {
         Strings.DatePickerSwitchToYearSelection -> "Switch to selecting a year"
         Strings.DatePickerSwitchToDaySelection -> "Swipe to select a year, or tap to switch " +
             "back to selecting a day"
-
         Strings.DatePickerSwitchToNextMonth -> "Change to next month"
         Strings.DatePickerSwitchToPreviousMonth -> "Change to previous month"
         Strings.DatePickerNavigateToYearDescription -> "Navigate to year %1$"
@@ -160,6 +160,7 @@ internal actual value class Strings constructor(val value: Int) {
         actual val TimePickerMinuteTextField = Strings(60)
         actual val TooltipPaneDescription = Strings(61)
         actual val ExposedDropdownMenu = Strings(62)
+        actual val ToggleDropdownMenu = Strings(63)
     }
 }
 
