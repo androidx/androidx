@@ -36,5 +36,5 @@ interface Tracer {
      *
      * @see [androidx.tracing.Trace.endAsyncSection]
      */
-    fun endSection(methodName: String, cookie: Int)
+    fun endAsyncSection(methodName: String, cookie: Int)
 }

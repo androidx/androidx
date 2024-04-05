@@ -254,7 +254,7 @@ class WorkerWrapper internal constructor(builder: Builder) {
                 worker.stop(it.reason)
             }
             if (traceTag != null) {
-                configuration.tracer.endSection(
+                configuration.tracer.endAsyncSection(
                     traceTag,
                     workGenerationalId.generation
                 )
