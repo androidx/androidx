@@ -106,27 +106,7 @@ internal object ApiStubParser {
         return if (value.isData) {
             AnnotatedDataClass(type, parseProperties(type, value))
         } else {
-            validateEnum(value, type)
             AnnotatedEnumClass(type, value.enumEntries.toList())
-        }
-    }
-
-    private fun validateEnum(value: KmClass, type: Type) {
-        if (value.properties.isNotEmpty()) {
-            throw PrivacySandboxParsingException(
-                "Error in ${type.qualifiedName}: enum classes annotated with " +
-                    "@PrivacySandboxValue may not declare properties (${
-                        value.properties.joinToString(limit = 3) { it.name }
-                    })"
-            )
-        }
-        if (value.functions.isNotEmpty()) {
-            throw PrivacySandboxParsingException(
-                "Error in ${type.qualifiedName}: enum classes annotated with " +
-                    "@PrivacySandboxValue may not declare methods (${
-                        value.functions.joinToString(limit = 3) { it.name }
-                    })"
-            )
         }
     }
 
