@@ -19,6 +19,8 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.interop.InteropWrappingView
+import androidx.compose.ui.interop.NativeViewSemanticsKey
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -115,6 +117,7 @@ private object CachedAccessibilityPropertyKeys {
     val accessibilityTraits = CachedAccessibilityPropertyKey<UIAccessibilityTraits>()
     val accessibilityValue = CachedAccessibilityPropertyKey<String?>()
     val accessibilityFrame = CachedAccessibilityPropertyKey<CValue<CGRect>>()
+    val nativeView = CachedAccessibilityPropertyKey<InteropWrappingView?>()
 }
 
 /**
@@ -185,6 +188,12 @@ private class AccessibilityElement(
 
     private var children = mutableListOf<AccessibilityElement>()
 
+    private val nativeView: InteropWrappingView?
+        get() = getOrElse(CachedAccessibilityPropertyKeys.nativeView) {
+            cachedConfig.getOrNull(NativeViewSemanticsKey)?.also {
+                it.actualAccessibilityContainer = parent?.accessibilityContainer
+            }
+        }
 
     /**
      * Constructed lazily if :
@@ -202,6 +211,8 @@ private class AccessibilityElement(
     /**
      * Returns accessibility element communicated to iOS Accessibility services for the given [index].
      * Takes a child at [index].
+     * If the child is constructed from a [SemanticsNode] with [NativeViewSemanticsKey],
+     * then the element at the given index is a native view.
      * If the child has its own children, then the element at the given index is the synthesized container
      * for the child. Otherwise, the element at the given index is the child itself.
      */
@@ -211,7 +222,11 @@ private class AccessibilityElement(
         return if (i in children.indices) {
             val child = children[i]
 
-            if (child.hasChildren) {
+            val nativeView = child.nativeView
+
+            if (nativeView != null) {
+                return nativeView
+            } else if (child.hasChildren) {
                 child.accessibilityContainer
             } else {
                 child
@@ -231,14 +246,12 @@ private class AccessibilityElement(
         for (index in 0 until children.size) {
             val child = children[index]
 
-            if (child.hasChildren) {
-                if (element == child.accessibilityContainer) {
-                    return index.toLong()
-                }
-            } else {
-                if (element == child) {
-                    return index.toLong()
-                }
+            if (element == child.nativeView) {
+                return index.toLong()
+            } else if (child.hasChildren && element == child.accessibilityContainer) {
+                return index.toLong()
+            } else if (element == child) {
+                return index.toLong()
             }
         }
 

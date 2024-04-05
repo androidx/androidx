@@ -127,10 +127,7 @@ class App(
                 )
             }
         ) {
-            buildScreen(MainScreen, navController)
-            for (i in extraScreens) {
-                buildScreen(i, navController)
-            }
+            buildScreen(MainScreen.mergedWith(extraScreens), navController)
         }
     }
 
