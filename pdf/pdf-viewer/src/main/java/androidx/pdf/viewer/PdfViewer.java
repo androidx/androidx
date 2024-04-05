@@ -16,6 +16,9 @@
 
 package androidx.pdf.viewer;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -31,6 +34,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,15 +50,20 @@ import androidx.pdf.data.Openable;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.data.Range;
 import androidx.pdf.fetcher.Fetcher;
+import androidx.pdf.find.FindInFileListener;
+import androidx.pdf.find.FindInFileView;
+import androidx.pdf.find.MatchCount;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
 import androidx.pdf.models.SelectionBoundary;
+import androidx.pdf.util.CycleRange;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ExternalLinks;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.util.GestureTracker.GestureHandler;
+import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.ProjectorContext;
@@ -211,6 +222,10 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /** Only interact with Queue on the main thread. */
     private final List<OnDimensCallback> mDimensCallbackQueue = new ArrayList<>();
+    private Uri mLocalUri;
+    private FrameLayout mPdfViewer;
+
+    private FindInFileView mFindInFileView;
 
     /** Callback is called everytime dimensions for a page have loaded. */
     private interface OnDimensCallback {
@@ -258,7 +273,11 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         super.onCreateView(inflater, container, savedState);
         mPaginationModel = new PaginationModel();
-        mFastScrollView = (FastScrollView) inflater.inflate(R.layout.file_viewer_pdf, null);
+
+        mPdfViewer = (FrameLayout) inflater.inflate(R.layout.pdf_viewer_container, container,
+                false);
+        mFindInFileView = mPdfViewer.findViewById(R.id.search);
+        mFastScrollView = mPdfViewer.findViewById(R.id.fast_scroll_view);
 
         mZoomView = mFastScrollView.findViewById(R.id.zoom_view);
         mZoomView.setStraightenVerticalScroll(true);
@@ -290,7 +309,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mFastScrollView.setScrollable(this);
         mFastScrollView.setId(getId() * 10);
-        return mFastScrollView;
+        return mPdfViewer;
     }
 
     private void applyReservedSpace() {
@@ -540,6 +559,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         }
 
         fetchFile(fileUri);
+        mLocalUri = fileUri;
     }
 
     private void validateFileUri(Uri fileUri) {
@@ -1030,6 +1050,42 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 };
     }
 
+    private FindInFileListener makeFindInFileListener() {
+        return new FindInFileListener() {
+            @Override
+            public boolean onQueryTextChange(@Nullable String query) {
+                if (mSearchModel != null) {
+                    mSearchModel.setQuery(query, getViewingPage());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onFindNextMatch(String query, boolean backwards) {
+                if (mSearchModel != null) {
+                    CycleRange.Direction direction;
+                    if (backwards) {
+                        direction = CycleRange.Direction.BACKWARDS;
+                        // TODO: Track "find previous" action event.
+                    } else {
+                        direction = CycleRange.Direction.FORWARDS;
+                        // TODO: Track "find next" action event.
+                    }
+                    mSearchModel.selectNextMatch(direction, getViewingPage());
+                    return true;
+                }
+                return false;
+            }
+
+            @Nullable
+            @Override
+            public ObservableValue<MatchCount> matchCount() {
+                return mSearchModel != null ? mSearchModel.matchCount() : null;
+            }
+        };
+    }
+
     /** Gesture listener for PageView's handling of tap and long press. */
     private class PageTouchListener extends GestureHandler {
 
@@ -1392,5 +1448,32 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mFastScrollView != null) {
             mFastScrollView.setVisible();
         }
+    }
+
+    /**
+     * Set up the find in file menu.
+     * @param visibility
+     */
+    public void setFindInFileView(boolean visibility) {
+        if (visibility) {
+            mFindInFileView.setVisibility(VISIBLE);
+            setupFindInFileBtn();
+        } else {
+            mFindInFileView.setVisibility(GONE);
+        }
+    }
+
+    private void setupFindInFileBtn() {
+        mFindInFileView.setFindInFileListener(this.makeFindInFileListener());
+        mFindInFileView.queryBoxRequestFocus();
+
+        TextView queryBox = mFindInFileView.findViewById(R.id.find_query_box);
+        ImageView close_button = mFindInFileView.findViewById(R.id.close_btn);
+        close_button.setOnClickListener(view -> {
+            View parentLayout = (View) close_button.getParent();
+            queryBox.clearFocus();
+            queryBox.setText("");
+            parentLayout.setVisibility(GONE);
+        });
     }
 }

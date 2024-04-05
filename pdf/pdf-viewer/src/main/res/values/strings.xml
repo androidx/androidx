@@ -114,4 +114,14 @@
          The alt text will also be included in the description, so this label only contains the word "image" to give the user context. [CHAR LIMIT=20] -->
     <string name="desc_image_alt_text">Image: <xliff:g example="A wolf howling in front of the moon" id="alt_text">%1$s</xliff:g></string>
 
+    <!-- Hint text: Placeholder text shown in search box until the user enters query text. [CHAR LIMIT=20] -->
+    <string name="hint_find">Find in file</string>
+
+    <!-- Message for no matches found when searching for query text inside the file. [CHAR LIMIT=40] -->
+    <string name="message_no_matches_found">No matches found.</string>
+
+    <!-- Message to show which match is selected out of how many matches when searching for query text inside the file.
+      e.g. "3 of 12" meaning "match 3 is selected, out of 12 matches" [CHAR LIMIT=10] -->
+    <string name="message_match_status"><xliff:g id="position" example="3">%1$d</xliff:g> / <xliff:g id="total" example="12">%2$d</xliff:g></string>
+
 </resources>

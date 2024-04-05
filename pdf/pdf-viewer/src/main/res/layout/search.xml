@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   Copyright 2023 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +15,14 @@
   limitations under the License.
   -->
 
-<resources>
-    <dimen name="viewer_doc_additional_top_offset">12dp</dimen>
-    <dimen name="viewer_fastscroll_edge_offset">15dp</dimen>
-    <dimen name="viewer_fastscroll_rounded_corner_radius">2dp</dimen>
-    <dimen name="viewer_doc_padding_y">4dp</dimen>
-    <dimen name="viewer_doc_padding_x">16dp</dimen>
-    <dimen name="mtrl_min_touch_target_size">48dp</dimen>
+<androidx.pdf.find.FindInFileView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@drawable/shape_find_in_file"
+    android:orientation="horizontal"
+    android:visibility="gone"
+    android:layout_gravity="bottom"
+    >
 
-    <dimen name="viewer_progress_bar_height">4dp</dimen>
-    <dimen name="viewer_frame_error_height">80dp</dimen>
-
-</resources>
+</androidx.pdf.find.FindInFileView>
