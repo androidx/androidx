@@ -646,10 +646,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configurePublicResourcesStub(project.multiplatformExtension!!)
-        project.configureMultiplatformSourcesForAndroid { action ->
-            kotlinMultiplatformAndroidComponentsExtension.onVariant {
-                action(it.name)
-            }
+        kotlinMultiplatformAndroidComponentsExtension.onVariant {
+            project.configureMultiplatformSourcesForAndroid(it.name)
         }
         project.configureVersionFileWriter(
             project.multiplatformExtension!!,
@@ -806,27 +804,26 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     @Suppress("DEPRECATION") // AGP DSL APIs
     private fun configureWithLibraryPlugin(project: Project, androidXExtension: AndroidXExtension) {
-        val libraryExtension =
-            project.extensions.getByType<LibraryExtension>().apply {
-                configureAndroidBaseOptions(project, androidXExtension)
-                configureAndroidLibraryOptions(project, androidXExtension)
+        project.extensions.getByType<LibraryExtension>().apply {
+            configureAndroidBaseOptions(project, androidXExtension)
+            configureAndroidLibraryOptions(project, androidXExtension)
 
-                // Make sure the main Kotlin source set doesn't contain anything under
-                // src/main/kotlin.
-                val mainKotlinSrcDir =
-                    (sourceSets.findByName("main")?.kotlin
-                            as com.android.build.gradle.api.AndroidSourceDirectorySet)
-                        .srcDirs
-                        .filter { it.name == "kotlin" }
-                        .getOrNull(0)
-                if (mainKotlinSrcDir?.isDirectory == true) {
-                    throw GradleException(
-                        "Invalid project structure! AndroidX does not support \"kotlin\" as a " +
-                            "top-level source directory for libraries, use \"java\" instead: " +
-                            mainKotlinSrcDir.path
-                    )
-                }
+            // Make sure the main Kotlin source set doesn't contain anything under
+            // src/main/kotlin.
+            val mainKotlinSrcDir =
+                (sourceSets.findByName("main")?.kotlin
+                        as com.android.build.gradle.api.AndroidSourceDirectorySet)
+                    .srcDirs
+                    .filter { it.name == "kotlin" }
+                    .getOrNull(0)
+            if (mainKotlinSrcDir?.isDirectory == true) {
+                throw GradleException(
+                    "Invalid project structure! AndroidX does not support \"kotlin\" as a " +
+                        "top-level source directory for libraries, use \"java\" instead: " +
+                        mainKotlinSrcDir.path
+                )
             }
+        }
 
         val libraryAndroidComponentsExtension =
             project.extensions.getByType<LibraryAndroidComponentsExtension>()
@@ -853,29 +850,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.configureSourceJarForAndroid(libraryExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
-        project.configureDependencyVerification(androidXExtension) { taskProvider ->
-            libraryExtension.defaultPublishVariant { libraryVariant ->
-                taskProvider.configure { task ->
-                    task.dependsOn(libraryVariant.javaCompileProvider)
-                }
-            }
-        }
-
         val reportLibraryMetrics = project.configureReportLibraryMetricsTask()
         project.addToBuildOnServer(reportLibraryMetrics)
-        libraryExtension.defaultPublishVariant { libraryVariant ->
-            reportLibraryMetrics.configure {
-                it.jarFiles.from(
-                    libraryVariant.packageLibraryProvider.map { zip ->
-                        zip.inputs.files
-                    }
-                )
-            }
-        }
 
         val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
         val copyPublicResourcesDirTask =
@@ -892,6 +871,22 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     LibraryApiTaskConfig(variant),
                     androidXExtension
                 )
+            }
+            if (variant.name == DEFAULT_PUBLISH_CONFIG) {
+                project.configureSourceJarForAndroid(variant)
+                project.configureDependencyVerification(androidXExtension) { taskProvider ->
+                    taskProvider.configure { task ->
+                        task.dependsOn("compileReleaseJavaWithJavac")
+                    }
+                }
+
+                reportLibraryMetrics.configure {
+                    it.jarFiles.from(
+                        project.tasks.named("bundleReleaseAar").map {
+                                zip -> zip.inputs.files
+                        }
+                    )
+                }
             }
             configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
             val verifyELFRegionAlignmentTaskProvider = project.tasks.register(
