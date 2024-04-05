@@ -36,8 +36,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.dexmakerMockitoInline)
 }
 
 android {
