@@ -1313,6 +1313,32 @@ class SnapshotTests {
         test({ mutableStateMapOf<Int, Int>() }, { it.isEmpty() }, { it[23] = 42; it.isEmpty() })
     }
 
+    @Test
+    fun readObserverIsMergedOnNestedReadonlySnapshot() {
+        val result = mutableListOf<Int>()
+
+        val readObserver1: (Any) -> Unit = { result += 1 }
+        val readObserver2: (Any) -> Unit = { result += 2 }
+        val readObserver3: (Any) -> Unit = { result += 3 }
+
+        val state = mutableStateOf("")
+
+        val snapshot = takeSnapshot(readObserver1)
+        try {
+            snapshot.enter {
+                Snapshot.observe(readObserver2) {
+                    Snapshot.observe(readObserver3) {
+                        state.value
+                    }
+                }
+            }
+        } finally {
+            snapshot.dispose()
+        }
+
+        assertEquals(listOf(3, 2, 1), result)
+    }
+
     private fun usedRecords(state: StateObject): Int {
         var used = 0
         var current: StateRecord? = state.firstStateRecord
