@@ -634,7 +634,7 @@ private fun createDefaultTracer(): Tracer {
             androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
         }
 
-        override fun endSection(methodName: String, cookie: Int) {
+        override fun endAsyncSection(methodName: String, cookie: Int) {
             androidx.tracing.Trace.endAsyncSection(methodName, cookie)
         }
     }
