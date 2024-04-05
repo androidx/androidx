@@ -101,7 +101,8 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    @Deprecated("Use `isTraversalGroup` instead.",
+    @Deprecated(
+        "Use `isTraversalGroup` instead.",
         replaceWith = ReplaceWith("IsTraversalGroup"),
     )
     val IsContainer: SemanticsPropertyKey<Boolean>
@@ -939,7 +940,8 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-@Deprecated("Use `isTraversalGroup` instead.",
+@Deprecated(
+    "Use `isTraversalGroup` instead.",
     replaceWith = ReplaceWith("isTraversalGroup"),
 )
 var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
@@ -1571,8 +1573,7 @@ fun SemanticsPropertyReceiver.pageRight(
 }
 
 /**
- * Action to get a scrollable's active view port amount for scrolling actions. The result is the
- * first element of the array in the argument of the AccessibilityAction.
+ * Action to get a scrollable's active view port amount for scrolling actions.
  *
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.GetScrollViewportLength] is
@@ -1580,7 +1581,15 @@ fun SemanticsPropertyReceiver.pageRight(
  */
 fun SemanticsPropertyReceiver.getScrollViewportLength(
     label: String? = null,
-    action: ((MutableList<Float>) -> Boolean)
+    action: (() -> Float?)
 ) {
-    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label, action)
+    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label) {
+        val viewport = action.invoke()
+        if (viewport == null) {
+            false
+        } else {
+            it.add(viewport)
+            true
+        }
+    }
 }
