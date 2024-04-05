@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositionLocalContext
@@ -29,14 +28,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.scene.BaseComposeScene
+import androidx.compose.ui.scene.LocalComposeScene
+import androidx.compose.ui.scene.platformContext
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
-import androidx.compose.ui.util.makeDisplayable
+import androidx.compose.ui.util.componentListenerRef
 import androidx.compose.ui.util.setIcon
 import androidx.compose.ui.util.setPositionSafely
 import androidx.compose.ui.util.setSizeSafely
 import androidx.compose.ui.util.setUndecoratedSafely
+import androidx.compose.ui.util.windowListenerRef
+import androidx.compose.ui.util.windowStateListenerRef
 import java.awt.Window
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
@@ -144,39 +149,81 @@ fun Window(
 
     val updater = remember(::ComponentUpdater)
 
+    // the state applied to the window. exist to avoid races between WindowState changes and the state stored inside the native window
+    val appliedState = remember {
+        object {
+            var size: DpSize? = null
+            var position: WindowPosition? = null
+            var placement: WindowPlacement? = null
+            var isMinimized: Boolean? = null
+        }
+    }
+
+    val listeners = remember {
+        object {
+            var windowListenerRef = windowListenerRef()
+            var windowStateListenerRef = windowStateListenerRef()
+            var componentListenerRef = componentListenerRef()
+
+            fun removeFromAndClear(window: ComposeWindow) {
+                windowListenerRef.unregisterFromAndClear(window)
+                windowStateListenerRef.unregisterFromAndClear(window)
+                componentListenerRef.unregisterFromAndClear(window)
+            }
+        }
+    }
+
     Window(
         visible = visible,
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
         create = {
-            ComposeWindow().apply {
+            val graphicsConfiguration = WindowLocationTracker.lastActiveGraphicsConfiguration
+            ComposeWindow(graphicsConfiguration = graphicsConfiguration).apply {
                 // close state is controlled by WindowState.isOpen
                 defaultCloseOperation = JFrame.DO_NOTHING_ON_CLOSE
-                addWindowListener(object : WindowAdapter() {
-                    override fun windowClosing(e: WindowEvent) {
-                        currentOnCloseRequest()
+                listeners.windowListenerRef.registerWithAndSet(
+                    this,
+                    object : WindowAdapter() {
+                        override fun windowClosing(e: WindowEvent) {
+                            currentOnCloseRequest()
+                        }
                     }
-                })
-                addWindowStateListener {
+                )
+                listeners.windowStateListenerRef.registerWithAndSet(this) {
                     currentState.placement = placement
                     currentState.isMinimized = isMinimized
+                    appliedState.placement = currentState.placement
+                    appliedState.isMinimized = currentState.isMinimized
                 }
-                addComponentListener(object : ComponentAdapter() {
-                    override fun componentResized(e: ComponentEvent) {
-                        // we check placement here and in windowStateChanged,
-                        // because fullscreen changing doesn't
-                        // fire windowStateChanged, only componentResized
-                        currentState.placement = placement
-                        currentState.size = DpSize(width.dp, height.dp)
-                    }
+                listeners.componentListenerRef.registerWithAndSet(
+                    this,
+                    object : ComponentAdapter() {
+                        override fun componentResized(e: ComponentEvent) {
+                            // we check placement here and in windowStateChanged,
+                            // because fullscreen changing doesn't
+                            // fire windowStateChanged, only componentResized
+                            currentState.placement = placement
+                            currentState.size = DpSize(width.dp, height.dp)
+                            appliedState.placement = currentState.placement
+                            appliedState.size = currentState.size
+                        }
 
-                    override fun componentMoved(e: ComponentEvent) {
-                        currentState.position = WindowPosition(x.dp, y.dp)
+                        override fun componentMoved(e: ComponentEvent) {
+                            currentState.position = WindowPosition(x.dp, y.dp)
+                            appliedState.position = currentState.position
+                        }
                     }
-                })
+                )
+                WindowLocationTracker.onWindowCreated(this)
             }
         },
-        dispose = ComposeWindow::dispose,
+        dispose = {
+            WindowLocationTracker.onWindowDisposed(it)
+            // We need to remove them because AWT can still call them after dispose()
+            listeners.removeFromAndClear(it)
+            it.dispose()
+        },
         update = { window ->
             updater.update {
                 set(currentTitle, window::setTitle)
@@ -185,12 +232,28 @@ fun Window(
                 set(currentTransparent, window::isTransparent::set)
                 set(currentResizable, window::setResizable)
                 set(currentEnabled, window::setEnabled)
-                set(currentFocusable, window::setFocusable)
+                set(currentFocusable, window::setFocusableWindowState)
                 set(currentAlwaysOnTop, window::setAlwaysOnTop)
-                set(state.size, window::setSizeSafely)
-                set(state.position, window::setPositionSafely)
-                set(state.placement, window::placement::set)
-                set(state.isMinimized, window::isMinimized::set)
+            }
+            if (state.size != appliedState.size) {
+                window.setSizeSafely(state.size, state.placement)
+                appliedState.size = state.size
+            }
+            if (state.position != appliedState.position) {
+                window.setPositionSafely(
+                    state.position,
+                    state.placement,
+                    platformDefaultPosition = { WindowLocationTracker.getCascadeLocationFor(window) }
+                )
+                appliedState.position = state.position
+            }
+            if (state.placement != appliedState.placement) {
+                window.placement = state.placement
+                appliedState.placement = state.placement
+            }
+            if (state.isMinimized != appliedState.isMinimized) {
+                window.isMinimized = state.isMinimized
+                appliedState.isMinimized = state.isMinimized
             }
         },
         content = content
@@ -207,6 +270,9 @@ fun Window(
  *     Window(...) { }
  * }
  * ```
+ *
+ * Set [exitProcessOnExit] to `false`, if you need to execute some code after [singleWindowApplication] block, otherwise the code after it
+ * won't be executed, as [singleWindowApplication] will exit the process.
  *
  * @param state The state object to be used to control or observe the window's state
  * When size/position/status is changed by the user, state will be updated.
@@ -243,6 +309,10 @@ fun Window(
  * @param onKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. While implementing this callback, return true to stop propagation of this event.
  * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ * @param exitProcessOnExit should `exitProcess(0)` be called after the window is closed.
+ * exitProcess speedup process exit (instant instead of 1-4sec).
+ * If `false`, the execution of the function will be unblocked after application is exited
+ * (when the last window is closed, and all [LaunchedEffect] are complete).
  * @param content Content of the window
  */
 fun singleWindowApplication(
@@ -258,8 +328,9 @@ fun singleWindowApplication(
     alwaysOnTop: Boolean = false,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
     onKeyEvent: (KeyEvent) -> Boolean = { false },
+    exitProcessOnExit: Boolean = true,
     content: @Composable FrameWindowScope.() -> Unit
-) = application {
+) = application(exitProcessOnExit = exitProcessOnExit) {
     Window(
         ::exitApplication,
         state,
@@ -326,27 +397,43 @@ fun Window(
     update: (ComposeWindow) -> Unit = {},
     content: @Composable FrameWindowScope.() -> Unit
 ) {
-    val currentLocals by rememberUpdatedState(currentCompositionLocalContext)
+    val compositionLocalContext by rememberUpdatedState(currentCompositionLocalContext)
+    val windowExceptionHandlerFactory by rememberUpdatedState(
+        LocalWindowExceptionHandlerFactory.current
+    )
+    val parentPlatformContext = LocalComposeScene.current?.platformContext
+    val layoutDirection = LocalLayoutDirection.current
     AwtWindow(
         visible = visible,
         create = {
             create().apply {
-                setContent(onPreviewKeyEvent, onKeyEvent) {
-                    CompositionLocalProvider(currentLocals) {
-                        content()
-                    }
-                }
+                this.rootForTestListener = parentPlatformContext?.rootForTestListener
+                this.compositionLocalContext = compositionLocalContext
+                this.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(this)
+                setContent(onPreviewKeyEvent, onKeyEvent, content)
             }
         },
-        dispose = dispose,
+        dispose = {
+            dispose(it)
+        },
         update = {
+            it.compositionLocalContext = compositionLocalContext
+            it.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(it)
+            it.componentOrientation = layoutDirection.componentOrientation
+
+            val wasDisplayable = it.isDisplayable
+
             update(it)
 
-            if (!it.isDisplayable) {
-                it.makeDisplayable()
-                it.contentPane.paint(it.graphics)
+            // If displaying for the first time, make sure we draw the first frame before making
+            // the window visible, to avoid showing the window background
+            // It's the responsibility of setSizeSafely to
+            // - Make the window displayable
+            // - Size the window and the ComposeLayer correctly, so that we can draw it here
+            if (!wasDisplayable && it.isDisplayable) {
+                it.contentPane.paint(it.contentPane.graphics)
             }
-        }
+        },
     )
 }
 
@@ -374,7 +461,6 @@ fun FrameWindowScope.MenuBar(content: @Composable MenuBarScope.() -> Unit) {
         val menu = JMenuBar()
         val composition = menu.setContent(parentComposition, content)
         window.jMenuBar = menu
-        composition to menu
 
         onDispose {
             window.jMenuBar = null

@@ -22,28 +22,49 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
+import androidx.build.AndroidXComposePlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    //id("kotlin-android")
+    id("AndroidXComposePlugin")
 }
 
-androidXMultiplatform {
-    android()
-    desktop()
-}
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
 
-dependencies {
-    commonMainImplementation(libs.kotlinStdlib)
-}
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+    }
 
-android {
-    sourceSets {
-        main {
-            res.srcDirs += "src/commonMain/resources"
-            res.srcDirs += "src/androidMain/res"
-            java.srcDirs += "src/androidMain/java"
-            assets.srcDirs += "src/androidMain/assets"
+    android {
+        dependencies {
+            implementation(libs.kotlinStdlib)
+        }
+        sourceSets {
+            main {
+                res.srcDirs += "src/commonMain/resources"
+                res.srcDirs += "src/androidMain/res"
+                java.srcDirs += "src/commonMain/java"
+                assets.srcDirs += "src/androidMain/assets"
+            }
+        }
+    }
+} else {
+    dependencies {
+        implementation(libs.kotlinStdlib)
+    }
+
+    android {
+        sourceSets {
+            main {
+                res.srcDirs += "src/commonMain/resources"
+                res.srcDirs += "src/androidMain/res"
+                java.srcDirs += "src/commonMain/java"
+                assets.srcDirs += "src/androidMain/assets"
+            }
         }
     }
 }

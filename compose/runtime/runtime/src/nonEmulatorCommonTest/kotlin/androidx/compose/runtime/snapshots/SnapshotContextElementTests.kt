@@ -23,12 +23,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.test.IgnoreJsAndNative
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeApi::class, ExperimentalCoroutinesApi::class)
 class SnapshotContextElementTests {
     @Test
+    @IgnoreJsAndNative
     fun coroutineEntersExpectedSnapshot() = runTest(UnconfinedTestDispatcher()) {
         val snapshot = Snapshot.takeSnapshot()
         try {
@@ -41,6 +43,7 @@ class SnapshotContextElementTests {
     }
 
     @Test
+    @IgnoreJsAndNative
     fun snapshotRestoredAfterResume() {
         val snapshotOne = Snapshot.takeSnapshot()
         val snapshotTwo = Snapshot.takeSnapshot()

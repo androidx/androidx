@@ -20,7 +20,9 @@ package androidx.compose.animation.core
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableObjectLongMap
 import androidx.collection.MutableObjectList
+import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +50,7 @@ import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
+import kotlin.jvm.JvmName
 import kotlin.math.max
 import kotlin.math.roundToLong
 import kotlinx.coroutines.CancellableContinuation

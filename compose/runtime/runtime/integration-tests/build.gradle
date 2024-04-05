@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -29,9 +23,11 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
+def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+
 androidXMultiplatform {
     android()
-    desktop()
+    if (desktopEnabled) desktop()
 
     sourceSets {
         commonMain {
@@ -56,6 +52,7 @@ androidXMultiplatform {
             }
         }
 
+
         androidMain {
             dependsOn(jvmMain)
             dependencies {
@@ -66,27 +63,29 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api(libs.kotlinCoroutinesSwing)
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                    api(libs.kotlinCoroutinesSwing)
+                }
             }
         }
 
         jvmTest {
-            dependsOn(commonTest)
             dependencies {
             }
         }
 
-        androidInstrumentedTest {
+        androidAndroidTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(projectOrArtifact(":compose:ui:ui"))
                 implementation(projectOrArtifact(":compose:material:material"))
                 implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-                implementation(projectOrArtifact(":activity:activity-compose"))
+                implementation(projectOrArtifact(":compose:test-utils"))
+                // This line is the reason for issue with corrupted gradle sync, so commented it out
+                // implementation(androidxArtifact(":activity:activity-compose"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -94,12 +93,14 @@ androidXMultiplatform {
             }
         }
 
-        androidUnitTest {
+        androidTest {
             dependsOn(jvmTest)
         }
 
-        desktopTest {
-            dependsOn(jvmTest)
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+            }
         }
     }
 }
@@ -111,11 +112,7 @@ android {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         incremental = false
-        freeCompilerArgs += [
-            "-Xcontext-receivers",
-            "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true"
-        ]
+        freeCompilerArgs += "-Xcontext-receivers"
     }
 }
 

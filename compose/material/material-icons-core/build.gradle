@@ -14,103 +14,84 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 import androidx.compose.material.icons.generator.tasks.IconGenerationTask
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    android()
-    desktop()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-    sourceSets {
-        commonMain {
-            dependencies {
+        api("androidx.compose.ui:ui:1.2.1")
+        implementation("androidx.compose.runtime:runtime:1.2.1")
+        implementation(libs.kotlinStdlib)
+
+        samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
+    }
+}
+
+if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+        darwin()
+        js()
+        wasm()
+    }
+
+    kotlin {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api("androidx.compose.ui:ui:1.6.0")
+                api(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-graphics"))
+                implementation(project(":compose:ui:ui-unit"))
             }
-        }
 
-        commonTest {
-            dependencies {
-            }
-        }
-
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
+            androidMain.dependencies {
                 implementation(libs.kotlinStdlib)
             }
-        }
 
-        skikoMain {
-            dependsOn(commonMain)
-            dependencies {
+            wasmJsMain {
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
             }
         }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        desktopMain {
-            dependsOn(skikoMain)
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
+    }
+    dependencies {
+        samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
     }
 }
 
 IconGenerationTask.registerCoreIconProject(
         project,
         android,
-        true
+        AndroidXComposePlugin.isMultiplatformEnabled(project)
 )
 
 androidx {
     name = "Compose Material Icons Core"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Compose Material Design core icons. This module contains the most commonly used set of Material icons."
     legacyDisableKotlinStrictApiMode = true

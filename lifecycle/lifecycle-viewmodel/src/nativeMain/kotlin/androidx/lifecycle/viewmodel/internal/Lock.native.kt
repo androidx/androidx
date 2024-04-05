@@ -16,7 +16,8 @@
 
 package androidx.lifecycle.viewmodel.internal
 
-import kotlin.native.internal.createCleaner
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.ref.createCleaner
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
@@ -43,21 +44,28 @@ internal actual class Lock actual constructor() {
     private val resource = Resource()
 
     @Suppress("unused") // The returned Cleaner must be assigned to a property
-    @OptIn(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(resource, Resource::destroy)
 
-    actual inline fun <T> withLock(crossinline block: () -> T): T {
-        resource.lock()
+    actual inline fun <T> withLockImpl(crossinline block: () -> T): T {
+        lock()
         return try {
             block()
         } finally {
-            resource.unlock()
+            unlock()
         }
     }
 
+    fun lock() {
+        resource.lock()
+    }
+
+    fun unlock() {
+        resource.unlock()
+    }
+
     @OptIn(ExperimentalForeignApi::class)
-    @PublishedApi
-    internal class Resource {
+    private class Resource {
         private val arena: Arena = Arena()
         private val attr: pthread_mutexattr_t = arena.alloc()
         private val mutex: pthread_mutex_t = arena.alloc()
@@ -68,14 +76,11 @@ internal actual class Lock actual constructor() {
             pthread_mutex_init(mutex.ptr, attr.ptr)
         }
 
-        @PublishedApi
-        internal fun lock(): Int = pthread_mutex_lock(mutex.ptr)
+        fun lock(): Int = pthread_mutex_lock(mutex.ptr)
 
-        @PublishedApi
-        internal fun unlock(): Int = pthread_mutex_unlock(mutex.ptr)
+        fun unlock(): Int = pthread_mutex_unlock(mutex.ptr)
 
-        @PublishedApi
-        internal fun destroy() {
+        fun destroy() {
             pthread_mutex_destroy(mutex.ptr)
             pthread_mutexattr_destroy(attr.ptr)
             arena.clear()

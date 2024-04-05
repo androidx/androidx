@@ -697,27 +697,31 @@ class SpanStyle internal constructor(
         return result
     }
 
+    // Long string concatenation causes atomicfu plugin to be slow/hang.
+    // See https://youtrack.jetbrains.com/issue/KT-65645/Atomicfu-plugin-compilation-hangs-on-a-long-string-concatenation
     override fun toString(): String {
-        return "SpanStyle(" +
-            "color=$color, " +
-            "brush=$brush, " +
-            "alpha=$alpha, " +
-            "fontSize=$fontSize, " +
-            "fontWeight=$fontWeight, " +
-            "fontStyle=$fontStyle, " +
-            "fontSynthesis=$fontSynthesis, " +
-            "fontFamily=$fontFamily, " +
-            "fontFeatureSettings=$fontFeatureSettings, " +
-            "letterSpacing=$letterSpacing, " +
-            "baselineShift=$baselineShift, " +
-            "textGeometricTransform=$textGeometricTransform, " +
-            "localeList=$localeList, " +
-            "background=$background, " +
-            "textDecoration=$textDecoration, " +
-            "shadow=$shadow, " +
-            "platformStyle=$platformStyle, " +
-            "drawStyle=$drawStyle" +
-            ")"
+        return buildString {
+            append("SpanStyle(")
+            append("color=$color, ")
+            append("brush=$brush, ")
+            append("alpha=$alpha, ")
+            append("fontSize=$fontSize, ")
+            append("fontWeight=$fontWeight, ")
+            append("fontStyle=$fontStyle, ")
+            append("fontSynthesis=$fontSynthesis, ")
+            append("fontFamily=$fontFamily, ")
+            append("fontFeatureSettings=$fontFeatureSettings, ")
+            append("letterSpacing=$letterSpacing, ")
+            append("baselineShift=$baselineShift, ")
+            append("textGeometricTransform=$textGeometricTransform, ")
+            append("localeList=$localeList, ")
+            append("background=$background, ")
+            append("textDecoration=$textDecoration, ")
+            append("shadow=$shadow, ")
+            append("platformStyle=$platformStyle, ")
+            append("drawStyle=$drawStyle")
+            append(")")
+        }
     }
 }
 

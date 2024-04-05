@@ -1,0 +1,3 @@
+public abstract interface annotation class androidx/compose/desktop/ui/tooling/preview/Preview : java/lang/annotation/Annotation {
+}
+

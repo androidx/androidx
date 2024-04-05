@@ -20,8 +20,13 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,14 +39,17 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
@@ -50,34 +58,47 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.keyEvent
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerButtons
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.platform.renderingTest
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.event.KeyEvent
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class ComposeSceneTest {
     @get:Rule
     val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop")
@@ -149,6 +170,70 @@ class ComposeSceneTest {
         assertFalse(hasRenders())
     }
 
+    // https://github.com/JetBrains/compose-multiplatform/issues/3137
+    @Test
+    fun `rendering of Text state change`() = renderingTest(width = 400, height = 200) {
+        var text by mutableStateOf("before")
+        setContent {
+            Text(text)
+        }
+        awaitNextRender()
+        val before = surface.makeImageSnapshot().toComposeImageBitmap().toPixelMap().buffer
+
+        text = "after"
+        awaitNextRender()
+        val after = surface.makeImageSnapshot().toComposeImageBitmap().toPixelMap().buffer
+        assertThat(after).isNotEqualTo(before)
+    }
+
+    // Verify that when snapshot state changes in one of the render phases, the change is applied
+    // before the next phase, and is visible there.
+    // Note that it tests the same thing as `rendering of Text state change` is trying to, but at a
+    // lower-level, and without depending on the implementation of Text.
+    @Suppress("UNUSED_EXPRESSION")
+    @Test
+    fun stateChangesAppliedBetweenRenderPhases() = renderingTest(width = 400, height = 200) {
+        var value by mutableStateOf(0)
+        var compositionCount = 0
+        var layoutCount = 0
+        var drawCount = 0
+
+        var layoutScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+        var drawScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+
+        setContent {
+            value
+            compositionCount += 1
+            layoutScopeInvalidation = Unit
+            Layout(
+                modifier = remember {
+                    Modifier.graphicsLayer().drawBehind {
+                        drawScopeInvalidation
+                        drawCount += 1
+                    }
+                },
+                measurePolicy = remember {
+                    MeasurePolicy { measurables, constraints ->
+                        layoutScopeInvalidation
+                        drawScopeInvalidation = Unit
+                        layoutCount += 1
+                        measure(measurables, constraints)
+                    }
+                }
+            )
+        }
+
+        awaitNextRender()
+        assertEquals(compositionCount, layoutCount)
+        assertEquals(layoutCount, drawCount)
+
+        value = 1
+        awaitNextRender()
+        assertTrue(compositionCount >= 2)
+        assertTrue(layoutCount >= compositionCount, "Layout was performed less times than composition")
+        assertTrue(drawCount >= layoutCount, "Draw was performed less times than layout")
+    }
+
     @Test(timeout = 5000)
     fun `rendering of Layout state change`() = renderingTest(width = 40, height = 40) {
         var width by mutableStateOf(10)
@@ -158,8 +243,8 @@ class ComposeSceneTest {
             Row(Modifier.height(height.dp)) {
                 Layout({
                     Box(Modifier.fillMaxSize().background(Color.Green))
-                }) { measureables, constraints ->
-                    val placeables = measureables.map { it.measure(constraints) }
+                }) { measurables, constraints ->
+                    val placeables = measurables.map { it.measure(constraints) }
                     layout(width, constraints.maxHeight) {
                         placeables.forEach { it.place(x, 0) }
                     }
@@ -278,11 +363,20 @@ class ComposeSceneTest {
     @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
     fun `rendering of clickable`() = renderingTest(width = 40, height = 40) {
         setContent {
-            Box(Modifier.size(20.dp).background(Color.Blue).clickable {})
+            val interactionSource = remember { MutableInteractionSource() }
+            Box(
+                Modifier
+                    .size(20.dp)
+                    .background(Color.Blue)
+                    .clickable(indication = PressTestIndication, interactionSource = interactionSource) {}
+            )
         }
         awaitNextRender()
         screenshotRule.snap(surface, "frame1_initial")
         assertFalse(hasRenders())
+
+        scene.sendPointerEvent(PointerEventType.Enter, Offset(2f, 2f))
+        scene.sendPointerEvent(PointerEventType.Move, Offset(2f, 2f))
 
         scene.sendPointerEvent(PointerEventType.Press, Offset(2f, 2f))
         awaitNextRender()
@@ -293,10 +387,18 @@ class ComposeSceneTest {
         assertFalse(hasRenders())
 
         scene.sendPointerEvent(PointerEventType.Release, Offset(1f, 1f))
+
+        scene.sendPointerEvent(PointerEventType.Move, Offset(-1f, -1f))
+        scene.sendPointerEvent(PointerEventType.Exit, Offset(-1f, -1f))
+        awaitNextRender()
+        // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2970)
+        //  fix one-frame lag after a Release
         awaitNextRender()
         screenshotRule.snap(surface, "frame3_onMouseReleased")
 
+        scene.sendPointerEvent(PointerEventType.Enter, Offset(1f, 1f))
         scene.sendPointerEvent(PointerEventType.Move, Offset(1f, 1f))
+
         scene.sendPointerEvent(PointerEventType.Press, Offset(3f, 3f))
         awaitNextRender()
         screenshotRule.snap(surface, "frame4_onMouseMoved_onMousePressed")
@@ -346,6 +448,10 @@ class ComposeSceneTest {
         itemHeight = 5.dp
         awaitNextRender()
         screenshotRule.snap(surface, "frame4_change_height")
+
+        // see https://github.com/JetBrains/compose-jb/issues/2171, we have extra rendered frames here
+        skipRenders()
+
         assertFalse(hasRenders())
     }
 
@@ -600,15 +706,137 @@ class ComposeSceneTest {
         }
     }
 
-    private fun Modifier.onPointerEvent(
-        eventType: PointerEventType,
-        onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
-    ) = pointerInput(eventType, onEvent) {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent()
-                if (event.type == eventType) {
-                    onEvent(event)
+    // Test that we're draining the effect dispatcher completely before starting the draw phase
+    @Test
+    fun allEffectsRunBeforeDraw() = runApplicationTest {
+        var flag by mutableStateOf(false)
+        val events = mutableListOf<String>()
+        launchTestApplication {
+            Window(onCloseRequest = {}) {
+                LaunchedEffect(flag) {
+                    if (flag) {
+                        launch {
+                            launch {
+                                launch {
+                                    launch {
+                                        launch {
+                                            launch {
+                                                events.add("effect")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Canvas(Modifier.size(100.dp)) {
+                    if (flag) {
+                        events.add("draw")
+                    }
+                }
+            }
+        }
+        awaitIdle()
+
+        flag = true
+        awaitIdle()
+        assertEquals(listOf("effect", "draw"), events)
+    }
+
+    // Test that effects are run before synthetic events are delivered.
+    // This is important because the effects may be registering to receive the events. For example
+    // when a new element appears under the mouse pointer and registers to mouse-enter events.
+    @Test
+    fun effectsRunBeforeSyntheticEvents() = runComposeUiTest {
+        var flag by mutableStateOf(false)
+        val events = mutableListOf<String>()
+
+        setContent {
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .testTag("container"),
+                contentAlignment = Alignment.Center
+            ) {
+                if (flag) {
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .onPointerEvent(eventType = PointerEventType.Enter) {
+                                events.add("mouse-enter")
+                            }
+                    )
+
+                    LaunchedEffect(Unit) {
+                        events.add("effect")
+                    }
+                }
+            }
+        }
+
+        onNodeWithTag("container").performMouseInput {
+            moveTo(Offset(50f, 50f))
+        }
+        flag = true
+        waitForIdle()
+
+        assertEquals(listOf("effect", "mouse-enter"), events)
+    }
+
+    // Test that synthetic events are dispatched before the drawing phase.
+    @Test
+    fun syntheticEventsDispatchedBeforeDraw() = runComposeUiTest {
+        var flag by mutableStateOf(false)
+        val events = mutableListOf<String>()
+
+        setContent {
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .testTag("container"),
+                contentAlignment = Alignment.Center
+            ) {
+                if (flag) {
+                    Box(
+                        modifier = Modifier
+                            .size(50.dp)
+                            .onPointerEvent(eventType = PointerEventType.Enter) {
+                                events.add("mouse-enter")
+                            }
+                    )
+
+                    Canvas(Modifier.size(100.dp)) {
+                        if (flag) {
+                            events.add("draw")
+                        }
+                    }
+                }
+            }
+        }
+
+        onNodeWithTag("container").performMouseInput {
+            moveTo(Offset(50f, 50f))
+        }
+        flag = true
+        waitForIdle()
+
+        assertEquals(listOf("mouse-enter", "draw"), events)
+    }
+}
+
+private object PressTestIndication : Indication {
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        val isPressed by interactionSource.collectIsPressedAsState()
+        return remember(interactionSource) {
+            object : IndicationInstance {
+                override fun ContentDrawScope.drawIndication() {
+                    drawContent()
+                    if (isPressed) {
+                        drawRect(color = Color.Black.copy(alpha = 0.3f), size = size)
+                    }
                 }
             }
         }

@@ -40,7 +40,93 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.window.DialogProperties
 import kotlin.math.max
+
+/**
+ * <a href="https://material.io/components/dialogs#alert-dialog" class="external" target="_blank">Material Design alert dialog</a>.
+ *
+ * Alert dialogs interrupt users with urgent information, details, or actions.
+ *
+ * ![Dialogs image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
+ *
+ * The dialog will position its buttons based on the available space. By default it will try to
+ * place them horizontally next to each other and fallback to horizontal placement if not enough
+ * space is available. There is also another version of this composable that has a slot for buttons
+ * to provide custom buttons layout.
+ *
+ * Sample of dialog:
+ * @sample androidx.compose.material.samples.AlertDialogSample
+ *
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
+ * what triggered the dialog. The dialog does not set up any events for this button so they need
+ * to be set up by the caller.
+ * @param modifier Modifier to be applied to the layout of the dialog.
+ * @param dismissButton A button which is meant to dismiss the dialog. The dialog does not set up
+ * any events for this button so they need to be set up by the caller.
+ * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
+ * is not mandatory, because there may be sufficient information inside the [text]. Provided text
+ * style will be [Typography.subtitle1].
+ * @param text The text which presents the details regarding the Dialog's purpose. Provided text
+ * style will be [Typography.body2].
+ * @param shape Defines the Dialog's shape
+ * @param backgroundColor The background color of the dialog.
+ * @param contentColor The preferred content color provided by this dialog to its children.
+ * @param properties Typically platform specific properties to further configure the dialog.
+ */
+@Composable
+expect fun AlertDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    dismissButton: @Composable (() -> Unit)? = null,
+    title: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    shape: Shape = MaterialTheme.shapes.medium,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    properties: DialogProperties = DialogProperties()
+)
+
+/**
+ * <a href="https://material.io/components/dialogs#alert-dialog" class="external" target="_blank">Material Design alert dialog</a>.
+ *
+ * Alert dialogs interrupt users with urgent information, details, or actions.
+ *
+ * ![Dialogs image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
+ *
+ * This function can be used to fully customize the button area, e.g. with:
+ *
+ * @sample androidx.compose.material.samples.CustomAlertDialogSample
+ *
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param buttons Function that emits the layout with the buttons.
+ * @param modifier Modifier to be applied to the layout of the dialog.
+ * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
+ * is not mandatory, because there may be sufficient information inside the [text]. Provided text
+ * style will be [Typography.subtitle1].
+ * @param text The text which presents the details regarding the Dialog's purpose. Provided text
+ * style will be [Typography.body2].
+ * @param shape Defines the Dialog's shape.
+ * @param backgroundColor The background color of the dialog.
+ * @param contentColor The preferred content color provided by this dialog to its children.
+ * @param properties Typically platform specific properties to further configure the dialog.
+ */
+@Composable
+expect fun AlertDialog(
+    onDismissRequest: () -> Unit,
+    buttons: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    title: (@Composable () -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    shape: Shape = MaterialTheme.shapes.medium,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    properties: DialogProperties = DialogProperties()
+)
 
 @Composable
 internal fun AlertDialogContent(

@@ -4,17 +4,7 @@
 name: Update Prebuilts
 on:
   workflow_dispatch:
-    inputs:
-      target-branch:
-        description: 'The target branch for the PR'
-        required: false
-        default: 'androidx-main'
-        type: string
-      comment:
-        description: 'Any comment you would like to add to the PR body'
-        required: false
-        default: ''
-        type: string
+
 jobs:
   update-prebuilts:
     runs-on: ubuntu-latest
@@ -23,8 +13,6 @@ jobs:
         uses: actions/checkout@v2
       - name: "Run update prebuilt snapshot ids script"
         shell: bash
-        # this does not update metalava because it needs to match the
-        # metalava buildId used by androidx
         run: development/update_playground.sh
       - name: "Check if anything changed"
         shell: bash

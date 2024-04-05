@@ -14,88 +14,113 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    android()
-    desktop()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-    sourceSets {
-        commonMain {
-            dependencies {
+        implementation(libs.kotlinStdlib)
+
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
+        testImplementation(libs.kotlinTest)
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+        darwin()
+        js()
+        wasm()
+    }
+
+    kotlin {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
             }
-        }
 
-        commonTest {
-            dependencies {
+            jvmMain.dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+
+            androidMain.dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+
+            jbMain.dependsOn(commonMain)
+            nativeMain.dependsOn(jbMain)
+            desktopMain.dependsOn(jbMain)
+
+            wasmJsMain {
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
+            }
+
+            uikitMain {
+                dependencies {
+                    api project(":compose:ui:ui-uikit")
+                }
+            }
+
+            webMain {
+                dependsOn(jbMain)
+            }
+
+            jsMain.dependsOn(webMain)
+            wasmJsMain.dependsOn(webMain)
+
+            commonTest.dependencies {
                 implementation(kotlin("test-junit"))
             }
-        }
 
-        jvmMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation-experimental:1.4.0")
-            }
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-        }
-
-        jvmTest {
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
+            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+            //  level dependencies block instead:
+            //  `dependencies { testImplementation(libs.robolectric) }`
+            androidTest.dependencies {
                 implementation(libs.truth)
             }
-        }
 
-        desktopTest {
-            dependsOn(jvmTest)
+            desktopTest {
+                dependencies {
+                    implementation(libs.junit)
+                    implementation(libs.truth)
+                    implementation(libs.kotlinTest)
+                }
+            }
+            desktopTest.kotlin.srcDirs("src/test/kotlin")
         }
     }
 }
 
 androidx {
     name = "Compose Util"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Internal Compose utilities used by other modules"
     legacyDisableKotlinStrictApiMode = true

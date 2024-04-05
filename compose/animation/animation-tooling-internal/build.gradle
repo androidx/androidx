@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -39,6 +32,4 @@ androidx {
     description = "Compose Animation APIs for tooling support. Internal use only."
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes()
-    metalavaK2UastEnabled = true
-    doNotDocumentReason = "Only used externally by Android Studio"
 }

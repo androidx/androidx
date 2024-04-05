@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.animation.core.internal.binarySearch
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.IntervalTree
 import androidx.compose.ui.graphics.Path

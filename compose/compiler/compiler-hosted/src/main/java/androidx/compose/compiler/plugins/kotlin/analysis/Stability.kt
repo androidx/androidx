@@ -17,6 +17,7 @@
 package androidx.compose.compiler.plugins.kotlin.analysis
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
 import androidx.compose.compiler.plugins.kotlin.lower.annotationClass
 import androidx.compose.compiler.plugins.kotlin.lower.isSyntheticComposableFunction
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
@@ -354,6 +355,9 @@ class StabilityInferencer(
     private fun canInferStability(declaration: IrClass): Boolean {
         val fqName = declaration.fqNameWhenAvailable?.toString() ?: ""
         return KnownStableConstructs.stableTypes.contains(fqName) ||
+            // On JS and Native we can't access StabilityInferred annotation for IR_EXTERNAL_DECLARATION_STUB,
+            // therefore skip it for now and calculate the stability on the fly
+            AbstractComposeLowering.isJvmTarget &&
             declaration.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
     }
 

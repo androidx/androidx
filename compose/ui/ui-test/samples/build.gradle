@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
 import androidx.build.LibraryType
 
 plugins {
@@ -55,15 +49,16 @@ android {
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-common:")).
-                using project(":lifecycle:lifecycle-common")
-        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
-                using project(":lifecycle:lifecycle-runtime")
-        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
-                using project(":lifecycle:lifecycle-runtime-ktx")
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
-                using project(":lifecycle:lifecycle-viewmodel")
-    }
-}
+// TODO: can we use artifacts here?
+//configurations.all {
+//    resolutionStrategy.dependencySubstitution {
+//        substitute(module("androidx.lifecycle:lifecycle-common:")).
+//                using project(":lifecycle:lifecycle-common")
+//        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+//                using project(":lifecycle:lifecycle-runtime")
+//        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+//                using project(":lifecycle:lifecycle-runtime-ktx")
+//        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+//                using project(":lifecycle:lifecycle-viewmodel")
+//    }
+//}

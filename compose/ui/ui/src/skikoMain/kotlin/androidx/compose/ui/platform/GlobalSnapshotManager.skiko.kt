@@ -16,6 +16,14 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.snapshots.Snapshot
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
+
 /**
  * Platform-specific mechanism for starting a monitor of global snapshot state writes
  * in order to schedule the periodic dispatch of snapshot apply notifications.
@@ -24,9 +32,27 @@ package androidx.compose.ui.platform
  *
  * Composition bootstrapping mechanisms for a particular platform/framework should call
  * [ensureStarted] during setup to initialize periodic global snapshot notifications.
- * For desktop, these notifications are always sent on [Dispatchers.Swing]. Other platforms
- * may establish different policies for these notifications.
  */
-internal expect object GlobalSnapshotManager {
-    fun ensureStarted()
+internal object GlobalSnapshotManager {
+    private val started = atomic(0)
+    private val sent = atomic(0)
+
+    fun ensureStarted() {
+        if (started.compareAndSet(0, 1)) {
+            val channel = Channel<Unit>(1)
+            CoroutineScope(GlobalSnapshotManagerDispatcher).launch {
+                channel.consumeEach {
+                    sent.compareAndSet(1, 0)
+                    Snapshot.sendApplyNotifications()
+                }
+            }
+            Snapshot.registerGlobalWriteObserver {
+                if (sent.compareAndSet(0, 1)) {
+                    channel.trySend(Unit)
+                }
+            }
+        }
+    }
 }
+
+internal expect val GlobalSnapshotManagerDispatcher: CoroutineDispatcher

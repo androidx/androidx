@@ -16,18 +16,36 @@
 
 package androidx.lifecycle.viewmodel.internal
 
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
 /**
- * Provides a custom multiplatform locking mechanism for controlling access to a shared resource by
- * multiple threads.
+ * A simple reentrant lock, it provides a custom multiplatform locking mechanism for controlling
+ * access to a shared resource by multiple threads.
  *
- * The implementation depends on the platform:
- * - On JVM/ART: uses JDK's synchronization.
- * - On Native: uses posix.
+ * - On JVM it is implemented via `synchronized {}`, `ReentrantLock` is avoided for
+ *      performance reasons.
+ * - On Native it is implemented via POSIX mutex with PTHREAD_MUTEX_RECURSIVE flag.
+ * - On JS/WASM: No-op as it's single thread environment.
  */
 internal expect class Lock() {
 
     /**
-     * Executes the given function [block] while holding the monitor of the current [Lock].
+     * It's not possible to specify a `contract` for an expect function,
+     * see https://youtrack.jetbrains.com/issue/KT-29963.
+     *
+     * Please use [Lock.withLock] function, where the `contract` is actually specified.
      */
-    inline fun <T> withLock(crossinline block: () -> T): T
+    inline fun <T> withLockImpl(crossinline block: () -> T): T
+}
+
+/**
+ * Executes the given function [block] while holding the monitor of the current [Lock].
+ */
+@OptIn(ExperimentalContracts::class)
+internal inline fun <T> Lock.withLock(crossinline block: () -> T): T {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+
+    return withLockImpl(block)
 }

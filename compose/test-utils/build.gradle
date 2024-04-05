@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -30,9 +23,11 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
+def desktopEnabled = false // b/276387374 TODO: KmpPlatformsKt.enableDesktop(project)
+
 androidXMultiplatform {
     android()
-    desktop()
+    if (desktopEnabled) desktop()
 
     sourceSets {
         commonMain {
@@ -45,12 +40,10 @@ androidXMultiplatform {
             }
         }
         androidMain.dependencies {
-            api("androidx.activity:activity:1.7.1")
-            // workaround for https://github.com/gradle/gradle/issues/8489
-            implementation("androidx.lifecycle:lifecycle-common:2.6.1")
+            api("androidx.activity:activity:1.2.0")
             implementation "androidx.activity:activity-compose:1.3.1"
             api(projectOrArtifact(":compose:ui:ui-test-junit4"))
-            api(project(":test:screenshot:screenshot"))
+            api(androidxArtifact(":test:screenshot:screenshot"))
             // This has stub APIs for access to legacy Android APIs, so we don't want
             // any dependency on this module.
             compileOnly(projectOrArtifact(":compose:ui:ui-android-stubs"))
@@ -76,9 +69,11 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
+        if (desktopEnabled) {
+            desktopMain {
+                dependsOn(jvmMain)
+                dependencies {
+                }
             }
         }
 
@@ -88,7 +83,7 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        androidAndroidTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
@@ -96,16 +91,23 @@ androidXMultiplatform {
             }
         }
 
-        androidUnitTest {
+        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+        //  level dependencies block instead:
+        //  `dependencies { testImplementation(libs.robolectric) }`
+        androidTest {
             dependsOn(jvmTest)
             dependencies {
                 implementation(libs.truth)
             }
         }
 
-        desktopTest {
-            dependsOn(jvmTest)
-            dependencies {
+        if (desktopEnabled) {
+            desktopTest {
+                dependsOn(jvmTest)
+                dependsOn(desktopMain)
+                dependencies {
+                }
             }
         }
     }

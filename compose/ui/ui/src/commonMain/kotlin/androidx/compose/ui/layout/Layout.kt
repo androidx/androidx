@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
+import kotlin.jvm.JvmName
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position

@@ -14,107 +14,136 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    android()
-    desktop()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-    sourceSets {
-        commonMain {
-            dependencies {
+        api(project(":compose:ui:ui-geometry"))
+        api("androidx.annotation:annotation:1.1.0")
+
+        implementation(libs.kotlinStdlib)
+        implementation("androidx.compose.runtime:runtime:1.2.1")
+        implementation(project(":compose:ui:ui-util"))
+
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
+
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.testExtJunit)
+        androidTestImplementation(libs.espressoCore)
+        androidTestImplementation(libs.truth)
+        androidTestImplementation(libs.kotlinTest)
+
+        samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
+    }
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+        darwin()
+        js()
+        wasm()
+    }
+
+    kotlin {
+
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+        sourceSets {
+            commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api("androidx.annotation:annotation:1.1.0")
                 api(project(":compose:ui:ui-geometry"))
-                implementation("androidx.collection:collection:1.4.0")
+
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":annotation:annotation"))
             }
-        }
-
-        commonTest {
-            dependencies {
-                implementation(kotlin("test-junit"))
-            }
-        }
-
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
+            jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
             }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
+            androidMain.dependencies {
                 api("androidx.annotation:annotation:1.1.0")
-                api("androidx.annotation:annotation-experimental:1.4.0")
-                implementation('androidx.collection:collection-ktx:1.2.0')
             }
-        }
 
-        desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
+            jbMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jbMain)
+            jsNativeMain.dependsOn(jbMain)
+            jsMain.dependsOn(jsNativeMain)
+            nativeMain.dependsOn(jsNativeMain)
+
+            jsMain {
+                dependsOn(jsNativeMain)
             }
-        }
 
-        jvmTest {
-            dependencies {
+            wasmJsMain {
+                dependsOn(jsNativeMain)
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
             }
-        }
 
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
+            commonTest.dependencies {
+                implementation(kotlin("test-junit"))
+            }
+
+            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+            //  level dependencies block instead:
+            //  `dependencies { testImplementation(libs.robolectric) }`
+            androidTest.dependencies {
+                implementation(libs.truth)
+            }
+            androidAndroidTest.dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.testExtJunit)
                 implementation(libs.espressoCore)
-                implementation(libs.truth)
-                implementation('androidx.collection:collection-ktx:1.2.0')
             }
-        }
 
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation('androidx.collection:collection-ktx:1.2.0')
+            desktopTest {
+                dependencies {
+                    implementation(libs.junit)
+                    implementation(libs.truth)
+                    implementation(libs.kotlinTest)
+                }
             }
+            desktopTest.kotlin.srcDirs("src/test/kotlin")
         }
-
-        desktopTest {
-            dependsOn(jvmTest)
-        }
+    }
+    dependencies {
+        samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
     }
 }
 
 androidx {
     name = "Compose Unit"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Compose classes for simple units"
     legacyDisableKotlinStrictApiMode = true
-    samples(project(":compose:ui:ui-unit:ui-unit-samples"))
 }
 
 android {

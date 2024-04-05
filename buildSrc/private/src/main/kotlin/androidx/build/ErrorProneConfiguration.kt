@@ -18,10 +18,13 @@ package androidx.build
 
 import androidx.build.java.JavaCompileInputs
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.builder.core.BuilderConstants
+import org.gradle.api.DomainObjectSet
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin.COMPILE_JAVA_TASK_NAME
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.SourceSetContainer
@@ -32,11 +35,11 @@ import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.process.CommandLineArgumentProvider
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 const val ERROR_PRONE_TASK = "runErrorProne"
 
 private const val ERROR_PRONE_CONFIGURATION = "errorprone"
+private const val ERROR_PRONE_VERSION = "com.google.errorprone:error_prone_core:2.14.0"
 private val log = Logging.getLogger("ErrorProneConfiguration")
 
 fun Project.configureErrorProneForJava() {
@@ -46,47 +49,52 @@ fun Project.configureErrorProneForJava() {
             errorProneConfiguration
         )
     }
-    val kmpExtension = project.multiplatformExtension
-    if (kmpExtension?.targets?.any { it is KotlinJvmTarget && it.withJavaEnabled } == false) {
-        // only configure error prone when Kotlin adds compileJava task
-        return
-    }
-
+    val javaCompileProvider = project.tasks.named(COMPILE_JAVA_TASK_NAME, JavaCompile::class.java)
     log.info("Configuring error-prone for ${project.path}")
+    val kmpExtension = project.multiplatformExtension
     if (kmpExtension != null) {
         val jvmJarProvider = tasks.named(kmpExtension.jvm().artifactsTaskName, Jar::class.java)
         makeKmpErrorProneTask(
-            COMPILE_JAVA_TASK_NAME,
+            javaCompileProvider,
             jvmJarProvider,
             JavaCompileInputs.fromKmpJvmTarget(project)
         )
     } else {
-        makeErrorProneTask(COMPILE_JAVA_TASK_NAME)
+        makeErrorProneTask(javaCompileProvider)
     }
 }
 
-fun Project.configureErrorProneForAndroid() {
-    val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
-    androidComponents?.onVariants { variant ->
-        if (variant.buildType == "release") {
-            val errorProneConfiguration = createErrorProneConfiguration()
-            configurations.getByName(variant.annotationProcessorConfiguration.name)
-                .extendsFrom(errorProneConfiguration)
+@Suppress("DEPRECATION") // BaseVariant
+fun Project.configureErrorProneForAndroid(
+    variants: DomainObjectSet<out com.android.build.gradle.api.BaseVariant>
+) {
+    var annotationArgs: MapProperty<String, String>? = null
+    val extension = extensions.findByType(AndroidComponentsExtension::class.java)
+    extension?.onVariants { variant ->
+        annotationArgs = variant.javaCompilation.annotationProcessor.arguments
+    }
+    val errorProneConfiguration = createErrorProneConfiguration()
+    variants.all { variant ->
+        if (variant.buildType.name == BuilderConstants.RELEASE) {
+            val task = variant.javaCompileProvider
+            (variant as com.android.build.gradle.api.BaseVariant)
+                .annotationProcessorConfiguration.extendsFrom(errorProneConfiguration)
 
             log.info("Configuring error-prone for ${variant.name}'s java compile")
-            makeErrorProneTask("compile${variant.name.camelCase()}JavaWithJavac") { javaCompile ->
-                @Suppress("UnstableApiUsage")
-                val annotationArgs = variant.javaCompilation.annotationProcessor.arguments
+            makeErrorProneTask(task) { javaCompile ->
+                // Passing along annotation processor arguments to errorprone compile task
                 javaCompile.options.compilerArgumentProviders.add(
-                    CommandLineArgumentProviderAdapter(annotationArgs)
+                    CommandLineArgumentProviderAdapter(annotationArgs!!)
                 )
             }
         }
     }
 }
 
-class CommandLineArgumentProviderAdapter(@get:Input val arguments: Provider<Map<String, String>>) :
-    CommandLineArgumentProvider {
+class CommandLineArgumentProviderAdapter(
+    @get:Input
+    val arguments: Provider<Map<String, String>>
+) : CommandLineArgumentProvider {
     override fun asArguments(): MutableIterable<String> {
         return mutableListOf<String>().also {
             for ((key, value) in arguments.get()) {
@@ -96,195 +104,186 @@ class CommandLineArgumentProviderAdapter(@get:Input val arguments: Provider<Map<
     }
 }
 
-private fun Project.createErrorProneConfiguration(): Configuration =
-    configurations.findByName(ERROR_PRONE_CONFIGURATION)
-        ?: configurations.create(ERROR_PRONE_CONFIGURATION).apply {
-            isVisible = false
-            isCanBeConsumed = false
-            isCanBeResolved = true
-            exclude(group = "com.google.errorprone", module = "javac")
-            project.dependencies.add(ERROR_PRONE_CONFIGURATION, getLibraryByName("errorProne"))
+private fun Project.createErrorProneConfiguration(): Configuration {
+    val errorProneConfiguration = configurations.create(ERROR_PRONE_CONFIGURATION) {
+        it.isVisible = false
+        it.isCanBeConsumed = false
+        it.isCanBeResolved = true
+        it.exclude(group = "com.google.errorprone", module = "javac")
     }
+    dependencies.add(ERROR_PRONE_CONFIGURATION, ERROR_PRONE_VERSION)
+    return errorProneConfiguration
+}
 
 // Given an existing JavaCompile task, reconfigures the task to use the ErrorProne compiler plugin
 private fun JavaCompile.configureWithErrorProne() {
     options.isFork = true
-    options.forkOptions.jvmArgs!!.addAll(
-        listOf(
-            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+    options.forkOptions.jvmArgs!!.addAll(listOf(
+        "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
         )
     )
     val compilerArgs = this.options.compilerArgs
-    compilerArgs +=
+    compilerArgs += listOf(
+        // Tell error-prone that we are running it on android compatible libraries
+        "-XDandroidCompatible=true",
+
+        "-XDcompilePolicy=simple", // Workaround for b/36098770
         listOf(
-            // Tell error-prone that we are running it on android compatible libraries
-            "-XDandroidCompatible=true",
-            "-XDcompilePolicy=simple", // Workaround for b/36098770
-            listOf(
-                    "-Xplugin:ErrorProne",
+            "-Xplugin:ErrorProne",
 
-                    // Ignore intermediate build output, generated files, and external sources. Also
-                    // sources
-                    // imported from Android Studio and IntelliJ which are used in the lint-checks
-                    // project.
-                    "-XepExcludedPaths:.*/(build/generated|build/errorProne|external|" +
-                        "compileTransaction/compile-output|" +
-                        "lint-checks/src/main/java/androidx/com)/.*",
+            // Ignore intermediate build output, generated files, and external sources. Also sources
+            // imported from Android Studio and IntelliJ which are used in the lint-checks project.
+            "-XepExcludedPaths:.*/(build/generated|build/errorProne|external|" +
+                "compileTransaction/compile-output|lint-checks/src/main/java/androidx/com)/.*",
 
-                    // Consider re-enabling the following checks. Disabled as part of
-                    // error-prone upgrade
-                    "-Xep:InlineMeSuggester:OFF",
-                    "-Xep:NarrowCalculation:OFF",
-                    "-Xep:LongDoubleConversion:OFF",
-                    "-Xep:UnicodeEscape:OFF",
-                    "-Xep:JavaUtilDate:OFF",
-                    "-Xep:UnrecognisedJavadocTag:OFF",
-                    "-Xep:ObjectEqualsForPrimitives:OFF",
-                    "-Xep:DoNotCallSuggester:OFF",
-                    "-Xep:EqualsNull:OFF",
-                    "-Xep:MalformedInlineTag:OFF",
-                    "-Xep:MissingSuperCall:OFF",
-                    "-Xep:ToStringReturnsNull:OFF",
-                    "-Xep:ReturnValueIgnored:OFF",
-                    "-Xep:MissingImplementsComparable:OFF",
-                    "-Xep:EmptyTopLevelDeclaration:OFF",
-                    "-Xep:InvalidThrowsLink:OFF",
-                    "-Xep:StaticAssignmentOfThrowable:OFF",
-                    "-Xep:DoNotClaimAnnotations:OFF",
-                    "-Xep:AlreadyChecked:OFF",
-                    "-Xep:StringSplitter:OFF",
-                    "-Xep:NonApiType:OFF",
-                    "-Xep:StringCaseLocaleUsage:OFF",
-                    "-Xep:LabelledBreakTarget:OFF",
-                    "-Xep:Finalize:OFF",
-                    "-Xep:AddressSelection:OFF",
-                    "-Xep:StringCharset:OFF",
+            // Consider re-enabling the following checks. Disabled as part of
+            // error-prone upgrade
+            "-Xep:InlineMeSuggester:OFF",
+            "-Xep:NarrowCalculation:OFF",
+            "-Xep:LongDoubleConversion:OFF",
+            "-Xep:UnicodeEscape:OFF",
+            "-Xep:JavaUtilDate:OFF",
+            "-Xep:UnrecognisedJavadocTag:OFF",
+            "-Xep:ObjectEqualsForPrimitives:OFF",
+            "-Xep:DoNotCallSuggester:OFF",
+            "-Xep:EqualsNull:OFF",
+            "-Xep:MalformedInlineTag:OFF",
+            "-Xep:MissingSuperCall:OFF",
+            "-Xep:ToStringReturnsNull:OFF",
+            "-Xep:ReturnValueIgnored:OFF",
+            "-Xep:MissingImplementsComparable:OFF",
+            "-Xep:EmptyTopLevelDeclaration:OFF",
+            "-Xep:InvalidThrowsLink:OFF",
+            "-Xep:StaticAssignmentOfThrowable:OFF",
+            "-Xep:DoNotClaimAnnotations:OFF",
+            "-Xep:AlreadyChecked:OFF",
+            "-Xep:StringSplitter:OFF",
 
-                    // We allow inter library RestrictTo usage.
-                    "-Xep:RestrictTo:OFF",
+            // We allow inter library RestrictTo usage.
+            "-Xep:RestrictTo:OFF",
 
-                    // Disable the following checks.
-                    "-Xep:UnescapedEntity:OFF",
-                    "-Xep:MissingSummary:OFF",
-                    "-Xep:StaticAssignmentInConstructor:OFF",
-                    "-Xep:InvalidLink:OFF",
-                    "-Xep:InvalidInlineTag:OFF",
-                    "-Xep:EmptyBlockTag:OFF",
-                    "-Xep:EmptyCatch:OFF",
-                    "-Xep:JdkObsolete:OFF",
-                    "-Xep:PublicConstructorForAbstractClass:OFF",
-                    "-Xep:MutablePublicArray:OFF",
-                    "-Xep:NonCanonicalType:OFF",
-                    "-Xep:ModifyCollectionInEnhancedForLoop:OFF",
-                    "-Xep:InheritDoc:OFF",
-                    "-Xep:InvalidParam:OFF",
-                    "-Xep:InlineFormatString:OFF",
-                    "-Xep:InvalidBlockTag:OFF",
-                    "-Xep:ProtectedMembersInFinalClass:OFF",
-                    "-Xep:SameNameButDifferent:OFF",
-                    "-Xep:AnnotateFormatMethod:OFF",
-                    "-Xep:ReturnFromVoid:OFF",
-                    "-Xep:AlmostJavadoc:OFF",
-                    "-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:OFF",
-                    "-Xep:InvalidThrows:OFF",
+            // Disable the following checks.
+            "-Xep:UnescapedEntity:OFF",
+            "-Xep:MissingSummary:OFF",
+            "-Xep:StaticAssignmentInConstructor:OFF",
+            "-Xep:InvalidLink:OFF",
+            "-Xep:InvalidInlineTag:OFF",
+            "-Xep:EmptyBlockTag:OFF",
+            "-Xep:EmptyCatch:OFF",
+            "-Xep:JdkObsolete:OFF",
+            "-Xep:PublicConstructorForAbstractClass:OFF",
+            "-Xep:MutablePublicArray:OFF",
+            "-Xep:NonCanonicalType:OFF",
+            "-Xep:ModifyCollectionInEnhancedForLoop:OFF",
+            "-Xep:InheritDoc:OFF",
+            "-Xep:InvalidParam:OFF",
+            "-Xep:InlineFormatString:OFF",
+            "-Xep:InvalidBlockTag:OFF",
+            "-Xep:ProtectedMembersInFinalClass:OFF",
+            "-Xep:SameNameButDifferent:OFF",
+            "-Xep:AnnotateFormatMethod:OFF",
+            "-Xep:ReturnFromVoid:OFF",
+            "-Xep:AlmostJavadoc:OFF",
+            "-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:OFF",
+            "-Xep:InvalidThrows:OFF",
 
-                    // Disable checks which are already enforced by lint.
-                    "-Xep:PrivateConstructorForUtilityClass:OFF",
+            // Disable checks which are already enforced by lint.
+            "-Xep:PrivateConstructorForUtilityClass:OFF",
 
-                    // Enforce the following checks.
-                    "-Xep:JavaTimeDefaultTimeZone:ERROR",
-                    "-Xep:ParameterNotNullable:ERROR",
-                    "-Xep:MissingOverride:ERROR",
-                    "-Xep:EqualsHashCode:ERROR",
-                    "-Xep:NarrowingCompoundAssignment:ERROR",
-                    "-Xep:ClassNewInstance:ERROR",
-                    "-Xep:ClassCanBeStatic:ERROR",
-                    "-Xep:SynchronizeOnNonFinalField:ERROR",
-                    "-Xep:OperatorPrecedence:ERROR",
-                    "-Xep:IntLongMath:ERROR",
-                    "-Xep:MissingFail:ERROR",
-                    "-Xep:JavaLangClash:ERROR",
-                    "-Xep:TypeParameterUnusedInFormals:ERROR",
-                    // "-Xep:StringSplitter:ERROR", // disabled with upgrade to 2.14.0
-                    "-Xep:ReferenceEquality:ERROR",
-                    "-Xep:AssertionFailureIgnored:ERROR",
-                    "-Xep:UnnecessaryParentheses:ERROR",
-                    "-Xep:EqualsGetClass:ERROR",
-                    "-Xep:UnusedVariable:ERROR",
-                    "-Xep:UnusedMethod:ERROR",
-                    "-Xep:UndefinedEquals:ERROR",
-                    "-Xep:ThreadLocalUsage:ERROR",
-                    "-Xep:FutureReturnValueIgnored:ERROR",
-                    "-Xep:ArgumentSelectionDefectChecker:ERROR",
-                    "-Xep:HidingField:ERROR",
-                    "-Xep:UnsynchronizedOverridesSynchronized:ERROR",
-                    "-Xep:Finally:ERROR",
-                    "-Xep:ThreadPriorityCheck:ERROR",
-                    "-Xep:AutoValueFinalMethods:ERROR",
-                    "-Xep:ImmutableEnumChecker:ERROR",
-                    "-Xep:UnsafeReflectiveConstructionCast:ERROR",
-                    "-Xep:LockNotBeforeTry:ERROR",
-                    "-Xep:DoubleCheckedLocking:ERROR",
-                    "-Xep:InconsistentCapitalization:ERROR",
-                    "-Xep:ModifiedButNotUsed:ERROR",
-                    "-Xep:AmbiguousMethodReference:ERROR",
-                    "-Xep:EqualsIncompatibleType:ERROR",
-                    "-Xep:ParameterName:ERROR",
-                    "-Xep:RxReturnValueIgnored:ERROR",
-                    "-Xep:BadImport:ERROR",
-                    "-Xep:MissingCasesInEnumSwitch:ERROR",
-                    "-Xep:ObjectToString:ERROR",
-                    "-Xep:CatchAndPrintStackTrace:ERROR",
-                    "-Xep:MixedMutabilityReturnType:ERROR",
+            // Enforce the following checks.
+            "-Xep:JavaTimeDefaultTimeZone:ERROR",
+            "-Xep:ParameterNotNullable:ERROR",
+            "-Xep:MissingOverride:ERROR",
+            "-Xep:EqualsHashCode:ERROR",
+            "-Xep:NarrowingCompoundAssignment:ERROR",
+            "-Xep:ClassNewInstance:ERROR",
+            "-Xep:ClassCanBeStatic:ERROR",
+            "-Xep:SynchronizeOnNonFinalField:ERROR",
+            "-Xep:OperatorPrecedence:ERROR",
+            "-Xep:IntLongMath:ERROR",
+            "-Xep:MissingFail:ERROR",
+            "-Xep:JavaLangClash:ERROR",
+            "-Xep:TypeParameterUnusedInFormals:ERROR",
+            // "-Xep:StringSplitter:ERROR", // disabled with upgrade to 2.14.0
+            "-Xep:ReferenceEquality:ERROR",
+            "-Xep:AssertionFailureIgnored:ERROR",
+            "-Xep:UnnecessaryParentheses:ERROR",
+            "-Xep:EqualsGetClass:ERROR",
+            "-Xep:UnusedVariable:ERROR",
+            "-Xep:UnusedMethod:ERROR",
+            "-Xep:UndefinedEquals:ERROR",
+            "-Xep:ThreadLocalUsage:ERROR",
+            "-Xep:FutureReturnValueIgnored:ERROR",
+            "-Xep:ArgumentSelectionDefectChecker:ERROR",
+            "-Xep:HidingField:ERROR",
+            "-Xep:UnsynchronizedOverridesSynchronized:ERROR",
+            "-Xep:Finally:ERROR",
+            "-Xep:ThreadPriorityCheck:ERROR",
+            "-Xep:AutoValueFinalMethods:ERROR",
+            "-Xep:ImmutableEnumChecker:ERROR",
+            "-Xep:UnsafeReflectiveConstructionCast:ERROR",
+            "-Xep:LockNotBeforeTry:ERROR",
+            "-Xep:DoubleCheckedLocking:ERROR",
+            "-Xep:InconsistentCapitalization:ERROR",
+            "-Xep:ModifiedButNotUsed:ERROR",
+            "-Xep:AmbiguousMethodReference:ERROR",
+            "-Xep:EqualsIncompatibleType:ERROR",
+            "-Xep:ParameterName:ERROR",
+            "-Xep:RxReturnValueIgnored:ERROR",
+            "-Xep:BadImport:ERROR",
+            "-Xep:MissingCasesInEnumSwitch:ERROR",
+            "-Xep:ObjectToString:ERROR",
+            "-Xep:CatchAndPrintStackTrace:ERROR",
+            "-Xep:MixedMutabilityReturnType:ERROR",
 
-                    // Nullaway
-                    "-XepIgnoreUnknownCheckNames", // https://github.com/uber/NullAway/issues/25
-                    "-Xep:NullAway:ERROR",
-                    "-XepOpt:NullAway:AnnotatedPackages=android.arch,android.support,androidx"
-                )
-                .joinToString(" ")
-        )
+            // Nullaway
+            "-XepIgnoreUnknownCheckNames", // https://github.com/uber/NullAway/issues/25
+            "-Xep:NullAway:ERROR",
+            "-XepOpt:NullAway:AnnotatedPackages=android.arch,android.support,androidx"
+        ).joinToString(" ")
+    )
 }
 
 /**
  * Given a [JavaCompile] task, creates a task that runs the ErrorProne compiler with the same
  * settings, including any kotlin source provided by [jvmCompileInputs].
  *
- * Note: Since ErrorProne only understands Java files which may be dependent on Kotlin source, using
- * this method to register ErrorProne task causes it to be dependent on jvmJar task.
+ * Note: Since ErrorProne only understands Java files which may be dependent on Kotlin source,
+ * using this method to register ErrorProne task causes it to be dependent on jvmJar task.
  *
+
  * @param jvmCompileInputs [JavaCompileInputs] that specifies jvm source including Kotlin sources.
  */
 private fun Project.makeKmpErrorProneTask(
-    compileTaskName: String,
+    compileTaskProvider: TaskProvider<JavaCompile>,
     jvmJarTaskProvider: TaskProvider<Jar>,
     jvmCompileInputs: JavaCompileInputs
 ) {
-    makeErrorProneTask(compileTaskName) { errorProneTask ->
+    makeErrorProneTask(compileTaskProvider) { errorProneTask ->
         // ErrorProne doesn't understand Kotlin source, so first let kotlinCompile finish, then
         // take the resulting jar and add it to the classpath.
         val jvmJarTask = jvmJarTaskProvider.get()
-        val jvmJarFileCollection = files(provider { jvmJarTask.archiveFile.get().asFile })
+        val jvmJarFileCollection = files(
+            provider { jvmJarTask.archiveFile.get().asFile }
+        )
         errorProneTask.dependsOn(jvmJarTaskProvider.name)
         errorProneTask.classpath = jvmCompileInputs.dependencyClasspath.plus(jvmJarFileCollection)
-        errorProneTask.source =
-            jvmCompileInputs.sourcePaths
-                // flatMap src dirs into src files so we can read the extensions.
-                .asFileTree
-                // ErrorProne normally skips non-java source, but we need to explicitly filter for
-                // it
-                // since non-empty list with no java source will throw an exception.
-                .filter { it.extension.equals("java", ignoreCase = true) }
-                .asFileTree
+        errorProneTask.source = jvmCompileInputs.sourcePaths
+            // flatMap src dirs into src files so we can read the extensions.
+            .asFileTree
+            // ErrorProne normally skips non-java source, but we need to explicitly filter for it
+            // since non-empty list with no java source will throw an exception.
+            .filter { it.extension.equals("java", ignoreCase = true) }
+            .asFileTree
     }
 }
 
@@ -292,34 +291,33 @@ private fun Project.makeKmpErrorProneTask(
  * Given a [JavaCompile] task, creates a task that runs the ErrorProne compiler with the same
  * settings.
  *
- * @param onConfigure optional callback which lazily evaluates on task configuration. Use this to do
- *   any additional configuration such as overriding default settings.
+ * @param onConfigure optional callback which lazily evaluates on task configuration. Use this to
+ * do any additional configuration such as overriding default settings.
  */
 private fun Project.makeErrorProneTask(
-    compileTaskName: String,
-    onConfigure: (errorProneTask: JavaCompile) -> Unit = {}
-) = afterEvaluate {
-    val errorProneTaskProvider =
-        maybeRegister<JavaCompile>(
-            name = ERROR_PRONE_TASK,
-            onConfigure = {
-                val compileTask = tasks.withType(JavaCompile::class.java)
-                    .named(compileTaskName)
-                    .get()
-                it.classpath = compileTask.classpath
-                it.source = compileTask.source
-                it.destinationDirectory.set(layout.buildDirectory.dir("errorProne"))
-                it.options.compilerArgs = compileTask.options.compilerArgs.toMutableList()
-                it.options.annotationProcessorPath = compileTask.options.annotationProcessorPath
-                it.options.bootstrapClasspath = compileTask.options.bootstrapClasspath
-                it.sourceCompatibility = compileTask.sourceCompatibility
-                it.targetCompatibility = compileTask.targetCompatibility
-                it.configureWithErrorProne()
-                it.dependsOn(compileTask.dependsOn)
+    compileTaskProvider: TaskProvider<JavaCompile>,
+    onConfigure: (errorProneTask: JavaCompile) -> Unit = { }
+) {
+    val errorProneTaskProvider = maybeRegister<JavaCompile>(
+        name = ERROR_PRONE_TASK,
+        onConfigure = {
+            val compileTask = compileTaskProvider.get()
+            it.classpath = compileTask.classpath
+            it.source = compileTask.source
+            it.destinationDirectory.set(file(buildDir.resolve("errorProne")))
+            it.options.compilerArgs = compileTask.options.compilerArgs.toMutableList()
+            it.options.annotationProcessorPath = compileTask.options.annotationProcessorPath
+            it.options.bootstrapClasspath = compileTask.options.bootstrapClasspath
+            it.sourceCompatibility = compileTask.sourceCompatibility
+            it.targetCompatibility = compileTask.targetCompatibility
+            it.configureWithErrorProne()
+            it.dependsOn(compileTask.dependsOn)
 
-                onConfigure(it)
-            },
-            onRegister = { errorProneProvider -> project.addToCheckTask(errorProneProvider) }
-        )
+            onConfigure(it)
+        },
+        onRegister = { errorProneProvider ->
+            project.addToCheckTask(errorProneProvider)
+        }
+    )
     addToBuildOnServer(errorProneTaskProvider)
 }

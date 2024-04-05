@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -42,12 +35,6 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                implementation(project(":compose:ui:ui-util"))
-                api("androidx.compose.foundation:foundation:1.6.0")
-                api("androidx.compose.foundation:foundation-layout:1.6.0")
-                api(project(":compose:runtime:runtime"))
-                api("androidx.compose.ui:ui-graphics:1.6.0")
-                api("androidx.compose.ui:ui-text:1.6.0")
             }
         }
         androidMain.dependencies {
@@ -75,6 +62,7 @@ androidXMultiplatform {
         desktopMain {
             dependsOn(jvmMain)
             dependencies {
+                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -87,7 +75,6 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
-                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-common"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.testRules)
@@ -109,10 +96,10 @@ android {
 }
 
 androidx {
-    name = "Compose Material 3 Common"
+    name = "Compose Material 3 Common components"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_COMMON
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
     inceptionYear = "2023"
     description = "Compose Material 3 Common Library. This library contains foundational, themeless " +
             "components that can be shared between different Material libraries or used by app" +

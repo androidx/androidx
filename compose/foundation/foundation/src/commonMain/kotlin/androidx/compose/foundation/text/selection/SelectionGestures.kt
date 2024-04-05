@@ -20,7 +20,10 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -30,9 +33,11 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CancellationException
@@ -94,18 +99,23 @@ internal fun Modifier.updateSelectionTouchMode(
 internal fun Modifier.selectionGestureInput(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver,
-) = this.pointerInput(mouseSelectionObserver, textDragObserver) {
-    val clicksCounter = ClicksCounter(viewConfiguration)
-    awaitEachGesture {
-        val down = awaitDown()
-        if (
-            down.isPrecisePointer &&
-            down.buttons.isPrimaryPressed &&
-            down.changes.fastAll { !it.isConsumed }
-        ) {
-            mouseSelection(mouseSelectionObserver, clicksCounter, down)
-        } else if (!down.isPrecisePointer) {
-            touchSelection(textDragObserver, down)
+): Modifier = composed {
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-79) how we can rewrite this without `composed`?
+    val currentMouseSelectionObserver by rememberUpdatedState(mouseSelectionObserver)
+    val currentTextDragObserver by rememberUpdatedState(textDragObserver)
+    this.pointerInput(Unit) {
+        val clicksCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
+        awaitEachGesture {
+            val down = awaitDown()
+            if (
+                down.isPrecisePointer &&
+                down.buttons.isPrimaryPressed &&
+                down.changes.fastAll { !it.isConsumed }
+            ) {
+                mouseSelection(currentMouseSelectionObserver, clicksCounter, down)
+            } else if (!down.isPrecisePointer) {
+                touchSelection(currentTextDragObserver, down)
+            }
         }
     }
 }
@@ -145,9 +155,9 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
     clicksCounter: ClicksCounter,
     down: PointerEvent
 ) {
-    clicksCounter.update(down)
     val downChange = down.changes[0]
-    if (down.isShiftPressed) {
+    clicksCounter.update(downChange)
+    if (down.keyboardModifiers.isShiftPressed) {
         val started = observer.onExtend(downChange.position)
         if (started) {
             val shouldConsumeUp = drag(downChange.id) {
@@ -173,13 +183,15 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
 
         val started = observer.onStart(downChange.position, selectionAdjustment)
         if (started) {
+            var dragConsumed = selectionAdjustment != SelectionAdjustment.None
             val shouldConsumeUp = drag(downChange.id) {
                 if (observer.onDrag(it.position, selectionAdjustment)) {
                     it.consume()
+                    dragConsumed = true
                 }
             }
 
-            if (shouldConsumeUp) {
+            if (shouldConsumeUp && dragConsumed) {
                 currentEvent.changes.fastForEach {
                     if (it.changedToUp()) it.consume()
                 }
@@ -190,33 +202,32 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
     }
 }
 
-internal const val ClicksSlop = 100.0
-
-private class ClicksCounter(
-    private val viewConfiguration: ViewConfiguration
+internal class ClicksCounter(
+    private val viewConfiguration: ViewConfiguration,
+    private val clicksSlop: Float // Distance in pixels between consecutive click positions to be considered them as clicks sequence
 ) {
     var clicks = 0
-    var prevClick: PointerInputChange? = null
+    private var prevClick: PointerInputChange? = null
 
-    fun update(event: PointerEvent) {
-        val currentPrevClick = prevClick
-        val newClick = event.changes[0]
-        if (currentPrevClick != null &&
-            timeIsTolerable(currentPrevClick, newClick) &&
-            positionIsTolerable(currentPrevClick, newClick)
+    fun update(event: PointerInputChange) {
+        val currentPrevEvent = prevClick
+        // Here and further event means upcoming event (new)
+        if (currentPrevEvent != null &&
+            timeIsTolerable(currentPrevEvent, event) &&
+            positionIsTolerable(currentPrevEvent, event)
         ) {
             clicks += 1
         } else {
             clicks = 1
         }
-        prevClick = newClick
+        prevClick = event
     }
 
     fun timeIsTolerable(prevClick: PointerInputChange, newClick: PointerInputChange): Boolean =
         newClick.uptimeMillis - prevClick.uptimeMillis < viewConfiguration.doubleTapTimeoutMillis
 
     fun positionIsTolerable(prevClick: PointerInputChange, newClick: PointerInputChange): Boolean =
-        (newClick.position - prevClick.position).getDistance() < ClicksSlop
+        (newClick.position - prevClick.position).getDistance() < clicksSlop
 }
 
 private suspend fun AwaitPointerEventScope.awaitDown(): PointerEvent {

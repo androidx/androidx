@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
+import kotlin.jvm.JvmInline
 
 /**
  * [Density] is an interface, not a final class. When you want to have a snapshot of Density values

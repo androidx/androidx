@@ -26,7 +26,10 @@ import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.foundation.text.textPointerIcon
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -167,7 +170,13 @@ internal class SelectionController(
 
 // this is not chained, but is a standalone factory
 @Suppress("ModifierFactoryExtensionFunction")
-private fun SelectionRegistrar.makeSelectionModifier(
+internal expect fun SelectionRegistrar.makeSelectionModifier(
+    selectableId: Long,
+    layoutCoordinates: () -> LayoutCoordinates?,
+): Modifier
+
+@Suppress("ModifierFactoryExtensionFunction")
+internal fun SelectionRegistrar.makeDefaultSelectionModifier(
     selectableId: Long,
     layoutCoordinates: () -> LayoutCoordinates?,
 ): Modifier {

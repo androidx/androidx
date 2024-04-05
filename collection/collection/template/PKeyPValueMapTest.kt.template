@@ -37,7 +37,7 @@ import kotlin.test.assertTrue
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 @Suppress("RemoveRedundantCallsOfConversionMethods")
-class PKeyPValueMapTest {
+internal class PKeyPValueMapTest {
     @Test
     fun pKeyPValueMap() {
         val map = MutablePKeyPValueMap()

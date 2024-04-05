@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.Rect
@@ -28,10 +26,9 @@ import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.substring
-import androidx.compose.ui.unit.Density
-import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.InputMethodEvent
+import java.awt.event.KeyEvent
 import java.awt.font.TextHitInfo
 import java.awt.im.InputMethodRequests
 import java.text.AttributedCharacterIterator
@@ -41,28 +38,7 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
-internal actual interface PlatformInputComponent {
-    fun enableInput(inputMethodRequests: InputMethodRequests)
-
-    /**
-     * @param inputMethodRequests Optional [InputMethodRequests]. If specified, the requests will
-     * only be cleared if still set to this value.
-     */
-    fun disableInput(inputMethodRequests: InputMethodRequests? = null)
-
-    /**
-     * @see SkiaBasedOwner.textInputSession
-     */
-    actual suspend fun textInputSession(
-        session: suspend PlatformTextInputSessionScope.() -> Nothing
-    ): Nothing
-
-    // Input service needs to know this information to implement Input Method support
-    val locationOnScreen: Point
-    val density: Density
-}
-
-internal actual class PlatformInput actual constructor(val component: PlatformComponent) :
+internal class DesktopTextInputService(private val component: PlatformComponent) :
     PlatformTextInputService {
     data class CurrentInput(
         var value: TextFieldValue,
@@ -72,7 +48,7 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
         var focusedRect: Rect? = null
     )
 
-    var currentInput: CurrentInput? = null
+    private var currentInput: CurrentInput? = null
 
     // This is required to support input of accented characters using press-and-hold method (http://support.apple.com/kb/PH11264).
     // JDK currently properly supports this functionality only for TextComponent/JTextComponent descendants.
@@ -112,6 +88,8 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
         }
     }
 
+    // TODO(https://github.com/JetBrains/compose-jb/issues/2040): probably the position of input method
+    //  popup isn't correct now
     @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
     override fun notifyFocusedRect(rect: Rect) {
         currentInput?.let { input ->
@@ -119,32 +97,34 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
         }
     }
 
-    internal fun inputMethodCaretPositionChanged(
-        @Suppress("UNUSED_PARAMETER") event: InputMethodEvent
-    ) {
-        // Which OSes and which input method could produce such events? We need to have some
-        // specific cases in mind before implementing this
+    fun onKeyEvent(keyEvent: KeyEvent) {
+        when (keyEvent.id) {
+            KeyEvent.KEY_TYPED ->
+                charKeyPressed = true
+            KeyEvent.KEY_RELEASED ->
+                charKeyPressed = false
+        }
     }
 
-    internal fun replaceInputMethodText(event: InputMethodEvent) {
+    fun inputMethodTextChanged(event: InputMethodEvent) {
+        if (!event.isConsumed) {
+            replaceInputMethodText(event)
+            event.consume()
+        }
+    }
+
+    private fun replaceInputMethodText(event: InputMethodEvent) {
         currentInput?.let { input ->
-            if (event.text == null) {
-                return
-            }
-            val committed = event.text.toStringUntil(event.committedCharacterCount)
-            val composing = event.text.toStringFrom(event.committedCharacterCount)
+            val committed = event.text?.toStringUntil(event.committedCharacterCount).orEmpty()
+            val composing = event.text?.toStringFrom(event.committedCharacterCount).orEmpty()
             val ops = mutableListOf<EditCommand>()
 
-            if (needToDeletePreviousChar && isMac && input.value.selection.min > 0) {
+            if (needToDeletePreviousChar && isMac && input.value.selection.min > 0 && composing.isEmpty()) {
                 needToDeletePreviousChar = false
                 ops.add(DeleteSurroundingTextInCodePointsCommand(1, 0))
             }
 
-            // newCursorPosition == 1 leads to effectively ignoring of this parameter in EditCommands
-            // processing. the cursor will be set after the inserted text.
-            if (committed.isNotEmpty()) {
-                ops.add(CommitTextCommand(committed, 1))
-            }
+            ops.add(CommitTextCommand(committed, 1))
             if (composing.isNotEmpty()) {
                 ops.add(SetComposingTextCommand(composing, 1))
             }
@@ -153,7 +133,7 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
         }
     }
 
-    fun methodRequestsForInput(input: CurrentInput) =
+    private fun methodRequestsForInput(input: CurrentInput) =
         object : InputMethodRequests {
             override fun getLocationOffset(x: Int, y: Int): TextHitInfo? {
                 if (input.value.composition != null) {
@@ -197,7 +177,7 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
                 return AttributedString(str).iterator
             }
 
-            override fun getTextLocation(offset: TextHitInfo): Rectangle? {
+            override fun getTextLocation(offset: TextHitInfo?): Rectangle? {
                 return input.focusedRect?.let {
                     val x = (it.right / component.density.density).toInt() +
                         component.locationOnScreen.x
@@ -212,17 +192,22 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
                 endIndex: Int,
                 attributes: Array<AttributedCharacterIterator.Attribute>?
             ): AttributedCharacterIterator {
-
                 val comp = input.value.composition
                 val text = input.value.text
-                val range = TextRange(beginIndex, endIndex.coerceAtMost(text.length))
+                // When input is performed with Pinyin and backspace pressed,
+                // comp is null and beginIndex > endIndex.
+                // TODO Check is this an expected behavior?
+                val range = TextRange(
+                    start = beginIndex.coerceAtMost(text.length),
+                    end = endIndex.coerceAtMost(text.length)
+                )
                 if (comp == null) {
                     val res = text.substring(range)
                     return AttributedString(res).iterator
                 }
                 val committed = text.substring(
                     TextRange(
-                        min(range.min, comp.min),
+                        min(range.min, comp.min).coerceAtMost(text.length),
                         max(range.max, comp.max).coerceAtMost(text.length)
                     )
                 )

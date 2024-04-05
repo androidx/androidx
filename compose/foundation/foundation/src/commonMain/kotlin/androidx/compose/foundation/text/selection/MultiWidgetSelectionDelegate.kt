@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import kotlin.jvm.Synchronized
 import kotlin.math.max
 
 internal class MultiWidgetSelectionDelegate(
@@ -188,6 +189,14 @@ internal class MultiWidgetSelectionDelegate(
         val textLayoutResult = layoutResultCallback() ?: return 0
         return textLayoutResult.lastVisibleOffset
     }
+
+    override fun getLineHeight(offset: Int): Float {
+        val textLayoutResult = layoutResultCallback() ?: return 0f
+        val textLength = textLayoutResult.layoutInput.text.length
+        if (textLength < 1) return 0f
+        val line = textLayoutResult.getLineForOffset(offset.coerceIn(0, textLength - 1))
+        return textLayoutResult.multiParagraph.getLineHeight(line)
+    }
 }
 
 /**
@@ -208,8 +217,8 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     val bounds = Rect(
         0.0f,
         0.0f,
-        textLayoutResult.size.width.toFloat(),
-        textLayoutResult.size.height.toFloat()
+        textLayoutResult.multiParagraph.width.toFloat(),
+        textLayoutResult.multiParagraph.height.toFloat()
     )
 
     val currentXDirection = getXDirection(localPosition, bounds)

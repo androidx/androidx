@@ -48,10 +48,15 @@ import androidx.compose.ui.platform.InspectorInfo
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: (startEvent: DragAndDropEvent) -> Boolean,
     target: DragAndDropTarget,
-): Modifier = this then DropTargetElement(
-    target = target,
-    shouldStartDragAndDrop = shouldStartDragAndDrop,
-)
+): Modifier {
+    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
+    println("Compose Multiplatform doesn't support Modifier.dragAndDropTarget yet. " +
+        "Follow https://github.com/JetBrains/compose-multiplatform/issues/4235")
+    return this then DropTargetElement(
+        target = target,
+        shouldStartDragAndDrop = shouldStartDragAndDrop,
+    )
+}
 
 @ExperimentalFoundationApi
 private class DropTargetElement(

@@ -21,6 +21,8 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.scrollIntoView
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.identityHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusProperties
@@ -113,6 +115,8 @@ private val focusGroupInspectorInfo = InspectableModifier(
 
 // TODO: b/202856230 - consider either making this / a similar API public, or add a parameter to
 //  focusable to configure this behavior.
+// Consider using Modifier.focusable instead when the goal is only to prevent drawing the Focus indication in Touch mode
+// Modifier.indication prevents drawing the Focus indication in Touch mode under the hood.
 /**
  * [focusable] but only when not in touch mode - when [LocalInputModeManager] is
  * not [InputMode.Touch]
@@ -129,7 +133,9 @@ private val FocusableInNonTouchModeElement =
 
         override fun update(node: FocusableInNonTouchMode) {}
 
-        override fun hashCode(): Int = System.identityHashCode(this)
+        @OptIn(InternalComposeApi::class)
+        private val arbitraryHashCode: Int = identityHashCode(this)
+        override fun hashCode(): Int = arbitraryHashCode
 
         override fun equals(other: Any?): Boolean = this === other
 

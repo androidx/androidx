@@ -2,7 +2,7 @@
 package androidx.savedstate {
 
   public final class SavedStateRegistry {
-    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
+    method @MainThread public androidx.savedstate.Bundle? consumeRestoredStateForKey(String key);
     method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @MainThread public boolean isRestored();
     method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
@@ -16,15 +16,15 @@ package androidx.savedstate {
   }
 
   public static fun interface SavedStateRegistry.SavedStateProvider {
-    method public android.os.Bundle saveState();
+    method public androidx.savedstate.Bundle saveState();
   }
 
   public final class SavedStateRegistryController {
     method public static androidx.savedstate.SavedStateRegistryController create(androidx.savedstate.SavedStateRegistryOwner owner);
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method @MainThread public void performAttach();
-    method @MainThread public void performRestore(android.os.Bundle? savedState);
-    method @MainThread public void performSave(android.os.Bundle outBundle);
+    method @MainThread public void performRestore(androidx.savedstate.Bundle? savedState);
+    method @MainThread public void performSave(androidx.savedstate.Bundle outBundle);
     property public final androidx.savedstate.SavedStateRegistry savedStateRegistry;
     field public static final androidx.savedstate.SavedStateRegistryController.Companion Companion;
   }

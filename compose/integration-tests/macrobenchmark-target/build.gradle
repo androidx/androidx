@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
@@ -29,7 +22,7 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":activity:activity-compose"))
+    implementation(androidxArtifact(":activity:activity-compose"))
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.cardview:cardview:1.0.0")
     // old version of common-java8 conflicts with newer version, because both have
@@ -46,9 +39,8 @@ dependencies {
     implementation(project(":compose:runtime:runtime-tracing"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-tooling"))
-    implementation(project(":profileinstaller:profileinstaller"))
-    implementation(project(":constraintlayout:constraintlayout-compose"))
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    // TODO: artifact is not found, so commented out
+//    implementation(androidxArtifact(":profileinstaller:profileinstaller"))
 }
 
 android.defaultConfig.minSdkVersion 21

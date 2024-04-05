@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -32,6 +26,7 @@ plugins {
 }
 
 dependencies {
+
     implementation(libs.kotlinStdlib)
 
     api(project(":compose:runtime:runtime"))
@@ -40,21 +35,21 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.2.1")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    samples(projectOrArtifact(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
 }
 
 androidx {
     name = "Compose LiveData integration"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Compose integration with LiveData"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
-    samples(projectOrArtifact(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
 }
 
 android {

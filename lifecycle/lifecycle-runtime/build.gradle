@@ -6,6 +6,9 @@
  * modifying its settings.
  */
 
+
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
@@ -14,19 +17,33 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+def jsEnabled = KmpPlatformsKt.enableJs(project)
+def wasmEnabled = KmpPlatformsKt.enableWasm(project)
+
 androidXMultiplatform {
     android()
     desktop()
     mac()
     linux()
     ios()
-
-    kotlin {
-        explicitApi = ExplicitApiMode.Strict
-    }
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
         commonMain {
@@ -34,6 +51,8 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(project(":lifecycle:lifecycle-common"))
                 api(project(":annotation:annotation"))
+
+                implementation(libs.kotlinCoroutinesCore)
             }
         }
 
@@ -54,6 +73,12 @@ androidXMultiplatform {
 
         desktopMain {
             dependsOn(jvmMain)
+        }
+
+        desktopTest {
+            dependencies {
+                implementation(libs.kotlinCoroutinesSwing)
+            }
         }
 
         androidMain {
@@ -100,6 +125,10 @@ androidXMultiplatform {
             dependsOn(commonTest)
         }
 
+        if (jsEnabled || wasmEnabled) {
+            webMain.dependsOn(nonJvmMain)
+        }
+
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -110,6 +139,13 @@ androidXMultiplatform {
                 }
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
                 }
             }
         }

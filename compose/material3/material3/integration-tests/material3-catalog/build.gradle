@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -33,18 +26,14 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation("androidx.core:core:1.12.0")
+    implementation androidxArtifact(":core:core")
     implementation project(":compose:runtime:runtime")
-    implementation("androidx.compose.foundation:foundation-layout:1.6.0")
-    implementation("androidx.compose.ui:ui:1.6.0")
-    implementation("androidx.compose.material:material:1.6.0")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
-    implementation(project(":compose:material3:adaptive:adaptive-samples"))
-    implementation(project(":compose:material3:material3"))
-    implementation(project(":compose:material3:material3:material3-samples"))
-    implementation(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
-    implementation(project(":datastore:datastore-preferences"))
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation project(":compose:foundation:foundation-layout")
+    implementation project(":compose:ui:ui")
+    implementation project(":compose:material:material")
+    implementation project(":compose:material3:material3")
+    implementation project(":compose:material3:material3:material3-samples")
+    implementation androidxArtifact(":navigation:navigation-compose")
 }
 
 androidx {

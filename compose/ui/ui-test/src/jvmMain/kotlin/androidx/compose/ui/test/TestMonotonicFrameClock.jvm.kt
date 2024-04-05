@@ -133,7 +133,7 @@ class TestMonotonicFrameClock(
             // This is set after acquiring the lock in case the virtual time was advanced while
             // waiting for it.
             val frameTime: Long
-            val toRun = synchronized(lock) {
+            val toRun = kotlin.synchronized(lock) {
                 check(scheduledFrameDispatch) { "frame dispatch not scheduled" }
 
                 frameTime = delayController.currentTime * 1_000_000

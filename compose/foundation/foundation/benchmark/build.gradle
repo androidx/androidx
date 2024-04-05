@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -33,7 +25,8 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation project(":benchmark:benchmark-junit4")
+
+    androidTestImplementation androidxArtifact(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:runtime:runtime")
     androidTestImplementation project(":compose:ui:ui-text:ui-text-benchmark")
     androidTestImplementation project(":compose:foundation:foundation-layout")
@@ -48,20 +41,12 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    it.kotlinOptions {
-        freeCompilerArgs += [
-                // Enable experimental benchmark APIs internally
-                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
-        ]
-    }
-}
-
 android {
     namespace "androidx.compose.foundation.benchmark"
-
-    // DO NOT CHECK IN! Enable experimental benchmarking with R8 - for local runs only
-    // buildTypes.release.androidTest.enableMinification = true
+    defaultConfig {
+        // must be one of: 'None', 'StackSampling', or 'MethodTracing'
+        testInstrumentationRunnerArguments["androidx.benchmark.profiling.mode"]= 'None'
+    }
 }
 
 androidx {

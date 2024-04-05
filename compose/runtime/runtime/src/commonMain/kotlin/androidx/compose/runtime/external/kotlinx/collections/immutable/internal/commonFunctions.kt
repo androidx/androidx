@@ -6,6 +6,3 @@
 package androidx.compose.runtime.external.kotlinx.collections.immutable.internal
 
 internal fun assert(@Suppress("UNUSED_PARAMETER") condition: Boolean) {}
-
-@Suppress("NO_ACTUAL_FOR_EXPECT") // implemented by protected property in JVM
-internal expect var AbstractMutableList<*>.modCount: Int

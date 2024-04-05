@@ -262,8 +262,7 @@ private fun estimateOverDamped(
         // By finding a point between when concavity changes, and when the inflection point is,
         // Newton's method will always converge onto the rightmost point (in this case),
         // the one that we are interested in.
-        val tConcavChange = ln(-(c2 * r2 * r2) / (c1 * r1 * r1)) / (r1 - r2)
-        tCurr = tConcavChange
+        tCurr = ln(-(c2 * r2 * r2) / (c1 * r1 * r1)) / (r1 - r2)
         delta
     }
 

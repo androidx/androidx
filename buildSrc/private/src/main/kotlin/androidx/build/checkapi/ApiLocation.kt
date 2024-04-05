@@ -25,13 +25,13 @@ import org.gradle.api.Project
 /**
  * Contains information about the files used to record a library's API surfaces. This class may
  * represent a versioned API txt file or the "current" API txt file.
- *
  * <p>
  * This class is responsible for understanding the naming pattern used by various types of API
  * files:
  * <ul>
  * <li>public
  * <li>restricted
+ * <li>experimental
  * <li>resource
  * </ul>
  */
@@ -40,14 +40,24 @@ data class ApiLocation(
     val apiFileDirectory: File,
     // File where the library's public API surface is recorded
     val publicApiFile: File,
+    // File where the library's removed API surface is recorded.
+    // The removed API surface contains APIs that used to be public, and are still
+    // available for linking against, but have been removed from the set of APIs that may be
+    // compiled against.
+    // The publicApiFile and the removedApiFile together provide the set of APIs that
+    // dependents may link against
+    val removedApiFile: File,
     // File where the library's public plus restricted (see @RestrictTo) API surfaces are recorded
     val restrictedApiFile: File,
+    // File where the library's public plus experimental (see @Experimental) API surfaces are
+    // recorded
+    val experimentalApiFile: File,
     // File where the library's public resources are recorded
     val resourceFile: File,
+    // Directory where native API files are stored
+    val nativeApiDirectory: File,
     // Directory where the library's stable AIDL surface is recorded
-    val aidlApiDirectory: File,
-    // File where the API version history is recorded, for use in docs
-    val apiLevelsFile: File
+    val aidlApiDirectory: File
 ) : Serializable {
 
     /**
@@ -83,51 +93,83 @@ data class ApiLocation(
             return ApiLocation(
                 apiFileDirectory = apiFileDir,
                 publicApiFile = File(apiFileDir, "$baseName$EXTENSION"),
+                removedApiFile = File(apiFileDir, "$PREFIX_REMOVED$baseName$EXTENSION"),
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
+                experimentalApiFile = File(apiFileDir, "$PREFIX_EXPERIMENTAL$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
-                aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName),
-                apiLevelsFile = File(apiFileDir, API_LEVELS)
+                nativeApiDirectory = File(apiFileDir, NATIVE_API_DIRECTORY_NAME).resolve(baseName),
+                aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName)
             )
         }
 
-        /** File name extension used by API files. */
+        /**
+         * File name extension used by API files.
+         */
         private const val EXTENSION = ".txt"
 
-        /** Base file name used by current API files. */
+        /**
+         * Base file name used by current API files.
+         */
         private const val CURRENT = "current"
 
-        /** Prefix used for restricted API surface files. */
+        /**
+         * Prefix used for removed API surface files.
+         */
+        private const val PREFIX_REMOVED = "removed_"
+
+        /**
+         * Prefix used for restricted API surface files.
+         */
         private const val PREFIX_RESTRICTED = "restricted_"
 
-        /** Prefix used for resource-type API files. */
+        /**
+         * Prefix used for experimental API surface files.
+         */
+        private const val PREFIX_EXPERIMENTAL = "public_plus_experimental_"
+
+        /**
+         * Prefix used for resource-type API files.
+         */
         private const val PREFIX_RESOURCE = "res-"
 
-        /** Directory name for location of AIDL API files */
-        private const val AIDL_API_DIRECTORY_NAME = "aidl"
+        /**
+         * Directory name for location of native API files
+         */
+        private const val NATIVE_API_DIRECTORY_NAME = "native"
 
-        /** File name for API version history file. */
-        private const val API_LEVELS = "apiLevels.json"
+        /**
+         * Directory name for location of AIDL API files
+         */
+        private const val AIDL_API_DIRECTORY_NAME = "aidl"
     }
 }
 
-/** Converts the version to a valid API file base name. */
+/**
+ * Converts the version to a valid API file base name.
+ */
 private fun Version.toApiFileBaseName(): String {
     return getApiFileVersion(this).toString()
 }
 
-/** Returns the directory containing the project's versioned and current API files. */
+/**
+ * Returns the directory containing the project's versioned and current API files.
+ */
 fun Project.getApiFileDirectory(): File {
     return File(project.projectDir, "api")
 }
 
-/** Returns whether the project's API file directory exists. */
+/**
+ * Returns whether the project's API file directory exists.
+ */
 fun Project.hasApiFileDirectory(): Boolean {
     return project.getApiFileDirectory().exists()
 }
 
-/** Returns the directory containing the project's built current API file. */
+/**
+ * Returns the directory containing the project's built current API file.
+ */
 private fun Project.getBuiltApiFileDirectory(): File {
-    @Suppress("DEPRECATION") return File(project.buildDir, "api")
+    return File(project.buildDir, "api")
 }
 
 /**
@@ -151,8 +193,8 @@ fun Project.getCurrentApiLocation(): ApiLocation {
 }
 
 /**
- * Returns an ApiLocation for the "work-in-progress" current version which is built from tip-of-tree
- * and lives in the build output directory.
+ * Returns an ApiLocation for the "work-in-progress" current version which is built from
+ * tip-of-tree and lives in the build output directory.
  */
 fun Project.getBuiltApiLocation(): ApiLocation {
     return ApiLocation.fromCurrent(project.getBuiltApiFileDirectory())
@@ -161,10 +203,9 @@ fun Project.getBuiltApiLocation(): ApiLocation {
 /**
  * Contains information about the files used to record a library's API compatibility and lint
  * violation baselines.
- *
  * <p>
- * This class is responsible for understanding the naming pattern used by various types of API
- * compatibility and linting violation baseline files:
+ * This class is responsible for understanding the naming pattern used by various types of
+ * API compatibility and linting violation baseline files:
  * <ul>
  * <li>public API compatibility
  * <li>restricted API compatibility
@@ -183,17 +224,18 @@ data class ApiBaselinesLocation(
             val ignoreFileDirectory = apiLocation.apiFileDirectory
             return ApiBaselinesLocation(
                 ignoreFileDirectory = ignoreFileDirectory,
-                publicApiFile =
-                    File(
-                        ignoreFileDirectory,
-                        apiLocation.publicApiFile.nameWithoutExtension + EXTENSION
-                    ),
-                restrictedApiFile =
-                    File(
-                        ignoreFileDirectory,
-                        apiLocation.restrictedApiFile.nameWithoutExtension + EXTENSION
-                    ),
-                apiLintFile = File(ignoreFileDirectory, "api_lint$EXTENSION")
+                publicApiFile = File(
+                    ignoreFileDirectory,
+                    apiLocation.publicApiFile.nameWithoutExtension + EXTENSION
+                ),
+                restrictedApiFile = File(
+                    ignoreFileDirectory,
+                    apiLocation.restrictedApiFile.nameWithoutExtension + EXTENSION
+                ),
+                apiLintFile = File(
+                    ignoreFileDirectory,
+                    "api_lint$EXTENSION"
+                )
             )
         }
 

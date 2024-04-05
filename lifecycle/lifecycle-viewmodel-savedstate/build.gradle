@@ -21,12 +21,96 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("JetbrainsAndroidXPlugin")
+}
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+    js()
+    wasm()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":annotation:annotation"))
+                api(project(":core:core-bundle"))
+                api(project(":lifecycle:lifecycle-common"))
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":savedstate:savedstate"))
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.core:core-ktx:1.2.0")
+                api("androidx.lifecycle:lifecycle-livedata-core:2.7.0")
+                api(libs.kotlinCoroutinesAndroid)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependencies {
+                implementation project(":lifecycle:lifecycle-runtime")
+                implementation("androidx.fragment:fragment:1.3.0")
+                implementation project(":internal-testutils-runtime")
+                implementation(libs.truth)
+                implementation(libs.kotlinStdlib)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+            }
+        }
+
+        jbMain.dependsOn(commonMain)
+        nonJvmMain.dependsOn(jbMain)
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(jbMain)
+        }
+
+        targets.all { target ->
+            if (target.platformType !in [
+                    KotlinPlatformType.androidJvm,
+                    KotlinPlatformType.jvm,
+                    KotlinPlatformType.common
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -34,27 +118,6 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.lifecycle.viewmodel.savedstate"
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.0.0")
-    api("androidx.core:core-ktx:1.2.0")
-    api("androidx.savedstate:savedstate:1.2.1")
-    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
-    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-
-    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime")
-    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-livedata-core")
-    androidTestImplementation ("androidx.fragment:fragment:1.3.0")
-    androidTestImplementation project(":internal-testutils-runtime")
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
 }
 
 androidx {

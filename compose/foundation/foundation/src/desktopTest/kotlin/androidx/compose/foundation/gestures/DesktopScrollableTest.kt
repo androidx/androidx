@@ -14,55 +14,62 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // https://github.com/JetBrains/compose-jb/issues/1514
-
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.awtWheelEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.mouse.MouseScrollEvent
-import androidx.compose.ui.input.mouse.MouseScrollOrientation
-import androidx.compose.ui.input.mouse.MouseScrollUnit
-import androidx.compose.ui.platform.TestComposeWindow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.sqrt
-import org.junit.Ignore
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO(demin): convert to ComposeScene instead of TestComposeWindow,
-//  after that we won't need `window.render`
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class)
+@ExperimentalTestApi
 @RunWith(JUnit4::class)
-@Ignore // TODO(b/217238066) remove after migration to ImageComposeScene (it will be upstreamed from Compose MPP 1.0.0)
 class DesktopScrollableTest {
-    private val density = 2f
+    private val size = Size(100f, 100f)
+    private val density = Density(2f)
 
-    private fun window() = TestComposeWindow(
-        width = 100,
-        height = 100,
-        density = Density(density)
-    )
-
-    private fun scrollLineLinux(bounds: Dp) = sqrt(bounds.value * density)
-    private fun scrollLineWindows(bounds: Dp) = bounds.value * density / 20f
-    private fun scrollLineMacOs() = density * 10f
-    private fun scrollPage(bounds: Dp) = bounds.value * density
+    private fun scrollLineLinux(bounds: Dp) = sqrt(bounds.value * density.density)
+    private fun scrollLineWindows(bounds: Dp) = bounds.value * density.density / 20f
+    private fun scrollLineMacOs() = density.density * 10f
+    private fun scrollPage(bounds: Dp) = bounds.value * density.density
 
     @Test
-    fun `linux, scroll vertical`() {
-        val window = window()
+    fun `linux, scroll vertical`() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
         val context = TestColumn()
 
-        window.setContent {
+        setContent {
             CompositionLocalProvider(
                 LocalScrollConfig provides LinuxGnomeConfig
             ) {
@@ -77,31 +84,35 @@ class DesktopScrollableTest {
             }
         }
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Line(3f), MouseScrollOrientation.Vertical)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(0f, 3f),
+            nativeEvent = awtWheelEvent(),
         )
-        window.render()
 
+        waitForIdle()
         assertThat(context.offset).isWithin(0.1f).of(-3 * scrollLineLinux(20.dp))
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Line(3f), MouseScrollOrientation.Vertical)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(0f, 3f),
+            nativeEvent = awtWheelEvent(),
         )
-        window.render()
 
+        waitForIdle()
         assertThat(context.offset).isWithin(0.1f).of(-6 * scrollLineLinux(20.dp))
     }
 
     @Test
-    fun `windows, scroll vertical`() {
-        val window = window()
+    fun `windows, scroll vertical`() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
         val context = TestColumn()
 
-        window.setContent {
+        setContent {
             CompositionLocalProvider(
                 LocalScrollConfig provides WindowsWinUIConfig
             ) {
@@ -116,31 +127,35 @@ class DesktopScrollableTest {
             }
         }
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Line(-2f), MouseScrollOrientation.Vertical)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(0f, -2f),
+            nativeEvent = awtWheelEvent(),
         )
-        window.render()
 
+        waitForIdle()
         assertThat(context.offset).isWithin(0.1f).of(2 * scrollLineWindows(20.dp))
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Line(4f), MouseScrollOrientation.Vertical)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(0f, 4f),
+            nativeEvent = awtWheelEvent(),
         )
-        window.render()
 
+        waitForIdle()
         assertThat(context.offset).isWithin(0.1f).of(-2 * scrollLineWindows(20.dp))
     }
 
     @Test
-    fun `windows, scroll one page vertical`() {
-        val window = window()
+    fun `windows, scroll one page vertical`() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
         val context = TestColumn()
 
-        window.setContent {
+        setContent {
             CompositionLocalProvider(
                 LocalScrollConfig provides WindowsWinUIConfig
             ) {
@@ -155,22 +170,25 @@ class DesktopScrollableTest {
             }
         }
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Page(1f), MouseScrollOrientation.Vertical)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(0f, 1f),
+            nativeEvent = awtWheelEvent(isScrollByPages = true),
         )
-        window.render()
 
+        waitForIdle()
         assertThat(context.offset).isWithin(0.1f).of(-scrollPage(20.dp))
     }
 
     @Test
-    fun `macOS, scroll vertical`() {
-        val window = window()
+    fun `macOS, scroll vertical`() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
         val context = TestColumn()
 
-        window.setContent {
+        setContent {
             CompositionLocalProvider(
                 LocalScrollConfig provides MacOSCocoaConfig
             ) {
@@ -185,22 +203,25 @@ class DesktopScrollableTest {
             }
         }
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Line(-5f), MouseScrollOrientation.Vertical)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(0f, -5.5f),
+            nativeEvent = awtWheelEvent(),
         )
-        window.render()
 
-        assertThat(context.offset).isWithin(0.1f).of(5f * scrollLineMacOs())
+        waitForIdle()
+        assertThat(context.offset).isWithin(0.1f).of(5.5f * scrollLineMacOs())
     }
 
     @Test
-    fun `scroll with different orientation`() {
-        val window = window()
+    fun `scroll with different orientation`() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
         val column = TestColumn()
 
-        window.setContent {
+        setContent {
             CompositionLocalProvider(
                 LocalScrollConfig provides LinuxGnomeConfig
             ) {
@@ -215,14 +236,147 @@ class DesktopScrollableTest {
             }
         }
 
-        window.onMouseScroll(
-            x = 0,
-            y = 0,
-            event = MouseScrollEvent(MouseScrollUnit.Line(3f), MouseScrollOrientation.Horizontal)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset.Zero,
+            scrollDelta = Offset(3f, 0f),
+            nativeEvent = awtWheelEvent(),
         )
-        window.render()
 
+        waitForIdle()
         assertThat(column.offset).isEqualTo(0f)
+    }
+
+    @Test
+    fun multipleScrollingModifiers() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
+        val verticalContext = TestColumn()
+        val horizontalContext = TestColumn()
+        lateinit var scope: CoroutineScope
+        setContent {
+            scope = rememberCoroutineScope()
+            CompositionLocalProvider(
+                LocalScrollConfig provides LinuxGnomeConfig
+            ) {
+                Box(
+                    Modifier
+                        .scrollable(
+                            orientation = Orientation.Vertical,
+                            state = verticalContext.controller()
+                        )
+                        .scrollable(
+                            orientation = Orientation.Horizontal,
+                            state = horizontalContext.controller()
+                        )
+                        .size(10.dp, 20.dp)
+                )
+            }
+        }
+        scope.launch {
+            scene.sendPointerEvent(
+                eventType = PointerEventType.Scroll,
+                position = Offset.Zero,
+                scrollDelta = Offset(0f, -5f),
+                nativeEvent = awtWheelEvent(),
+            )
+            scene.sendPointerEvent(
+                eventType = PointerEventType.Scroll,
+                position = Offset.Zero,
+                scrollDelta = Offset(-5f, 0f),
+                nativeEvent = awtWheelEvent(),
+            )
+        }
+        waitForIdle()
+        assertThat(verticalContext.offset).isWithin(0.1f).of(5f * scrollLineLinux(20.dp))
+        assertThat(horizontalContext.offset).isWithin(0.1f).of(5f * scrollLineLinux(10.dp))
+    }
+
+    @Test
+    fun smoothScrollingDisabled() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
+        with(LinuxGnomeConfig) {
+            // Enabled by default
+            assertTrue(isSmoothScrollingEnabled)
+            isSmoothScrollingEnabled = false
+        }
+        try {
+            val context = TestColumn()
+            setContent {
+                CompositionLocalProvider(
+                    LocalScrollConfig provides LinuxGnomeConfig
+                ) {
+                    Box(
+                        Modifier
+                            .scrollable(
+                                orientation = Orientation.Vertical,
+                                state = context.controller()
+                            )
+                            .size(10.dp, 20.dp)
+                    )
+                }
+            }
+
+            scene.sendPointerEvent(
+                eventType = PointerEventType.Scroll,
+                position = Offset.Zero,
+                scrollDelta = Offset(0f, -5f),
+                nativeEvent = awtWheelEvent(),
+            )
+
+            // Check without waitForIdle
+            assertThat(context.offset).isWithin(0.1f).of(5f * scrollLineLinux(20.dp))
+        } finally {
+            // Restore state
+            LinuxGnomeConfig.isSmoothScrollingEnabled = true
+        }
+    }
+
+    @Test
+    fun scrollableDisabled() = runSkikoComposeUiTest(
+        size = size,
+        density = density
+    ) {
+        var isEnabled by mutableStateOf(false)
+        setContent {
+            CompositionLocalProvider(
+                LocalScrollConfig provides WindowsWinUIConfig
+            ) {
+                Box(
+                    Modifier
+                        .size(10.dp, 20.dp)
+                        .verticalScroll(
+                            state = rememberScrollState(),
+                            enabled = isEnabled,
+                        )
+                ) {
+                    Box(Modifier.size(10.dp, 10000.dp).testTag("box"))
+                }
+            }
+        }
+
+        onNodeWithTag("box")
+            .performMouseInput {
+                scroll(10f)
+            }
+            .assertTopPositionInRootIsEqualTo(0.dp)
+
+        isEnabled = true
+        onNodeWithTag("box")
+            .performMouseInput {
+                scroll(10f)
+            }
+            .assertTopPositionInRootIsEqualTo(-10.dp)
+
+        isEnabled = false
+        onNodeWithTag("box")
+            .performMouseInput {
+                scroll(10f)
+            }
+            .assertTopPositionInRootIsEqualTo(-10.dp)
     }
 
     private class TestColumn {

@@ -1,0 +1,31 @@
+public final class androidx/compose/material/ripple/RippleAlpha {
+	public static final field $stable I
+	public fun <init> (FFFF)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDraggedAlpha ()F
+	public final fun getFocusedAlpha ()F
+	public final fun getHoveredAlpha ()F
+	public final fun getPressedAlpha ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material/ripple/RippleKt {
+	public static final fun rememberRipple-9IZ8Weo (ZFJLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/Indication;
+}
+
+public abstract interface class androidx/compose/material/ripple/RippleTheme {
+	public static final field Companion Landroidx/compose/material/ripple/RippleTheme$Companion;
+	public abstract fun defaultColor-WaAFU9c (Landroidx/compose/runtime/Composer;I)J
+	public abstract fun rippleAlpha (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material/ripple/RippleAlpha;
+}
+
+public final class androidx/compose/material/ripple/RippleTheme$Companion {
+	public final fun defaultRippleAlpha-DxMtmZc (JZ)Landroidx/compose/material/ripple/RippleAlpha;
+	public final fun defaultRippleColor-5vOe2sY (JZ)J
+}
+
+public final class androidx/compose/material/ripple/RippleThemeKt {
+	public static final fun getLocalRippleTheme ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+

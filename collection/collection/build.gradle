@@ -14,35 +14,49 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
+
+    //  TODO move all functionality to Compose-independent plugin (`collection` shouldn't depend on Compose concepts)
+    id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    jvm {
-        withJava()
-    }
-    mac()
-    linux()
-    ios()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.JVM)
+androidXComposeMultiplatform {
+    js()
+    wasm()
+    darwin()
+
+    linuxX64()
+    linuxArm64()
+}
+
+kotlin {
+    jvm()
+    // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
+    // We can support the kotlin-native targets supported by kotlin coroutines:
+    // https://github.com/Kotlin/kotlinx.coroutines/blob/master/gradle/compile-native-multiplatform.gradle
+    // NOTE: Keep this list in sync with runtime-saveable's targets.
+    watchosArm64()
+    watchosArm32()
+    watchosX64()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    mingwX64()
 
     sourceSets {
-        configureEach {
+        all {
             languageSettings.optIn("kotlin.RequiresOptIn")
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
@@ -50,7 +64,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.7.0")
+                implementation(project(":annotation:annotation"))
+                implementation(libs.atomicFu)
             }
         }
 
@@ -70,46 +85,48 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-        }
+        jbMain.dependsOn(commonMain)
+        jsNativeMain.dependsOn(jbMain)
+        jsWasmMain.dependsOn(jsNativeMain)
+        jsMain.dependsOn(jsWasmMain)
+        jvmMain.dependsOn(jbMain)
 
-        nativeTest {
-            dependsOn(commonTest)
-        }
+        wasmJsMain.dependsOn(jsWasmMain)
 
-        darwinMain {
-            dependsOn(nativeMain)
-        }
+        nativeMain.dependsOn(jsNativeMain)
+        linuxArm64Main.dependsOn(nativeMain)
+        linuxArm64Test.dependsOn(nativeTest)
+        linuxX64Main.dependsOn(nativeMain)
+        linuxX64Test.dependsOn(nativeTest)
+        mingwX64Main.dependsOn(nativeMain)
+        mingwX64Test.dependsOn(nativeTest)
 
-        linuxMain {
-            dependsOn(nativeMain)
-        }
+        def darwinMain = sourceSets.getByName("darwinMain")
+        def darwinTest = sourceSets.getByName("darwinTest")
+        def watchOsMain = sourceSets.create("watchOsMain")
+        def watchOsTest = sourceSets.create("watchOsTest")
+        watchOsMain.dependsOn(darwinMain)
+        watchOsTest.dependsOn(darwinTest)
+        watchosArm64Main.dependsOn(watchOsMain)
+        watchosArm64Test.dependsOn(watchOsTest)
+        watchosArm32Main.dependsOn(watchOsMain)
+        watchosArm32Test.dependsOn(watchOsTest)
+        watchosX64Main.dependsOn(watchOsMain)
+        watchosX64Test.dependsOn(watchOsTest)
+        watchosSimulatorArm64Main.dependsOn(watchOsMain)
+        watchosSimulatorArm64Test.dependsOn(watchOsTest)
 
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
-                        dependsOn(darwinMain)
-                    } else if (konanTargetFamily == Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
-                }
+        def tvOsMain = sourceSets.create("tvOsMain")
+        def tvOsTest = sourceSets.create("tvOsTest")
+        tvOsMain.dependsOn(darwinMain)
+        tvOsTest.dependsOn(darwinTest)
 
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
-            }
-        }
-
-        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-        // Make sure commonization runs before any compilation task.
-        tasks.withType(KotlinNativeCompile).configureEach {
-            it.dependsOn(tasks.named("commonize"))
-        }
+        tvosArm64Main.dependsOn(tvOsMain)
+        tvosArm64Test.dependsOn(tvOsTest)
+        tvosX64Main.dependsOn(tvOsMain)
+        tvosX64Test.dependsOn(tvOsTest)
+        tvosSimulatorArm64Main.dependsOn(tvOsMain)
+        tvosSimulatorArm64Test.dependsOn(tvOsTest)
     }
 }
 
@@ -118,7 +135,7 @@ dependencies {
     // collection-ktx transitively, which would lead to duplicate definition since the -ktx
     // extensions were moved into the main artifact.
     constraints {
-        jvmMainImplementation("androidx.collection:collection-ktx:1.3.0")
+        jvmMainImplementation("androidx.collection:collection-ktx:1.3.0-alpha01")
     }
 }
 
@@ -127,4 +144,8 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Standalone efficient collections."
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
 }

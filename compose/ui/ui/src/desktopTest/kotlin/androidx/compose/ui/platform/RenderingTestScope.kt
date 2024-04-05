@@ -18,27 +18,25 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ComposeScene
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.yield
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.FrameDispatcher
+import org.jetbrains.skiko.MainUIDispatcher
+import kotlin.coroutines.CoroutineContext
 
 internal fun renderingTest(
     width: Int,
     height: Int,
-    context: CoroutineContext = Dispatchers.Swing,
+    context: CoroutineContext = MainUIDispatcher,
     block: suspend RenderingTestScope.() -> Unit
-) = runBlocking(Dispatchers.Swing) {
+) = runBlocking(MainUIDispatcher) {
     val scope = RenderingTestScope(width, height, context)
     try {
         scope.block()
@@ -47,7 +45,6 @@ internal fun renderingTest(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class RenderingTestScope(
     val width: Int,
     val height: Int,
@@ -60,7 +57,7 @@ internal class RenderingTestScope(
     }
 
     val surface: Surface = Surface.makeRasterN32Premul(width, height)
-    val canvas: Canvas = surface.canvas
+    private val canvas: Canvas = surface.canvas
     val scene = ComposeScene(
         coroutineContext = coroutineContext,
         invalidate = frameDispatcher::scheduleFrame
@@ -96,6 +93,12 @@ internal class RenderingTestScope(
     suspend fun awaitNextRender() {
         onRender = CompletableDeferred()
         onRender.await()
+    }
+
+    suspend fun skipRenders() {
+        repeat(1000) {
+            yield()
+        }
     }
 
     suspend fun hasRenders(): Boolean {

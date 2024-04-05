@@ -14,60 +14,37 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
+import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
+    id("kotlin-multiplatform")
 }
 
+dependencies {
+}
 
-androidXMultiplatform {
-    // Compose Desktop is qualified on "desktop" but actually builds as "jvm".
+kotlin {
     jvm()
 
     sourceSets {
-        commonMain {
-            dependencies {
-            }
-        }
-
-        commonTest {
-            dependencies {
-            }
-        }
-
         jvmMain {
-            dependsOn(commonMain)
-
-            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
-                    "noto-fonts/other/")
+            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
             resources.srcDirs += "src/jvmMain/res"
-
-            dependencies {
-                implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:desktop:desktop"))
-            }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
+        jvmMain.dependencies {
+            implementation(libs.skikoCurrentOs)
+            implementation(project(":compose:desktop:desktop"))
         }
     }
 }
 
-task run1(type: JavaExec) {
-    mainClass.set("androidx.compose.desktop.examples.example1.Main_jvmKt")
+tasks.register('run1', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.example1.Main_jvmKt"
     systemProperty("skiko.fps.enabled", "true")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
@@ -75,32 +52,66 @@ task run1(type: JavaExec) {
                     compilation.runtimeDependencyFiles
 }
 
-task run2(type: JavaExec) {
-    mainClass.set("androidx.compose.desktop.examples.example2.Main_jvmKt")
+tasks.register('run1rtl', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.example1.Main_jvmKt"
+    systemProperty("skiko.fps.enabled", "true")
+    systemProperty("user.language", "ar") // arabic language for rtl
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
             compilation.output.allOutputs +
                     compilation.runtimeDependencyFiles
 }
 
-task run3(type: JavaExec) {
-    mainClass.set("androidx.compose.desktop.examples.popupexample.Main_jvmKt")
+tasks.register('run2', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.example2.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
             compilation.output.allOutputs +
                     compilation.runtimeDependencyFiles
 }
 
-task run4(type: JavaExec) {
-    mainClass.set("androidx.compose.desktop.examples.swingexample.Main_jvmKt")
+tasks.register('run3', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.popupexample.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
             compilation.output.allOutputs +
                     compilation.runtimeDependencyFiles
 }
 
-task runVsync(type: JavaExec) {
-    mainClass.set("androidx.compose.desktop.examples.vsynctest.Main_jvmKt")
+tasks.register('runSwing', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runSwingOffscreenRendering', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.swingexample.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+    jvmArgs("-Dcompose.swing.render.on.graphics=true")
+}
+
+tasks.register('runMouseClicks', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.mouseclicks.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runVsync', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.vsynctest.Main_jvmKt"
     jvmArgs("-verbose:gc")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
@@ -108,8 +119,9 @@ task runVsync(type: JavaExec) {
                     compilation.runtimeDependencyFiles
 }
 
-task runWindowApi(type: JavaExec) {
-    mainClass.set("androidx.compose.desktop.examples.windowapi.Main_jvmKt")
+tasks.register('runWindowApi', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.windowapi.Main_jvmKt"
     def compilation = kotlin.jvm().compilations["main"]
     systemProperty("skiko.rendering.laf.global", "true")
     systemProperty("skiko.rendering.useScreenMenuBar", "true")
@@ -118,9 +130,39 @@ task runWindowApi(type: JavaExec) {
                     compilation.runtimeDependencyFiles
 }
 
-task run {
+tasks.register('runLayout', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.layout.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    systemProperty("skiko.rendering.laf.global", "true")
+    systemProperty("skiko.rendering.useScreenMenuBar", "true")
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runFocusTest', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.focustest.Main_jvmKt"
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('runFont', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.fonts.Fonts_jvmKt"
+    jvmArgs("--add-opens", "java.desktop/sun.font=ALL-UNNAMED")
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+}
+
+tasks.register('run') {
     dependsOn("run1")
 }
 
-// Validate desktop build by explicitly building the jvmJar task as part of bOS.
+
 BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

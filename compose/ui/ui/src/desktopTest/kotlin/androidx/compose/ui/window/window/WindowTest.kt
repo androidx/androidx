@@ -25,42 +25,48 @@ import androidx.compose.material.Button
 import androidx.compose.material.Slider
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LeakDetector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.launchApplication
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.isLinux
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.toInt
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.*
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
+import java.awt.SystemColor.window
+import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import kotlinx.coroutines.Dispatchers
+import kotlin.test.assertEquals
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.swing.Swing
+import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
+import org.junit.Ignore
 import org.junit.Test
 
-@OptIn(ExperimentalComposeUiApi::class)
 class WindowTest {
+
     @Test
     fun `open and close custom window`() = runApplicationTest {
         var window: ComposeWindow? = null
 
-        launchApplication {
+        launchTestApplication {
             var isOpen by remember { mutableStateOf(true) }
 
             fun createWindow() = ComposeWindow().apply {
@@ -97,7 +103,7 @@ class WindowTest {
         var isOpen by mutableStateOf(true)
         var title by mutableStateOf("Title1")
 
-        launchApplication {
+        launchTestApplication {
             fun createWindow() = ComposeWindow().apply {
                 size = Dimension(300, 200)
 
@@ -135,7 +141,7 @@ class WindowTest {
     fun `open and close window`() = runApplicationTest {
         var window: ComposeWindow? = null
 
-        launchApplication {
+        launchTestApplication {
             Window(onCloseRequest = ::exitApplication) {
                 window = this.window
                 Box(Modifier.size(32.dp).background(Color.Red))
@@ -154,7 +160,7 @@ class WindowTest {
         var isCloseCalled by mutableStateOf(false)
         var window: ComposeWindow? = null
 
-        launchApplication {
+        launchTestApplication {
             if (isOpen) {
                 Window(
                     onCloseRequest = {
@@ -187,7 +193,7 @@ class WindowTest {
         var isOpen by mutableStateOf(true)
         var isLoading by mutableStateOf(true)
 
-        launchApplication {
+        launchTestApplication {
             if (isOpen) {
                 if (isLoading) {
                     Window(onCloseRequest = {}) {
@@ -225,7 +231,7 @@ class WindowTest {
 
         var isOpen by mutableStateOf(true)
 
-        launchApplication {
+        launchTestApplication {
             if (isOpen) {
                 Window(onCloseRequest = {}) {
                     window1 = this.window
@@ -250,14 +256,14 @@ class WindowTest {
     }
 
     @Test
-    fun `open nested window`() = runApplicationTest {
+    fun `open nested window`() = runApplicationTest(useDelay = true) {
         var window1: ComposeWindow? = null
         var window2: ComposeWindow? = null
 
         var isOpen by mutableStateOf(true)
         var isNestedOpen by mutableStateOf(true)
 
-        launchApplication {
+        launchTestApplication {
             if (isOpen) {
                 Window(
                     onCloseRequest = {},
@@ -314,7 +320,7 @@ class WindowTest {
         val local2TestValue = compositionLocalOf { 0 }
         var locals by mutableStateOf(arrayOf(local1TestValue provides 1))
 
-        launchApplication {
+        launchTestApplication {
             if (isOpen) {
                 CompositionLocalProvider(*locals) {
                     Window(
@@ -380,7 +386,7 @@ class WindowTest {
 
         var isOpen by mutableStateOf(true)
 
-        launchApplication {
+        launchTestApplication {
             if (isOpen) {
                 Window(onCloseRequest = {}) {
                     DisposableEffect(Unit) {
@@ -411,8 +417,8 @@ class WindowTest {
 
         val oldRecomposers = Recomposer.runningRecomposers.value
 
-        runBlocking(Dispatchers.Swing) {
-            repeat(10) {
+        runBlocking(MainUIDispatcher) {
+            repeat(15) {
                 val window = ComposeWindow()
                 window.size = Dimension(200, 200)
                 window.isVisible = true
@@ -428,37 +434,319 @@ class WindowTest {
                 delay(100)
             }
 
-            assertThat(leakDetector.noLeak()).isTrue()
+            assertThat(leakDetector.hasAnyGarbageCollected()).isTrue()
         }
     }
 
-    @Test(timeout = 30000)
-    fun `should draw before window is visible`() = runApplicationTest {
+    private fun testDrawingBeforeWindowIsVisible(
+        windowState: WindowState,
+        canvasSizeModifier: Modifier,
+        expectedCanvasSize: FrameWindowScope.() -> DpSize
+    ) = runApplicationTest {
         var isComposed = false
         var isDrawn = false
         var isVisibleOnFirstComposition = false
         var isVisibleOnFirstDraw = false
+        var actualCanvasSize: IntSize? = null
+        var expectedCanvasSizePx: IntSize? = null
 
-        launchApplication {
-            Window(onCloseRequest = ::exitApplication) {
+        launchTestApplication {
+            Window(
+                onCloseRequest = ::exitApplication,
+                state = windowState
+            ) {
                 if (!isComposed) {
                     isVisibleOnFirstComposition = window.isVisible
                     isComposed = true
                 }
 
-                Canvas(Modifier.fillMaxSize()) {
+                Canvas(canvasSizeModifier) {
                     if (!isDrawn) {
                         isVisibleOnFirstDraw = window.isVisible
                         isDrawn = true
+
+                        // toInt() because this is how the ComposeWindow rounds decimal sizes
+                        // (see ComposeBridge.updateSceneSize)
+                        actualCanvasSize = size.toInt()
+                        expectedCanvasSizePx = expectedCanvasSize().toSize().toInt()
                     }
                 }
             }
         }
 
         awaitIdle()
+
+        assertThat(isComposed)
+        assertThat(isDrawn)
         assertThat(isVisibleOnFirstComposition).isFalse()
         assertThat(isVisibleOnFirstDraw).isFalse()
+        assertEquals(expectedCanvasSizePx, actualCanvasSize)
+    }
 
-        exitApplication()
+    @Test(timeout = 30000)
+    fun `should draw before window is visible`() {
+        val windowSize = DpSize(400.dp, 300.dp)
+        testDrawingBeforeWindowIsVisible(
+            windowState = WindowState(size = windowSize),
+            canvasSizeModifier = Modifier.fillMaxSize(),
+            expectedCanvasSize = { windowSize - window.insets.toSize() }
+        )
+    }
+
+    @Test(timeout = 30000)
+    fun `should draw before window with unspecified size is visible`() {
+        val canvasSize = DpSize(400.dp, 300.dp)
+        testDrawingBeforeWindowIsVisible(
+            windowState = WindowState(size = DpSize.Unspecified),
+            canvasSizeModifier = Modifier.size(canvasSize),
+            expectedCanvasSize = { canvasSize }
+        )
+    }
+
+    // Unfortunately it doesn't appear to be possible to draw the first frame in a maximized
+    // window before it's visible, while at the same time having the WindowState define the
+    // "floating" size and position to which it will go when un-maximized.
+    // The reason for that is that in order to draw the first frame in time, we need to `pack()` the
+    // window before showing it, but this breaks setting the "floating" state.
+    // So we don't attempt to draw the first frame in time.
+    @Ignore
+    @Test(timeout = 30000)
+    fun `should draw before maximized window is visible`() {
+        testDrawingBeforeWindowIsVisible(
+            windowState = WindowState(
+                size = DpSize(400.dp, 300.dp),
+                placement = WindowPlacement.Maximized
+            ),
+            canvasSizeModifier = Modifier.fillMaxSize(),
+            expectedCanvasSize = {
+                val gfxConf = window.graphicsConfiguration
+                val screenSize = gfxConf.screenSize()
+                val screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gfxConf).toSize()
+
+                screenSize - screenInsets - window.insets.toSize()
+            }
+        )
+    }
+
+    @Test(timeout = 30000)
+    fun `Window should override density provided by application`() = runApplicationTest {
+        val customDensity = Density(3.14f)
+        var actualDensity: Density? = null
+
+        launchTestApplication {
+            if (isOpen) {
+                CompositionLocalProvider(LocalDensity provides customDensity) {
+                    Window(onCloseRequest = ::exitApplication) {
+                        actualDensity = LocalDensity.current
+                    }
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(actualDensity).isNotNull()
+        assertThat(actualDensity).isNotEqualTo(customDensity)
+    }
+
+    @Test
+    fun `LaunchedEffect should end before application exit`() = runApplicationTest {
+        var isApplicationEffectEnded = false
+        var isWindowEffectEnded = false
+
+        val job = launchTestApplication {
+            if (isOpen) {
+                Window(onCloseRequest = ::exitApplication) {
+                    LaunchedEffect(Unit) {
+                        try {
+                            delay(1000000)
+                        } finally {
+                            isWindowEffectEnded = true
+                        }
+                    }
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                try {
+                    delay(1000000)
+                } finally {
+                    isApplicationEffectEnded = true
+                }
+            }
+        }
+
+        awaitIdle()
+        exitTestApplication()
+        job.cancelAndJoin()
+
+        assertThat(isApplicationEffectEnded).isTrue()
+        assertThat(isWindowEffectEnded).isTrue()
+    }
+
+    @Test
+    fun `undecorated resizable window with unspecified size`() = runApplicationTest(
+        useDelay = true
+    ) {
+        var window: ComposeWindow? = null
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = { },
+                state = rememberWindowState(width = Dp.Unspecified, height = Dp.Unspecified),
+                undecorated = true,
+                resizable = true,
+            ) {
+                window = this.window
+                Box(Modifier.size(32.dp))
+            }
+        }
+
+        awaitIdle()
+        assertEquals(32, window?.width)
+        assertEquals(32, window?.height)
+    }
+
+    @Test
+    fun `showing a window should measure content specified size`() = runApplicationTest {
+        // TODO fix on Linux https://github.com/JetBrains/compose-multiplatform/issues/1297
+        assumeFalse(isLinux)
+        val constraintsList = mutableListOf<Constraints>()
+        val windowSize = DpSize(400.dp, 300.dp)
+        lateinit var window: ComposeWindow
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = { },
+                state = rememberWindowState(size = windowSize),
+            ) {
+                window = this.window
+                Layout(
+                    measurePolicy = { _, constraints ->
+                        constraintsList.add(constraints)
+                        layout(0, 0) { }
+                    }
+                )
+            }
+        }
+
+        awaitIdle()
+
+        with(window.density) {
+            val expectedSize = (windowSize - window.insets.toSize()).toSize()
+            assertEquals(1, constraintsList.size)
+            assertEquals(
+                Constraints(
+                    maxWidth = expectedSize.width.toInt(),
+                    maxHeight = expectedSize.height.toInt()
+                ),
+                constraintsList.first()
+            )
+        }
+    }
+
+    @Test
+    fun `pass LayoutDirection to Window`() = runApplicationTest {
+        lateinit var localLayoutDirection: LayoutDirection
+
+        var layoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Window(onCloseRequest = {}) {
+                    localLayoutDirection = LocalLayoutDirection.current
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Rtl)
+
+        // Test that changing the local propagates it into the window
+        layoutDirection = LayoutDirection.Ltr
+        awaitIdle()
+        assertThat(localLayoutDirection).isEqualTo(LayoutDirection.Ltr)
+    }
+
+    @Test
+    fun `pass LayoutDirection from Window to Popup`() = runApplicationTest {
+        lateinit var windowLayoutDirectionResult: LayoutDirection
+        lateinit var popupLayoutDirectionResult: LayoutDirection
+
+        var windowLayoutDirection by mutableStateOf(LayoutDirection.Rtl)
+        var popupLayoutDirection by mutableStateOf(LayoutDirection.Ltr)
+        launchTestApplication {
+            CompositionLocalProvider(LocalLayoutDirection provides windowLayoutDirection) {
+                Window(onCloseRequest = {}) {
+                    windowLayoutDirectionResult = LocalLayoutDirection.current
+                    CompositionLocalProvider(LocalLayoutDirection provides popupLayoutDirection) {
+                        Popup {
+                            popupLayoutDirectionResult = LocalLayoutDirection.current
+                        }
+                    }
+                }
+            }
+        }
+        awaitIdle()
+
+        assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
+        assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
+
+        // Test that changing the local propagates it into the window
+        windowLayoutDirection = LayoutDirection.Ltr
+        popupLayoutDirection = LayoutDirection.Rtl
+        awaitIdle()
+        assertThat(windowLayoutDirectionResult).isEqualTo(LayoutDirection.Ltr)
+        assertThat(popupLayoutDirectionResult).isEqualTo(LayoutDirection.Rtl)
+    }
+
+    @Test
+    fun `window does not move to front on recomposition`() = runApplicationTest {
+        var window1: ComposeWindow? = null
+        var window2: ComposeWindow? = null
+
+        var window1Title by mutableStateOf("Window 1")
+
+        launchTestApplication {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = window1Title,
+            ) {
+                window1 = this.window
+                Box(Modifier.size(32.dp))
+            }
+
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "Window 2"
+            ) {
+                window2 = this.window
+                Box(Modifier.size(32.dp))
+                LaunchedEffect(Unit) {
+                    window.toFront()
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(window1?.isShowing).isTrue()
+        assertThat(window2?.isShowing).isTrue()
+        assertThat(window1?.isActive).isFalse()
+        assertThat(window2?.isActive).isTrue()
+
+        window1Title = "Retitled Window"
+        awaitIdle()
+        assertThat(window1?.isActive).isFalse()
+        assertThat(window2?.isActive).isTrue()
+    }
+
+    @Test
+    fun `compose empty window once`() = runApplicationTest {
+        var compositions = 0
+        launchTestApplication {
+            Window(onCloseRequest = ::exitApplication) {
+                compositions++
+            }
+        }
+        awaitIdle()
+        assertEquals(1, compositions)
     }
 }

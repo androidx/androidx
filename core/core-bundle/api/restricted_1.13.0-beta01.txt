@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.core.bundle {
+
+  public final class Bundle_androidKt {
+    method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
+  }
+
+}
+

@@ -50,7 +50,7 @@ fun Modifier.onPreviewKeyEvent(
     onPreviewKeyEvent: (KeyEvent) -> Boolean
 ): Modifier = this then KeyInputElement(onKeyEvent = null, onPreKeyEvent = onPreviewKeyEvent)
 
-private data class KeyInputElement(
+internal data class KeyInputElement(
     val onKeyEvent: ((KeyEvent) -> Boolean)?,
     val onPreKeyEvent: ((KeyEvent) -> Boolean)?
 ) : ModifierNodeElement<KeyInputNode>() {
@@ -73,7 +73,7 @@ private data class KeyInputElement(
     }
 }
 
-private class KeyInputNode(
+internal class KeyInputNode(
     var onEvent: ((KeyEvent) -> Boolean)?,
     var onPreEvent: ((KeyEvent) -> Boolean)?
 ) : KeyInputModifierNode, Modifier.Node() {

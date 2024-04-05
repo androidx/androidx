@@ -67,15 +67,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -97,6 +105,7 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -162,9 +171,13 @@ fun Slider(
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     require(steps >= 0) { "steps should be >= 0" }
     val onValueChangeState = rememberUpdatedState(onValueChange)
+    val onValueChangeFinishedState = rememberUpdatedState(onValueChangeFinished)
     val tickFractions = remember(steps) {
         stepsToTickFractions(steps)
     }
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
+    val focusRequester = remember { FocusRequester() }
     BoxWithConstraints(
         modifier
             .minimumInteractiveComponentSize()
@@ -177,9 +190,10 @@ fun Slider(
                 valueRange,
                 steps
             )
+            .focusRequester(focusRequester)
             .focusable(enabled, interactionSource)
+            .slideOnKeyEvents(enabled, steps, valueRange, value, isRtl, onValueChangeState, onValueChangeFinishedState)
     ) {
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         val widthPx = constraints.maxWidth.toFloat()
         val maxPx: Float
         val minPx: Float
@@ -213,6 +227,7 @@ fun Slider(
         val gestureEndAction = rememberUpdatedState<(Float) -> Unit> { velocity: Float ->
             val current = rawOffset.floatValue
             val target = snapValueToTick(current, tickFractions, minPx, maxPx)
+            focusRequester.requestFocus()
             if (current != target) {
                 scope.launch {
                     animateToTarget(draggableState, current, target, velocity)
@@ -255,6 +270,94 @@ fun Slider(
             interactionSource,
             modifier = press.then(drag)
         )
+    }
+}
+
+// TODO: Edge case - losing focus on slider while key is pressed will end up with onValueChangeFinished not being invoked
+@OptIn(ExperimentalComposeUiApi::class)
+private fun Modifier.slideOnKeyEvents(
+    enabled: Boolean,
+    steps: Int,
+    valueRange: ClosedFloatingPointRange<Float>,
+    value: Float,
+    isRtl: Boolean,
+    onValueChangeState: State<(Float) -> Unit>,
+    onValueChangeFinishedState: State<(() -> Unit)?>
+): Modifier {
+    require(steps >= 0) { "steps should be >= 0" }
+
+    return this.onKeyEvent {
+        if (!enabled) return@onKeyEvent false
+
+        when (it.type) {
+            KeyEventType.KeyDown -> {
+                val rangeLength = abs(valueRange.endInclusive - valueRange.start)
+                // When steps == 0, it means that a user is not limited by a step length (delta) when using touch or mouse.
+                // But it is not possible to adjust the value continuously when using keyboard buttons -
+                // the delta has to be discrete. In this case, 1% of the valueRange seems to make sense.
+                val actualSteps = if (steps > 0) steps + 1 else 100
+                val delta = rangeLength / actualSteps
+                when {
+                    it.isDirectionUp -> {
+                        onValueChangeState.value((value + delta).coerceIn(valueRange))
+                        true
+                    }
+
+                    it.isDirectionDown -> {
+                        onValueChangeState.value((value - delta).coerceIn(valueRange))
+                        true
+                    }
+
+                    it.isDirectionRight -> {
+                        val sign = if (isRtl) -1 else 1
+                        onValueChangeState.value((value + sign * delta).coerceIn(valueRange))
+                        true
+                    }
+
+                    it.isDirectionLeft -> {
+                        val sign = if (isRtl) -1 else 1
+                        onValueChangeState.value((value - sign * delta).coerceIn(valueRange))
+                        true
+                    }
+
+                    it.isHome -> {
+                        onValueChangeState.value(valueRange.start)
+                        true
+                    }
+
+                    it.isMoveEnd -> {
+                        onValueChangeState.value(valueRange.endInclusive)
+                        true
+                    }
+
+                    it.isPgUp -> {
+                        val page = (actualSteps / 10).coerceIn(1, 10)
+                        onValueChangeState.value((value - page * delta).coerceIn(valueRange))
+                        true
+                    }
+
+                    it.isPgDn -> {
+                        val page = (actualSteps / 10).coerceIn(1, 10)
+                        onValueChangeState.value((value + page * delta).coerceIn(valueRange))
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+
+            KeyEventType.KeyUp -> {
+                if (it.isDirectionDown || it.isDirectionUp || it.isDirectionRight
+                    || it.isDirectionLeft || it.isHome || it.isMoveEnd || it.isPgUp || it.isPgDn
+                ) {
+                    onValueChangeFinishedState.value?.invoke()
+                    true
+                } else {
+                    false
+                }
+            }
+            else -> false
+        }
     }
 }
 

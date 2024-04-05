@@ -123,6 +123,7 @@ private class DerivedSnapshotState<T>(
             return isValid
         }
 
+        @OptIn(InternalComposeApi::class)
         fun readableHash(derivedState: DerivedState<*>, snapshot: Snapshot): Int {
             var hash = 7
             val dependencies = sync { dependencies }

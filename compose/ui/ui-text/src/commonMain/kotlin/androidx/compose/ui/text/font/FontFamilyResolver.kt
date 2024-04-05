@@ -18,8 +18,8 @@ package androidx.compose.ui.text.font
 
 import androidx.compose.runtime.State
 import androidx.compose.ui.text.caches.LruCache
-import androidx.compose.ui.text.platform.createSynchronizedObject
-import androidx.compose.ui.text.platform.synchronized
+import androidx.compose.ui.text.createSynchronizedObject
+import androidx.compose.ui.text.synchronized
 import androidx.compose.ui.util.fastMap
 
 internal class FontFamilyResolverImpl(
@@ -66,7 +66,7 @@ internal class FontFamilyResolverImpl(
                 platformFontLoader = platformFontLoader,
                 onAsyncCompletion = { /* nothing */ },
                 createDefaultTypeface = createDefaultTypeface
-            ) ?: throw IllegalStateException("Could not load font")
+            ) ?: throw FontLoadFailedException(typeRequest.fontFamily)
         }
     }
 
@@ -100,7 +100,7 @@ internal class FontFamilyResolverImpl(
                 platformFontLoader,
                 onAsyncCompletion,
                 createDefaultTypeface
-            ) ?: throw IllegalStateException("Could not load font")
+            ) ?: throw FontLoadFailedException(typefaceRequest.fontFamily)
         }
         return result
     }
@@ -204,7 +204,7 @@ internal class TypefaceRequestCache {
                 }
             }
         } catch (cause: Exception) {
-            throw IllegalStateException("Could not load font", cause)
+            throw FontLoadFailedException(typefaceRequest.fontFamily, cause)
         }
         synchronized(lock) {
             // async result may have completed prior to this block entering, do not overwrite
@@ -229,7 +229,7 @@ internal class TypefaceRequestCache {
             val next = try {
                 resolveTypeface(typeRequest)
             } catch (cause: Exception) {
-                throw IllegalStateException("Could not load font", cause)
+                throw FontLoadFailedException(typeRequest.fontFamily, cause)
             }
 
             // only cache immutable, should not reach as FontListFontFamilyTypefaceAdapter already
@@ -253,3 +253,11 @@ internal class TypefaceRequestCache {
             resultCache.size
         }
 }
+
+internal class FontLoadFailedException(
+    fontFamily: FontFamily?,
+    cause: Throwable? = null,
+) : IllegalStateException(
+    /* message = */ "Failed to load font $fontFamily. Is it installed on the system?",
+    /* cause = */ cause,
+)

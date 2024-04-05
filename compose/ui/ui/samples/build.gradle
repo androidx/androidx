@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -38,10 +31,10 @@ dependencies {
 
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(project(":compose:animation:animation-core"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:material:material"))
-    implementation(project(":compose:runtime:runtime"))
+    implementation("androidx.compose.animation:animation-core:1.2.1")
+    implementation("androidx.compose.foundation:foundation-layout:1.2.1")
+    implementation("androidx.compose.material:material:1.2.1")
+    implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation(project(":compose:ui:ui"))
 }
 

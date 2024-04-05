@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.InternalFoundationTextApi
-import androidx.compose.foundation.text.LegacyTextFieldState
+import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
@@ -30,7 +30,6 @@ import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,7 +56,7 @@ class DesktopTextFieldSelectionManagerTest {
     private val offsetMapping = OffsetMapping.Identity
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
-    private lateinit var state: LegacyTextFieldState
+    private lateinit var state: TextFieldState
 
     private val dragBeginPosition = Offset.Zero
     private val dragDistance = Offset(300f, 15f)
@@ -71,7 +70,6 @@ class DesktopTextFieldSelectionManagerTest {
     private val textToolbar = mock<TextToolbar>()
     private val hapticFeedback = mock<HapticFeedback>()
     private val focusRequester = mock<FocusRequester>()
-    private val processor = mock<EditProcessor>()
 
     @OptIn(InternalFoundationTextApi::class)
     @Before
@@ -116,11 +114,7 @@ class DesktopTextFieldSelectionManagerTest {
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
-        state = LegacyTextFieldState(
-            textDelegate = mock(),
-            recomposeScope = mock(),
-            keyboardController = null
-        )
+        state = TextFieldState(mock(), mock(), mock())
         state.layoutResult = layoutResultProxy
         state.processor.reset(value, null)
         manager.state = state

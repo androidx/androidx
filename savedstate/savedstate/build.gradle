@@ -5,12 +5,83 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("JetbrainsAndroidXPlugin")
+}
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+    js()
+    wasm()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":annotation:annotation"))
+                api(project(":core:core-bundle"))
+                api(project(":lifecycle:lifecycle-common"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+
+            dependencies {
+                api("androidx.arch.core:core-common:2.2.0")
+            }
+        }
+
+        desktopMain.dependsOn(jvmMain)
+        androidMain.dependsOn(jvmMain)
+
+        androidInstrumentedTest {
+            dependencies {
+                implementation(project(":lifecycle:lifecycle-runtime"))
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+                implementation(libs.truth)
+            }
+        }
+
+        nonJvmMain.dependsOn(commonMain)
+
+        targets.all { target ->
+            if (target.platformType !in [
+                    KotlinPlatformType.androidJvm,
+                    KotlinPlatformType.jvm,
+                    KotlinPlatformType.common
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -18,20 +89,6 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.savedstate"
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.arch.core:core-common:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    api(libs.kotlinStdlib)
-
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.truth)
 }
 
 androidx {

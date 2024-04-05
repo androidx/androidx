@@ -440,7 +440,7 @@ private class DefaultPagerNestedScrollConnection(
         source: NestedScrollSource
     ): Offset {
         if (source == NestedScrollSource.Fling && available.mainAxis() != 0f) {
-            throw CancellationException()
+            throw CancellationException("End of scrollable area reached")
         }
         return Offset.Zero
     }

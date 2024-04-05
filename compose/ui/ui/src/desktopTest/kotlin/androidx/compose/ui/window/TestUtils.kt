@@ -16,126 +16,151 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.awaitEDT
 import java.awt.GraphicsEnvironment
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.swing.Swing
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.yield
+import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeTrue
+import androidx.compose.ui.window.launchApplication as realLaunchApplication
 
-@OptIn(ExperimentalCoroutinesApi::class)
+
 internal fun runApplicationTest(
     /**
-     * Use delay(500) additionally to `yield` in `await*` functions
+     * Use delay additionally to `yield` in `await*` functions
      *
      * Set this property only if you sure that you can't easily make the test deterministic
      * (non-flaky).
      *
      * We have to use `useDelay` in some Linux Tests, because Linux can behave in
-     * non-deterministic way when we change position/size very fast (see the snippet below)
+     * non-deterministic way when we change position/size very fast (see the snippet below).
      */
     useDelay: Boolean = false,
+    delayMillis: Long = 500,
+    // TODO ui-test solved this issue by passing InfiniteAnimationPolicy to CoroutineContext. Do the same way here
+    /**
+     * Hint for `awaitIdle` that the content contains animations (ProgressBar, TextField cursor, etc).
+     * In this case, we use `delay` instead of waiting for state changes to end.
+     */
+    hasAnimations: Boolean = false,
+    animationsDelayMillis: Long = 500,
+    timeoutMillis: Long = 30000,
     body: suspend WindowTestScope.() -> Unit
 ) {
-    // b/271123970 These tests are flaky or fail.
-    // We reconsider enable them after upstreaming desktop changes
-    val composeForDesktopUpstreamed = false
-    assumeTrue(composeForDesktopUpstreamed)
     assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
 
-    runBlocking(Dispatchers.Swing) {
-        withTimeout(30000) {
-            val testScope = WindowTestScope(this, useDelay)
-            if (testScope.isOpen) {
-                testScope.body()
-            }
-        }
-    }
-}
-
-/* Snippet that demonstrated the issue with window state listening on Linux
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.swing.Swing
-import kotlinx.coroutines.yield
-import java.awt.Point
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
-import javax.swing.JFrame
-
-fun main()  {
-    runBlocking(Dispatchers.Swing) {
-        repeat(10) {
-            val actions = mutableListOf<String>()
-            val frame = JFrame()
-            frame.addComponentListener(object : ComponentAdapter() {
-                override fun componentMoved(e: ComponentEvent?) {
-                    actions.add(frame.x.toString())
+    runBlocking(MainUIDispatcher) {
+        withTimeout(timeoutMillis) {
+            val exceptionHandler = TestExceptionHandler()
+            withExceptionHandler(exceptionHandler) {
+                val scope = WindowTestScope(
+                    scope = this,
+                    delayMillis = if (useDelay) delayMillis else -1,
+                    animationsDelayMillis = if (hasAnimations) animationsDelayMillis else -1,
+                    exceptionHandler = exceptionHandler)
+                try {
+                    scope.body()
+                } finally {
+                    scope.exitTestApplication()
                 }
-            })
-            frame.location = Point(200, 200)
-            frame.isVisible = true
-            yield()
-//                delay(200)
-            actions.add("set300")
-            frame.location = Point(300, 300)
-            delay(200)
-            /**
-             * output is [200, set300, 300, 200, 300] on Linux
-             * (see 200, 300 at the end, they are unexpected events that make impossible to write
-             * robust tests without delays)
-             */
-            println(actions)
-            frame.dispose()
+            }
+            exceptionHandler.throwIfCaught()
         }
     }
 }
-*/
+
+private inline fun withExceptionHandler(
+    handler: Thread.UncaughtExceptionHandler,
+    body: () -> Unit
+) {
+    val old = Thread.currentThread().uncaughtExceptionHandler
+    Thread.currentThread().uncaughtExceptionHandler = handler
+    try {
+        body()
+    } finally {
+        Thread.currentThread().uncaughtExceptionHandler = old
+    }
+}
+
+internal class TestExceptionHandler : Thread.UncaughtExceptionHandler {
+    private var exception: Throwable? = null
+
+    fun throwIfCaught() {
+        exception?.also {
+            throw it
+        }
+    }
+
+    override fun uncaughtException(thread: Thread, throwable: Throwable) {
+        if (exception != null) {
+            exception?.addSuppressed(throwable)
+        } else {
+            exception = throwable
+        }
+    }
+}
 
 internal class WindowTestScope(
     private val scope: CoroutineScope,
-    private val useDelay: Boolean
+    private val delayMillis: Long,
+    private val animationsDelayMillis: Long,
+    private val exceptionHandler: TestExceptionHandler
 ) : CoroutineScope by CoroutineScope(scope.coroutineContext + Job()) {
     var isOpen by mutableStateOf(true)
     private val initialRecomposers = Recomposer.runningRecomposers.value
 
-    fun exitApplication() {
+    fun launchTestApplication(
+        content: @Composable ApplicationScope.() -> Unit
+    ) = realLaunchApplication {
+        if (isOpen) {
+            content()
+        }
+    }
+
+    // Overload `launchApplication` to prohibit calling it from tests
+    @Deprecated(
+        "Do not use `launchApplication` from tests; use `launchTestApplication` instead",
+        level = DeprecationLevel.ERROR
+    )
+    fun launchApplication(
+        @Suppress("UNUSED_PARAMETER") content: @Composable ApplicationScope.() -> Unit
+    ): Nothing {
+        error("Do not use `launchApplication` from tests; use `launchTestApplication` instead")
+    }
+
+    suspend fun exitTestApplication() {
         isOpen = false
+        awaitIdle()  // Wait for the windows to actually complete disposing
     }
 
     suspend fun awaitIdle() {
-        if (useDelay) {
-            delay(500)
-        }
-        // TODO(demin): It seems this not-so-good synchronization
-        //  doesn't cause flakiness in our window tests.
-        //  But more robust solution will be to use something like
-        //  TestCoroutineDispatcher/FlushCoroutineDispatcher (but we can't use it in a pure form,
-        //  because there are Swing/system events that we don't control).
-        // Most of the work usually is done after the first yield(), almost all of the work -
-        // after fourth yield()
-        repeat(100) {
-            yield()
+        if (delayMillis >= 0) {
+            delay(delayMillis)
         }
 
+        awaitEDT()
+
         Snapshot.sendApplyNotifications()
-        for (recomposerInfo in Recomposer.runningRecomposers.value - initialRecomposers) {
-            recomposerInfo.state.takeWhile { it > Recomposer.State.Idle }.collect()
+
+        if (animationsDelayMillis >= 0) {
+            delay(animationsDelayMillis)
+        } else {
+            for (recomposerInfo in Recomposer.runningRecomposers.value - initialRecomposers) {
+                recomposerInfo.state.takeWhile { it > Recomposer.State.Idle }.collect()
+            }
         }
+
+        exceptionHandler.throwIfCaught()
     }
 }

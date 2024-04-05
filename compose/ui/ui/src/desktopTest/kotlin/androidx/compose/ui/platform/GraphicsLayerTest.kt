@@ -16,18 +16,37 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.isLinux
+import androidx.compose.ui.renderComposeScene
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,8 +60,7 @@ class GraphicsLayerTest {
 
     @Test
     fun scale() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
             Box(
                 Modifier
                     .graphicsLayer(
@@ -63,86 +81,138 @@ class GraphicsLayerTest {
                     .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
             )
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
     }
 
-    @Test
-    fun rotationZ() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
-            Box(
-                Modifier
-                    .graphicsLayer(
-                        translationX = 10f,
-                        rotationZ = 90f,
-                        scaleX = 2f,
-                        scaleY = 0.5f,
-                        transformOrigin = TransformOrigin(0f, 0f)
-                    )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Red)
+    @Composable
+    fun testRotationBoxes(
+        rotationX: Float = 0f,
+        rotationY: Float = 0f,
+        rotationZ: Float = 0f
+    ) {
+        val size = DpSize(10.dp, 10.dp)
+        val backgroundBrush =
+            Brush.verticalGradient(
+                colors = listOf(Color.Red, Color.Blue)
             )
-            Box(
-                Modifier
-                    .graphicsLayer(
-                        translationX = 10f,
-                        translationY = 20f,
-                        rotationZ = 45f
+        Box(
+            Modifier
+                .graphicsLayer(
+                    translationX = 0f,
+                    translationY = 0f,
+                    rotationX = rotationX,
+                    rotationY = rotationY,
+                    rotationZ = rotationZ,
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
-            )
-        }
-        screenshotRule.snap(window.surface)
+                .requiredSize(size)
+                .background(brush = backgroundBrush)
+        )
+        Box(
+            Modifier
+                .graphicsLayer(
+                    translationX = 20f,
+                    translationY = 0f,
+                    rotationX = rotationX,
+                    rotationY = rotationY,
+                    rotationZ = rotationZ,
+                    transformOrigin = TransformOrigin(0f, 0f),
+                )
+                .requiredSize(size)
+                .background(brush = backgroundBrush)
+        )
+        Box(
+            Modifier
+                .graphicsLayer(
+                    translationX = 0f,
+                    translationY = 20f,
+                    rotationX = rotationX,
+                    rotationY = rotationY,
+                    rotationZ = rotationZ,
+                    cameraDistance = 0.1f
+                )
+                .requiredSize(size)
+                .background(brush = backgroundBrush)
+        )
+        Box(
+            Modifier
+                .graphicsLayer(
+                    translationX = 20f,
+                    translationY = 20f,
+                    rotationX = -rotationX,
+                    rotationY = -rotationY,
+                    rotationZ = -rotationZ,
+                    cameraDistance = 0.1f
+                )
+                .requiredSize(size)
+                .background(brush = backgroundBrush)
+        )
+
     }
 
     @Test
     fun rotationX() {
-        val window = TestComposeWindow(width = 40, height = 40)
 
-        window.setContent {
-            Box(
-                Modifier
-                    .graphicsLayer(rotationX = 45f)
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
-            )
-            Box(
-                Modifier
-                    .graphicsLayer(
-                        translationX = 20f,
-                        transformOrigin = TransformOrigin(0f, 0f),
-                        rotationX = 45f
-                    )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+        // TODO Remove once approximate comparison will be available. The problem: there is a difference
+        //  in antialiasing between platforms. The golden screenshot currently matches CI behaviour.
+        assumeTrue(isLinux)
+
+        val snapshot = renderComposeScene(width = 40, height = 40) {
+            testRotationBoxes(
+                rotationX = 45f,
             )
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
     }
 
     @Test
     fun rotationY() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
-            Box(
-                Modifier
-                    .graphicsLayer(rotationY = 45f)
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
-            )
-            Box(
-                Modifier
-                    .graphicsLayer(
-                        translationX = 20f,
-                        transformOrigin = TransformOrigin(0f, 0f),
-                        rotationY = 45f
-                    )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+
+        // TODO Remove once approximate comparison will be available. The problem: there is a difference
+        //  in antialiasing between platforms. The golden screenshot currently matches CI behaviour.
+        assumeTrue(isLinux)
+
+        val snapshot = renderComposeScene(width = 40, height = 40) {
+            testRotationBoxes(
+                rotationY = 45f,
             )
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
+    }
+    @Test
+    fun rotationZ() {
+
+        // TODO Remove once approximate comparison will be available. The problem: there is a difference
+        //  in antialiasing between platforms. The golden screenshot currently matches CI behaviour.
+        assumeTrue(isLinux)
+
+        val snapshot = renderComposeScene(width = 40, height = 40) {
+            testRotationBoxes(
+                rotationZ = 45f,
+            )
+        }
+        screenshotRule.write(snapshot)
+    }
+
+    @Test
+    fun rotationXYZ() {
+
+        // TODO Remove once approximate comparison will be available. The problem: there is a difference
+        //  in antialiasing between platforms. The golden screenshot currently matches CI behaviour.
+        assumeTrue(isLinux)
+
+        val snapshot = renderComposeScene(width = 40, height = 40) {
+            testRotationBoxes(
+                rotationX = 45f,
+                rotationY = 45f,
+                rotationZ = 45f,
+            )
+        }
+        screenshotRule.write(snapshot)
     }
 
     @Test
     fun `nested layer transformations`() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
             Box(
                 Modifier
                     .graphicsLayer(rotationZ = 45f, translationX = 10f)
@@ -155,13 +225,12 @@ class GraphicsLayerTest {
                 )
             }
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
     }
 
     @Test
     fun clip() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
             Box(
                 Modifier
                     .graphicsLayer(
@@ -226,13 +295,48 @@ class GraphicsLayerTest {
                 )
             }
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
+    }
+
+    @Test
+    fun `box outside bounds should not be clipped`() {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
+            Box(modifier = Modifier
+                .size(40.dp)
+                .offset {
+                    -IntOffset(41, 41)
+                }
+                .drawBehind {
+                    drawRect(
+                        Color.Red,
+                        Offset.Zero,
+                        size * 10f,
+                    )
+                }
+                .background(Color.Green)
+            )
+        }
+        screenshotRule.write(snapshot)
+    }
+
+    @Test
+    fun largeScale() {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
+            Box(modifier = Modifier
+                .size(40.dp)
+                .scale(1E10.toFloat())
+                // We need at least two drawing operations because Skia doesn't check the picture
+                // bounds with just one drawing operation.
+                .background(Color.Green)
+                .background(Color.Red.copy(alpha = 0.5f))
+            )
+        }
+        screenshotRule.write(snapshot)
     }
 
     @Test
     fun alpha() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
             Box(
                 Modifier
                     .padding(start = 5.dp)
@@ -278,13 +382,53 @@ class GraphicsLayerTest {
                     .background(Color.Blue)
             )
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
+    }
+
+    @Test
+    fun correctColorMatrix() {
+        val snapshot = renderComposeScene(2, 2) {
+            Canvas(Modifier.fillMaxSize()) {
+                drawRect(
+                    color = Color.Black,
+                    topLeft = Offset.Zero,
+                    size = Size(1f, 2f),
+                    colorFilter = ColorFilter.colorMatrix(
+                        ColorMatrix(
+                            floatArrayOf(
+                                1f, 0f, 0f, 0f, 255f,
+                                0f, 1f, 0f, 0f, 0f,
+                                0f, 0f, 1f, 0f, 0f,
+                                0f, 0f, 0f, 1f, 0f
+                            )
+                        )
+                    )
+                )
+
+                drawRect(
+                    color = Color.White,
+                    topLeft = Offset(1f, 0f),
+                    size = Size(1f, 2f),
+                    colorFilter = ColorFilter.colorMatrix(
+                        ColorMatrix(
+                            floatArrayOf(
+                                0f, 0.5f, 0f, 0f, 0f,
+                                0.5f, 0f, 0f, 0f, 0f,
+                                0f, 0f, 0.5f, 0f, 128f,
+                                0f, 0f, 0f, 1f, 0f
+                            )
+                        )
+                    )
+                )
+            }
+        }
+
+        screenshotRule.write(snapshot)
     }
 
     @Test
     fun elevation() {
-        val window = TestComposeWindow(width = 40, height = 40)
-        window.setContent {
+        val snapshot = renderComposeScene(width = 40, height = 40) {
             Box(
                 Modifier
                     .graphicsLayer(shadowElevation = 5f)
@@ -323,6 +467,6 @@ class GraphicsLayerTest {
                     .requiredSize(20f.dp, 20f.dp)
             )
         }
-        screenshotRule.snap(window.surface)
+        screenshotRule.write(snapshot)
     }
 }

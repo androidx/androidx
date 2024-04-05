@@ -35,8 +35,8 @@ android.buildTypes { release {} }
 androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
 
 dependencies {
-    implementation(project(":benchmark:benchmark-junit4"))
-    implementation(project(":benchmark:benchmark-macro-junit4"))
+    implementation(androidxArtifact(":benchmark:benchmark-junit4"))
+    implementation(androidxArtifact(":benchmark:benchmark-macro-junit4"))
     implementation(project(":internal-testutils-macrobenchmark"))
     implementation(libs.testRules)
     implementation(libs.testExtJunit)

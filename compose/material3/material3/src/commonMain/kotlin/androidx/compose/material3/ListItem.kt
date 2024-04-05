@@ -625,7 +625,7 @@ private fun ProvideTextStyleFromToken(
 /**
  * Helper class to define list item type. Used for padding and sizing definition.
  */
-@JvmInline
+@kotlin.jvm.JvmInline
 private value class ListItemType private constructor(private val lines: Int) :
     Comparable<ListItemType> {
 

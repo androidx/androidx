@@ -19,6 +19,11 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
-internal expect val is24HourFormat: Boolean
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3373) revert to expect get()
+internal val is24HourFormat: Boolean
   @Composable
-  @ReadOnlyComposable get
+  @ReadOnlyComposable get() = is24HourFormat()
+
+@Composable
+@ReadOnlyComposable
+internal expect fun is24HourFormat(): Boolean

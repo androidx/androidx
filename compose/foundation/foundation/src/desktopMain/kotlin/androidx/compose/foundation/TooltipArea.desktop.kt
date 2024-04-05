@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,25 +24,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.areAnyPressed
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import androidx.compose.ui.window.rememberComponentRectPositionProvider
-import androidx.compose.ui.window.rememberCursorPositionProvider
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -98,83 +102,93 @@ fun TooltipArea(
     ),
     content: @Composable () -> Unit
 ) {
-    val mousePosition = remember { mutableStateOf(IntOffset.Zero) }
-    var parentBounds by remember { mutableStateOf(IntRect.Zero) }
-    val state = rememberBasicTooltipState(initialIsVisible = false)
+    var parentBounds by remember { mutableStateOf(Rect.Zero) }
+    var cursorPosition by remember { mutableStateOf(Offset.Zero) }
+    var isVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var job: Job? by remember { mutableStateOf(null) }
 
     fun startShowing() {
-        job?.cancel()
+        if (job?.isActive == true) {  // Don't restart the job if it's already active
+            return
+        }
         job = scope.launch {
             delay(delayMillis.toLong())
-            state.show()
+            isVisible = true
         }
     }
 
     fun hide() {
         job?.cancel()
-        state.dismiss()
+        job = null
+        isVisible = false
     }
 
-    BasicTooltipBox(
-        positionProvider = tooltipPlacement.positionProvider(),
-        tooltip = tooltip,
+    fun hideIfNotHovered(globalPosition: Offset) {
+        if (!parentBounds.contains(globalPosition)) {
+            hide()
+        }
+    }
+
+    Box(
         modifier = modifier
-            .onGloballyPositioned { coordinates ->
-                val size = coordinates.size
-                val position = IntOffset(
-                    coordinates.positionInWindow().x.toInt(),
-                    coordinates.positionInWindow().y.toInt()
-                )
-                parentBounds = IntRect(position, size)
+            .onGloballyPositioned { parentBounds = it.boundsInWindow() }
+            .onPointerEvent(PointerEventType.Enter) {
+                cursorPosition = it.position
+                if (!isVisible && !it.buttons.areAnyPressed) {
+                    startShowing()
+                }
             }
-            /**
-             * TODO: b/296850580 Figure out touch input story for desktop
-             */
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val position = event.changes.first().position
-                        when (event.type) {
-                            PointerEventType.Move -> {
-                                mousePosition.value = IntOffset(
-                                    position.x.toInt() + parentBounds.left,
-                                    position.y.toInt() + parentBounds.top
-                                )
-                            }
-
-                            PointerEventType.Enter -> {
-                                startShowing()
-                            }
-
-                            PointerEventType.Exit -> {
-                                hide()
-                            }
+            .onPointerEvent(PointerEventType.Move) {
+                cursorPosition = it.position
+                if (!isVisible && !it.buttons.areAnyPressed) {
+                    startShowing()
+                }
+            }
+            .onPointerEvent(PointerEventType.Exit) {
+                hideIfNotHovered(parentBounds.topLeft + it.position)
+            }
+            .onPointerEvent(PointerEventType.Press, pass = PointerEventPass.Initial) {
+                hide()
+            }
+    ) {
+        content()
+        if (isVisible) {
+            @OptIn(ExperimentalFoundationApi::class)
+            Popup(
+                popupPositionProvider = tooltipPlacement.positionProvider(cursorPosition),
+                onDismissRequest = { isVisible = false }
+            ) {
+                var popupPosition by remember { mutableStateOf(Offset.Zero) }
+                Box(
+                    Modifier
+                        .onGloballyPositioned { popupPosition = it.positionInWindow() }
+                        .onPointerEvent(PointerEventType.Move) {
+                            hideIfNotHovered(popupPosition + it.position)
                         }
-                    }
+                        .onPointerEvent(PointerEventType.Exit) {
+                            hideIfNotHovered(popupPosition + it.position)
+                        }
+                ) {
+                    tooltip()
                 }
             }
-            .pointerInput(Unit) {
-                detectDown {
-                    hide()
-                }
-            },
-        focusable = false,
-        enableUserInput = true,
-        state = state,
-        content = content
-    )
+        }
+    }
 }
 
-private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
-    while (true) {
-        awaitPointerEventScope {
-            val event = awaitPointerEvent(PointerEventPass.Initial)
-            val down = event.changes.find { it.changedToDown() }
-            if (down != null) {
-                onDown(down.position)
+private val PointerEvent.position get() = changes.first().position
+
+private fun Modifier.onPointerEvent(
+    eventType: PointerEventType,
+    pass: PointerEventPass = PointerEventPass.Main,
+    onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
+) = pointerInput(eventType, pass, onEvent) {
+    awaitPointerEventScope {
+        while (true) {
+            val event = awaitPointerEvent(pass)
+            if (event.type == eventType) {
+                onEvent(event)
             }
         }
     }
@@ -187,9 +201,11 @@ private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
 interface TooltipPlacement {
     /**
      * Returns [PopupPositionProvider] implementation.
+     *
+     * @param cursorPosition The position of the mouse cursor relative to the tooltip area.
      */
     @Composable
-    fun positionProvider(): PopupPositionProvider
+    fun positionProvider(cursorPosition: Offset): PopupPositionProvider
 
     /**
      * [TooltipPlacement] implementation for providing a [PopupPositionProvider] that calculates
@@ -205,12 +221,15 @@ interface TooltipPlacement {
         private val alignment: Alignment = Alignment.BottomEnd,
         private val windowMargin: Dp = 4.dp
     ) : TooltipPlacement {
+        @OptIn(ExperimentalComposeUiApi::class)
         @Composable
-        override fun positionProvider() = rememberCursorPositionProvider(
-            offset,
-            alignment,
-            windowMargin
-        )
+        override fun positionProvider(cursorPosition: Offset) =
+            rememberPopupPositionProviderAtPosition(
+                positionPx = cursorPosition,
+                offset = offset,
+                alignment = alignment,
+                windowMargin = windowMargin
+            )
     }
 
     /**
@@ -228,10 +247,11 @@ interface TooltipPlacement {
         private val offset: DpOffset = DpOffset.Zero
     ) : TooltipPlacement {
         @Composable
-        override fun positionProvider() = rememberComponentRectPositionProvider(
-            anchor,
-            alignment,
-            offset
-        )
+        override fun positionProvider(cursorPosition: Offset) =
+            rememberComponentRectPositionProvider(
+                anchor = anchor,
+                alignment = alignment,
+                offset = offset
+            )
     }
 }

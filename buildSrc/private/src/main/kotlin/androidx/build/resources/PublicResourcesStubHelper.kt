@@ -17,47 +17,25 @@
 package androidx.build.resources
 
 import androidx.build.getSupportRootFolder
-import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.gradle.LibraryExtension
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
-fun Project.configurePublicResourcesStub(libraryExtension: LibraryExtension) {
-    val targetRes = project.layout.buildDirectory.dir("generated/res/public-stub")
+fun Project.configurePublicResourcesStub(extension: LibraryExtension) {
+    val targetResFolder = File(project.buildDir, "generated/res/public-stub")
 
-    val generatePublicResourcesTask =
-        tasks.register("generatePublicResourcesStub", Copy::class.java) { task ->
-            task.from(File(project.getSupportRootFolder(), "buildSrc/res"))
-            task.into(targetRes)
-        }
-
-    libraryExtension.libraryVariants.all { variant ->
-        variant.registerGeneratedResFolders(
-            project.files(targetRes).builtBy(generatePublicResourcesTask)
-        )
-    }
-}
-
-fun Project.configurePublicResourcesStub(kmpExtension: KotlinMultiplatformExtension) {
-    val targetRes = project.layout.buildDirectory.dir("generated/res/public-stub")
-
-    val generatePublicResourcesStub = tasks.register(
+    val generatePublicResourcesTask = tasks.register(
         "generatePublicResourcesStub",
         Copy::class.java
     ) { task ->
         task.from(File(project.getSupportRootFolder(), "buildSrc/res"))
-        task.into(targetRes)
+        task.into(targetResFolder)
     }
-    val sourceSet = kmpExtension
-        .targets
-        .withType(KotlinMultiplatformAndroidTarget::class.java)
-        .single()
-        .compilations
-        .getByName(KotlinCompilation.MAIN_COMPILATION_NAME).defaultSourceSet
-    sourceSet.resources.srcDir(
-        generatePublicResourcesStub.flatMap { project.provider { it.destinationDir } }
-    )
+
+    extension.libraryVariants.all { variant ->
+        variant.registerGeneratedResFolders(
+            project.files(targetResFolder).builtBy(generatePublicResourcesTask)
+        )
+    }
 }

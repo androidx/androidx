@@ -20,7 +20,6 @@ import java.util.Locale
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
-import org.jetbrains.kotlin.konan.target.HostManager
 
 /**
  * A comma-separated list of target platform groups you wish to enable or disable.
@@ -30,18 +29,22 @@ import org.jetbrains.kotlin.konan.target.HostManager
  */
 const val ENABLED_KMP_TARGET_PLATFORMS = "androidx.enabled.kmp.target.platforms"
 
-/** Target platform groups supported by the AndroidX implementation of Kotlin multi-platform. */
+/**
+ * Target platform groups supported by the AndroidX implementation of Kotlin multi-platform.
+ */
 enum class PlatformGroup {
     JVM,
     JS,
+    WASM,
     MAC,
     LINUX,
-    DESKTOP,
-    ANDROID_NATIVE;
+    DESKTOP;
 
     companion object {
-        /** Target platform groups which require native compilation (e.g. LLVM). */
-        val native = listOf(MAC, LINUX, ANDROID_NATIVE)
+        /**
+         * Target platform groups which require native compilation (e.g. LLVM).
+         */
+        val native = listOf(MAC, LINUX)
 
         /**
          * Target platform groups which are enabled by default.
@@ -49,25 +52,25 @@ enum class PlatformGroup {
          * Do *not* enable [JS] unless you have read and understand this:
          * https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
          */
-        val enabledByDefault = listOf(JVM, DESKTOP, MAC, LINUX, ANDROID_NATIVE)
+        val enabledByDefault = listOf(JVM, DESKTOP, LINUX, MAC, JS, WASM)
     }
 }
 
-/** Target platforms supported by the AndroidX implementation of Kotlin multi-platform. */
+/**
+ * Target platforms supported by the AndroidX implementation of Kotlin multi-platform.
+ */
 enum class PlatformIdentifier(
     val id: String,
     @Suppress("unused") private val group: PlatformGroup
 ) {
     JVM("jvm", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
+    WASM("wasm", PlatformGroup.WASM),
     ANDROID("android", PlatformGroup.JVM),
-    ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),
-    ANDROID_NATIVE_ARM64("androidNativeArm64", PlatformGroup.ANDROID_NATIVE),
-    ANDROID_NATIVE_X86("androidNativeX86", PlatformGroup.ANDROID_NATIVE),
-    ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),
     LINUX_64("linuxx64", PlatformGroup.LINUX),
+    LINUX_ARM_64("linuxarm64", PlatformGroup.LINUX),
     IOS_SIMULATOR_ARM_64("iossimulatorarm64", PlatformGroup.MAC),
     IOS_X_64("iosx64", PlatformGroup.MAC),
     IOS_ARM_64("iosarm64", PlatformGroup.MAC),
@@ -99,36 +102,34 @@ fun parseTargetPlatformsFlag(flag: String?): Set<PlatformGroup> {
     return enabled.toSortedSet()
 }
 
-private fun matchingPlatformGroups(flag: String) =
-    if (flag == "native") {
-        PlatformGroup.native
-    } else {
-        listOf(PlatformGroup.valueOf(flag.uppercase(Locale.getDefault())))
-    }
+private fun matchingPlatformGroups(flag: String) = if (flag == "native") {
+    PlatformGroup.native
+} else {
+    listOf(PlatformGroup.valueOf(flag.uppercase(Locale.getDefault())))
+}
 
 private val Project.enabledKmpPlatforms: Set<PlatformGroup>
     get() {
-        val extension: KmpPlatformsExtension =
-            extensions.findByType() ?: extensions.create("androidx.build.KmpPlatforms", this)
+        val extension: KmpPlatformsExtension = extensions.findByType()
+            ?: extensions.create("androidx.build.KmpPlatforms", this)
         return extension.enabledKmpPlatforms
     }
 
-/** Extension used to store parsed KMP configuration information. */
+/**
+ * Extension used to store parsed KMP configuration information.
+ */
 private open class KmpPlatformsExtension(project: Project) {
-    val enabledKmpPlatforms =
-        parseTargetPlatformsFlag(project.findProperty(ENABLED_KMP_TARGET_PLATFORMS) as? String)
+    val enabledKmpPlatforms = parseTargetPlatformsFlag(
+        project.findProperty(ENABLED_KMP_TARGET_PLATFORMS) as? String
+    )
 }
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
-
-fun Project.enableAndroidNative(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.ANDROID_NATIVE)
-
+fun Project.enableWasm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.WASM)
 fun Project.enableMac(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.MAC) && HostManager.hostIsMac
-
-fun Project.enableLinux(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.LINUX)
-
+    enabledKmpPlatforms.contains(PlatformGroup.MAC) || Multiplatform.isKotlinNativeEnabled(this)
+fun Project.enableLinux(): Boolean =
+    enabledKmpPlatforms.contains(PlatformGroup.LINUX) || Multiplatform.isKotlinNativeEnabled(this)
 fun Project.enableJvm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JVM)
-
 fun Project.enableDesktop(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.DESKTOP)
+fun Project.enableNative(): Boolean = enableMac() && enableLinux()

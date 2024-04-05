@@ -26,6 +26,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.dispatchForKind
+import androidx.compose.ui.node.has
 import androidx.compose.ui.node.layoutCoordinates
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
@@ -99,6 +100,7 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
             isInBounds
         )
         if (!changed) {
+            root.cleanUpHover()
             return false
         }
         var dispatchHit = root.dispatchMainEventPass(
@@ -208,6 +210,7 @@ internal open class NodeParent {
             dispatched = it.dispatchFinalEventPass(internalPointerEvent) || dispatched
         }
         cleanUpHits(internalPointerEvent)
+        cleanUpHover()
         return dispatched
     }
 
@@ -250,6 +253,12 @@ internal open class NodeParent {
             }
         }
     }
+
+    open fun cleanUpHover() {
+        children.forEach {
+            it.cleanUpHover()
+        }
+    }
 }
 
 /**
@@ -265,6 +274,9 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     // a more generic collection such as HashMap or MutableVector.
     val pointerIds = PointerIdArray()
 
+    private var isIn = true
+    private var hasEntered = false
+
     /**
      * Cached properties that will be set before the main event pass, and reset after the final
      * pass. Since we know that these won't change within the entire pass, we don't need to
@@ -276,9 +288,6 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     private val relevantChanges: LongSparseArray<PointerInputChange> = LongSparseArray(2)
     private var coordinates: LayoutCoordinates? = null
     private var pointerEvent: PointerEvent? = null
-    private var wasIn = false
-    private var isIn = true
-    private var hasExited = true
 
     override fun dispatchMainEventPass(
         changes: LongSparseArray<PointerInputChange>,
@@ -448,23 +457,19 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                 @Suppress("DEPRECATION")
                 isIn = !activeHoverChange.isOutOfBounds(size)
             }
-            if (isIn != wasIn &&
-                (
-                    event.type == PointerEventType.Move ||
-                        event.type == PointerEventType.Enter ||
-                        event.type == PointerEventType.Exit
-                    )
+            if (event.type == PointerEventType.Move ||
+                event.type == PointerEventType.Enter ||
+                event.type == PointerEventType.Exit
             ) {
-                event.type = if (isIn) {
-                    PointerEventType.Enter
-                } else {
-                    PointerEventType.Exit
+                event.type = when {
+                    !hasEntered && isIn -> PointerEventType.Enter
+                    hasEntered && !isIn -> PointerEventType.Exit
+                    else -> PointerEventType.Move
                 }
-            } else if (event.type == PointerEventType.Enter && wasIn && !hasExited) {
-                event.type = PointerEventType.Move // We already knew that it was in.
-            } else if (event.type == PointerEventType.Exit && isIn && activeHoverChange.pressed) {
-                event.type = PointerEventType.Move // We are still in.
             }
+
+            if (event.type == PointerEventType.Enter) hasEntered = true
+            if (event.type == PointerEventType.Exit) hasEntered = false
         }
 
         val changed = childChanged || event.type != PointerEventType.Move ||
@@ -540,8 +545,6 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
 
         val event = pointerEvent ?: return
 
-        wasIn = isIn
-
         event.changes.fastForEach { change ->
             // There are two scenarios where we need to remove the pointerIds:
             //   1. Pointer is released AND event stream doesn't have an active hover.
@@ -557,9 +560,11 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                 pointerIds.remove(change.id)
             }
         }
+    }
 
+    override fun cleanUpHover() {
+        super.cleanUpHover()
         isIn = false
-        hasExited = event.type == PointerEventType.Exit
     }
 
     override fun toString(): String {

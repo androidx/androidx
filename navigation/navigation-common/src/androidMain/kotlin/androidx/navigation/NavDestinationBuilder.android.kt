@@ -1,0 +1,243 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@file:JvmName("NavGraphBuilderKt")
+
+package androidx.navigation
+
+import androidx.annotation.IdRes
+import androidx.annotation.RestrictTo
+import androidx.core.os.bundleOf
+import androidx.navigation.serialization.generateNavArguments
+import androidx.navigation.serialization.generateRoutePattern
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
+
+/**
+ * DSL for constructing a new [NavDestination]
+ */
+@NavDestinationDsl
+public actual open class NavDestinationBuilder<out D : NavDestination> internal constructor(
+    /**
+     * The navigator the destination was created from
+     */
+    protected actual val navigator: Navigator<out D>,
+    /**
+     * The destination's unique ID.
+     */
+    @IdRes public val id: Int,
+    /**
+     * The destination's unique route.
+     */
+    public actual val route: String?
+) {
+    /**
+     * DSL for constructing a new [NavDestination] with a unique id.
+     *
+     * This sets the destination's [route] to `null`.
+     *
+     * @param navigator navigator used to create the destination
+     * @param id the destination's unique id
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    @Deprecated(
+        "Use routes to build your NavDestination instead",
+        ReplaceWith("NavDestinationBuilder(navigator, route = id.toString())")
+    )
+    public constructor(navigator: Navigator<out D>, @IdRes id: Int) :
+        this(navigator, id, null)
+
+    /**
+     * DSL for constructing a new [NavDestination] with a unique route.
+     *
+     * This will also update the [id] of the destination based on route.
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    public actual constructor(navigator: Navigator<out D>, route: String?) :
+        this(navigator, -1, route)
+
+    /**
+     * DSL for constructing a new [NavDestination] with a serializable [KClass].
+     *
+     * This will also update the [id] of the destination based on KClass's serializer.
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. Required only when destination contains custom NavTypes.
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(InternalSerializationApi::class)
+    public constructor(
+        navigator: Navigator<out D>,
+        route: KClass<*>,
+        typeMap: Map<KType, NavType<*>> = mapOf(),
+    ) : this(
+        navigator,
+        route.serializer().hashCode(),
+        route.serializer().generateRoutePattern(typeMap.ifEmpty { null })
+    ) {
+        route.serializer()
+            .generateNavArguments(typeMap)
+            .forEach {
+                arguments[it.name] = it.argument
+            }
+    }
+
+    /**
+     * The descriptive label of the destination
+     */
+    public actual var label: CharSequence? = null
+
+    private var arguments = mutableMapOf<String, NavArgument>()
+
+    /**
+     * Add a [NavArgument] to this destination.
+     */
+    public actual fun argument(name: String, argumentBuilder: NavArgumentBuilder.() -> Unit) {
+        arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
+    }
+
+    private var deepLinks = mutableListOf<NavDeepLink>()
+
+    /**
+     * Add a deep link to this destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * *    Uris without a scheme are assumed as http and https. For example,
+     *      `www.example.com` will match `http://www.example.com` and
+     *      `https://www.example.com`.
+     * *    Placeholders in the form of `{placeholder_name}` matches 1 or more
+     *      characters. The String value of the placeholder will be available in the arguments
+     *      [Bundle] with a key of the same name. For example,
+     *      `http://www.example.com/users/{id}` will match
+     *      `http://www.example.com/users/4`.
+     * *    The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * @param uriPattern The uri pattern to add as a deep link
+     * @see deepLink
+     */
+    public fun deepLink(uriPattern: String) {
+        deepLinks.add(NavDeepLink(uriPattern))
+    }
+
+    /**
+     * Add a deep link to this destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * *    Uris without a scheme are assumed as http and https. For example,
+     *      `www.example.com` will match `http://www.example.com` and
+     *      `https://www.example.com`.
+     * *    Placeholders in the form of `{placeholder_name}` matches 1 or more
+     *      characters. The String value of the placeholder will be available in the arguments
+     *      [Bundle] with a key of the same name. For example,
+     *      `http://www.example.com/users/{id}` will match
+     *      `http://www.example.com/users/4`.
+     * *    The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * @param navDeepLink the NavDeepLink to be added to this destination
+     */
+    public fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
+        deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
+    }
+
+    private var actions = mutableMapOf<Int, NavAction>()
+
+    /**
+     * Adds a new [NavAction] to the destination
+     */
+    @Deprecated(
+        "Building NavDestinations using IDs with the Kotlin DSL has been deprecated in " +
+            "favor of using routes. When using routes there is no need for actions."
+    )
+    public fun action(actionId: Int, actionBuilder: NavActionBuilder.() -> Unit) {
+        actions[actionId] = NavActionBuilder().apply(actionBuilder).build()
+    }
+
+    /**
+     * Build the NavDestination by calling [Navigator.createDestination].
+     */
+    public actual open fun build(): D {
+        return navigator.createDestination().also { destination ->
+            destination.label = label
+            arguments.forEach { (name, argument) ->
+                destination.addArgument(name, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                destination.addDeepLink(deepLink)
+            }
+            actions.forEach { (actionId, action) ->
+                destination.putAction(actionId, action)
+            }
+            if (route != null) {
+                destination.route = route
+            }
+            if (id != -1) {
+                destination.id = id
+            }
+        }
+    }
+}
+
+/**
+ * DSL for building a [NavAction].
+ */
+@NavDestinationDsl
+public class NavActionBuilder {
+    /**
+     * The ID of the destination that should be navigated to when this action is used
+     */
+    public var destinationId: Int = 0
+
+    /**
+     * The set of default arguments that should be passed to the destination. The keys
+     * used here should be the same as those used on the [NavDestinationBuilder.argument]
+     * for the destination.
+     *
+     * All values added here should be able to be added to a [android.os.Bundle].
+     *
+     * @see NavAction.getDefaultArguments
+     */
+    public val defaultArguments: MutableMap<String, Any?> = mutableMapOf()
+
+    private var navOptions: NavOptions? = null
+
+    /**
+     * Sets the [NavOptions] for this action that should be used by default
+     */
+    public fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit) {
+        navOptions = NavOptionsBuilder().apply(optionsBuilder).build()
+    }
+
+    internal fun build() = NavAction(
+        destinationId, navOptions,
+        if (defaultArguments.isEmpty())
+            null
+        else
+            bundleOf(*defaultArguments.toList().toTypedArray())
+    )
+}

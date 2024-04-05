@@ -1,0 +1,17 @@
+public final class androidx/compose/desktop/ui/tooling/preview/runtime/ComposableSingletons$PreviewRunnerKt {
+	public static final field INSTANCE Landroidx/compose/desktop/ui/tooling/preview/runtime/ComposableSingletons$PreviewRunnerKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function2;
+	public static field lambda-2 Lkotlin/jvm/functions/Function3;
+	public static field lambda-3 Lkotlin/jvm/functions/Function3;
+	public fun <init> ()V
+	public final fun getLambda-1$ui_tooling ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda-2$ui_tooling ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda-3$ui_tooling ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class androidx/compose/ui/tooling/ComposableInvoker {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/ui/tooling/ComposableInvoker;
+	public final fun invokeComposable (Ljava/lang/String;Ljava/lang/String;Landroidx/compose/runtime/Composer;[Ljava/lang/Object;)V
+}
+

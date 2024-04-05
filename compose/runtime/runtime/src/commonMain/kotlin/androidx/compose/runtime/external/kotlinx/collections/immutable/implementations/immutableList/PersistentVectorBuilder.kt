@@ -989,3 +989,6 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         return TrieIterator(root, index, leafCount, trieHeight)
     }
 }
+
+@Suppress("NO_ACTUAL_FOR_EXPECT") // implemented by protected property in JVM
+internal expect var AbstractMutableList<*>.modCount: Int

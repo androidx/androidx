@@ -18,130 +18,57 @@
 
 package androidx.compose.ui.test
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.input.pointer.TestPointerInputEventData
-import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.SkiaRootForTest
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.nativeKeyLocation
+import java.awt.Component
+import java.awt.event.InputEvent
 
-internal actual fun createInputDispatcher(
-    testContext: TestContext,
-    root: RootForTest
-): InputDispatcher {
-    return DesktopInputDispatcher(testContext, root as SkiaRootForTest)
+private object DummyComponent : Component()
+/**
+ * The [KeyEvent] is usually created by the system. This function creates an instance of
+ * [KeyEvent] that can be used in tests.
+ */
+internal actual fun keyEvent(
+    key: Key,
+    keyEventType: KeyEventType,
+    modifiers: Int
+): KeyEvent {
+    val action = when (keyEventType) {
+        KeyEventType.KeyDown -> java.awt.event.KeyEvent.KEY_PRESSED
+        KeyEventType.KeyUp -> java.awt.event.KeyEvent.KEY_RELEASED
+        else -> error("Unknown key event type")
+    }
+    return KeyEvent(
+        java.awt.event.KeyEvent(
+            DummyComponent,
+            action,
+            0L,
+            modifiers,
+            key.nativeKeyCode,
+            java.awt.event.KeyEvent.getKeyText(key.nativeKeyCode)[0],
+            key.nativeKeyLocation
+        )
+    )
 }
 
-internal class DesktopInputDispatcher(
-    testContext: TestContext,
-    val root: SkiaRootForTest
-) : InputDispatcher(testContext, root) {
-    companion object {
-        var gesturePointerId = 0L
+@OptIn(ExperimentalComposeUiApi::class)
+internal actual fun Int.updatedKeyboardModifiers(key: Key, down: Boolean): Int {
+    val mask = when (key) {
+        Key.ShiftLeft, Key.ShiftRight -> InputEvent.SHIFT_DOWN_MASK
+        Key.CtrlLeft, Key.CtrlRight -> InputEvent.CTRL_DOWN_MASK
+        Key.AltLeft, Key.AltRight -> InputEvent.ALT_DOWN_MASK
+        Key.MetaLeft, Key.MetaRight -> InputEvent.META_DOWN_MASK
+        else -> null
     }
-
-    private var isMousePressed = false
-
-    private var batchedEvents = mutableListOf<List<TestPointerInputEventData>>()
-
-    override fun PartialGesture.enqueueDown(pointerId: Int) {
-        isMousePressed = true
-        enqueueEvent(pointerInputEvent(isMousePressed))
-    }
-    override fun PartialGesture.enqueueMove() {
-        enqueueEvent(pointerInputEvent(isMousePressed))
-    }
-
-    override fun PartialGesture.enqueueMoves(
-        relativeHistoricalTimes: List<Long>,
-        historicalCoordinates: List<List<Offset>>
-    ) {
-        // TODO: add support for historical events
-        enqueueMove()
-    }
-
-    override fun PartialGesture.enqueueUp(pointerId: Int) {
-        isMousePressed = false
-        enqueueEvent(pointerInputEvent(isMousePressed))
-        gesturePointerId += 1
-    }
-
-    override fun PartialGesture.enqueueCancel() {
-        println("PartialGesture.sendCancel")
-    }
-
-    override fun MouseInputState.enqueuePress(buttonId: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun MouseInputState.enqueueMove() {
-        TODO("Not yet implemented")
-    }
-
-    override fun MouseInputState.enqueueRelease(buttonId: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun MouseInputState.enqueueEnter() {
-        TODO("Not yet implemented")
-    }
-
-    override fun MouseInputState.enqueueExit() {
-        TODO("Not yet implemented")
-    }
-
-    override fun MouseInputState.enqueueCancel() {
-        TODO("Not yet implemented")
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    override fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel) {
-        TODO("Not yet implemented")
-    }
-
-    // TODO(b/233199964): Implement key injection for desktop
-    override fun KeyInputState.enqueueDown(key: Key) = TODO("Not yet implemented")
-
-    // TODO(b/233199964): Implement key injection for desktop
-    override fun KeyInputState.enqueueUp(key: Key) = TODO("Not yet implemented")
-
-    override fun RotaryInputState.enqueueRotaryScrollHorizontally(horizontalScrollPixels: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun RotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
-        TODO("Not yet implemented")
-    }
-
-    private fun enqueueEvent(event: List<TestPointerInputEventData>) {
-        batchedEvents.add(event)
-    }
-
-    private fun PartialGesture.pointerInputEvent(down: Boolean): List<TestPointerInputEventData> {
-        val time = currentTime
-        val offset = lastPositions[lastPositions.keys.sorted()[0]]!!
-        val event = listOf(
-            TestPointerInputEventData(
-                PointerId(gesturePointerId),
-                time,
-                offset,
-                down
-            )
-        )
-        return event
-    }
-
-    override fun flush() {
-        val copy = batchedEvents.toList()
-        batchedEvents.clear()
-        copy.forEach {
-            val eventTime = it.first().uptime
-            root.processPointerInput(eventTime, it)
-        }
-    }
-
-    override fun onDispose() {
-        batchedEvents.clear()
-    }
+     return if (mask != null) {
+         if (down) this or mask else this xor mask
+     } else {
+         this
+     }
 }

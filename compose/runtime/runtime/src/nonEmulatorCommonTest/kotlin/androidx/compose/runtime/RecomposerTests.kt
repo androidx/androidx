@@ -23,10 +23,7 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,7 +42,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecomposerTests {
 
-    private fun runTestUnconfined(block: suspend TestScope.() -> Unit): Unit =
+    private fun runTestUnconfined(block: suspend TestScope.() -> Unit) =
         runTest(UnconfinedTestDispatcher()) {
             block()
         }
@@ -128,6 +125,7 @@ class RecomposerTests {
     }
 
     @Test
+    //@IgnoreJsTarget
     fun testRecomposition() = compositionTest {
         val counter = Counter()
         val triggers = mapOf(
@@ -275,7 +273,7 @@ class RecomposerTests {
         compose {
             if (state) {
                 TestSubcomposition {
-                    assert(state) { "Subcomposition should be disposed if state is false" }
+                    assertTrue(state, "Subcomposition should be disposed if state is false" )
                 }
             }
         }
@@ -435,8 +433,7 @@ class RecomposerTests {
         assertEquals(2, recompositions)
 
         // The Recomposer should have received notification for the node's state.
-        @Suppress("RemoveExplicitTypeArguments")
-        assertEquals<List<Set<Any>>>(listOf(setOf(countFromEffect)), applications)
+        assertContentEquals(listOf(setOf(countFromEffect)), applications)
     }
 
     @OptIn(DelicateCoroutinesApi::class)

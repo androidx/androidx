@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import kotlin.jvm.JvmName
 
 /**
  * Styling configuration for a `Text`.
@@ -1514,34 +1515,36 @@ class TextStyle internal constructor(
     }
 
     override fun toString(): String {
-        return "TextStyle(" +
-            "color=$color, " +
-            "brush=$brush, " +
-            "alpha=$alpha, " +
-            "fontSize=$fontSize, " +
-            "fontWeight=$fontWeight, " +
-            "fontStyle=$fontStyle, " +
-            "fontSynthesis=$fontSynthesis, " +
-            "fontFamily=$fontFamily, " +
-            "fontFeatureSettings=$fontFeatureSettings, " +
-            "letterSpacing=$letterSpacing, " +
-            "baselineShift=$baselineShift, " +
-            "textGeometricTransform=$textGeometricTransform, " +
-            "localeList=$localeList, " +
-            "background=$background, " +
-            "textDecoration=$textDecoration, " +
-            "shadow=$shadow, " +
-            "drawStyle=$drawStyle, " +
-            "textAlign=$textAlign, " +
-            "textDirection=$textDirection, " +
-            "lineHeight=$lineHeight, " +
-            "textIndent=$textIndent, " +
-            "platformStyle=$platformStyle, " +
-            "lineHeightStyle=$lineHeightStyle, " +
-            "lineBreak=$lineBreak, " +
-            "hyphens=$hyphens, " +
-            "textMotion=$textMotion" +
-            ")"
+        return buildString {
+            append("TextStyle(")
+            append("color=$color, ")
+            append("brush=$brush, ")
+            append("alpha=$alpha, ")
+            append("fontSize=$fontSize, ")
+            append("fontWeight=$fontWeight, ")
+            append("fontStyle=$fontStyle, ")
+            append("fontSynthesis=$fontSynthesis, ")
+            append("fontFamily=$fontFamily, ")
+            append("fontFeatureSettings=$fontFeatureSettings, ")
+            append("letterSpacing=$letterSpacing, ")
+            append("baselineShift=$baselineShift, ")
+            append("textGeometricTransform=$textGeometricTransform, ")
+            append("localeList=$localeList, ")
+            append("background=$background, ")
+            append("textDecoration=$textDecoration, ")
+            append("shadow=$shadow, ")
+            append("drawStyle=$drawStyle, ")
+            append("textAlign=$textAlign, ")
+            append("textDirection=$textDirection, ")
+            append("lineHeight=$lineHeight, ")
+            append("textIndent=$textIndent, ")
+            append("platformStyle=$platformStyle, ")
+            append("lineHeightStyle=$lineHeightStyle, ")
+            append("lineBreak=$lineBreak, ")
+            append("hyphens=$hyphens, ")
+            append("textMotion=$textMotion")
+            append(")")
+        }
     }
 
     companion object {

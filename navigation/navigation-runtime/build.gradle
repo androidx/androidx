@@ -21,48 +21,132 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("JetbrainsAndroidXPlugin")
 }
 
-dependencies {
-    api(project(":navigation:navigation-common"))
-    api("androidx.activity:activity-ktx:1.7.1")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    api("androidx.annotation:annotation-experimental:1.4.0")
-    implementation('androidx.collection:collection:1.1.0')
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    api(libs.kotlinStdlib)
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-    androidTestImplementation(project(":internal-testutils-navigation"))
-    androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testExtTruth)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.espressoIntents)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.multidex)
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+    js()
+    wasm()
 
-    lintPublish(project(':navigation:navigation-runtime-lint'))
+    defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api project(":annotation:annotation")
+                implementation project(":collection:collection")
+                api project(":core:core-bundle")
+                api project(":lifecycle:lifecycle-common")
+                api project(":lifecycle:lifecycle-runtime")
+                api project(":lifecycle:lifecycle-viewmodel")
+                api project(":lifecycle:lifecycle-viewmodel-savedstate")
+                api project(":navigation:navigation-common")
+                api project(":savedstate:savedstate")
+
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.activity:activity-ktx:1.7.1")
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+//                implementation(project(":navigation:navigation-testing"))
+                implementation(project(":internal-testutils-navigation"))
+                implementation(project(":internal-testutils-runtime"))
+                implementation(libs.testExtJunit)
+                implementation(libs.testExtTruth)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+                implementation(libs.espressoCore)
+                implementation(libs.espressoIntents)
+                implementation(libs.truth)
+                implementation(libs.multidex)
+
+                // CustomMessageMissingMethodException: Could not find method implementation() for arguments
+                // implementation(libs.mockitoCore, excludes.bytebuddy)
+                // implementation(libs.dexmakerMockito, excludes.bytebuddy)
+                implementation("org.mockito:mockito-core:2.25.0", excludes.bytebuddy)
+                implementation("com.linkedin.dexmaker:dexmaker-mockito:2.28.3", excludes.bytebuddy)
+            }
+        }
+
+        jbMain.dependsOn(commonMain)
+
+        nonJvmMain {
+            dependsOn(jbMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(jbMain)
+        }
+
+        targets.all { target ->
+            if (target.platformType !in [
+                    KotlinPlatformType.androidJvm,
+                    KotlinPlatformType.jvm,
+                    KotlinPlatformType.common
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
+                }
+            }
+        }
+    }
 }
 
 android {
     defaultConfig {
         multiDexEnabled = true
     }
+
+    // Include `*.java` files into the build
+    sourceSets["main"].java.srcDir("src/androidMain/java")
     namespace "androidx.navigation"
 }
 

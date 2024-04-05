@@ -50,6 +50,7 @@ internal inline val Long.floatValue get() = floatFromBits((this and 0xFFFFFFFFL)
  * 32 bits encoding the parsed float value. To access these values easily, use [Long.index]
  * and [Long.floatValue]. When parsing is unsuccessful, [Long.floatValue] returns NaN.
  */
+@OptIn(kotlin.ExperimentalStdlibApi::class)
 internal fun nextFloat(s: String, start: Int, end: Int): Long {
     // NOTE: It would be nice to encode invalid parsing with a NaN marker
     // (for instance 0x7FD55555), but doing so prevents us from defining

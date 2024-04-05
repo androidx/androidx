@@ -87,7 +87,7 @@ class IntMapTest {
         assertEquals(subject[item], -1)
     }
 
-    @Test(timeout = 5_000)
+    @Test
     fun set() {
         val map = IntMap<String>()
         map.set(900, "9")
@@ -110,7 +110,7 @@ class IntMapTest {
         assertTrue(400 in map)
     }
 
-    @Test(timeout = 5_000)
+    @Test
     fun get() {
         val map = IntMap<String>()
         map.set(900, "9")
@@ -133,7 +133,7 @@ class IntMapTest {
         assertEquals("4", map[400])
     }
 
-    @Test(timeout = 5_000)
+    @Test
     fun remove() {
         val map = IntMap<String>()
         map.set(900, "9")

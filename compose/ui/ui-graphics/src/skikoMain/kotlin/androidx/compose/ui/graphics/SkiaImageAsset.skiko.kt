@@ -38,14 +38,9 @@ fun Bitmap.asComposeImageBitmap(): ImageBitmap = SkiaBackedImageBitmap(this)
  */
 fun Image.toComposeImageBitmap(): ImageBitmap = SkiaBackedImageBitmap(toBitmap())
 
-private fun Image.toBitmap(): Bitmap {
-    val bitmap = Bitmap()
-    bitmap.allocPixels(ImageInfo.makeN32(width, height, ColorAlphaType.PREMUL))
-    val canvas = org.jetbrains.skia.Canvas(bitmap)
-    canvas.drawImage(this, 0f, 0f)
-    bitmap.setImmutable()
-    return bitmap
-}
+// Split into expect/actual to use a faster implementation for web
+// See web implementation for details and the reason.
+internal expect fun Image.toBitmap(): Bitmap
 
 internal actual fun ActualImageBitmap(
     width: Int,

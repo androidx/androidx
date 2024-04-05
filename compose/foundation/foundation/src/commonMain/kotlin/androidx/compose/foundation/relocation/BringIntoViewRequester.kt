@@ -23,8 +23,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
+import kotlin.js.JsName
 
 /**
  * Can be used to send [bringIntoView] requests. Pass it as a parameter to
@@ -76,6 +78,7 @@ sealed interface BringIntoViewRequester {
  * for it
  */
 @ExperimentalFoundationApi
+@JsName("funBringIntoViewRequester")
 fun BringIntoViewRequester(): BringIntoViewRequester {
     return BringIntoViewRequesterImpl()
 }

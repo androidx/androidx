@@ -30,6 +30,8 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.FocusRequesterModifierNode
+import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -464,7 +466,7 @@ internal fun Modifier.genericClickableWithoutGesture(
             .detectPressAndClickFromKey()
             .indication(interactionSource, indication)
             .hoverable(enabled = enabled, interactionSource = interactionSource)
-            .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
+            .focusable(enabled = enabled, interactionSource = interactionSource)
 }
 
 private class ClickableElement(
@@ -1231,7 +1233,7 @@ private class ClickableSemanticsElement(
     }
 }
 
-private class ClickableSemanticsNode(
+internal class ClickableSemanticsNode(
     private var enabled: Boolean,
     private var onClickLabel: String?,
     private var role: Role?,

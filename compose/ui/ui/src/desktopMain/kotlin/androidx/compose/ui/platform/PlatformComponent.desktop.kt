@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,22 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.unit.Density
-import java.awt.Cursor
 import java.awt.Point
 import java.awt.im.InputMethodRequests
-import kotlinx.coroutines.awaitCancellation
 
-internal actual interface PlatformComponent : PlatformInputComponent, PlatformComponentWithCursor
+internal interface PlatformComponent {
+    fun enableInput(inputMethodRequests: InputMethodRequests)
+    fun disableInput()
+    // Input service needs to know this information to implement Input Method support
+    val locationOnScreen: Point
+    val density: Density
 
-internal actual interface PlatformComponentWithCursor {
-    var componentCursor: Cursor
-}
-
-internal actual object DummyPlatformComponent : PlatformComponent {
-    override var componentCursor: Cursor = Cursor(Cursor.CROSSHAIR_CURSOR)
-    var enabledInput: InputMethodRequests? = null
-    override fun enableInput(inputMethodRequests: InputMethodRequests) {
-        enabledInput = inputMethodRequests
+    companion object {
+        val Empty = object : PlatformComponent {
+            override fun enableInput(inputMethodRequests: InputMethodRequests) = Unit
+            override fun disableInput() = Unit
+            override val locationOnScreen = Point(0, 0)
+            override val density = Density(1f)
+        }
     }
-
-    override fun disableInput(inputMethodRequests: InputMethodRequests?) {
-        enabledInput = null
-    }
-
-    override suspend fun textInputSession(
-        session: suspend PlatformTextInputSessionScope.() -> Nothing
-    ): Nothing {
-        awaitCancellation()
-    }
-
-    override val locationOnScreen = Point(0, 0)
-    override val density: Density
-        get() = Density(1f, 1f)
 }

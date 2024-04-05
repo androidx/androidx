@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.DesktopPlatform
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -27,12 +28,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFold
 import java.awt.event.MouseWheelEvent
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 // TODO(demin): Chrome on Windows/Linux uses different scroll strategy
 //  (always the same scroll offset, bounds-independent).
 //  Figure out why and decide if we can use this strategy instead of the current one.
-internal val LocalScrollConfig = compositionLocalOf {
+internal val LocalScrollConfig = compositionLocalOf<ScrollConfig> {
     when (DesktopPlatform.Current) {
         DesktopPlatform.Linux -> LinuxGnomeConfig
         DesktopPlatform.Windows -> WindowsWinUIConfig
@@ -41,12 +43,18 @@ internal val LocalScrollConfig = compositionLocalOf {
     }
 }
 
-internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig() =
-    currentValueOf(LocalScrollConfig)
+internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = currentValueOf(LocalScrollConfig)
+
+internal abstract class DesktopScrollConfig : ScrollConfig {
+    override var isSmoothScrollingEnabled = System.getProperty("compose.scrolling.smooth.enabled") != "false"
+        internal set
+
+    override fun isPreciseWheelScroll(event: PointerEvent): Boolean = event.isPreciseWheelRotation
+}
 
 // TODO(demin): is this formula actually correct? some experimental values don't fit
 //  the formula
-internal object LinuxGnomeConfig : ScrollConfig {
+internal object LinuxGnomeConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on Ubuntu Nautilus behaviour
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         return if (event.shouldScrollByPage) {
@@ -60,7 +68,7 @@ internal object LinuxGnomeConfig : ScrollConfig {
     }
 }
 
-internal object WindowsWinUIConfig : ScrollConfig {
+internal object WindowsWinUIConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on Windows Start behaviour
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         return if (event.shouldScrollByPage) {
@@ -74,7 +82,7 @@ internal object WindowsWinUIConfig : ScrollConfig {
     }
 }
 
-internal object MacOSCocoaConfig : ScrollConfig {
+internal object MacOSCocoaConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on MacOS Finder behaviour
     // MacOS driver will send events with accelerating delta
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
@@ -97,11 +105,17 @@ private fun calculateOffsetByPage(event: PointerEvent, bounds: IntSize): Offset 
 
 private val PointerEvent.scrollAmount
     get() =
-        (mouseEvent as? MouseWheelEvent)?.scrollAmount?.toFloat() ?: 1f
+        (awtEventOrNull as? MouseWheelEvent)?.scrollAmount?.toFloat() ?: 1f
 
 private val PointerEvent.shouldScrollByPage
     get() =
-        (mouseEvent as? MouseWheelEvent)?.scrollType == MouseWheelEvent.WHEEL_BLOCK_SCROLL
+        (awtEventOrNull as? MouseWheelEvent)?.scrollType == MouseWheelEvent.WHEEL_BLOCK_SCROLL
 
 private val PointerEvent.totalScrollDelta
     get() = this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
+
+private val PointerEvent.isPreciseWheelRotation
+    get() = (awtEventOrNull as? MouseWheelEvent)?.isPreciseWheelRotation ?: false
+
+private val MouseWheelEvent.isPreciseWheelRotation
+    get() = abs(preciseWheelRotation - wheelRotation.toDouble()) > 0.001

@@ -15,8 +15,11 @@
  */
 package androidx.compose.ui.text.platform
 
+import org.jetbrains.skia.Typeface as SkTypeface
 import androidx.compose.ui.text.Cache
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.ExpireAfterAccessCache
+import androidx.compose.ui.text.font.DefaultFontFamily
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
@@ -28,20 +31,41 @@ import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.text.font.Typeface
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import org.jetbrains.skia.FontMgr
-import org.jetbrains.skia.Typeface as SkTypeface
 import org.jetbrains.skia.paragraph.FontCollection
 import org.jetbrains.skia.paragraph.TypefaceFontProvider
 
-expect sealed class PlatformFont : Font {
+expect sealed class PlatformFont() : Font {
     abstract val identity: String
     internal val cacheKey: String
 }
 
 /**
- * Defines a Font using byte array with loaded font data.
+ * A Font that's already installed in the system.
  *
  * @param identity Unique identity for a font. Used internally to distinguish fonts.
- * @param data Byte array with loaded font data.
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *
+ * @see FontFamily
+ */
+@ExperimentalTextApi
+class SystemFont(
+    override val identity: String,
+    override val weight: FontWeight = FontWeight.Normal,
+    override val style: FontStyle = FontStyle.Normal
+) : PlatformFont() {
+    override fun toString(): String {
+        return "SystemFont(identity='$identity', weight=$weight, style=$style)"
+    }
+}
+
+/**
+ * Defines a Font using a byte array with loaded font data.
+ *
+ * @param identity Unique identity for a font. Used internally to distinguish fonts.
+ * @param getData should return Byte array with loaded font data.
  * @param weight The weight of the font. The system uses this to match a font to a font request
  * that is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
@@ -51,27 +75,25 @@ expect sealed class PlatformFont : Font {
  */
 class LoadedFont internal constructor(
     override val identity: String,
-    val data: ByteArray,
+    internal val getData: () -> ByteArray,
     override val weight: FontWeight,
     override val style: FontStyle
 ) : PlatformFont() {
     @ExperimentalTextApi
     override val loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking
 
+    val data: ByteArray get() = getData()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LoadedFont) return false
         if (identity != other.identity) return false
-        if (!data.contentEquals(other.data)) return false
         if (weight != other.weight) return false
-        if (style != other.style) return false
-
-        return true
+        return style == other.style
     }
 
     override fun hashCode(): Int {
         var result = identity.hashCode()
-        result = 31 * result + data.contentHashCode()
         result = 31 * result + weight.hashCode()
         result = 31 * result + style.hashCode()
         return result
@@ -80,6 +102,33 @@ class LoadedFont internal constructor(
     override fun toString(): String {
         return "LoadedFont(identity='$identity', weight=$weight, style=$style)"
     }
+}
+
+/**
+ * Creates a Font using byte array with loaded font data.
+ *
+ * @param identity Unique identity for a font. Used internally to distinguish fonts.
+ * @param getData should return Byte array with loaded font data.
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *
+ * @see FontFamily
+ */
+fun Font(
+    identity: String,
+    getData: () -> ByteArray,
+    weight: FontWeight = FontWeight.Normal,
+    style: FontStyle = FontStyle.Normal
+): Font = LoadedFont(identity, getData, weight, style)
+
+private class SkiaBackedTypeface(
+    alias: String?,
+    val nativeTypeface: SkTypeface
+) : Typeface {
+    val alias = alias ?: nativeTypeface.familyName
+    override val fontFamily: FontFamily? = null
 }
 
 /**
@@ -99,28 +148,21 @@ fun Font(
     data: ByteArray,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal
-): Font = LoadedFont(identity, data, weight, style)
-
-internal class SkiaBackedTypeface(
-    val alias: String?,
-    val nativeTypeface: SkTypeface
-) : Typeface {
-    override val fontFamily: FontFamily? = null
-}
+): Font = Font(
+    identity = identity,
+    getData = { data },
+    weight = weight,
+    style = style,
+)
 
 /**
  * Returns a Compose [Typeface] from Skia [SkTypeface].
  *
  * @param typeface Android Typeface instance
- * @param alias a shorter name that is used as an alternative to the full font name
  */
 fun Typeface(typeface: SkTypeface, alias: String? = null): Typeface {
     return SkiaBackedTypeface(alias, typeface)
 }
-
-// TODO: may be have an expect for MessageDigest?
-// It has the static .getInstance() method, how would that work?
-internal expect fun FontListFontFamily.makeAlias(): String
 
 @Suppress("DEPRECATION", "OverridingDeprecatedMember")
 @Deprecated(
@@ -155,21 +197,20 @@ class FontLoadResult(val typeface: SkTypeface?, val aliases: List<String>)
 internal class FontCache {
     internal val fonts = FontCollection()
     private val fontProvider = TypefaceFontProvider()
+    private val registered: MutableSet<String> = HashSet()
+    private val typefacesCache: Cache<String, SkTypeface> = ExpireAfterAccessCache(
+        60_000_000_000 // 1 minute
+    )
 
     init {
         fonts.setDefaultFontManager(FontMgr.default)
         fonts.setAssetFontManager(fontProvider)
     }
 
-    private fun mapGenericFontFamily(generic: GenericFontFamily): List<String> {
-        return GenericFontFamiliesMapping[generic.name]
-            ?: error("Unknown generic font family ${generic.name}")
-    }
-
-    private val registered = HashSet<String>()
-
     internal fun load(font: PlatformFont): FontLoadResult {
-        val typeface = loadFromTypefacesCache(font)
+        val typeface = typefacesCache.get(font.cacheKey) {
+            loadTypeface(font)
+        }
         ensureRegistered(typeface, font.cacheKey)
         return FontLoadResult(typeface, listOf(font.cacheKey))
     }
@@ -194,25 +235,86 @@ internal class FontCache {
     private fun ensureRegistered(fontFamily: FontFamily): List<String> =
         when (fontFamily) {
             is FontListFontFamily -> {
-                // not supported
-                throw IllegalArgumentException(
-                    "Don't load FontListFontFamily through ensureRegistered: $fontFamily"
-                )
+                val fonts = fontFamily.fonts.filterIsInstance<SystemFont>()
+                if (fonts.size == fontFamily.fonts.size) {
+                    fonts.map { it.identity }
+                } else {
+                    // not supported
+                    throw IllegalArgumentException(
+                        "Don't load FontListFontFamily through ensureRegistered: $fontFamily"
+                    )
+                }
             }
             is LoadedFontFamily -> {
                 val typeface = fontFamily.typeface as SkiaBackedTypeface
-                val alias = typeface.alias ?: typeface.nativeTypeface.familyName
-                if (!registered.contains(alias)) {
-                    fontProvider.registerTypeface(typeface.nativeTypeface, alias)
-                    registered.add(alias)
-                }
-                listOf(alias)
+                ensureRegistered(typeface.nativeTypeface, typeface.alias)
+                listOf(typeface.alias)
             }
-            is GenericFontFamily -> mapGenericFontFamily(fontFamily)
-            FontFamily.Default -> mapGenericFontFamily(FontFamily.SansSerif)
+            is GenericFontFamily -> fontFamily.aliases
+            is DefaultFontFamily -> FontFamily.SansSerif.aliases
             else -> throw IllegalArgumentException("Unknown font family type: $fontFamily")
         }
 }
 
-internal expect val typefacesCache: Cache<String, SkTypeface>
-internal expect fun loadFromTypefacesCache(font: Font): SkTypeface
+internal enum class Platform {
+    Unknown,
+    Linux,
+    Windows,
+    MacOS,
+    IOS,
+    TvOS,
+    WatchOS,
+    Android, // use case: a web app running in Chrome Android
+}
+
+internal expect fun currentPlatform(): Platform
+internal expect fun loadTypeface(font: Font): SkTypeface
+
+internal val GenericFontFamily.aliases
+    get() = GenericFontFamiliesMapping[name]
+        ?: error("Unknown generic font family $name")
+
+private val GenericFontFamiliesMapping: Map<String, List<String>> by lazy {
+    when (currentPlatform()) {
+        Platform.Linux ->
+            mapOf(
+                FontFamily.SansSerif.name to listOf("Noto Sans", "DejaVu Sans", "Arial"),
+                FontFamily.Serif.name to listOf("Noto Serif", "DejaVu Serif", "Times New Roman"),
+                FontFamily.Monospace.name to listOf("Noto Sans Mono", "DejaVu Sans Mono", "Consolas"),
+                // better alternative?
+                FontFamily.Cursive.name to listOf("Comic Sans MS")
+            )
+        Platform.Windows ->
+            mapOf(
+                // Segoe UI is the Windows system font, so try it first.
+                // See https://learn.microsoft.com/en-us/windows/win32/uxguide/vis-fonts
+                FontFamily.SansSerif.name to listOf("Segoe UI", "Arial"),
+                FontFamily.Serif.name to listOf("Times New Roman"),
+                FontFamily.Monospace.name to listOf("Consolas"),
+                FontFamily.Cursive.name to listOf("Comic Sans MS")
+            )
+        Platform.MacOS, Platform.IOS, Platform.TvOS, Platform.WatchOS ->
+            mapOf(
+                // .AppleSystem* aliases is the only legal way to get default SF and NY fonts.
+                FontFamily.SansSerif.name to listOf(".AppleSystemUIFont", "Helvetica Neue", "Helvetica"),
+                FontFamily.Serif.name to listOf(".AppleSystemUIFontSerif", "Times", "Times New Roman"),
+                FontFamily.Monospace.name to listOf(".AppleSystemUIFontMonospaced", "Menlo", "Courier"),
+                // Safari "font-family: cursive" real font names from macOS and iOS.
+                FontFamily.Cursive.name to listOf("Apple Chancery", "Snell Roundhand")
+            )
+        Platform.Android -> // https://m3.material.io/styles/typography/fonts
+            mapOf(
+                FontFamily.SansSerif.name to listOf("Roboto", "Noto Sans"),
+                FontFamily.Serif.name to listOf("Roboto Serif", "Noto Serif"),
+                FontFamily.Monospace.name to listOf("Roboto Mono", "Noto Sans Mono"),
+                FontFamily.Cursive.name to listOf("Comic Sans MS")
+            )
+        Platform.Unknown ->
+            mapOf(
+                FontFamily.SansSerif.name to listOf("Arial"),
+                FontFamily.Serif.name to listOf("Times New Roman"),
+                FontFamily.Monospace.name to listOf("Consolas"),
+                FontFamily.Cursive.name to listOf("Comic Sans MS")
+            )
+    }
+}

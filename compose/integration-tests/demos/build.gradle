@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
@@ -17,16 +10,18 @@ dependencies {
     implementation(project(":compose:animation:animation:integration-tests:animation-demos"))
     implementation(project(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos"))
     implementation(project(":compose:foundation:foundation:integration-tests:foundation-demos"))
-    implementation(project(":compose:material:material:integration-tests:material-demos"))
-    implementation(project(":compose:material3:material3:integration-tests:material3-demos"))
-    implementation(project(":navigation:navigation-compose:integration-tests:navigation-demos"))
-    implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
+//    implementation(project(":compose:material:material:integration-tests:material-demos"))
+//    implementation(project(":compose:material3:material3:integration-tests:material3-demos"))
+    // TODO: this library is not published so commented out
+    // implementation(androidxArtifact(":navigation:navigation-compose:integration-tests:navigation-demos"))
+    // TODO: this library is not published so commented out
+    // implementation(androidxArtifact(":paging:paging-compose:integration-tests:paging-demos"))
     implementation(project(":compose:ui:ui:integration-tests:ui-demos"))
 
     implementation(libs.kotlinReflect)
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":core:core-ktx"))
+    implementation(androidxArtifact(":core:core-ktx"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:integration-tests:demos:common"))
@@ -41,6 +36,9 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
+        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
+        // part of CI.
+        archivesBaseName = "compose-demos-testapp"
     }
     namespace "androidx.compose.integration.demos"
 }

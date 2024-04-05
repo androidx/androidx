@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import kotlin.math.roundToLong
 import androidx.annotation.RestrictTo
 
 /**
@@ -91,6 +93,13 @@ internal val Animation<*, *>.durationMillis: Long
     get() = durationNanos / MillisToNanos
 
 internal const val MillisToNanos: Long = 1_000_000L
+internal const val SecondsToNanos: Long = 1_000_000_000L
+
+internal fun convertSecondsToNanos(seconds: Float): Long =
+    (seconds.toDouble() * SecondsToNanos).roundToLong()
+
+internal fun convertNanosToSeconds(nanos: Long): Double =
+    nanos.toDouble() / SecondsToNanos
 
 internal const val SecondsToMillis: Long = 1_000L
 

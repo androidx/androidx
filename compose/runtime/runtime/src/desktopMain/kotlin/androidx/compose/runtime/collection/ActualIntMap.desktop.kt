@@ -16,59 +16,45 @@
 
 package androidx.compose.runtime.collection
 
+// Kotlin doesn't support setting initialCapacity, so we ignore it
 internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
-    private val DELETED = Any()
-    private var keys = IntArray(initialCapacity)
-    private var _size = 0
-    private var values = Array<Any?>(initialCapacity) { null }
+
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-764):
+    //  IntMap is supposed to avoid Integer boxing!
+    //  Replace by MutableIntObjectMap(initialCapacity)
+    // but after merging 1.4 changes we faced a crash in some iOS samples.
+    // For reproducer, see dima.avdeev/reproduce-lazy-column-crash
+    // The initial implementation (supplied from upstream) was not tested
+    // and `binarySearch` and `set` functions require more attention.
+    // For now, we rely on kotlin's MutableMap (with Integer boxing).
+    private val backingMap = mutableMapOf<Int, E>()
 
     /**
      * True if this map contains key
      */
     actual operator fun contains(key: Int): Boolean {
-        val index = keys.binarySearch(_size, key)
-        return index >= 0 && values[index] !== DELETED
+        return backingMap.containsKey(key)
     }
 
     /**
      * Get [key] or null
      */
     actual operator fun get(key: Int): E? {
-        val index = keys.binarySearch(_size, key)
-        return if (index >= 0 && values[index] !== DELETED) {
-            @Suppress("UNCHECKED_CAST")
-            values[index] as E
-        } else {
-            null
-        }
+        return backingMap[key]
     }
 
     /**
-     * Get [key] or [valueIfAbsent]
+     * Get [key] or [valueIfNotFound]
      */
     actual fun get(key: Int, valueIfAbsent: E): E {
-        val index = keys.binarySearch(_size, key)
-        return if (index >= 0 && values[index] !== DELETED) {
-            @Suppress("UNCHECKED_CAST")
-            values[index] as E
-        } else {
-            valueIfAbsent
-        }
+        return backingMap.getOrElse(key) { valueIfAbsent }
     }
 
     /**
      * Set [key] to [value]
      */
     actual operator fun set(key: Int, value: E) {
-        var index = keys.binarySearch(_size, key)
-        if (index >= 0) {
-            values[index] = value
-        } else {
-            index = -index - 1
-            keys = keys.insert(_size, index, key)
-            values = values.insert(_size, index, value)
-            _size++
-        }
+        backingMap[key] = value
     }
 
     /**
@@ -77,32 +63,21 @@ internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
      * Otherwise no op
      */
     actual fun remove(key: Int) {
-        // note this never GCs
-        val index = keys.binarySearch(_size, key)
-        if (index >= 0) {
-            values[index] = DELETED
-            _size--
-        }
+        backingMap.remove(key)
     }
 
     /**
      * Clear this map
      */
     actual fun clear() {
-        _size = 0
-        for (i in keys.indices) {
-            keys[i] = 0
-        }
-        for (i in values.indices) {
-            values[i] = null
-        }
+        backingMap.clear()
     }
 
     /**
      * Current count of (key, value) pairs
      */
     actual val size: Int
-        get() = _size
+        get() = backingMap.size
 }
 
 private fun IntArray.binarySearch(size: Int, value: Int): Int {

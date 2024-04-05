@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.unit.IntSize
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -373,7 +375,7 @@ private fun BottomSheetScaffoldLayout(
 
         layout(layoutWidth, layoutHeight) {
             val sheetWidth = sheetPlaceables.fastMaxOfOrNull { it.width } ?: 0
-            val sheetOffsetX = Integer.max(0, (layoutWidth - sheetWidth) / 2)
+            val sheetOffsetX = max(0, (layoutWidth - sheetWidth) / 2)
 
             val snackbarWidth = snackbarPlaceables.fastMaxOfOrNull { it.width } ?: 0
             val snackbarHeight = snackbarPlaceables.fastMaxOfOrNull { it.height } ?: 0

@@ -43,7 +43,7 @@ class BroadcastFrameClock(
         }
     }
 
-    private val lock = Any()
+    private val lock = createSynchronizedObject()
     private var failureCause: Throwable? = null
     private var awaiters = mutableListOf<FrameAwaiter<*>>()
     private var spareList = mutableListOf<FrameAwaiter<*>>()

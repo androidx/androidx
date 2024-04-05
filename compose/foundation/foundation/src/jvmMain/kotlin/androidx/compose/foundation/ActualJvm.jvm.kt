@@ -18,8 +18,16 @@
 
 package androidx.compose.foundation
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
+import kotlinx.coroutines.CancellationException
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual typealias AtomicLong = java.util.concurrent.atomic.AtomicLong
+internal actual abstract class PlatformOptimizedCancellationException actual constructor(
+    message: String?
+) : CancellationException(message) {
+
+    override fun fillInStackTrace(): Throwable {
+        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
+        stackTrace = emptyArray()
+        return this
+    }
+
+}

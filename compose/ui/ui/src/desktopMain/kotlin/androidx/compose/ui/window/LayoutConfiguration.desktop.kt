@@ -16,11 +16,17 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import java.awt.Component
+import java.awt.ComponentOrientation
 import java.awt.GraphicsConfiguration
 import java.awt.GraphicsEnvironment
+import java.util.Locale
 
 // TODO(demin): detect OS fontScale
 //  font size can be changed on Windows 10 in Settings - Ease of Access,
@@ -38,12 +44,48 @@ internal val GlobalDensity get() = GraphicsEnvironment.getLocalGraphicsEnvironme
 
 internal val Component.density: Density get() = graphicsConfiguration.density
 
+internal val Component.sizeInPx: Size
+    get() {
+        val scale = density.density
+        return Size(
+            width = width * scale,
+            height = height * scale
+        )
+    }
+
 private val GraphicsConfiguration.density: Density get() = Density(
     defaultTransform.scaleX.toFloat(),
     fontScale = 1f
 )
 
-internal val GlobalLayoutDirection get() = LayoutDirection.Ltr
+internal val GlobalLayoutDirection get() = Locale.getDefault().layoutDirection
 
-@Suppress("unused")
-internal val Component.layoutDirection: LayoutDirection get() = LayoutDirection.Ltr
+internal val Locale.layoutDirection: LayoutDirection
+    get() = ComponentOrientation.getOrientation(this).layoutDirection
+
+internal val ComponentOrientation.layoutDirection: LayoutDirection
+    get() = when {
+        isLeftToRight -> LayoutDirection.Ltr
+        isHorizontal -> LayoutDirection.Rtl
+        else -> LayoutDirection.Ltr
+    }
+
+internal val LayoutDirection.componentOrientation: ComponentOrientation
+    get() = when(this) {
+        LayoutDirection.Ltr -> ComponentOrientation.LEFT_TO_RIGHT
+        LayoutDirection.Rtl -> ComponentOrientation.RIGHT_TO_LEFT
+    }
+
+/**
+ * Compute the [LayoutDirection] the given AWT/Swing component should have, based on its own,
+ * non-Compose attributes.
+ */
+internal fun layoutDirectionFor(component: Component): LayoutDirection {
+    val orientation = component.componentOrientation
+    return if (orientation != ComponentOrientation.UNKNOWN) {
+        orientation.layoutDirection
+    } else {
+        // To preserve backwards compatibility we fall back to the locale
+        return component.locale.layoutDirection
+    }
+}

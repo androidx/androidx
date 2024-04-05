@@ -36,7 +36,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
@@ -166,7 +165,7 @@ internal class TextFieldSelectionManager(
      * Only update when a selection layout change has occurred,
      * or set to -1 if a new drag begins.
      */
-    private var previousRawDragOffset: Int = -1
+    internal var previousRawDragOffset: Int = -1
 
     /**
      * The old [TextFieldValue] before entering the selection mode on long press. Used to exit
@@ -177,7 +176,7 @@ internal class TextFieldSelectionManager(
     /**
      * The previous [SelectionLayout] where [SelectionLayout.shouldRecomputeSelection] was true.
      */
-    private var previousSelectionLayout: SelectionLayout? = null
+    internal var previousSelectionLayout: SelectionLayout? = null
 
     /**
      * [TextDragObserver] for long press and drag to select in TextField.
@@ -600,6 +599,22 @@ internal class TextFieldSelectionManager(
         setHandleState(HandleState.None)
     }
 
+    internal fun onCopyWithResult(cancelSelection: Boolean = true): String? {
+        if (value.selection.collapsed) return null
+        val selectedText = value.getSelectedText().text
+
+        if (!cancelSelection) return selectedText
+
+        val newCursorOffset = value.selection.max
+        val newValue = createTextFieldValue(
+            annotatedString = value.annotatedString,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        return selectedText
+    }
+
     /**
      * The method for pasting text.
      *
@@ -612,6 +627,21 @@ internal class TextFieldSelectionManager(
     internal fun paste() {
         val text = clipboardManager?.getText() ?: return
 
+        val newText = value.getTextBeforeSelection(value.text.length) +
+            text +
+            value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.min + text.length
+
+        val newValue = createTextFieldValue(
+            annotatedString = newText,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        undoManager?.forceNextSnapshot()
+    }
+
+    internal fun paste(text: AnnotatedString) {
         val newText = value.getTextBeforeSelection(value.text.length) +
             text +
             value.getTextAfterSelection(value.text.length)
@@ -654,6 +684,25 @@ internal class TextFieldSelectionManager(
         undoManager?.forceNextSnapshot()
     }
 
+    internal fun onCutWithResult(): String? {
+        if (value.selection.collapsed) return null
+        val selectedText = value.getSelectedText().text
+
+        val newText = value.getTextBeforeSelection(value.text.length) +
+            value.getTextAfterSelection(value.text.length)
+        val newCursorOffset = value.selection.min
+
+        val newValue = createTextFieldValue(
+            annotatedString = newText,
+            selection = TextRange(newCursorOffset, newCursorOffset)
+        )
+        onValueChange(newValue)
+        setHandleState(HandleState.None)
+        undoManager?.forceNextSnapshot()
+
+        return selectedText
+    }
+
     /*@VisibleForTesting*/
     internal fun selectAll() {
         val newValue = createTextFieldValue(
@@ -681,6 +730,15 @@ internal class TextFieldSelectionManager(
             isStart = isStartHandle,
             areHandlesCrossed = value.selection.reversed
         )
+    }
+
+    internal fun getHandleLineHeight(isStartHandle: Boolean): Float {
+        val layoutResult = state?.layoutResult ?: return 0f
+        val offset = if (isStartHandle) value.selection.start else value.selection.end
+        val line = layoutResult.value.getLineForOffset(
+            offset = offsetMapping.originalToTransformed(offset)
+        )
+        return layoutResult.value.multiParagraph.getLineHeight(line)
     }
 
     internal fun getCursorPosition(density: Density): Offset {
@@ -965,6 +1023,7 @@ internal fun TextFieldSelectionHandle(
         isStartHandle = isStartHandle,
         direction = direction,
         handlesCrossed = manager.value.selection.reversed,
+        lineHeight = manager.getHandleLineHeight(isStartHandle),
         modifier = Modifier.pointerInput(observer) {
             detectDownAndDragGesturesWithObserver(observer)
         },
@@ -979,9 +1038,6 @@ internal fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
 ): Boolean = state?.layoutCoordinates?.visibleBounds()?.containsInclusive(
     getHandlePosition(isStartHandle)
 ) ?: false
-
-// TODO(b/180075467) it should be part of PointerEvent API in one way or another
-internal expect val PointerEvent.isShiftPressed: Boolean
 
 /**
  * Optionally shows a magnifier widget, if the current platform supports it, for the current state

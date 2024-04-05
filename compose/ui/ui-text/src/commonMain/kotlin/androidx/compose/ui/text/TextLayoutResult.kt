@@ -23,9 +23,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.platform.SynchronizedObject
-import androidx.compose.ui.text.platform.createSynchronizedObject
-import androidx.compose.ui.text.platform.synchronized
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -241,19 +238,23 @@ class TextLayoutInput private constructor(
         return result
     }
 
+    // Long string concatenation causes atomicfu plugin to be slow/hang.
+    // See https://youtrack.jetbrains.com/issue/KT-65645/Atomicfu-plugin-compilation-hangs-on-a-long-string-concatenation
     override fun toString(): String {
-        return "TextLayoutInput(" +
-            "text=$text, " +
-            "style=$style, " +
-            "placeholders=$placeholders, " +
-            "maxLines=$maxLines, " +
-            "softWrap=$softWrap, " +
-            "overflow=$overflow, " +
-            "density=$density, " +
-            "layoutDirection=$layoutDirection, " +
-            "fontFamilyResolver=$fontFamilyResolver, " +
-            "constraints=$constraints" +
-            ")"
+        return buildString {
+            append("TextLayoutInput(")
+            append("text=$text, ")
+            append("style=$style, ")
+            append("placeholders=$placeholders, ")
+            append("maxLines=$maxLines, ")
+            append("softWrap=$softWrap, ")
+            append("overflow=$overflow, ")
+            append("density=$density, ")
+            append("layoutDirection=$layoutDirection, ")
+            append("fontFamilyResolver=$fontFamilyResolver, ")
+            append("constraints=$constraints")
+            append(")")
+        }
     }
 }
 

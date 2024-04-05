@@ -1,8 +1,6 @@
 name: Run Integration Tests
 on:
-  workflow_run:
-    workflows: ["AndroidX Presubmits"]
-    types: [completed]
+  workflow_dispatch:
 
 jobs:
   run_integration_tests:
@@ -25,12 +23,6 @@ jobs:
           gcp-token: ${{ secrets.GCP_SA_KEY }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           output-folder: ${{ steps.dirs.outputs.output-dir }}
-          gcp-bucket-name: "androidx-ftl-test-results"
-          gcp-bucket-path: "github-ci-action"
-          log-file: ${{ steps.dirs.outputs.output-dir }}/ftl-logs.txt
-          device-specs: Pixel2.arm:30
-          use-test-config-files: true
-          test-suite-tags: androidx_unit_tests
       - uses: actions/upload-artifact@v2
         if: always()
         with:

@@ -1,0 +1,312 @@
+public abstract interface annotation class androidx/annotation/AnimRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/AnimatorRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/AnyRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/AnyThread : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/ArrayRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/AttrRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/BinderThread : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/BoolRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/CallSuper : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/CheckResult : java/lang/annotation/Annotation {
+	public abstract fun suggest ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/ChecksSdkIntAtLeast : java/lang/annotation/Annotation {
+	public abstract fun api ()I
+	public abstract fun codename ()Ljava/lang/String;
+	public abstract fun extension ()I
+	public abstract fun lambda ()I
+	public abstract fun parameter ()I
+}
+
+public abstract interface annotation class androidx/annotation/ColorInt : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/ColorLong : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/ColorRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/ContentView : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/DeprecatedSinceApi : java/lang/annotation/Annotation {
+	public abstract fun api ()I
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/DimenRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/Dimension : java/lang/annotation/Annotation {
+	public static final field Companion Landroidx/annotation/Dimension$Companion;
+	public static final field DP I
+	public static final field PX I
+	public static final field SP I
+	public abstract fun unit ()I
+}
+
+public final class androidx/annotation/Dimension$Companion {
+	public static final field DP I
+	public static final field PX I
+	public static final field SP I
+}
+
+public abstract interface annotation class androidx/annotation/Discouraged : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/DisplayContext : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/DoNotInline : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/DrawableRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/EmptySuper : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/FloatRange : java/lang/annotation/Annotation {
+	public abstract fun from ()D
+	public abstract fun fromInclusive ()Z
+	public abstract fun to ()D
+	public abstract fun toInclusive ()Z
+}
+
+public abstract interface annotation class androidx/annotation/FontRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/FractionRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/GravityInt : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/GuardedBy : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/HalfFloat : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/IdRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/InspectableProperty : java/lang/annotation/Annotation {
+	public abstract fun attributeId ()I
+	public abstract fun enumMapping ()[Landroidx/annotation/InspectableProperty$EnumEntry;
+	public abstract fun flagMapping ()[Landroidx/annotation/InspectableProperty$FlagEntry;
+	public abstract fun hasAttributeId ()Z
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun valueType ()Landroidx/annotation/InspectableProperty$ValueType;
+}
+
+public abstract interface annotation class androidx/annotation/InspectableProperty$EnumEntry : java/lang/annotation/Annotation {
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class androidx/annotation/InspectableProperty$FlagEntry : java/lang/annotation/Annotation {
+	public abstract fun mask ()I
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun target ()I
+}
+
+public final class androidx/annotation/InspectableProperty$ValueType : java/lang/Enum {
+	public static final field COLOR Landroidx/annotation/InspectableProperty$ValueType;
+	public static final field GRAVITY Landroidx/annotation/InspectableProperty$ValueType;
+	public static final field INFERRED Landroidx/annotation/InspectableProperty$ValueType;
+	public static final field INT_ENUM Landroidx/annotation/InspectableProperty$ValueType;
+	public static final field INT_FLAG Landroidx/annotation/InspectableProperty$ValueType;
+	public static final field NONE Landroidx/annotation/InspectableProperty$ValueType;
+	public static final field RESOURCE_ID Landroidx/annotation/InspectableProperty$ValueType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/annotation/InspectableProperty$ValueType;
+	public static fun values ()[Landroidx/annotation/InspectableProperty$ValueType;
+}
+
+public abstract interface annotation class androidx/annotation/IntDef : java/lang/annotation/Annotation {
+	public abstract fun flag ()Z
+	public abstract fun open ()Z
+	public abstract fun value ()[I
+}
+
+public abstract interface annotation class androidx/annotation/IntRange : java/lang/annotation/Annotation {
+	public abstract fun from ()J
+	public abstract fun to ()J
+}
+
+public abstract interface annotation class androidx/annotation/IntegerRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/InterpolatorRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/Keep : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/LayoutRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/LongDef : java/lang/annotation/Annotation {
+	public abstract fun flag ()Z
+	public abstract fun open ()Z
+	public abstract fun value ()[J
+}
+
+public abstract interface annotation class androidx/annotation/MainThread : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/MenuRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/NavigationRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/NonNull : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/NonUiContext : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/Nullable : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/OpenForTesting : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/PluralsRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/Px : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/RawRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/RequiresApi : java/lang/annotation/Annotation {
+	public abstract fun api ()I
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class androidx/annotation/RequiresExtension : java/lang/annotation/Annotation {
+	public abstract fun extension ()I
+	public abstract fun version ()I
+}
+
+public abstract interface annotation class androidx/annotation/RequiresExtension$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Landroidx/annotation/RequiresExtension;
+}
+
+public abstract interface annotation class androidx/annotation/RequiresFeature : java/lang/annotation/Annotation {
+	public abstract fun enforcement ()Ljava/lang/String;
+	public abstract fun name ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/RequiresPermission : java/lang/annotation/Annotation {
+	public abstract fun allOf ()[Ljava/lang/String;
+	public abstract fun anyOf ()[Ljava/lang/String;
+	public abstract fun conditional ()Z
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/RequiresPermission$Read : java/lang/annotation/Annotation {
+	public abstract fun value ()Landroidx/annotation/RequiresPermission;
+}
+
+public abstract interface annotation class androidx/annotation/RequiresPermission$Write : java/lang/annotation/Annotation {
+	public abstract fun value ()Landroidx/annotation/RequiresPermission;
+}
+
+public abstract interface annotation class androidx/annotation/RestrictTo : java/lang/annotation/Annotation {
+	public abstract fun value ()[Landroidx/annotation/RestrictTo$Scope;
+}
+
+public final class androidx/annotation/RestrictTo$Scope : java/lang/Enum {
+	public static final field GROUP_ID Landroidx/annotation/RestrictTo$Scope;
+	public static final field LIBRARY Landroidx/annotation/RestrictTo$Scope;
+	public static final field LIBRARY_GROUP Landroidx/annotation/RestrictTo$Scope;
+	public static final field LIBRARY_GROUP_PREFIX Landroidx/annotation/RestrictTo$Scope;
+	public static final field SUBCLASSES Landroidx/annotation/RestrictTo$Scope;
+	public static final field TESTS Landroidx/annotation/RestrictTo$Scope;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/annotation/RestrictTo$Scope;
+	public static fun values ()[Landroidx/annotation/RestrictTo$Scope;
+}
+
+public abstract interface annotation class androidx/annotation/ReturnThis : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/Size : java/lang/annotation/Annotation {
+	public abstract fun max ()J
+	public abstract fun min ()J
+	public abstract fun multiple ()J
+	public abstract fun value ()J
+}
+
+public abstract interface annotation class androidx/annotation/StringDef : java/lang/annotation/Annotation {
+	public abstract fun open ()Z
+	public abstract fun value ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/annotation/StringRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/StyleRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/StyleableRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/TransitionRes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/UiContext : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/UiThread : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/VisibleForTesting : java/lang/annotation/Annotation {
+	public static final field Companion Landroidx/annotation/VisibleForTesting$Companion;
+	public static final field NONE I
+	public static final field PACKAGE_PRIVATE I
+	public static final field PRIVATE I
+	public static final field PROTECTED I
+	public abstract fun otherwise ()I
+}
+
+public final class androidx/annotation/VisibleForTesting$Companion {
+	public static final field NONE I
+	public static final field PACKAGE_PRIVATE I
+	public static final field PRIVATE I
+	public static final field PROTECTED I
+}
+
+public abstract interface annotation class androidx/annotation/WorkerThread : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/annotation/XmlRes : java/lang/annotation/Annotation {
+}
+

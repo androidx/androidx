@@ -1,0 +1,13 @@
+public abstract interface annotation class androidx/compose/animation/graphics/ExperimentalAnimationGraphicsApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/animation/graphics/vector/AnimatedImageVector {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/animation/graphics/vector/AnimatedImageVector$Companion;
+	public final fun getImageVector ()Landroidx/compose/ui/graphics/vector/ImageVector;
+	public final fun getTotalDuration ()I
+}
+
+public final class androidx/compose/animation/graphics/vector/AnimatedImageVector$Companion {
+}
+

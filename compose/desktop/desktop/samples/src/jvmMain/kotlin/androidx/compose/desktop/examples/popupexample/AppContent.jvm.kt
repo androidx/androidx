@@ -51,19 +51,22 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Notification
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.TrayState
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
@@ -82,7 +85,7 @@ fun WindowScope.Content(
     val dialogState = remember { mutableStateOf(false) }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(10.dp)),
         color = Color(55, 55, 55)
     ) {
         Column {
@@ -101,7 +104,7 @@ fun WindowScope.Content(
                 Row {
                     Button(
                         color = Color(210, 210, 210),
-                        size = IntSize(16, 16),
+                        modifier = Modifier.size(16.dp, 16.dp),
                         onClick = {
                             windowState.placement = WindowPlacement.Fullscreen
                         }
@@ -109,7 +112,7 @@ fun WindowScope.Content(
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
                         color = Color(232, 182, 109),
-                        size = IntSize(16, 16),
+                        modifier = Modifier.size(16.dp, 16.dp),
                         onClick = {
                             windowState.isMinimized = true
                         }
@@ -117,7 +120,7 @@ fun WindowScope.Content(
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
                         color = Color(150, 232, 150),
-                        size = IntSize(16, 16),
+                        modifier = Modifier.size(16.dp, 16.dp),
                         onClick = {
                             windowState.placement = WindowPlacement.Maximized
                         }
@@ -126,12 +129,12 @@ fun WindowScope.Content(
                     Button(
                         onClick = AppState::closeMainWindow,
                         color = Color(232, 100, 100),
-                        size = IntSize(16, 16)
+                        modifier = Modifier.size(16.dp, 16.dp),
                     )
                 }
             }
             Row {
-                Column(modifier = Modifier.padding(start = 30.dp, top = 50.dp)) {
+                Column(modifier = Modifier.padding(start = 30.dp, top = 30.dp)) {
                     Button("Show Popup", { AppState.popupState.value = true }, Color(232, 182, 109))
                     Spacer(modifier = Modifier.height(30.dp))
                     Button("Open dialog", { dialogState.value = true })
@@ -146,14 +149,14 @@ fun WindowScope.Content(
                         text = "Send notification",
                         onClick = {
                             val message = "There should be your message."
-                            when {
-                                AppState.notify.value -> trayState.sendNotification(
+                            when (AppState.notificationType.value) {
+                                NotificationType.Notify -> trayState.sendNotification(
                                     Notification("Notification.", message)
                                 )
-                                AppState.warn.value -> trayState.sendNotification(
+                                NotificationType.Warn -> trayState.sendNotification(
                                     Notification("Warning.", message, Notification.Type.Warning)
                                 )
-                                else -> trayState.sendNotification(
+                                NotificationType.Error -> trayState.sendNotification(
                                     Notification("Error.", message, Notification.Type.Error)
                                 )
                             }
@@ -178,37 +181,51 @@ fun WindowScope.Content(
                         TextFieldWithSuggestions()
                     }
                     Spacer(modifier = Modifier.height(30.dp))
-                    CheckBox(
-                        text = "- alert dialog",
-                        state = AppState.alertDialog,
-                    )
+                    Column(modifier = Modifier.padding(start = 20.dp)) {
+                        RadioButton(
+                            text = "- common dialog",
+                            value = DialogType.Common,
+                            state = AppState.dialogType
+                        )
+                        RadioButton(
+                            text = "- window dialog",
+                            value = DialogType.Window,
+                            state = AppState.dialogType
+                        )
+                        RadioButton(
+                            text = "- alert dialog",
+                            value = DialogType.Alert,
+                            state = AppState.dialogType
+                        )
+                    }
                     Spacer(modifier = Modifier.height(30.dp))
                     CheckBox(
                         text = "- undecorated",
                         state = AppState.undecorated,
                     )
                     Spacer(modifier = Modifier.height(30.dp))
-                    Row(modifier = Modifier.padding(start = 20.dp)) {
+                    Column(modifier = Modifier.padding(start = 20.dp)) {
                         RadioButton(
                             text = "- notify",
-                            state = AppState.notify
+                            value = NotificationType.Notify,
+                            state = AppState.notificationType
                         )
-                        Spacer(modifier = Modifier.width(30.dp))
                         RadioButton(
                             text = "- warn",
-                            state = AppState.warn
+                            value = NotificationType.Warn,
+                            state = AppState.notificationType
                         )
-                        Spacer(modifier = Modifier.width(30.dp))
                         RadioButton(
                             text = "- error",
-                            state = AppState.error
+                            value = NotificationType.Error,
+                            state = AppState.notificationType
                         )
                     }
                     Spacer(modifier = Modifier.height(30.dp))
                     Row(modifier = Modifier.padding(start = 20.dp)) {
                         TextBox(text = "Amount: ${AppState.amount.value}")
                     }
-                    Spacer(modifier = Modifier.height(60.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
             }
         }
@@ -251,8 +268,24 @@ fun WindowScope.Content(
             println("Dialog window is dismissed.")
         }
         @OptIn(ExperimentalMaterialApi::class)
-        if (AppState.alertDialog.value) {
-            AlertDialog(
+        when (AppState.dialogType.value) {
+            DialogType.Common -> Dialog(
+                onDismissRequest = dismiss
+            ) {
+                DialogContent(
+                    amount = AppState.amount,
+                    onClose = dismiss
+                )
+            }
+            DialogType.Window -> DialogWindow(
+                onCloseRequest = dismiss
+            ) {
+                WindowContent(
+                    amount = AppState.amount,
+                    onClose = dismiss
+                )
+            }
+            DialogType.Alert -> AlertDialog(
                 onDismissRequest = dismiss,
                 confirmButton = {
                     Button(text = "OK", onClick = { AppState.amount.value++ })
@@ -275,15 +308,6 @@ fun WindowScope.Content(
                 shape = RoundedCornerShape(0.dp),
                 backgroundColor = Color(70, 70, 70)
             )
-        } else {
-            DialogWindow(
-                onCloseRequest = dismiss
-            ) {
-                WindowContent(
-                    AppState.amount,
-                    onClose = dismiss
-                )
-            }
         }
     }
 }
@@ -297,7 +321,7 @@ fun PopupSample(displayed: Boolean, onDismiss: () -> Unit) {
             Popup(
                 alignment = Alignment.TopCenter,
                 offset = IntOffset(0, 50),
-                focusable = true,
+                properties = PopupProperties(focusable = true),
                 onDismissRequest = onDismiss
             ) {
                 println("CompositionLocal value is ${LocalTest.current}.")
@@ -327,30 +351,37 @@ fun PopupContent(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun WindowContent(amount: MutableState<Int>, onClose: () -> Unit) {
+fun DialogContent(modifier: Modifier = Modifier, amount: MutableState<Int>, onClose: () -> Unit) {
     Box(
-        Modifier.fillMaxSize().background(color = Color(55, 55, 55)),
+        modifier.background(color = Color(55, 55, 55)).padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
         Column {
             TextBox(text = "Increment amount?")
             Spacer(modifier = Modifier.height(30.dp))
             Row {
-                Button(text = "Yes", onClick = { amount.value++ }, size = IntSize(100, 35))
+                Button(text = "Yes", onClick = { amount.value++ }, modifier = Modifier.width(100.dp))
                 Spacer(modifier = Modifier.width(30.dp))
-                Button(text = "Close", onClick = { onClose.invoke() }, size = IntSize(100, 35))
+                Button(text = "Close", onClick = { onClose.invoke() }, modifier = Modifier.width(100.dp))
             }
         }
     }
 }
 
 @Composable
-@OptIn(ExperimentalComposeUiApi::class)
+fun WindowContent(amount: MutableState<Int>, onClose: () -> Unit) {
+    DialogContent(
+        modifier = Modifier.fillMaxSize(),
+        amount, onClose
+    )
+}
+
+@Composable
 fun Button(
     text: String = "",
     onClick: () -> Unit = {},
     color: Color = Color(10, 162, 232),
-    size: IntSize = IntSize(200, 35)
+    modifier: Modifier = Modifier.width(200.dp)
 ) {
     @OptIn(ExperimentalFoundationApi::class)
     TooltipArea(
@@ -368,8 +399,7 @@ fun Button(
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = color
             ),
-            modifier = Modifier
-                .size(size.width.dp, size.height.dp)
+            modifier = modifier
         ) {
             Text(text = text)
         }
@@ -471,7 +501,7 @@ fun TextFieldWithSuggestions() {
             DropdownMenu(
                 expanded = showMenu.value,
                 onDismissRequest = {},
-                focusable = false
+                properties = PopupProperties(focusable = false),
             ) {
                 words.forEach { name ->
                     DropdownMenuItem(onClick = { text.value += name }) {
@@ -504,21 +534,19 @@ fun CheckBox(text: String, state: MutableState<Boolean>) {
 }
 
 @Composable
-fun RadioButton(text: String, state: MutableState<Boolean>) {
-    Box(
+fun <T> RadioButton(text: String, value: T, state: MutableState<T>) {
+    Row(
         modifier = Modifier.height(35.dp).padding(start = 20.dp, bottom = 5.dp),
-        contentAlignment = Alignment.Center
     ) {
         RadioButton(
-            selected = state.value,
+            selected = value == state.value,
             onClick = {
-                state.value = !state.value
-                AppState.diselectOthers(state)
+                state.value = value
             }
         )
+        Spacer(modifier = Modifier.width(5.dp))
+        TextBox(text = text)
     }
-    Spacer(modifier = Modifier.width(5.dp))
-    TextBox(text = text)
 }
 
 @Composable

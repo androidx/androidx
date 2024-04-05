@@ -25,11 +25,14 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
-abstract class GenerateApiStubClassesTask @Inject constructor(workerExecutor: WorkerExecutor) :
-    MetalavaTask(workerExecutor) {
-    @get:OutputDirectory abstract val apiStubsDirectory: DirectoryProperty
+abstract class GenerateApiStubClassesTask @Inject constructor(
+    workerExecutor: WorkerExecutor
+) : MetalavaTask(workerExecutor) {
+    @get:OutputDirectory
+    abstract val apiStubsDirectory: DirectoryProperty
 
-    @get:OutputDirectory abstract val docStubsDirectory: DirectoryProperty
+    @get:OutputDirectory
+    abstract val docStubsDirectory: DirectoryProperty
 
     @TaskAction
     fun generate() {
@@ -37,12 +40,16 @@ abstract class GenerateApiStubClassesTask @Inject constructor(workerExecutor: Wo
             listOf(
                 "--classpath",
                 (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator),
+
                 "--source-path",
                 sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+
                 "--stubs",
                 apiStubsDirectory.get().asFile.path,
+
                 "--doc-stubs",
                 docStubsDirectory.get().asFile.path,
+
                 "--hide",
                 "HiddenTypedefConstant"
             )

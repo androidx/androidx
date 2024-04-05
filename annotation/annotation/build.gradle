@@ -1,28 +1,43 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
-import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
+
+    //  TODO move all functionality to Compose-independent plugin (`collection` shouldn't depend on Compose concepts)
+    id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidNative()
-    jvm()
-    mac()
-    linux()
-    ios()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.JVM)
+androidXComposeMultiplatform {
+    js()
+    wasm()
+    darwin()
+
+    linuxX64()
+    linuxArm64()
+}
+
+kotlin {
+    jvm()
+    // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
+    // We can support the kotlin-native targets supported by kotlin coroutines:
+    // https://github.com/Kotlin/kotlinx.coroutines/blob/master/gradle/compile-native-multiplatform.gradle
+    // NOTE: Keep this list in sync with runtime-saveable's targets.
+    watchosArm64()
+    watchosArm32()
+    watchosX64()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    mingwX64()
 
     sourceSets {
         commonMain {
@@ -43,7 +58,6 @@ androidXMultiplatform {
             }
         }
 
-
         // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
         // Make sure commonization runs before any compilation task.
         tasks.withType(KotlinNativeCompile).configureEach {
@@ -52,33 +66,13 @@ androidXMultiplatform {
     }
 }
 
-jvmJar {
-    // Strip out typedef classes. For Android libraries, this is done
-    // automatically by the Gradle plugin, but the Annotation library is a
-    // plain jar, built by the regular Gradle java plugin. The typedefs
-    // themselves have been manually extracted into the
-    // external-annotations directory, and those are packaged separately
-    // below by the annotationsZip task.
-    exclude("androidx/annotation/ProductionVisibility.class")
-    exclude("androidx/annotation/DimensionUnit.class")
-}
-
-task annotationsZip(type: Zip) {
-    archiveClassifier.set("annotations")
-    from("external-annotations")
-}
-
-// add annotations jar task as artifacts
-artifacts {
-    archives jvmJar
-    archives annotationsZip
-}
-
 androidx {
     name = "Annotation"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.ANNOTATION
-    kotlinTarget = KotlinTarget.KOTLIN_1_7
     inceptionYear = "2013"
     description = "Provides source annotations for tooling and readability."
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
 }

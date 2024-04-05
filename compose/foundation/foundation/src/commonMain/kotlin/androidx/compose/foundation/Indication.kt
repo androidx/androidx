@@ -19,6 +19,8 @@ package androidx.compose.foundation
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
@@ -29,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
@@ -37,6 +41,8 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 /**
@@ -180,8 +186,18 @@ fun Modifier.indication(
     // error-deprecated rememberUpdatedInstance
     return composed(
         factory = {
+            val inputModeManager = LocalInputModeManager.current
+            val filteredInteractionSource = remember(interactionSource) {
+                // When in Touch mode, skip the Focus interaction - its indication should not be drawn
+                TempInteractionSource(
+                    interactionSource.interactions.filter {
+                        !(inputModeManager.inputMode == InputMode.Touch && it is FocusInteraction.Focus)
+                    }
+                )
+            }
+
             @Suppress("DEPRECATION_ERROR")
-            val instance = indication.rememberUpdatedInstance(interactionSource)
+            val instance = indication.rememberUpdatedInstance(filteredInteractionSource)
             remember(instance) {
                 IndicationModifier(instance)
             }
@@ -359,3 +375,5 @@ private const val IndicationInstanceDeprecationMessage = "IndicationInstance has
     "instead use Modifier.Node APIs, and should be returned from " +
     "IndicationNodeFactory#create. For a migration guide and background information, " +
     "please visit developer.android.com"
+
+private class TempInteractionSource(override val interactions: Flow<Interaction>):InteractionSource

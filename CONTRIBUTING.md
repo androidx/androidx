@@ -39,7 +39,7 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
 
 - Download and install JDK 17, if you don’t have it already.
 
-  Note the installation directory. If you already have JDK 17 installed and set as default, you can
+  Note the installation directory. If you already have JDK 17 installed and set as default, you can 
   find this with `which javac`.
 
 - Download and install [Android Studio](https://developer.android.com/studio) if you don't have it
@@ -85,9 +85,6 @@ androidx
   -- work
 ```
 
-To avoid conflict with the main project, these sub project groups are located under the
-`playground-projects` folder.
-
 **Note:** For other projects, you will still need to use the Gerrit workflow used by the Android Open Source Project (AOSP). For more information, please look at the [README](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:README.md).
 
 Fork the [androidx/androidx](https://github.com/androidx/androidx) repository.
@@ -112,7 +109,7 @@ Let’s assume that you want to make a contribution to Room. The first step is t
 First launch Android Studio using:
 
 ```bash
-cd playground-projects/room-playground
+cd androidx/room
 # This will automatically launch the `room` project in Android Studio.
 ./gradlew studio
 ```

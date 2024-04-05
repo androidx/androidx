@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.checkPrecondition
 import org.jetbrains.annotations.TestOnly
+import androidx.compose.runtime.TestOnly
 
 /**
  * A [Modifier.Node] which is able to delegate work to other [Modifier.Node] instances.

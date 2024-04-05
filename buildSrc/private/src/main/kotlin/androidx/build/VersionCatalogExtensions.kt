@@ -19,14 +19,13 @@ package androidx.build
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
-import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
-val Project.versionCatalog: VersionCatalog
-    get() = project.extensions.getByType(VersionCatalogsExtension::class.java).find("libs").get()
-
 fun Project.getLibraryByName(name: String): MinimalExternalModuleDependency {
-    val library = versionCatalog.findLibrary(name)
+    val libs = project.extensions.getByType(
+        VersionCatalogsExtension::class.java
+    ).find("libs").get()
+    val library = libs.findLibrary(name)
     return if (library.isPresent) {
         library.get().get()
     } else {
@@ -35,7 +34,10 @@ fun Project.getLibraryByName(name: String): MinimalExternalModuleDependency {
 }
 
 fun Project.getVersionByName(name: String): String {
-    val version = versionCatalog.findVersion(name)
+    val libs = project.extensions.getByType(
+        VersionCatalogsExtension::class.java
+    ).find("libs").get()
+    val version = libs.findVersion(name)
     return if (version.isPresent) {
         version.get().requiredVersion
     } else {

@@ -31,13 +31,6 @@ internal actual object Trace {
 }
 
 // TODO(igotti): do we need actual processing for those?
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
-)
-@Retention(AnnotationRetention.BINARY)
-@MustBeDocumented
 actual annotation class CheckResult(actual val suggest: String)
 
 /**
@@ -109,5 +102,3 @@ internal actual fun logError(message: String, e: Throwable) {
     System.err.println(message)
     e.printStackTrace(System.err)
 }
-
-internal actual val MainThreadId: Long = -1

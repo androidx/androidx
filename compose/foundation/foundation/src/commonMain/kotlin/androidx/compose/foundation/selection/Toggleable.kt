@@ -29,6 +29,12 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.modifier.ModifierLocalConsumer
+import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -146,6 +152,13 @@ fun Modifier.toggleable(
         role = role,
         onValueChange = onValueChange
     )
+}.onKeyEvent {
+    if (enabled && it.isToggle) {
+        onClick()
+        true
+    } else {
+        false
+    }
 }
 
 private class ToggleableElement(
@@ -382,6 +395,13 @@ fun Modifier.triStateToggleable(
         role = role,
         onClick = onClick
     )
+}.onKeyEvent {
+    if (enabled && it.isToggle) {
+        onClick()
+        true
+    } else {
+        false
+    }
 }
 
 private class TriStateToggleableElement(
@@ -492,3 +512,9 @@ private class TriStateToggleableNode(
         toggleableState = state
     }
 }
+
+/**
+ * Whether the specified [KeyEvent] represents a user intent to perform a toggle.
+ * (eg. When you press Space on a focused checkbox, it should perform a toggle).
+ */
+internal expect val KeyEvent.isToggle: Boolean

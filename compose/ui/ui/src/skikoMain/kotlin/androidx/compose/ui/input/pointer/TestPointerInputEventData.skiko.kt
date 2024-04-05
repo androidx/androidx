@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 /**
  * This exposes PointerInputEventData for testing purposes.
  */
+@Deprecated("Will be removed in Compose 1.3")
 @InternalComposeUiApi
 class TestPointerInputEventData(
     val id: PointerId,
@@ -30,6 +31,7 @@ class TestPointerInputEventData(
     val position: Offset,
     val down: Boolean
 ) {
+    @OptIn(ExperimentalComposeUiApi::class)
     internal fun toPointerInputEventData() =
         @OptIn(ExperimentalComposeUiApi::class)
         PointerInputEventData(
@@ -39,6 +41,8 @@ class TestPointerInputEventData(
             position,
             down,
             pressure = 1.0f,
-            PointerType.Mouse
+            PointerType.Mouse,
+            historical = listOf(),
+            originalEventPosition = position
         )
 }

@@ -570,7 +570,7 @@ fun rememberTimePickerState(
  * Represents the different configurations for the layout of the Time Picker
  */
 @Immutable
-@JvmInline
+@kotlin.jvm.JvmInline
 @ExperimentalMaterial3Api
 value class TimePickerLayoutType internal constructor(internal val value: Int) {
 
@@ -1748,7 +1748,7 @@ internal fun numberContentDescription(
         Strings.TimePickerHourSuffix
     }
 
-    return getString(id, number)
+    return getString(id).format(number)
 }
 
 private fun valuesForAnimation(current: Float, new: Float): Pair<Float, Float> {
@@ -1782,12 +1782,18 @@ private enum class LayoutId {
     Selector, InnerCircle,
 }
 
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3373) fix expect composable getter
 @OptIn(ExperimentalMaterial3Api::class)
-internal expect val defaultTimePickerLayoutType: TimePickerLayoutType
+internal val defaultTimePickerLayoutType: TimePickerLayoutType
     @Composable
-    @ReadOnlyComposable get
+    @ReadOnlyComposable get() = defaultTimePickerLayoutType()
 
-@JvmInline
+@Composable
+@ReadOnlyComposable
+@OptIn(ExperimentalMaterial3Api::class)
+internal expect fun defaultTimePickerLayoutType() : TimePickerLayoutType
+
+@kotlin.jvm.JvmInline
 internal value class Selection private constructor(val value: Int) {
     companion object {
         val Hour = Selection(0)

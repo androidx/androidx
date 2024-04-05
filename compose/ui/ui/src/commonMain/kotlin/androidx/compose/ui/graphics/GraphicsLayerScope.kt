@@ -26,6 +26,7 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.layout.PlacementScopeMarker
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.unit.Density
+import kotlin.js.JsName
 
 /**
  * Default camera distance for all layers
@@ -249,6 +250,7 @@ fun rememberGraphicsLayer(): GraphicsLayer {
 /**
  * Creates simple [GraphicsLayerScope].
  */
+@JsName("funGraphicsLayerScope")
 fun GraphicsLayerScope(): GraphicsLayerScope = ReusableGraphicsLayerScope()
 
 internal object Fields {

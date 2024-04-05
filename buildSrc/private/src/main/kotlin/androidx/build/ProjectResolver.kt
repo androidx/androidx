@@ -21,17 +21,16 @@ import org.gradle.api.UnknownProjectException
 
 // Resolves the given project, and if it is not found,
 // throws an exception that mentions the active project subset, if any (MAIN, COMPOSE, ...)
-fun Project.resolveProject(projectSpecification: String): Project {
+public fun Project.resolveProject(projectSpecification: String): Project {
     try {
         return project.project(projectSpecification)
     } catch (e: UnknownProjectException) {
         val subset = project.getProjectSubset()
-        val subsetDescription =
-            if (subset == null) {
-                ""
-            } else {
-                " in subset $subset"
-            }
+        val subsetDescription = if (subset == null) {
+            ""
+        } else {
+            " in subset $subset"
+        }
         throw UnknownProjectException(
             "Project $projectSpecification not found$subsetDescription",
             e
@@ -42,8 +41,8 @@ fun Project.resolveProject(projectSpecification: String): Project {
 /**
  * Returns the name of the subset of projects participating in the build.
  *
- * Project subsets are defined in settings.gradle and allow including only a subset of projects in
- * the build, to make project configuration run more quickly.
+ * Project subsets are defined in settings.gradle and allow including only a subset of projects
+ * in the build, to make project configuration run more quickly.
  */
 fun Project.getProjectSubset(): String? {
     val envProp = project.providers.environmentVariable("ANDROIDX_PROJECTS")

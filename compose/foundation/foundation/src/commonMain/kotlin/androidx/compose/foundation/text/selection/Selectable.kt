@@ -137,4 +137,6 @@ internal interface Selectable {
      * counts as the last visible line.
      */
     fun getLastVisibleOffset(): Int
+
+    fun getLineHeight(offset: Int): Float = 0f
 }

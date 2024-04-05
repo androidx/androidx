@@ -35,6 +35,7 @@ import androidx.compose.runtime.snapshots.Snapshot.Companion.takeSnapshot
 import androidx.compose.runtime.snapshots.SnapshotApplyResult.Failure
 import androidx.compose.runtime.snapshots.SnapshotApplyResult.Success
 import androidx.compose.runtime.synchronized
+import androidx.compose.runtime.createSynchronizedObject
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -1812,7 +1813,7 @@ private val threadSnapshot = SnapshotThreadLocal<Snapshot>()
  * of the fields below.
  */
 @PublishedApi
-internal val lock = Any()
+internal val lock = createSynchronizedObject()
 
 @PublishedApi
 internal inline fun <T> sync(block: () -> T): T = synchronized(lock, block)

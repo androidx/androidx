@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
 import androidx.build.LibraryType
 
 plugins {
@@ -38,22 +32,22 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.5.0")
     implementation("androidx.compose.animation:animation:1.2.1")
-    implementation("androidx.compose.foundation:foundation:1.6.0")
-    implementation("androidx.compose.foundation:foundation-layout:1.6.0")
+    implementation("androidx.compose.foundation:foundation:1.2.1")
+    implementation(project(":compose:foundation:foundation-layout"))
     implementation("androidx.compose.material:material:1.2.1")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation("androidx.compose.material:material-icons-extended:1.2.1")
     implementation(project(":compose:material3:material3"))
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation("androidx.compose.ui:ui:1.2.1")
     implementation("androidx.compose.ui:ui-text:1.2.1")
-    implementation("androidx.savedstate:savedstate-ktx:1.2.1")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.4.1")
+    implementation("androidx.savedstate:savedstate-ktx:1.2.0")
+    implementation(project(":compose:ui:ui-tooling-preview"))
 
-    debugImplementation("androidx.compose.ui:ui-tooling:1.4.1")
+    debugImplementation(project(":compose:ui:ui-tooling"))
 }
 
 androidx {
-    name = "Compose Material3 Components Samples"
+    name = "AndroidX Compose Material3 Components Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2021"
     description = "Contains the sample code for the AndroidX Compose Material You components."
@@ -64,11 +58,12 @@ android {
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-common-java8:")).
-                using project(":lifecycle:lifecycle-common-java8")
-        substitute(module("androidx.lifecycle:lifecycle-common:")).
-                using project(":lifecycle:lifecycle-common")
-    }
-}
+// TODO: how to use artifacts here?
+//configurations.all {
+//    resolutionStrategy.dependencySubstitution {
+//        substitute(module("androidx.lifecycle:lifecycle-common-java8:")).
+//                using androidxArtifact(":lifecycle:lifecycle-common-java8")
+//        substitute(module("androidx.lifecycle:lifecycle-common:")).
+//                using androidxArtifact(":lifecycle:lifecycle-common")
+//    }
+//}

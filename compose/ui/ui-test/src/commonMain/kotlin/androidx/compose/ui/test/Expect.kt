@@ -17,18 +17,6 @@
 package androidx.compose.ui.test
 
 /**
- * Returns the hash code for the given object that is unique across all currently allocated objects.
- * The hash code for the null reference is zero.
- *
- * Can be negative, and near Int.MAX_VALUE, so it can overflow if used as part of calculations.
- * For example, don't use this:
- * ```
- * val comparison = identityHashCode(midVal) - identityHashCode(leftVal)
- * if (comparison < 0) ...
- * ```
- * Use this instead:
- * ```
- * if (identityHashCode(midVal) < identityHashCode(leftVal)) ...
- * ```
+ * Replacement of jvm only kotlin.assert(value, {message}) in commonMain sourceSet.
  */
-internal expect fun identityHashCode(instance: Any?): Int
+internal expect inline fun commonAssert(value: Boolean, lazyMessage: () -> Any)

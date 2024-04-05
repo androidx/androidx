@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.internal.identityHashCode
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -65,7 +66,7 @@ internal object MinimumInteractiveModifier :
             "interactions if the element would measure smaller"
     }
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identityHashCode(this)
     override fun equals(other: Any?) = (other === this)
 }
 

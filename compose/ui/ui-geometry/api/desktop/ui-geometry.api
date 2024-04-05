@@ -1,0 +1,257 @@
+public final class androidx/compose/ui/geometry/CornerRadius {
+	public static final field Companion Landroidx/compose/ui/geometry/CornerRadius$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/geometry/CornerRadius;
+	public static final fun component1-impl (J)F
+	public static final fun component2-impl (J)F
+	public static final fun copy-OHQCggk (JFF)J
+	public static synthetic fun copy-OHQCggk$default (JFFILjava/lang/Object;)J
+	public static final fun div-Bz7bX_o (JF)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getX-impl (J)F
+	public static final fun getY-impl (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun minus-vF7b-mM (JJ)J
+	public static final fun plus-vF7b-mM (JJ)J
+	public static final fun times-Bz7bX_o (JF)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public static final fun unaryMinus-kKHJgLs (J)J
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/geometry/CornerRadius$Companion {
+	public final fun getZero-kKHJgLs ()J
+}
+
+public final class androidx/compose/ui/geometry/CornerRadiusKt {
+	public static final fun CornerRadius (FF)J
+	public static synthetic fun CornerRadius$default (FFILjava/lang/Object;)J
+	public static final fun lerp-3Ry4LBc (JJF)J
+}
+
+public final class androidx/compose/ui/geometry/MutableRect {
+	public static final field $stable I
+	public fun <init> (FFFF)V
+	public final fun contains-k-4lQ0M (J)Z
+	public final fun getBottom ()F
+	public final fun getHeight ()F
+	public final fun getLeft ()F
+	public final fun getRight ()F
+	public final fun getSize-NH-jbRc ()J
+	public final fun getTop ()F
+	public final fun getWidth ()F
+	public final fun intersect (FFFF)V
+	public final fun isEmpty ()Z
+	public final fun set (FFFF)V
+	public final fun setBottom (F)V
+	public final fun setLeft (F)V
+	public final fun setRight (F)V
+	public final fun setTop (F)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/geometry/MutableRectKt {
+	public static final fun toRect (Landroidx/compose/ui/geometry/MutableRect;)Landroidx/compose/ui/geometry/Rect;
+}
+
+public final class androidx/compose/ui/geometry/Offset {
+	public static final field Companion Landroidx/compose/ui/geometry/Offset$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/geometry/Offset;
+	public static final fun component1-impl (J)F
+	public static final fun component2-impl (J)F
+	public static final fun copy-dBAh8RU (JFF)J
+	public static synthetic fun copy-dBAh8RU$default (JFFILjava/lang/Object;)J
+	public static final fun div-tuRUvjQ (JF)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getDistance-impl (J)F
+	public static final fun getDistanceSquared-impl (J)F
+	public static final fun getX-impl (J)F
+	public static final fun getY-impl (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun isValid-impl (J)Z
+	public static final fun minus-MK-Hz9U (JJ)J
+	public static final fun plus-MK-Hz9U (JJ)J
+	public static final fun rem-tuRUvjQ (JF)J
+	public static final fun times-tuRUvjQ (JF)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public static final fun unaryMinus-F1C5BW0 (J)J
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/geometry/Offset$Companion {
+	public final fun getInfinite-F1C5BW0 ()J
+	public final fun getUnspecified-F1C5BW0 ()J
+	public final fun getZero-F1C5BW0 ()J
+}
+
+public final class androidx/compose/ui/geometry/OffsetKt {
+	public static final fun Offset (FF)J
+	public static final fun isFinite-k-4lQ0M (J)Z
+	public static final fun isSpecified-k-4lQ0M (J)Z
+	public static final fun isUnspecified-k-4lQ0M (J)Z
+	public static final fun lerp-Wko1d7g (JJF)J
+	public static final fun takeOrElse-3MmeM6k (JLkotlin/jvm/functions/Function0;)J
+}
+
+public final class androidx/compose/ui/geometry/Rect {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/geometry/Rect$Companion;
+	public fun <init> (FFFF)V
+	public final fun component1 ()F
+	public final fun component2 ()F
+	public final fun component3 ()F
+	public final fun component4 ()F
+	public final fun contains-k-4lQ0M (J)Z
+	public final fun copy (FFFF)Landroidx/compose/ui/geometry/Rect;
+	public static synthetic fun copy$default (Landroidx/compose/ui/geometry/Rect;FFFFILjava/lang/Object;)Landroidx/compose/ui/geometry/Rect;
+	public final fun deflate (F)Landroidx/compose/ui/geometry/Rect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom ()F
+	public final fun getBottomCenter-F1C5BW0 ()J
+	public final fun getBottomLeft-F1C5BW0 ()J
+	public final fun getBottomRight-F1C5BW0 ()J
+	public final fun getCenter-F1C5BW0 ()J
+	public final fun getCenterLeft-F1C5BW0 ()J
+	public final fun getCenterRight-F1C5BW0 ()J
+	public final fun getHeight ()F
+	public final fun getLeft ()F
+	public final fun getMaxDimension ()F
+	public final fun getMinDimension ()F
+	public final fun getRight ()F
+	public final fun getSize-NH-jbRc ()J
+	public final fun getTop ()F
+	public final fun getTopCenter-F1C5BW0 ()J
+	public final fun getTopLeft-F1C5BW0 ()J
+	public final fun getTopRight-F1C5BW0 ()J
+	public final fun getWidth ()F
+	public fun hashCode ()I
+	public final fun inflate (F)Landroidx/compose/ui/geometry/Rect;
+	public final fun intersect (FFFF)Landroidx/compose/ui/geometry/Rect;
+	public final fun intersect (Landroidx/compose/ui/geometry/Rect;)Landroidx/compose/ui/geometry/Rect;
+	public final fun isEmpty ()Z
+	public final fun isFinite ()Z
+	public final fun isInfinite ()Z
+	public final fun overlaps (Landroidx/compose/ui/geometry/Rect;)Z
+	public fun toString ()Ljava/lang/String;
+	public final fun translate (FF)Landroidx/compose/ui/geometry/Rect;
+	public final fun translate-k-4lQ0M (J)Landroidx/compose/ui/geometry/Rect;
+}
+
+public final class androidx/compose/ui/geometry/Rect$Companion {
+	public final fun getZero ()Landroidx/compose/ui/geometry/Rect;
+}
+
+public final class androidx/compose/ui/geometry/RectKt {
+	public static final fun Rect-0a9Yr6o (JJ)Landroidx/compose/ui/geometry/Rect;
+	public static final fun Rect-3MmeM6k (JF)Landroidx/compose/ui/geometry/Rect;
+	public static final fun Rect-tz77jQw (JJ)Landroidx/compose/ui/geometry/Rect;
+	public static final fun lerp (Landroidx/compose/ui/geometry/Rect;Landroidx/compose/ui/geometry/Rect;F)Landroidx/compose/ui/geometry/Rect;
+}
+
+public final class androidx/compose/ui/geometry/RoundRect {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/geometry/RoundRect$Companion;
+	public synthetic fun <init> (FFFFJJJJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (FFFFJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()F
+	public final fun component2 ()F
+	public final fun component3 ()F
+	public final fun component4 ()F
+	public final fun component5-kKHJgLs ()J
+	public final fun component6-kKHJgLs ()J
+	public final fun component7-kKHJgLs ()J
+	public final fun component8-kKHJgLs ()J
+	public final fun contains-k-4lQ0M (J)Z
+	public final fun copy-MDFrsts (FFFFJJJJ)Landroidx/compose/ui/geometry/RoundRect;
+	public static synthetic fun copy-MDFrsts$default (Landroidx/compose/ui/geometry/RoundRect;FFFFJJJJILjava/lang/Object;)Landroidx/compose/ui/geometry/RoundRect;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBottom ()F
+	public final fun getBottomLeftCornerRadius-kKHJgLs ()J
+	public final fun getBottomRightCornerRadius-kKHJgLs ()J
+	public final fun getHeight ()F
+	public final fun getLeft ()F
+	public final fun getRight ()F
+	public final fun getTop ()F
+	public final fun getTopLeftCornerRadius-kKHJgLs ()J
+	public final fun getTopRightCornerRadius-kKHJgLs ()J
+	public final fun getWidth ()F
+	public static final fun getZero ()Landroidx/compose/ui/geometry/RoundRect;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/geometry/RoundRect$Companion {
+	public final fun getZero ()Landroidx/compose/ui/geometry/RoundRect;
+}
+
+public final class androidx/compose/ui/geometry/RoundRectKt {
+	public static final fun RoundRect (FFFFFF)Landroidx/compose/ui/geometry/RoundRect;
+	public static final fun RoundRect (Landroidx/compose/ui/geometry/Rect;FF)Landroidx/compose/ui/geometry/RoundRect;
+	public static final fun RoundRect-ZAM2FJo (Landroidx/compose/ui/geometry/Rect;JJJJ)Landroidx/compose/ui/geometry/RoundRect;
+	public static synthetic fun RoundRect-ZAM2FJo$default (Landroidx/compose/ui/geometry/Rect;JJJJILjava/lang/Object;)Landroidx/compose/ui/geometry/RoundRect;
+	public static final fun RoundRect-gG7oq9Y (FFFFJ)Landroidx/compose/ui/geometry/RoundRect;
+	public static final fun RoundRect-sniSvfs (Landroidx/compose/ui/geometry/Rect;J)Landroidx/compose/ui/geometry/RoundRect;
+	public static final fun getBoundingRect (Landroidx/compose/ui/geometry/RoundRect;)Landroidx/compose/ui/geometry/Rect;
+	public static final fun getCenter (Landroidx/compose/ui/geometry/RoundRect;)J
+	public static final fun getMaxDimension (Landroidx/compose/ui/geometry/RoundRect;)F
+	public static final fun getMinDimension (Landroidx/compose/ui/geometry/RoundRect;)F
+	public static final fun getSafeInnerRect (Landroidx/compose/ui/geometry/RoundRect;)Landroidx/compose/ui/geometry/Rect;
+	public static final fun isCircle (Landroidx/compose/ui/geometry/RoundRect;)Z
+	public static final fun isEllipse (Landroidx/compose/ui/geometry/RoundRect;)Z
+	public static final fun isEmpty (Landroidx/compose/ui/geometry/RoundRect;)Z
+	public static final fun isFinite (Landroidx/compose/ui/geometry/RoundRect;)Z
+	public static final fun isRect (Landroidx/compose/ui/geometry/RoundRect;)Z
+	public static final fun isSimple (Landroidx/compose/ui/geometry/RoundRect;)Z
+	public static final fun lerp (Landroidx/compose/ui/geometry/RoundRect;Landroidx/compose/ui/geometry/RoundRect;F)Landroidx/compose/ui/geometry/RoundRect;
+	public static final fun translate-Uv8p0NA (Landroidx/compose/ui/geometry/RoundRect;J)Landroidx/compose/ui/geometry/RoundRect;
+}
+
+public final class androidx/compose/ui/geometry/Size {
+	public static final field Companion Landroidx/compose/ui/geometry/Size$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/ui/geometry/Size;
+	public static final fun component1-impl (J)F
+	public static final fun component2-impl (J)F
+	public static final fun copy-xjbvk4A (JFF)J
+	public static synthetic fun copy-xjbvk4A$default (JFFILjava/lang/Object;)J
+	public static final fun div-7Ah8Wj8 (JF)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public static final fun getHeight-impl (J)F
+	public static final fun getMaxDimension-impl (J)F
+	public static final fun getMinDimension-impl (J)F
+	public static final fun getWidth-impl (J)F
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public static final fun isEmpty-impl (J)Z
+	public static final fun times-7Ah8Wj8 (JF)J
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/ui/geometry/Size$Companion {
+	public final fun getUnspecified-NH-jbRc ()J
+	public final fun getZero-NH-jbRc ()J
+}
+
+public final class androidx/compose/ui/geometry/SizeKt {
+	public static final fun Size (FF)J
+	public static final fun getCenter-uvyYCjk (J)J
+	public static final fun isSpecified-uvyYCjk (J)Z
+	public static final fun isUnspecified-uvyYCjk (J)Z
+	public static final fun lerp-VgWVRYQ (JJF)J
+	public static final fun takeOrElse-TmRCtEA (JLkotlin/jvm/functions/Function0;)J
+	public static final fun times-d16Qtg0 (DJ)J
+	public static final fun times-d16Qtg0 (FJ)J
+	public static final fun times-d16Qtg0 (IJ)J
+	public static final fun toRect-uvyYCjk (J)Landroidx/compose/ui/geometry/Rect;
+}
+

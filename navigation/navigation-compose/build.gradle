@@ -14,57 +14,107 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.AndroidXComposePlugin
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("JetbrainsAndroidXPlugin")
 }
 
-dependencies {
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    implementation(libs.kotlinStdlib)
-    implementation(project(":compose:foundation:foundation-layout"))
-    api("androidx.activity:activity-compose:1.8.0")
-    api(project(":compose:animation:animation"))
-    api(project(":compose:runtime:runtime"))
-    api(project(":compose:runtime:runtime-saveable"))
-    api(project(":compose:ui:ui"))
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
+androidXComposeMultiplatform {
+    android()
+    desktop()
+    darwin()
+    js()
+    wasm()
+}
 
-    androidTestImplementation(projectOrArtifact(":compose:material:material"))
-    androidTestImplementation project(":compose:test-utils")
-    androidTestImplementation projectOrArtifact(":compose:ui:ui-tooling")
-    androidTestImplementation(projectOrArtifact(":navigation:navigation-testing"))
-    androidTestImplementation(projectOrArtifact(":internal-testutils-navigation"), {
-        exclude group: "androidx.navigation", module: "navigation-common"
-    })
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common-java8"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-    androidTestImplementation(projectOrArtifact(":activity:activity-ktx"))
-    androidTestImplementation("androidx.collection:collection-ktx:1.1.0")
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                implementation project(":core:core-bundle")
+                implementation(project(":compose:foundation:foundation-layout"))
+                implementation(project(":compose:animation:animation-core"))
+                api(project(":compose:animation:animation"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:runtime:runtime-saveable"))
+                api(project(":compose:ui:ui"))
+                implementation(project(":lifecycle:lifecycle-common"))
+                implementation(project(":lifecycle:lifecycle-runtime"))
+                implementation(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":lifecycle:lifecycle-viewmodel-compose"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                implementation(project(":navigation:navigation-common"))
+                api(project(":navigation:navigation-runtime"))
+                implementation(project(":savedstate:savedstate:"))
+            }
+        }
 
-    lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
-    lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api("androidx.activity:activity-compose:1.8.0")
+            }
+        }
+
+        androidInstrumentedTest {
+            dependencies {
+                implementation(project(":compose:material:material"))
+                implementation project(":compose:test-utils")
+                implementation project(":compose:ui:ui-tooling")
+                implementation(project(":navigation:navigation-testing"))
+                implementation(project(":internal-testutils-navigation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":lifecycle:lifecycle-common"))
+                implementation("androidx.lifecycle:lifecycle-livedata-core:2.7.0")
+                implementation(project(":lifecycle:lifecycle-viewmodel"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                implementation("androidx.activity:activity-ktx:1.8.2")
+                implementation("androidx.collection:collection-ktx:1.1.0")
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+
+        jbMain.dependsOn(commonMain)
+        desktopMain.dependsOn(jbMain)
+        nativeMain.dependsOn(jbMain)
+        webMain.dependsOn(jbMain)
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
+                }
+            }
+        }
+    }
 }
 
 androidx {
     name = "Compose Navigation"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
-    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }
 
 android {

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+ANDROID_COMPILE_SDK=33
+ANDROID_BUILD_TOOLS=33.0.2
+
+downloadLinuxSDK() {
+    curl -o commandlinetools-linux.zip https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip
+    unzip -o -d linux commandlinetools-linux.zip
+    rm linux commandlinetools-linux.zip
+    echo y | "linux/cmdline-tools/bin/sdkmanager" --sdk_root=linux "platform-tools" "platforms;android-$ANDROID_COMPILE_SDK" "build-tools;$ANDROID_BUILD_TOOLS"
+    echo y | "linux/cmdline-tools/bin/sdkmanager" --sdk_root=linux --licenses
+}
+
+downloadMacOsSDK() {
+    curl -o commandlinetools-mac.zip https://dl.google.com/android/repository/commandlinetools-mac-9123335_latest.zip
+    unzip -o -d darwin commandlinetools-mac.zip
+    rm commandlinetools-mac.zip
+    echo y | "darwin/cmdline-tools/bin/sdkmanager" --sdk_root=darwin "platform-tools" "platforms;android-$ANDROID_COMPILE_SDK" "build-tools;$ANDROID_BUILD_TOOLS"
+    echo y | "darwin/cmdline-tools/bin/sdkmanager" --sdk_root=darwin --licenses
+}
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    downloadLinuxSDK
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    downloadMacOsSDK
+elif [[ "$OSTYPE" == "cygwin" ]]; then
+    echo "Please download Android SDK manually (https://developer.android.com/studio)"
+elif [[ "$OSTYPE" == "msys" ]]; then
+    echo "Please download Android SDK manually (https://developer.android.com/studio)"
+elif [[ "$OSTYPE" == "win32" ]]; then
+    echo "Please download Android SDK manually (https://developer.android.com/studio)"
+else
+    echo "Unknown OS"
+fi
+

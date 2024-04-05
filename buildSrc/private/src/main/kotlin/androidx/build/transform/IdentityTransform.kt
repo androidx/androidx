@@ -37,10 +37,8 @@ abstract class IdentityTransform : TransformAction<TransformParameters.None> {
         when {
             input.isDirectory -> transformOutputs.dir(input)
             input.isFile -> transformOutputs.file(input)
-            else ->
-                throw IllegalArgumentException(
-                    "File/directory does not exist: ${input.absolutePath}"
-                )
+            else -> throw IllegalArgumentException(
+                "File/directory does not exist: ${input.absolutePath}")
         }
     }
 }

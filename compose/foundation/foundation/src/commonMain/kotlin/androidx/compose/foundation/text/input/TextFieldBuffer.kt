@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
 import androidx.compose.foundation.text.input.internal.PartialGapBuffer
 import androidx.compose.ui.text.TextRange
+import kotlin.jvm.JvmName
 
 /**
  * A text buffer that can be edited, similar to [StringBuilder].

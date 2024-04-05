@@ -24,10 +24,13 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.isOutOfBounds
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastAll
@@ -267,8 +270,9 @@ suspend fun AwaitPointerEventScope.awaitFirstDown(
     awaitFirstDown(requireUnconsumed = requireUnconsumed, pass = PointerEventPass.Main)
 
 /**
- * Reads events until the first down is received in the given [pass]. If [requireUnconsumed] is
- * `true` and the first down is already consumed in the pass, that gesture is ignored.
+ * Reads events until the first down is received. If [requireUnconsumed] is `true` and the first
+ * down is consumed in the [PointerEventPass.Main] pass, that gesture is ignored.
+ * If it was down caused by [PointerType.Mouse], this function reacts only on primary button.
  */
 suspend fun AwaitPointerEventScope.awaitFirstDown(
     requireUnconsumed: Boolean = true,
@@ -277,12 +281,16 @@ suspend fun AwaitPointerEventScope.awaitFirstDown(
     var event: PointerEvent
     do {
         event = awaitPointerEvent(pass)
-    } while (
-        !event.changes.fastAll {
-            if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed()
-        }
-    )
+    } while (!event.isPrimaryChangedDown(requireUnconsumed))
     return event.changes[0]
+}
+
+private fun PointerEvent.isPrimaryChangedDown(requireUnconsumed: Boolean): Boolean {
+    val primaryButtonCausesDown = changes.fastAll { it.type == PointerType.Mouse }
+    val changedToDown = changes.fastAll {
+        if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed()
+    }
+    return changedToDown && (buttons.isPrimaryPressed || !primaryButtonCausesDown)
 }
 
 @Deprecated(

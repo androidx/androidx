@@ -61,6 +61,7 @@ internal actual fun SelectionHandle(
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     minTouchTargetSize: DpSize,
+    lineHeight: Float,
     modifier: Modifier,
 ) {
     val isLeft = isLeftSelectionHandle(isStartHandle, direction, handlesCrossed)

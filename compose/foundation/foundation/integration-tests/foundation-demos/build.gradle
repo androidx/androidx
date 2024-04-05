@@ -23,10 +23,8 @@ plugins {
 
 dependencies {
 
-    implementation("androidx.core:core:1.12.0")
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":activity:activity-compose"))
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
@@ -38,11 +36,11 @@ dependencies {
     implementation(project(":compose:ui:ui-util"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":compose:ui:ui-text:ui-text-samples"))
-    implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
+    // TODO: artifact is not published so commented out
+    // implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     debugImplementation(project(":compose:ui:ui-tooling"))
     implementation(project(":internal-testutils-fonts"))
-    implementation("androidx.collection:collection:1.4.0")
 }
 
 android {

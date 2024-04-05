@@ -49,7 +49,7 @@ fun WindowScope.WindowDraggableArea(
         modifier = modifier.pointerInput(Unit) {
             awaitEachGesture {
                 awaitFirstDown()
-                handler.register()
+                handler.onDragStarted()
             }
         }
     ) {
@@ -57,12 +57,26 @@ fun WindowScope.WindowDraggableArea(
     }
 }
 
-private class DragHandler(private val window: Window) {
-    private var location = window.location.toComposeOffset()
-    private var pointStart = MouseInfo.getPointerInfo().location.toComposeOffset()
+/**
+ * Converts AWT [Point] to compose [IntOffset]
+ */
+private fun Point.toComposeOffset() = IntOffset(x = x, y = y)
+
+/**
+ * Returns the position of the mouse pointer, in screen coordinates.
+ */
+private fun currentPointerLocation(): IntOffset? {
+    return MouseInfo.getPointerInfo()?.location?.toComposeOffset()
+}
+
+private class DragHandler(
+    private val window: Window
+) {
+    private var windowLocationAtDragStart: IntOffset? = null
+    private var dragStartPoint: IntOffset? = null
 
     private val dragListener = object : MouseMotionAdapter() {
-        override fun mouseDragged(event: MouseEvent) = drag()
+        override fun mouseDragged(event: MouseEvent) = onDrag()
     }
     private val removeListener = object : MouseAdapter() {
         override fun mouseReleased(event: MouseEvent) {
@@ -71,18 +85,21 @@ private class DragHandler(private val window: Window) {
         }
     }
 
-    fun register() {
-        location = window.location.toComposeOffset()
-        pointStart = MouseInfo.getPointerInfo().location.toComposeOffset()
+    fun onDragStarted() {
+        dragStartPoint = currentPointerLocation() ?: return
+        windowLocationAtDragStart = window.location.toComposeOffset()
+
         window.addMouseListener(removeListener)
         window.addMouseMotionListener(dragListener)
     }
 
-    private fun drag() {
-        val point = MouseInfo.getPointerInfo().location.toComposeOffset()
-        val location = location + (point - pointStart)
-        window.setLocation(location.x, location.y)
+    private fun onDrag() {
+        val windowLocationAtDragStart = this.windowLocationAtDragStart ?: return
+        val dragStartPoint = this.dragStartPoint ?: return
+        val point = currentPointerLocation() ?: return
+        val newLocation = windowLocationAtDragStart + (point - dragStartPoint)
+        window.setLocation(newLocation.x, newLocation.y)
     }
 
-    private fun Point.toComposeOffset() = IntOffset(x, y)
+
 }

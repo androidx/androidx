@@ -27,6 +27,7 @@ import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
+import kotlin.jvm.JvmInline
 
 /**
  * `Operations` is a data structure used to store a sequence of [Operations][Operation] and their

@@ -281,16 +281,17 @@ class TextStyleLayoutAttributesTest {
         ).isFalse()
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun returns_false_for_platformStyle_change() {
-        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
-            )
-        ).isFalse()
-    }
+// TODO: `includeFontPadding` is not available on desktop. Comment out when `includeFontPadding` is removed in upstream or implemented on desktop side.
+//    @Suppress("DEPRECATION")
+//    @Test
+//    fun returns_false_for_platformStyle_change() {
+//        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+//        assertThat(
+//            style.hasSameLayoutAffectingAttributes(
+//                TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+//            )
+//        ).isFalse()
+//    }
 
     @Test
     fun returns_false_for_color_and_textAlign_change() {

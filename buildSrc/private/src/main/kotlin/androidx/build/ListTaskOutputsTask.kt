@@ -27,20 +27,26 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-/** Finds the outputs of every task and saves this mapping into a file */
+/**
+ * Finds the outputs of every task and saves this mapping into a file
+ */
 @CacheableTask
 abstract class ListTaskOutputsTask : DefaultTask() {
-    @OutputFile val outputFile: Property<File> = project.objects.property(File::class.java)
-    @Input val removePrefixes: MutableList<String> = mutableListOf()
-    @Input val tasks: MutableList<Task> = mutableListOf()
+    @OutputFile
+    val outputFile: Property<File> = project.objects.property(File::class.java)
+    @Input
+    val removePrefixes: MutableList<String> = mutableListOf()
+    @Input
+    val tasks: MutableList<Task> = mutableListOf()
 
-    @get:Input val outputText by lazy { computeOutputText() }
+    @get:Input
+    val outputText by lazy { computeOutputText() }
 
     init {
         group = "Help"
         // compute the output text when the taskgraph is ready so that the output text can be
         // saved in the configuration cache and not generate a configuration cache violation
-        project.gradle.taskGraph.whenReady { outputText }
+        project.gradle.taskGraph.whenReady({ outputText.toString() })
     }
 
     fun setOutput(f: File) {
@@ -76,12 +82,11 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         val components = mutableListOf<String>()
         var textLength = 0
         for (column in columns) {
-            val roundedTextLength =
-                if (textLength == 0) {
-                    textLength
-                } else {
-                    ((textLength / 32) + 1) * 32
-                }
+            val roundedTextLength = if (textLength == 0) {
+                textLength
+            } else {
+                ((textLength / 32) + 1) * 32
+            }
             val extraSpaces = " ".repeat(roundedTextLength - textLength)
             components.add(extraSpaces)
             textLength = roundedTextLength
@@ -104,40 +109,51 @@ abstract class ListTaskOutputsTask : DefaultTask() {
 }
 
 // TODO(149103692): remove all elements of this set
-val taskNamesKnownToDuplicateOutputs =
-    setOf(
-        // Instead of adding new elements to this set, prefer to disable unused tasks when possible
+val taskNamesKnownToDuplicateOutputs = setOf(
+    "jarRelease",
+    "jarDebug",
+    "kotlinSourcesJar",
+    "releaseSourcesJar",
+    "sourceJarRelease",
+    "sourceJar",
+    // MPP plugin has issues with modules using withJava() clause, see b/158747039.
+    "processTestResources",
+    "jvmTestProcessResources",
+    "desktopTestProcessResources",
+    "processResources",
+    "jvmProcessResources",
+    "desktopProcessResources",
+    // https://github.com/square/wire/issues/1947
+    "generateDebugProtos",
+    "generateReleaseProtos",
+    // Release APKs
+    "copyReleaseApk",
+    // The following tests intentionally have the same output of golden images
+    "updateGoldenDesktopTest",
+    "updateGoldenDebugUnitTest"
+)
 
-        // b/308798582
-        "transformNonJvmMainCInteropDependenciesMetadataForIde",
-        "transformDarwinTestCInteropDependenciesMetadataForIde",
-        "transformDarwinMainCInteropDependenciesMetadataForIde",
-        "transformCommonMainCInteropDependenciesMetadataForIde",
-        "transformCommonTestCInteropDependenciesMetadataForIde",
-        "transformIosMainCInteropDependenciesMetadataForIde",
-        "transformIosTestCInteropDependenciesMetadataForIde",
-        "transformNativeTestCInteropDependenciesMetadataForIde",
-        "transformNativeMainCInteropDependenciesMetadataForIde",
-
-        // The following tests intentionally have the same output of golden images
-        "updateGoldenDesktopTest",
-        "updateGoldenDebugUnitTest"
-    )
+val taskTypesKnownToDuplicateOutputs = setOf(
+    // b/224564238
+    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated"
+)
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
     if (!task.enabled) {
         return false
     }
-    return !taskNamesKnownToDuplicateOutputs.contains(task.name)
+    return !taskNamesKnownToDuplicateOutputs.contains(task.name) &&
+        !taskTypesKnownToDuplicateOutputs.contains(task::class.qualifiedName)
 }
 
-// For this project and all subprojects, collects all tasks and creates a map keyed by their output
-// files
+// For this project and all subprojects, collects all tasks and creates a map keyed by their output files
 fun Project.findAllTasksByOutput(): Map<File, Task> {
     // find list of all tasks
     val allTasks = mutableListOf<Task>()
     project.allprojects { otherProject ->
-        otherProject.tasks.forEach { task -> allTasks.add(task) }
+        otherProject.tasks.all { task ->
+            allTasks.add(task)
+        }
     }
 
     // group tasks by their outputs
@@ -148,18 +164,13 @@ fun Project.findAllTasksByOutput(): Map<File, Task> {
             if (existingTask != null) {
                 if (shouldValidateTaskOutput(existingTask) && shouldValidateTaskOutput(otherTask)) {
                     throw GradleException(
-                        "Output file " +
-                            otherTaskOutput +
-                            " was declared as an output of " +
-                            "multiple tasks: " +
-                            otherTask +
-                            " and " +
-                            existingTask
+                        "Output file " + otherTaskOutput + " was declared as an output of " +
+                            "multiple tasks: " + otherTask + " and " + existingTask
                     )
                 }
-                // if there is an exempt conflict, keep the alphabetically earlier task to ensure
-                // consistency
-                if (existingTask.path > otherTask.path) continue
+                // if there is an exempt conflict, keep the alphabetically earlier task to ensure consistency
+                if (existingTask.path > otherTask.path)
+                  continue
             }
             tasksByOutput[otherTaskOutput] = otherTask
         }

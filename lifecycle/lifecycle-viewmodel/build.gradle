@@ -22,6 +22,8 @@
  * modifying its settings.
  */
 
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
@@ -31,7 +33,13 @@ import org.jetbrains.kotlin.konan.target.Family
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+def jsEnabled = KmpPlatformsKt.enableJs(project)
+def wasmEnabled = KmpPlatformsKt.enableWasm(project)
 
 androidXMultiplatform {
     android()
@@ -39,12 +47,19 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
-
-    kotlin {
-        explicitApi = ExplicitApiMode.Strict
-    }
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
         commonMain {
@@ -104,6 +119,10 @@ androidXMultiplatform {
         darwinMain.dependsOn(nativeMain)
         linuxMain.dependsOn(nativeMain)
 
+        if (jsEnabled || wasmEnabled) {
+            webMain.dependsOn(nonJvmMain)
+        }
+
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -115,6 +134,13 @@ androidXMultiplatform {
                     } else {
                         throw new GradleException("unknown native target ${target}")
                     }
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
                 }
             }
         }

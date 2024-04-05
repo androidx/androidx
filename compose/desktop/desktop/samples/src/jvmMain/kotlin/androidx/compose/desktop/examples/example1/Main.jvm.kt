@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,6 +57,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -79,10 +83,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Yellow
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
@@ -98,10 +112,13 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.input.pointer.isTertiaryPressed
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.useResource
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -109,6 +126,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -139,9 +157,15 @@ val dispatchedFonts = FontFamily(
     Font("NotoSans-Regular.ttf", style = FontStyle.Normal)
 )
 
+private val isCtrlPressed = mutableStateOf(false)
+
 fun main() = singleWindowApplication(
     title = title,
-    state = WindowState(width = 1024.dp, height = 850.dp)
+    state = WindowState(width = 1024.dp, height = 850.dp),
+    onPreviewKeyEvent = {
+        isCtrlPressed.value = it.isCtrlPressed
+        false
+    }
 ) {
     App()
 }
@@ -307,6 +331,14 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+        Row {
+            Box(modifier = Modifier.size(200.dp, 200.dp).border(1.dp, Black)) {
+                BrushTextGradient(lorem)
+            }
+            Box(modifier = Modifier.size(200.dp, 200.dp).border(1.dp, Black)) {
+                BrushTextImage(lorem)
+            }
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -351,25 +383,18 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
                     "   }\n" +
                     "}",
                 fontFamily = italicFont,
-                modifier = Modifier.padding(10.dp).pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val position = event.changes.first().position
-                            when (event.type) {
-                                PointerEventType.Move -> {
-                                    overText = "Move position: $position"
-                                }
-                                PointerEventType.Enter -> {
-                                    overText = "Over enter"
-                                }
-                                PointerEventType.Exit -> {
-                                    overText = "Over exit"
-                                }
-                            }
-                        }
+                modifier = Modifier
+                    .padding(10.dp)
+                    .onPointerEvent(PointerEventType.Move) {
+                        val position = it.changes.first().position
+                        overText = "Move position: $position"
                     }
-                }
+                    .onPointerEvent(PointerEventType.Enter) {
+                        overText = "Over enter"
+                    }
+                    .onPointerEvent(PointerEventType.Exit) {
+                        overText = "Over exit"
+                    }
             )
         }
         Text(
@@ -481,6 +506,33 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
             value = amount.value / 100f,
             onValueChange = { amount.value = (it * 100) }
         )
+        val dropDownMenuExpanded = remember { mutableStateOf(false) }
+        Button(onClick = { dropDownMenuExpanded.value = true }) {
+            Text("Expand Menu")
+        }
+        DropdownMenu(
+            expanded = dropDownMenuExpanded.value,
+            onDismissRequest = {
+                dropDownMenuExpanded.value = false
+                println("OnDismissRequest")
+            }
+        ) {
+            DropdownMenuItem(modifier = Modifier, onClick = {
+                println("Item 1 clicked")
+            }) {
+                Text("Item 1")
+            }
+            DropdownMenuItem(modifier = Modifier, onClick = {
+                println("Item 2 clicked")
+            }) {
+                Text("Item 2")
+            }
+            DropdownMenuItem(modifier = Modifier, onClick = {
+                println("Item 3 clicked")
+            }) {
+                Text("Item 3")
+            }
+        }
         TextField(
             value = amount.value.toString(),
             onValueChange = { amount.value = it.toFloatOrNull() ?: 42f },
@@ -517,9 +569,9 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
                         else -> false
                     }
                 }.focusRequester(focusItem1)
-                .focusProperties {
-                    next = focusItem2
-                }
+                    .focusProperties {
+                        next = focusItem2
+                    }
             )
         }
 
@@ -555,6 +607,20 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
                 Modifier.size(100.dp).align(Alignment.CenterVertically),
                 tint = Color.Blue.copy(alpha = 0.5f)
             )
+        }
+
+        Box(
+            modifier = Modifier.size(150.dp).background(Color.Gray).pointerHoverIcon(
+                if (isCtrlPressed.value) PointerIcon.Hand else PointerIcon.Default
+            )
+        ) {
+            Box(
+                modifier = Modifier.offset(20.dp, 20.dp).size(100.dp).background(Color.Blue).pointerHoverIcon(
+                    if (isCtrlPressed.value) PointerIcon.Crosshair else PointerIcon.Text,
+                )
+            ) {
+                Text("pointerHoverIcon test with Ctrl")
+            }
         }
     }
 }
@@ -601,5 +667,38 @@ private fun RightColumn(modifier: Modifier) = Box {
     VerticalScrollbar(
         rememberScrollbarAdapter(state),
         Modifier.align(Alignment.CenterEnd)
+    )
+}
+
+@OptIn(ExperimentalTextApi::class)
+@Composable
+fun BrushTextGradient(text: String) {
+    Text(
+        text = text,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            brush = Brush.linearGradient(
+                colors = listOf(Red, Yellow, Green, Blue)
+            )
+        )
+    )
+}
+
+@OptIn(ExperimentalTextApi::class)
+@Composable
+fun BrushTextImage(text: String) {
+    val image = remember {
+        useResource("androidx/compose/desktop/example/tray.png", ::loadImageBitmap)
+    }
+    Text(
+        text = text,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            brush = ShaderBrush(
+                ImageShader(image, TileMode.Repeated, TileMode.Repeated)
+            )
+        )
     )
 }

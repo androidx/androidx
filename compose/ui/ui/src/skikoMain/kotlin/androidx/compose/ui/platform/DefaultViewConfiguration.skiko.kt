@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,23 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 
+@Deprecated(
+    message = "Use LocalViewConfiguration.current instead",
+    replaceWith = ReplaceWith("LocalViewConfiguration.current"),
+    level = DeprecationLevel.ERROR
+)
 class DefaultViewConfiguration(private val density: Density) : ViewConfiguration {
+    private val emptyViewConfiguration = PlatformContext.Empty.viewConfiguration
+
     override val longPressTimeoutMillis: Long
-        get() = 500
+        get() = emptyViewConfiguration.longPressTimeoutMillis
 
     override val doubleTapTimeoutMillis: Long
-        get() = 300
+        get() = emptyViewConfiguration.doubleTapTimeoutMillis
 
     override val doubleTapMinTimeMillis: Long
-        get() = 40
+        get() = emptyViewConfiguration.doubleTapMinTimeMillis
 
     override val touchSlop: Float
-        get() = with(density) { 18.dp.toPx() }
-
-    override val handwritingSlop: Float
-        get() = with(density) { 2.dp.toPx() }
+        get() = with(density) { emptyViewConfiguration.touchSlop.dp.toPx() }
 }

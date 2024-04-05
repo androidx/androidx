@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import groovy.lang.Tuple;
-
 def init = new Properties()
 ext.init = init
 
@@ -28,7 +25,7 @@ def getOutDir(subdir = "") {
     if (outDir == null) {
         def checkoutRoot = System.getProperty("CHECKOUT_ROOT")
         if (checkoutRoot == null) {
-            checkoutRoot = new File("${buildscript.sourceFile.parent}/../../..")
+            checkoutRoot = new File("${buildscript.sourceFile.parent}/..")
         }
         outDir = new File("${checkoutRoot}/out${subdir}")
         buildSrcOut = new File("${checkoutRoot}/out/buildSrc")
@@ -39,24 +36,17 @@ def getOutDir(subdir = "") {
     return new Tuple(outDir, buildSrcOut)
 }
 
-// Ideally this function would just be chooseBuildDir, but Gradle doesn't include the text ":buildSrc" in the project path
-def chooseBuildSrcBuildDir(subdir = "") {
+def chooseOutDir(subdir = "") {
     def (outDir, buildSrcOut) = getOutDir(subdir)
     project.ext.buildSrcOut = buildSrcOut
     project.ext.outDir = outDir
-    def pathAsFilepath = project.path.replaceFirst(":", "").replaceAll(":", "/")
-    project.layout.buildDirectory.set(new File(buildSrcOut, "$pathAsFilepath/build").getCanonicalFile())
-}
-
-def chooseOutDir(subdir = "") {
-    chooseBuildSrcBuildDir()
-    project.layout.buildDirectory.set(new File(project.ext.outDir, subdir))
+    buildDir = new File(outDir, "$project.name/build")
+                .getCanonicalFile()
     subprojects {
-        // Expected out directory structure for :foo:bar is out/androidx/foo/bar
-        it.buildDir = new File(outDir, "${subdir}/androidx/${it.path.replace(":", "/")}/build")
+        // Change buildDir first so that all plugins pick up the new value.
+        project.buildDir = new File("$project.parent.buildDir/../$project.name/build")
     }
 }
 
 ext.init.getOutDir = this.&getOutDir
 ext.init.chooseOutDir = this.&chooseOutDir
-ext.init.chooseBuildSrcBuildDir = this.&chooseBuildSrcBuildDir

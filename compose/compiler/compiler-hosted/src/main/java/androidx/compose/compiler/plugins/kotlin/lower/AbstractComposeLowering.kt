@@ -32,6 +32,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
 import androidx.compose.compiler.plugins.kotlin.irTrace
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.isInlineClassType
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -43,6 +44,7 @@ import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.declarations.buildField
 import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.builders.declarations.buildProperty
+import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -154,6 +156,15 @@ abstract class AbstractComposeLowering(
     val metrics: ModuleMetrics,
     val stabilityInferencer: StabilityInferencer
 ) : IrElementTransformerVoid(), ModuleLoweringPass {
+
+    companion object {
+        var isJvmTarget: Boolean = false
+    }
+
+    init {
+        isJvmTarget = context.platform?.isJvm() ?: false
+    }
+
     protected val builtIns = context.irBuiltIns
 
     private val _composerIrClass =
@@ -889,12 +900,28 @@ abstract class AbstractComposeLowering(
         }
     }
 
-    protected fun makeStabilityProp(): IrProperty {
+    protected fun makeStabilityProp(
+        backingField: IrField,
+        stabilityExpression: IrExpression,
+        parent: IrClass
+    ): IrProperty {
         return context.irFactory.buildProperty {
             startOffset = SYNTHETIC_OFFSET
             endOffset = SYNTHETIC_OFFSET
             name = KtxNameConventions.STABILITY_PROP_FLAG
             visibility = DescriptorVisibilities.PRIVATE
+        }.also { property ->
+            backingField.correspondingPropertySymbol = property.symbol
+            property.backingField = backingField
+            property.parent = parent
+            property.getter = context.irFactory.buildFun {
+                name = Name.special("<get-${property.name}>")
+                returnType = backingField.type
+            }.also { getter ->
+                getter.body = DeclarationIrBuilder(context, getter.symbol)
+                    .irBlockBody { + irReturn(getter.symbol, stabilityExpression) }
+                getter.parent = parent
+            }
         }
     }
 

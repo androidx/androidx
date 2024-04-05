@@ -62,7 +62,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
     @Test
     fun bezier() {
         val path = Path().apply {
-            quadraticTo(0f, 16f, 16f, 16f)
+            quadraticBezierTo(0f, 16f, 16f, 16f)
         }
 
         canvas.drawPath(path, redPaint)

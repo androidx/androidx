@@ -802,20 +802,24 @@ class PointerInputChange(
         it.consumed = this.consumed
     }
 
+    // Long string concatenation causes atomicfu plugin to be slow/hang.
+    // See https://youtrack.jetbrains.com/issue/KT-65645/Atomicfu-plugin-compilation-hangs-on-a-long-string-concatenation
     @OptIn(ExperimentalComposeUiApi::class)
     override fun toString(): String {
-        return "PointerInputChange(id=$id, " +
-            "uptimeMillis=$uptimeMillis, " +
-            "position=$position, " +
-            "pressed=$pressed, " +
-            "pressure=$pressure, " +
-            "previousUptimeMillis=$previousUptimeMillis, " +
-            "previousPosition=$previousPosition, " +
-            "previousPressed=$previousPressed, " +
-            "isConsumed=$isConsumed, " +
-            "type=$type, " +
-            "historical=$historical," +
-            "scrollDelta=$scrollDelta)"
+        return buildString {
+            append("PointerInputChange(id=$id, ")
+            append("uptimeMillis=$uptimeMillis, ")
+            append("position=$position, ")
+            append("pressed=$pressed, ")
+            append("pressure=$pressure, ")
+            append("previousUptimeMillis=$previousUptimeMillis, ")
+            append("previousPosition=$previousPosition, ")
+            append("previousPressed=$previousPressed, ")
+            append("isConsumed=$isConsumed, ")
+            append("type=$type, ")
+            append("historical=$historical,")
+            append("scrollDelta=$scrollDelta)")
+        }
     }
 }
 

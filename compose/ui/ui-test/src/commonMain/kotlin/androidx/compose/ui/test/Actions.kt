@@ -36,6 +36,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
+import kotlin.jvm.JvmName
 import kotlin.math.abs
 import kotlin.math.sign
 

@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
 import androidx.build.Publish
 
 plugins {
@@ -45,7 +39,7 @@ dependencies {
 }
 
 androidx {
-    name = "Compose Material3 Components Demos"
+    name = "AndroidX Compose Material3 Components Demos"
     publish = Publish.NONE
     inceptionYear = "2022"
     description = "Contains the demo code for the AndroidX Compose Material 3 components."

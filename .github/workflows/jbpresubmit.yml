@@ -6,22 +6,6 @@
 # The aim of this workflow is to run checks and some tests before submitting the CL upstream.
 name: JB-COMPOSE-variant of AndroidX Presubmits
 on:
-  push:
-    branches:
-      - jb_cl*
-      - jb_presubmit*
-
-  pull_request:
-    branches:
-      - jb-main
-      - jb_presubmit*
-      - jb_cl*
-    types:
-      - opened
-      - reopened
-      - synchronize
-
-  # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -123,6 +107,7 @@ jobs:
         uses: gradle/gradle-command-action@v1
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
+          JAVA_TOOLS_JAR: ${{ steps.setup-tools-jar.outputs.toolsJar }}
         with:
           arguments: tasks -PandroidXUnusedParameter=compose-jb # add project name to cache key
           build-root-directory: activity
@@ -168,7 +153,7 @@ jobs:
           fi
           git clone -n https://github.com/JetBrains/compose-jb
           cd compose-jb
-          git checkout origin/master
+          git checkout origin/mpp
           git submodule update --init --recursive
 
           pushd compose/frameworks/support

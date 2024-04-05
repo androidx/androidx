@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics.vector
 
 import kotlin.math.abs
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class FastFloatParserTest {
     @Test
@@ -30,15 +31,16 @@ class FastFloatParserTest {
 
             val nodes = parser.parsePathString("H$number").toNodes()
 
-            assert(nodes.isNotEmpty()) { line }
+            assertTrue(nodes.isNotEmpty(), line)
 
             val x = (nodes[0] as PathNode.HorizontalTo).x
 
-            assert(abs(x.toBits() - bits) < 2) {
+            assertTrue(
+                abs(x.toBits() - bits) < 2,
                 "Expected: 0x$bits\n" +
                 "Actual:   0x${x.toBits()}\n" +
                 "    in $line (toFloat() = ${number.toFloat()})"
-            }
+            )
         }
     }
 }
@@ -3254,7 +3256,7 @@ private val FloatData = arrayOf(
     "7F800000 1.832312213213213232132132143451234453123412321321312e308",
     "7F800000 1.8e308",
     "7F800000 1.9e308",
-    "7F800000 1234456789012345678901234567890e9999999999999999999999999999",
+    "7F800000 1234456789012345678901234567890e99999999",
     "7F800000 12e1342",
     "7F800000 12e13424",
     "7F800000 148e3032",

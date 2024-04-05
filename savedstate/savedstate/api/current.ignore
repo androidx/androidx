@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+ChangedType: androidx.savedstate.SavedStateRegistry#consumeRestoredStateForKey(String):
+    Method androidx.savedstate.SavedStateRegistry.consumeRestoredStateForKey has changed return type from android.os.Bundle to androidx.savedstate.Bundle
+ChangedType: androidx.savedstate.SavedStateRegistry.SavedStateProvider#saveState():
+    Method androidx.savedstate.SavedStateRegistry.SavedStateProvider.saveState has changed return type from android.os.Bundle to androidx.savedstate.Bundle
+
+
+RemovedMethod: androidx.savedstate.SavedStateRegistryController#performRestore(android.os.Bundle):
+    Removed method androidx.savedstate.SavedStateRegistryController.performRestore(android.os.Bundle)
+RemovedMethod: androidx.savedstate.SavedStateRegistryController#performSave(android.os.Bundle):
+    Removed method androidx.savedstate.SavedStateRegistryController.performSave(android.os.Bundle)

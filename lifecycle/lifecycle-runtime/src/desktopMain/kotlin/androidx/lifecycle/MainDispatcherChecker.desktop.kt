@@ -16,30 +16,41 @@
 package androidx.lifecycle
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 internal object MainDispatcherChecker {
-    private val isMainDispatcherAvailable: Boolean
-    private var isMainDispatcherThread = ThreadLocal.withInitial { false }
+    private var isMainDispatcherAvailable: Boolean = true
+    @Volatile
+    private var mainDispatcherThread: Thread? = null
 
-    init {
-        isMainDispatcherAvailable = try {
-            runBlocking {
-                launch(Dispatchers.Main.immediate) {
-                    isMainDispatcherThread.set(true)
-                }
+    private fun storeMainDispatcherThread() {
+        try {
+            runBlocking(Dispatchers.Main.immediate) {
+                mainDispatcherThread = Thread.currentThread()
             }
-            true
         } catch (_: IllegalStateException) {
             // No main dispatchers are present in the classpath
-            false
+            isMainDispatcherAvailable = false
         }
     }
 
-    fun isMainDispatcherThread(): Boolean = if (isMainDispatcherAvailable) {
-        isMainDispatcherThread.get()
-    } else {
-        true
+    fun isMainDispatcherThread(): Boolean {
+        if (!isMainDispatcherAvailable) {
+            return true
+        }
+        val currentThread = Thread.currentThread()
+        // if the thread has already been retrieved,
+        // we can just check whether we are currently running on the same thread
+        if (currentThread === mainDispatcherThread) {
+            return true
+        }
+        // if threads do not match, it is either:
+        // * field is not initialized yet
+        // * Swing's EDT may have changed
+        // * it is not the main thread indeed
+        // let's recheck to make sure the field has an actual value
+        // it is potentially a long operation, but it happens only not on the happy path
+        storeMainDispatcherThread()
+        return !isMainDispatcherAvailable || currentThread === mainDispatcherThread
     }
 }

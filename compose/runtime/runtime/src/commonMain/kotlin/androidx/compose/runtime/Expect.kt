@@ -18,33 +18,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
-
-// TODO(aelias): Mark the typealiases internal when https://youtrack.jetbrains.com/issue/KT-36695 is
-//  fixed.
-//  Currently, they behave as internal because the actual is internal, even though the expect is
-//  public.
-
-internal expect class ThreadLocal<T>(initialValue: () -> T) {
-    fun get(): T
-    fun set(value: T)
-    fun remove()
-}
-
-internal fun <T> ThreadLocal() = ThreadLocal<T?> { null }
-
-/**
- * This is similar to a [ThreadLocal] but has lower overhead because it avoids a weak reference.
- * This should only be used when the writes are delimited by a try...finally call that will clean
- * up the reference such as [androidx.compose.runtime.snapshots.Snapshot.enter] else the reference
- * could get pinned by the thread local causing a leak.
- *
- * [ThreadLocal] can be used to implement the actual for platforms that do not exhibit the same
- * overhead for thread locals as the JVM and ART.
- */
-internal expect class SnapshotThreadLocal<T>() {
-    fun get(): T?
-    fun set(value: T?)
-}
+import kotlinx.coroutines.CancellationException
 
 /**
  * Returns the hash code for the given object that is unique across all currently allocated objects.
@@ -61,10 +35,8 @@ internal expect class SnapshotThreadLocal<T>() {
  * if (identityHashCode(midVal) < identityHashCode(leftVal)) ...
  * ```
  */
-internal expect fun identityHashCode(instance: Any?): Int
-
-@PublishedApi
-internal expect inline fun <R> synchronized(lock: Any, block: () -> R): R
+@InternalComposeApi
+expect fun identityHashCode(instance: Any?): Int
 
 internal expect class AtomicReference<V>(value: V) {
     fun get(): V
@@ -82,7 +54,7 @@ internal expect class AtomicInt(value: Int) {
 
 internal fun AtomicInt.postIncrement(): Int = add(1) - 1
 
-internal expect fun ensureMutable(it: Any)
+expect annotation class CompositionContextLocal
 
 internal expect class WeakReference<T : Any>(reference: T) {
     fun get(): T?
@@ -128,13 +100,21 @@ internal expect fun <T> invokeComposableForResult(
     composable: @Composable () -> T
 ): T
 
+@OptIn(ExperimentalComposeApi::class)
+internal expect class SnapshotContextElementImpl(
+    snapshot: Snapshot
+) : SnapshotContextElement
+
 internal expect fun logError(message: String, e: Throwable)
 
 internal expect fun currentThreadId(): Long
 
 internal expect fun currentThreadName(): String
 
-@OptIn(ExperimentalComposeApi::class)
-internal expect class SnapshotContextElementImpl(
-    snapshot: Snapshot
-) : SnapshotContextElement
+/**
+ * Represents a platform-optimized cancellation exception.
+ * This allows us to configure exceptions separately on JVM and other platforms.
+ */
+internal expect abstract class PlatformOptimizedCancellationException(
+    message: String? = null
+) : CancellationException

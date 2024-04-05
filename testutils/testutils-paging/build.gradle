@@ -14,34 +14,18 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
+    id("kotlin")
 }
 
-androidXMultiplatform {
-    jvm()
-    mac()
-    linux()
-    ios()
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                implementation(project(":paging:paging-common"))
-                implementation(libs.kotlinTest)
-            }
-        }
-    }
+dependencies {
+    api(libs.kotlinStdlib)
+    implementation(androidxArtifact(":paging:paging-common"))
+    implementation(libs.kotlinTest)
 }
 
 androidx {

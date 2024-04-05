@@ -34,16 +34,17 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-    implementation(project(":appcompat:appcompat"))
-    implementation(project(":activity:activity"))
-    implementation(project(":profileinstaller:profileinstaller"))
-    implementation(project(":recyclerview:recyclerview"))
-    implementation(project(":tracing:tracing-ktx"))
-    implementation(project(":tracing:tracing-perfetto"))
+    implementation(androidxArtifact(":appcompat:appcompat"))
+    implementation(androidxArtifact(":activity:activity"))
+    // TODO: artifact is not found, so commented out
+    // implementation(androidxArtifact(":profileinstaller:profileinstaller"))
+    // TODO: artifact is not found, so commented out
+    // implementation(androidxArtifact(":recyclerview:recyclerview"))
+    implementation(androidxArtifact(":tracing:tracing-ktx"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto"))
     implementation(libs.material)
 
-    implementation(project(":work:work-runtime"))
-    implementation(project(":work:work-runtime-ktx"))
-    implementation(project(":room:room-runtime"))
-    implementation(project(":room:room-ktx"))
+    implementation(androidxArtifact(":work:work-runtime"))
+    implementation(androidxArtifact(":work:work-runtime-ktx"))
+    implementation(androidxArtifact(":room:room-runtime"))
 }

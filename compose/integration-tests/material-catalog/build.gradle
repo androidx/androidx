@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.ApkCopyHelperKt
+
+import androidx.build.BuildOnServerKt
+import androidx.build.BuildServerConfigurationKt
 import androidx.build.Publish
 
 plugins {
@@ -34,8 +29,8 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.compose.material.catalog"
-        versionCode 2300
-        versionName "2.3.0"
+        versionCode 2200
+        versionName "2.2.0"
     }
     buildTypes {
         release {
@@ -54,10 +49,10 @@ dependencies {
     implementation project(":compose:ui:ui")
     implementation project(":compose:material:material")
     implementation project(":compose:material3:material3")
-    implementation project(":compose:material:material:integration-tests:material-catalog")
-    implementation project(":compose:material3:material3:integration-tests:material3-catalog")
+//    implementation project(":compose:material:material:integration-tests:material-catalog")
+//    implementation project(":compose:material3:material3:integration-tests:material3-catalog")
     implementation "androidx.activity:activity-compose:1.3.1"
-    implementation project(":navigation:navigation-compose")
+    implementation androidxArtifact(":navigation:navigation-compose")
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
@@ -67,7 +62,23 @@ dependencies {
 }
 
 // We want to publish a release APK of this project for the Compose Material Catalog
-ApkCopyHelperKt.setupAppApkCopy(project, "release")
+def copyReleaseApk = tasks.register("copyReleaseApk", Copy) { task ->
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            task.from(variant.packageApplicationProvider.get().outputDirectory)
+        }
+    }
+    task.include("*.apk")
+    String projectPath = project.path
+    task.rename { fileName ->
+        "${projectPath.substring(1).replace(':', '-')}_$fileName"
+    }
+    task.destinationDir =
+            new File(BuildServerConfigurationKt.getDistributionDirectory(project), "apks")
+    task.dependsOn(projectPath + ":assembleRelease")
+}
+
+BuildOnServerKt.addToBuildOnServer(project, copyReleaseApk)
 
 androidx {
     name = "Compose Material Catalog app"

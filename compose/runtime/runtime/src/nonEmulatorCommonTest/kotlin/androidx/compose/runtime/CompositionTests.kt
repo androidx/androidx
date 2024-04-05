@@ -48,12 +48,7 @@ import java.lang.Integer.min
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.reflect.KProperty
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -65,17 +60,20 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.TestResult
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.test.IgnoreJsTarget
 import kotlinx.coroutines.withContext
+import kotlinx.test.IgnoreJsAndNative
 
 @Composable
 fun Container(content: @Composable () -> Unit) = content()
 
 @Stable
-@OptIn(InternalComposeApi::class)
+@OptIn(InternalComposeApi::class, ExperimentalCoroutinesApi::class)
 @Suppress("unused")
 class CompositionTests {
     @Test
@@ -669,6 +667,7 @@ class CompositionTests {
     }
 
     @Test
+    @IgnoreJsAndNative
     fun testSkippingNestedLambda() = compositionTest {
         val data = mutableStateOf(0)
 
@@ -2363,6 +2362,7 @@ class CompositionTests {
     }
 
     @Test
+    @IgnoreJsTarget
     fun testRememberObserver_Abandon_Recompose() {
         val abandonedObjects = mutableListOf<RememberObserver>()
         val observed = object : RememberObserver {
@@ -3607,6 +3607,8 @@ class CompositionTests {
     }
 
     @Test // Regression test for b/249050560
+    @IgnoreJsTarget
+    // TODO(o.k.): fails due to old js-only change in ComposerLambdaMemoization.rememberExpression
     fun testFunctionInstances() = compositionTest {
         var state by mutableStateOf(0)
         functionInstance = { -1 }
@@ -4161,9 +4163,9 @@ class CompositionTests {
         }
     }
 
-    @Test(timeout = 10000)
-    fun testCompositionAndRecomposerDeadlock() {
-        runBlocking {
+    @Test
+    fun testCompositionAndRecomposerDeadlock(): TestResult {
+        return runTest(timeoutMs = 10_000, context = UnconfinedTestDispatcher()) {
             withGlobalSnapshotManager {
                 repeat(100) {
                     val job = Job(parent = coroutineContext[Job])

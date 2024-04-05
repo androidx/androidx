@@ -26,7 +26,6 @@ dependencies {
     debugImplementation(project(":compose:ui:ui-test-manifest"))
 
     implementation(project(":compose:ui:ui"))
-    implementation("androidx.tracing:tracing:1.1.0")
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testCore)

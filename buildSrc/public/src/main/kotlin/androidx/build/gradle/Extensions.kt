@@ -18,5 +18,4 @@ package androidx.build.gradle
 
 import org.gradle.api.Project
 
-val Project.isRoot
-    get() = this == rootProject
+val Project.isRoot get() = this == rootProject

@@ -17,7 +17,8 @@
 package androidx.compose.ui.test.junit4
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ComposeScene
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.test.DesktopComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
@@ -55,8 +56,9 @@ class DesktopComposeTestRule private constructor(
     @ExperimentalTestApi
     constructor(
         effectContext: CoroutineContext = EmptyCoroutineContext
-    ) : this(DesktopComposeUiTest(effectContext))
+    ) : this(DesktopComposeUiTest(effectContext = effectContext))
 
+    @InternalComposeUiApi
     var scene: ComposeScene
         get() = composeTest.scene
         set(value) {
@@ -91,15 +93,7 @@ class DesktopComposeTestRule private constructor(
     override suspend fun awaitIdle() = composeTest.awaitIdle()
 
     override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) =
-        composeTest.waitUntil(conditionDescription = null, timeoutMillis, condition)
-
-    override fun waitUntil(
-        conditionDescription: String,
-        timeoutMillis: Long,
-        condition: () -> Boolean
-    ) {
-        composeTest.waitUntil(conditionDescription, timeoutMillis, condition)
-    }
+        composeTest.waitUntil(timeoutMillis, condition)
 
     @ExperimentalTestApi
     override fun waitUntilNodeCount(matcher: SemanticsMatcher, count: Int, timeoutMillis: Long) =

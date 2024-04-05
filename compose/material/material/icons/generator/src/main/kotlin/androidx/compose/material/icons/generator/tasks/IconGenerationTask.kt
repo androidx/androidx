@@ -161,6 +161,7 @@ abstract class IconGenerationTask : DefaultTask() {
          * bitmap comparison test for every icon in both the core and extended project.
          */
         @JvmStatic
+        @Suppress("UNUSED_PARAMETER")
         fun registerExtendedIconThemeProject(
             project: Project,
             libraryExtension: LibraryExtension

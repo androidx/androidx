@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Async
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.Blocking
 import androidx.compose.ui.text.font.FontLoadingStrategy.Companion.OptionalLocal
@@ -32,7 +31,6 @@ internal class SkiaFontLoader(
     val fontCollection: FontCollection
         get() = fontCache.fonts
 
-    @OptIn(ExperimentalTextApi::class)
     override fun loadBlocking(font: Font): FontLoadResult? {
         if (font !is PlatformFont) {
             if (font.loadingStrategy != OptionalLocal) {

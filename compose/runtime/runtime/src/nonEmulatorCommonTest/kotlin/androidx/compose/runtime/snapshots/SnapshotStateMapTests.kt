@@ -30,8 +30,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import androidx.compose.runtime.runTest
+import kotlinx.test.IgnoreJsAndNative
 import kotlinx.test.IgnoreJsTarget
+import kotlinx.test.IgnoreNativeTarget
 
 class SnapshotStateMapTests {
     @Test
@@ -140,7 +143,10 @@ class SnapshotStateMapTests {
     }
 
     @Test
-    @IgnoreJsTarget
+    @IgnoreJsAndNative
+    // Ignored on js and native:
+    // test passes if the order is changed to
+    // assertEquals(entries.first, entries.second)
     fun validateEntriesIterator() {
         validateRead { map, normalMap ->
             for (entries in map.entries.zip(normalMap.entries)) {
@@ -408,7 +414,11 @@ class SnapshotStateMapTests {
         }
     }
 
-    @Test
+    @Test @IgnoreJsAndNative
+    // Ignored for native:
+    // SnapshotStateMap removes a correct element (same as on jvm and js) - entry(key=1,value=1f)
+    // The test fails because MutableMap (normalMap) removes entry(key=1, value=5f)
+    // due to an entry search by value starting from the end of an array (in native HashMap impl).
     fun validateValuesRemove() {
         validateWrite { map ->
             map.values.remove(1f)
@@ -519,7 +529,7 @@ class SnapshotStateMapTests {
     @Test
     @IgnoreJsTarget
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun concurrentModificationInGlobal_put_new() = runTest {
+    fun concurrentModificationInGlobal_put_new() = runTest(UnconfinedTestDispatcher()) {
         repeat(100) {
             val map = mutableStateMapOf<Int, String>()
             coroutineScope {
@@ -539,7 +549,7 @@ class SnapshotStateMapTests {
     @Test
     @IgnoreJsTarget
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun concurrentModificationInGlobal_put_replace() = runTest {
+    fun concurrentModificationInGlobal_put_replace() = runTest(UnconfinedTestDispatcher()) {
         repeat(100) {
             val map = mutableStateMapOf(*Array(100) { it to "default" })
             coroutineScope {
@@ -569,10 +579,10 @@ class SnapshotStateMapTests {
         }
     }
 
-    @Test(timeout = 30_000)
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_set(): Unit = runTest {
+    fun concurrentMixingWriteApply_set() = runTest(timeoutMs = 30_000) {
         repeat(10) {
             val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
             val channel = Channel<Unit>(Channel.CONFLATED)
@@ -601,10 +611,10 @@ class SnapshotStateMapTests {
         // Should only get here if the above doesn't deadlock.
     }
 
-    @Test(timeout = 30_000)
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_clear(): Unit = runTest {
+    fun concurrentMixingWriteApply_clear() = runTest(timeoutMs = 30_000) {
         repeat(10) {
             val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
             val channel = Channel<Unit>(Channel.CONFLATED)

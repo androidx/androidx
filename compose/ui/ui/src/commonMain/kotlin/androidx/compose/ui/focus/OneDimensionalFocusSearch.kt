@@ -220,12 +220,9 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
  */
 private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
     override fun compare(
-        focusTarget1: FocusTargetNode?,
-        focusTarget2: FocusTargetNode?
+        focusTarget1: FocusTargetNode,
+        focusTarget2: FocusTargetNode
     ): Int {
-        requireNotNull(focusTarget1) { "compare requires non-null focus targets" }
-        requireNotNull(focusTarget2) { "compare requires non-null focus targets" }
-
         // Ignore focus modifiers that won't be considered during focus search.
         if (!focusTarget1.isEligibleForFocusSearch || !focusTarget2.isEligibleForFocusSearch) {
             if (focusTarget1.isEligibleForFocusSearch) return -1

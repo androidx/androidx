@@ -17,6 +17,6 @@
 package androidx.lifecycle.viewmodel.internal
 
 internal actual class Lock actual constructor() {
-    actual inline fun <T> withLock(crossinline block: () -> T): T =
-        synchronized(lock = this, block)
+    actual inline fun <T> withLockImpl(crossinline block: () -> T): T =
+        synchronized(lock = this, block = block)
 }

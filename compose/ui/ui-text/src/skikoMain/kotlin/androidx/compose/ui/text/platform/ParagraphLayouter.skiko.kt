@@ -16,17 +16,23 @@
 
 package androidx.compose.ui.text.platform
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
+import kotlin.math.abs
+import org.jetbrains.skia.Paint
+import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.Paragraph
 
 /**
@@ -36,7 +42,7 @@ import org.jetbrains.skia.paragraph.Paragraph
  * An alternative to passing and reusing existed paragraph is to build it again, but it is 2.5x
  * slower.
  *
- * LayoutedParagraph should has only one owner to avoid concurrent usage.
+ * LayoutedParagraph should have only one owner to avoid concurrent usage.
  *
  * Tests:
  *
@@ -48,7 +54,7 @@ import org.jetbrains.skia.paragraph.Paragraph
  * reusedParagraph.layout(300f): 10.004400ms
  * builder.build().layout(300f): 23.421500ms
  */
-class ParagraphLayouter(
+internal class ParagraphLayouter(
     val text: String,
     textDirection: ResolvedTextDirection,
     style: TextStyle,
@@ -66,42 +72,106 @@ class ParagraphLayouter(
         density = density,
         textDirection = textDirection
     )
-    private var para = builder.build()
+    private var paragraphCache: Paragraph? = null
+    private var width: Float = Float.NaN
 
-    private var width: Float = -1f
+    val defaultFont get() = builder.defaultFont
+    val textStyle get() = builder.textStyle
 
-    val defaultHeight get() = builder.defaultHeight
+    internal fun emptyLineMetrics(paragraph: Paragraph): Array<LineMetrics> =
+        builder.emptyLineMetrics(paragraph)
 
-    fun layoutParagraph(
-        width: Float = this.width,
-        maxLines: Int = builder.maxLines,
-        ellipsis: String = builder.ellipsis,
-        color: Color = builder.textStyle.color,
-        shadow: Shadow? = builder.textStyle.shadow,
-        textDecoration: TextDecoration? = builder.textStyle.textDecoration,
-    ): Paragraph {
+    fun setParagraphStyle(
+        maxLines: Int,
+        ellipsis: String
+    ) {
+        if (builder.maxLines != maxLines ||
+            builder.ellipsis != ellipsis
+        ) {
+            builder.maxLines = maxLines
+            builder.ellipsis = ellipsis
+            paragraphCache = null
+        }
+    }
+
+    fun setTextStyle(
+        color: Color,
+        shadow: Shadow?,
+        textDecoration: TextDecoration?
+    ) {
         val actualColor = color.takeOrElse { builder.textStyle.color }
-        if (
-            builder.maxLines != maxLines ||
-            builder.ellipsis != ellipsis ||
-            builder.textStyle.color != actualColor ||
+        if (builder.textStyle.color != actualColor ||
             builder.textStyle.shadow != shadow ||
             builder.textStyle.textDecoration != textDecoration
         ) {
-            this.width = width
-            builder.maxLines = maxLines
-            builder.ellipsis = ellipsis
             builder.textStyle = builder.textStyle.copy(
                 color = actualColor,
                 shadow = shadow,
                 textDecoration = textDecoration
             )
-            para = builder.build()
-            para.layout(width)
-        } else if (this.width != width) {
-            this.width = width
-            para.layout(width)
+            paragraphCache = null
         }
-        return para
     }
+
+    @ExperimentalTextApi
+    fun setTextStyle(
+        brush: Brush?,
+        brushSize: Size,
+        alpha: Float,
+        shadow: Shadow?,
+        textDecoration: TextDecoration?
+    ) {
+        val actualSize = builder.brushSize
+        if (builder.textStyle.brush != brush ||
+            actualSize.isUnspecified ||
+            !actualSize.width.sameValueAs(brushSize.width) ||
+            !actualSize.height.sameValueAs(brushSize.height) ||
+            !builder.textStyle.alpha.sameValueAs(alpha) ||
+            builder.textStyle.shadow != shadow ||
+            builder.textStyle.textDecoration != textDecoration
+        ) {
+            builder.textStyle = builder.textStyle.copy(
+                brush = brush,
+                alpha = alpha,
+                shadow = shadow,
+                textDecoration = textDecoration
+            )
+            builder.brushSize = brushSize
+            paragraphCache = null
+        }
+    }
+
+    fun setDrawStyle(drawStyle: DrawStyle?) {
+        if (builder.drawStyle != drawStyle) {
+            builder.drawStyle = drawStyle
+            paragraphCache = null
+        }
+    }
+
+    fun setBlendMode(blendMode: BlendMode) {
+        if (builder.blendMode != blendMode) {
+            builder.blendMode = blendMode
+            paragraphCache = null
+        }
+    }
+
+    fun layoutParagraph(width: Float): Paragraph {
+        val paragraph = paragraphCache
+        return if (paragraph != null) {
+            if (!this.width.sameValueAs(width)) {
+                this.width = width
+                paragraph.layout(width)
+            }
+            paragraph
+        } else {
+            builder.build().apply {
+                paragraphCache = this
+                layout(width)
+            }
+        }
+    }
+}
+
+private fun Float.sameValueAs(other: Float) : Boolean {
+    return abs(this - other) < 0.00001f
 }
