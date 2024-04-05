@@ -26,7 +26,6 @@ import androidx.compose.ui.LayerType
 import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
-import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.PlatformContext
@@ -34,7 +33,7 @@ import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
-import androidx.compose.ui.skiko.OverlaySkikoViewDecorator
+import androidx.compose.ui.skiko.OverlayRenderDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
@@ -304,15 +303,15 @@ internal class ComposeContainer(
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        val skikoView = when (layerType) {
+        val renderDelegate = when (layerType) {
             // Use overlay decorator to allow window layers draw scrim on the main window
-            LayerType.OnWindow -> OverlaySkikoViewDecorator(mediator, ::onRenderOverlay)
+            LayerType.OnWindow -> OverlayRenderDecorator(mediator, ::onRenderOverlay)
             else -> mediator
         }
         return if (useSwingGraphics) {
-            SwingSkiaLayerComponent(mediator, skikoView, skiaLayerAnalytics)
+            SwingSkiaLayerComponent(mediator, renderDelegate, skiaLayerAnalytics)
         } else {
-            WindowSkiaLayerComponent(mediator, windowContext, skikoView, skiaLayerAnalytics)
+            WindowSkiaLayerComponent(mediator, windowContext, renderDelegate, skiaLayerAnalytics)
         }
     }
 

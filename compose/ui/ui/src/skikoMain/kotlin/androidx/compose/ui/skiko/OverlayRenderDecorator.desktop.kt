@@ -17,18 +17,18 @@
 package androidx.compose.ui.skiko
 
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 
 /**
- * Decorator for [SkikoView] which adds overlay rendering functionality.
+ * Decorator for [SkikoRenderDelegate] which adds overlay rendering functionality.
  *
- * @param decorated The decorated [SkikoView] instance.
+ * @param decorated The decorated [SkikoRenderDelegate] instance.
  * @param onRenderOverlay Function to be called for rendering the overlay.
  */
-internal class OverlaySkikoViewDecorator(
-    private val decorated: SkikoView,
+internal class OverlayRenderDecorator(
+    private val decorated: SkikoRenderDelegate,
     private val onRenderOverlay: (canvas: Canvas, width: Int, height: Int) -> Unit
-) : SkikoView by decorated {
+) : SkikoRenderDelegate by decorated {
     override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
         decorated.onRender(canvas, width, height, nanoTime)
         onRenderOverlay(canvas, width, height)

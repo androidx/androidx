@@ -25,7 +25,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
-import androidx.compose.ui.skiko.RecordDrawRectSkikoViewDecorator
+import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.toUIColor
 import androidx.compose.ui.unit.Density
@@ -40,13 +40,12 @@ import androidx.compose.ui.window.ComposeContainer
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.ProvideContainerCompositionLocals
 import androidx.compose.ui.window.RenderingUIView
-import androidx.compose.ui.window.SkikoRenderDelegate
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
-import kotlin.math.min
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
+import org.jetbrains.skiko.SkikoRenderDelegate
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSize
@@ -213,7 +212,7 @@ internal class UIViewComposeSceneLayer(
     }
 
     private fun recordDrawBounds(renderDelegate: SkikoRenderDelegate) =
-        RecordDrawRectSkikoViewDecorator(renderDelegate) { canvasBoundsInPx ->
+        RecordDrawRectRenderDecorator(renderDelegate) { canvasBoundsInPx ->
             val currentCanvasOffset = drawBounds.topLeft
             val drawBoundsInWindow = canvasBoundsInPx.roundToIntRect().translate(currentCanvasOffset)
             maxDrawInflate = maxInflate(boundsInWindow, drawBoundsInWindow, maxDrawInflate)

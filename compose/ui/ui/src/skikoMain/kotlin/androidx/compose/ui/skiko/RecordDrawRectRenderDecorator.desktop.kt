@@ -23,12 +23,12 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
 import org.jetbrains.skia.RTreeFactory
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 
-internal class RecordDrawRectSkikoViewDecorator(
-    private val decorated: SkikoView,
+internal class RecordDrawRectRenderDecorator(
+    private val decorated: SkikoRenderDelegate,
     private val onDrawRectChange: (Rect) -> Unit
-) : SkikoView by decorated {
+) : SkikoRenderDelegate by decorated {
     private val pictureRecorder = PictureRecorder()
     private val bbhFactory = RTreeFactory()
     private var drawRect = Rect.Zero

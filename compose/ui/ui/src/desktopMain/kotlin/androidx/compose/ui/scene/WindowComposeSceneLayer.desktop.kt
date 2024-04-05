@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
-import androidx.compose.ui.skiko.OverlaySkikoViewDecorator
+import androidx.compose.ui.skiko.OverlayRenderDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
@@ -182,7 +182,7 @@ internal class WindowComposeSceneLayer(
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        val skikoView = OverlaySkikoViewDecorator(
+        val renderDelegate = OverlayRenderDecorator(
             recordDrawBounds(mediator)
         ) { canvas, width, height ->
             composeContainer.layersAbove(this).forEach {
@@ -192,7 +192,7 @@ internal class WindowComposeSceneLayer(
         return WindowSkiaLayerComponent(
             mediator = mediator,
             windowContext = windowContext,
-            skikoView = skikoView,
+            renderDelegate = renderDelegate,
             skiaLayerAnalytics = skiaLayerAnalytics
         )
     }

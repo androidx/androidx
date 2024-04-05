@@ -25,8 +25,7 @@ import kotlin.math.floor
 import kotlin.math.roundToLong
 import kotlinx.cinterop.*
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkikoUIView
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 import platform.CoreGraphics.*
 import platform.Foundation.*
 import platform.Metal.MTLCreateSystemDefaultDevice
@@ -34,8 +33,6 @@ import platform.Metal.MTLDeviceProtocol
 import platform.Metal.MTLPixelFormatBGRA8Unorm
 import platform.QuartzCore.CAMetalLayer
 import platform.UIKit.*
-
-internal typealias SkikoRenderDelegate = SkikoView
 
 internal class RenderingUIView(
     private val interopContext: UIKitInteropContext,

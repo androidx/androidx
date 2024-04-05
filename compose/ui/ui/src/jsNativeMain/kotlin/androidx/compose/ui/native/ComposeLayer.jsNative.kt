@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.currentNanoTime
 
 internal class ComposeLayer(
@@ -109,7 +109,7 @@ internal class ComposeLayer(
     internal val view: ComposeEventHandler = ComponentImpl()
 
     init {
-        layer.skikoView = object : SkikoView {
+        layer.renderDelegate = object : SkikoRenderDelegate {
             override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
                 scene.render(canvas.asComposeCanvas(), nanoTime)
             }

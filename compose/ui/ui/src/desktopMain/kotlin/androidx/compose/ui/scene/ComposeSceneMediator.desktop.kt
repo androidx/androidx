@@ -83,7 +83,7 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
@@ -111,7 +111,7 @@ internal class ComposeSceneMediator(
 
     skiaLayerComponentFactory: (ComposeSceneMediator) -> SkiaLayerComponent,
     composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
-) : SkikoView {
+) : SkikoRenderDelegate {
     private var isDisposed = false
     private val invisibleComponent = InvisibleComponent()
 

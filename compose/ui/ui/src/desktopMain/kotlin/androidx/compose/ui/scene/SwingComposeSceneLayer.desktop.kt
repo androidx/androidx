@@ -149,10 +149,10 @@ internal class SwingComposeSceneLayer(
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        val skikoView = recordDrawBounds(mediator)
+        val renderDelegate = recordDrawBounds(mediator)
         return SwingSkiaLayerComponent(
             mediator = mediator,
-            skikoView = skikoView,
+            renderDelegate = renderDelegate,
             skiaLayerAnalytics = skiaLayerAnalytics
         )
     }

@@ -20,7 +20,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.NativeKeyEvent
-import org.jetbrains.skiko.SkikoInputModifiers
 
 /**
  * The [KeyEvent] is usually created by the system. This function creates an instance of
@@ -42,18 +41,4 @@ internal actual fun keyEvent(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-internal actual fun Int.updatedKeyboardModifiers(key: Key, down: Boolean): Int {
-    val mask = when (key) {
-        Key.ShiftLeft, Key.ShiftRight -> SkikoInputModifiers.SHIFT
-        Key.CtrlLeft, Key.CtrlRight -> SkikoInputModifiers.CONTROL
-        Key.AltLeft, Key.AltRight -> SkikoInputModifiers.ALT
-        Key.MetaLeft, Key.MetaRight -> SkikoInputModifiers.META
-        else -> null
-    }
-    return if (mask != null) {
-        if (down) this or mask.value else this xor mask.value
-    } else {
-        this
-    }
-}
+internal actual fun Int.updatedKeyboardModifiers(key: Key, down: Boolean): Int = this // TODO: implement updatedKeyboardModifiers
