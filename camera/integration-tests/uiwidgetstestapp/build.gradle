@@ -98,6 +98,8 @@ dependencies {
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
@@ -111,7 +113,6 @@ dependencies {
         exclude(group:"androidx.test")
     }
     androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
