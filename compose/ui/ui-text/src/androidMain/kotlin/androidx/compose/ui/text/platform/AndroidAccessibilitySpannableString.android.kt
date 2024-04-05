@@ -28,7 +28,6 @@ import android.text.style.UnderlineSpan
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.collection.LongObjectMap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
@@ -56,8 +55,6 @@ fun AnnotatedString.toAccessibilitySpannableString(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     urlSpanCache: URLSpanCache,
-    linkActions: LongObjectMap<() -> Unit>?,
-    accessibilityNodeId: Int
 ): SpannableString {
     val spannableString = SpannableString(text)
     spanStylesOrNull?.fastForEach { (style, start, end) ->
@@ -86,26 +83,23 @@ fun AnnotatedString.toAccessibilitySpannableString(
     }
 
     getLinkAnnotations(0, length).fastForEach { linkRange ->
-        when {
-            linkActions != null && linkActions.isNotEmpty() -> {
-                spannableString.setSpan(
-                    urlSpanCache.toClickableSpan(linkRange, linkActions, accessibilityNodeId),
-                    linkRange.start,
-                    linkRange.end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-            linkRange.item is LinkAnnotation.Url -> {
-                spannableString.setSpan(
-                    urlSpanCache.toURLSpan(linkRange.toUrl()),
-                    linkRange.start,
-                    linkRange.end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
+        val link = linkRange.item
+        if (link is LinkAnnotation.Url && link.linkInteractionListener == null) {
+            spannableString.setSpan(
+                urlSpanCache.toURLSpan(linkRange.toUrlLink()),
+                linkRange.start,
+                linkRange.end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        } else {
+            spannableString.setSpan(
+                urlSpanCache.toClickableSpan(linkRange),
+                linkRange.start,
+                linkRange.end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
     }
-
     return spannableString
 }
 
@@ -205,5 +199,5 @@ private object Api28Impl {
     fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
 }
 
-private fun AnnotatedString.Range<LinkAnnotation>.toUrl() =
+private fun AnnotatedString.Range<LinkAnnotation>.toUrlLink() =
     AnnotatedString.Range(this.item as LinkAnnotation.Url, this.start, this.end)

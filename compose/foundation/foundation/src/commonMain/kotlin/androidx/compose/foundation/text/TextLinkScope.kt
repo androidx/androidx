@@ -42,15 +42,10 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -161,22 +156,6 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             Box(
                 clipModifier
                     .textRange(range.start, range.end)
-                    .semantics {
-                        // TODO(b/139312671) handle Url when replacement API for a link click
-                        //  handler arrives
-                        if (range.item is LinkAnnotation.Clickable) {
-                            customActions = listOf(
-                                // this action will be passed down to the Talkback through the
-                                // ClickableSpan's onClick method
-                                CustomAccessibilityAction("") {
-                                    // TODO(b/139312671) handle this no-op when replacement API for
-                                    //  a link click handler arrives
-                                    true
-                                }
-                            )
-                            textSelectionRange = TextRange(range.start, range.end)
-                        }
-                    }
                     .hoverable(interactionSource)
                     .pointerHoverIcon(PointerIcon.Hand)
                     .combinedClickable(
