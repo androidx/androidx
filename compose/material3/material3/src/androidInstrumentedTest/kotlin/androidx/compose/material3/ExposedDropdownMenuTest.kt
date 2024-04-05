@@ -196,6 +196,50 @@ class ExposedDropdownMenuTest {
     }
 
     @Test
+    fun edm_notEditable_doesNotExpand_whenDisabled() {
+        rule.setMaterialContent(lightColorScheme()) {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                editable = false,
+                enabled = false,
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertDoesNotExist()
+
+        // Click on the TextField
+        rule.onNodeWithTag(TFTag).performClick()
+
+        // Menu still is not displayed
+        rule.onNodeWithTag(EDMTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun edm_editable_doesNotExpand_whenDisabled() {
+        rule.setMaterialContent(lightColorScheme()) {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                editable = true,
+                enabled = false,
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertDoesNotExist()
+
+        // Click on the TextField
+        rule.onNodeWithTag(TFTag).performClick()
+
+        // Menu still is not displayed
+        rule.onNodeWithTag(EDMTag).assertDoesNotExist()
+    }
+
+    @Test
     fun edm_doesNotCollapse_whenTypingOnSoftKeyboard() {
         rule.setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(false) }
@@ -309,7 +353,7 @@ class ExposedDropdownMenuTest {
                     ) {
                         TextField(
                             modifier = Modifier
-                                .menuAnchor()
+                                .menuAnchor(MenuAnchorType.PrimaryEditable)
                                 .then(
                                     if (index == testIndex) Modifier
                                         .testTag(TFTag)
@@ -390,7 +434,7 @@ class ExposedDropdownMenuTest {
                     onExpandedChange = {},
                 ) {
                     TextField(
-                        modifier = Modifier.menuAnchor(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         readOnly = true,
                         value = "",
                         onValueChange = {},
@@ -491,7 +535,7 @@ class ExposedDropdownMenuTest {
                     onExpandedChange = { }
                 ) {
                     TextField(
-                        modifier = Modifier.menuAnchor(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
                         value = "",
                         onValueChange = { },
                         label = { Text("Label") },
@@ -532,7 +576,8 @@ class ExposedDropdownMenuTest {
                                     TextField(
                                         value = "Text",
                                         onValueChange = {},
-                                        modifier = Modifier.menuAnchor(),
+                                        modifier =
+                                            Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
                                     )
                                     ExposedDropdownMenu(
                                         expanded = true,
@@ -573,7 +618,7 @@ class ExposedDropdownMenuTest {
                 ) {
                     scrollState = rememberScrollState()
                     TextField(
-                        modifier = Modifier.menuAnchor(),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
                         value = "",
                         onValueChange = { },
                         label = { Text("Label") },
@@ -696,6 +741,7 @@ class ExposedDropdownMenuTest {
         expanded: Boolean,
         onExpandChange: (Boolean) -> Unit,
         editable: Boolean = false,
+        enabled: Boolean = true,
         textFieldModifier: Modifier = Modifier,
         menuModifier: Modifier = Modifier,
     ) {
@@ -708,7 +754,14 @@ class ExposedDropdownMenuTest {
             ) {
                 TextField(
                     modifier = textFieldModifier
-                        .menuAnchor()
+                        .menuAnchor(
+                            type = if (editable) {
+                                MenuAnchorType.PrimaryEditable
+                            } else {
+                                MenuAnchorType.PrimaryNotEditable
+                            },
+                            enabled = enabled,
+                        )
                         .testTag(TFTag),
                     value = selectedOptionText,
                     onValueChange = { selectedOptionText = it },
@@ -725,7 +778,6 @@ class ExposedDropdownMenuTest {
                     modifier = menuModifier.testTag(EDMTag),
                     expanded = expanded,
                     onDismissRequest = { onExpandChange(false) },
-                    focusable = !editable,
                 ) {
                     DropdownMenuItem(
                         text = { Text(OptionName) },
