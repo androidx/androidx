@@ -91,7 +91,7 @@ File getGoldenPath(Project project) {
 }
 
 // Set golden images path based on whether this is the GitHub or AndroidX repo.
-tasks.findByName("jvmTest").configure {
+tasks.withType(Test).configureEach {
     systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
 }
 

@@ -234,8 +234,10 @@ androidx {
 }
 
 if (KmpPlatformsKt.enableDesktop(project)) {
-    tasks.findByName("desktopTest").configure {
-        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+    tasks.withType(Test).configureEach {
+        if (name.equals("desktopTest")) {
+            systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+        }
     }
 }
 
