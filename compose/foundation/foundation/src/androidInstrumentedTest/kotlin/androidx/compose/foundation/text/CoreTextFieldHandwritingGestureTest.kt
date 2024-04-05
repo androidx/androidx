@@ -18,9 +18,11 @@ package androidx.compose.foundation.text
 
 import android.graphics.RectF
 import android.view.inputmethod.DeleteGesture
+import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.SelectGesture
+import android.view.inputmethod.SelectRangeGesture
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.setFocusableContent
@@ -378,6 +380,282 @@ class CoreTextFieldHandwritingGestureTest {
                 DeleteGesture.Builder()
                     .setDeletionArea(RectF(-1f, -1f, 0f, 0f))
                     .setGranularity(HandwritingGesture.GRANULARITY_WORD)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
+            assertThat(textFieldValue.text).isEqualTo(text)
+            assertThat(textFieldValue.selection).isEqualTo(TextRange(text.length))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    fun textField_selectRangeGesture_characterLevel() {
+        val text = "abc\ndef"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                val startArea = textLayoutResult.boundingBoxOf("c").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+
+                val endArea = textLayoutResult.boundingBoxOf("d").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+
+                SelectRangeGesture.Builder()
+                    .setSelectionStartArea(startArea)
+                    .setSelectionEndArea(endArea)
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            assertThat(textFieldValue.text).isEqualTo(text)
+            assertThat(textFieldValue.selection).isEqualTo(text.rangeOf("c\nd"))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+    }
+
+    @Test
+    fun textField_selectRangeGesture_wordLevel() {
+        val text = "abc\ndef jhi"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                val startArea = textLayoutResult.boundingBoxOf("b").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+
+                val endArea = textLayoutResult.boundingBoxOf("e").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+
+                SelectRangeGesture.Builder()
+                    .setSelectionStartArea(startArea)
+                    .setSelectionEndArea(endArea)
+                    .setGranularity(HandwritingGesture.GRANULARITY_WORD)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            assertThat(textFieldValue.text).isEqualTo(text)
+            assertThat(textFieldValue.selection).isEqualTo(text.rangeOf("abc\ndef"))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        }
+    }
+
+    @Test
+    fun textField_selectRangeGesture_nothingSelectedInStartArea_insertFallbackText() {
+        val text = "abc\ndef"
+        val fallback = "fallbackText"
+        val initialCursor = 3
+        testHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                val endArea = textLayoutResult.boundingBoxOf("d").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+                // The startArea selects nothing, but the endArea contains one character, it
+                // should still fallback.
+                SelectRangeGesture.Builder()
+                    .setSelectionStartArea(RectF(0f, 0f, 1f, 1f))
+                    .setSelectionEndArea(endArea)
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldValue.text).isEqualTo(expectedText)
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldValue.selection).isEqualTo(expectedSelection)
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_selectRangeGesture_nothingSelectedInEndArea_insertFallbackText() {
+        val text = "abc\ndef"
+        val fallback = "fallbackText"
+        val initialCursor = 3
+        testHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                val startArea = textLayoutResult.boundingBoxOf("c").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+                // The endArea selects nothing, but the start contains one character, it
+                // should still fallback.
+                SelectRangeGesture.Builder()
+                    .setSelectionStartArea(startArea)
+                    .setSelectionEndArea(RectF(0f, 0f, 1f, 1f))
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldValue.text).isEqualTo(expectedText)
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldValue.selection).isEqualTo(expectedSelection)
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_selectRangeGesture_noSelection_fail() {
+        val text = "abcdef"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { _ ->
+                SelectRangeGesture.Builder()
+                    .setSelectionStartArea(RectF(0f, 0f, 1f, 1f))
+                    .setSelectionEndArea(RectF(0f, 0f, 1f, 1f))
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
+            assertThat(textFieldValue.text).isEqualTo(text)
+            assertThat(textFieldValue.selection).isEqualTo(TextRange(text.length))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_deleteRangeGesture_characterLevel() {
+        val text = "abc\ndef"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                val startArea = textLayoutResult.boundingBoxOf("c").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+                val endArea = textLayoutResult.boundingBoxOf("d").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+
+                DeleteRangeGesture.Builder()
+                    .setDeletionStartArea(startArea)
+                    .setDeletionEndArea(endArea)
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "abef"
+            assertThat(textFieldValue.text).isEqualTo(expectedText)
+            // Cursor is placed before 'e'
+            assertThat(textFieldValue.selection).isEqualTo(TextRange(expectedText.indexOf('e')))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_deleteRangeGesture_wordLevel() {
+        val text = "abc def\n jhi lmn"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                val startArea = textLayoutResult.boundingBoxOf("e").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+                val endArea = textLayoutResult.boundingBoxOf("h").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+
+                DeleteRangeGesture.Builder()
+                    .setDeletionStartArea(startArea)
+                    .setDeletionEndArea(endArea)
+                    .setGranularity(HandwritingGesture.GRANULARITY_WORD)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "abc lmn"
+            assertThat(textFieldValue.text).isEqualTo(expectedText)
+            assertThat(textFieldValue.selection).isEqualTo(TextRange(expectedText.indexOf(' ')))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_deleteRangeGesture_nothingDeletedInStartArea_insertFallbackText() {
+        val text = "abc\ndef"
+        val fallback = "fallbackText"
+        val initialCursor = 3
+        testHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                val endArea = textLayoutResult.boundingBoxOf("d").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+                // The startArea selects nothing, but the endArea contains one character, it
+                // should still fallback.
+                DeleteRangeGesture.Builder()
+                    .setDeletionStartArea(RectF(0f, 0f, 1f, 1f))
+                    .setDeletionEndArea(endArea)
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldValue.text).isEqualTo(expectedText)
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldValue.selection).isEqualTo(expectedSelection)
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_deleteRangeGesture_nothingDeletedInEndArea_insertFallbackText() {
+        val text = "abc\ndef"
+        val fallback = "fallbackText"
+        val initialCursor = 3
+        testHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                val startArea = textLayoutResult.boundingBoxOf("c").let {
+                    localToScreen(it).toAndroidRectF()
+                }
+                // The endArea selects nothing, but the start contains one character, it
+                // should still fallback.
+                DeleteRangeGesture.Builder()
+                    .setDeletionStartArea(startArea)
+                    .setDeletionEndArea(RectF(0f, 0f, 1f, 1f))
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldValue, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldValue.text).isEqualTo(expectedText)
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldValue.selection).isEqualTo(expectedSelection)
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_deleteRangeGesture_noDeletion_fail() {
+        val text = "abcdef"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { _ ->
+                DeleteRangeGesture.Builder()
+                    .setDeletionStartArea(RectF(0f, 0f, 1f, 1f))
+                    .setDeletionEndArea(RectF(0f, 0f, 1f, 1f))
+                    .setGranularity(HandwritingGesture.GRANULARITY_CHARACTER)
                     .build()
             }
         ) { textFieldValue, resultCode, textToolbar ->
