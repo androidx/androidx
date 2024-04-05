@@ -66,10 +66,10 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
      */
     override val size: Int
 
-    /**
-     * In lists we have one item per line.
-     */
-    override val line: Int = index
+    /** In lists we only have one lane. */
+    override val lane: Int = 0
+    /** And each item takes one span. */
+    override val span: Int = 1
 
     /**
      * Sum of the main axis sizes of all the inner placeables and [spacing].

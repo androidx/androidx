@@ -28,6 +28,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
@@ -210,7 +211,7 @@ class LazyStaggeredGridState private constructor(
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
-    internal val placementAnimator = LazyStaggeredGridItemPlacementAnimator()
+    internal val itemAnimator = LazyLayoutItemAnimator<LazyStaggeredGridMeasuredItem>()
 
     internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
@@ -372,7 +373,7 @@ class LazyStaggeredGridState private constructor(
         // reset previously known item positions as we don't want offset changes to be animated.
         // this offset should be considered as a scroll, not the placement change.
         if (positionChanged) {
-            placementAnimator.reset()
+            itemAnimator.reset()
         }
         val layoutInfo = layoutInfoState.value
         val visibleItem = layoutInfo.findVisibleItem(index)

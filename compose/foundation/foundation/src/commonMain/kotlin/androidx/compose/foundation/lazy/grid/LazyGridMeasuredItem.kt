@@ -52,8 +52,9 @@ internal class LazyGridMeasuredItem(
     private val visualOffset: IntOffset,
     override val contentType: Any?,
     private val animator: LazyLayoutItemAnimator<LazyGridMeasuredItem>,
-    private val spanLayoutProvider: LazyGridSpanLayoutProvider,
-    override val constraints: Constraints
+    override val constraints: Constraints,
+    override val lane: Int,
+    override val span: Int
 ) : LazyGridItemInfo, LazyLayoutMeasuredItem {
     /**
      * Main axis size of the item - the max main axis size of the placeables.
@@ -73,11 +74,6 @@ internal class LazyGridMeasuredItem(
 
     override fun getParentData(index: Int) = placeables[index].parentData
 
-    override val line: Int get() {
-        val line = if (isVertical) row else column
-        return if (line != -1) line else spanLayoutProvider.getLineIndexOfItem(index)
-    }
-
     init {
         var maxMainAxis = 0
         placeables.fastForEach {
@@ -94,7 +90,6 @@ internal class LazyGridMeasuredItem(
     }
     override var offset: IntOffset = IntOffset.Zero
         private set
-    val crossAxisOffset get() = if (isVertical) offset.x else offset.y
     override var row: Int = LazyGridItemInfo.UnknownRow
         private set
     override var column: Int = LazyGridItemInfo.UnknownColumn

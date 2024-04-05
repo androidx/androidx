@@ -694,12 +694,12 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
             // item 8 moves to and item 1 moves from `-itemSizePlusSpacing`, right before the start edge
             val item1Offset = AxisOffset(
                 0f,
-                -itemSizePlusSpacing + (itemSizePlusSpacing + itemSizePlusSpacing * 2) * fraction
+                -itemSizePlusSpacing + (itemSizePlusSpacing * 3) * fraction
             )
             val item8Offset = AxisOffset(
                 0f,
                 itemSizePlusSpacing * 2 -
-                    (itemSizePlusSpacing + itemSizePlusSpacing * 2) * fraction
+                    (itemSizePlusSpacing * 3) * fraction
             )
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 if (item1Offset.mainAxis > -itemSize) {

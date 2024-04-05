@@ -76,6 +76,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         itemProvider: LazyLayoutMeasuredItemProvider<T>,
         isVertical: Boolean,
         isLookingAhead: Boolean,
+        laneCount: Int,
         hasLookaheadOccurred: Boolean,
         coroutineScope: CoroutineScope,
         graphicsContext: GraphicsContext
@@ -169,42 +170,28 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             }
         }
 
-        var accumulatedOffset = 0
-        var previousLine = -1
-        var previousLineMainAxisSize = 0
+        val accumulatedOffsetPerLane = IntArray(laneCount) { 0 }
         if (shouldSetupAnimation && previousKeyToIndexMap != null) {
-            movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
-            movingInFromStartBound.fastForEach { item ->
-                val line = item.line
-                if (line != -1 && line == previousLine) {
-                    previousLineMainAxisSize =
-                        maxOf(previousLineMainAxisSize, item.mainAxisSizeWithSpacings)
-                } else {
-                    accumulatedOffset += previousLineMainAxisSize
-                    previousLineMainAxisSize = item.mainAxisSizeWithSpacings
-                    previousLine = line
+            if (movingInFromStartBound.isNotEmpty()) {
+                movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
+                movingInFromStartBound.fastForEach { item ->
+                    val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                    val mainAxisOffset = 0 - accumulatedOffset
+                    initializeAnimation(item, mainAxisOffset)
+                    startPlacementAnimationsIfNeeded(item)
                 }
-                val mainAxisOffset = 0 - accumulatedOffset - item.mainAxisSizeWithSpacings
-                initializeAnimation(item, mainAxisOffset)
-                startPlacementAnimationsIfNeeded(item)
+                accumulatedOffsetPerLane.fill(0)
             }
-            accumulatedOffset = 0
-            previousLine = -1
-            previousLineMainAxisSize = 0
-            movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
-            movingInFromEndBound.fastForEach { item ->
-                val line = item.line
-                if (line != -1 && line == previousLine) {
-                    previousLineMainAxisSize =
-                        maxOf(previousLineMainAxisSize, item.mainAxisSizeWithSpacings)
-                } else {
-                    accumulatedOffset += previousLineMainAxisSize
-                    previousLineMainAxisSize = item.mainAxisSizeWithSpacings
-                    previousLine = line
+            if (movingInFromEndBound.isNotEmpty()) {
+                movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
+                movingInFromEndBound.fastForEach { item ->
+                    val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                    val mainAxisOffset =
+                        mainAxisLayoutSize + accumulatedOffset - item.mainAxisSizeWithSpacings
+                    initializeAnimation(item, mainAxisOffset)
+                    startPlacementAnimationsIfNeeded(item)
                 }
-                val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
-                initializeAnimation(item, mainAxisOffset)
-                startPlacementAnimationsIfNeeded(item)
+                accumulatedOffsetPerLane.fill(0)
             }
         }
 
@@ -245,8 +232,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 }
             } else {
                 val item = itemProvider.getAndMeasure(
-                    newIndex,
-                    constraints = info.constraints!!
+                    index = newIndex,
+                    constraints = info.constraints!!,
+                    lane = info.lane,
+                    span = info.span
                 )
                 item.nonScrollableItem = true
                 // check if we have any active placement animation on the item
@@ -264,70 +253,52 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             }
         }
 
-        accumulatedOffset = 0
-        previousLine = -1
-        previousLineMainAxisSize = 0
-        movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
-        movingAwayToStartBound.fastForEach { item ->
-            val line = item.line
-            if (line != -1 && line == previousLine) {
-                previousLineMainAxisSize =
-                    maxOf(previousLineMainAxisSize, item.mainAxisSizeWithSpacings)
-            } else {
-                accumulatedOffset += previousLineMainAxisSize
-                previousLineMainAxisSize = item.mainAxisSizeWithSpacings
-                previousLine = line
-            }
-            val mainAxisOffset = if (isLookingAhead) {
-                positionedItems.first().mainAxisOffset
-            } else {
-                0
-            } - accumulatedOffset - item.mainAxisSizeWithSpacings
+        if (movingAwayToStartBound.isNotEmpty()) {
+            movingAwayToStartBound.sortByDescending { keyIndexMap.getIndex(it.key) }
+            movingAwayToStartBound.fastForEach { item ->
+                val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                val mainAxisOffset = if (isLookingAhead) {
+                    positionedItems.first().mainAxisOffset
+                } else {
+                    0
+                } - accumulatedOffset
+                val itemInfo = keyToItemInfoMap[item.key]!!
 
-            val itemInfo = keyToItemInfoMap[item.key]!!
-
-            item.position(
-                mainAxisOffset = mainAxisOffset,
-                crossAxisOffset = itemInfo.crossAxisOffset,
-                layoutWidth = layoutWidth,
-                layoutHeight = layoutHeight
-            )
-            if (shouldSetupAnimation) {
-                startPlacementAnimationsIfNeeded(item)
+                item.position(
+                    mainAxisOffset = mainAxisOffset,
+                    crossAxisOffset = itemInfo.crossAxisOffset,
+                    layoutWidth = layoutWidth,
+                    layoutHeight = layoutHeight
+                )
+                if (shouldSetupAnimation) {
+                    startPlacementAnimationsIfNeeded(item)
+                }
             }
+            accumulatedOffsetPerLane.fill(0)
         }
 
-        accumulatedOffset = 0
-        previousLine = -1
-        previousLineMainAxisSize = 0
-        movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
-        movingAwayToEndBound.fastForEach { item ->
-            val line = item.line
-            if (line != -1 && line == previousLine) {
-                previousLineMainAxisSize =
-                    maxOf(previousLineMainAxisSize, item.mainAxisSizeWithSpacings)
-            } else {
-                accumulatedOffset += previousLineMainAxisSize
-                previousLineMainAxisSize = item.mainAxisSizeWithSpacings
-                previousLine = line
-            }
-            val mainAxisOffset = if (isLookingAhead)
-                positionedItems.last()
-                    .let { it.mainAxisOffset + it.mainAxisSizeWithSpacings }
-            else {
-                mainAxisLayoutSize
-            } + accumulatedOffset
+        if (movingAwayToEndBound.isNotEmpty()) {
+            movingAwayToEndBound.sortBy { keyIndexMap.getIndex(it.key) }
+            movingAwayToEndBound.fastForEach { item ->
+                val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
+                val mainAxisOffset = if (isLookingAhead)
+                    positionedItems.last()
+                        .let { it.mainAxisOffset }
+                else {
+                    mainAxisLayoutSize - item.mainAxisSizeWithSpacings
+                } + accumulatedOffset
 
-            val itemInfo = keyToItemInfoMap[item.key]!!
-            item.position(
-                mainAxisOffset = mainAxisOffset,
-                crossAxisOffset = itemInfo.crossAxisOffset,
-                layoutWidth = layoutWidth,
-                layoutHeight = layoutHeight,
-            )
+                val itemInfo = keyToItemInfoMap[item.key]!!
+                item.position(
+                    mainAxisOffset = mainAxisOffset,
+                    crossAxisOffset = itemInfo.crossAxisOffset,
+                    layoutWidth = layoutWidth,
+                    layoutHeight = layoutHeight,
+                )
 
-            if (shouldSetupAnimation) {
-                startPlacementAnimationsIfNeeded(item)
+                if (shouldSetupAnimation) {
+                    startPlacementAnimationsIfNeeded(item)
+                }
             }
         }
 
@@ -408,6 +379,17 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
     fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutItemAnimation? =
         keyToItemInfoMap[key]?.animations?.get(placeableIndex)
 
+    private fun IntArray.updateAndReturnOffsetFor(item: T): Int {
+        val lane = item.lane
+        val span = item.span
+        var maxOffset = 0
+        for (i in lane until lane + span) {
+            this[i] += item.mainAxisSizeWithSpacings
+            maxOffset = maxOf(maxOffset, this[i])
+        }
+        return maxOffset
+    }
+
     val minSizeToFitDisappearingItems: IntSize get() {
         var size = IntSize.Zero
         disappearingItems.fastForEach {
@@ -450,6 +432,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
 
         var constraints: Constraints? = null
         var crossAxisOffset: Int = 0
+        var lane: Int = 0
+        var span: Int = 1
 
         fun updateAnimation(
             positionedItem: T,
@@ -464,6 +448,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             }
             constraints = positionedItem.constraints
             crossAxisOffset = positionedItem.crossAxisOffset
+            lane = positionedItem.lane
+            span = positionedItem.span
             repeat(positionedItem.placeablesCount) { index ->
                 val specs = positionedItem.getParentData(index).specs
                 if (specs == null) {

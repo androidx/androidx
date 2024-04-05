@@ -85,6 +85,7 @@ internal fun measureLazyGrid(
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
             isVertical = isVertical,
+            laneCount = slotsPerLine,
             isLookingAhead = false,
             hasLookaheadOccurred = false,
             coroutineScope = coroutineScope,
@@ -258,16 +259,16 @@ internal fun measureLazyGrid(
         val firstItemIndex = firstLine.items.firstOrNull()?.index ?: 0
         val lastItemIndex = visibleLines.lastOrNull()?.items?.lastOrNull()?.index ?: 0
         val extraItemsBefore = calculateExtraItems(
-            pinnedItems,
-            measuredItemProvider,
-            itemConstraints = { measuredLineProvider.itemConstraints(it) },
+            pinnedItems = pinnedItems,
+            measuredItemProvider = measuredItemProvider,
+            measuredLineProvider = measuredLineProvider,
             filter = { it in 0 until firstItemIndex }
         )
 
         val extraItemsAfter = calculateExtraItems(
-            pinnedItems,
-            measuredItemProvider,
-            itemConstraints = { measuredLineProvider.itemConstraints(it) },
+            pinnedItems = pinnedItems,
+            measuredItemProvider = measuredItemProvider,
+            measuredLineProvider = measuredLineProvider,
             filter = { it in (lastItemIndex + 1) until itemsCount }
         )
 
@@ -322,6 +323,7 @@ internal fun measureLazyGrid(
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
             isVertical = isVertical,
+            laneCount = slotsPerLine,
             isLookingAhead = false,
             hasLookaheadOccurred = false,
             coroutineScope = coroutineScope,
@@ -381,17 +383,20 @@ internal fun measureLazyGrid(
 private inline fun calculateExtraItems(
     pinnedItems: List<Int>,
     measuredItemProvider: LazyGridMeasuredItemProvider,
-    itemConstraints: (Int) -> Constraints,
+    measuredLineProvider: LazyGridMeasuredLineProvider,
     filter: (Int) -> Boolean
 ): List<LazyGridMeasuredItem> {
     var items: MutableList<LazyGridMeasuredItem>? = null
 
     pinnedItems.fastForEach { index ->
         if (filter(index)) {
-            val constraints = itemConstraints(index)
+            val span = measuredLineProvider.spanOf(index)
+            val constraints = measuredLineProvider.childConstraints(0, span)
             val measuredItem = measuredItemProvider.getAndMeasure(
-                index,
-                constraints = constraints
+                index = index,
+                constraints = constraints,
+                lane = 0,
+                span = span
             )
             if (items == null) {
                 items = mutableListOf()
