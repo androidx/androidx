@@ -23,8 +23,6 @@ import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
 import androidx.compose.compiler.plugins.kotlin.lower.includeFileNameInExceptionTrace
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.serialization.signature.IdSignatureSerializer
-import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -35,7 +33,6 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isEnumClass
-import org.jetbrains.kotlin.ir.util.isInterface
 import org.jetbrains.kotlin.ir.util.isLocal
 import org.jetbrains.kotlin.ir.util.parentAsClass
 
@@ -65,22 +62,10 @@ abstract class AbstractDecoysLowering(
         }
     }
 
-    private fun IrFunction.isSAM(): Boolean {
-        return (parent as? IrClass).let {
-            it?.isInterface == true &&
-                it.isFun &&
-                (this as? IrSimpleFunction)?.modality == Modality.ABSTRACT
-        } || (this as? IrSimpleFunction)?.overriddenSymbols?.any {
-            it.owner.isSAM()
-        } == true
-    }
-
-    protected fun IrFunction.shouldBeRemapped(): Boolean {
-        return !isLocalFunction() &&
+    protected fun IrFunction.shouldBeRemapped(): Boolean =
+        !isLocalFunction() &&
             !isEnumConstructor() &&
-            (hasComposableAnnotation() || hasComposableParameter()) &&
-            !isSAM()
-    }
+            (hasComposableAnnotation() || hasComposableParameter())
 
     private fun IrFunction.isLocalFunction(): Boolean =
         origin == IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA ||

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,39 +22,51 @@
  * modifying its settings.
  */
 import androidx.build.Publish
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id("java")
     id("AndroidXPlugin")
+    id("com.google.protobuf")
+    id("kotlin")
+}
+
+afterEvaluate {
+    lint {
+        lintOptions {
+            // protobuf generates unannotated methods
+            disable("UnknownNullness")
+        }
+    }
 }
 
 dependencies {
-    compileOnly(libs.kotlinCompiler)
-}
+    implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinMetadataJvm)
 
-// This task exists to work around https://youtrack.jetbrains.com/issue/KT-44876
-TaskProvider<ShadowJar> shadowJar = tasks.register("repackageCompiler", ShadowJar) { task ->
-    task.configurations = [project.configurations.compileClasspath]
-    task.relocate("kotlinx.collections.immutable", "org.jetbrains.kotlin.kotlinx.collections.immutable")
-    task.destinationDirectory.set(new File(buildDir, "repackaged"))
-    task.archiveVersion.set("")
-}
-
-configurations {
-    apiElements.outgoing.artifacts.clear()
-    runtimeElements.outgoing.artifacts.clear()
-}
-
-artifacts {
-    apiElements(shadowJar)
-    runtimeElements(shadowJar)
+    implementation(libs.kotlinStdlib)
+    implementation(libs.protobufLite)
+    implementation(libs.guavaAndroid)
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
 }
 
 androidx {
-    // This module exists to work around https://youtrack.jetbrains.com/issue/KT-44876
-    name = "Repackaged version of Kotlin compiler"
+    // This module exists to work around https://github.com/google/protobuf-gradle-plugin/issues/497
+    name = "Protobuf classes for compiler integration tests"
     publish = Publish.NONE
     inceptionYear = "2021"
     description = "Contains the Kotlin compiler repackaged to be compatible with integration tests"
+}
+
+protobuf {
+    protoc {
+        artifact = libs.protobufCompiler.get()
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
 }
