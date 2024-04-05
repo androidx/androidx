@@ -265,7 +265,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 mainAxisItemSpacing = mainAxisSpacing,
                 slots = resolvedSlots,
                 spanProvider = itemProvider.spanProvider,
-                density = this
+                density = this,
+                coroutineScope = coroutineScope
             )
         }
 
@@ -875,7 +876,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
             mainAxisItemSpacing = mainAxisSpacing,
             slots = resolvedSlots,
             spanProvider = itemProvider.spanProvider,
-            density = this
+            density = this,
+            coroutineScope = coroutineScope
         )
     }
 }
