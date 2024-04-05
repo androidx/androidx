@@ -94,7 +94,8 @@ class ReportEventRequest public constructor(
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     internal fun convertToAdServices(): android.adservices.adselection.ReportEventRequest {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.convertReportEventRequest(this)
         }
         return Ext8Impl.convertReportEventRequest(this)

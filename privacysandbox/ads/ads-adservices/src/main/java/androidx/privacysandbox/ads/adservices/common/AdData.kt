@@ -102,10 +102,11 @@ public constructor(
     @SuppressLint("NewApi")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun convertToAdServices(): android.adservices.common.AdData {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.convertAdData(this)
         } else if (AdServicesInfo.adServicesVersion() >= 8 ||
-                AdServicesInfo.extServicesVersion() >= 9) {
+                AdServicesInfo.extServicesVersionS() >= 9) {
             return Ext8Impl.convertAdData(this)
         }
         return Ext4Impl.convertAdData(this)

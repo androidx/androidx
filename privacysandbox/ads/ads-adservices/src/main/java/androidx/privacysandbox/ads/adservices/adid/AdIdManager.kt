@@ -53,9 +53,13 @@ abstract class AdIdManager internal constructor() {
         fun obtain(context: Context): AdIdManager? {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AdIdManagerApi33Ext4Impl(context)
-            } else if (AdServicesInfo.extServicesVersion() >= 9) {
+            } else if (AdServicesInfo.extServicesVersionS() >= 9) {
                 BackCompatManager.getManager(context, "AdIdManager") {
                     AdIdManagerApi31Ext9Impl(context)
+                }
+            } else if (AdServicesInfo.extServicesVersionR() >= 11) {
+                BackCompatManager.getManager(context, "AdIdManager") {
+                    AdIdManagerApi30Ext11Impl(context)
                 }
             } else {
                 null
