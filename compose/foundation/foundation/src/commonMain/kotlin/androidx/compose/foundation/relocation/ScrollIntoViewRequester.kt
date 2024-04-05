@@ -24,6 +24,8 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.unit.toSize
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
  * Bring this node into bounds by making all the scrollable parents scroll appropriately.

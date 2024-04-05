@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
+import kotlin.jvm.JvmInline
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

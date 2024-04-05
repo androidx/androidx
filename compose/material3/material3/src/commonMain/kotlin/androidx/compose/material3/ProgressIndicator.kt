@@ -614,7 +614,7 @@ fun CircularProgressIndicator(
             gapSize + strokeWidth
         }
         val gapSizeSweep =
-            (adjustedGapSize.value / (Math.PI * CircularIndicatorDiameter.value).toFloat()) * 360f
+            (adjustedGapSize.value / (PI * CircularIndicatorDiameter.value).toFloat()) * 360f
 
         drawCircularIndicator(
             startAngle + sweep + min(sweep, gapSizeSweep),

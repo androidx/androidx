@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.core
 
+import androidx.compose.animation.core.internal.binarySearch
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -251,7 +253,7 @@ internal class ArcSpline(
 
         fun setPoint(time: Float) {
             val percent = (if (isVertical) time2 - time else time - time1) * oneOverDeltaTime
-            val angle = Math.PI.toFloat() * 0.5f * lookup(percent)
+            val angle = PI.toFloat() * 0.5f * lookup(percent)
             tmpSinAngle = sin(angle)
             tmpCosAngle = cos(angle)
         }

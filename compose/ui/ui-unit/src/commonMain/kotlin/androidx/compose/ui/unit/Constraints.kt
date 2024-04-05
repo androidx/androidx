@@ -20,6 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.Constraints.Companion.Infinity
+import kotlin.jvm.JvmInline
 import kotlin.math.min
 
 /**

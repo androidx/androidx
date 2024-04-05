@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
+import kotlin.jvm.JvmInline
 import kotlin.math.max
 import kotlin.math.roundToInt
 

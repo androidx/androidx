@@ -18,7 +18,6 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.checkPrecondition
-import org.jetbrains.annotations.TestOnly
 import androidx.compose.runtime.TestOnly
 
 /**

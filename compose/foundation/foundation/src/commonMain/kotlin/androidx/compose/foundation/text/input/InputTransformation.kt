@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.substring
 import androidx.compose.ui.text.toUpperCase
+import kotlin.jvm.JvmName
 
 /**
  * A function that is ran after every change made to a [TextFieldState] by user input and can change
