@@ -24,7 +24,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -192,7 +191,7 @@ class BringIntoViewRequestPriorityQueueTest {
         queue.enqueue(smallRequest)
         queue.enqueue(mediumRequest)
         queue.enqueue(largeRequest)
-        val cause = CancellationException("Oops")
+        val cause = RuntimeException("Oops")
 
         queue.cancelAndRemoveAll(cause)
 
