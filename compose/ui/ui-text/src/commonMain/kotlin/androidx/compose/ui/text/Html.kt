@@ -26,6 +26,7 @@ package androidx.compose.ui.text
  * [Styling with HTML markup](https://developer.android.com/guide/topics/resources/string-resource#StylingWithHTML)
  * guide. Note that bullet lists are not **yet** available.
  *
+ * @param htmlString HTML-tagged string to be parsed to construct AnnotatedString
  * @param linkStyle style to be applied to links present in the string
  * @param linkFocusedStyle style to be applied to links present in the string when they are focused
  * @param linkHoveredStyle style to be applied to links present in the string when they are hovered
@@ -46,7 +47,8 @@ package androidx.compose.ui.text
  * @see LinkAnnotation
  *
  */
-expect fun String.parseAsHtml(
+expect fun AnnotatedString.Companion.fromHtml(
+    htmlString: String,
     linkStyle: SpanStyle? = null,
     linkFocusedStyle: SpanStyle? = null,
     linkHoveredStyle: SpanStyle? = null,

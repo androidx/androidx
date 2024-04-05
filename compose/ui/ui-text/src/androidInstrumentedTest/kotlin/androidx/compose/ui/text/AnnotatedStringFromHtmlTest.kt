@@ -97,7 +97,9 @@ class AnnotatedStringFromHtmlTest {
                 addStyle(SpanStyle(textDecoration = TextDecoration.Underline))
             }
 
-            val actual = stringResource(androidx.compose.ui.text.test.R.string.html).parseAsHtml()
+            val actual = AnnotatedString.fromHtml(
+                stringResource(androidx.compose.ui.text.test.R.string.html)
+            )
 
             assertThat(actual.text).isEqualTo(expected.text)
             assertThat(actual.spanStyles).containsExactlyElementsIn(expected.spanStyles).inOrder()
@@ -116,10 +118,10 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun formattedString_withStyling() {
         rule.setContent {
-            val actual = stringResource(
+            val actual = AnnotatedString.fromHtml(stringResource(
                 androidx.compose.ui.text.test.R.string.formatting,
                 "computer"
-            ).parseAsHtml()
+            ))
             assertThat(actual.text).isEqualTo("Hello, computer!")
             assertThat(actual.spanStyles).containsExactly(
                 AnnotatedString.Range(SpanStyle(fontWeight = FontWeight.Bold), 7, 15)
@@ -130,7 +132,7 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_withNoText_noStringAnnotation() {
         rule.setContent {
-            val actual = "a<annotation key1=value1></annotation>".parseAsHtml()
+            val actual = AnnotatedString.fromHtml("a<annotation key1=value1></annotation>")
 
             assertThat(actual.text).isEqualTo("a")
             assertThat(actual.getStringAnnotations(0, actual.length)).isEmpty()
@@ -140,7 +142,7 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_withNoAttributes_noStringAnnotation() {
         rule.setContent {
-            val actual = "<annotation>a</annotation>".parseAsHtml()
+            val actual = AnnotatedString.fromHtml("<annotation>a</annotation>")
 
             assertThat(actual.text).isEqualTo("a")
             assertThat(actual.getStringAnnotations(0, actual.length)).isEmpty()
@@ -150,7 +152,7 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_withOneAttribute_oneStringAnnotation() {
         rule.setContent {
-            val actual = "<annotation key1=value1>a</annotation>".parseAsHtml()
+            val actual = AnnotatedString.fromHtml("<annotation key1=value1>a</annotation>")
 
             assertThat(actual.text).isEqualTo("a")
             assertThat(actual.getStringAnnotations(0, actual.length)).containsExactly(
@@ -162,9 +164,9 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_withMultipleAttributes_multipleStringAnnotations() {
         rule.setContent {
-            val actual = """
+            val actual = AnnotatedString.fromHtml("""
                 <annotation key1="value1" key2=value2 keyThree="valueThree">a</annotation>
-            """.trimIndent().parseAsHtml()
+            """.trimIndent())
 
             assertThat(actual.text).isEqualTo("a")
             assertThat(actual.getStringAnnotations(0, actual.length)).containsExactly(
@@ -178,9 +180,9 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_withMultipleAnnotations_multipleStringAnnotations() {
         rule.setContent {
-            val actual = """
+            val actual = AnnotatedString.fromHtml("""
                 <annotation key1=val1>a</annotation>a<annotation key2="val2">a</annotation>
-                """.trimIndent().parseAsHtml()
+                """.trimIndent())
 
             assertThat(actual.text).isEqualTo("aaa")
             assertThat(actual.getStringAnnotations(0, actual.length)).containsExactly(
@@ -193,7 +195,9 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_withOtherTag() {
         rule.setContent {
-            val actual = "<annotation key1=\"value1\">a</annotation><b>a</b>".parseAsHtml()
+            val actual = AnnotatedString.fromHtml(
+                "<annotation key1=\"value1\">a</annotation><b>a</b>"
+            )
 
             assertThat(actual.text).isEqualTo("aa")
             assertThat(actual.spanStyles).containsExactly(
@@ -208,7 +212,9 @@ class AnnotatedStringFromHtmlTest {
     @Test
     fun annotationTag_wrappedByOtherTag() {
         rule.setContent {
-            val actual = "<b><annotation key1=\"value1\">a</annotation></b>".parseAsHtml()
+            val actual = AnnotatedString.fromHtml(
+                "<b><annotation key1=\"value1\">a</annotation></b>"
+            )
 
             assertThat(actual.text).isEqualTo("a")
             assertThat(actual.spanStyles).containsExactly(
@@ -352,7 +358,8 @@ class AnnotatedStringFromHtmlTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_appliesColorFromMethod() {
         val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
-        val annotatedString = stringWithColoredLink.parseAsHtml(
+        val annotatedString = AnnotatedString.fromHtml(
+            stringWithColoredLink,
             linkStyle = SpanStyle(color = Color.Green)
         )
 
@@ -370,7 +377,8 @@ class AnnotatedStringFromHtmlTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_mergesDecorationFromMethod() {
         val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
-        val annotatedString = stringWithColoredLink.parseAsHtml(
+        val annotatedString = AnnotatedString.fromHtml(
+            stringWithColoredLink,
             linkStyle = SpanStyle(background = Color.Red)
         )
 
@@ -388,7 +396,8 @@ class AnnotatedStringFromHtmlTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun linkAnnotation_constructedFromMethodArguments() {
         val stringWithLink = "<a href=\"url\">link</a>"
-        val annotatedString = stringWithLink.parseAsHtml(
+        val annotatedString = AnnotatedString.fromHtml(
+            stringWithLink,
             linkStyle = SpanStyle(color = Color.Red),
             linkFocusedStyle = SpanStyle(color = Color.Green),
             linkHoveredStyle = SpanStyle(color = Color.Blue),

@@ -21,9 +21,10 @@ package androidx.compose.ui.text
  *
  * Converts a string with HTML tags into [AnnotatedString].
  */
-actual fun String.parseAsHtml(
+actual fun AnnotatedString.Companion.fromHtml(
+    htmlString: String,
     linkStyle: SpanStyle?,
     linkFocusedStyle: SpanStyle?,
     linkHoveredStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
-): AnnotatedString = AnnotatedString(this)
+): AnnotatedString = AnnotatedString(htmlString)
