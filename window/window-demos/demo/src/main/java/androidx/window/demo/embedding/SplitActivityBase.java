@@ -48,6 +48,7 @@ import androidx.window.embedding.ActivityEmbeddingController;
 import androidx.window.embedding.ActivityEmbeddingOptions;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
+import androidx.window.embedding.EmbeddedActivityWindowInfo;
 import androidx.window.embedding.EmbeddingRule;
 import androidx.window.embedding.RuleController;
 import androidx.window.embedding.SplitAttributes;
@@ -57,6 +58,7 @@ import androidx.window.embedding.SplitPairFilter;
 import androidx.window.embedding.SplitPairRule;
 import androidx.window.embedding.SplitPinRule;
 import androidx.window.embedding.SplitPlaceholderRule;
+import androidx.window.java.embedding.ActivityEmbeddingControllerCallbackAdapter;
 import androidx.window.java.embedding.SplitControllerCallbackAdapter;
 
 import java.util.HashSet;
@@ -81,7 +83,11 @@ public class SplitActivityBase extends AppCompatActivity
      */
     private SplitControllerCallbackAdapter mSplitControllerAdapter;
     private RuleController mRuleController;
-    private SplitInfoCallback mCallback;
+    private SplitInfoCallback mSplitInfoCallback;
+
+    private ActivityEmbeddingController mActivityEmbeddingController;
+    private ActivityEmbeddingControllerCallbackAdapter mActivityEmbeddingControllerCallbackAdapter;
+    private EmbeddedActivityWindowInfoCallback mEmbeddedActivityWindowInfoCallbackCallback;
 
     private ActivitySplitActivityLayoutBinding mViewBinding;
 
@@ -110,6 +116,9 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding = ActivitySplitActivityLayoutBinding.inflate(getLayoutInflater());
         setContentView(mViewBinding.getRoot());
 
+        final int extensionVersion = WindowSdkExtensions.getInstance().getExtensionVersion();
+        mActivityEmbeddingController = ActivityEmbeddingController.getInstance(this);
+
         // Setup activity launch buttons and config options.
         mViewBinding.launchB.setOnClickListener((View v) ->
                 startActivity(new Intent(this, SplitActivityB.class)));
@@ -124,15 +133,14 @@ public class SplitActivityBase extends AppCompatActivity
                 try {
                     bundle = ActivityEmbeddingOptions.setLaunchingActivityStack(
                             ActivityOptions.makeBasic().toBundle(), this,
-                            ActivityEmbeddingController.getInstance(this)
-                                    .getActivityStack(this));
+                            mActivityEmbeddingController.getActivityStack(this));
                 } catch (UnsupportedOperationException ex) {
                     Log.w(TAG, "#setLaunchingActivityStack is not supported", ex);
                 }
             }
             startActivity(new Intent(this, SplitActivityE.class), bundle);
         });
-        if (WindowSdkExtensions.getInstance().getExtensionVersion() < 3) {
+        if (extensionVersion < 3) {
             mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
         }
         mViewBinding.launchF.setOnClickListener((View v) ->
@@ -196,7 +204,7 @@ public class SplitActivityBase extends AppCompatActivity
                         .setTitle("Alert dialog demo")
                         .setMessage("This is a dialog demo").create().show());
 
-        if (WindowSdkExtensions.getInstance().getExtensionVersion() < 5) {
+        if (extensionVersion < 5) {
             mViewBinding.pinTopActivityStackButton.setEnabled(false);
             mViewBinding.unpinTopActivityStackButton.setEnabled(false);
         } else {
@@ -223,30 +231,72 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
+        if (extensionVersion >= 6) {
+            mActivityEmbeddingControllerCallbackAdapter =
+                    new ActivityEmbeddingControllerCallbackAdapter(mActivityEmbeddingController);
+
+            // The EmbeddedActivityWindowInfoListener will only be triggered when the activity is
+            // embedded and visible (just like Activity#onConfigurationChanged).
+            // Register it in #onCreate instead of #onStart so that when the embedded status is
+            // changed to non-embedded before #onStart (like screen rotation when this activity is
+            // in background), the listener will be triggered right after #onStart.
+            // Otherwise, if registered in #onStart, it will not be triggered on registration
+            // because the activity is not embedded, which results it shows the stale info.
+            mEmbeddedActivityWindowInfoCallbackCallback = new EmbeddedActivityWindowInfoCallback();
+            mActivityEmbeddingControllerCallbackAdapter.addEmbeddedActivityWindowInfoListener(
+                    this, Runnable::run, mEmbeddedActivityWindowInfoCallbackCallback);
+        }
         mRuleController = RuleController.getInstance(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mActivityEmbeddingControllerCallbackAdapter != null) {
+            mActivityEmbeddingControllerCallbackAdapter.removeEmbeddedActivityWindowInfoListener(
+                    mEmbeddedActivityWindowInfoCallbackCallback);
+            mEmbeddedActivityWindowInfoCallbackCallback = null;
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mCallback = new SplitInfoCallback();
-        mSplitControllerAdapter.addSplitListener(this, Runnable::run, mCallback);
+        mSplitInfoCallback = new SplitInfoCallback();
+        mSplitControllerAdapter.addSplitListener(this, Runnable::run, mSplitInfoCallback);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mSplitControllerAdapter.removeSplitListener(mCallback);
-        mCallback = null;
+        mSplitControllerAdapter.removeSplitListener(mSplitInfoCallback);
+        mSplitInfoCallback = null;
     }
 
     /** Updates the embedding status when receives callback from the extension. */
-    class SplitInfoCallback implements Consumer<List<SplitInfo>> {
+    private class SplitInfoCallback implements Consumer<List<SplitInfo>> {
         @Override
         public void accept(List<SplitInfo> splitInfoList) {
             runOnUiThread(() -> {
-                updateEmbeddedStatus();
+                if (mActivityEmbeddingControllerCallbackAdapter == null) {
+                    // Otherwise, the embedded status will be updated from
+                    // EmbeddedActivityWindowInfoCallback.
+                    updateEmbeddedStatus(mActivityEmbeddingController.isActivityEmbedded(
+                            SplitActivityBase.this));
+                }
                 updateCheckboxesFromCurrentConfig();
+            });
+        }
+    }
+
+    /** Updates the embedding status when receives callback from the extension. */
+    private class EmbeddedActivityWindowInfoCallback implements
+            Consumer<EmbeddedActivityWindowInfo> {
+        @Override
+        public void accept(EmbeddedActivityWindowInfo embeddedActivityWindowInfo) {
+            runOnUiThread(() -> {
+                updateEmbeddedStatus(embeddedActivityWindowInfo.isEmbedded());
+                updateEmbeddedWindowInfo(embeddedActivityWindowInfo);
             });
         }
     }
@@ -482,11 +532,21 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Updates the status label that says when an activity is embedded. */
-    void updateEmbeddedStatus() {
-        if (ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)) {
-            mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.VISIBLE);
-        } else {
-            mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.GONE);
+    private void updateEmbeddedStatus(boolean isEmbedded) {
+        mViewBinding.activityEmbeddedStatusTextView.setVisibility(isEmbedded
+                ? View.VISIBLE
+                : View.GONE);
+    }
+
+    private void updateEmbeddedWindowInfo(
+            @NonNull EmbeddedActivityWindowInfo info) {
+        Log.d(TAG, "EmbeddedActivityWindowInfo changed for r=" + this + "\ninfo=" + info);
+        if (!info.isEmbedded()) {
+            mViewBinding.activityEmbeddedBoundsTextView.setVisibility(View.GONE);
+            return;
         }
+        mViewBinding.activityEmbeddedBoundsTextView.setVisibility(View.VISIBLE);
+        mViewBinding.activityEmbeddedBoundsTextView.setText(
+                "Embedded bounds=" + info.getBoundsInParentHost());
     }
 }
