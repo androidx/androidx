@@ -250,21 +250,21 @@ public class PaginationModel {
      * @return the range of visible pages (may be an empty range).
      */
     public Range getPagesInWindow(Range intervalPx, boolean includePartial) {
-        if (intervalPx.mFirst > mPageBottoms.get(mSize - 1)) {
+        if (intervalPx.getFirst() > mPageBottoms.get(mSize - 1)) {
             return new Range(mSize + 1, mSize);
         }
         List<Integer> startList = includePartial ? mPageBottoms : mPageTops;
         List<Integer> endList = includePartial ? mPageTops : mPageBottoms;
 
-        int topResult = Collections.binarySearch(startList, intervalPx.mFirst);
+        int topResult = Collections.binarySearch(startList, intervalPx.getFirst());
         int rangeStart = Math.abs(topResult + 1); // Insertion point.
 
-        int bottomResult = Collections.binarySearch(endList, intervalPx.mLast);
+        int bottomResult = Collections.binarySearch(endList, intervalPx.getLast());
         int rangeEnd = Math.abs(bottomResult + 1) - 1; // Before insertion point.
 
         if (rangeEnd < rangeStart) {
             // No page is entirely visible.
-            int midPoint = (intervalPx.mFirst + intervalPx.mLast) / 2;
+            int midPoint = (intervalPx.getFirst() + intervalPx.getLast()) / 2;
             int midResult = Collections.binarySearch(mPageTops, midPoint);
             int page = Math.max(Math.abs(midResult + 1) - 1, 0); // Before insertion point.
             return new Range(page, page);

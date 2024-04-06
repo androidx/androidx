@@ -421,6 +421,7 @@ public class MosaicViewTest {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public int getOpacity() {
             return 0;
         }

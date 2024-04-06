@@ -37,10 +37,8 @@ import androidx.pdf.widget.MosaicView;
 public class PageMosaicView extends MosaicView implements PageViewFactory.PageView {
 
     private static final String SEARCH_OVERLAY_KEY = "SearchOverlayKey";
-    private static final String COMMENT_ANCHOR_OVERLAY_KEY = "PdfCommentAnchorOverlayKey";
 
     private final int mPageNum;
-    private final Dimensions mPageSize;
     private String mPageText;
     private LinkRects mUrlLinks;
 
@@ -52,7 +50,6 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
             BitmapRecycler bitmapRecycler) {
         super(context);
         this.mPageNum = pageNum;
-        this.mPageSize = pageSize;
         init(pageSize, bitmapRecycler, bitmapSource);
         setId(pageNum);
         setPageText(null);
