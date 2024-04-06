@@ -20,7 +20,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.evaluateCubic
 import androidx.compose.ui.graphics.findFirstCubicRoot
-import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * Easing is a way to adjust an animation’s fraction. Easing allows transitioning
@@ -137,8 +136,10 @@ class CubicBezierEasing(
                 )
             }
 
-            // Clamp to clean up numerical imprecision at the extremes
-            evaluateCubic(b, d, t).fastCoerceIn(0f, 1f)
+            // Don't clamp the values since the curve might be used to over- or under-shoot
+            // The test above that checks if fraction is in ]0..1[ will ensure we start and
+            // end at 0 and 1 respectively
+            evaluateCubic(b, d, t)
         } else {
             fraction
         }
