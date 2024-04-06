@@ -338,7 +338,7 @@ public class PdfLoader {
     class LoadDocumentTask extends AbstractPdfTask<PdfStatus> {
         private final String mPassword;
         private int mNumPages;
-        private boolean mIsLinearized;
+//        private boolean mIsLinearized;
 
         LoadDocumentTask() {
             this(null);
@@ -382,7 +382,7 @@ public class PdfLoader {
 
             if (result == PdfStatus.LOADED) {
                 mNumPages = pdfDocument.getPdfDocumentRemote().numPages();
-                mIsLinearized = pdfDocument.getPdfDocumentRemote().isPdfLinearized();
+//                mIsLinearized = pdfDocument.getPdfDocumentRemote().isPdfLinearized();
             }
             return result;
         }

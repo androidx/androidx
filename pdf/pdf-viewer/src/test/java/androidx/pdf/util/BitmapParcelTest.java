@@ -52,7 +52,7 @@ public class BitmapParcelTest {
                         R.raw.launcher_pdfviewer);
     }
 
-    // TODO: Fix the flaky test and uncomment
+    // TODO: Fails in the first execution and then passes. Uncomment when fixed
 //    @Test
 //    public void testBitmapTransferWithOutputFileDescriptor() {
 //        int bufferSize = mSourceBitmap.getWidth() * mSourceBitmap.getHeight() * 256;

@@ -421,8 +421,9 @@ public class GestureTracker implements OnTouchListener {
 
     private void log(String msg) {
         Log.v(TAG,
-                String.format("[%s] msg: %s %s (%s) [Handling: %s]", mViewTag, msg,
-                        mDetectedGesture, mLog, mHandling));
+                String.format("[%s] %s %s (%s) [Handling: %s]", mViewTag, msg, mDetectedGesture,
+                        mLog,
+                        mHandling));
     }
 
     /** A recipient for all gesture handling. */

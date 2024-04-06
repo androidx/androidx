@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.pdf.fetcher;
+package androidx.pdf.viewer;
+
+import android.widget.EditText;
 
 import androidx.annotation.RestrictTo;
+import androidx.pdf.viewer.password.PasswordDialog;
 
 /**
- * An exception used to report that a specific fetch task was cancelled, for whatever
- * reason.
+ * This instance requires a {@link #getTargetFragment} to be set to give back the typed password.
+ * Currently, this target Fragment must be a {@link PdfViewer}.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public final class TaskCancelledException extends Exception {
+@SuppressWarnings("deprecation")
+public class PdfPasswordDialog extends PasswordDialog {
 
-    /** Constructs this exception with the current stack trace. */
-    public TaskCancelledException() {
+    @Override
+    public void sendPassword(EditText textField) {
+        ((PdfViewer) getTargetFragment()).setPassword(textField.getText().toString());
     }
 
-    /**
-     * Constructs this exception with the current stack trace and the specified detail message.
-     */
-    public TaskCancelledException(String detailMessage) {
-        super(detailMessage);
+    @Override
+    public void showErrorOnDialogCancel() {
+        ((PdfViewer) getTargetFragment()).setPasswordCancelError();
     }
 }

@@ -57,7 +57,6 @@ import java.util.concurrent.Executors;
  * value that was passed to it (an actual value or an Exception).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("deprecation")
 public class UiFutureValues {
     private static final String TAG = UiFutureValues.class.getSimpleName();
     private static final Executor DEFAULT_EXECUTOR = Executors.newFixedThreadPool(4,
@@ -164,8 +163,9 @@ public class UiFutureValues {
     }
 
     /**
-     * A {@link FutureValue.Callback} wrapper interface around another {@link FutureValue.Callback}
-     * that ensures that each callback call is run on the UI thread.
+     * A {@link FutureValue.Callback} wrapper interface around another
+     * {@link FutureValue.Callback} that ensures that each
+     * callback call is run on the UI thread.
      */
     private static <T> FutureValue.Callback<T> runOnUi(
             final FutureValue.Callback<T> targetCallback) {
@@ -233,6 +233,7 @@ public class UiFutureValues {
      *
      * @param <T> The type of the value being supplied.
      */
+    @SuppressWarnings("deprecation")
     private static class FutureAsyncTask<T> extends android.os.AsyncTask<Void, Float, T> {
 
         private final Supplier<T> mSupplier;

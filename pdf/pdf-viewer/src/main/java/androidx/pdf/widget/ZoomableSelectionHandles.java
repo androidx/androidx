@@ -35,8 +35,8 @@ import androidx.pdf.widget.ZoomView.ZoomScroll;
  * @param <S> The type of the selection that this class observes, updating the
  *            handles whenever it changes.
  */
-@SuppressWarnings("deprecation")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressWarnings("deprecation")
 public abstract class ZoomableSelectionHandles<S> {
     private static final float SCALE_OFFSET = 0.5f;
     private static final float HANDLE_ALPHA = 0.75f;

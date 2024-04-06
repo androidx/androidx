@@ -15,7 +15,11 @@
   -->
 
 <resources>
+
+    <color name="google_blue">#ff1a73e8</color>
     <color name="google_white">#ffffffff</color>
     <color name="google_grey">#ff3c4043</color>
+    <color name="text_default">#666</color>
+    <color name="text_error">#da4336</color>
     <color name="selection_handles">#00aadd</color>
 </resources>
