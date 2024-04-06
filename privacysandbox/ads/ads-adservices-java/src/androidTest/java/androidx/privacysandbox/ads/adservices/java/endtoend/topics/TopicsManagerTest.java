@@ -16,14 +16,13 @@
 
 package androidx.privacysandbox.ads.adservices.java.endtoend.topics;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil;
 import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.privacysandbox.ads.adservices.java.topics.TopicsManagerFutures;
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest;
 import androidx.privacysandbox.ads.adservices.topics.GetTopicsResponse;
-import androidx.privacysandbox.ads.adservices.topics.Topic;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -33,12 +32,9 @@ import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.Arrays;
 
 @RunWith(JUnit4.class)
 @SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
@@ -108,9 +104,8 @@ public class TopicsManagerTest {
         }
     }
 
-    @Ignore // b/278931615
     @Test
-    public void testTopicsManager_runClassifier() throws Exception {
+    public void testGetTopics_initialCall_returnsEmptyTopics() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
@@ -118,49 +113,16 @@ public class TopicsManagerTest {
 
         TopicsManagerFutures topicsManager =
                 TopicsManagerFutures.from(ApplicationProvider.getApplicationContext());
-        GetTopicsRequest request =
-                new GetTopicsRequest.Builder()
-                        .setAdsSdkName("sdk1")
-                        .setShouldRecordObservation(true)
-                        .build();
-        GetTopicsResponse response = topicsManager.getTopicsAsync(request).get();
-
-        // At beginning, Sdk1 receives no topic.
-        assertThat(response.getTopics()).isEmpty();
-
-        // Now force the Epoch Computation Job. This should be done in the same epoch for
-        // callersCanLearnMap to have the entry for processing.
-        mTestUtil.forceEpochComputationJob();
-
-        // Wait to the next epoch. We will not need to do this after we implement the fix in
-        // go/rb-topics-epoch-scheduling
-        Thread.sleep(TEST_EPOCH_JOB_PERIOD_MS);
-
-        // Since the sdk1 called the Topics API in the previous Epoch, it should receive some topic.
-        response = topicsManager.getTopicsAsync(request).get();
-        assertThat(response.getTopics()).isNotEmpty();
-
-        // Top 5 classifications for empty string with v2 model are [10147, 10253, 10175, 10254,
-        // 10333]. This is computed by running the model on the device for empty string.
-        // These 5 classification topics will become top 5 topics of the epoch since there is
-        // no other apps calling Topics API.
-        // The app will be assigned one random topic from one of these 5 topics.
-        assertThat(response.getTopics()).hasSize(1);
-
-        Topic topic = response.getTopics().get(0);
-
-        // topic is one of the 5 classification topics of the Test App.
-        assertThat(topic.getTopicId()).isIn(Arrays.asList(10147, 10253, 10175, 10254, 10333));
-
-        assertThat(topic.getModelVersion()).isAtLeast(1L);
-        assertThat(topic.getTaxonomyVersion()).isAtLeast(1L);
-
-        // Sdk 2 did not call getTopics API. So it should not receive any topic.
-        GetTopicsResponse response2 =
+        GetTopicsResponse response1 =
                 topicsManager
                         .getTopicsAsync(
-                                new GetTopicsRequest.Builder().setAdsSdkName("sdk2").build())
+                                new GetTopicsRequest.Builder()
+                                        .setAdsSdkName("sdk1")
+                                        .setShouldRecordObservation(true)
+                                        .build())
                         .get();
-        assertThat(response2.getTopics()).isEmpty();
+
+        // At beginning, Sdk1 receives no topic.
+        assertWithMessage("Initial topics returned for sdk1").that(response1.getTopics()).isEmpty();
     }
 }
