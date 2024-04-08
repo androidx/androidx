@@ -16,34 +16,34 @@
 
 package androidx.compose.ui.text.intl
 
-internal class JsLocale(val locale: IntlLocale) : PlatformLocale {
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1256/Implement-public-JsLocale
+//  Remove TODO in a separate PR, this implementation should be reviewed separately.
+class JsPlatformLocale internal constructor(internal val locale: IntlLocale)
 
-    constructor(languageTag: String): this(languageTag.toIntlLocale())
+actual typealias PlatformLocale = JsPlatformLocale
 
-    override val language: String
-        get() = locale.language
+internal actual val PlatformLocale.language: String
+    get() = locale.language
 
-    override val script: String
-        get() = locale.script ?: ""
+internal actual val PlatformLocale.script: String
+    get() = locale.script ?: ""
 
-    override val region: String
-        get() = locale.region ?: ""
+internal actual val PlatformLocale.region: String
+    get() = locale.region ?: ""
 
-    override fun toLanguageTag(): String = locale.baseName
-}
+internal actual fun PlatformLocale.getLanguageTag(): String = locale.baseName
 
 internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
     object : PlatformLocaleDelegate {
         override val current: LocaleList
             get() = LocaleList(
                 userPreferredLanguages().map {
-                    Locale(JsLocale(it))
+                    Locale(JsPlatformLocale(it.toIntlLocale()))
                 }
             )
 
-
         override fun parseLanguageTag(languageTag: String): PlatformLocale {
-            return JsLocale(languageTag)
+            return JsPlatformLocale(languageTag.toIntlLocale())
         }
     }
 
