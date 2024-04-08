@@ -25,6 +25,7 @@ import androidx.compose.runtime.IntStack
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
+import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SlotReader
 import androidx.compose.runtime.SlotTable
@@ -190,6 +191,18 @@ internal class ComposerChangeListWriter(
 
     fun remember(value: RememberObserver) {
         changeList.pushRemember(value)
+    }
+
+    fun rememberPausingScope(scope: RecomposeScopeImpl) {
+        changeList.pushRememberPausingScope(scope)
+    }
+
+    fun startResumingScope(scope: RecomposeScopeImpl) {
+        changeList.pushStartResumingScope(scope)
+    }
+
+    fun endResumingScope(scope: RecomposeScopeImpl) {
+        changeList.pushEndResumingScope(scope)
     }
 
     fun updateValue(value: Any?, groupSlotIndex: Int) {

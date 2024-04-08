@@ -45,4 +45,8 @@ internal class UiApplier(root: LayoutNode) : AbstractApplier<LayoutNode>(root) {
         super.onEndChanges()
         root.owner?.onEndApplyChanges()
     }
+
+    override fun reuse() {
+        current.onReuse()
+    }
 }

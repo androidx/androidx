@@ -18,13 +18,12 @@
 
 package androidx.compose.runtime
 
-import androidx.collection.MutableIntList
 import androidx.collection.MutableScatterSet
-import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.internal.AtomicReference
+import androidx.compose.runtime.internal.RememberEventDispatcher
 import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.StateObjectImpl
@@ -289,6 +288,29 @@ sealed interface ControlledComposition : Composition {
      * used to compose as if the scopes have already been changed.
      */
     fun <R> delegateInvalidations(to: ControlledComposition?, groupIndex: Int, block: () -> R): R
+
+    /**
+     * Sets the [shouldPause] callback allowing a composition to be pausable if it is not `null`.
+     * Setting the callback to `null` disables pausing.
+     *
+     * @return the previous value of the callback which will be restored once the callback is no
+     *   longer needed.
+     * @see PausableComposition
+     */
+    fun setShouldPauseCallback(shouldPause: (() -> Boolean)?): (() -> Boolean)?
+}
+
+/** Utility function to set and restore a should pause callback. */
+internal inline fun <R> ControlledComposition.pausable(
+    noinline shouldPause: () -> Boolean,
+    block: () -> R
+): R {
+    val previous = setShouldPauseCallback(shouldPause)
+    return try {
+        block()
+    } finally {
+        setShouldPauseCallback(previous)
+    }
 }
 
 /**
@@ -409,7 +431,12 @@ internal class CompositionImpl(
     /** The applier to use to update the tree managed by the composition. */
     private val applier: Applier<*>,
     recomposeContext: CoroutineContext? = null
-) : ControlledComposition, ReusableComposition, RecomposeScopeOwner, CompositionServices {
+) :
+    ControlledComposition,
+    ReusableComposition,
+    RecomposeScopeOwner,
+    CompositionServices,
+    PausableComposition {
     /**
      * `null` if a composition isn't pending to apply. `Set<Any>` or `Array<Set<Any>>` if there are
      * modifications to record [PendingApplyNoModifications] if a composition is pending to apply,
@@ -520,6 +547,14 @@ internal class CompositionImpl(
     @Suppress("MemberVisibilityCanBePrivate") // published as internal
     internal var pendingInvalidScopes = false
 
+    /**
+     * If the [shouldPause] callback is set the composition is pausable and should pause whenever
+     * the [shouldPause] callback returns `true`.
+     */
+    private var shouldPause: (() -> Boolean)? = null
+
+    private var pendingPausedComposition: PausedCompositionImpl? = null
+
     private var invalidationDelegate: CompositionImpl? = null
 
     private var invalidationDelegateGroup: Int = 0
@@ -572,15 +607,65 @@ internal class CompositionImpl(
         get() = synchronized(lock) { composer.hasPendingChanges }
 
     override fun setContent(content: @Composable () -> Unit) {
+        checkPrecondition(pendingPausedComposition == null) {
+            "A pausable composition is in progress"
+        }
         composeInitial(content)
     }
 
     override fun setContentWithReuse(content: @Composable () -> Unit) {
+        checkPrecondition(pendingPausedComposition == null) {
+            "A pausable composition is in progress"
+        }
         composer.startReuseFromRoot()
 
         composeInitial(content)
 
         composer.endReuseFromRoot()
+    }
+
+    override fun setPausableContent(content: @Composable () -> Unit): PausedComposition {
+        checkPrecondition(!disposed) { "The composition is disposed" }
+        checkPrecondition(pendingPausedComposition == null) {
+            "A pausable composition is in progress"
+        }
+        val pausedComposition =
+            PausedCompositionImpl(
+                composition = this,
+                context = parent,
+                composer = composer,
+                content = content,
+                reusable = false,
+                abandonSet = abandonSet,
+                applier = applier,
+                lock = lock,
+            )
+        pendingPausedComposition = pausedComposition
+        return pausedComposition
+    }
+
+    override fun setPausableContentWithReuse(content: @Composable () -> Unit): PausedComposition {
+        checkPrecondition(!disposed) { "The composition is disposed" }
+        checkPrecondition(pendingPausedComposition == null) {
+            "A pausable composition is in progress"
+        }
+        val pausedComposition =
+            PausedCompositionImpl(
+                composition = this,
+                context = parent,
+                composer = composer,
+                content = content,
+                reusable = true,
+                abandonSet = abandonSet,
+                applier = applier,
+                lock = lock,
+            )
+        pendingPausedComposition = pausedComposition
+        return pausedComposition
+    }
+
+    internal fun pausedCompositionFinished() {
+        pendingPausedComposition = null
     }
 
     private fun composeInitial(content: @Composable () -> Unit) {
@@ -701,7 +786,7 @@ internal class CompositionImpl(
                             invalidations.asMap() as Map<RecomposeScope, Set<Any>>
                         )
                     }
-                    composer.composeContent(invalidations, content)
+                    composer.composeContent(invalidations, content, shouldPause)
                     observer?.onEndComposition(this)
                 }
             }
@@ -911,7 +996,7 @@ internal class CompositionImpl(
                         this,
                         invalidations.asMap() as Map<RecomposeScope, Set<Any>>
                     )
-                    composer.recompose(invalidations).also { shouldDrain ->
+                    composer.recompose(invalidations, shouldPause).also { shouldDrain ->
                         // Apply would normally do this for us; do it now if apply shouldn't happen.
                         if (!shouldDrain) drainPendingModificationsLocked()
                         observer?.onEndComposition(this)
@@ -939,11 +1024,13 @@ internal class CompositionImpl(
         try {
             if (changes.isEmpty()) return
             trace("Compose:applyChanges") {
+                val applier = pendingPausedComposition?.pausableApplier ?: applier
+                val rememberManager = pendingPausedComposition?.rememberManager ?: manager
                 applier.onBeginChanges()
 
                 // Apply all changes
                 slotTable.write { slots ->
-                    changes.executeAndFlushAllPendingChanges(applier, slots, manager)
+                    changes.executeAndFlushAllPendingChanges(applier, slots, rememberManager)
                 }
                 applier.onEndChanges()
             }
@@ -962,9 +1049,12 @@ internal class CompositionImpl(
                 }
             }
         } finally {
-            // Only dispatch abandons if we do not have any late changes. The instances in the
-            // abandon set can be remembered in the late changes.
-            if (this.lateChanges.isEmpty()) manager.dispatchAbandons()
+            // Only dispatch abandons if we do not have any late changes or pending paused
+            // compositions. The instances in the abandon set can be remembered in the late changes
+            // or when the paused composition is applied.
+            if (this.lateChanges.isEmpty() && pendingPausedComposition == null) {
+                manager.dispatchAbandons()
+            }
         }
     }
 
@@ -1060,6 +1150,12 @@ internal class CompositionImpl(
                 invalidationDelegateGroup = 0
             }
         } else block()
+    }
+
+    override fun setShouldPauseCallback(shouldPause: (() -> Boolean)?): (() -> Boolean)? {
+        val previous = this.shouldPause
+        this.shouldPause = shouldPause
+        return previous
     }
 
     override fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult {
@@ -1241,218 +1337,6 @@ internal class CompositionImpl(
 
     // This is only used in tests to ensure the stacks do not silently leak.
     internal fun composerStacksSizes(): Int = composer.stacksSize()
-
-    /** Helper for collecting remember observers for later strictly ordered dispatch. */
-    private class RememberEventDispatcher(private val abandoning: MutableSet<RememberObserver>) :
-        RememberManager {
-        private val remembering = mutableListOf<RememberObserver>()
-        private val leaving = mutableListOf<Any>()
-        private val sideEffects = mutableListOf<() -> Unit>()
-        private var releasing: MutableScatterSet<ComposeNodeLifecycleCallback>? = null
-        private val pending = mutableListOf<Any>()
-        private val priorities = MutableIntList()
-        private val afters = MutableIntList()
-
-        override fun remembering(instance: RememberObserver) {
-            remembering.add(instance)
-        }
-
-        override fun forgetting(
-            instance: RememberObserver,
-            endRelativeOrder: Int,
-            priority: Int,
-            endRelativeAfter: Int
-        ) {
-            recordLeaving(instance, endRelativeOrder, priority, endRelativeAfter)
-        }
-
-        override fun sideEffect(effect: () -> Unit) {
-            sideEffects += effect
-        }
-
-        override fun deactivating(
-            instance: ComposeNodeLifecycleCallback,
-            endRelativeOrder: Int,
-            priority: Int,
-            endRelativeAfter: Int
-        ) {
-            recordLeaving(instance, endRelativeOrder, priority, endRelativeAfter)
-        }
-
-        override fun releasing(
-            instance: ComposeNodeLifecycleCallback,
-            endRelativeOrder: Int,
-            priority: Int,
-            endRelativeAfter: Int
-        ) {
-            val releasing =
-                releasing
-                    ?: mutableScatterSetOf<ComposeNodeLifecycleCallback>().also { releasing = it }
-
-            releasing += instance
-            recordLeaving(instance, endRelativeOrder, priority, endRelativeAfter)
-        }
-
-        fun dispatchRememberObservers() {
-            // Add any pending out-of-order forgotten objects
-            processPendingLeaving(Int.MIN_VALUE)
-
-            // Send forgets and node callbacks
-            if (leaving.isNotEmpty()) {
-                trace("Compose:onForgotten") {
-                    val releasing = releasing
-                    for (i in leaving.size - 1 downTo 0) {
-                        val instance = leaving[i]
-                        if (instance is RememberObserver) {
-                            abandoning.remove(instance)
-                            instance.onForgotten()
-                        }
-                        if (instance is ComposeNodeLifecycleCallback) {
-                            // node callbacks are in the same queue as forgets to ensure ordering
-                            if (releasing != null && instance in releasing) {
-                                instance.onRelease()
-                            } else {
-                                instance.onDeactivate()
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Send remembers
-            if (remembering.isNotEmpty()) {
-                trace("Compose:onRemembered") {
-                    remembering.fastForEach { instance ->
-                        abandoning.remove(instance)
-                        instance.onRemembered()
-                    }
-                }
-            }
-        }
-
-        fun dispatchSideEffects() {
-            if (sideEffects.isNotEmpty()) {
-                trace("Compose:sideeffects") {
-                    sideEffects.fastForEach { sideEffect -> sideEffect() }
-                    sideEffects.clear()
-                }
-            }
-        }
-
-        fun dispatchAbandons() {
-            if (abandoning.isNotEmpty()) {
-                trace("Compose:abandons") {
-                    val iterator = abandoning.iterator()
-                    // remove elements one by one to ensure that abandons will not be dispatched
-                    // second time in case [onAbandoned] throws.
-                    while (iterator.hasNext()) {
-                        val instance = iterator.next()
-                        iterator.remove()
-                        instance.onAbandoned()
-                    }
-                }
-            }
-        }
-
-        private fun recordLeaving(
-            instance: Any,
-            endRelativeOrder: Int,
-            priority: Int,
-            endRelativeAfter: Int
-        ) {
-            processPendingLeaving(endRelativeOrder)
-            if (endRelativeAfter in 0 until endRelativeOrder) {
-                pending.add(instance)
-                priorities.add(priority)
-                afters.add(endRelativeAfter)
-            } else {
-                leaving.add(instance)
-            }
-        }
-
-        private fun processPendingLeaving(endRelativeOrder: Int) {
-            if (pending.isNotEmpty()) {
-                var index = 0
-                var toAdd: MutableList<Any>? = null
-                var toAddAfter: MutableIntList? = null
-                var toAddPriority: MutableIntList? = null
-                while (index < afters.size) {
-                    if (endRelativeOrder <= afters[index]) {
-                        val instance = pending.removeAt(index)
-                        val endRelativeAfter = afters.removeAt(index)
-                        val priority = priorities.removeAt(index)
-
-                        if (toAdd == null) {
-                            toAdd = mutableListOf(instance)
-                            toAddAfter = MutableIntList().also { it.add(endRelativeAfter) }
-                            toAddPriority = MutableIntList().also { it.add(priority) }
-                        } else {
-                            toAddPriority as MutableIntList
-                            toAddAfter as MutableIntList
-                            toAdd.add(instance)
-                            toAddAfter.add(endRelativeAfter)
-                            toAddPriority.add(priority)
-                        }
-                    } else {
-                        index++
-                    }
-                }
-                if (toAdd != null) {
-                    toAddPriority as MutableIntList
-                    toAddAfter as MutableIntList
-
-                    // Sort the list into [after, -priority] order where it is ordered by after
-                    // in ascending order as the primary key and priority in descending order as
-                    // secondary key.
-
-                    // For example if remember occurs after a child group it must be added after
-                    // all the remembers of the child. This is reported with an after which is the
-                    // slot index of the child's last slot. As this slot might be at the same
-                    // location as where its parents ends this would be ambiguous which should
-                    // first if both the two groups request a slot to be after the same slot.
-                    // Priority is used to break the tie here which is the group index of the group
-                    // which is leaving. Groups that are lower must be added before the parent's
-                    // remember when they have the same after.
-
-                    // The sort must be stable as as consecutive remembers in the same group after
-                    // the same child will have the same after and priority.
-
-                    // A selection sort is used here because it is stable and the groups are
-                    // typically very short so this quickly exit list of one and not loop for
-                    // for sizes of 2. As the information is split between three lists, to
-                    // reduce allocations, [MutableList.sort] cannot be used as it doesn't have
-                    // an option to supply a custom swap.
-                    for (i in 0 until toAdd.size - 1) {
-                        for (j in i + 1 until toAdd.size) {
-                            val iAfter = toAddAfter[i]
-                            val jAfter = toAddAfter[j]
-                            if (
-                                iAfter < jAfter ||
-                                    (jAfter == iAfter && toAddPriority[i] < toAddPriority[j])
-                            ) {
-                                toAdd.swap(i, j)
-                                toAddPriority.swap(i, j)
-                                toAddAfter.swap(i, j)
-                            }
-                        }
-                    }
-                    leaving.addAll(toAdd)
-                }
-            }
-        }
-    }
-}
-
-private fun <T> MutableList<T>.swap(a: Int, b: Int) {
-    val item = this[a]
-    this[a] = this[b]
-    this[b] = item
-}
-
-private fun MutableIntList.swap(a: Int, b: Int) {
-    val item = this[a]
-    this[a] = this[b]
-    this[b] = item
 }
 
 internal object ScopeInvalidated

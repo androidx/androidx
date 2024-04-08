@@ -22,6 +22,7 @@ package androidx.compose.runtime {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Applier<N> {
+    method public default void apply(kotlin.jvm.functions.Function2<? super N,java.lang.Object?,kotlin.Unit> block, Object? value);
     method public void clear();
     method public void down(N node);
     method public N getCurrent();
@@ -31,6 +32,7 @@ package androidx.compose.runtime {
     method public default void onBeginChanges();
     method public default void onEndChanges();
     method public void remove(int index, int count);
+    method public default void reuse();
     method public void up();
     property public abstract N current;
   }
@@ -286,6 +288,7 @@ package androidx.compose.runtime {
     method public void recordModificationsOf(java.util.Set<?> values);
     method public void recordReadOf(Object value);
     method public void recordWriteOf(Object value);
+    method public kotlin.jvm.functions.Function0<java.lang.Boolean>? setShouldPauseCallback(kotlin.jvm.functions.Function0<java.lang.Boolean>? shouldPause);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void verifyConsistent();
     property public abstract boolean hasPendingChanges;
     property public abstract boolean isComposing;
@@ -459,6 +462,15 @@ package androidx.compose.runtime {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface NonSkippableComposable {
   }
 
+  public interface PausableComposition extends androidx.compose.runtime.ReusableComposition {
+    method public androidx.compose.runtime.PausedComposition setPausableContent(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public androidx.compose.runtime.PausedComposition setPausableContentWithReuse(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class PausableCompositionKt {
+    method public static androidx.compose.runtime.PausableComposition PausableComposition(androidx.compose.runtime.Applier<? extends java.lang.Object?> applier, androidx.compose.runtime.CompositionContext parent);
+  }
+
   public final class PausableMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
     ctor public PausableMonotonicFrameClock(androidx.compose.runtime.MonotonicFrameClock frameClock);
     method public boolean isPaused();
@@ -466,6 +478,14 @@ package androidx.compose.runtime {
     method public void resume();
     method public suspend <R> Object? withFrameNanos(kotlin.jvm.functions.Function1<? super java.lang.Long,? extends R> onFrame, kotlin.coroutines.Continuation<? super R>);
     property public final boolean isPaused;
+  }
+
+  public interface PausedComposition {
+    method public void apply();
+    method public void cancel();
+    method public boolean isComplete();
+    method public boolean resume(kotlin.jvm.functions.Function0<java.lang.Boolean> shouldPause);
+    property public abstract boolean isComplete;
   }
 
   public final class PrimitiveSnapshotStateKt {

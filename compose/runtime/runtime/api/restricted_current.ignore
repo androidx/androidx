@@ -1,23 +1,3 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.Composer#endReplaceGroup():
-    Added method androidx.compose.runtime.Composer.endReplaceGroup()
-AddedAbstractMethod: androidx.compose.runtime.Composer#startReplaceGroup(int):
-    Added method androidx.compose.runtime.Composer.startReplaceGroup(int)
-AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#abandonChanges():
-    Added method androidx.compose.runtime.ControlledComposition.abandonChanges()
-
-
-InvalidNullConversion: androidx.compose.runtime.ComposablesKt#key(Object[], kotlin.jvm.functions.Function0<? extends T>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter keys in androidx.compose.runtime.ComposablesKt.key(Object[] keys, kotlin.jvm.functions.Function0<? extends T> block)
-InvalidNullConversion: androidx.compose.runtime.ComposablesKt#remember(Object[], kotlin.jvm.functions.Function0<? extends T>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter keys in androidx.compose.runtime.ComposablesKt.remember(Object[] keys, kotlin.jvm.functions.Function0<? extends T> calculation)
-InvalidNullConversion: androidx.compose.runtime.EffectsKt#DisposableEffect(Object[], kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter keys in androidx.compose.runtime.EffectsKt.DisposableEffect(Object[] keys, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.DisposableEffectScope,? extends androidx.compose.runtime.DisposableEffectResult> effect)
-InvalidNullConversion: androidx.compose.runtime.EffectsKt#LaunchedEffect(Object[], kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter keys in androidx.compose.runtime.EffectsKt.LaunchedEffect(Object[] keys, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block)
-InvalidNullConversion: androidx.compose.runtime.SnapshotStateKt#produceState(T, Object[], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #1:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter keys in androidx.compose.runtime.SnapshotStateKt.produceState(T initialValue, Object[] keys, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.ProduceStateScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> producer)
-
-
-RemovedClass: androidx.compose.runtime.ExpectKt:
-    Removed class androidx.compose.runtime.ExpectKt
+AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#setShouldPauseCallback(kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Added method androidx.compose.runtime.ControlledComposition.setShouldPauseCallback(kotlin.jvm.functions.Function0<java.lang.Boolean>)

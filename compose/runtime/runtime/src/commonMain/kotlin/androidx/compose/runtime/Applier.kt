@@ -174,6 +174,16 @@ interface Applier<N> {
      * root to be used as the target of a new composition in the future.
      */
     fun clear()
+
+    /** Apply a change to the current node. */
+    fun apply(block: N.(Any?) -> Unit, value: Any?) {
+        current.block(value)
+    }
+
+    /** Notify [current] is is being reused in reusable content. */
+    fun reuse() {
+        (current as? ComposeNodeLifecycleCallback)?.onReuse()
+    }
 }
 
 /**
