@@ -42,7 +42,8 @@ import androidx.compose.ui.unit.LayoutDirection
  * This is the base class for NodeCoordinator and LookaheadDelegate. The common
  * functionalities between the two are extracted here.
  */
-internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWithLayoutNode {
+internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWithLayoutNode,
+    DirectManipulationDelegate {
     abstract val position: IntOffset
     abstract val child: LookaheadCapablePlaceable?
     abstract val parent: LookaheadCapablePlaceable?
@@ -50,6 +51,15 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
     abstract override val layoutNode: LayoutNode
     abstract val coordinates: LayoutCoordinates
     private var _rulerScope: RulerScope? = null
+
+    /**
+     * Indicates whether the [Placeable] was placed under direct manipulation.
+     *
+     * This means, that its offset may be ignored with [LookaheadLayoutCoordinates.localPositionOf],
+     * using the `excludeDirectManipulationOffset` parameter.
+     */
+    override var isDirectManipulationPlacement: Boolean = false
+
     val rulerScope: RulerScope
         get() {
             return _rulerScope ?: object : RulerScope {
@@ -123,6 +133,7 @@ internal abstract class LookaheadCapablePlaceable : Placeable(), MeasureScopeWit
         get() = false
 
     private var rulerValues: MutableObjectFloatMap<Ruler>? = null
+
     // For comparing before and after running the ruler lambda
     private var rulerValuesCache: MutableObjectFloatMap<Ruler>? = null
     private var rulerReaders:
@@ -461,11 +472,16 @@ internal abstract class LookaheadDelegate(
         return coordinator.wrapped!!.lookaheadDelegate!!.maxIntrinsicHeight(width)
     }
 
-    internal fun positionIn(ancestor: LookaheadDelegate): IntOffset {
+    internal fun positionIn(
+        ancestor: LookaheadDelegate,
+        excludingAgnosticOffset: Boolean,
+    ): IntOffset {
         var aggregatedOffset = IntOffset.Zero
         var lookaheadDelegate = this
         while (lookaheadDelegate != ancestor) {
-            aggregatedOffset += lookaheadDelegate.position
+            if (!lookaheadDelegate.isDirectManipulationPlacement || !excludingAgnosticOffset) {
+                aggregatedOffset += lookaheadDelegate.position
+            }
             lookaheadDelegate = lookaheadDelegate.coordinator.wrappedBy!!.lookaheadDelegate!!
         }
         return aggregatedOffset
