@@ -34,6 +34,8 @@ per-file *libraryversions.toml = diegovela@google.com, akulian@google.com, kchyn
 # WebKit
 per-file *libraryversions.toml = pbirk@google.com, elabadysayed@google.com
 per-file *docs-public/build.gradle = juanrdz@google.com, diegovela@google.com
+# Compose *
+per-file *libraryversions.toml = juanrdz@google.com
 
 # Copybara can self-approve CLs within synced docs.
 per-file docs/** = copybara-worker-blackhole@google.com
