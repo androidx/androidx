@@ -115,7 +115,8 @@ constructor(
          * deferred mode,
          * ranging interval = 240 ms,
          * slot duration = 2400 RSTU,
-         * slots per ranging round = 6
+         * slots per ranging round = 6,
+         * hopping mode is enabled
          *
          * All other MAC parameters use FiRa/UCI default values.
          *
@@ -129,7 +130,8 @@ constructor(
          * deferred mode,
          * ranging interval = 200 ms,
          * slot duration = 2400 RSTU,
-         * slots per ranging round = 20
+         * slots per ranging round = 20,
+         * hopping mode is enabled
          *
          * All other MAC parameters use FiRa/UCI default values.
          *
