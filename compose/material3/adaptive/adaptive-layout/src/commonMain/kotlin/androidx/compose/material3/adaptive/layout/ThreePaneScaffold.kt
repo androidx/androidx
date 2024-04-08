@@ -737,7 +737,7 @@ private class PaneMeasurable(
  * Scope for the panes of [ThreePaneScaffold].
  */
 @ExperimentalMaterial3AdaptiveApi
-interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
+sealed interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
     /**
      * The [ThreePaneScaffoldRole] of the current pane in the scope.
      */

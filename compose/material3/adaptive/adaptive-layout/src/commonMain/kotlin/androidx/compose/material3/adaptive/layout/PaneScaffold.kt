@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
  * Scope for the panes of pane scaffolds.
  */
 @ExperimentalMaterial3AdaptiveApi
-interface PaneScaffoldScope {
+sealed interface PaneScaffoldScope {
     /**
      * This modifier specifies the preferred width for a pane, and the pane scaffold implementation
      * will try its best to respect this width when the associated pane is rendered as a fixed pane,
