@@ -756,8 +756,6 @@ internal class SuspendingPointerInputModifierNodeImpl(
     }
 }
 
-private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
-
 /**
  * Used in place of the standard Job cancellation pathway to avoid reflective
  * javaClass.simpleName lookups to build the exception message and stack trace collection.
