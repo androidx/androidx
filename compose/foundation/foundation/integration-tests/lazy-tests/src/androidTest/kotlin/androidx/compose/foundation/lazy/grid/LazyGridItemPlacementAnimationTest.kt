@@ -21,7 +21,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,10 +64,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyGridAnimateItemPlacementTest(private val config: Config) {
+class LazyGridItemPlacementAnimationTest(private val config: Config) {
 
     private val isVertical: Boolean get() = config.isVertical
     private val reverseLayout: Boolean get() = config.reverseLayout
@@ -693,15 +691,15 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
         }
 
         onAnimationFrame { fraction ->
-            // item 8 moves to and item 1 moves from `-itemSize`, right before the start edge
+            // item 8 moves to and item 1 moves from `-itemSizePlusSpacing`, right before the start edge
             val item1Offset = AxisOffset(
                 0f,
-                -itemSize + (itemSize + itemSizePlusSpacing * 2) * fraction
+                -itemSizePlusSpacing + (itemSizePlusSpacing + itemSizePlusSpacing * 2) * fraction
             )
             val item8Offset = AxisOffset(
                 0f,
                 itemSizePlusSpacing * 2 -
-                    (itemSize + itemSizePlusSpacing * 2) * fraction
+                    (itemSizePlusSpacing + itemSizePlusSpacing * 2) * fraction
             )
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 if (item1Offset.mainAxis > -itemSize) {
@@ -2503,7 +2501,11 @@ class LazyGridAnimateItemPlacementTest(private val config: Config) {
     ) {
         Box(
             if (animSpec != null) {
-                Modifier.animateItemPlacement(animSpec)
+                Modifier.animateItem(
+                    placementSpec = animSpec,
+                    fadeInSpec = null,
+                    fadeOutSpec = null
+                )
             } else {
                 Modifier
             }

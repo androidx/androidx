@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy.list
+package androidx.compose.foundation.lazy.grid
 
 import android.os.Build
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -27,12 +27,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +49,6 @@ import androidx.compose.ui.unit.height
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -63,7 +56,7 @@ import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class LazyListItemDisappearanceAnimationTest {
+class LazyGridItemDisappearanceAnimationTest {
 
     @get:Rule
     val rule = createComposeRule()
@@ -76,7 +69,7 @@ class LazyListItemDisappearanceAnimationTest {
     private var crossAxisSizeDp: Dp = Dp.Infinity
     private val containerSize: Float = itemSize * 2f
     private var containerSizeDp: Dp = Dp.Infinity
-    private lateinit var state: LazyListState
+    private lateinit var state: LazyGridState
 
     @Before
     fun before() {
@@ -92,7 +85,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun oneItemRemoved() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp) {
+            LazyGrid(containerSize = itemSizeDp) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -104,7 +97,7 @@ class LazyListItemDisappearanceAnimationTest {
         }
 
         onAnimationFrame { fraction ->
-            assertPixels(mainAxisSize = itemSize) {
+            assertPixels(mainAxisSize = itemSize) { _, _ ->
                 Color.Black.copy(alpha = 1f - fraction)
             }
         }
@@ -114,7 +107,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun threeExistTwoRemoved() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red, Color.Green))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp * 3) {
+            LazyGrid(containerSize = itemSizeDp * 3) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -126,7 +119,7 @@ class LazyListItemDisappearanceAnimationTest {
         }
 
         onAnimationFrame { fraction ->
-            assertPixels(itemSize * 3) { offset ->
+            assertPixels(itemSize * 3) { _, offset ->
                 when (offset) {
                     in 0 until itemSize -> Color.Black
                     in itemSize until itemSize * 2 -> Color.Red.copy(alpha = 1f - fraction)
@@ -141,7 +134,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun threeExistTwoRemoved_reverseLayout() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red, Color.Green))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp * 3, reverseLayout = true) {
+            LazyGrid(containerSize = itemSizeDp * 3, reverseLayout = true) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -153,7 +146,7 @@ class LazyListItemDisappearanceAnimationTest {
         }
 
         onAnimationFrame { fraction ->
-            assertPixels(itemSize * 3) { offset ->
+            assertPixels(itemSize * 3) { _, offset ->
                 when (offset) {
                     in 0 until itemSize -> Color.Green.copy(alpha = 1f - fraction)
                     in itemSize until itemSize * 2 -> Color.Red.copy(alpha = 1f - fraction)
@@ -167,7 +160,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun oneRemoved_reverseLayout_contentPadding() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red))
         rule.setContent {
-            LazyList(
+            LazyGrid(
                 containerSize = itemSizeDp * 3,
                 reverseLayout = true,
                 contentPadding = PaddingValues(bottom = itemSizeDp)
@@ -183,7 +176,7 @@ class LazyListItemDisappearanceAnimationTest {
         }
 
         onAnimationFrame { fraction ->
-            assertPixels(itemSize * 3) { offset ->
+            assertPixels(itemSize * 3) { _, offset ->
                 when (offset) {
                     in 0 until itemSize -> Color.Red.copy(alpha = 1f - fraction)
                     in itemSize until itemSize * 2 -> Color.Black
@@ -197,7 +190,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun onlyItemWithSpecsIsAnimating() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp * 2) {
+            LazyGrid(containerSize = itemSizeDp * 2) {
                 items(list, key = { it.toArgb() }) {
                     Item(it, disappearanceSpec = if (it == Color.Red) AnimSpec else null)
                 }
@@ -209,7 +202,7 @@ class LazyListItemDisappearanceAnimationTest {
         }
 
         onAnimationFrame { fraction ->
-            assertPixels(itemSize * 2) { offset ->
+            assertPixels(itemSize * 2) { _, offset ->
                 when (offset) {
                     in 0 until itemSize -> Color.Transparent
                     else -> Color.Red.copy(alpha = 1f - fraction)
@@ -222,7 +215,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun itemRemovedOutsideOfViewportIsNotAnimated() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red, Color.Blue, Color.Green))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp * 2) {
+            LazyGrid(containerSize = itemSizeDp * 2) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -242,7 +235,7 @@ class LazyListItemDisappearanceAnimationTest {
         }
 
         onAnimationFrame {
-            assertPixels(itemSize * 2) { offset ->
+            assertPixels(itemSize * 2) { _, offset ->
                 when (offset) {
                     in 0 until itemSize / 2 -> Color.Black
                     in itemSize / 2 until itemSize * 3 / 2 -> Color.Red
@@ -256,7 +249,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun itemsBeingRemovedAreAffectingTheContainerSizeForTheDurationOfAnimation() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red))
         rule.setContent {
-            LazyList(containerSize = null) {
+            LazyGrid(containerSize = null) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -274,19 +267,19 @@ class LazyListItemDisappearanceAnimationTest {
             val heightDp = rule.onNodeWithTag(ContainerTag)
                 .getBoundsInRoot().height
             val heightPx = with(rule.density) { heightDp.roundToPx() }
-            assertWithMessage("Height on fraction=$fraction")
+            Truth.assertWithMessage("Height on fraction=$fraction")
                 .that(heightPx)
                 .isEqualTo(if (fraction < 1f) itemSize * 2 else itemSize)
 
             if (fraction < 1f) {
-                assertPixels(itemSize * 2) { offset ->
+                assertPixels(itemSize * 2) { _, offset ->
                     when (offset) {
                         in 0 until itemSize -> Color.Black
                         else -> Color.Red.copy(1f - fraction)
                     }
                 }
             } else {
-                assertPixels(itemSize) { Color.Black }
+                assertPixels(itemSize) { _, _ -> Color.Black }
             }
         }
     }
@@ -295,7 +288,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun itemsBeingRemovedAreAffectingTheContainerSizeForTheDurationOfAnimation_reverseLayout() {
         var list by mutableStateOf(listOf(Color.Black, Color.Red))
         rule.setContent {
-            LazyList(containerSize = null, reverseLayout = true) {
+            LazyGrid(containerSize = null, reverseLayout = true) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -305,7 +298,7 @@ class LazyListItemDisappearanceAnimationTest {
         rule.onNodeWithTag(ContainerTag)
             .assertHeightIsEqualTo(itemSizeDp * 2)
 
-        assertPixels(itemSize * 2) { offset ->
+        assertPixels(itemSize * 2) { _, offset ->
             when (offset) {
                 in 0 until itemSize -> Color.Red
                 else -> Color.Black
@@ -320,19 +313,19 @@ class LazyListItemDisappearanceAnimationTest {
             val heightDp = rule.onNodeWithTag(ContainerTag)
                 .getBoundsInRoot().height
             val heightPx = with(rule.density) { heightDp.roundToPx() }
-            assertWithMessage("Height on fraction=$fraction")
+            Truth.assertWithMessage("Height on fraction=$fraction")
                 .that(heightPx)
                 .isEqualTo(if (fraction < 1f) itemSize * 2 else itemSize)
 
             if (fraction < 1f) {
-                assertPixels(itemSize * 2) { offset ->
+                assertPixels(itemSize * 2) { _, offset ->
                     when (offset) {
                         in 0 until itemSize -> Color.Red.copy(1f - fraction)
                         else -> Color.Black
                     }
                 }
             } else {
-                assertPixels(itemSize) { Color.Black }
+                assertPixels(itemSize) { _, _ -> Color.Black }
             }
         }
     }
@@ -341,7 +334,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun reAddItemBeingAnimated_withoutAppearanceAnimation() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp) {
+            LazyGrid(containerSize = itemSizeDp) {
                 items(list, key = { it.toArgb() }) {
                     Item(it)
                 }
@@ -354,14 +347,14 @@ class LazyListItemDisappearanceAnimationTest {
 
         onAnimationFrame { fraction ->
             if (fraction < 0.5f) {
-                assertPixels(itemSize) { Color.Black.copy(alpha = 1f - fraction) }
+                assertPixels(itemSize) { _, _ -> Color.Black.copy(alpha = 1f - fraction) }
             } else {
                 if (fraction.isCloseTo(0.5f)) {
                     rule.runOnUiThread {
                         list = listOf(Color.Black)
                     }
                 }
-                assertPixels(itemSize) { Color.Black }
+                assertPixels(itemSize) { _, _ -> Color.Black }
             }
         }
     }
@@ -370,7 +363,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun reAddItemBeingAnimated_withAppearanceAnimation() {
         var list by mutableStateOf(listOf(Color.Black))
         rule.setContent {
-            LazyList(containerSize = itemSizeDp) {
+            LazyGrid(containerSize = itemSizeDp) {
                 items(list, key = { it.toArgb() }) {
                     Item(it, appearanceSpec = HalfDurationAnimSpec)
                 }
@@ -383,15 +376,15 @@ class LazyListItemDisappearanceAnimationTest {
 
         onAnimationFrame { fraction ->
             if (fraction < 0.5f) {
-                assertPixels(itemSize) { Color.Black.copy(alpha = 1f - fraction) }
+                assertPixels(itemSize) { _, _ -> Color.Black.copy(alpha = 1f - fraction) }
             } else {
                 if (fraction.isCloseTo(0.5f)) {
                     rule.runOnUiThread {
                         list = listOf(Color.Black)
                     }
                 }
-                assertPixels(itemSize) {
-                    Color.Black.copy(alpha = fraction)
+                assertPixels(itemSize) { _, _ ->
+                Color.Black.copy(alpha = fraction)
                 }
             }
         }
@@ -401,7 +394,7 @@ class LazyListItemDisappearanceAnimationTest {
     fun removeItemBeingAnimatedForAppearance() {
         var list by mutableStateOf(emptyList<Color>())
         rule.setContent {
-            LazyList(containerSize = itemSizeDp) {
+            LazyGrid(containerSize = itemSizeDp) {
                 items(list, key = { it.toArgb() }) {
                     Item(it, appearanceSpec = AnimSpec, disappearanceSpec = HalfDurationAnimSpec)
                 }
@@ -414,15 +407,41 @@ class LazyListItemDisappearanceAnimationTest {
 
         onAnimationFrame { fraction ->
             if (fraction < 0.5f) {
-                assertPixels(itemSize) { Color.Black.copy(alpha = fraction) }
+                assertPixels(itemSize) { _, _ -> Color.Black.copy(alpha = fraction) }
             } else {
                 if (fraction.isCloseTo(0.5f)) {
                     rule.runOnUiThread {
                         list = emptyList()
                     }
                 }
-                assertPixels(itemSize) {
+                assertPixels(itemSize) { _, _ ->
                     Color.Black.copy(alpha = 1f - fraction)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun wholeLineRemoved() {
+        var list by mutableStateOf(listOf(Color.Black, Color.Green))
+        rule.setContent {
+            LazyGrid(cells = 2, containerSize = itemSizeDp, crossAxisSize = itemSizeDp * 2) {
+                items(list, key = { it.toArgb() }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = emptyList()
+        }
+
+        onAnimationFrame { fraction ->
+            assertPixels(mainAxisSize = itemSize, crossAxisSize = itemSize * 2) { x, _ ->
+                if (x < itemSize) {
+                    Color.Black.copy(alpha = 1f - fraction)
+                } else {
+                    Color.Green.copy(alpha = 1f - fraction)
                 }
             }
         }
@@ -431,12 +450,12 @@ class LazyListItemDisappearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
-        expectedColorProvider: (offset: Int) -> Color?
+        expectedColorProvider: (x: Int, y: Int) -> Color?
     ) {
         rule.onNodeWithTag(ContainerTag)
             .captureToImage()
             .assertPixels(IntSize(crossAxisSize, mainAxisSize)) {
-                expectedColorProvider(it.y)?.compositeOver(Color.White)
+                expectedColorProvider(it.x, it.y)?.compositeOver(Color.White)
             }
     }
 
@@ -457,26 +476,27 @@ class LazyListItemDisappearanceAnimationTest {
     }
 
     @Composable
-    private fun LazyList(
+    private fun LazyGrid(
+        cells: Int = 1,
         containerSize: Dp? = containerSizeDp,
         startIndex: Int = 0,
         crossAxisSize: Dp = crossAxisSizeDp,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        content: LazyListScope.() -> Unit
+        content: LazyGridScope.() -> Unit
     ) {
-        state = rememberLazyListState(startIndex)
+        state = rememberLazyGridState(startIndex)
 
-        LazyColumn(
+        LazyVerticalGrid(
+            GridCells.Fixed(cells),
             state = state,
-            modifier = Modifier
-                .then(
-                    if (containerSize != null) {
-                        Modifier.requiredHeight(containerSize)
-                    } else {
-                        Modifier
-                    }
-                )
+            modifier = Modifier.then(
+                if (containerSize != null) {
+                    Modifier.requiredHeight(containerSize)
+                } else {
+                    Modifier
+                }
+            )
                 .background(Color.White)
                 .then(
                     if (crossAxisSize != Dp.Unspecified) {
@@ -493,7 +513,7 @@ class LazyListItemDisappearanceAnimationTest {
     }
 
     @Composable
-    private fun LazyItemScope.Item(
+    private fun LazyGridItemScope.Item(
         color: Color,
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = crossAxisSizeDp,

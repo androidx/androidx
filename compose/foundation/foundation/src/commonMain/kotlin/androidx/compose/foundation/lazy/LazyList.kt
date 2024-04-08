@@ -165,6 +165,7 @@ private fun rememberLazyListMeasurePolicy(
     verticalArrangement: Arrangement.Vertical?,
     /** Scope for animations */
     coroutineScope: CoroutineScope,
+    /** Used for creating graphics layers */
     graphicsContext: GraphicsContext,
     stickyHeadersEnabled: Boolean,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
@@ -267,7 +268,8 @@ private fun rememberLazyListMeasurePolicy(
                 index: Int,
                 key: Any,
                 contentType: Any?,
-                placeables: List<Placeable>
+                placeables: List<Placeable>,
+                constraints: Constraints
             ): LazyListMeasuredItem {
                 // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
                 // the lazy list measuring logic will take it into account.
@@ -286,7 +288,8 @@ private fun rememberLazyListMeasurePolicy(
                     visualOffset = visualItemOffset,
                     key = key,
                     contentType = contentType,
-                    animator = state.itemAnimator
+                    animator = state.itemAnimator,
+                    constraints = constraints
                 )
             }
         }

@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.grid
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 
@@ -30,15 +31,18 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
     private val itemProvider: LazyGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
     private val defaultMainAxisSpacing: Int
-) {
+) : LazyLayoutMeasuredItemProvider<LazyGridMeasuredItem> {
+    override fun getAndMeasure(index: Int, constraints: Constraints): LazyGridMeasuredItem =
+        getAndMeasure(index, constraints, defaultMainAxisSpacing)
+
     /**
      * Used to subcompose individual items of lazy grids. Composed placeables will be measured
      * with the provided [constraints] and wrapped into [LazyGridMeasuredItem].
      */
     fun getAndMeasure(
         index: Int,
-        mainAxisSpacing: Int = defaultMainAxisSpacing,
-        constraints: Constraints
+        constraints: Constraints,
+        mainAxisSpacing: Int
     ): LazyGridMeasuredItem {
         val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
@@ -55,7 +59,8 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
             contentType,
             crossAxisSize,
             mainAxisSpacing,
-            placeables
+            placeables,
+            constraints
         )
     }
 
@@ -71,6 +76,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
         contentType: Any?,
         crossAxisSize: Int,
         mainAxisSpacing: Int,
-        placeables: List<Placeable>
+        placeables: List<Placeable>,
+        constraints: Constraints
     ): LazyGridMeasuredItem
 }

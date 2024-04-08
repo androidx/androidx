@@ -34,6 +34,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState.Companion.Saver
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -261,7 +262,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal val itemAnimator = LazyListItemAnimator()
+    internal val itemAnimator = LazyLayoutItemAnimator<LazyListMeasuredItem>()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
