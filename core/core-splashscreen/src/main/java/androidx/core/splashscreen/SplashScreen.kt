@@ -496,14 +496,6 @@ class SplashScreen private constructor(activity: Activity) {
                 }
             }
 
-            if (theme.resolveAttribute(attr.enforceNavigationBarContrast, tv, true)) {
-                window.isNavigationBarContrastEnforced = tv.data != 0
-            }
-
-            if (theme.resolveAttribute(attr.enforceStatusBarContrast, tv, true)) {
-                window.isStatusBarContrastEnforced = tv.data != 0
-            }
-
             val decorView = window.decorView as ViewGroup
             ThemeUtils.Api31.applyThemesSystemBarAppearance(theme, decorView, tv)
 
