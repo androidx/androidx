@@ -34,6 +34,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.graphics.layer.GraphicsContext
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
@@ -424,6 +425,19 @@ internal class RootNodeOwner(
 
         override fun calculateLocalPosition(positionInWindow: Offset): Offset =
             platformContext.calculateLocalPosition(positionInWindow)
+
+        // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1259/Implement-screen-position-converters-PositionCalculator-in-RootNodeOwner
+        //  currently we assume that window occupies the whole screen
+        override fun screenToLocal(positionOnScreen: Offset): Offset {
+            return calculateLocalPosition(positionOnScreen)
+        }
+
+        override fun localToScreen(localPosition: Offset): Offset {
+            return calculatePositionInWindow(localPosition)
+        }
+
+        override fun localToScreen(localTransform: Matrix) {
+        }
 
         private val endApplyChangesListeners = mutableVectorOf<(() -> Unit)?>()
 
