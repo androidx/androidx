@@ -361,16 +361,13 @@ private fun DropdownItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
         modifier = modifier
             .clickable(
                 enabled = enabled,
-                onClick = onClick,
-                interactionSource = interactionSource,
-                indication = rememberRipple(true)
+                onClick = onClick
             )
             .fillMaxWidth()
             .padding(contentPadding),
