@@ -221,13 +221,54 @@ private val UrlAnnotationSaver = Saver<UrlAnnotation, Any>(
 )
 
 private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
-    save = { save(it.url) },
-    restore = { LinkAnnotation.Url(restore(it)!!) }
+    save = {
+        arrayListOf(
+            save(it.url),
+            save(it.style, SpanStyleSaver, this),
+            save(it.focusedStyle, SpanStyleSaver, this),
+            save(it.hoveredStyle, SpanStyleSaver, this)
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+
+        val url: String = restore(list[0])!!
+        val styleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
+        val focusedStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
+        val hoveredStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        LinkAnnotation.Url(
+            url = url,
+            style = styleOrNull,
+            focusedStyle = focusedStyleOrNull,
+            hoveredStyle = hoveredStyleOrNull
+        )
+    }
 )
 
 private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
-    save = { save(it.tag) },
-    restore = { LinkAnnotation.Clickable(restore(it)!!, linkInteractionListener = null) }
+    save = {
+        arrayListOf(
+            save(it.tag),
+            save(it.style, SpanStyleSaver, this),
+            save(it.focusedStyle, SpanStyleSaver, this),
+            save(it.hoveredStyle, SpanStyleSaver, this)
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+
+        val tag: String = restore(list[0])!!
+        val styleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
+        val focusedStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
+        val hoveredStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        LinkAnnotation.Clickable(
+            tag = tag,
+            style = styleOrNull,
+            focusedStyle = focusedStyleOrNull,
+            hoveredStyle = hoveredStyleOrNull,
+            null
+        )
+    }
 )
 
 internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(
