@@ -33,8 +33,8 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -124,17 +124,17 @@ fun Hyperlinks() {
             }
             Text(text = stringWithLink)
         }
-        Sample("Styling with Material colors") {
-            val linkColor = MaterialTheme.colors.primary
+        Sample("Material colors for links from builder") {
             Text(buildAnnotatedString {
-                append("BasicText with ")
-                withLink(LinkAnnotation.Url(WebLink, style = SpanStyle(color = linkColor))) {
-                    append("developer.android.com")
-                }
+                append("Text and ")
+                withLink(TextDefaults.Url(url = WebLink)) { append("developer.android.com") }
                 append(" link.")
             })
         }
-
+        Sample("Material colors for links from html") {
+            val htmlString = "Text and <a href=https://google.com>developer.android.com</a> link"
+            Text(TextDefaults.fromHtml(htmlString = htmlString))
+        }
         Sample("Long links") {
             val text = buildAnnotatedString {
                 append("Example that contains ")
