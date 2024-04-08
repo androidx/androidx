@@ -55,7 +55,7 @@ class TopicsManagerTest {
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExt4Version = AdServicesInfo.adServicesVersion() >= 4
     private val mValidAdServicesSdkExt5Version = AdServicesInfo.adServicesVersion() >= 5
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
 
     @Before
     fun setUp() {
