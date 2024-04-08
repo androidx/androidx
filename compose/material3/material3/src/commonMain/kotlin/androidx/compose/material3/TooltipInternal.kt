@@ -149,7 +149,7 @@ actual fun CaretScope.RichTooltip(
     val drawCaretModifier =
         if (caretProperties != null) {
             val density = LocalDensity.current
-            val configuration = LocalConfiguration.current
+            val configuration = getCurrentConfiguration()
             Modifier.drawCaret { anchorLayoutCoordinates ->
                 drawCaretWithPath(
                     CaretType.Rich,
