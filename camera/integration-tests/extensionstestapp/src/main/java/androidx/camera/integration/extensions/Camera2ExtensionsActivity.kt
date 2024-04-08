@@ -108,7 +108,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
@@ -389,7 +388,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 "Can't find camera supporting Camera2 extensions.",
                 Toast.LENGTH_SHORT
             ).show()
-            closeCameraAndStartActivity(CameraExtensionsActivity::class.java.name)
+            switchActivity(CameraExtensionsActivity::class.java.name)
             return
         }
 
@@ -456,7 +455,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                     if (cameraCaptureSession == null) {
                         setupAndStartPreview(cameraId, extensionMode)
                     } else {
-                        closeCaptureSessionAsync()
+                        closeCaptureSessionAndCameraAsync(keepCamera = true)
                     }
 
                     val extensionEnabled = extensionModeEnabled
@@ -616,8 +615,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             restartPreview = true
             extensionModeToggleButton.text =
                 getCamera2ExtensionModeStringFromId(currentExtensionMode)
-
-            closeCaptureSessionAsync()
+            closeCaptureSessionAndCameraAsync(keepCamera = true)
         }
 
         val cameraSwitchButton = findViewById<Button>(R.id.Switch)
@@ -636,8 +634,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             enableUiControl(false)
             currentCameraId = newCameraId
             restartCamera = true
-
-            closeCameraAsync()
+            closeCaptureSessionAndCameraAsync()
         }
 
         val captureButton = findViewById<Button>(R.id.Picture)
@@ -661,12 +658,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(TAG, "onStop()++")
         super.onStop()
-        // Needs to close the camera first. Otherwise, the next activity might be failed to open
-        // the camera and configure the capture session.
-        runBlocking {
-            closeCaptureSessionAsync().await()
-            closeCameraAsync().await()
-        }
+        closeCaptureSessionAndCameraAsync()
         lastSurfaceTextureTimestampNanos = 0L
         restartOnStart = true
         activityStopped = true
@@ -677,7 +669,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy()++")
         super.onDestroy()
         previewSurface?.release()
-
+        textureView.surfaceTexture?.release()
         imageSaveTerminationFuture.addListener({ stillImageReader?.close() }, mainExecutor)
         normalModeCaptureThread.quitSafely()
 
@@ -724,14 +716,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy()--")
     }
 
-    private fun closeCameraAsync(): Deferred<Unit> = lifecycleScope.async(cameraTaskDispatcher) {
-        Log.d(TAG, "closeCamera()++")
-        cameraDevice?.close()
-        cameraDevice = null
-        Log.d(TAG, "closeCamera()--")
-    }
-
-    private fun closeCaptureSessionAsync(): Deferred<Unit> =
+    private fun closeCaptureSessionAndCameraAsync(keepCamera: Boolean = false): Deferred<Unit> =
         lifecycleScope.async(cameraTaskDispatcher) {
             Log.d(TAG, "closeCaptureSession()++")
             resetCaptureSessionConfiguredIdlingResource()
@@ -750,6 +735,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
             cameraCaptureSession = null
             Log.d(TAG, "closeCaptureSession()--")
+
+            if (!keepCamera) {
+                Log.d(TAG, "Close camera++")
+                cameraDevice?.close()
+                cameraDevice = null
+                Log.d(TAG, "Close camera--")
+            }
         }
 
     /**
@@ -824,13 +816,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 cameraDevice = openCamera(cameraManager, cameraId)
             }
             cameraCaptureSession = openCaptureSession(extensionMode)
-
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (activityStopped) {
-                    closeCaptureSessionAsync()
-                    closeCameraAsync()
-                }
-            }
             Log.d(TAG, "openCameraWithExtensionMode()--")
         }
 
@@ -842,16 +827,22 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         manager: CameraManager,
         cameraId: String,
     ): CameraDevice = suspendCancellableCoroutine { cont ->
-        Log.d(TAG, "openCamera(): $cameraId")
+        Log.d(TAG, "openCamera()++: $cameraId")
         manager.openCamera(
             cameraId,
             cameraTaskDispatcher.asExecutor(),
             object : CameraDevice.StateCallback() {
-                override fun onOpened(device: CameraDevice) = cont.resume(device)
+                override fun onOpened(device: CameraDevice) {
+                    Log.d(TAG, "Resumed - onOpened")
+                    cont.resume(device)
+                }
 
                 override fun onDisconnected(device: CameraDevice) {
                     Log.w(TAG, "Camera $cameraId has been disconnected")
-                    finish()
+                    // Rerun the flow to re-open the camera and capture session
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        setupAndStartPreview(currentCameraId, currentExtensionMode)
+                    }
                 }
 
                 override fun onClosed(camera: CameraDevice) {
@@ -880,6 +871,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                     cont.resumeWithException(exc)
                 }
             })
+        Log.d(TAG, "openCamera()--: $cameraId")
     }
 
     /**
@@ -944,9 +936,9 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
                     Log.e(TAG, "CaptureSession - onConfigureFailed: $session")
-                    cont.resumeWithException(
-                        RuntimeException("Configure failed when creating capture session.")
-                    )
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        setupAndStartPreview(currentCameraId, currentExtensionMode)
+                    }
                 }
             })
 
@@ -986,9 +978,9 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onConfigureFailed(session: CameraExtensionSession) {
                     Log.e(TAG, "Extension CaptureSession - onConfigureFailed: $session")
-                    cont.resumeWithException(
-                        RuntimeException("Configure failed when creating capture session.")
-                    )
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        setupAndStartPreview(currentCameraId, currentExtensionMode)
+                    }
                 }
             }
         )
@@ -1125,12 +1117,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                                     rotationDegrees
                                 )
                             }
-
-                            // Closes the camera, capture session and finish the activity to return
-                            // to the caller activity if activity is in request mode.
-                            closeCaptureSessionAsync().await()
-                            closeCameraAsync().await()
-
                             finish()
                         } else {
                             enableUiControl(true)
@@ -1295,25 +1281,18 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_camerax_extensions -> {
-                closeCameraAndStartActivity(CameraExtensionsActivity::class.java.name)
+                switchActivity(CameraExtensionsActivity::class.java.name)
                 return true
             }
             R.id.menu_validation_tool -> {
-                closeCameraAndStartActivity(CameraValidationResultActivity::class.java.name)
+                switchActivity(CameraValidationResultActivity::class.java.name)
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun closeCameraAndStartActivity(className: String) {
-        // Needs to close the camera first. Otherwise, the next activity might be failed to open
-        // the camera and configure the capture session.
-        runBlocking {
-            closeCaptureSessionAsync().await()
-            closeCameraAsync().await()
-        }
-
+    private fun switchActivity(className: String) {
         val intent = Intent()
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         intent.setClassName(this, className)
