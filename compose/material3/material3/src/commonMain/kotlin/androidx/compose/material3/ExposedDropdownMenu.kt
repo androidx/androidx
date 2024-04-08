@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
@@ -528,38 +530,6 @@ object ExposedDropdownMenuDefaults {
         horizontal = ExposedDropdownMenuItemHorizontalPadding,
         vertical = 0.dp
     )
-
-    /**
-     * Creates a [PopupProperties] used for [ExposedDropdownMenuBoxScope.ExposedDropdownMenu].
-     *
-     * @param focusable whether the menu is focusable. If the text field is editable, this should
-     * be set to `false` so the menu doesn't steal focus from the input method. In the presence of
-     * certain accessibility services, this value will be overwritten to `true` to preserve
-     * accessibility.
-     */
-    @Composable
-    internal fun popupProperties(
-        focusable: Boolean = true,
-    ): PopupProperties {
-        val touchExplorationServicesEnabled by touchExplorationState()
-        val flags = if (touchExplorationServicesEnabled) {
-            // In order for TalkBack focus to jump to the menu when opened, it needs to be
-            // focusable and touch modal (NOT_FOCUSABLE and NOT_TOUCH_MODAL are *not* set)
-            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-        } else {
-            val baseFlags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-            if (!focusable) {
-                baseFlags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-            } else {
-                baseFlags
-            }
-        }
-
-        return PopupProperties(flags = flags)
-    }
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @ExperimentalMaterial3Api
