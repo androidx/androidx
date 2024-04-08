@@ -217,22 +217,33 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
 
         // Creates baseline profile build types extending the currently existing ones.
         // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
+        // Note that if the build type already does not exist, the `newConfigureBlock` is applied,
+        // while if it exist the `overrideConfigureBlock` is applied.
         createExtendedBuildTypes(
             project = project,
             extensionBuildTypes = extension.buildTypes,
             extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
+            debugSigningConfig = extension.debugSigningConfig,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
                 !it.isDebuggable
             },
-            configureBlock = {
+            newConfigureBlock = {
+
+                // Properties applied when the build type does not exist.
                 isJniDebuggable = false
                 isDebuggable = false
                 isMinifyEnabled = true
                 isShrinkResources = false
                 isProfileable = true
-                signingConfig = extension.debugSigningConfig
+                enableAndroidTestCoverage = false
+                enableUnitTestCoverage = false
+            },
+            overrideConfigureBlock = {
+
+                // Properties applied when the build type exists.
+                isProfileable = true
                 enableAndroidTestCoverage = false
                 enableUnitTestCoverage = false
             }
@@ -249,25 +260,41 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
 
         // Creates baseline profile build types extending the currently existing ones.
         // They're named `<BUILD_TYPE_BASELINE_PROFILE_PREFIX><originalBuildTypeName>`.
+        // Note that if the build type already does not exist, the `newConfigureBlock` is applied,
+        // while if it exist the `overrideConfigureBlock` is applied.
         createExtendedBuildTypes(
             project = project,
             extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
+            debugSigningConfig = extension.debugSigningConfig,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
                 !it.isDebuggable
             },
-            configureBlock = {
+            newConfigureBlock = {
+
+                // Properties applied when the build type does not exist.
                 isJniDebuggable = false
                 isDebuggable = false
                 isMinifyEnabled = false
                 isShrinkResources = false
                 isProfileable = true
-                signingConfig = extension.debugSigningConfig
                 enableAndroidTestCoverage = false
                 enableUnitTestCoverage = false
-            }
+            },
+            overrideConfigureBlock = {
+
+                // Properties applied when the build type exists.
+                // For baseline profile build type it's the same of `newConfigureBlock`.
+                isJniDebuggable = false
+                isDebuggable = false
+                isMinifyEnabled = false
+                isShrinkResources = false
+                isProfileable = true
+                enableAndroidTestCoverage = false
+                enableUnitTestCoverage = false
+            },
         )
 
         // Copies the source sets for the newly created build types
@@ -278,23 +305,33 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
 
         // Creates benchmark build types extending the currently existing ones.
         // They're named `<BUILD_TYPE_BENCHMARK_PREFIX><originalBuildTypeName>`.
+        // Note that if the build type already does not exist, the `newConfigureBlock` is applied,
+        // while if it exist the `overrideConfigureBlock` is applied.
         createExtendedBuildTypes(
             project = project,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
+            debugSigningConfig = extension.debugSigningConfig,
             extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
             filterBlock = {
                 // Create benchmark type for non debuggable types, and without considering
                 // baseline profiles build types.
                 !it.isDebuggable && it.name !in baselineProfileExtendedToOriginalTypeMap
             },
-            configureBlock = {
+            newConfigureBlock = {
+
+                // Properties applied when the build type does not exist.
                 isJniDebuggable = false
                 isDebuggable = false
                 isMinifyEnabled = true
                 isShrinkResources = true
                 isProfileable = true
-                signingConfig = extension.debugSigningConfig
+                enableAndroidTestCoverage = false
+                enableUnitTestCoverage = false
+            },
+            overrideConfigureBlock = {
+
+                // Properties applied when the build type exists.
                 enableAndroidTestCoverage = false
                 enableUnitTestCoverage = false
             }

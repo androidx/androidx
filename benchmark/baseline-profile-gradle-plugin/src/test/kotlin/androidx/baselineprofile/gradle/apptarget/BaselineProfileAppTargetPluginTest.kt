@@ -42,6 +42,27 @@ private val buildGradle = """
             anotherRelease {
                 initWith(release)
             }
+            myCustomRelease {
+                initWith(release)
+            }
+            benchmarkMyCustomRelease {
+                initWith(release)
+
+                // These are the opposite of default ensure the plugin doesn't modify them
+                debuggable true
+                minifyEnabled false
+                shrinkResources false
+                profileable false
+            }
+            nonMinifiedMyCustomRelease {
+                initWith(release)
+
+                // These are the opposite of default ensure the plugin doesn't modify them
+                debuggable true
+                minifyEnabled true
+                shrinkResources true
+                profileable false
+            }
         }
     }
 
@@ -167,16 +188,20 @@ class BaselineProfileAppTargetPluginTestWithAgp80 {
     }
 }
 
-@RunWith(JUnit4::class)
-class BaselineProfileAppTargetPluginTestWithAgp81 {
+@RunWith(Parameterized::class)
+class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_1_0)
+    }
 
     @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_1_0.versionString
-    )
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
 
     @Test
-    fun verifyBuildTypes() {
+    fun verifyNewBuildTypes() {
         projectSetup.appTarget.setBuildGradle(buildGradle)
 
         // Assert properties of the benchmark build types
@@ -199,6 +224,37 @@ class BaselineProfileAppTargetPluginTestWithAgp81 {
                     contains("debuggable=false")
                     contains("profileable=true")
                 }
+            }
+    }
+
+    @Test
+    fun verifyOverrideBuildTypes() {
+        projectSetup.appTarget.setBuildGradle(buildGradle)
+
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("benchmarkMyCustomReleaseBuildProperties") {
+
+                // Should be overridden
+                contains("testCoverageEnabled=false")
+
+                // Should not be overridden
+                contains("minifyEnabled=false")
+                contains("debuggable=true")
+                contains("profileable=false")
+            }
+
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("nonMinifiedMyCustomReleaseBuildProperties") {
+
+                // Should all be overridden
+                contains("minifyEnabled=false")
+                contains("testCoverageEnabled=false")
+                contains("debuggable=false")
+                contains("profileable=true")
             }
     }
 }
