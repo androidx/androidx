@@ -101,8 +101,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.truth)
             }
 
+            jbMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jbMain)
+            nativeMain.dependsOn(jbMain)
+
             jsWasmMain {
-                dependsOn(commonMain)
+                dependsOn(jbMain)
             }
 
             jsMain {

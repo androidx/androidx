@@ -17,6 +17,24 @@
 
 package androidx.compose.material.ripple
 
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.unit.Dp
+
+/**
+ * Desktop ripple implementation using the Compose-rendered [CommonRippleNode] implementation.
+ */
+internal actual fun createPlatformRippleNode(
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
+    rippleAlpha: () -> RippleAlpha
+): DelegatableNode {
+    return CommonRippleNode(interactionSource, bounded, radius, color, rippleAlpha)
+}
+
 /**
  * Desktop ripple implementation using the Compose-rendered [CommonRipple] implementation.
  */
