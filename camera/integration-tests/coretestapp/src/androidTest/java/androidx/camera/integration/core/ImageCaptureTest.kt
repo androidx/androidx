@@ -207,7 +207,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Suppress("DEPRECATION") // test for legacy resolution API
     private fun takeImageAndVerifySize(
         cameraSelector: CameraSelector = BACK_SELECTOR,
-        @ImageCapture.OutputFormat outputFormat: Int = OUTPUT_FORMAT_JPEG,
+        outputFormat: @ImageCapture.OutputFormat Int = OUTPUT_FORMAT_JPEG,
     ): Unit = runBlocking {
         // Arrange.
         val useCaseBuilder = ImageCapture.Builder()
@@ -499,7 +499,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     private fun saveToUri(
         cameraSelector: CameraSelector = BACK_SELECTOR,
-        @ImageCapture.OutputFormat outputFormat: Int = OUTPUT_FORMAT_JPEG,
+        outputFormat: @ImageCapture.OutputFormat Int = OUTPUT_FORMAT_JPEG,
     ): Unit = runBlocking {
         // Arrange.
         val useCaseBuilder = defaultBuilder
@@ -552,7 +552,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     private fun saveToOutputStream(
         cameraSelector: CameraSelector = BACK_SELECTOR,
-        @ImageCapture.OutputFormat outputFormat: Int = OUTPUT_FORMAT_JPEG,
+        outputFormat: @ImageCapture.OutputFormat Int = OUTPUT_FORMAT_JPEG,
     ) = runBlocking {
         // Arrange.
         val useCaseBuilder = defaultBuilder
