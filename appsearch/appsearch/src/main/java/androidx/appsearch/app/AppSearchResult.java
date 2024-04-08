@@ -109,7 +109,8 @@ public final class AppSearchResult<ValueType> {
     public static final int RESULT_DENIED = 9;
 
     /**
-     * The caller has hit AppSearch's rate limit and the requested operation has been rejected.
+     * The caller has hit AppSearch's rate limit and the requested operation has been rejected. The
+     * caller is recommended to reschedule tasks with exponential backoff.
      */
     @FlaggedApi(Flags.FLAG_ENABLE_RESULT_DENIED_AND_RESULT_RATE_LIMITED)
     public static final int RESULT_RATE_LIMITED = 10;
