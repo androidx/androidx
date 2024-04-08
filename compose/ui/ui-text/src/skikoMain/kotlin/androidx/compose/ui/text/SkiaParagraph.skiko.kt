@@ -179,8 +179,8 @@ internal class SkiaParagraph(
     internal fun getLineAscent(lineIndex: Int): Int =
         -(lineMetrics.getOrNull(lineIndex)?.ascent?.roundToInt() ?: 0)
 
-    internal fun getLineBaseline(lineIndex: Int): Int =
-        lineMetrics.getOrNull(lineIndex)?.baseline?.roundToInt() ?: 0
+    override fun getLineBaseline(lineIndex: Int): Float =
+        lineMetrics.getOrNull(lineIndex)?.baseline?.toFloat() ?: 0f
 
     internal fun getLineDescent(lineIndex: Int): Int =
         lineMetrics.getOrNull(lineIndex)?.descent?.roundToInt() ?: 0
@@ -426,6 +426,15 @@ internal class SkiaParagraph(
         }
 
         return correctedGlyphPosition
+    }
+
+    override fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange? {
+        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-1255/Implement-Paragraph.getRangeForRect)
+        return null
     }
 
     override fun getBoundingBox(offset: Int): Rect {
