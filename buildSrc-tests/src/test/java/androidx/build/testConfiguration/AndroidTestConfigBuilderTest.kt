@@ -79,6 +79,10 @@ class AndroidTestConfigBuilderTest {
     @Test
     fun testXmlAgainstGoldenMicrobenchmark() {
         builder.isMicrobenchmark(true)
+
+        // NOTE: blocklisted arg is removed
+        builder.instrumentationArgsMap["androidx.benchmark.profiling.skipWhenDurationRisksAnr"] =
+            "true"
         MatcherAssert.assertThat(
             builder.buildXml(),
             CoreMatchers.`is`(goldenDefaultConfigBenchmark)
@@ -90,6 +94,10 @@ class AndroidTestConfigBuilderTest {
         builder.isMacrobenchmark(true)
         builder.instrumentationArgsMap["androidx.test.argument1"] = "something1"
         builder.instrumentationArgsMap["androidx.test.argument2"] = "something2"
+
+        // NOTE: blocklisted arg is removed
+        builder.instrumentationArgsMap["androidx.benchmark.profiling.skipWhenDurationRisksAnr"] =
+            "true"
         MatcherAssert.assertThat(
             builder.buildXml(),
             CoreMatchers.`is`(goldenDefaultConfigMacroBenchmark)
