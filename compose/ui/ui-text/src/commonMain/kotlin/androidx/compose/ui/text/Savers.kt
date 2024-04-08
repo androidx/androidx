@@ -21,6 +21,8 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
@@ -28,7 +30,6 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.util.fastMap
 
@@ -52,8 +53,28 @@ internal inline fun <T : Saver<Original, Saveable>, Original, Saveable, reified 
     value: Saveable?,
     saver: T
 ): Result? {
-    if (value == false) return null
+    // Most of the types we save are nullable. However, value classes are usually not but instead
+    // have a special Unspecified value. In that case we delegate handling of the "false"
+    // value restoration to the corresponding saver that will restore "false" as an Unspecified
+    // of the corresponding type.
+    if (value == false && saver !is NonNullValueClassSaver<*, *>) return null
     return value?.let { with(saver) { restore(value) } as Result }
+}
+
+/**
+ * Use for non-null value classes where the Unspecified value needs to be separately handled,
+ * for example as in the [OffsetSaver]
+ */
+private interface NonNullValueClassSaver<Original, Saveable : Any> : Saver<Original, Saveable>
+private fun <Original, Saveable : Any> NonNullValueClassSaver(
+    save: SaverScope.(value: Original) -> Saveable?,
+    restore: (value: Saveable) -> Original?
+): NonNullValueClassSaver<Original, Saveable> {
+    return object : NonNullValueClassSaver<Original, Saveable> {
+        override fun SaverScope.save(value: Original) = save.invoke(this, value)
+
+        override fun restore(value: Saveable) = restore.invoke(value)
+    }
 }
 
 /**
@@ -355,30 +376,41 @@ private val ShadowSaver = Saver<Shadow, Any>(
 internal val Color.Companion.Saver: Saver<Color, Any>
     get() = ColorSaver
 
-private val ColorSaver = Saver<Color, Any>(
-    save = { it.value },
-    restore = { Color(it as ULong) }
+private val ColorSaver = NonNullValueClassSaver<Color, Any>(
+    save = {
+        if (it.isUnspecified) { false } else { it.toArgb() }
+    },
+    restore = {
+        if (it == false) { Color.Unspecified } else { Color(it as Int) }
+    }
 )
 
 internal val TextUnit.Companion.Saver: Saver<TextUnit, Any>
     get() = TextUnitSaver
 
-@OptIn(ExperimentalUnitApi::class)
-private val TextUnitSaver = Saver<TextUnit, Any>(
+private val TextUnitSaver = NonNullValueClassSaver<TextUnit, Any>(
     save = {
-        arrayListOf(save(it.value), save(it.type))
+        if (it == TextUnit.Unspecified) {
+            false
+        } else {
+            arrayListOf(save(it.value), save(it.type))
+        }
     },
     restore = {
-        @Suppress("UNCHECKED_CAST")
-        val list = it as List<Any>
-        TextUnit(restore(list[0])!!, restore(list[1])!!)
+        if (it == false) {
+            TextUnit.Unspecified
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            val list = it as List<Any>
+            TextUnit(restore(list[0])!!, restore(list[1])!!)
+        }
     }
 )
 
 internal val Offset.Companion.Saver: Saver<Offset, Any>
     get() = OffsetSaver
 
-private val OffsetSaver = Saver<Offset, Any>(
+private val OffsetSaver = NonNullValueClassSaver<Offset, Any>(
     save = {
         if (it == Offset.Unspecified) {
             false
