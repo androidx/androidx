@@ -87,13 +87,6 @@ androidXMultiplatform {
     }
 }
 
-kotlin {
-    jvmToolchain { toolchain ->
-        // workaround for b/331276193
-        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
 android {
     defaultConfig {
         minSdkVersion 21
