@@ -588,7 +588,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CopyText))
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_copy_appliesFilter() {
         val state = TextFieldState("Hello World!", initialSelection = TextRange(0, 5))
@@ -615,7 +614,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_cut() {
         val state = TextFieldState("Hello World!", initialSelection = TextRange(0, 5))
@@ -638,7 +636,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_cut_appliesFilter() {
         val state = TextFieldState("Hello World!", initialSelection = TextRange(0, 5))

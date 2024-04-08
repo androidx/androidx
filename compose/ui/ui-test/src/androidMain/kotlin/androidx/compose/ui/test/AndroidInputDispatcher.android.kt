@@ -37,7 +37,6 @@ import android.view.MotionEvent.PointerCoords
 import android.view.MotionEvent.PointerProperties
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
 import android.view.ViewConfiguration
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
@@ -196,7 +195,6 @@ internal class AndroidInputDispatcher(
         )
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     fun KeyInputState.constructMetaState(): Int {
 
         fun genState(key: Key, mask: Int) = if (isKeyDown(key)) mask else 0

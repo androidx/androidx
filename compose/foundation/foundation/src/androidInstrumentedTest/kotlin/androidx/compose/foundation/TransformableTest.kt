@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -68,7 +67,6 @@ private const val EDGE_FUZZ_FACTOR = 0.2f
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 class TransformableTest {
     @Suppress("DEPRECATION")
     @get:Rule

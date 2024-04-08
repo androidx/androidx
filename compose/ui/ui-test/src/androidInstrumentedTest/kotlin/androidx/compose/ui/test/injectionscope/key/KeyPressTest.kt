@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.test.injectionscope.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.injectionscope.key.Common.assertTyped
 import androidx.compose.ui.test.injectionscope.key.Common.performKeyInput
@@ -38,7 +36,6 @@ import org.junit.Test
  * Tests if [KeyInjectionScope.pressKey] works.
  */
 @LargeTest
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class KeyPressTest {
 
     @get:Rule
