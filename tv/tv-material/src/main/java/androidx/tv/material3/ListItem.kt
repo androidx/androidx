@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.Dp
  *
  * @param selected defines whether this ListItem is selected or not
  * @param onClick called when this ListItem is clicked
+ * @param headlineContent the [Composable] headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param enabled controls the enabled state of this list item. When `false`, this component will
  * not respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -73,12 +74,12 @@ import androidx.compose.ui.unit.Dp
  * emitting [Interaction]s for this list item. You can use this to change the list item's appearance
  * or preview the list item in different states. Note that if `null` is provided, interactions will
  * still happen internally.
- * @param headlineContent the [Composable] headline content of the list item
  */
 @Composable
 fun ListItem(
     selected: Boolean,
     onClick: () -> Unit,
+    headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -86,14 +87,13 @@ fun ListItem(
     supportingContent: (@Composable () -> Unit)? = null,
     leadingContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
-    tonalElevation: Dp = ListItemDefaults.ListItemElevation,
+    tonalElevation: Dp = ListItemDefaults.TonalElevation,
     shape: ListItemShape = ListItemDefaults.shape(),
     colors: ListItemColors = ListItemDefaults.colors(),
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
-    headlineContent: @Composable () -> Unit
+    interactionSource: MutableInteractionSource? = null
 ) {
     BaseListItem(
         selected = selected,
@@ -140,6 +140,7 @@ fun ListItem(
  *
  * @param selected defines whether this ListItem is selected or not
  * @param onClick called when this ListItem is clicked
+ * @param headlineContent the [Composable] headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param enabled controls the enabled state of this list item. When `false`, this component will
  * not respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -164,12 +165,12 @@ fun ListItem(
  * emitting [Interaction]s for this list item. You can use this to change the list item's appearance
  * or preview the list item in different states. Note that if `null` is provided, interactions will
  * still happen internally.
- * @param headlineContent the [Composable] headline content of the list item
  */
 @Composable
 fun DenseListItem(
     selected: Boolean,
     onClick: () -> Unit,
+    headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -177,14 +178,13 @@ fun DenseListItem(
     supportingContent: (@Composable () -> Unit)? = null,
     leadingContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
-    tonalElevation: Dp = ListItemDefaults.ListItemElevation,
+    tonalElevation: Dp = ListItemDefaults.TonalElevation,
     shape: ListItemShape = ListItemDefaults.shape(),
     colors: ListItemColors = ListItemDefaults.colors(),
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
-    headlineContent: @Composable () -> Unit
+    interactionSource: MutableInteractionSource? = null
 ) {
     BaseListItem(
         selected = selected,
