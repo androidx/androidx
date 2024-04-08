@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("NullAnnotationGroup")
-
 package androidx.navigation
 
-import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
