@@ -21,9 +21,10 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatableNode
 
 // TODO(https://github.com/JetBrains/compose-multiplatform/issues/3341): support isComposeRootInScrollableContainer
-internal actual fun CompositionLocalConsumerModifierNode
+internal actual fun DelegatableNode
     .isComposeRootInScrollableContainer(): Boolean {
     return false
 }
