@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.AnchoredDraggableState
 import androidx.compose.material.DraggableAnchors
 import androidx.compose.material.ExperimentalMaterialApi
@@ -1075,6 +1076,21 @@ class AnchoredDraggableStateTest {
                 LayoutExecutionInfo(0, false),
                 LayoutExecutionInfo(1, false),
             )
+    }
+
+    // Regression test for b/332930104
+    @Test
+    fun draggableAnchors_equals() {
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            animationSpec = defaultAnimationSpec
+        )
+        val draggableAnchors = Modifier.draggableAnchors(state, Orientation.Vertical) { _, _ ->
+            DraggableAnchors<AnchoredDraggableTestValue> { } to A
+        }
+        assertThat(draggableAnchors).isNotEqualTo(Modifier)
     }
 
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
