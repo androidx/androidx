@@ -57,12 +57,16 @@ import androidx.compose.ui.platform.InspectorInfo
 fun Modifier.receiveContent(
     hintMediaTypes: Set<MediaType>,
     onReceive: (TransferableContent) -> TransferableContent?
-): Modifier = then(
-    ReceiveContentElement(
-        hintMediaTypes = hintMediaTypes,
-        receiveContentListener = ReceiveContentListener(onReceive)
+): Modifier {
+    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1263/Implement-Modifier.receiveContent
+    println("Modifier.receiveContent isn't supported in Compose Multiplatform yet")
+    return then(
+        ReceiveContentElement(
+            hintMediaTypes = hintMediaTypes,
+            receiveContentListener = ReceiveContentListener(onReceive)
+        )
     )
-)
+}
 
 /**
  * Configures the current node and any children nodes as a Content Receiver.
