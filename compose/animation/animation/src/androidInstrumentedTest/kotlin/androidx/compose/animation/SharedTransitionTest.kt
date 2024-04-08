@@ -18,6 +18,7 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
@@ -51,6 +52,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -69,6 +71,7 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -1075,6 +1078,8 @@ class SharedTransitionTest {
                                 .offset(20.dp)
                                 .sharedBounds(rememberSharedContentState(key = "test"),
                                     this@AnimatedVisibility,
+                                    fadeIn(),
+                                    fadeOut(),
                                     boundsTransform = BoundsTransform { _, _ ->
                                         tween(100, easing = LinearEasing)
                                     })
@@ -1855,6 +1860,518 @@ class SharedTransitionTest {
             assertTrue(clippedChildSharedContentState!!.isMatchFound)
             rule.waitForIdle()
             rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testScaleTransition() {
+        var isSquare by mutableStateOf(true)
+        val boundsTransform = BoundsTransform { _, _ -> tween(100, easing = LinearEasing) }
+        var transition: Transition<*>? = null
+
+        rule.setContent {
+            SharedTransitionLayout(
+                Modifier
+                    .testTag("scope")
+                    .background(Color.White)
+            ) {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    AnimatedContent(isSquare,
+                        transitionSpec =
+                        { EnterTransition.None togetherWith ExitTransition.None using null }
+                    ) { isSquare ->
+                        if (this.transition.targetState == EnterExitState.Visible) {
+                            transition = this.transition
+                        }
+                        if (isSquare) {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(ContentScale.Fit),
+                                        scaleOutSharedContentToBounds(ContentScale.Fit),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(80.dp)
+                                    .background(Color.Red)
+                            )
+                        } else {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(ContentScale.Fit),
+                                        scaleOutSharedContentToBounds(ContentScale.Fit),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(40.dp, 160.dp)
+                                    .background(Color.Gray)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("scope").run {
+            assertExists("Error: Node doesn't exist")
+            captureToImage().run {
+                assertPixels {
+                    Color.Red
+                }
+            }
+        }
+        rule.mainClock.autoAdvance = false
+        isSquare = false
+
+        // Wait for transition to start
+        while (transition!!.targetState == transition!!.currentState) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        // Anti alias tolerance
+        val tolerance = 2
+
+        while (transition!!.targetState != transition!!.currentState) {
+            // animating from 80, 80 -> 40, 160
+            rule.onNodeWithTag("scope").run {
+                val fraction = (transition!!.playTimeNanos / 1000_000L) / 100f
+                val expectedBoundsWidth = (1f - fraction) * 80f + fraction * 40f
+                val expectedBoundsHeight = (1f - fraction) * 80f + fraction * 160f
+                if (fraction > 0) {
+                    captureToImage().run {
+                        assertEquals(expectedBoundsWidth.roundToInt(), width)
+                        assertEquals(expectedBoundsHeight.roundToInt(), height)
+                        assertPixels { (x, y) ->
+                            val greyMin = width / 2 - height / 8
+                            val greyMax = width / 2 + height / 8
+                            if (x > greyMin + tolerance &&
+                                x < greyMax - tolerance
+                            ) {
+                                Color.Gray
+                            } else if (x < greyMin - tolerance ||
+                                x > greyMax + tolerance
+                            ) {
+                                // This should be either red or white depending on height
+                                if (y > height / 2f - width / 2f + tolerance &&
+                                    y < height / 2f + width / 2f - tolerance
+                                ) {
+                                    Color.Red
+                                } else null
+                            } else null
+                        }
+                    }
+                }
+                rule.mainClock.advanceTimeByFrame()
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testScaleTransitionFillHeightAndFillWidth() {
+        var isSquare by mutableStateOf(true)
+        val boundsTransform = BoundsTransform { _, _ -> tween(100, easing = LinearEasing) }
+        var transition: Transition<*>? = null
+
+        rule.setContent {
+            SharedTransitionLayout(
+                Modifier
+                    .testTag("scope")
+                    .background(Color.White)
+            ) {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    AnimatedContent(isSquare,
+                        transitionSpec =
+                        { EnterTransition.None togetherWith ExitTransition.None using null }
+                    ) { isSquare ->
+                        if (this.transition.targetState == EnterExitState.Visible) {
+                            transition = this.transition
+                        }
+                        if (isSquare) {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(ContentScale.FillHeight),
+                                        scaleOutSharedContentToBounds(ContentScale.FillHeight),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(80.dp)
+                                    .background(Color.Red)
+                            )
+                        } else {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(ContentScale.FillWidth),
+                                        scaleOutSharedContentToBounds(ContentScale.FillWidth),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(40.dp, 160.dp)
+                                    .background(Color.Gray)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("scope").run {
+            assertExists("Error: Node doesn't exist")
+            captureToImage().run {
+                assertPixels {
+                    Color.Red
+                }
+            }
+        }
+        rule.mainClock.autoAdvance = false
+        isSquare = false
+
+        // Wait for transition to start
+        while (transition!!.targetState == transition!!.currentState) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        while (transition!!.targetState != transition!!.currentState) {
+            // animating from 80, 80 -> 40, 160
+            rule.onNodeWithTag("scope").run {
+                val fraction = (transition!!.playTimeNanos / 1000_000L) / 100f
+                val expectedBoundsWidth = (1f - fraction) * 80f + fraction * 40f
+                val expectedBoundsHeight = (1f - fraction) * 80f + fraction * 160f
+                if (fraction > 0) {
+                    captureToImage().run {
+                        assertEquals(expectedBoundsWidth.roundToInt(), width)
+                        assertEquals(expectedBoundsHeight.roundToInt(), height)
+                        assertPixels {
+                            Color.Gray
+                        }
+                    }
+                }
+                rule.mainClock.advanceTimeByFrame()
+            }
+        }
+
+        rule.waitForIdle()
+
+        isSquare = true
+
+        // Wait for transition to start
+        while (transition!!.targetState == transition!!.currentState) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        while (transition!!.targetState != transition!!.currentState) {
+            // animating from 80, 80 -> 40, 160
+            rule.onNodeWithTag("scope").run {
+                val fraction = (transition!!.playTimeNanos / 1000_000L) / 100f
+                val expectedBoundsWidth = (1f - fraction) * 40f + fraction * 80f
+                val expectedBoundsHeight = (1f - fraction) * 160f + fraction * 80f
+                if (fraction > 0) {
+                    captureToImage().run {
+                        assertEquals(expectedBoundsWidth.roundToInt(), width)
+                        assertEquals(expectedBoundsHeight.roundToInt(), height)
+                        assertPixels {
+                            Color.Red
+                        }
+                    }
+                }
+                rule.mainClock.advanceTimeByFrame()
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testScaleTransitionAlignment() {
+        var isSquare by mutableStateOf(true)
+        val boundsTransform = BoundsTransform { _, _ -> tween(100, easing = LinearEasing) }
+        var transition: Transition<*>? = null
+
+        rule.setContent {
+            SharedTransitionLayout(
+                Modifier
+                    .testTag("scope")
+                    .background(Color.White)
+            ) {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    AnimatedContent(isSquare,
+                        transitionSpec =
+                        { EnterTransition.None togetherWith ExitTransition.None using null }
+                    ) { isSquare ->
+                        if (this.transition.targetState == EnterExitState.Visible) {
+                            transition = this.transition
+                        }
+                        if (isSquare) {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(
+                                            ContentScale.Fit,
+                                            Alignment.TopStart
+                                        ),
+                                        scaleOutSharedContentToBounds(
+                                            ContentScale.Fit,
+                                            Alignment.TopStart
+                                        ),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(80.dp)
+                                    .background(Color.Red)
+                            )
+                        } else {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(
+                                            ContentScale.Fit,
+                                            Alignment.BottomStart
+                                        ),
+                                        scaleOutSharedContentToBounds(
+                                            ContentScale.Fit,
+                                            Alignment.BottomStart
+                                        ),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(40.dp, 160.dp)
+                                    .background(Color.Gray)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("scope").run {
+            assertExists("Error: Node doesn't exist")
+            captureToImage().run {
+                assertPixels {
+                    Color.Red
+                }
+            }
+        }
+        rule.mainClock.autoAdvance = false
+        isSquare = false
+
+        // Wait for transition to start
+        while (transition!!.targetState == transition!!.currentState) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        // Anti alias tolerance
+        val tolerance = 2
+
+        while (transition!!.targetState != transition!!.currentState) {
+            // animating from 80, 80 -> 40, 160
+            rule.onNodeWithTag("scope").run {
+                val fraction = (transition!!.playTimeNanos / 1000_000L) / 100f
+                val expectedBoundsWidth = (1f - fraction) * 80f + fraction * 40f
+                val expectedBoundsHeight = (1f - fraction) * 80f + fraction * 160f
+                if (fraction > 0) {
+                    captureToImage().run {
+                        assertEquals(expectedBoundsWidth.roundToInt(), width)
+                        assertEquals(expectedBoundsHeight.roundToInt(), height)
+                        assertPixels { (x, y) ->
+                            val greyMax = height / 4
+                            if (x >= 0 &&
+                                x < greyMax - tolerance
+                            ) {
+                                Color.Gray
+                            } else if (x > greyMax + tolerance) {
+                                // This should be either red or white depending on height
+                                if (y > 0 + tolerance &&
+                                    y < width - tolerance
+                                ) {
+                                    Color.Red
+                                } else if (y > width + tolerance) {
+                                    Color.White
+                                } else null
+                            } else null
+                        }
+                    }
+                }
+                rule.mainClock.advanceTimeByFrame()
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testScaleTransitionCrop() {
+        var isSquare by mutableStateOf(true)
+        val boundsTransform = BoundsTransform { _, _ -> tween(100, easing = LinearEasing) }
+        var transition: Transition<*>? = null
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(
+                    Modifier
+                        .testTag("scope")
+                        .background(Color.White)
+                        .padding(20.dp)
+                ) {
+                    AnimatedContent(isSquare,
+                        transitionSpec =
+                        { EnterTransition.None togetherWith ExitTransition.None using null }
+                    ) { isSquare ->
+                        if (this.transition.targetState == EnterExitState.Visible) {
+                            transition = this.transition
+                        }
+                        if (isSquare) {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(ContentScale.Crop),
+                                        scaleOutSharedContentToBounds(ContentScale.Crop),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(80.dp)
+                                    .background(Color.Red)
+                            )
+                        } else {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this,
+                                        scaleInSharedContentToBounds(ContentScale.FillWidth),
+                                        scaleOutSharedContentToBounds(ContentScale.FillWidth),
+                                        boundsTransform = boundsTransform,
+                                        placeHolderSize = animatedSize
+                                    )
+                                    .size(40.dp, 160.dp)
+                                    .background(Color.Gray)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag("scope").run {
+            assertExists("Error: Node doesn't exist")
+            captureToImage().run {
+                assertPixels { (x, y) ->
+                    if (x > 20 && x < width - 20 && y > 20 && y < height - 20) {
+                        Color.Red
+                    } else if (x < 20 || x > width - 20 || y < 20 && y > height - 20) {
+                        Color.White
+                    } else
+                        null
+                }
+            }
+        }
+        rule.mainClock.autoAdvance = false
+        isSquare = false
+
+        // Wait for transition to start
+        while (transition!!.targetState == transition!!.currentState) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        while (transition!!.targetState != transition!!.currentState) {
+            // animating from 80, 80 -> 40, 160
+            rule.onNodeWithTag("scope").run {
+                val fraction = (transition!!.playTimeNanos / 1000_000L) / 100f
+                val expectedBoundsWidth = (1f - fraction) * 80f + fraction * 40f + 40
+                val expectedBoundsHeight = (1f - fraction) * 80f + fraction * 160f + 40
+                if (fraction > 0) {
+                    captureToImage().run {
+                        assertEquals(expectedBoundsWidth.roundToInt(), width)
+                        assertEquals(expectedBoundsHeight.roundToInt(), height)
+                        assertPixels { (x, y) ->
+                            if (x > 20 && x < width - 20) {
+                                // Expect gray to draw in the padding area since it does not crop
+                                val verticalDistTimes2 = abs(2 * y - height)
+                                if (verticalDistTimes2 > (width - 40) * 4) {
+                                    Color.White
+                                } else if (verticalDistTimes2 < (width - 40) * 4) {
+                                    Color.Gray
+                                } else null
+                            } else if (x < 20 || x > width + 20) {
+                                Color.White
+                            } else null
+                        }
+                    }
+                }
+                rule.mainClock.advanceTimeByFrame()
+            }
+        }
+
+        rule.waitForIdle()
+
+        isSquare = true
+
+        // Wait for transition to start
+        while (transition!!.targetState == transition!!.currentState) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+
+        while (transition!!.targetState != transition!!.currentState) {
+            // animating from 80, 80 -> 40, 160
+            rule.onNodeWithTag("scope").run {
+                val fraction = (transition!!.playTimeNanos / 1000_000L) / 100f
+                val expectedBoundsWidth = (1f - fraction) * 40f + fraction * 80f + 40
+                val expectedBoundsHeight = (1f - fraction) * 160f + fraction * 80f + 40
+                if (fraction > 0) {
+                    captureToImage().run {
+                        assertEquals(expectedBoundsWidth.roundToInt(), width)
+                        assertEquals(expectedBoundsHeight.roundToInt(), height)
+                        assertPixels { (x, y) ->
+                            if (x > 20 && x < width - 20) {
+                                // Excluded left & right padding
+                                if (y < 20 || y > height - 20) {
+                                    // expect grey to be rendered out of bounds since it doesn't
+                                    // clip and it's fillWidth
+                                    // Expect gray to draw in the padding area since it does not
+                                    // crop
+                                    val verticalDistTimes2 = abs(2 * y - height)
+                                    if (verticalDistTimes2 > (width - 40) * 4) {
+                                        Color.White
+                                    } else if (verticalDistTimes2 < (width - 40) * 4) {
+                                        Color.Gray
+                                    } else null
+                                } else if (y > 20 && y < height - 20) {
+                                    Color.Red
+                                } else null
+                            } else if (x < 20 || x > width - 20) {
+                                // Left and right padding
+                                Color.White
+                            } else null
+                        }
+                    }
+                }
+                rule.mainClock.advanceTimeByFrame()
+            }
         }
     }
 }

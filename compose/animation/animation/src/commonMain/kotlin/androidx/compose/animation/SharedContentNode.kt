@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
@@ -260,6 +262,10 @@ internal class SharedBoundsNode(
 
         layer.record {
             this@draw.drawContent()
+            if (VisualDebugging) {
+                // TODO: also draw border of the clip path
+                drawRect(Color.Red, style = Stroke(3f))
+            }
         }
         if (state.shouldRenderInPlace) {
             drawLayer(layer)
