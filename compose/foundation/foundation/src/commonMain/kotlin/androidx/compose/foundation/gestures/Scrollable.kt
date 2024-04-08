@@ -315,7 +315,7 @@ private class ScrollableNode(
 
     private val draggableState = ScrollDraggableState(scrollingLogic)
     private val startDragImmediately = { scrollingLogic.shouldScrollImmediately() }
-    private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = { velocity ->
+    private val onDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = { velocity ->
         nestedScrollDispatcher.coroutineScope.launch {
             scrollingLogic.onScrollStopped(velocity, Drag)
         }
@@ -338,7 +338,7 @@ private class ScrollableNode(
         )
     )
 
-    private val onWheelScrollStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = { velocity ->
+    private val onWheelScrollStopped: suspend CoroutineScope.(velocity: Float) -> Unit = { velocity ->
         nestedScrollDispatcher.coroutineScope.launch {
             scrollingLogic.onScrollStopped(velocity, Wheel)
         }
@@ -741,12 +741,13 @@ internal class ScrollingLogic(
     }
 
     suspend fun onScrollStopped(
-        initialVelocity: Velocity,
+        initialVelocity: Float,
         source: NestedScrollSource
     ) {
         if (source == Wheel && !flingBehavior.shouldBeTriggeredByMouseWheel) {
             return
         }
+    }
 
     suspend fun onDragStopped(initialVelocity: Velocity) {
         val availableVelocity = initialVelocity.singleAxisVelocity()

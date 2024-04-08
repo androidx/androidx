@@ -53,7 +53,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 internal class MouseWheelScrollNode(
     private val scrollingLogic: ScrollingLogic,
-    private val onScrollStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+    private val onScrollStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
     private var enabled: Boolean,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode {
     private lateinit var mouseWheelScrollConfig: ScrollConfig
@@ -273,7 +273,7 @@ internal class MouseWheelScrollNode(
             }
         }
         val velocityPxInMs = minOf(abs(targetValue) / MaxAnimationDuration, speed)
-        val velocity = Velocity.Zero.update(sign(targetValue).reverseIfNeeded() * velocityPxInMs * 1000)
+        val velocity = sign(targetValue).reverseIfNeeded() * velocityPxInMs * 1000
         coroutineScope.onScrollStopped(velocity)
     }
 
