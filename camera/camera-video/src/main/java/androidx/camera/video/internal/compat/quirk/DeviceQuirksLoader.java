@@ -110,6 +110,9 @@ public class DeviceQuirksLoader {
         if (SizeCannotEncodeVideoQuirk.load()) {
             quirks.add(new SizeCannotEncodeVideoQuirk());
         }
+        if (TemporalNoiseQuirk.load()) {
+            quirks.add(new TemporalNoiseQuirk());
+        }
 
         return quirks;
     }
