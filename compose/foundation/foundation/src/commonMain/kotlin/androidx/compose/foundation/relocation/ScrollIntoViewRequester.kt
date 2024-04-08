@@ -40,7 +40,8 @@ import androidx.compose.ui.unit.toSize
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
-suspend fun DelegatableNode.scrollIntoView(rect: Rect? = null) {
+// TODO(b/333421581) Make public.
+internal suspend fun DelegatableNode.scrollIntoView(rect: Rect? = null) {
     if (!node.isAttached) return
     val layoutCoordinates = requireLayoutCoordinates()
     val parent = findBringIntoViewParent() ?: return
