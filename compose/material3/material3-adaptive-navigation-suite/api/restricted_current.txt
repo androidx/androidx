@@ -45,7 +45,7 @@ package androidx.compose.material3.adaptive.navigationsuite {
     method @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi @androidx.compose.runtime.Composable public static void NavigationSuiteScaffoldLayout(kotlin.jvm.functions.Function0<kotlin.Unit> navigationSuite, optional String layoutType, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public interface NavigationSuiteScope {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public sealed interface NavigationSuiteScope {
     method public void item(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional boolean alwaysShowLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? badge, optional androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors? colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 

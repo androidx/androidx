@@ -286,7 +286,7 @@ fun NavigationSuite(
 
 /** The scope associated with the [NavigationSuiteScope]. */
 @ExperimentalMaterial3AdaptiveNavigationSuiteApi
-interface NavigationSuiteScope {
+sealed interface NavigationSuiteScope {
 
     /**
      * This function sets the parameters of the default Material navigation item to be used with the
