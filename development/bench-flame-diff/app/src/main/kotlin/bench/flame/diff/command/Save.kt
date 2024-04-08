@@ -47,20 +47,20 @@ class Save : CliktCommand(help = "Save a trace file for future comparison.") {
 
     override fun run() {
         val src = src // allows for smart casts
-        val srcFile: File = when {
+        val srcTraceFile: File = when {
             src != null && src.isFile -> src
             else -> promptProvideFile("Provide trace source", pattern, src, Paths.outDir.toFile())
         }
-        check(srcFile.exists() && srcFile.isFile)
+        check(srcTraceFile.exists() && srcTraceFile.isFile)
 
-        val dstFile: File =
-            Paths.savedTracesDir.resolve(dst ?: promptDestinationName(srcFile.name)).toFile()
-        if (dstFile.exists()) promptOverwriteFile(dstFile).let { overwrite ->
+        val dstTraceFile: File =
+            Paths.savedTracesDir.resolve(dst ?: promptDestinationName(srcTraceFile.name)).toFile()
+        if (dstTraceFile.exists()) promptOverwriteFile(dstTraceFile).let { overwrite ->
             if (!overwrite) return
         }
 
-        dstFile.parentFile.mkdirs() // ensure destination dir is present
-        srcFile.copyTo(dstFile, overwrite = true)
+        dstTraceFile.parentFile.mkdirs() // ensure destination dir is present
+        srcTraceFile.copyTo(dstTraceFile, overwrite = true)
     }
 
     private fun promptDestinationName(default: String? = null): String =
