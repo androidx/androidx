@@ -182,8 +182,7 @@ class DragDropState internal constructor(
                 draggingItem.index != item.index
         }
         if (targetItem != null) {
-            if (
-                draggingItem.index == state.firstVisibleItemIndex ||
+            if (draggingItem.index == state.firstVisibleItemIndex ||
                 targetItem.index == state.firstVisibleItemIndex
             ) {
                 state.requestScrollToItem(
