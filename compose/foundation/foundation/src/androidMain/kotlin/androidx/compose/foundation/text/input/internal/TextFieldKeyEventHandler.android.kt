@@ -35,6 +35,10 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 internal actual fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler =
     AndroidTextFieldKeyEventHandler()
 
+internal actual val KeyEvent.isFromSoftKeyboard: Boolean
+    get() = (nativeKeyEvent.flags and android.view.KeyEvent.FLAG_SOFT_KEYBOARD) ==
+        android.view.KeyEvent.FLAG_SOFT_KEYBOARD
+
 internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
 
     override fun onPreKeyEvent(
