@@ -88,7 +88,7 @@ class AdIdManagerFuturesTest {
 
     @Test
     fun testAdIdAsync() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9 or API 30 ext 11",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 4,
                 /* minExtServicesVersionS=*/ 9,
