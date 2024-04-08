@@ -91,7 +91,9 @@ fun LazyGridDragAndDropDemo() {
                     Text(
                         "Item $item",
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 40.dp)
                     )
                 }
             }
@@ -193,22 +195,15 @@ class GridDragDropState internal constructor(
                 draggingItem.index != item.index
         }
         if (targetItem != null) {
-            val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
-                draggingItem.index
-            } else if (draggingItem.index == state.firstVisibleItemIndex) {
-                targetItem.index
-            } else {
-                null
+            if (draggingItem.index == state.firstVisibleItemIndex ||
+                targetItem.index == state.firstVisibleItemIndex
+            ) {
+                state.requestScrollToItem(
+                    state.firstVisibleItemIndex,
+                    state.firstVisibleItemScrollOffset
+                )
             }
-            if (scrollToIndex != null) {
-                scope.launch {
-                    // this is needed to neutralize automatic keeping the first item first.
-                    state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-                    onMove.invoke(draggingItem.index, targetItem.index)
-                }
-            } else {
-                onMove.invoke(draggingItem.index, targetItem.index)
-            }
+            onMove.invoke(draggingItem.index, targetItem.index)
             draggingItemIndex = targetItem.index
         } else {
             val overscroll = when {
@@ -267,7 +262,8 @@ fun LazyGridItemScope.DraggableItem(
                 translationY = dragDropState.draggingItemOffset.y
             }
     } else if (index == dragDropState.previousIndexOfDraggedItem) {
-        Modifier.zIndex(1f)
+        Modifier
+            .zIndex(1f)
             .graphicsLayer {
                 translationX = dragDropState.previousItemOffset.value.x
                 translationY = dragDropState.previousItemOffset.value.y
