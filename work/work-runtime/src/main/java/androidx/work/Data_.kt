@@ -222,6 +222,18 @@ class Data {
     }
 
     /**
+     * Returns `true` if the instance of [Data] has a non-null value corresponding to
+     * the given [String] key with the expected type of [T].
+     *
+     * @param key   The [String] key
+     * @return `true` If the instance of [Data] has a value for the given
+     * [String] key with the expected type.
+     */
+    internal inline fun <reified T> hasKey(key: String): Boolean {
+        return hasKeyWithValueOfType(key, T::class.java)
+    }
+
+    /**
      * @return The number of elements in this Data object.
      */
     @VisibleForTesting

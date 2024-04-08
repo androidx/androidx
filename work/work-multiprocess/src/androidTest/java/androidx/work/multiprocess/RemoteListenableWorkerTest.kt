@@ -41,6 +41,8 @@ import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.impl.utils.tryDelegateRemoteListenableWorker
+import androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import com.google.common.util.concurrent.ListenableFuture
@@ -204,7 +206,9 @@ public class RemoteListenableWorkerTest {
             .setInputData(inputData)
             .build()
 
-        mDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        // Delegation
+        val workSpec = tryDelegateRemoteListenableWorker(request.workSpec)
+        mDatabase.workSpecDao().insertWorkSpec(workSpec)
         return request
     }
 
@@ -225,6 +229,7 @@ public class RemoteListenableWorkerTest {
         val inputData = Data.Builder()
             .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
             .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
+            .putString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME, T::class.java.name)
             .build()
         val progressUpdater = mock(ProgressUpdater::class.java)
         val foregroundUpdater = mock(ForegroundUpdater::class.java)
@@ -242,13 +247,13 @@ public class RemoteListenableWorkerTest {
             progressUpdater,
             foregroundUpdater
         )
-        val worker: RemoteSuccessWorker =
+        val worker: RemoteListenableDelegatingWorker =
             mConfiguration.workerFactory.createWorkerWithDefaultFallback(
                 mContext,
-                RemoteSuccessWorker::class.java.name, parameters
-            ) as RemoteSuccessWorker
+                RemoteListenableDelegatingWorker::class.java.name, parameters
+            ) as RemoteListenableDelegatingWorker
         worker.startWork().get()
-        assertNull(worker.mClient.connection)
+        assertNull(worker.client.connection)
     }
 }
 
@@ -259,6 +264,7 @@ public class RemoteStopWorker(
 
     val startRemoteDeferred = CompletableDeferred<Unit>()
     val stopDeferred = CompletableDeferred<Int>()
+
     // specially leak completer reference and keep it around.
     // otherwise future will be automatically cancelled.
     lateinit var leakedCompleter: Completer<Result>
