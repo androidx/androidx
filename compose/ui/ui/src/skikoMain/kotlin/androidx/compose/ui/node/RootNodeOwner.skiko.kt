@@ -212,7 +212,7 @@ internal class RootNodeOwner(
     }
 
     fun draw(canvas: Canvas) = trace("RootNodeOwner:draw") {
-        owner.root.draw(canvas)
+        owner.root.draw(canvas, graphicsLayer = null)
         clearInvalidObservations()
     }
 
