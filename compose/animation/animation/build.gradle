@@ -82,6 +82,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         sourceSets {
             commonMain.dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                implementation(project(":collection:collection"))
 
                 api(project(":compose:animation:animation-core"))
                 api(project(":compose:foundation:foundation-layout"))
