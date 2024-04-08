@@ -16,12 +16,12 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatableNode
 
 /**
  * Platform specific internal API to bring a rectangle into view.
  */
-internal actual fun CompositionLocalConsumerModifierNode.defaultBringIntoViewParent():
+internal actual fun DelegatableNode.defaultBringIntoViewParent():
     BringIntoViewParent =
      BringIntoViewParent { _, _ ->
         // TODO(b/203204124): Implement this if desktop has a
