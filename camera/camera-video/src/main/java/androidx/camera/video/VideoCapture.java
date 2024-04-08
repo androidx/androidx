@@ -131,6 +131,7 @@ import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCa
 import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk;
+import androidx.camera.video.internal.compat.quirk.TemporalNoiseQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
@@ -195,8 +196,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
         boolean hasExtraSupportedResolutionQuirk =
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
+        boolean hasTemporalNoiseQuirk = DeviceQuirks.get(TemporalNoiseQuirk.class) != null;
         USE_TEMPLATE_PREVIEW_BY_QUIRK =
-                hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk;
+                hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
+                        || hasTemporalNoiseQuirk;
         sEnableSurfaceProcessingByQuirk =
                 hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
                         || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
