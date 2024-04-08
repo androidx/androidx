@@ -29,8 +29,10 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +56,18 @@ public class TopicsManagerTest {
     // Use 0 percent for random topic in the test so that we can verify the returned topic.
     private static final int TEST_TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC = 0;
     private static final int TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC = 5;
+
+    @BeforeClass
+    public static void presuite() {
+        TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+        testUtil.disableDeviceConfigSyncForTests(true);
+    }
+
+    @AfterClass
+    public static void postsuite() {
+        TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+        testUtil.disableDeviceConfigSyncForTests(false);
+    }
 
     @Before
     public void setup() throws Exception {
@@ -81,6 +95,7 @@ public class TopicsManagerTest {
 
     @After
     public void teardown() {
+        mTestUtil.disableDeviceConfigSyncForTests(false);
         mTestUtil.overrideKillSwitches(false);
         mTestUtil.overrideEpochPeriod(TOPICS_EPOCH_JOB_PERIOD_MS);
         mTestUtil.overridePercentageForRandomTopic(TOPICS_PERCENTAGE_FOR_RANDOM_TOPIC);
@@ -99,15 +114,15 @@ public class TopicsManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         TopicsManagerFutures topicsManager =
                 TopicsManagerFutures.from(ApplicationProvider.getApplicationContext());
-        GetTopicsRequest request = new GetTopicsRequest.Builder()
-                .setAdsSdkName("sdk1")
-                .setShouldRecordObservation(true)
-                .build();
+        GetTopicsRequest request =
+                new GetTopicsRequest.Builder()
+                        .setAdsSdkName("sdk1")
+                        .setShouldRecordObservation(true)
+                        .build();
         GetTopicsResponse response = topicsManager.getTopicsAsync(request).get();
 
         // At beginning, Sdk1 receives no topic.
@@ -141,10 +156,11 @@ public class TopicsManagerTest {
         assertThat(topic.getTaxonomyVersion()).isAtLeast(1L);
 
         // Sdk 2 did not call getTopics API. So it should not receive any topic.
-        GetTopicsResponse response2 = topicsManager.getTopicsAsync(
-                new GetTopicsRequest.Builder()
-                        .setAdsSdkName("sdk2")
-                        .build()).get();
+        GetTopicsResponse response2 =
+                topicsManager
+                        .getTopicsAsync(
+                                new GetTopicsRequest.Builder().setAdsSdkName("sdk2").build())
+                        .get();
         assertThat(response2.getTopics()).isEmpty();
     }
 }
