@@ -296,7 +296,57 @@ expect fun DropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
+    shape: Shape = MenuDefaults.shape,
+    containerColor: Color = MenuDefaults.containerColor,
+    tonalElevation: Dp = MenuDefaults.TonalElevation,
+    shadowElevation: Dp = MenuDefaults.ShadowElevation,
+    border: BorderStroke? = null,
     content: @Composable ColumnScope.() -> Unit
+)
+
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith(
+        expression = "DropdownMenu(\n" +
+            "    expanded = expanded,\n" +
+            "    onDismissRequest = onDismissRequest,\n" +
+            "    modifier = modifier,\n" +
+            "    offset = offset,\n" +
+            "    scrollState = scrollState,\n" +
+            "    properties = properties,\n" +
+            "    shape = MenuDefaults.shape,\n" +
+            "    containerColor = MenuDefaults.containerColor,\n" +
+            "    tonalElevation = MenuDefaults.TonalElevation,\n" +
+            "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
+            "    border = null,\n" +
+            "    content = content,\n" +
+            ")",
+    ),
+    message = "Maintained for binary compatibility. Use overload with parameters for shape, " +
+        "color, elevation, and border."
+)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    scrollState: ScrollState = rememberScrollState(),
+    properties: PopupProperties = PopupProperties(focusable = true),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    scrollState = scrollState,
+    properties = properties,
+    shape = MenuDefaults.shape,
+    containerColor = MenuDefaults.containerColor,
+    tonalElevation = MenuDefaults.TonalElevation,
+    shadowElevation = MenuDefaults.ShadowElevation,
+    border = null,
+    content = content,
 )
 
 /**

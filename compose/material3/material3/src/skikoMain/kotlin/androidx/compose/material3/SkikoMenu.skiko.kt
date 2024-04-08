@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,6 +35,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -45,6 +48,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -150,6 +154,11 @@ actual fun DropdownMenu(
     offset: DpOffset,
     scrollState: ScrollState,
     properties: PopupProperties,
+    shape: Shape,
+    containerColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    border: BorderStroke?,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val expandedState = remember { MutableTransitionState(false) }
@@ -184,8 +193,13 @@ actual fun DropdownMenu(
                 expandedState = expandedState,
                 transformOriginState = transformOriginState,
                 scrollState = scrollState,
+                shape = shape,
+                containerColor = containerColor,
+                tonalElevation = tonalElevation,
+                shadowElevation = shadowElevation,
+                border = border,
                 modifier = modifier,
-                content = content
+                content = content,
             )
         }
     }
