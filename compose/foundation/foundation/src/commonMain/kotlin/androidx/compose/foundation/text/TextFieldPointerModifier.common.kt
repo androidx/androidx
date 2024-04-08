@@ -31,19 +31,18 @@ internal expect fun Modifier.textFieldPointer(
     manager: TextFieldSelectionManager,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping
 ): Modifier
 
 @Composable
-@OptIn(InternalFoundationTextApi::class)
 internal fun Modifier.defaultTextFieldPointer(
     manager: TextFieldSelectionManager,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping

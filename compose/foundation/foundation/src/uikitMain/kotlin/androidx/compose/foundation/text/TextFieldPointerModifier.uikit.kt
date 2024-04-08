@@ -28,7 +28,7 @@ internal actual fun Modifier.textFieldPointer(
     manager: TextFieldSelectionManager,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
     offsetMapping: OffsetMapping
