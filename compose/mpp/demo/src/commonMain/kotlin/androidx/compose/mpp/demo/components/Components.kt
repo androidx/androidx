@@ -16,7 +16,6 @@
 
 package androidx.compose.mpp.demo.components
 
-import androidx.compose.mpp.demo.LazyLayouts
 import androidx.compose.mpp.demo.Screen
 import androidx.compose.mpp.demo.components.dialog.Dialogs
 import androidx.compose.mpp.demo.components.material.AlertDialogExample

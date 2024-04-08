@@ -16,7 +16,16 @@
 
 package androidx.compose.mpp.demo.components.dialog
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.mpp.demo.LottieAnimation
 import androidx.compose.mpp.demo.Screen
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 val Dialogs = Screen.Selection(
     "Dialogs",
@@ -24,4 +33,14 @@ val Dialogs = Screen.Selection(
     Screen.Example("CompositionLocal inside Dialog") { DialogCompositionLocalExample() },
     DialogWithTextField,
     FocusAndKeyInput,
+    Screen.Dialog("Dialog destination") {
+        // Just example of content that should be already inside dialog
+        Box(Modifier
+            .size(300.dp)
+            .shadow(10.dp, CircleShape)
+            .background(Color.White)
+        ) {
+            LottieAnimation()
+        }
+    }
 )

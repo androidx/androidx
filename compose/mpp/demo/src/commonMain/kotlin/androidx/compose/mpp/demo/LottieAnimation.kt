@@ -46,7 +46,7 @@ fun LottieAnimation() {
 }
 
 @Composable
-fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
+private fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
     val infiniteTransition = rememberInfiniteTransition()
     val time by infiniteTransition.animateFloat(
         initialValue = 0f,
