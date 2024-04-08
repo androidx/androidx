@@ -77,7 +77,7 @@ class IndicationTest {
         setContent {
             Box(Modifier.testTag(testTag).size(100.dp).indication(dispatcher, indication))
         }
-        waitUntil(1000L) {
+        waitUntil(timeoutMillis = 1000L) {
             counter == 1
         }
         assertEquals(1, counter)

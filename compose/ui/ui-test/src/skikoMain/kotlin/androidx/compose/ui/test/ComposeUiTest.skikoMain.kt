@@ -286,15 +286,17 @@ class SkikoComposeUiTest @InternalTestApi constructor(
         return action().also { waitForIdle() }
     }
 
-    override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) {
+    override fun waitUntil(
+        conditionDescription: String?,
+        timeoutMillis: Long,
+        condition: () -> Boolean
+    ) {
         val startTime = currentNanoTime()
         val timeoutNanos = timeoutMillis * NanoSecondsPerMilliSecond
         while (!condition()) {
             renderNextFrame()
             if (currentNanoTime() - startTime > timeoutNanos) {
-                throw ComposeTimeoutException(
-                    "Condition still not satisfied after $timeoutMillis ms"
-                )
+                buildWaitUntilTimeoutMessage(timeoutMillis, conditionDescription)
             }
         }
 
@@ -439,7 +441,11 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     actual fun <T> runOnIdle(action: () -> T): T
     actual fun waitForIdle()
     actual suspend fun awaitIdle()
-    actual fun waitUntil(timeoutMillis: Long, condition: () -> Boolean)
+    actual fun waitUntil(
+        conditionDescription: String?,
+        timeoutMillis: Long,
+        condition: () -> Boolean
+    )
     actual fun registerIdlingResource(idlingResource: IdlingResource)
     actual fun unregisterIdlingResource(idlingResource: IdlingResource)
     actual fun setContent(composable: @Composable () -> Unit)
