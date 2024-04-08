@@ -835,7 +835,7 @@ private class DraggableAnchorsElement<T>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
-        other as DraggableAnchorsElement<*>
+        if (other !is DraggableAnchorsElement<*>) return false
 
         if (state != other.state) return false
         if (anchors != other.anchors) return false
