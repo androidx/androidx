@@ -75,6 +75,8 @@ internal class TextFieldPreparedSelectionState {
  * through transformed coordinates.
  * @param textLayoutResult Visual representation of text inside [state]. Used to calculate line
  * and paragraph metrics.
+ * @param isFromSoftKeyboard Whether the source event that created this selection context is coming
+ * from the IME.
  * @param visibleTextLayoutHeight Height of the visible area of text inside TextField to decide
  * where cursor needs to move when page up/down is requested.
  * @param textPreparedSelectionState An object that holds any context that needs to be long lived
@@ -85,6 +87,7 @@ internal class TextFieldPreparedSelectionState {
 internal class TextFieldPreparedSelection(
     private val state: TransformedTextFieldState,
     private val textLayoutResult: TextLayoutResult,
+    private val isFromSoftKeyboard: Boolean,
     private val visibleTextLayoutHeight: Float,
     private val textPreparedSelectionState: TextFieldPreparedSelectionState
 ) {
@@ -112,9 +115,19 @@ internal class TextFieldPreparedSelection(
      */
     inline fun deleteIfSelectedOr(block: () -> TextRange?) {
         if (!selection.collapsed) {
-            state.replaceText("", selection)
+            state.replaceText(
+                newText = "",
+                range = selection,
+                restartImeIfContentChanges = !isFromSoftKeyboard
+            )
         } else {
-            block()?.let { state.replaceText("", it) }
+            block()?.let {
+                state.replaceText(
+                    newText = "",
+                    range = it,
+                    restartImeIfContentChanges = !isFromSoftKeyboard
+                )
+            }
         }
     }
 

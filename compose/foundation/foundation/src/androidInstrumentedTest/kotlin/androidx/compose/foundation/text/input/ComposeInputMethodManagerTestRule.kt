@@ -30,11 +30,20 @@ import org.junit.runners.model.Statement
 internal class ComposeInputMethodManagerTestRule : TestRule {
     private var initialFactory: ((View) -> ComposeInputMethodManager)? = null
 
-    fun setFactory(factory: (View) -> ComposeInputMethodManager) {
+    /**
+     * Replaces the [ComposeInputMethodManager] factory with the given [factory].
+     *
+     * @return The initial factory that can be used to delegate select calls to not fully override
+     * the default [ComposeInputMethodManager].
+     */
+    fun setFactory(
+        factory: (View) -> ComposeInputMethodManager
+    ): ((View) -> ComposeInputMethodManager) {
         val previousFactory = overrideComposeInputMethodManagerFactoryForTests(factory)
         if (initialFactory == null) {
             initialFactory = previousFactory
         }
+        return initialFactory!!
     }
 
     override fun apply(base: Statement, description: Description): Statement =

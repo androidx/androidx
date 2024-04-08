@@ -22,7 +22,7 @@ import android.view.inputmethod.ExtractedText
 import androidx.compose.foundation.text.input.internal.ComposeInputMethodManager
 import com.google.common.truth.Truth.assertThat
 
-internal class FakeInputMethodManager : ComposeInputMethodManager {
+internal open class FakeInputMethodManager : ComposeInputMethodManager {
     private val calls = mutableListOf<String>()
 
     fun expectCall(description: String) {
