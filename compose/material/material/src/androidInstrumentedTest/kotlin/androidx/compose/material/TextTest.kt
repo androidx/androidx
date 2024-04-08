@@ -16,8 +16,10 @@
 
 package androidx.compose.material
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -26,12 +28,15 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -39,6 +44,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -278,5 +284,42 @@ class TextTest {
             val color = textLayoutResult.first().layoutInput.style.color
             color == expectedColor
         })
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun fromHtml_links_getColorFromMaterialTheme() {
+        var primary: Color? = null
+        rule.setMaterialContent {
+            primary = MaterialTheme.colors.primary
+            Text(TextDefaults.fromHtml("<a href=url>link</a>"))
+        }
+
+        rule.runOnIdle {
+            assertThat(primary).isNotNull()
+        }
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(primary!!)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun links_getColorFromMaterialTheme() {
+        var primary: Color? = null
+        rule.setMaterialContent {
+            primary = MaterialTheme.colors.primary
+            Text(buildAnnotatedString {
+                append("link")
+                addLink(TextDefaults.Url(url = "url"), 0, 4)
+            })
+        }
+
+        rule.runOnIdle {
+            assertThat(primary).isNotNull()
+        }
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(primary!!)
     }
 }

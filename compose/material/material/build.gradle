@@ -42,11 +42,11 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
                 api("androidx.compose.animation:animation-core:1.6.0")
                 api(project(":compose:foundation:foundation"))
+                api(project(":compose:ui:ui-text"))
                 api(project(":compose:material:material-icons-core"))
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
                 api("androidx.compose.ui:ui:1.6.0")
-                api("androidx.compose.ui:ui-text:1.6.0")
 
                 implementation(project(":compose:animation:animation-core"))
                 implementation("androidx.compose.animation:animation:1.6.0")
