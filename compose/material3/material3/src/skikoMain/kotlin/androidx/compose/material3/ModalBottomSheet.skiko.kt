@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -37,6 +39,7 @@ import androidx.compose.ui.window.PopupProperties
 internal actual fun ModalBottomSheetPopup(
     properties: ModalBottomSheetProperties,
     onDismissRequest: () -> Unit,
+    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     windowInsets: WindowInsets,
     content: @Composable () -> Unit,
 ) {
