@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -1062,7 +1061,6 @@ class DrawerTest {
             assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Closed)
         }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(contentTag)
             .performTouchInput { swipeUp(endY = peekHeight) }
 
@@ -1083,7 +1081,6 @@ class DrawerTest {
             assertThat(drawerState.currentValue).isEqualTo(BottomDrawerValue.Expanded)
         }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(bottomDrawerTag)
             .performTouchInput { swipeDown(endY = peekHeight) }
 

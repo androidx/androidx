@@ -17,9 +17,7 @@
 package androidx.compose.ui.test.injectionscope.key
 
 import androidx.compose.testutils.expectError
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.injectionscope.key.Common.assertTyped
 import androidx.compose.ui.test.injectionscope.key.Common.performKeyInput
@@ -37,7 +35,6 @@ import org.junit.Test
  * Tests if [KeyInjectionScope.keyUp] works
  */
 @MediumTest
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class KeyUpTest {
 
     @get:Rule
