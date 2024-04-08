@@ -125,7 +125,7 @@ internal fun PointerInputEvent(
             down = it.pressed,
             pressure = it.pressure,
             type = it.type,
-            issuesEnterExit = it.type == PointerType.Mouse,
+            activeHover = it.type == PointerType.Mouse,
             historical = it.historical,
             scrollDelta = scrollDelta,
             originalEventPosition = it.position

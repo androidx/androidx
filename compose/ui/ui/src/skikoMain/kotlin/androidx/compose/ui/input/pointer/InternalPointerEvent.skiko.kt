@@ -40,6 +40,6 @@ internal actual class InternalPointerEvent(
 
     actual var suppressMovementConsumption: Boolean = false
 
-    actual fun issuesEnterExitEvent(pointerId: PointerId): Boolean =
+    actual fun activeHoverEvent(pointerId: PointerId): Boolean =
         changes[pointerId.value]?.type == PointerType.Mouse
 }
