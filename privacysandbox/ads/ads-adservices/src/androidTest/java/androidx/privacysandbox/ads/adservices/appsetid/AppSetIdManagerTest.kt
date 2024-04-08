@@ -50,7 +50,7 @@ import org.mockito.invocation.InvocationOnMock
 class AppSetIdManagerTest {
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExtVersion = AdServicesInfo.adServicesVersion() >= 4
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
 
     @Before
     fun setUp() {
