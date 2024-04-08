@@ -11,6 +11,9 @@ package androidx.compose.material3.adaptive.layout {
     property public final androidx.compose.material3.adaptive.layout.AdaptStrategy Hide;
   }
 
+  public sealed interface AnimatedPaneScope extends androidx.compose.animation.AnimatedVisibilityScope {
+  }
+
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class HingePolicy {
     field public static final androidx.compose.material3.adaptive.layout.HingePolicy.Companion Companion;
   }
@@ -54,6 +57,10 @@ package androidx.compose.material3.adaptive.layout {
     method public String getHidden();
     property public final String Expanded;
     property public final String Hidden;
+  }
+
+  public final class PaneKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void AnimatedPane(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.AnimatedPaneScope,kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class PaneScaffoldDirective {
@@ -111,10 +118,6 @@ package androidx.compose.material3.adaptive.layout {
     method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getPane();
     property public final T? content;
     property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane;
-  }
-
-  public final class ThreePaneScaffoldKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void AnimatedPane(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public enum ThreePaneScaffoldRole {
