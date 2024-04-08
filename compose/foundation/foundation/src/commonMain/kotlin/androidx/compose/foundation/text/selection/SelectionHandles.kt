@@ -90,11 +90,12 @@ internal fun SelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize,
     modifier: Modifier,
 ) {
     SelectionHandle(
         offsetProvider, isStartHandle, direction,
-        handlesCrossed, 0f, modifier,
+        handlesCrossed, minTouchTargetSize, 0f, modifier,
     )
 }
 

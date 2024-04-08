@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.DpSize
 
 @Composable
 internal actual fun SelectionHandle(
@@ -27,6 +28,7 @@ internal actual fun SelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize,
     lineHeight: Float,
     modifier: Modifier,
 ) {

@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -60,12 +61,15 @@ private val RADIUS = 6.dp
  */
 private val THICKNESS = 2.dp
 
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1266/Support-SelectionHandleminTouchTargetSize-for-touch
+
 @Composable
 internal actual fun SelectionHandle(
     offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize,
     lineHeight: Float,
     modifier: Modifier,
 ) {
