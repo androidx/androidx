@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -24,10 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Configure component to receive clicks, double clicks and long clicks via input only (no accessibility "click" event)
@@ -118,7 +124,7 @@ fun Modifier.onClick(
     factory = {
 
         val gestureModifier = if (enabled) {
-            val interactionData = remember { AbstractClickableNode.InteractionData() }
+            val interactionData = remember { InteractionData() }
             val onClickState = rememberUpdatedState(onClick)
             val on2xClickState = rememberUpdatedState(onDoubleClick)
             val onLongClickState = rememberUpdatedState(onLongClick)
@@ -203,3 +209,50 @@ fun Modifier.onClick(
         gestureModifier
     }
 )
+
+// todo https://youtrack.jetbrains.com/issue/COMPOSE-1268/Refactor-Modifier.onClick-get-rid-of-InteractionData Refactor the same way as in 2e1799e0
+
+private class InteractionData {
+    var pressInteraction: PressInteraction.Press? = null
+}
+
+private suspend fun PressGestureScope.handlePressInteraction(
+    pressPoint: Offset,
+    interactionSource: MutableInteractionSource,
+    interactionData: InteractionData,
+    delayPressInteraction: () -> Boolean
+) {
+    coroutineScope {
+        val delayJob = launch {
+            if (delayPressInteraction()) {
+                delay(TapIndicationDelay)
+            }
+            val press = PressInteraction.Press(pressPoint)
+            interactionSource.emit(press)
+            interactionData.pressInteraction = press
+        }
+        val success = tryAwaitRelease()
+        if (delayJob.isActive) {
+            delayJob.cancelAndJoin()
+            // The press released successfully, before the timeout duration - emit the press
+            // interaction instantly. No else branch - if the press was cancelled before the
+            // timeout, we don't want to emit a press interaction.
+            if (success) {
+                val press = PressInteraction.Press(pressPoint)
+                val release = PressInteraction.Release(press)
+                interactionSource.emit(press)
+                interactionSource.emit(release)
+            }
+        } else {
+            interactionData.pressInteraction?.let { pressInteraction ->
+                val endInteraction = if (success) {
+                    PressInteraction.Release(pressInteraction)
+                } else {
+                    PressInteraction.Cancel(pressInteraction)
+                }
+                interactionSource.emit(endInteraction)
+            }
+        }
+        interactionData.pressInteraction = null
+    }
+}
