@@ -737,8 +737,8 @@ class ApproachLayoutTest {
     fun testIsApproachCompleteCalledWhenSiblingRemovedInScroll() {
         var isInColumn by mutableStateOf(false)
 
-        var lastTargetPosition by mutableStateOf(Offset.Zero)
-        var lastPosition by mutableStateOf(Offset.Zero)
+        var lastTargetPosition = Offset.Zero
+        var lastPosition = Offset.Zero
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
@@ -850,6 +850,76 @@ class ApproachLayoutTest {
             assertEquals(100f, lastTargetPosition.y)
             assertEquals(100f, lastPosition.y)
         }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testLookaheadApproachCoordinates_togglingDirectManipulationPlacement() {
+        var toggleDmp by mutableStateOf(true)
+
+        var positionExcludingDmp = Offset.Unspecified
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    Box {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .layout { measurable, constraints ->
+                                    // Applies a 200px offset, that may change from placing under
+                                    // DMP or not
+                                    measurable
+                                        .measure(constraints)
+                                        .run {
+                                            layout(width, height) {
+                                                if (toggleDmp) {
+                                                    withDirectManipulationPlacement {
+                                                        place(0, 200)
+                                                    }
+                                                } else {
+                                                    place(0, 200)
+                                                }
+                                            }
+                                        }
+                                }
+                                .approachLayout(
+                                    isMeasurementApproachInProgress = { false },
+                                    approachMeasure = { measurable, constraints ->
+                                        val placeable = measurable.measure(constraints)
+                                        layout(placeable.width, placeable.height) {
+                                            // Query coordinates during placement, they should
+                                            // get updated when only toggling the flag (despite
+                                            // no change in position)
+                                            coordinates?.let {
+                                                positionExcludingDmp = it
+                                                    .parentLayoutCoordinates!!
+                                                    .toLookaheadCoordinates()
+                                                    .localLookaheadPositionOf(
+                                                        coordinates = it
+                                                            .toLookaheadCoordinates(),
+                                                        excludeDirectManipulationOffset = true
+                                                    )
+                                            }
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                                )
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        // Offset should be ignored
+        assertEquals(0f, positionExcludingDmp.y)
+
+        toggleDmp = !toggleDmp
+        rule.waitForIdle()
+
+        // No longer placed under DMP. No offset to ignore.
+        assertEquals(200f, positionExcludingDmp.y)
     }
 
     private class TestPlacementScope : Placeable.PlacementScope() {

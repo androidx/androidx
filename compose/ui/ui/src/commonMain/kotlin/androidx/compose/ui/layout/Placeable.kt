@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.node.DirectManipulationDelegate
 import androidx.compose.ui.node.LookaheadCapablePlaceable
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.unit.Constraints
@@ -482,6 +483,7 @@ abstract class Placeable : Measured {
             zIndex: Float,
             noinline layerBlock: (GraphicsLayerScope.() -> Unit)?,
         ) {
+            handleDirectManipulationPlacement()
             placeAt(position + apparentToRealOffset, zIndex, layerBlock)
         }
 
@@ -491,7 +493,41 @@ abstract class Placeable : Measured {
             zIndex: Float,
             layer: GraphicsLayer
         ) {
+            handleDirectManipulationPlacement()
             placeAt(position + apparentToRealOffset, zIndex, layer)
+        }
+
+        /**
+         * Internal indicator to know when to tag [Placeable] under direct manipulation.
+         */
+        private var directManipulationPlacement: Boolean = false
+
+        /**
+         * [Placeable]s placed under [block] may have their position excluded for lookahead
+         * coordinates, see [LookaheadLayoutCoordinates.localPositionOf] with the
+         * `excludeDirectManipulation` argument.
+         *
+         * Excluding the position set by certain layouts can be helpful to trigger lookahead based
+         * animation when intended. The typical case are layouts that change frequently due to a
+         * provided value, like [scroll][androidx.compose.foundation.verticalScroll].
+         */
+        fun withDirectManipulationPlacement(block: PlacementScope.() -> Unit) {
+            directManipulationPlacement = true
+            block()
+            directManipulationPlacement = false
+        }
+
+        /**
+         * Updates the [DirectManipulationDelegate.isDirectManipulationPlacement] flag when called
+         * a [Placeable] is placed under [withDirectManipulationPlacement].
+         *
+         * Note that the Main/Lookahead pass delegate are expected to propagate the flag to the
+         * proper [LookaheadCapablePlaceable].
+         */
+        private fun Placeable.handleDirectManipulationPlacement() {
+            if (this is DirectManipulationDelegate) {
+                this.isDirectManipulationPlacement = this@PlacementScope.directManipulationPlacement
+            }
         }
     }
 }
