@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal.selection
+package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.text2.input.internal.TextLayoutState
-import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
+import androidx.compose.foundation.text.input.internal.TextLayoutState
+import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 
 /**
  * Initializes either an actual TextFieldMagnifierNode implementation or No-op node according to
@@ -28,14 +28,14 @@ internal actual fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    isFocused: Boolean
+    visible: Boolean
 ): TextFieldMagnifierNode {
     return object : TextFieldMagnifierNode() {
         override fun update(
             textFieldState: TransformedTextFieldState,
             textFieldSelectionState: TextFieldSelectionState,
             textLayoutState: TextLayoutState,
-            isFocused: Boolean
+            visible: Boolean
         ) {}
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.foundation.text.input.internal
 
 /**
  * Factory function to create a platform specific [TextFieldKeyEventHandler].
