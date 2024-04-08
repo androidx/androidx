@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,18 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.layout.SubcomposeLayoutState
 
-@ExperimentalFoundationApi
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1265/Implement-rememberDefaultPrefetchExecutor
+
+/**
+ * Remembers the platform-specific implementation for scheduling lazy layout item prefetch
+ * (pre-composing next items in advance during the scrolling).
+ */
 @Composable
-internal actual fun LazyLayoutPrefetcher(
-    prefetchState: LazyLayoutPrefetchState,
-    itemContentFactory: LazyLayoutItemContentFactory,
-    subcomposeLayoutState: SubcomposeLayoutState
-) {
-    // there is no prefetch implementation on desktop yet
+@ExperimentalFoundationApi
+internal actual fun rememberDefaultPrefetchExecutor(): PrefetchExecutor {
+    return object : PrefetchExecutor {
+        override fun requestPrefetch(prefetchRequest: PrefetchRequest) {
+        }
+    }
 }
