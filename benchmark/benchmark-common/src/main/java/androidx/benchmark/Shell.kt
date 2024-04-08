@@ -143,14 +143,30 @@ object Shell {
     fun waitForFileFlush(
         path: String,
         stableIterations: Int,
-        maxIterations: Int,
-        pollDurationMs: Long
+        maxInitialFlushWaitIterations: Int,
+        maxStableFlushWaitIterations: Int,
+        pollDurationMs: Long,
+        triggerFileFlush: () -> Unit
     ) {
+        var lastKnownSize = getFileSizeUnsafe(path)
+
+        triggerFileFlush()
+
+        // first, wait for initial dump from flush, which can be a long amount of time
+        var currentSize = getFileSizeUnsafe(path)
         var iteration = 0
+        while (iteration < maxInitialFlushWaitIterations && currentSize == lastKnownSize) {
+            Thread.sleep(pollDurationMs)
+            currentSize = getFileSizeUnsafe(path)
+            iteration++
+        }
+
+        // wait for stabilization, which should take much less time and happen quickly
+        iteration = 0
+        lastKnownSize = 0
         var stable = 0
-        var lastKnownSize = 0L
-        while (iteration < maxIterations) {
-            val currentSize = getFileSizeUnsafe(path)
+        while (iteration < maxStableFlushWaitIterations) {
+            currentSize = getFileSizeUnsafe(path)
             if (currentSize > 0) {
                 if (currentSize == lastKnownSize) {
                     stable += 1
