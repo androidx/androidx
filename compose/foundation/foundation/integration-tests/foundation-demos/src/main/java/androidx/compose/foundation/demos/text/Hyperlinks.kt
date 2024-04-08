@@ -36,11 +36,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.TextDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -55,6 +61,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 
 private const val WebLink = "https://google.com"
 private const val LongWebLink =
@@ -230,6 +237,79 @@ fun Hyperlinks() {
             AnnotatedStringWithLinkSample()
             AnnotatedStringWithHoveredLinkStylingSample()
             AnnotatedStringWithListenerSample()
+        }
+        Sample("Custom Saver with link listener restoration") {
+            val listener = LinkInteractionListener { /* do something */ }
+            val text = buildAnnotatedString {
+                withLink(TextDefaults.Clickable("tag", linkInteractionListener = listener)) {
+                    append("Click me")
+                }
+            }
+            val saveableText = rememberSaveable(stateSaver = AnnotatedStringSaver(listener)) {
+                mutableStateOf(text)
+            }
+            Text(saveableText.value)
+        }
+    }
+}
+
+private class AnnotatedStringSaver(
+    private val linkInteractionListener: LinkInteractionListener?
+) : Saver<AnnotatedString, Any> {
+    override fun SaverScope.save(value: AnnotatedString): Any? {
+        // It will store LinkAnnotation ignoring the LinkInteractionListener that needs to be put
+        // back manually after restoration
+        return with(AnnotatedString.Saver) {
+            save(value)
+        }
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Suppress("UNCHECKED_CAST")
+    @SuppressLint("NullAnnotationGroup")
+    override fun restore(value: Any): AnnotatedString? {
+       with(AnnotatedString.Saver as Saver<AnnotatedString, Any>) {
+           val result = this.restore(value)
+           result?.let { text ->
+               // create a builder and copy over all styles
+               val builder = AnnotatedString.Builder(text.text)
+               text.spanStyles.fastForEach { builder.addStyle(it.item, it.start, it.end) }
+               text.paragraphStyles.fastForEach { builder.addStyle(it.item, it.start, it.end) }
+               // put annotations back apart from links
+               text.getStringAnnotations(0, text.length).fastForEach {
+                   builder.addStringAnnotation(it.tag, it.item, it.start, it.end)
+               }
+               text.getTtsAnnotations(0, text.length).fastForEach {
+                   builder.addTtsAnnotation(it.item, it.start, it.end)
+               }
+               // copy link annotations and apply the listener where needed
+               text.getLinkAnnotations(0, text.length).fastForEach { linkRange ->
+                   when (linkRange.item) {
+                       is LinkAnnotation.Url -> {
+                           // in our example we assume that we never provide listeners to the
+                           // LinkAnnotation.Url annotations. Therefore we restore them as is.
+                           builder.addLink(
+                               linkRange.item as LinkAnnotation.Url,
+                               linkRange.start,
+                               linkRange.end
+                           )
+                       }
+                       is LinkAnnotation.Clickable -> {
+                           val link = LinkAnnotation.Clickable(
+                               (linkRange.item as LinkAnnotation.Clickable).tag,
+                               linkRange.item.style,
+                               linkRange.item.focusedStyle,
+                               linkRange.item.hoveredStyle,
+                               linkInteractionListener
+                           )
+                           builder.addLink(link, linkRange.start, linkRange.end)
+                       }
+                   }
+               }
+
+               return builder.toAnnotatedString()
+           }
+           return null
         }
     }
 }
