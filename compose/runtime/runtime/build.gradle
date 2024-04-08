@@ -131,6 +131,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             commonTest.dependencies {
+                implementation(project(":compose:runtime:runtime-test-utils"))
                 implementation kotlin("test")
                 implementation(libs.kotlinCoroutinesTest)
             }

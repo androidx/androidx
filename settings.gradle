@@ -188,6 +188,7 @@ includeProject(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples", "comp
 includeProject(":compose:runtime:runtime-saveable")
 includeProject(":compose:runtime:runtime-saveable-lint")
 includeProject(":compose:runtime:runtime-saveable:runtime-saveable-samples", "compose/runtime/runtime-saveable/samples")
+includeProject(":compose:runtime:runtime-test-utils")
 includeProject(":compose:runtime:runtime:integration-tests")
 includeProject(":compose:runtime:runtime:runtime-samples", "compose/runtime/runtime/samples")
 includeProject(":compose:test-utils")

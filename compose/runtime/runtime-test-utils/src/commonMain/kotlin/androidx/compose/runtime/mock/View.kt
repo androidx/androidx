@@ -17,7 +17,6 @@
 package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.util.fastForEach
 
 fun indent(indent: Int, builder: StringBuilder) {
     repeat(indent) { builder.append(' ') }
@@ -68,7 +67,7 @@ open class View {
                 removedChild.parent = null
             } else {
                 val removedChildren = children.subList(index, index + count)
-                removedChildren.fastForEach { child -> child.parent = null }
+                removedChildren.forEach { child -> child.parent = null }
                 removedChildren.clear()
             }
         }
@@ -88,7 +87,7 @@ open class View {
     }
 
     fun removeAllChildren() {
-        children.fastForEach { child -> child.parent = null }
+        children.forEach { child -> child.parent = null }
         children.clear()
     }
 
