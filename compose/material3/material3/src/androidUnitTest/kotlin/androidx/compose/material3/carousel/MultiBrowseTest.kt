@@ -38,8 +38,9 @@ class MultiBrowseTest {
             preferredItemSize = itemSize,
             itemSpacing = 0f,
             itemCount = 10,
-        )!!
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        )
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = 500f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -58,8 +59,9 @@ class MultiBrowseTest {
             preferredItemSize = itemSize,
             itemSpacing = 0f,
             itemCount = 10,
-            )!!
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+            )
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = 100f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -87,8 +89,9 @@ class MultiBrowseTest {
             preferredItemSize = 200f,
             itemSpacing = 0f,
             itemCount = 10,
-            )!!
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+            )
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = minSmallItemSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -110,7 +113,7 @@ class MultiBrowseTest {
             itemSpacing = 0f,
             itemCount = 10,
             )
-        assertThat(keylineList).isNull()
+        assertThat(keylineList).isEmpty()
     }
 
     @Test
@@ -124,8 +127,9 @@ class MultiBrowseTest {
             preferredItemSize = preferredItemSize,
             itemSpacing = 0f,
             itemCount = 10,
-            )!!
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+            )
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = carouselSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -154,8 +158,9 @@ class MultiBrowseTest {
             preferredItemSize = preferredItemSize,
             itemSpacing = 0f,
             itemCount = 3,
-        )!!
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        )
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = carouselSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -179,8 +184,9 @@ class MultiBrowseTest {
             preferredItemSize = 186f,
             itemSpacing = 8f,
             itemCount = 10
-        )!!
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        )
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = 380f,
             itemSpacing = 8f,
             beforeContentPadding = 0f,

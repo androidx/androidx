@@ -74,7 +74,8 @@ internal class KeylineList internal constructor(
     val pivotIndex: Int = indexOfFirst { it.isPivot }
 
     /** Returns the keyline used to calculate all other keyline offsets and unadjusted offsets. */
-    val pivot: Keyline = get(pivotIndex)
+    val pivot: Keyline
+        get() = get(pivotIndex)
 
     /**
      * Returns the index of the first non-anchor keyline or -1 if the list does not contain a
@@ -86,7 +87,8 @@ internal class KeylineList internal constructor(
      * Returns the first non-anchor [Keyline].
      * @throws [NoSuchElementException] if there are no non-anchor keylines.
      */
-    val firstNonAnchor: Keyline = get(firstNonAnchorIndex)
+    val firstNonAnchor: Keyline
+        get() = get(firstNonAnchorIndex)
 
     /**
      * Returns the index of the last non-anchor keyline or -1 if the list does not contain a
@@ -98,7 +100,8 @@ internal class KeylineList internal constructor(
      * Returns the last non-anchor [Keyline].
      * @throws [NoSuchElementException] if there are no non-anchor keylines.
      */
-    val lastNonAnchor = get(lastNonAnchorIndex)
+    val lastNonAnchor: Keyline
+        get() = get(lastNonAnchorIndex)
 
     /**
      * Returns the index of the first focal keyline or -1 if the list does not contain a
@@ -110,8 +113,9 @@ internal class KeylineList internal constructor(
      * Returns the first focal [Keyline].
      * @throws [NoSuchElementException] if there are no focal keylines.
      */
-    val firstFocal: Keyline = getOrNull(firstFocalIndex)
-        ?: throw NoSuchElementException("All KeylineLists must have at least one focal keyline")
+    val firstFocal: Keyline
+        get() = getOrNull(firstFocalIndex)
+            ?: throw NoSuchElementException("All KeylineLists must have at least one focal keyline")
 
     /**
      * Returns the index of the last focal keyline or -1 if the list does not contain a
@@ -123,8 +127,9 @@ internal class KeylineList internal constructor(
      * Returns the last focal [Keyline].
      * @throws [NoSuchElementException] if there are no focal keylines.
      */
-    val lastFocal = getOrNull(lastFocalIndex)
-        ?: throw NoSuchElementException("All KeylineLists must have at least one focal keyline")
+    val lastFocal: Keyline
+        get() = getOrNull(lastFocalIndex)
+            ?: throw NoSuchElementException("All KeylineLists must have at least one focal keyline")
 
     /**
      * Returns true if the first focal item's left/top is within the visible bounds of the container
@@ -222,7 +227,13 @@ internal class KeylineList internal constructor(
         fastForEach { keyline -> result += 31 * keyline.hashCode() }
         return result
     }
+
+    companion object {
+        val Empty = KeylineList(emptyList())
+    }
 }
+
+internal fun emptyKeylineList() = KeylineList.Empty
 
 /**
  * Returns a [KeylineList] by aligning the focal range relative to the carousel container.
