@@ -55,7 +55,7 @@ internal enum class AgpFeature(
         AndroidPluginVersion(8, 3, 0).alpha(15)
     ),
     TEST_VARIANT_TESTED_APKS(
-        AndroidPluginVersion(8, 3, 0).alpha(10)
+        AndroidPluginVersion(8, 3, 0)
     )
 }
 
