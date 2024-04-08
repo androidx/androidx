@@ -21,6 +21,7 @@ package androidx.compose.material3.adaptive.navigationsuite {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final class NavigationSuiteDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors colors(optional long navigationBarContainerColor, optional long navigationBarContentColor, optional long navigationRailContainerColor, optional long navigationRailContentColor, optional long navigationDrawerContainerColor, optional long navigationDrawerContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors itemColors(optional androidx.compose.material3.NavigationBarItemColors navigationBarItemColors, optional androidx.compose.material3.NavigationRailItemColors navigationRailItemColors, optional androidx.compose.material3.NavigationDrawerItemColors navigationDrawerItemColors);
     field public static final androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults INSTANCE;
   }
 
