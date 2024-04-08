@@ -44,6 +44,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.js.JsName
 import kotlin.math.max
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -756,14 +757,6 @@ internal class SuspendingPointerInputModifierNodeImpl(
 }
 
 private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
-
-/**
- * An exception thrown from [AwaitPointerEventScope.withTimeout] when the execution time
- * of the coroutine is too long.
- */
-class PointerEventTimeoutCancellationException(
-    time: Long
-) : PlatformOptimizedCancellationException("Timed out waiting for $time ms")
 
 /**
  * Used in place of the standard Job cancellation pathway to avoid reflective
