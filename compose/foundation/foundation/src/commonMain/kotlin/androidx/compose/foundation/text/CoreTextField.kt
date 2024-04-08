@@ -27,9 +27,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.input.internal.legacyPlatformTextInputServiceAdapter
 import androidx.compose.foundation.text.handwriting.detectStylusHandwriting
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
-import androidx.compose.foundation.text.input.internal.createLegacyPlatformTextInputServiceAdapter
 import androidx.compose.foundation.text.input.internal.legacyTextInputAdapter
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
@@ -218,7 +218,7 @@ internal fun CoreTextField(
     textScrollerPosition: TextFieldScrollerPosition? = null,
 ) {
     val focusRequester = remember { FocusRequester() }
-    val legacyTextInputServiceAdapter = remember { createLegacyPlatformTextInputServiceAdapter() }
+    val legacyTextInputServiceAdapter = legacyPlatformTextInputServiceAdapter()
     val textInputService: TextInputService = remember {
         TextInputService(legacyTextInputServiceAdapter)
     }

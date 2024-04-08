@@ -18,13 +18,15 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.PlatformTextInputService
 import kotlinx.coroutines.Job
 
-internal expect fun createLegacyPlatformTextInputServiceAdapter():
+@Composable
+internal expect fun legacyPlatformTextInputServiceAdapter():
     LegacyPlatformTextInputServiceAdapter
 
 /**
