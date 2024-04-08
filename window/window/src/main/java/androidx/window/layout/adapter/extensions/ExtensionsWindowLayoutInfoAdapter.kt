@@ -21,7 +21,9 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.UiContext
 import androidx.window.core.Bounds
+import androidx.window.extensions.layout.DisplayFoldFeature
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
+import androidx.window.extensions.layout.SupportedWindowFeatures
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.FoldingFeature.State.Companion.FLAT
@@ -29,6 +31,7 @@ import androidx.window.layout.FoldingFeature.State.Companion.HALF_OPENED
 import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.FOLD
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
+import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
@@ -84,6 +87,17 @@ internal object ExtensionsWindowLayoutInfoAdapter {
             }
         }
         return WindowLayoutInfo(features)
+    }
+
+    internal fun translate(features: SupportedWindowFeatures): List<SupportedPosture> {
+        val isTableTopSupported = features.displayFoldFeatures.any { feature ->
+            feature.hasProperties(DisplayFoldFeature.FOLD_PROPERTY_SUPPORTS_HALF_OPENED)
+        }
+        return if (isTableTopSupported) {
+            listOf(SupportedPosture.TABLETOP)
+        } else {
+            emptyList()
+        }
     }
 
     /**

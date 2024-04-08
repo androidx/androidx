@@ -357,7 +357,8 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
 
     private fun isMethodGetParentContainerInfoValid(): Boolean =
-        validateReflection {
+        validateReflection(
+            "ActivityEmbeddingComponent#getParentContainerInfo is not valid") {
             val getParentContainerInfoMethod = activityEmbeddingComponentClass.getMethod(
                 "getParentContainerInfo",
                 ActivityStack.Token::class.java

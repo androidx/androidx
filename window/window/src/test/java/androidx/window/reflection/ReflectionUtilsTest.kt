@@ -38,7 +38,7 @@ class ReflectionUtilsTest {
 
     @Test
     fun testValidateReflectionSuccess() {
-        val result = validateReflection {
+        val result = validateReflection("") {
             true
         }
         assertTrue(result)
@@ -46,7 +46,7 @@ class ReflectionUtilsTest {
 
     @Test
     fun testValidateReflectionFail() {
-        val result = validateReflection {
+        val result = validateReflection("") {
             classLoader.loadClass("SomeUnExistedClass.java")
             true
         }
@@ -55,7 +55,7 @@ class ReflectionUtilsTest {
 
     @Test
     fun testMethodModifier() {
-        val result = validateReflection {
+        val result = validateReflection("") {
             val testClass = this::class.java
             val privateMethod = testClass.getDeclaredMethod("testMethod").isPublic
             assertFalse(privateMethod)
@@ -68,7 +68,7 @@ class ReflectionUtilsTest {
 
     @Test
     fun testDoesReturn() {
-        val result = validateReflection {
+        val result = validateReflection("") {
             val testClass = this::class.java
             val privateMethod = testClass.getDeclaredMethod("testMethod")
             assertTrue(privateMethod.doesReturn(Int::class.java))
