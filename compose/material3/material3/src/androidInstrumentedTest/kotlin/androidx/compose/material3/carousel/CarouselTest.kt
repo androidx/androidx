@@ -180,50 +180,19 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_calculateBeyondViewportPageCount() {
-        val xSmallSize = 5f
-        val smallSize = 100f
-        val mediumSize = 200f
-        val largeSize = 400f
-        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, 0f, CarouselAlignment.Start) {
-            add(xSmallSize, isAnchor = true)
-            add(largeSize)
-            add(mediumSize)
-            add(mediumSize)
-            add(smallSize)
-            add(smallSize)
-            add(xSmallSize, isAnchor = true)
-        }
-        val strategy = Strategy { _, _ -> keylineList }.apply(
-            availableSpace = 1000f,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
-        val outOfBoundsNum = calculateBeyondViewportPageCount(strategy)
-        // With this strategy, we expect 3 loaded items
-        val loadedItems = 3
-
-        assertThat(outOfBoundsNum).isEqualTo(
-            (keylineList.filter { !it.isAnchor }.size - loadedItems) + 1
-        )
-    }
-
-    @Test
     fun carousel_correctlyCalculatesMaxScrollOffsetWithItemSpacing() {
         rule.setMaterialContent(lightColorScheme()) {
             val state = rememberCarouselState { 10 }.also {
                 carouselState = it
             }
-            val strategy = Strategy { availableSpace, itemSpacing ->
-                keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
-                    add(10f, isAnchor = true)
-                    add(186f)
-                    add(122f)
-                    add(56f)
-                    add(10f, isAnchor = true)
-                }
-            }.apply(
+            val strategy = Strategy(
+                defaultKeylines = keylineListOf(380f, 0f, CarouselAlignment.Start) {
+                        add(10f, isAnchor = true)
+                        add(186f)
+                        add(122f)
+                        add(56f)
+                        add(10f, isAnchor = true)
+                },
                 availableSpace = 380f,
                 itemSpacing = 8f,
                 beforeContentPadding = 0f,
@@ -285,6 +254,7 @@ class CarouselTest {
                     )
                 },
                 flingBehavior = flingBehavior(state),
+                maxNonFocalVisibleItemCount = 2,
                 modifier = modifier.testTag(CarouselTestTag),
                 itemSpacing = 0.dp,
                 contentPadding = PaddingValues(0.dp),

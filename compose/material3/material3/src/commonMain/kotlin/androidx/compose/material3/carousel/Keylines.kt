@@ -52,9 +52,9 @@ internal fun multiBrowseKeylineList(
     itemCount: Int,
     minSmallItemSize: Float = with(density) { CarouselDefaults.MinSmallItemSize.toPx() },
     maxSmallItemSize: Float = with(density) { CarouselDefaults.MaxSmallItemSize.toPx() },
-): KeylineList? {
+): KeylineList {
     if (carouselMainAxisSize == 0f || preferredItemSize == 0f) {
-        return null
+        return emptyKeylineList()
     }
 
     var smallCounts: IntArray = intArrayOf(1)
@@ -130,7 +130,7 @@ internal fun multiBrowseKeylineList(
     }
 
     if (arrangement == null) {
-        return null
+        return emptyKeylineList()
     }
 
     return createLeftAlignedKeylineList(
@@ -180,9 +180,9 @@ internal fun uncontainedKeylineList(
     carouselMainAxisSize: Float,
     itemSize: Float,
     itemSpacing: Float,
-): KeylineList? {
+): KeylineList {
     if (carouselMainAxisSize == 0f || itemSize == 0f) {
-        return null
+        return emptyKeylineList()
     }
 
     val largeItemSize = min(itemSize + itemSpacing, carouselMainAxisSize)
