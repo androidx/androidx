@@ -402,7 +402,7 @@ private class MultiLayerComposeSceneImpl(
 
     private fun onOwnerAppended(owner: RootNodeOwner) {
         if (_focusManager.isFocused) {
-            owner.focusOwner.takeFocus()
+            owner.focusOwner.takeFocus(FocusDirection.Enter, previouslyFocusedRect = null)
         } else {
             owner.focusOwner.releaseFocus()
         }
@@ -465,7 +465,7 @@ private class MultiLayerComposeSceneImpl(
             private set
 
         override fun requestFocus() {
-            focusOwner.takeFocus()
+            focusOwner.takeFocus(FocusDirection.Enter, previouslyFocusedRect = null)
             isFocused = true
         }
         override fun releaseFocus() {

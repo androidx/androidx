@@ -188,7 +188,7 @@ private class SingleLayerComposeSceneImpl(
     )
 
     private fun onOwnerAppended(owner: RootNodeOwner) {
-        owner.focusOwner.takeFocus()
+        owner.focusOwner.takeFocus(FocusDirection.Enter, previouslyFocusedRect = null)
         semanticsOwnerListener?.onSemanticsOwnerAppended(owner.semanticsOwner)
     }
 
@@ -198,7 +198,9 @@ private class SingleLayerComposeSceneImpl(
 
     private inner class ComposeSceneFocusManagerImpl : ComposeSceneFocusManager {
         private val focusOwner get() = mainOwner.focusOwner
-        override fun requestFocus() = focusOwner.takeFocus()
+        override fun requestFocus() {
+            focusOwner.takeFocus(FocusDirection.Enter, previouslyFocusedRect = null)
+        }
         override fun releaseFocus() = focusOwner.releaseFocus()
         override fun getFocusRect(): Rect? = focusOwner.getFocusRect()
         override fun clearFocus(force: Boolean) = focusOwner.clearFocus(force)
