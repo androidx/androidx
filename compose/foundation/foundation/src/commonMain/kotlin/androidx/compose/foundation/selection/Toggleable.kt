@@ -154,7 +154,7 @@ fun Modifier.toggleable(
     )
 }.onKeyEvent {
     if (enabled && it.isToggle) {
-        onClick()
+        onValueChange(!value)
         true
     } else {
         false
