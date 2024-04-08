@@ -774,6 +774,24 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
+    /**
+     * Enable long-running method tracing on the UI thread, even if that risks ANR for profiling
+     * convenience.
+     *
+     * See [androidx.build.testConfiguration.INST_ARG_BLOCKLIST], which is used to suppress the arg
+     * in CI.
+     */
+    @Suppress("UnstableApiUsage") // usage of HasDeviceTests
+    private fun HasDeviceTests.enableLongMethodTracingInMicrobenchmark(project: Project) {
+        if (project.hasBenchmarkPlugin()) {
+            deviceTests.forEach { deviceTest ->
+                deviceTest.instrumentationRunnerArguments.put(
+                    "androidx.benchmark.profiling.skipWhenDurationRisksAnr", "false"
+                )
+            }
+        }
+    }
+
     private fun Variant.aotCompileMicrobenchmarks(project: Project) {
         if (project.hasBenchmarkPlugin()) {
             @Suppress("UnstableApiUsage") // usage of experimentalProperties
@@ -831,6 +849,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             onVariants {
                 it.configureTests()
                 it.aotCompileMicrobenchmarks(project)
+                it.enableLongMethodTracingInMicrobenchmark(project)
             }
         }
 
