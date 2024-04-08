@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -528,6 +529,16 @@ internal class RootNodeOwner(
          */
         override fun sendKeyEvent(keyEvent: KeyEvent): Boolean =
             inputHandler.onKeyEvent(keyEvent)
+
+        // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1258/Implement-PlatformRootForTest.accessitiblity-functions
+
+        @ExperimentalComposeUiApi
+        override fun forceAccessibilityForTesting() {
+        }
+
+        @ExperimentalComposeUiApi
+        override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) {
+        }
     }
 
     private inner class PointerIconServiceImpl : PointerIconService {
