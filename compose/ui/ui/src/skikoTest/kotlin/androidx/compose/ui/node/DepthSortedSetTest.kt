@@ -24,6 +24,8 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -188,6 +190,8 @@ class DepthSortedSetTest {
         override val inputModeManager: InputModeManager get() = throw IllegalStateException()
         override val clipboardManager: ClipboardManager get() = throw IllegalStateException()
         override val accessibilityManager: AccessibilityManager get() = throw IllegalStateException()
+        override val graphicsContext: GraphicsContext
+            get() = TODO("Not yet implemented")
         override val textToolbar: TextToolbar get() = throw IllegalStateException()
         @ExperimentalComposeUiApi
         override val autofillTree: AutofillTree get() = throw IllegalStateException()
@@ -199,6 +203,9 @@ class DepthSortedSetTest {
         override suspend fun textInputSession(
             session: suspend PlatformTextInputSessionScope.() -> Nothing
         ) = throw IllegalStateException()
+        override fun screenToLocal(positionOnScreen: Offset): Offset = throw IllegalStateException()
+        override fun localToScreen(localPosition: Offset): Offset = throw IllegalStateException()
+        override fun localToScreen(localTransform: Matrix) = throw IllegalStateException()
         override val dragAndDropManager: DragAndDropManager get() = throw IllegalStateException()
         override val pointerIconService: PointerIconService get() = throw IllegalStateException()
         override val focusOwner: FocusOwner get() = throw IllegalStateException()
