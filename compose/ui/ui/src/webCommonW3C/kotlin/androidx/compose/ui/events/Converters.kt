@@ -88,10 +88,10 @@ private fun MouseEvent.resolvePressedMouseButtons(
     // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
     val button = button.toInt()
 
-    buttonsFlags = if (kind == PointerEventType.Press) {
-        buttonsFlags.or(getButtonValue(button))
-    } else {
-        buttonsFlags.xor(getButtonValue(button))
+    buttonsFlags = when (kind) {
+        PointerEventType.Press -> buttonsFlags.or(getButtonValue(button))
+        PointerEventType.Release -> buttonsFlags.xor(getButtonValue(button))
+        else -> buttonsFlags
     }
 
     return MouseButtons(buttonsFlags)

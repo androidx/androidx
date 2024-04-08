@@ -62,7 +62,7 @@ internal class ComposeLayer(
                 }
                 onPointerEventWithMultitouch(event)
             } else {
-                // macos and desktop`s web don't work properly when using onPointerEventWithMultitouch
+                // TODO: check this statement: macos doesn't work properly when using onPointerEventWithMultitouch
                 onPointerEventNoMultitouch(event)
             }
         }
