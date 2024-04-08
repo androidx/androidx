@@ -56,7 +56,6 @@ ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
     defaultConfig {
-        minSdkVersion 19
     }
     lintOptions {
         disable "UnusedResources"

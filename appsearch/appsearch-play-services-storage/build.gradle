@@ -58,6 +58,5 @@ androidx {
 android {
     namespace "androidx.appsearch.playservicesstorage"
      defaultConfig {
-        minSdkVersion 19
     }
 }
