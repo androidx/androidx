@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridItemScope#animateItem(androidx.compose.ui.Modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>):
+    Added method androidx.compose.foundation.lazy.grid.LazyGridItemScope.animateItem(androidx.compose.ui.Modifier,androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>,androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>)
 AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
     Added method androidx.compose.foundation.pager.PageInfo.getKey()
 AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getBeyondViewportPageCount():

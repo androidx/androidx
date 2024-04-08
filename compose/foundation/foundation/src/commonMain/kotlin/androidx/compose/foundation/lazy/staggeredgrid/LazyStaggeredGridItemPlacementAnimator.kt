@@ -18,8 +18,8 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimation
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastAny
@@ -116,7 +116,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
                 } else {
                     itemInfo.animations.forEach { animation ->
                         if (animation != null &&
-                            animation.rawOffset != LazyLayoutAnimation.NotInitialized
+                            animation.rawOffset != LazyLayoutItemAnimation.NotInitialized
                         ) {
                             animation.rawOffset += scrollOffset
                         }
@@ -255,7 +255,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
             if (animation != null) {
                 val newTarget = item.offset
                 val currentTarget = animation.rawOffset
-                if (currentTarget != LazyLayoutAnimation.NotInitialized &&
+                if (currentTarget != LazyLayoutItemAnimation.NotInitialized &&
                     currentTarget != newTarget
                 ) {
                     animation.animatePlacementDelta(newTarget - currentTarget)
@@ -265,7 +265,7 @@ internal class LazyStaggeredGridItemPlacementAnimator {
         }
     }
 
-    fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutAnimation? {
+    fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutItemAnimation? {
         return if (keyToItemInfoMap.isEmpty()) {
             null
         } else {
@@ -313,7 +313,7 @@ private class ItemInfo(
                 animations[index]?.release()
                 animations[index] = null
             } else {
-                val item = animations[index] ?: LazyLayoutAnimation(coroutineScope).also {
+                val item = animations[index] ?: LazyLayoutItemAnimation(coroutineScope).also {
                     animations[index] = it
                 }
                 item.fadeInSpec = specs.fadeInSpec
@@ -325,4 +325,4 @@ private class ItemInfo(
 
 private val Any?.specs get() = this as? LazyLayoutAnimationSpecsNode
 
-private val EmptyArray = emptyArray<LazyLayoutAnimation?>()
+private val EmptyArray = emptyArray<LazyLayoutItemAnimation?>()

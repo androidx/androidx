@@ -84,7 +84,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalFoundationApi::class)
 class LazyListAnimateItemPlacementTest(private val config: Config) {
 
     private val isVertical: Boolean get() = config.isVertical
@@ -522,6 +521,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun moveItemToTheTopOutsideOfBounds_withStickyHeader() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
