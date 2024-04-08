@@ -98,16 +98,33 @@ internal class RootNodeOwner(
     private val snapshotInvalidationTracker: SnapshotInvalidationTracker,
     private val inputHandler: ComposeSceneInputHandler,
 ) {
+    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-1257/Implement-new-FocusOwnerImpl-from-08.04.2024)
+    //  implement new changes from upstream
     // TODO(https://github.com/JetBrains/compose-multiplatform/issues/2944)
     //  Check if ComposePanel/SwingPanel focus interop work correctly with new features of
     //  the focus system (it works with the old features like moveFocus/clearFocus)
     val focusOwner: FocusOwner = FocusOwnerImpl(
-        parent = platformContext.parentFocusManager
-    ) {
-        owner.registerOnEndApplyChangesListener(it)
-    }.also {
-        it.layoutDirection = layoutDirection
-    }
+        onRequestFocusForOwner = { focusDirection, _ ->
+            var result = platformContext.requestFocus()
+            if (result && focusDirection != null) {
+                result = platformContext.parentFocusManager.moveFocus(focusDirection)
+            }
+            return@FocusOwnerImpl result
+        },
+        onRequestApplyChangesListener = {
+            owner.registerOnEndApplyChangesListener(it)
+        },
+        onMoveFocusInterop = {
+            platformContext.parentFocusManager.moveFocus(it)
+        },
+        onFocusRectInterop = {
+            null
+        },
+        onLayoutDirection = { _layoutDirection },
+        onClearFocusForOwner = {
+            platformContext.parentFocusManager.clearFocus(true)
+        },
+    )
     private val rootModifier = EmptySemanticsElement
         .then(focusOwner.modifier)
         .onKeyEvent {
@@ -133,7 +150,6 @@ internal class RootNodeOwner(
         get() = _layoutDirection
         set(value) {
             _layoutDirection = value
-            focusOwner.layoutDirection = value
             owner.root.layoutDirection = value
         }
 

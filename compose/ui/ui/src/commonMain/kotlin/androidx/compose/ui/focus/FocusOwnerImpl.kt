@@ -53,8 +53,6 @@ import androidx.compose.ui.util.fastForEachReversed
  * to control focus.
  */
 internal class FocusOwnerImpl(
-    // TODO replace by onClearFocusForOwner?
-    private val parent: FocusManager? = null,
     onRequestApplyChangesListener: (() -> Unit) -> Unit,
     private val onRequestFocusForOwner:
         (focusDirection: FocusDirection?, previouslyFocusedRect: Rect?) -> Boolean,
@@ -194,8 +192,6 @@ internal class FocusOwnerImpl(
             onClearFocusForOwner.invoke()
         }
 
-        parent?.clearFocus(force)
-
         return clearedFocusSuccessfully
     }
 
@@ -217,10 +213,6 @@ internal class FocusOwnerImpl(
 
         // If focus search and request focus succeeded, move focus succeeded.
         if (focusSearchSuccess == true && requestFocusSuccess == true) return true
-
-        if (!movedFocus && moveParentFocus(focusDirection)) {
-            return true
-        }
 
         // To wrap focus around, we clear focus and request initial focus.
         if (focusDirection.is1dFocusSearch()) {
@@ -262,9 +254,6 @@ internal class FocusOwnerImpl(
             }
         }
     }
-
-    private fun moveParentFocus(focusDirection: FocusDirection) =
-        parent?.moveFocus(focusDirection) == true
 
     /**
      * Dispatches a key event through the compose hierarchy.
