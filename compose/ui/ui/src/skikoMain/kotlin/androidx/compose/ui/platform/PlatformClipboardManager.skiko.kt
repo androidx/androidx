@@ -30,4 +30,21 @@ internal class PlatformClipboardManager : ClipboardManager {
     }
 
     override fun hasText(): Boolean = skikoClipboardManager.hasText()
+
+    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1260/ClipboardManager.-Implement-getClip-getClipMetadata-setClip
+
+    override fun getClip(): ClipEntry? = null
+
+    override fun getClipMetadata(): ClipMetadata? = null
+
+    @Suppress("GetterSetterNames")
+    override fun setClip(clipEntry: ClipEntry?) = Unit
+
+    override fun hasClip(): Boolean = false
 }
+
+actual class ClipEntry
+
+actual class ClipMetadata
+
+actual class NativeClipboard
