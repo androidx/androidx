@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalAnimationApi::class, ExperimentalAnimationApi::class)
+@file:OptIn(ExperimentalSharedTransitionApi::class, ExperimentalAnimationApi::class)
 
 package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.TwoWayConverter
@@ -40,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -246,6 +246,33 @@ sealed class ExitTransition {
             ExitTransitionImpl(TransitionData(hold = true))
     }
 }
+
+internal sealed class TransitionEffect {
+    internal abstract val key: TransitionEffectKey<*>
+}
+
+internal interface TransitionEffectKey<E : TransitionEffect>
+
+internal data class ContentScaleTransitionEffect(
+    val contentScale: ContentScale,
+    val alignment: Alignment,
+) : TransitionEffect() {
+    var isEnabled: Transition<*>.() -> Boolean = {
+        currentState != targetState
+    }
+
+    companion object Key :
+        TransitionEffectKey<ContentScaleTransitionEffect>
+
+    override val key: TransitionEffectKey<*>
+        get() = Key
+}
+
+internal infix fun EnterTransition.withEffect(effect: TransitionEffect): EnterTransition =
+    EnterTransitionImpl(TransitionData(effectsMap = mapOf(effect.key to effect)))
+
+internal infix fun ExitTransition.withEffect(effect: TransitionEffect): ExitTransition =
+    ExitTransitionImpl(TransitionData(effectsMap = mapOf(effect.key to effect)))
 
 /**
  * This fades in the content of the transition, from the specified starting alpha (i.e.
@@ -798,18 +825,6 @@ internal data class Scale(
     val animationSpec: FiniteAnimationSpec<Float>
 )
 
-internal fun EnterTransition(
-    key: Any,
-    node: ModifierNodeElement<out Modifier.Node>
-): EnterTransition =
-    EnterTransitionImpl(TransitionData(effectsMap = mapOf(key to node)))
-
-internal fun ExitTransition(
-    key: Any,
-    node: ModifierNodeElement<out Modifier.Node>
-): ExitTransition =
-    ExitTransitionImpl(TransitionData(effectsMap = mapOf(key to node)))
-
 @Immutable
 private class EnterTransitionImpl(override val data: TransitionData) : EnterTransition()
 
@@ -837,18 +852,18 @@ internal data class TransitionData(
     val changeSize: ChangeSize? = null,
     val scale: Scale? = null,
     val hold: Boolean = false,
-    val effectsMap: Map<Any, ModifierNodeElement<out Modifier.Node>> = emptyMap()
+    val effectsMap: Map<TransitionEffectKey<*>, TransitionEffect> = emptyMap()
 )
 
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-internal operator fun EnterTransition.get(key: Any): ModifierNodeElement<out Modifier.Node>? =
-    data.effectsMap[key]
+@Suppress("UNCHECKED_CAST")
+internal operator fun <T : TransitionEffect> EnterTransition.get(key: TransitionEffectKey<T>): T? =
+    data.effectsMap[key] as? T
 
-@Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
-internal operator fun ExitTransition.get(key: Any): ModifierNodeElement<out Modifier.Node>? =
-    data.effectsMap[key]
+@Suppress("UNCHECKED_CAST")
+internal operator fun <T : TransitionEffect> ExitTransition.get(key: TransitionEffectKey<T>): T? =
+    data.effectsMap[key] as? T
 
-@OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Suppress("ModifierFactoryExtensionFunction", "ComposableModifierFactory")
 @Composable
 internal fun Transition<EnterExitState>.createModifier(
@@ -857,6 +872,13 @@ internal fun Transition<EnterExitState>.createModifier(
     isEnabled: () -> Boolean = { true },
     label: String
 ): Modifier {
+
+    // Track the active content scale. Only reset it when the animation is finished
+    // to avoid sudden change of content scale.
+    val activeContentScaleEffect: ContentScaleTransitionEffect? = trackActiveContentScaleEffect(
+        enter = enter,
+        exit = exit
+    )
     val activeEnter = trackActiveEnter(enter = enter)
     val activeExit = trackActiveExit(exit = exit)
 
@@ -894,6 +916,43 @@ internal fun Transition<EnterExitState>.createModifier(
                 activeEnter, activeExit, isEnabled, graphicsLayerBlock
             )
         )
+        .then(
+            if (activeContentScaleEffect != null) {
+                Modifier.createContentScaleModifier(activeContentScaleEffect) {
+                    activeContentScaleEffect.isEnabled(this)
+                }
+            } else {
+                Modifier
+            }
+        )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+internal fun Transition<EnterExitState>.trackActiveContentScaleEffect(
+    enter: EnterTransition,
+    exit: ExitTransition
+): ContentScaleTransitionEffect? {
+    // Track the active content scale. Only reset it when the animation is finished
+    // to avoid sudden change of content scale.
+    var activeContentScaleTransitionEffect: ContentScaleTransitionEffect? by remember {
+        mutableStateOf(null)
+    }
+    if (currentState != targetState) {
+        activeContentScaleTransitionEffect =
+            if (targetState == EnterExitState.Visible) {
+                // Favor currently active ones unless it's not set, so that if
+                // the animation is interrupted, we don't swap content scale
+                // and alignment all of a sudden, which would lead to visual
+                // discontinuity.
+                activeContentScaleTransitionEffect ?: enter[ContentScaleTransitionEffect.Key]
+            } else {
+                activeContentScaleTransitionEffect ?: exit[ContentScaleTransitionEffect.Key]
+            }
+    } else {
+        activeContentScaleTransitionEffect = null
+    }
+    return activeContentScaleTransitionEffect
 }
 
 @Composable

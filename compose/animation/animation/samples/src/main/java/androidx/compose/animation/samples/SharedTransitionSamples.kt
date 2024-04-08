@@ -37,10 +37,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Create
@@ -59,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
@@ -323,7 +326,9 @@ fun SharedElementWithFABInOverlaySample() {
                 )
             }
             FloatingActionButton(
-                modifier = Modifier.padding(20.dp).align(Alignment.BottomEnd)
+                modifier = Modifier
+                    .padding(20.dp)
+                    .align(Alignment.BottomEnd)
                     // During shared element transition, shared elements will be rendered in
                     // overlay to escape any clipping or layer transform from parents. It also
                     // means they will render over on top of UI elements such as Floating Action
@@ -398,25 +403,64 @@ fun SharedElementInAnimatedContentSample() {
                         // are not shared between the two shared elements.
                         .sharedElement(
                             rememberSharedContentState(sharedElementKey),
-                            // Using the AnimatedVisibilityScope from the AnimatedContent defined
-                            // above.
+                            // Using the AnimatedVisibilityScope from the AnimatedContent
+                            // defined above.
                             this@AnimatedContent,
+                        )
+                )
+                Text(
+                    "Cute Cat YT",
+                    fontSize = 40.sp,
+                    color = Color.Blue,
+                    // Prefer Modifier.sharedBounds for text, unless the texts in both initial
+                    // content and target content are exactly the same (i.e. same
+                    // size/font/color)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // IMPORTANT: Prefer using wrapContentWidth/wrapContentSize over textAlign
+                        // for shared text transition. This allows the layout system sees actual
+                        // position and size of the text to facilitate bounds animation.
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                        .sharedBounds(
+                            rememberSharedContentState(key = "text"),
+                            this@AnimatedContent
                         )
                 )
             } else {
                 Column {
-                    Cat(
-                        Modifier
-                            .size(100.dp)
-                            // Creating another shared element with the same key.
-                            // Note that this modifier is *after* the size modifier,
-                            // The size changes between these two shared elements, i.e. the size
-                            // is not shared between the two shared elements.
-                            .sharedElement(
-                                rememberSharedContentState(sharedElementKey),
-                                this@AnimatedContent,
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Cat(
+                            Modifier
+                                .size(100.dp)
+                                // Creating another shared element with the same key.
+                                // Note that this modifier is *after* the size modifier,
+                                // The size changes between these two shared elements, i.e. the size
+                                // is not shared between the two shared elements.
+                                .sharedElement(
+                                    rememberSharedContentState(sharedElementKey),
+                                    this@AnimatedContent,
+                                )
+                        )
+                        Text(
+                            "Cute Cat YT",
+                            // Change text color & size
+                            fontSize = 20.sp,
+                            color = Color.DarkGray,
+                            // Prefer Modifier.sharedBounds for text, unless the texts in both
+                            // initial content and target content are exactly the same (i.e. same
+                            // size/font/color)
+                            modifier = Modifier
+                                // The modifier that is not a part of the shared content, but rather
+                                // for positioning and sizes should be on the *left* side of
+                                // sharedBounds/sharedElement.
+                                .padding(start = 20.dp)
+                                .sharedBounds(
+                                // Here we use a string-based key, in contrast to the key above.
+                                rememberSharedContentState(key = "text"),
+                                this@AnimatedContent
                             )
-                    )
+                        )
+                    }
                     Box(
                         Modifier
                             .fillMaxWidth()

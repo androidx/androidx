@@ -18,26 +18,20 @@
 
 package androidx.compose.animation.demos.sharedelement
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.samples.R
 import androidx.compose.animation.samples.SharedElementInAnimatedContentSample
 import androidx.compose.animation.samples.SharedElementWithFABInOverlaySample
 import androidx.compose.animation.samples.SharedElementWithMovableContentSample
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
@@ -50,10 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Preview
 @Composable
@@ -65,8 +61,10 @@ fun SharedElementDemos() {
         "Expanded Card" to { SwitchBetweenCollapsedAndExpanded() },
         "Container Transform" to { ContainerTransformDemo() },
         "Shared Element\n Caller Managed Vis" to { SharedElementWithCallerManagedVisibility() },
-        "AnimVis Extension" to { SharedElementScopeWithAnimatedVisibilityScopeDemo() },
-        "Shared Tool Bar" to { SharedToolBarDemo() }
+        "FABInOverlay" to { SharedElementWithFABInOverlaySample() },
+        "AnimatedContent" to { SharedElementInAnimatedContentSample() },
+        "Text transform" to { TextSharedBoundsExperiments() },
+        "Shared Tool Bar" to { SharedToolBarDemo() },
     )
 
     Column {
@@ -87,86 +85,6 @@ fun SharedElementDemos() {
 
 @Preview
 @Composable
-fun SharedElementScopeWithAnimatedVisibilityScopeDemo() {
-    var selectFirst by remember { mutableStateOf(true) }
-    val sharedBoundsKey = remember { Any() }
-    SharedTransitionLayout(
-        Modifier
-            .fillMaxSize()
-            .padding(10.dp)
-            .clickable {
-                selectFirst = !selectFirst
-            }
-    ) {
-        Box {
-            val shape =
-                RoundedCornerShape(animateDpAsState(if (selectFirst) 10.dp else 30.dp).value)
-            AnimatedVisibility(
-                selectFirst,
-                enter = slideInHorizontally { -it } + fadeIn(),
-                exit = slideOutHorizontally { -it } + fadeOut()
-            ) {
-                Column {
-                    Box(
-                        Modifier
-                            .layout { m, c ->
-                                m
-                                    .measure(c)
-                                    .run {
-                                        layout(width, height) { place(0, 0) }
-                                    }
-                            }
-                            .sharedBounds(
-                                rememberSharedContentState(sharedBoundsKey),
-                                this@AnimatedVisibility,
-                                clipInOverlayDuringTransition = OverlayClip(clipShape = shape)
-                            )
-                            .background(Color.Red)
-                            .size(100.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(if (!selectFirst) "false" else "true", color = Color.White)
-                    }
-                    Box(
-                        Modifier
-                            .size(100.dp)
-                            .background(Color.Yellow, RoundedCornerShape(10.dp))
-                    )
-                    Box(
-                        Modifier
-                            .size(100.dp)
-                            .background(Color.Magenta, RoundedCornerShape(10.dp))
-                    )
-                }
-            }
-            AnimatedVisibility(
-                !selectFirst,
-                enter = slideInHorizontally { -it } + fadeIn(),
-                exit = slideOutHorizontally { -it } + fadeOut()
-            ) {
-                Row {
-                    Box(
-                        Modifier
-                            .offset(180.dp, 180.dp)
-                            .sharedBounds(
-                                rememberSharedContentState(key = sharedBoundsKey),
-                                this@AnimatedVisibility,
-                                clipInOverlayDuringTransition = OverlayClip(clipShape = shape)
-                            )
-                            .background(Color.Blue)
-                            .size(180.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(if (selectFirst) "false" else "true", color = Color.White)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
 fun SharedElementWithMovableContent() {
     SharedElementWithMovableContentSample()
 }
@@ -181,4 +99,66 @@ fun SharedElementInAnimatedVisibilityWithFABRenderedInOverlay() {
 @Composable
 fun SharedElementInAnimatedContent() {
     SharedElementInAnimatedContentSample()
+}
+
+@Preview
+@Composable
+fun ScaleContentTransition() {
+    val someText =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla" +
+            " mollis efficitur. Maecenas sit amet urna eu urna blandit suscipit efficitur" +
+            " eget mauris. Nullam eget aliquet ligula. Nunc id euismod elit. Morbi aliquam" +
+            " enim eros, eget consequat dolor consequat id. Quisque elementum faucibus" +
+            " congue. Curabitur mollis aliquet turpis, ut pellentesque justo eleifend nec.\n" +
+            "\n" +
+            "Suspendisse ac consequat turpis, euismod lacinia quam. Nulla lacinia tellus" +
+            " eu felis tristique ultricies. Vivamus et ultricies dolor. Orci varius" +
+            " natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus." +
+            " Ut gravida porttitor arcu elementum elementum. Phasellus ultrices vel turpis" +
+            " volutpat mollis. Vivamus leo diam, placerat quis leo efficitur, ultrices" +
+            " placerat ex. Nullam mollis et metus ac ultricies. Ut ligula metus, congue" +
+            " gravida metus in, vestibulum posuere velit. Sed et ex nisl. Fusce tempor" +
+            " odio eget sapien pellentesque, sed cursus velit fringilla. Nullam odio" +
+            " ipsum, eleifend non consectetur vitae, congue id libero. Etiam tincidunt" +
+            " mauris at urna dictum ornare.\n"
+
+    var showText by remember { mutableStateOf(true) }
+    val rememberSharedKey = remember { Any() }
+    SharedTransitionLayout(Modifier.clickable { showText = !showText }) {
+        AnimatedContent(
+            targetState = showText,
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) { showText ->
+            if (showText) {
+                Text(
+                    text = someText,
+                    fontSize = 20.sp,
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .sharedBounds(
+                            rememberSharedContentState(key = rememberSharedKey),
+                            this,
+                            scaleInSharedContentToBounds(contentScale = ContentScale.Crop),
+                            scaleOutSharedContentToBounds(contentScale = ContentScale.Crop)
+                        )
+                )
+            } else {
+                Image(
+                    painterResource(id = R.drawable.yt_profile),
+                    contentDescription = "cute cat",
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .sharedBounds(
+                            rememberSharedContentState(key = rememberSharedKey),
+                            this,
+                            scaleInSharedContentToBounds(contentScale = ContentScale.Crop),
+                            scaleOutSharedContentToBounds(contentScale = ContentScale.Crop)
+                        )
+                        .requiredSize(200.dp)
+                        .clip(shape = RoundedCornerShape(10))
+                )
+            }
+        }
+    }
 }
