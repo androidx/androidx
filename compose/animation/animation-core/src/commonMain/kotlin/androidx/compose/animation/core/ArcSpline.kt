@@ -320,7 +320,7 @@ internal class ArcSpline(
             var ly = 0f
             var dist = 0f
             for (i in ourPercent.indices) {
-                val angle = Math.toRadians(90.0 * i / (ourPercent.size - 1)).toFloat()
+                val angle = (90.0 * i / (ourPercent.size - 1)).toRadians().toFloat()
                 val s = sin(angle)
                 val c = cos(angle)
                 val px = a * s
@@ -382,3 +382,6 @@ internal class ArcSpline(
         private const val UpArc = 5
     }
 }
+
+@Suppress("NOTHING_TO_INLINE")
+private inline fun Double.toRadians(): Double = this / 180 * PI
