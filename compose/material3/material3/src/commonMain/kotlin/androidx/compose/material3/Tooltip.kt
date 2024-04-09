@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.material3.internal.BasicTooltipBox
+import androidx.compose.material3.internal.BasicTooltipDefaults
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.PlainTooltipTokens
 import androidx.compose.material3.tokens.RichTooltipTokens
@@ -521,7 +523,7 @@ private class TooltipStateImpl(
     private var job: (CancellableContinuation<Unit>)? = null
 
     /**
-     * Show the tooltip associated with the current [BasicTooltipState].
+     * Show the tooltip associated with the current [TooltipState].
      * When this method is called, all of the other tooltips associated
      * with [mutatorMutex] will be dismissed.
      *
@@ -578,12 +580,47 @@ private class TooltipStateImpl(
  * Each instance of [TooltipBox] should have its own [TooltipState].
  */
 @ExperimentalMaterial3Api
-interface TooltipState : BasicTooltipState {
+interface TooltipState {
     /**
      * The current transition state of the tooltip.
      * Used to start the transition of the tooltip when fading in and out.
      */
     val transition: MutableTransitionState<Boolean>
+
+    /**
+     * [Boolean] that indicates if the tooltip is currently being shown or not.
+     */
+    val isVisible: Boolean
+
+    /**
+     * [Boolean] that determines if the tooltip associated with this
+     * will be persistent or not. If isPersistent is true, then the tooltip will
+     * only be dismissed when the user clicks outside the bounds of the tooltip or if
+     * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will
+     * dismiss after a short duration. Ideally, this should be set to true when there
+     * is actionable content being displayed within a tooltip.
+     */
+    val isPersistent: Boolean
+
+    /**
+     * Show the tooltip associated with the current [TooltipState].
+     * When this method is called all of the other tooltips currently
+     * being shown will dismiss.
+     *
+     * @param mutatePriority [MutatePriority] to be used.
+     */
+    suspend fun show(mutatePriority: MutatePriority = MutatePriority.Default)
+
+    /**
+     * Dismiss the tooltip associated with
+     * this [TooltipState] if it's currently being shown.
+     */
+    fun dismiss()
+
+    /**
+     * Clean up when the this state leaves Composition.
+     */
+    fun onDispose()
 }
 
 @Stable

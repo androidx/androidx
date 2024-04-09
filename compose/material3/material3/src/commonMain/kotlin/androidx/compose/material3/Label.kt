@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.interaction.DragInteraction
@@ -24,6 +25,8 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.internal.BasicTooltipBox
+import androidx.compose.material3.internal.rememberBasicTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -115,7 +118,7 @@ fun Label(
 @Composable
 private fun HandleInteractions(
     enabled: Boolean,
-    state: BasicTooltipState,
+    state: TooltipState,
     interactionSource: MutableInteractionSource
 ) {
     if (enabled) {
@@ -137,8 +140,10 @@ private fun HandleInteractions(
 @OptIn(ExperimentalMaterial3Api::class)
 private class LabelStateImpl(
     override val isVisible: Boolean = true,
-    override val isPersistent: Boolean = true
-) : BasicTooltipState {
+    override val isPersistent: Boolean = true,
+) : TooltipState {
+    override val transition: MutableTransitionState<Boolean> =
+        MutableTransitionState(false)
     override suspend fun show(mutatePriority: MutatePriority) {}
 
     override fun dismiss() {}

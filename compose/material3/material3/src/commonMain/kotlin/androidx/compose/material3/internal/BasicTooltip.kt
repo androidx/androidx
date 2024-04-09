@@ -16,10 +16,13 @@
 
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -59,7 +62,7 @@ import kotlinx.coroutines.withTimeout
 internal expect fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
-    state: BasicTooltipState,
+    state: TooltipState,
     modifier: Modifier = Modifier,
     focusable: Boolean = true,
     enableUserInput: Boolean = true,
@@ -73,7 +76,7 @@ internal expect fun BasicTooltipBox(
  * @param isPersistent [Boolean] that determines if the tooltip associated with this
  * will be persistent or not. If isPersistent is true, then the tooltip will
  * only be dismissed when the user clicks outside the bounds of the tooltip or if
- * [BasicTooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
+ * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
  * a short duration. Ideally, this should be set to true when there is actionable content
  * being displayed within a tooltip.
  * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
@@ -84,7 +87,7 @@ internal fun rememberBasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
-): BasicTooltipState =
+): TooltipState =
     remember(
         isPersistent,
         mutatorMutex
@@ -103,7 +106,7 @@ internal fun rememberBasicTooltipState(
  * @param isPersistent [Boolean] that determines if the tooltip associated with this
  * will be persistent or not. If isPersistent is true, then the tooltip will
  * only be dismissed when the user clicks outside the bounds of the tooltip or if
- * [BasicTooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
+ * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
  * a short duration. Ideally, this should be set to true when there is actionable content
  * being displayed within a tooltip.
  * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
@@ -114,7 +117,7 @@ internal fun BasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
-): BasicTooltipState =
+): TooltipState =
     BasicTooltipStateImpl(
         initialIsVisible = initialIsVisible,
         isPersistent = isPersistent,
@@ -126,8 +129,10 @@ private class BasicTooltipStateImpl(
     initialIsVisible: Boolean,
     override val isPersistent: Boolean,
     private val mutatorMutex: MutatorMutex
-) : BasicTooltipState {
+) : TooltipState {
     override var isVisible by mutableStateOf(initialIsVisible)
+    override val transition: MutableTransitionState<Boolean> =
+        MutableTransitionState(false)
 
     /**
      * continuation used to clean up
@@ -185,49 +190,6 @@ private class BasicTooltipStateImpl(
     override fun onDispose() {
         job?.cancel()
     }
-}
-
-/**
- * The state that is associated with an instance of a tooltip.
- * Each instance of tooltips should have its own [BasicTooltipState].
- */
-@Stable
-@ExperimentalMaterial3Api
-interface BasicTooltipState {
-    /**
-     * [Boolean] that indicates if the tooltip is currently being shown or not.
-     */
-    val isVisible: Boolean
-
-    /**
-     * [Boolean] that determines if the tooltip associated with this
-     * will be persistent or not. If isPersistent is true, then the tooltip will
-     * only be dismissed when the user clicks outside the bounds of the tooltip or if
-     * [BasicTooltipState.dismiss] is called. When isPersistent is false, the tooltip will
-     * dismiss after a short duration. Ideally, this should be set to true when there
-     * is actionable content being displayed within a tooltip.
-     */
-    val isPersistent: Boolean
-
-    /**
-     * Show the tooltip associated with the current [BasicTooltipState].
-     * When this method is called all of the other tooltips currently
-     * being shown will dismiss.
-     *
-     * @param mutatePriority [MutatePriority] to be used.
-     */
-    suspend fun show(mutatePriority: MutatePriority = MutatePriority.Default)
-
-    /**
-     * Dismiss the tooltip associated with
-     * this [BasicTooltipState] if it's currently being shown.
-     */
-    fun dismiss()
-
-    /**
-     * Clean up when the this state leaves Composition.
-     */
-    fun onDispose()
 }
 
 /**
