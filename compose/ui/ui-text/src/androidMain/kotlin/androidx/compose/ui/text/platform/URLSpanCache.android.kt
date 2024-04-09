@@ -20,13 +20,11 @@ import android.text.style.ClickableSpan
 import android.text.style.URLSpan
 import android.view.View
 import androidx.annotation.RestrictTo
-import androidx.collection.LongObjectMap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.UrlAnnotation
-import androidx.compose.ui.util.packInts
 import java.util.WeakHashMap
 
 /**
@@ -49,8 +47,8 @@ class URLSpanCache {
     private val spansByAnnotation = WeakHashMap<UrlAnnotation, URLSpan>()
     private val urlSpansByAnnotation =
         WeakHashMap<AnnotatedString.Range<LinkAnnotation.Url>, URLSpan>()
-    private val clickableSpansByAnnotation =
-        WeakHashMap<AnnotatedString.Range<LinkAnnotation>, Pair<ComposeClickableSpan, Int>>()
+    private val linkSpansWithListenerByAnnotation =
+        WeakHashMap<AnnotatedString.Range<LinkAnnotation>, ComposeClickableSpan>()
 
     @Suppress("AcronymName")
     fun toURLSpan(urlAnnotation: UrlAnnotation): URLSpan =
@@ -62,34 +60,18 @@ class URLSpanCache {
 
     /**
      * This method takes a [linkRange] which is an annotation that occupies range in Compose text
-     * and converts it into a ClickableSpan passing the corresponding [linkActions] to the
-     * ClickableSpan's onClick method.
-     * We use [accessibilityNodeId] to invalidate cache entry for cases when the original Compose text was
-     * disposed and so the corresponding link actions are not valid anymore
+     * and converts it into a ClickableSpan
      */
     fun toClickableSpan(
-        linkRange: AnnotatedString.Range<LinkAnnotation>,
-        linkActions: LongObjectMap<() -> Unit>,
-        accessibilityNodeId: Int
-    ): ClickableSpan? {
-        val spanWithNodeId = clickableSpansByAnnotation[linkRange]
-
-        return if (spanWithNodeId == null || spanWithNodeId.second != accessibilityNodeId) {
-            // either clickable span hasn't been created yet or the cache needs invalidation for a
-            // given annotation
-            linkActions[packInts(linkRange.start, linkRange.end)]?.let { action ->
-                ComposeClickableSpan(action).also { newSpan ->
-                    clickableSpansByAnnotation[linkRange] = Pair(newSpan, accessibilityNodeId)
-                }
-            }
-        } else {
-            spanWithNodeId.first
+        linkRange: AnnotatedString.Range<LinkAnnotation>
+    ): ClickableSpan? =
+        linkSpansWithListenerByAnnotation.getOrPut(linkRange) {
+            ComposeClickableSpan(linkRange.item)
         }
-    }
 }
 
-private class ComposeClickableSpan(private val linkAction: () -> Unit) : ClickableSpan() {
+private class ComposeClickableSpan(private val link: LinkAnnotation) : ClickableSpan() {
     override fun onClick(widget: View) {
-        linkAction()
+        link.linkInteractionListener?.onClicked(link)
     }
 }
