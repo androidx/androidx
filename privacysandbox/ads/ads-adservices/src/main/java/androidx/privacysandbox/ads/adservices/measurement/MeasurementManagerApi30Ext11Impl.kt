@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,34 +18,34 @@ package androidx.privacysandbox.ads.adservices.measurement
 
 import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.os.ext.SdkExtensions
 import android.view.InputEvent
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
-import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
+import androidx.privacysandbox.ads.adservices.internal.asAdServicesOutcomeReceiver
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressLint("NewApi", "ClassVerificationFailure")
-@RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-open class MeasurementManagerImplCommon(
-    protected val mMeasurementManager: android.adservices.measurement.MeasurementManager
-    ) : MeasurementManager() {
+@SuppressLint("ClassVerificationFailure", "NewApi")
+@RequiresExtension(extension = Build.VERSION_CODES.R, version = 11)
+class MeasurementManagerApi30Ext11Impl(context: Context) : MeasurementManager() {
+    private val mMeasurementManager: android.adservices.measurement.MeasurementManager =
+        android.adservices.measurement.MeasurementManager.get(context)
+
     @DoNotInline
     override suspend fun deleteRegistrations(deletionRequest: DeletionRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mMeasurementManager.deleteRegistrations(
                 deletionRequest.convertToAdServices(),
                 Runnable::run,
-                continuation.asOutcomeReceiver()
+                continuation.asAdServicesOutcomeReceiver()
             )
         }
     }
@@ -58,7 +58,7 @@ open class MeasurementManagerImplCommon(
                 attributionSource,
                 inputEvent,
                 Runnable::run,
-                continuation.asOutcomeReceiver()
+                continuation.asAdServicesOutcomeReceiver()
             )
         }
     }
@@ -70,7 +70,7 @@ open class MeasurementManagerImplCommon(
             mMeasurementManager.registerTrigger(
                 trigger,
                 Runnable::run,
-                continuation.asOutcomeReceiver())
+                continuation.asAdServicesOutcomeReceiver())
         }
     }
 
@@ -81,7 +81,7 @@ open class MeasurementManagerImplCommon(
             mMeasurementManager.registerWebSource(
                 request.convertToAdServices(),
                 Runnable::run,
-                continuation.asOutcomeReceiver())
+                continuation.asAdServicesOutcomeReceiver())
         }
     }
 
@@ -98,7 +98,7 @@ open class MeasurementManagerImplCommon(
                         uri,
                         request.inputEvent,
                         Runnable::run,
-                        continuation.asOutcomeReceiver()
+                        continuation.asAdServicesOutcomeReceiver()
                     )
                 }
             }
@@ -112,7 +112,7 @@ open class MeasurementManagerImplCommon(
             mMeasurementManager.registerWebTrigger(
                 request.convertToAdServices(),
                 Runnable::run,
-                continuation.asOutcomeReceiver())
+                continuation.asAdServicesOutcomeReceiver())
         }
     }
 
@@ -122,6 +122,6 @@ open class MeasurementManagerImplCommon(
             continuation ->
         mMeasurementManager.getMeasurementApiStatus(
             Runnable::run,
-            continuation.asOutcomeReceiver())
+            continuation.asAdServicesOutcomeReceiver())
     }
 }

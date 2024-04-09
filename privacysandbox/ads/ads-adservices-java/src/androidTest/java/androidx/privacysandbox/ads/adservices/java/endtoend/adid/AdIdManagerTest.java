@@ -79,7 +79,9 @@ public class AdIdManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 4,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         AdIdManagerFutures adIdManager =
                 AdIdManagerFutures.from(ApplicationProvider.getApplicationContext());
