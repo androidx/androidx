@@ -880,9 +880,10 @@ public class ExifInterface {
      * Exposure time, given in seconds.
      *
      * <p>Note: For backwards compatibility this attribute is returned from {@link
-     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
-     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
-     * Double#parseDouble(String)}, e.g. "0.125").
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
      *
      * <ul>
      *   <li>Tag = 33434
@@ -897,9 +898,10 @@ public class ExifInterface {
      * The F number.
      *
      * <p>Note: For backwards compatibility this attribute is returned from {@link
-     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
-     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
-     * Double#parseDouble(String)}, e.g. "0.125").
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
      *
      * <ul>
      *   <li>Tag = 33437
@@ -1131,9 +1133,10 @@ public class ExifInterface {
      * indicated; and if the numerator is 0, Distance unknown shall be indicated.
      *
      * <p>Note: For backwards compatibility this attribute is returned from {@link
-     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
-     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
-     * Double#parseDouble(String)}, e.g. "0.125").
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
      *
      * <ul>
      *   <li>Tag = 37382
@@ -1471,9 +1474,10 @@ public class ExifInterface {
      * recorded value is 0, this indicates that digital zoom was not used.
      *
      * <p>Note: For backwards compatibility this attribute is returned from {@link
-     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
-     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
-     * Double#parseDouble(String)}, e.g. "0.125").
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
      *
      * <ul>
      *   <li>Tag = 41988
@@ -4307,7 +4311,8 @@ public class ExifInterface {
         }
         // Maybe convert the given value for backwards compatibility.
         if (value != null) {
-            if (RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
+            if (RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)
+                    && !value.contains("/")) {
                 // Convert floating point values to rational for rational tags that are emitted and
                 // consumed as floating point values for backwards compatibility.
                 try {
