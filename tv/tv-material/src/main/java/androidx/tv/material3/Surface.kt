@@ -596,7 +596,7 @@ internal const val EnabledContentAlpha = 1f
  * absolute elevation is a sum of all the previous elevations. Absolute elevation is only used for
  * calculating surface tonal colors, and is *not* used for drawing the shadow in a [SurfaceImpl].
  */
-val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
+internal val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
 
 private val AcceptableKeys = intArrayOf(
     NativeKeyEvent.KEYCODE_DPAD_CENTER,
