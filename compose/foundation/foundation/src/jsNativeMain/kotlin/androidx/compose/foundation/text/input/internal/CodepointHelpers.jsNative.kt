@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.text.charCount
 import androidx.compose.foundation.text.codePointAt
@@ -22,9 +22,6 @@ import androidx.compose.foundation.text.codePointCount
 
 internal actual fun CharSequence.codePointAt(index: Int): Int =
     codePointAt(index)
-
-internal actual fun CharSequence.codePointCount(): Int =
-    codePointCount()
 
 internal actual fun charCount(codePoint: Int): Int =
     codePoint.charCount()
