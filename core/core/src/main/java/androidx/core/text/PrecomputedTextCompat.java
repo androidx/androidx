@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.os.Trace;
 import android.text.Layout;
 import android.text.PrecomputedText;
 import android.text.Spannable;
@@ -39,7 +40,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
-import androidx.core.os.TraceCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -413,7 +413,7 @@ public class PrecomputedTextCompat implements Spannable {
         Preconditions.checkNotNull(params);
 
         try {
-            TraceCompat.beginSection("PrecomputedText");
+            Trace.beginSection("PrecomputedText");
 
             if (Build.VERSION.SDK_INT >= 29 && params.mWrapped != null) {
                 return new PrecomputedTextCompat(
@@ -461,7 +461,7 @@ public class PrecomputedTextCompat implements Spannable {
 
             return new PrecomputedTextCompat(text, params, result);
         } finally {
-            TraceCompat.endSection();
+            Trace.endSection();
         }
     }
 

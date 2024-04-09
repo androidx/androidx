@@ -22,34 +22,36 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiThread
 import androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener
 import kotlin.math.abs
 import kotlin.math.hypot
 
 /**
- * Detects scaling transformation gestures that interprets zooming events using the supplied
- * [MotionEvent]s.
- *
- * The [OnZoomGestureListener] callback will notify users when a particular
- * gesture event has occurred.
- *
- * This class should only be used with [MotionEvent]s reported via touch.
+ * Detector that interprets [MotionEvent]s and notify users when a zooming gesture has occurred.
  *
  * To use this class to do pinch-to-zoom on the viewfinder:
- * - In the [OnZoomGestureListener.onZoom], get the [scaleFactor] and set it to
+ * - In the [OnZoomGestureListener.onZoomEvent], get the [scaleFactor] and set it to
  * `CameraControl.setZoomRatio` if the factor is in the range of `ZoomState.getMinZoomRatio` and
  * `ZoomState.getMaxZoomRatio`. Then create an instance of the `ZoomGestureDetector` with the
  * [OnZoomGestureListener].
- * - In the [View.onTouchEvent], call [onTouchEvent] and pass the [MotionEvent] to the
+ * - In the [View.onTouchEvent], call [onTouchEvent] and pass the [MotionEvent]s to the
  * `ZoomGestureDetector`.
  *
+ * @constructor Creates a ZoomGestureDetector for detecting zooming gesture.
+ * @param context The application context.
+ * @param spanSlop The distance in pixels touches can wander before a gesture to be interpreted
+ * as zooming.
+ * @param minSpan The distance in pixels between touches that must be reached for a gesture to be
+ * interpreted as zooming.
+ * @param listener The listener to receive the callback.
  * @sample androidx.camera.viewfinder.core.samples.onTouchEventSample
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
+class ZoomGestureDetector @SuppressLint("ExecutorRegistration") @JvmOverloads constructor(
     private val context: Context,
     private val spanSlop: Int = ViewConfiguration.get(context).scaledTouchSlop * 2,
     private val minSpan: Int = DEFAULT_MIN_SPAN,
@@ -81,13 +83,14 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
          * Once receiving [ZOOM_GESTURE_END] event, [focusX] and [focusY] will return focal point of
          * the pointers remaining on the screen.
          *
-         * @type The type of the event. Possible values include [ZOOM_GESTURE_MOVE],
+         * @param type The type of the event. Possible values include [ZOOM_GESTURE_MOVE],
          * [ZOOM_GESTURE_BEGIN] and [ZOOM_GESTURE_END].
          * @param detector The detector reporting the event - use this to retrieve extended info
          * about event state.
          * @return Whether or not the detector should consider this event as handled.
          */
-        fun onZoom(type: Int, detector: ZoomGestureDetector): Boolean
+        @UiThread
+        fun onZoomEvent(@ZoomGesture type: Int, detector: ZoomGestureDetector): Boolean
     }
 
     /**
@@ -128,43 +131,37 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
      * The average distance in pixels between each of the pointers forming the gesture in progress
      * through the focal point.
      */
-    var currentSpan = 0f
-        private set
+    private var currentSpan = 0f
 
     /**
      * The previous average distance in pixels between each of the pointers forming the gesture in
      * progress through the focal point.
      */
-    var previousSpan = 0f
-        private set
+    private var previousSpan = 0f
 
     /**
      * The average X distance in pixels between each of the pointers forming the gesture in progress
      * through the focal point.
      */
-    var currentSpanX = 0f
-        private set
+    private var currentSpanX = 0f
 
     /**
      * The average Y distance in pixels between each of the pointers forming the gesture in progress
      * through the focal point.
      */
-    var currentSpanY = 0f
-        private set
+    private var currentSpanY = 0f
 
     /**
      * The previous average X distance in pixels between each of the pointers forming the gesture in
      * progress through the focal point.
      */
-    var previousSpanX = 0f
-        private set
+    private var previousSpanX = 0f
 
     /**
      * The previous average Y distance in pixels between each of the pointers forming the gesture in
      * progress through the focal point.
      */
-    var previousSpanY = 0f
-        private set
+    private var previousSpanY = 0f
 
     /**
      * The event time in milliseconds of the current event being processed.
@@ -206,8 +203,10 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
      *
      * @param event The event to process.
      * @return `true` if the event was processed and the detector wants to receive the
-     * rest of the MotionEvents in this event stream.
+     * rest of the [MotionEvent]s in this event stream. Return it in the [View.onTouchEvent] for a
+     * normal use case.
      */
+    @UiThread
     fun onTouchEvent(event: MotionEvent): Boolean {
         eventTime = event.eventTime
 
@@ -230,9 +229,9 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
         if (action == MotionEvent.ACTION_DOWN || streamComplete) {
             // Reset any scale in progress with the listener.
             // If it's an ACTION_DOWN we're beginning a new event stream.
-            // This means the app probably didn't give us all the events. Shame on it.
+            // This means the app probably didn't give us all the events.
             if (isInProgress) {
-                listener.onZoom(ZOOM_GESTURE_END, this)
+                listener.onZoomEvent(ZOOM_GESTURE_END, this)
                 isInProgress = false
                 initialSpan = 0f
                 anchoredZoomMode = ANCHORED_ZOOM_MODE_NONE
@@ -299,8 +298,8 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
             if (skipIndex == i) continue
 
             // Convert the resulting diameter into a radius.
-            devSumX += abs((event.getX(i) - focusX))
-            devSumY += abs((event.getY(i) - focusY))
+            devSumX += abs(event.getX(i) - focusX)
+            devSumY += abs(event.getY(i) - focusY)
         }
         val devX = devSumX / div
         val devY = devSumY / div
@@ -323,7 +322,7 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
         this.focusX = focusX
         this.focusY = focusY
         if (!inAnchoredZoomMode() && isInProgress && (span < minSpan || configChanged)) {
-            listener.onZoom(ZOOM_GESTURE_END, this)
+            listener.onZoomEvent(ZOOM_GESTURE_END, this)
             isInProgress = false
             initialSpan = span
         }
@@ -339,7 +338,7 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
         val minSpan = if (inAnchoredZoomMode()) spanSlop else minSpan
         if (!isInProgress &&
             span >= minSpan &&
-            (wasInProgress || abs((span - initialSpan)) > spanSlop)) {
+            (wasInProgress || abs(span - initialSpan) > spanSlop)) {
             currentSpanX = spanX
             previousSpanX = currentSpanX
             currentSpanY = spanY
@@ -347,7 +346,7 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
             currentSpan = span
             previousSpan = currentSpan
             prevTime = eventTime
-            isInProgress = listener.onZoom(ZOOM_GESTURE_BEGIN, this)
+            isInProgress = listener.onZoomEvent(ZOOM_GESTURE_BEGIN, this)
         }
 
         // Handle motion; focal point and span/scale factor are changing.
@@ -359,7 +358,7 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
             var updatePrev = true
 
             if (isInProgress) {
-                updatePrev = listener.onZoom(ZOOM_GESTURE_MOVE, this)
+                updatePrev = listener.onZoomEvent(ZOOM_GESTURE_MOVE, this)
             }
 
             if (updatePrev) {
@@ -391,7 +390,7 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
                     currentSpan < previousSpan ||
                     !eventBeforeOrAboveStartingGestureEvent &&
                     currentSpan > previousSpan
-                val spanDiff = (abs((1 - currentSpan / previousSpan)) * SCALE_FACTOR)
+                val spanDiff = (abs(1 - currentSpan / previousSpan) * SCALE_FACTOR)
                 return if (previousSpan <= spanSlop) 1.0f
                 else if (scaleUp) 1.0f + spanDiff
                 else 1.0f - spanDiff
@@ -408,9 +407,12 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
          */
         get() = eventTime - prevTime
 
-    companion object {
-        private const val TAG = "ZoomGestureDetector"
+    @IntDef(ZOOM_GESTURE_MOVE, ZOOM_GESTURE_BEGIN, ZOOM_GESTURE_END)
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    annotation class ZoomGesture
 
+    companion object {
         /** The moving events of a gesture in progress. Reported by pointer motion. */
         const val ZOOM_GESTURE_MOVE = 0
         /** The beginning of a zoom gesture. Reported by new pointers going down. */

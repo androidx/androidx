@@ -445,8 +445,10 @@ package androidx.wear.compose.material {
   }
 
   public final class ProgressIndicatorDefaults {
+    method public float getFullScreenStrokeWidth();
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getProgressAnimationSpec();
     method public float getStrokeWidth();
+    property public final float FullScreenStrokeWidth;
     property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> ProgressAnimationSpec;
     property public final float StrokeWidth;
     field public static final androidx.wear.compose.material.ProgressIndicatorDefaults INSTANCE;
@@ -703,15 +705,11 @@ package androidx.wear.compose.material {
   }
 
   public enum SwipeToDismissKeys {
-    method public static androidx.wear.compose.material.SwipeToDismissKeys valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.compose.material.SwipeToDismissKeys[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Background;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Content;
   }
 
   @Deprecated public enum SwipeToDismissValue {
-    method @Deprecated public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.wear.compose.material.SwipeToDismissValue[] values();
     enum_constant @Deprecated public static final androidx.wear.compose.material.SwipeToDismissValue Default;
     enum_constant @Deprecated public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
   }
@@ -896,7 +894,9 @@ package androidx.wear.compose.material {
   }
 
   public final class ToggleChipKt {
+    method @androidx.compose.runtime.Composable public static void SplitToggleChip(boolean selected, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onSelect, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.SplitToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? selectionInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource? clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> selectionControl);
     method @androidx.compose.runtime.Composable public static void SplitToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> toggleControl, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.SplitToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? checkedInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource? clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public static void ToggleChip(boolean selected, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onSelect, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? appIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape, optional kotlin.jvm.functions.Function0<kotlin.Unit> selectionControl);
     method @androidx.compose.runtime.Composable public static void ToggleChip(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label, kotlin.jvm.functions.Function0<kotlin.Unit> toggleControl, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? appIcon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional androidx.wear.compose.material.ToggleChipColors colors, optional boolean enabled, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape);
   }
 

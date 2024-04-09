@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+MissingJvmstatic: androidx.room.testing.MigrationTestHelper#runMigrationsAndValidate(int, java.util.List<? extends androidx.room.migration.Migration>):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults

@@ -91,8 +91,8 @@ internal class MultiInstanceInvalidationClient(
 
     init {
         // Use all tables names for observer.
-        val tableNames: Set<String> = invalidationTracker.tableIdLookup.keys
-        observer = object : InvalidationTracker.Observer(tableNames.toTypedArray()) {
+        val tableNames = invalidationTracker.tableNames
+        observer = object : InvalidationTracker.Observer(tableNames) {
             override fun onInvalidated(tables: Set<String>) {
                 if (stopped.get()) {
                     return

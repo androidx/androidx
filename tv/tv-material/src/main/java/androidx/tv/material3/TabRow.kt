@@ -31,7 +31,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
@@ -86,7 +86,6 @@ import androidx.compose.ui.zIndex
  * * doesTabRowHaveFocus: whether any [Tab] within [TabRow] is focused
  * @param tabs a composable which will render all the tabs
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Composable
 fun TabRow(
     selectedTabIndex: Int,
@@ -108,17 +107,20 @@ fun TabRow(
     val scrollState = rememberScrollState()
     var doesTabRowHaveFocus by remember { mutableStateOf(false) }
 
-    CompositionLocalProvider(LocalContentColor provides contentColor) {
-
-        SubcomposeLayout(
-            modifier =
-            modifier
-                .background(containerColor)
-                .clipToBounds()
-                .horizontalScroll(scrollState)
-                .onFocusChanged { doesTabRowHaveFocus = it.hasFocus }
-                .selectableGroup()
-        ) { constraints ->
+    Surface(
+        modifier =
+        modifier
+            .clipToBounds()
+            .horizontalScroll(scrollState)
+            .onFocusChanged { doesTabRowHaveFocus = it.hasFocus }
+            .selectableGroup(),
+        colors = NonInteractiveSurfaceDefaults.colors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
+        shape = RectangleShape,
+    ) {
+        SubcomposeLayout { constraints ->
             // Tab measurables
             val tabMeasurables = subcompose(TabRowSlots.Tabs) {
                 TabRowScopeImpl(doesTabRowHaveFocus).apply {
@@ -148,9 +150,7 @@ fun TabRow(
 
             val layoutWidth = tabPlaceables.fastSumBy { it.width } +
                 separatorsCount * separatorWidth
-            val layoutHeight = (tabMeasurables.fastMaxOfOrNull {
-                it.maxIntrinsicHeight(Constraints.Infinity)
-            } ?: 0).coerceAtLeast(0)
+            val layoutHeight = tabPlaceables.fastMaxOfOrNull { it.height } ?: 0
 
             // Position the children
             layout(layoutWidth, layoutHeight) {
@@ -190,7 +190,6 @@ fun TabRow(
     }
 }
 
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object TabRowDefaults {
     /** Color of the background of a tab */
     val ContainerColor = Color.Transparent

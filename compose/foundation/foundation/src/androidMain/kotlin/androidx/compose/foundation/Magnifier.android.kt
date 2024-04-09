@@ -30,19 +30,16 @@ import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Density
@@ -151,19 +148,7 @@ internal fun Modifier.magnifier(
         // Magnifier is only supported in >=28. So avoid doing all the work to manage the magnifier
         // state if it's not needed.
         // TODO(b/202739980) Investigate supporting Magnifier on earlier versions.
-        inspectable(
-            // Publish inspector info even if magnification isn't supported.
-            inspectorInfo = debugInspectorInfo {
-                name = "magnifier (not supported)"
-                properties["sourceCenter"] = sourceCenter
-                properties["magnifierCenter"] = magnifierCenter
-                properties["zoom"] = zoom
-                properties["size"] = size
-                properties["cornerRadius"] = cornerRadius
-                properties["elevation"] = elevation
-                properties["clippingEnabled"] = clippingEnabled
-            }
-        ) { this }
+        this
     }
 }
 
@@ -267,7 +252,6 @@ internal class MagnifierNode(
     var platformMagnifierFactory: PlatformMagnifierFactory =
         PlatformMagnifierFactory.getForCurrentPlatform()
 ) : Modifier.Node(),
-    CompositionLocalConsumerModifierNode,
     GlobalPositionAwareModifierNode,
     DrawModifierNode,
     SemanticsModifierNode,
@@ -366,9 +350,9 @@ internal class MagnifierNode(
     override fun onObservedReadsChanged() {
         observeReads {
             val previousView = view
-            val view = currentValueOf(LocalView).also { this.view = it }
+            val view = requireView().also { this.view = it }
             val previousDensity = density
-            val density = currentValueOf(LocalDensity).also { this.density = it }
+            val density = requireDensity().also { this.density = it }
 
             if (magnifier == null || view != previousView || density != previousDensity) {
                 recreateMagnifier()

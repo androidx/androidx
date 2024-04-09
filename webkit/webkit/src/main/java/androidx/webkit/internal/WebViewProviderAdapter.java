@@ -180,4 +180,18 @@ public class WebViewProviderAdapter {
 
         return new ProfileImpl(profile);
     }
+
+    /**
+     * Adapter method for {@link WebViewCompat#isAudioMuted(WebView)}.
+     */
+    public boolean isAudioMuted() {
+        return mImpl.isAudioMuted();
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#setAudioMuted(WebView, boolean)}.
+     */
+    public void setAudioMuted(boolean mute) {
+        mImpl.setAudioMuted(mute);
+    }
 }

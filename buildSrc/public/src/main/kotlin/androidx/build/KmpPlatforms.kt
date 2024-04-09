@@ -20,6 +20,7 @@ import java.util.Locale
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
+import org.jetbrains.kotlin.konan.target.HostManager
 
 /**
  * A comma-separated list of target platform groups you wish to enable or disable.
@@ -48,7 +49,7 @@ enum class PlatformGroup {
          * Do *not* enable [JS] unless you have read and understand this:
          * https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
          */
-        val enabledByDefault = listOf(JVM, DESKTOP)
+        val enabledByDefault = listOf(JVM, DESKTOP, MAC, LINUX, ANDROID_NATIVE)
     }
 }
 
@@ -112,14 +113,6 @@ private val Project.enabledKmpPlatforms: Set<PlatformGroup>
         return extension.enabledKmpPlatforms
     }
 
-/** Returns true if kotlin native targets should be enabled. */
-private fun Project.isKotlinNativeEnabled(): Boolean {
-    return "KMP".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
-        "INFRAROGUE".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
-        ProjectLayoutType.isPlayground(project) ||
-        project.providers.gradleProperty("androidx.kmp.native.enabled").orNull?.toBoolean() == true
-}
-
 /** Extension used to store parsed KMP configuration information. */
 private open class KmpPlatformsExtension(project: Project) {
     val enabledKmpPlatforms =
@@ -128,14 +121,14 @@ private open class KmpPlatformsExtension(project: Project) {
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
 
-fun Project.enableMac(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.MAC) || isKotlinNativeEnabled()
+fun Project.enableAndroidNative(): Boolean =
+    enabledKmpPlatforms.contains(PlatformGroup.ANDROID_NATIVE)
 
-fun Project.enableLinux(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.LINUX) || isKotlinNativeEnabled()
+fun Project.enableMac(): Boolean =
+    enabledKmpPlatforms.contains(PlatformGroup.MAC) && HostManager.hostIsMac
+
+fun Project.enableLinux(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.LINUX)
 
 fun Project.enableJvm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JVM)
 
 fun Project.enableDesktop(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.DESKTOP)
-
-fun Project.enableNative(): Boolean = enableMac() && enableLinux()

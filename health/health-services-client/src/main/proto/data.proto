@@ -201,7 +201,7 @@ message ExerciseConfig {
   optional bool is_gps_usage_enabled = 5;
   repeated ExerciseGoal exercise_goals = 6;
   optional Bundle exercise_params = 7; // TODO(b/241015676): Deprecate
-  optional float swimming_pool_length = 8;
+  optional float swimming_pool_length_meters = 8;
   optional ExerciseTypeConfig exercise_type_config = 10;
   repeated BatchingMode batching_mode_overrides = 11 [packed = true];
   repeated ExerciseEventType exercise_event_types = 12 [packed = true];

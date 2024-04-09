@@ -417,25 +417,16 @@ class XRoundEnvTest {
             val typeElement = testInvocation.processingEnv.requireTypeElement("Baz")
             val annotatedElements =
                 testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
-            val annotatedParams = annotatedElements.filterIsInstance<XExecutableParameterElement>()
-            assertThat(annotatedParams.map { it.name }).containsExactly(
-                "ctorProperty",
-                "ctorParam",
-                "p0",
-                "methodParam",
-            ).inOrder()
-            assertThat(annotatedParams.map { it.jvmName }).containsExactly(
-                "ctorProperty",
-                "ctorParam",
-                "p0",
-                "methodParam",
-            ).inOrder()
-            assertThat(annotatedParams.map { it.enclosingElement }).containsExactly(
-                typeElement.findPrimaryConstructor(),
-                typeElement.findPrimaryConstructor(),
-                typeElement.getDeclaredMethodByJvmName("setProperty"),
-                typeElement.getDeclaredMethodByJvmName("method"),
-            ).inOrder()
+            val results = annotatedElements.filterIsInstance<XExecutableParameterElement>().map {
+                listOf(it.name, it.jvmName, it.enclosingElement)
+            }
+            assertThat(results).containsExactly(
+                listOf("ctorProperty", "ctorProperty", typeElement.findPrimaryConstructor()),
+                listOf("ctorParam", "ctorParam", typeElement.findPrimaryConstructor()),
+                listOf("p0", "p0", typeElement.getDeclaredMethodByJvmName("setProperty")),
+                listOf("methodParam", "methodParam",
+                    typeElement.getDeclaredMethodByJvmName("method")),
+            )
         }
     }
 

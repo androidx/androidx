@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -38,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -58,7 +56,6 @@ fun SegmentedButtonSingleSelectSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview

@@ -108,7 +108,10 @@ class MultiTargetNativeCompilation(
         val nativeTarget = if (nativeTargets.names.contains(konanTarget.name)) {
             nativeTargets.named(konanTarget.name)
         } else {
-            nativeTargets.register(konanTarget.name)
+            nativeTargets.register(konanTarget.name).also {
+                // force evaluation of target so that tasks are registered b/325518502
+                nativeTargets.getByName(konanTarget.name)
+            }
         }
         if (action != null) {
             nativeTarget.configure(action)

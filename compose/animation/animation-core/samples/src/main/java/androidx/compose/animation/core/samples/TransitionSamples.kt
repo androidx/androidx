@@ -61,6 +61,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -484,7 +485,6 @@ enum class BoxSize {
     Large
 }
 
-@OptIn(ExperimentalTransitionApi::class)
 @Sampled
 @Composable
 fun SeekingAnimationSample() {
@@ -495,36 +495,53 @@ fun SeekingAnimationSample() {
             Row {
                 Button(onClick = {
                     scope.launch { seekingState.animateTo(BoxSize.Small) }
-                }, Modifier.wrapContentWidth().weight(1f)) {
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
                     Text("Animate Small")
                 }
                 Button(onClick = {
-                    scope.launch { seekingState.snapTo(BoxSize.Small) }
-                }, Modifier.wrapContentWidth().weight(1f)) {
+                    scope.launch { seekingState.seekTo(0f, BoxSize.Small) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
                     Text("Seek Small")
                 }
                 Button(onClick = {
-                    scope.launch { seekingState.snapTo(BoxSize.Medium) }
-                }, Modifier.wrapContentWidth().weight(1f)) {
+                    scope.launch { seekingState.seekTo(0f, BoxSize.Medium) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
                     Text("Seek Medium")
                 }
                 Button(onClick = {
-                    scope.launch { seekingState.snapTo(BoxSize.Large) }
-                }, Modifier.wrapContentWidth().weight(1f)) {
+                    scope.launch { seekingState.seekTo(0f, BoxSize.Large) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
                     Text("Seek Large")
                 }
                 Button(onClick = {
                     scope.launch { seekingState.animateTo(BoxSize.Large) }
-                }, Modifier.wrapContentWidth().weight(1f)) {
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
                     Text("Animate Large")
                 }
             }
         }
         Slider(
             value = seekingState.fraction,
-            modifier = Modifier.systemGestureExclusion().padding(10.dp),
+            modifier = Modifier
+                .systemGestureExclusion()
+                .padding(10.dp),
             onValueChange = { value ->
-                scope.launch { seekingState.snapTo(fraction = value) }
+                scope.launch { seekingState.seekTo(fraction = value) }
             }
         )
         val transition = rememberTransition(seekingState)
@@ -544,7 +561,10 @@ fun SeekingAnimationSample() {
             fadeIn(tween(easing = LinearEasing)) togetherWith fadeOut(tween(easing = LinearEasing))
         }) { state ->
             if (state == BoxSize.Large) {
-                Box(Modifier.size(50.dp).background(Color.Magenta))
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .background(Color.Magenta))
             } else {
                 Box(Modifier.size(50.dp))
             }
@@ -561,4 +581,41 @@ fun SeekingAnimationSample() {
                 .background(Color.Blue)
         )
     }
+}
+
+@Sampled
+@Composable
+@Suppress("UNUSED_VARIABLE")
+fun SeekToSample() {
+    val seekingState = remember { SeekableTransitionState(BoxSize.Small) }
+    LaunchedEffect(seekingState.targetState) {
+        seekingState.seekTo(0f, BoxSize.Large)
+    }
+    val scope = rememberCoroutineScope()
+    Slider(
+        value = seekingState.fraction,
+        modifier = Modifier
+            .systemGestureExclusion()
+            .padding(10.dp),
+        onValueChange = { value ->
+            scope.launch { seekingState.seekTo(fraction = value) }
+        }
+    )
+    val transition = rememberTransition(seekingState)
+    // use the transition
+}
+
+@Sampled
+@Composable
+@Suppress("UNUSED_VARIABLE")
+fun SnapToSample() {
+    val seekingState = remember { SeekableTransitionState(BoxSize.Small) }
+    val scope = rememberCoroutineScope()
+    Button(onClick = {
+        scope.launch { seekingState.snapTo(BoxSize.Large) }
+    }) {
+        Text("Snap to the Small state")
+    }
+    val transition = rememberTransition(seekingState)
+    // use the transition
 }

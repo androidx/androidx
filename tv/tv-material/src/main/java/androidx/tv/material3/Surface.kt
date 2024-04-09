@@ -16,7 +16,6 @@
 
 package androidx.tv.material3
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -49,6 +48,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -72,7 +72,6 @@ import kotlinx.coroutines.launch
  * levels below 28 as it is not supported by the underlying OS
  * @param content defines the [Composable] content inside the surface
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun Surface(
@@ -86,7 +85,7 @@ fun Surface(
 ) {
     SurfaceImpl(
         modifier = modifier,
-        checked = false,
+        selected = false,
         enabled = true,
         tonalElevation = tonalElevation,
         shape = shape,
@@ -129,7 +128,6 @@ fun Surface(
  * still happen internally.
  * @param content defines the [Composable] content inside the surface
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun Surface(
     onClick: () -> Unit,
@@ -156,7 +154,7 @@ fun Surface(
             onLongClick = onLongClick,
             interactionSource = interactionSource,
         ),
-        checked = false,
+        selected = false,
         enabled = enabled,
         tonalElevation = tonalElevation,
         shape = ClickableSurfaceDefaults.shape(
@@ -204,20 +202,18 @@ fun Surface(
  * The Surface is a building block component that will be used for any focusable
  * element on TV such as buttons, cards, navigation, etc.
  *
- * This version of Surface is responsible for a toggling its checked state as well as everything
+ * This version of Surface is responsible for a toggling its selected state as well as everything
  * else that a regular Surface does:
  *
- * This version of surface will react to the check toggles, calling
- * [onCheckedChange] lambda, updating the [interactionSource] when [PressInteraction] occurs, and
- * showing ripple indication in response to press events. If you don't need check
- * handling, consider using a Surface function that doesn't require [onCheckedChange] param.
+ * This version of surface will react to the select toggles, calling
+ * [onClick] lambda, updating the [interactionSource] when [PressInteraction] occurs.
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
- * @param checked whether or not this Surface is toggled on or off
- * @param onCheckedChange callback to be invoked when the toggleable Surface is clicked.
+ * @param selected whether or not this Surface is toggled on or off
+ * @param onClick callback to be invoked when the selectable Surface is clicked.
  * @param modifier [Modifier] to be applied to the layout corresponding to the surface
- * @param onLongClick callback to be called when the toggleable surface is long clicked
+ * @param onLongClick callback to be called when the selectable surface is long clicked
  * (long-pressed).
  * @param enabled Controls the enabled state of the surface. When `false`, this Surface will not be
  * clickable. A disabled surface will still be focusable (reason:
@@ -227,7 +223,7 @@ fun Surface(
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
  * @param colors  Defines the background & content colors to be used in this surface for different
- * interaction states. See [ToggleableSurfaceDefaults.colors].
+ * interaction states. See [SelectableSurfaceDefaults.colors].
  * @param scale Defines size of the Surface relative to its original size.
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
@@ -238,20 +234,19 @@ fun Surface(
  * still happen internally.
  * @param content defines the [Composable] content inside the surface
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun Surface(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    selected: Boolean,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
     tonalElevation: Dp = Elevation.Level0,
-    shape: ToggleableSurfaceShape = ToggleableSurfaceDefaults.shape(),
-    colors: ToggleableSurfaceColors = ToggleableSurfaceDefaults.colors(),
-    scale: ToggleableSurfaceScale = ToggleableSurfaceDefaults.scale(),
-    border: ToggleableSurfaceBorder = ToggleableSurfaceDefaults.border(),
-    glow: ToggleableSurfaceGlow = ToggleableSurfaceDefaults.glow(),
+    shape: SelectableSurfaceShape = SelectableSurfaceDefaults.shape(),
+    colors: SelectableSurfaceColors = SelectableSurfaceDefaults.colors(),
+    scale: SelectableSurfaceScale = SelectableSurfaceDefaults.scale(),
+    border: SelectableSurfaceBorder = SelectableSurfaceDefaults.border(),
+    glow: SelectableSurfaceGlow = SelectableSurfaceDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable (BoxScope.() -> Unit)
 ) {
@@ -261,56 +256,56 @@ fun Surface(
     val pressed by interactionSource.collectIsPressedAsState()
 
     SurfaceImpl(
-        modifier = modifier.tvToggleable(
+        modifier = modifier.tvSelectable(
             enabled = enabled,
-            checked = checked,
-            onCheckedChange = onCheckedChange,
+            selected = selected,
+            onClick = onClick,
             interactionSource = interactionSource,
             onLongClick = onLongClick
         ),
-        checked = checked,
+        selected = selected,
         enabled = enabled,
         tonalElevation = tonalElevation,
-        shape = ToggleableSurfaceDefaults.shape(
+        shape = SelectableSurfaceDefaults.shape(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = checked,
+            selected = selected,
             shape = shape
         ),
-        color = ToggleableSurfaceDefaults.containerColor(
+        color = SelectableSurfaceDefaults.containerColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = checked,
+            selected = selected,
             colors = colors
         ),
-        contentColor = ToggleableSurfaceDefaults.contentColor(
+        contentColor = SelectableSurfaceDefaults.contentColor(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = checked,
+            selected = selected,
             colors = colors
         ),
-        scale = ToggleableSurfaceDefaults.scale(
+        scale = SelectableSurfaceDefaults.scale(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = checked,
+            selected = selected,
             scale = scale
         ),
-        border = ToggleableSurfaceDefaults.border(
+        border = SelectableSurfaceDefaults.border(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = checked,
+            selected = selected,
             border = border
         ),
-        glow = ToggleableSurfaceDefaults.glow(
+        glow = SelectableSurfaceDefaults.glow(
             enabled = enabled,
             focused = focused,
             pressed = pressed,
-            selected = checked,
+            selected = selected,
             glow = glow
         ),
         interactionSource = interactionSource,
@@ -318,11 +313,10 @@ fun Surface(
     )
 }
 
-@ExperimentalTvMaterial3Api
 @Composable
 private fun SurfaceImpl(
     modifier: Modifier,
-    checked: Boolean,
+    selected: Boolean,
     enabled: Boolean,
     shape: Shape,
     color: Color,
@@ -343,17 +337,13 @@ private fun SurfaceImpl(
         enabled = enabled,
         focused = focused,
         pressed = pressed,
-        selected = checked
+        selected = selected
     )
 
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
-    val contentColorAsAnim by animateColorAsState(
-        targetValue = contentColor,
-        label = "Surface.contentColor"
-    )
 
     CompositionLocalProvider(
-        LocalContentColor provides contentColorAsAnim,
+        LocalContentColor provides contentColor,
         LocalAbsoluteTonalElevation provides absoluteElevation
     ) {
         val zIndex by animateFloatAsState(
@@ -440,33 +430,34 @@ private fun Modifier.tvClickable(
 
 /**
  * This modifier handles click, press, and focus events for a TV composable.
- * @param enabled decides whether [onCheckedChange] is executed
- * @param checked differentiates whether the current item is checked or unchecked
- * @param onCheckedChange executes the provided lambda on click, while returning the inverse state
- * of [checked].
+ * @param enabled decides whether [onClick] is executed
+ * @param selected differentiates whether the current item is selected or unselected
+ * @param onClick executes the provided lambda on click, while returning the inverse state
+ * of [selected].
  * @param onLongClick executes the provided lambda on long press.
  * @param interactionSource used to emit [PressInteraction] events
  */
-private fun Modifier.tvToggleable(
+private fun Modifier.tvSelectable(
     enabled: Boolean,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    selected: Boolean,
+    onClick: () -> Unit,
     onLongClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource,
 ) = handleDPadEnter(
     enabled = enabled,
     interactionSource = interactionSource,
-    checked = checked,
-    onCheckedChanged = onCheckedChange,
+    selected = selected,
+    onClick = onClick,
     onLongClick = onLongClick
 )
-    // We are not using "toggleable" modifier here because if we set "enabled" to false
+    // We are not using "selectable" modifier here because if we set "enabled" to false
     // then the Surface won't be focusable as well. But, in TV use case, a disabled surface
     // should be focusable
     .focusable(interactionSource = interactionSource)
     .semantics(mergeDescendants = true) {
+        this.selected = selected
         onClick {
-            onCheckedChange(!checked)
+            onClick()
             true
         }
         onLongClick {
@@ -488,17 +479,14 @@ private fun Modifier.tvToggleable(
  * @param interactionSource used to emit [PressInteraction] events
  * @param onClick this lambda will be triggered on D-PAD enter event
  * @param onLongClick this lambda will be triggered when D-PAD enter is long pressed.
- * @param checked differentiates whether the current item is checked or unchecked
- * @param onCheckedChanged executes the provided lambda while returning the inverse state of
- * [checked]
+ * @param selected differentiates whether the current item is selected or unselected
  */
 private fun Modifier.handleDPadEnter(
     enabled: Boolean,
     interactionSource: MutableInteractionSource,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
-    checked: Boolean = false,
-    onCheckedChanged: ((Boolean) -> Unit)? = null
+    selected: Boolean = false,
 ) = composed(
     inspectorInfo = debugInspectorInfo {
         name = "handleDPadEnter"
@@ -506,8 +494,7 @@ private fun Modifier.handleDPadEnter(
         properties["interactionSource"] = interactionSource
         properties["onClick"] = onClick
         properties["onLongClick"] = onLongClick
-        properties["checked"] = checked
-        properties["onCheckedChanged"] = onCheckedChanged
+        properties["selected"] = selected
     }
 ) {
     if (!enabled) return@composed this
@@ -556,7 +543,6 @@ private fun Modifier.handleDPadEnter(
                                 interactionSource.emit(PressInteraction.Release(pressInteraction))
                             }
                             onClick?.invoke()
-                            onCheckedChanged?.invoke(!checked)
                         } else isLongClick = false
                     }
                 }
@@ -567,7 +553,6 @@ private fun Modifier.handleDPadEnter(
 }
 
 @Composable
-@ExperimentalTvMaterial3Api
 internal fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
     return if (color == MaterialTheme.colorScheme.surface) {
         MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
@@ -611,10 +596,7 @@ internal const val EnabledContentAlpha = 1f
  * absolute elevation is a sum of all the previous elevations. Absolute elevation is only used for
  * calculating surface tonal colors, and is *not* used for drawing the shadow in a [SurfaceImpl].
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalTvMaterial3Api
-@get:ExperimentalTvMaterial3Api
-val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
+internal val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
 
 private val AcceptableKeys = intArrayOf(
     NativeKeyEvent.KEYCODE_DPAD_CENTER,

@@ -23,6 +23,7 @@
  */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -42,12 +43,13 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
 
                 api(project(":compose:animation:animation-core"))
-                api(project(":compose:foundation:foundation-layout"))
+                api("androidx.compose.foundation:foundation-layout:1.6.0")
                 api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-geometry"))
+                api("androidx.compose.ui:ui-geometry:1.6.0")
 
+                implementation project(':compose:ui:ui')
                 implementation(project(":compose:ui:ui-util"))
+                implementation project(':compose:ui:ui-graphics')
 
                 implementation("androidx.collection:collection:1.4.0")
             }
@@ -77,13 +79,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-
-                api(project(":compose:foundation:foundation-layout"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-geometry"))
-
-                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -127,10 +122,15 @@ dependencies {
 
 androidx {
     name = "Compose Animation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2019"
     description = "Compose animation library"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:animation:animation:animation-samples"))
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 android {

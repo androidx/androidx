@@ -56,6 +56,16 @@ abstract class DelegatingNode : Modifier.Node() {
     @TestOnly
     internal fun undelegateUnprotected(instance: DelegatableNode) = undelegate(instance)
 
+    override fun setAsDelegateTo(owner: Modifier.Node) {
+        super.setAsDelegateTo(owner)
+        // At this point _this_ node is being delegated to, however _this_ node may also
+        // have delegates of its own, and their current `node` pointers need to be updated
+        // so that they point to the right node in the tree.
+        forEachImmediateDelegate {
+            it.setAsDelegateTo(owner)
+        }
+    }
+
     /**
      * In order to properly delegate work to another [Modifier.Node], the delegated instance must
      * be created and returned inside of a [delegate] call. Doing this will

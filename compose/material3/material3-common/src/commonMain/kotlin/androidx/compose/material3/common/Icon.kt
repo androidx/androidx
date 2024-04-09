@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
  * color. If [imageVector] has no intrinsic size, this component will use the
  * recommended default size. Icon is an opinionated component designed to be used with single-color
  * icons so that they can be tinted correctly for the component they are placed in. For multicolored
- * icons and icons that should not be tinted, use [Color.Unspecified] for [tint]. For generic images
+ * icons and icons that should not be tinted, use null for [tint]. For generic images
  * that should not be tinted, and do not follow the recommended icon size, use the generic
  * [androidx.compose.foundation.Image] instead. For a clickable icon, see [IconButton].
  *
@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.dp
  * @param modifier the [Modifier] to be applied to this icon
  * @param tint tint to be applied to [imageVector]. If [Color.Unspecified] is provided, then no tint
  * is applied.
+ *
+ * @sample androidx.compose.material3.common.samples.IconSample
  */
 @Composable
 fun Icon(

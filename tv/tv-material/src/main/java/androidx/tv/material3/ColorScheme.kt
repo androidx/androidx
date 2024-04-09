@@ -253,6 +253,8 @@ class ColorScheme(
     var scrim by mutableStateOf(scrim, structuralEqualityPolicy())
         internal set
 
+    internal var defaultCheckboxColorsCached: CheckboxColors? = null
+
     /** Returns a copy of this ColorScheme, optionally overriding some of the values. */
     fun copy(
         primary: Color = this.primary,
@@ -350,6 +352,9 @@ class ColorScheme(
             "scrim=$scrim" +
             ")"
     }
+
+    internal var defaultSwitchColorsCached: SwitchColors? = null
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
 }
 
 /**
@@ -471,7 +476,6 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
  */
 @Composable
 @ReadOnlyComposable
-@ExperimentalTvMaterial3Api
 fun contentColorFor(backgroundColor: Color) =
     MaterialTheme.colorScheme.contentColorFor(backgroundColor).takeOrElse {
         LocalContentColor.current
@@ -558,7 +562,6 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
  * tokens:
  * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
     return when (value) {
         ColorSchemeKeyTokens.Background -> background
@@ -611,7 +614,6 @@ internal const val DisabledAlpha = 0.38f
 /** Converts a color token key to the local color scheme provided by the theme */
 @ReadOnlyComposable
 @Composable
-@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ColorSchemeKeyTokens.toColor(): Color {
     return MaterialTheme.colorScheme.fromToken(this)
 }

@@ -79,14 +79,17 @@ internal fun FocusTargetNode.twoDimensionalFocusSearch(
 
                     // We search among the siblings of the parent.
                     return generateAndSearchChildren(
-                        focusedChild.activeNode().focusRect(),
+                        previouslyFocusedRect ?: focusedChild.activeNode().focusRect(),
                         direction,
                         onFound
                     )
                 }
                 // Search for the next eligible sibling.
-                Active, Captured ->
-                    return generateAndSearchChildren(focusedChild.focusRect(), direction, onFound)
+                Active, Captured -> return generateAndSearchChildren(
+                    previouslyFocusedRect ?: focusedChild.focusRect(),
+                    direction,
+                    onFound
+                )
                 Inactive -> error(NoActiveChild)
             }
         }
@@ -170,7 +173,8 @@ private fun FocusTargetNode.searchChildren(
 ): Boolean {
     val children = MutableVector<FocusTargetNode>().apply {
         visitChildren(Nodes.FocusTarget) {
-            this.add(it)
+            // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+            if (it.isAttached) this.add(it)
         }
     }
     while (children.isNotEmpty()) {

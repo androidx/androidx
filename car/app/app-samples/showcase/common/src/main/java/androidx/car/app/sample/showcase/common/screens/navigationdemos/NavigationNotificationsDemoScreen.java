@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -79,8 +80,10 @@ public final class NavigationNotificationsDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle(getCarContext().getString(R.string.nav_notification_demo_title))
-                .setHeaderAction(Action.BACK)
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext().getString(R.string.nav_notification_demo_title))
+                        .setStartHeaderAction(Action.BACK)
+                        .build())
                 .build();
     }
 }

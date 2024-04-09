@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.Locale
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -70,7 +71,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         warningMessage: String? = null,
         testName: String? = null,
         message: String? = null,
-        measurements: BenchmarkResult.Measurements? = null,
+        measurements: Measurements? = null,
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList()
     ) {
@@ -139,14 +140,14 @@ object InstrumentationResults {
         // for readability, report nanos with 10ths only if less than 100
         var output = if (nanos >= 100.0) {
             // 13 alignment is enough for ~10 seconds
-            "%,13d   ns".format(nanos.toLong())
+            "%,13d   ns".format(Locale.US, nanos.toLong())
         } else {
             // 13 + 2(.X) to match alignment above
-            "%,15.1f ns".format(nanos)
+            "%,15.1f ns".format(Locale.US, nanos)
         }
         if (allocations != null) {
             // 9 alignment is enough for ~10 million allocations
-            output += "    %8d allocs".format(allocations.toInt())
+            output += "    %8d allocs".format(Locale.US, allocations.toInt())
         }
         profilerResults.forEach {
             output += "    [${it.label}](file://${it.sanitizedOutputRelativePath})"
@@ -183,7 +184,7 @@ object InstrumentationResults {
     internal fun ideSummary(
         testName: String? = null,
         message: String? = null,
-        measurements: BenchmarkResult.Measurements? = null,
+        measurements: Measurements? = null,
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList()
     ): IdeSummaryPair {
@@ -214,14 +215,16 @@ object InstrumentationResults {
                 val nanos = measurements.singleMetrics.single { it.name == "timeNs" }.min
                 val allocs =
                     measurements.singleMetrics.singleOrNull { it.name == "allocationCount" }?.min
+                // add newline (note that multi-line codepath below handles newline separately)
+                val warningPrefix = if (warningMessage == null) "" else warningMessage + "\n"
                 return IdeSummaryPair(
-                    summaryV1 = (warningMessage ?: "") + ideSummaryBasicMicro(
+                    summaryV1 = warningPrefix + ideSummaryBasicMicro(
                         testName,
                         nanos,
                         allocs,
                         emptyList()
                     ),
-                    summaryV2 = (warningMessage ?: "") + ideSummaryBasicMicro(
+                    summaryV2 = warningPrefix + ideSummaryBasicMicro(
                         testName,
                         nanos,
                         allocs,
@@ -232,7 +235,7 @@ object InstrumentationResults {
 
             val allMetrics = measurements.singleMetrics + measurements.sampledMetrics
             val maxLabelLength = allMetrics.maxOf { it.name.length }
-            fun Double.toDisplayString() = "%,.1f".format(this)
+            fun Double.toDisplayString() = "%,.1f".format(Locale.US, this)
 
             // max string length of any printed min/med/max is the largest max value seen. used to pad.
             val maxValueLength = allMetrics

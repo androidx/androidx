@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -31,8 +30,6 @@ plugins {
     id("AndroidXPlugin")
     alias(libs.plugins.kotlinSerialization)
 }
-
-def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     jvm() {
@@ -80,22 +77,20 @@ androidXMultiplatform {
                 implementation(project(":kruth:kruth"))
             }
         }
-        if (enableNative) {
-            nativeMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.kotlinSerializationCore)
-                    implementation(libs.kotlinSerializationProtobuf)
-                }
+        nativeMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinSerializationCore)
+                implementation(libs.kotlinSerializationProtobuf)
             }
+        }
 
-            nativeTest {
-                dependsOn(commonTest)
-                dependencies {
-                    implementation(libs.kotlinTest)
-                    implementation(project(":internal-testutils-datastore"))
-                    implementation(project(":kruth:kruth"))
-                }
+        nativeTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":internal-testutils-datastore"))
+                implementation(project(":kruth:kruth"))
             }
         }
 

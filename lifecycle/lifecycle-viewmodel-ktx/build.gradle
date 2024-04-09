@@ -33,11 +33,6 @@ dependencies {
     api(project(":lifecycle:lifecycle-viewmodel"))
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
-
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
 }
 
 androidx {

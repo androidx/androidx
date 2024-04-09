@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -59,7 +61,6 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(libs.skikoCommon)
-                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -72,8 +73,11 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
+                // This has stub APIs for access to legacy Android APIs, so we don't want
+                // any dependency on this module.
+                compileOnly(project(":compose:ui:ui-android-stubs"))
                 implementation("androidx.graphics:graphics-path:1.0.0-beta02")
-                api(libs.androidx.annotation)
+                implementation libs.androidx.core
                 api("androidx.annotation:annotation-experimental:1.4.0")
             }
         }
@@ -135,10 +139,11 @@ dependencies {
 
 androidx {
     name = "Compose Graphics"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
 }
 
 androidxCompose {
@@ -149,6 +154,10 @@ android {
     namespace "androidx.compose.ui.graphics"
 }
 
-tasks.findByName("desktopTest").configure {
-    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+if (KmpPlatformsKt.enableDesktop(project)) {
+    tasks.withType(Test).configureEach {
+        if (name.equals("desktopTest")) {
+            systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+        }
+    }
 }

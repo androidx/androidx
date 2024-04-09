@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import androidx.annotation.RestrictTo
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
@@ -31,8 +32,8 @@ private const val MAX_LONG_MILLIS: Long = Long.MAX_VALUE / 1_000_000
 
 /**
  * Returns the estimated time that the spring will last be at [delta]
- * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 fun estimateAnimationDurationMillis(
     stiffness: Float,
     dampingRatio: Float,
@@ -56,8 +57,8 @@ fun estimateAnimationDurationMillis(
 
 /**
  * Returns the estimated time that the spring will last be at [delta]
- * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 fun estimateAnimationDurationMillis(
     stiffness: Double,
     dampingRatio: Double,
@@ -85,8 +86,8 @@ fun estimateAnimationDurationMillis(
 
 /**
  * Returns the estimated time that the spring will last be at [delta]
- * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 fun estimateAnimationDurationMillis(
     springConstant: Double,
     dampingCoefficient: Double,

@@ -6,24 +6,22 @@ import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.RxRoom
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.newStringBuilder
 import androidx.room.util.query
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.lang.StringBuilder
 import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
+import kotlin.text.StringBuilder
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -33,7 +31,7 @@ public class MyDao_Impl(
   }
 
   public override fun getFlowable(vararg arg: String?): Flowable<MyEntity> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -79,7 +77,7 @@ public class MyDao_Impl(
   }
 
   public override fun getObservable(vararg arg: String?): Observable<MyEntity> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -125,7 +123,7 @@ public class MyDao_Impl(
   }
 
   public override fun getSingle(vararg arg: String?): Single<MyEntity> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -174,7 +172,7 @@ public class MyDao_Impl(
   }
 
   public override fun getMaybe(vararg arg: String?): Maybe<MyEntity> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -220,7 +218,7 @@ public class MyDao_Impl(
   }
 
   public override fun getFlowableNullable(vararg arg: String?): Flowable<MyEntity?> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -266,7 +264,7 @@ public class MyDao_Impl(
   }
 
   public override fun getObservableNullable(vararg arg: String?): Observable<MyEntity?> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -312,7 +310,7 @@ public class MyDao_Impl(
   }
 
   public override fun getSingleNullable(vararg arg: String?): Single<MyEntity?> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -361,7 +359,7 @@ public class MyDao_Impl(
   }
 
   public override fun getMaybeNullable(vararg arg: String?): Maybe<MyEntity?> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -407,7 +405,6 @@ public class MyDao_Impl(
   }
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

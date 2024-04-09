@@ -130,6 +130,12 @@ class VersionChecker(val context: IrPluginContext) {
             11700 to "1.6.0-alpha08",
             11800 to "1.6.0-beta01",
             12000 to "1.7.0-alpha01",
+            12100 to "1.7.0-alpha02",
+            12200 to "1.7.0-alpha03",
+            12300 to "1.7.0-alpha04",
+            12400 to "1.7.0-alpha05",
+            12500 to "1.7.0-alpha06",
+            12600 to "1.7.0-alpha07",
         )
 
         /**
@@ -142,7 +148,7 @@ class VersionChecker(val context: IrPluginContext) {
          * The maven version string of this compiler. This string should be updated before/after every
          * release.
          */
-        const val compilerVersion: String = "1.5.8"
+        const val compilerVersion: String = "1.5.11"
         private val minimumRuntimeVersion: String
             get() = runtimeVersionToMavenVersionTable[minimumRuntimeVersionInt] ?: "unknown"
     }

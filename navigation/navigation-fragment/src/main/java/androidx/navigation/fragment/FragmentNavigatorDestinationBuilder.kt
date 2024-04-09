@@ -18,11 +18,14 @@ package androidx.navigation.fragment
 
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.get
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Construct a new [FragmentNavigator.Destination]
@@ -87,6 +90,39 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
 )
 
 /**
+ * Construct a new [FragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ */
+@ExperimentalSafeArgsApi
+public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+): Unit = fragment<F, T>(typeMap) {}
+
+/**
+ * Construct a new [FragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param builder the builder used to construct the fragment destination
+ */
+@ExperimentalSafeArgsApi
+public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    FragmentNavigatorDestinationBuilder(
+        provider[FragmentNavigator::class],
+        T::class,
+        typeMap,
+        F::class,
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [FragmentNavigator.Destination]
  */
 @NavDestinationDsl
@@ -131,6 +167,26 @@ public class FragmentNavigatorDestinationBuilder :
         route: String,
         fragmentClass: KClass<out Fragment>
     ) : super(navigator, route) {
+        this.fragmentClass = fragmentClass
+    }
+
+    /**
+     * DSL for constructing a new [FragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the route from a [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     * @param fragmentClass The class name of the Fragment to show when you navigate to this
+     * destination
+     */
+    @ExperimentalSafeArgsApi
+    public constructor(
+        navigator: FragmentNavigator,
+        route: KClass<out Any>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        fragmentClass: KClass<out Fragment>
+    ) : super(navigator, route, typeMap) {
         this.fragmentClass = fragmentClass
     }
 

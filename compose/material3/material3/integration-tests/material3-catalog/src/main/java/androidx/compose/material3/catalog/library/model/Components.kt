@@ -51,7 +51,8 @@ private val Adaptive =
         name = "Adaptive",
         description =
         "Adaptive scaffolds provides automatic layout adjustment on different window size " +
-            "classes and postures.",
+            "classes and postures.\n\n" +
+            "Note: this sample is better experienced in a resizable emulator or foldable device.",
         // No adaptive icon
         guidelinesUrl = "$AdaptiveGuidelinesUrl/understanding-layout/overview",
         docsUrl = "$DocsUrl/adaptive",
@@ -443,7 +444,7 @@ val Components = listOf(
     BottomSheets,
     Buttons,
     Card,
-    // Carousel, // TODO: Re-enable when ready
+    Carousel,
     Checkboxes,
     Chips,
     DatePickers,

@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.test
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.node.RootForTest
@@ -824,7 +823,6 @@ internal class KeyInputState {
      * achieved.
      */
     // TODO(Onadim): Investigate how lock key toggling is handled in Android, ChromeOS and Windows.
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun updateLockKeys(key: Key) {
         when (key) {
             Key.CapsLock -> capsLockOn = !capsLockOn

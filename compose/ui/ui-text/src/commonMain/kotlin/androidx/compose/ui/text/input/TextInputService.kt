@@ -18,6 +18,7 @@
 
 package androidx.compose.ui.text.input
 
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.text.AtomicReference
@@ -75,6 +76,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     * `PlatformTextInputModifierNode.textInputSession`.
     */
     @InternalTextApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun startInput() {
         platformTextInputService.startInput()
         val nextSession = TextInputSession(this, platformTextInputService)
@@ -95,6 +97,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     }
 
     @InternalTextApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun stopInput() {
         platformTextInputService.stopInput()
     }

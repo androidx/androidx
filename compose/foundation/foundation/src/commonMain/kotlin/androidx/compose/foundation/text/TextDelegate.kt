@@ -80,12 +80,9 @@ import kotlin.math.ceil
  *
  * @param placeholders a list of [Placeholder]s that specify ranges of text where the original
  * text is replaced empty spaces. It's typically used to embed images into text.
- *
- * @suppress
  */
-@InternalFoundationTextApi // Used by benchmarks
 @Stable
-class TextDelegate(
+internal class TextDelegate(
     val text: AnnotatedString,
     val style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,

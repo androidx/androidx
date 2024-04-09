@@ -112,6 +112,9 @@ class FakeCameraMetadata(
     }
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    override fun toString(): String =
+        "FakeCameraMetadata(camera: ${camera.value})"
 }
 
 /**
@@ -151,6 +154,9 @@ class FakeRequestMetadata(
             )
         }
     }
+
+    override fun toString(): String =
+        "FakeRequestMetadata(requestNumber: ${requestNumber.value}, request: $request)"
 }
 
 /**
@@ -170,6 +176,9 @@ class FakeFrameMetadata(
     override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    override fun toString(): String =
+        "FakeFrameMetadata(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }
 
 /**
@@ -189,4 +198,7 @@ class FakeFrameInfo(
         get() = metadata.frameNumber
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    override fun toString(): String =
+        "FakeFrameInfo(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }

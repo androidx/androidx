@@ -42,6 +42,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -155,7 +157,10 @@ fun ModalBottomSheetSample() {
                                 Icons.Default.Favorite,
                                 contentDescription = "Localized description"
                             )
-                        }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
                     )
                 }
             }
@@ -175,23 +180,21 @@ fun SimpleBottomSheetScaffoldSample() {
         scaffoldState = scaffoldState,
         sheetPeekHeight = 128.dp,
         sheetContent = {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(128.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Swipe up to expand sheet")
-            }
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(64.dp),
+                Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(128.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Swipe up to expand sheet")
+                }
                 Text("Sheet content")
-                Spacer(Modifier.height(20.dp))
                 Button(
+                    modifier = Modifier.padding(bottom = 64.dp),
                     onClick = {
                         scope.launch { scaffoldState.bottomSheetState.partialExpand() }
                     }
@@ -238,7 +241,10 @@ fun BottomSheetScaffoldNestedScrollSample() {
                                 Icons.Default.Favorite,
                                 contentDescription = "Localized description"
                             )
-                        }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
                     )
                 }
             }

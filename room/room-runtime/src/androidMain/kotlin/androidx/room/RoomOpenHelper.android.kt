@@ -16,6 +16,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.util.useCursor
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -90,7 +91,7 @@ open class RoomOpenHelper(
             )
             if (migrations != null) {
                 delegate.onPreMigrate(db)
-                migrations.forEach { it.migrate(db) }
+                migrations.forEach { it.migrate(SupportSQLiteConnection(db)) }
                 val result = delegate.onValidateSchema(db)
                 if (!result.isValid) {
                     throw IllegalStateException(

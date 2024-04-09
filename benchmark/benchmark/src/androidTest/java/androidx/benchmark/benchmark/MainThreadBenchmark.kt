@@ -36,7 +36,7 @@ class MainThreadBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule(
         MicrobenchmarkConfig(
-            shouldEnableTraceAppTag = true
+            traceAppTagEnabled = true
         )
     )
 

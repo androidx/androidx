@@ -26,8 +26,10 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -154,6 +156,8 @@ private class FakeOwner(
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
     override val density: Density
@@ -206,8 +210,11 @@ private class FakeOwner(
     override val autofill: Autofill
         get() = TODO("Not yet implemented")
 
-    override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) =
-        createLayer()
+    override fun createLayer(
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
+    ) = createLayer()
 
     override fun onRequestRelayout(
         layoutNode: LayoutNode,
@@ -222,7 +229,7 @@ private class FakeOwner(
     override fun calculatePositionInWindow(localPosition: Offset) = TODO("Not yet implemented")
     override fun calculateLocalPosition(positionInWindow: Offset) = TODO("Not yet implemented")
     override fun requestFocus() = TODO("Not yet implemented")
-    override fun onSemanticsChange() = TODO("Not yet implemented")
+    override fun onSemanticsChange() {}
     override fun getFocusDirection(keyEvent: KeyEvent) = TODO("Not yet implemented")
 }
 
@@ -578,7 +585,7 @@ internal open class MockLayer() : OwnedLayer {
     override fun resize(size: IntSize) {
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
     }
 
     override fun updateDisplayList() {

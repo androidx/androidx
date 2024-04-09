@@ -151,6 +151,9 @@ public fun Card(
  * Example of an [AppCard] with icon, title, time and two lines of body text:
  * @sample androidx.wear.compose.material.samples.AppCardWithIcon
  *
+ * Example of an [AppCard] with image content:
+ * @sample androidx.wear.compose.material.samples.AppCardWithImage
+ *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards)
  * guide.
@@ -264,7 +267,7 @@ public fun AppCard(
  * @sample androidx.wear.compose.material.samples.TitleCardStandard
  *
  * Example of a title card with a background image:
- * @sample androidx.wear.compose.material.samples.TitleCardWithImage
+ * @sample androidx.wear.compose.material.samples.TitleCardWithImageBackground
  *
  * For more information, see the
  * [Cards](https://developer.android.com/training/wearables/components/cards)

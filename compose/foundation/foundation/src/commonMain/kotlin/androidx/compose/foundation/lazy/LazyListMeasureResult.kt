@@ -89,7 +89,8 @@ internal class LazyListMeasureResult(
     fun tryToApplyScrollWithoutRemeasure(delta: Int, updateAnimations: Boolean): Boolean {
         if (remeasureNeeded || visibleItemsInfo.isEmpty() || firstVisibleItem == null ||
             // applying this delta will change firstVisibleItem
-            (firstVisibleItemScrollOffset - delta) !in 0 until firstVisibleItem.sizeWithSpacings
+            (firstVisibleItemScrollOffset - delta) !in
+            0 until firstVisibleItem.mainAxisSizeWithSpacings
         ) {
             return false
         }
@@ -102,9 +103,9 @@ internal class LazyListMeasureResult(
         val canApply = if (delta < 0) {
             // scrolling forward
             val deltaToFirstItemChange =
-                first.offset + first.sizeWithSpacings - viewportStartOffset
+                first.offset + first.mainAxisSizeWithSpacings - viewportStartOffset
             val deltaToLastItemChange =
-                last.offset + last.sizeWithSpacings - viewportEndOffset
+                last.offset + last.mainAxisSizeWithSpacings - viewportEndOffset
             minOf(deltaToFirstItemChange, deltaToLastItemChange) > -delta
         } else {
             // scrolling backward

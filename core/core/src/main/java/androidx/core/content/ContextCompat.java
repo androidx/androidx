@@ -289,7 +289,10 @@ public class ContextCompat {
      *                {@link ActivityOptionsCompat} for how to build the Bundle
      *                supplied here; there are no supported definitions for
      *                building it manually.
+     * @deprecated Call {@link Context#startActivity()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "context.startActivity(intent, options)")
     public static void startActivity(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options) {
         context.startActivity(intent, options);
@@ -362,7 +365,10 @@ public class ContextCompat {
      *
      * @see Context#getObbDir()
      * @see EnvironmentCompat#getStorageState(File)
+     * @deprecated Call {@link Context#getObbDirs()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "context.getObbDirs()")
     @NonNull
     public static File[] getObbDirs(@NonNull Context context) {
         return context.getObbDirs();
@@ -411,7 +417,10 @@ public class ContextCompat {
      *
      * @see Context#getExternalFilesDir(String)
      * @see EnvironmentCompat#getStorageState(File)
+     * @deprecated Call {@link Context#getExternalFilesDirs()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "context.getExternalFilesDirs(type)")
     @NonNull
     public static File[] getExternalFilesDirs(@NonNull Context context, @Nullable String type) {
         return context.getExternalFilesDirs(type);
@@ -460,7 +469,10 @@ public class ContextCompat {
      *
      * @see Context#getExternalCacheDir()
      * @see EnvironmentCompat#getStorageState(File)
+     * @deprecated Call {@link Context#getExternalCacheDirs()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "context.getExternalCacheDirs()")
     @NonNull
     public static File[] getExternalCacheDirs(@NonNull Context context) {
         return context.getExternalCacheDirs();
@@ -754,13 +766,14 @@ public class ContextCompat {
      * @param context  Context to retrieve service from.
      * @param receiver The BroadcastReceiver to handle the broadcast.
      * @param filter   Selects the Intent broadcasts to be received.
-     * @param flags    If this receiver is listening for broadcasts sent from the system or from
-     *                 other apps—even other apps that you own—use the {@link #RECEIVER_EXPORTED}
-     *                 flag. If instead this receiver is listening only for broadcasts sent by your
-     *                 app, use the {@link #RECEIVER_NOT_EXPORTED} flag.
+     * @param flags    If this receiver is listening for broadcasts sent from other apps—even other
+     *                 apps that you own—use the {@link #RECEIVER_EXPORTED} flag. If instead this 
+     *                 receiver is listening only for broadcasts sent by your
+     *                 app, or from the system UID, use the {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, int)
+     * @see https://developer.android.com/develop/background-work/background-tasks/broadcasts#context-registered-receivers
      */
     @Nullable
     public static Intent registerReceiver(@NonNull Context context,
@@ -780,14 +793,15 @@ public class ContextCompat {
      *                            required.
      * @param scheduler           Handler identifying the thread will receive the Intent. If
      *                            null, the main thread of the process will be used.
-     * @param flags               If this receiver is listening for broadcasts sent from the
-     *                            system or from other apps—even other apps that you own—use the
+     * @param flags               If this receiver is listening for broadcasts sent from other
+     *                            apps—even other apps that you own—use the
      *                            {@link #RECEIVER_EXPORTED} flag. If instead this receiver is
-     *                            listening only for broadcasts sent by your app, use the
-     *                            {@link #RECEIVER_NOT_EXPORTED} flag.
+     *                            listening only for broadcasts sent by your app, or from the
+     *                            system UID, use the {@link #RECEIVER_NOT_EXPORTED} flag.
      * @return The first sticky intent found that matches <var>filter</var>,
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, String, Handler, int)
+     * @see https://developer.android.com/develop/background-work/background-tasks/broadcasts#context-registered-receivers
      */
     @Nullable
     public static Intent registerReceiver(@NonNull Context context,

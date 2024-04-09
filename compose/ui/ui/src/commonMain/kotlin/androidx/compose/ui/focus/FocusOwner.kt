@@ -108,10 +108,18 @@ internal interface FocusOwner : FocusManager {
      * @param clearOwnerFocus whether we should also clear focus from the owner. This is usually
      * true, unless focus is being temporarily cleared (eg. to implement focus wrapping).
      *
+     * @param focusDirection The focus direction of the focus transaction that triggered this clear
+     * focus.
+     *
      * This could be used to clear focus when a user clicks on empty space outside a focusable
      * component.
      */
-    fun clearFocus(force: Boolean, refreshFocusEvents: Boolean, clearOwnerFocus: Boolean)
+    fun clearFocus(
+        force: Boolean,
+        refreshFocusEvents: Boolean,
+        clearOwnerFocus: Boolean,
+        focusDirection: FocusDirection
+    ): Boolean
 
     /**
      * Searches for the currently focused item, and returns its coordinates as a rect.
@@ -120,8 +128,18 @@ internal interface FocusOwner : FocusManager {
 
     /**
      * Dispatches a key event through the compose hierarchy.
+     *
+     * When an embedded subview has focus, we call onPreviewKeyEvents for all the parents, and then
+     * invoke onFocusedItem before we call onKeyEvent on all the parents.
+     *
+     * @param keyEvent the key event to be dispatched
+     *
+     * @param onFocusedItem the block that is run after calling onPreviewKeyEvents on all the
+     * parents. Returning true will consume the event and prevent the event from propagating
+     * to the onKeyEvent modifiers on parents. This is used to dispatch key events to embedded
+     * sub-views.
      */
-    fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean
+    fun dispatchKeyEvent(keyEvent: KeyEvent, onFocusedItem: () -> Boolean = { false }): Boolean
 
     /**
      * Dispatches an intercepted soft keyboard key event through the compose hierarchy.

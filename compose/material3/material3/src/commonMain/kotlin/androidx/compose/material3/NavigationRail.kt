@@ -39,9 +39,13 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.internal.MappedInteractionSource
+import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.NavigationRailTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -177,7 +181,10 @@ fun NavigationRailItem(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val styledIcon = @Composable {
-        val iconColor by colors.iconColor(selected = selected, enabled = enabled)
+        val iconColor by animateColorAsState(
+            targetValue = colors.iconColor(selected = selected, enabled = enabled),
+            animationSpec = tween(ItemAnimationDurationMillis)
+        )
         // If there's a label, don't have a11y services repeat the icon description.
         val clearSemantics = label != null && (alwaysShowLabel || selected)
         Box(modifier = if (clearSemantics) Modifier.clearAndSetSemantics {} else Modifier) {
@@ -188,7 +195,10 @@ fun NavigationRailItem(
     val styledLabel: @Composable (() -> Unit)? = label?.let {
         @Composable {
             val style = MaterialTheme.typography.fromToken(NavigationRailTokens.LabelTextFont)
-            val textColor by colors.textColor(selected = selected, enabled = enabled)
+            val textColor by animateColorAsState(
+                targetValue = colors.textColor(selected = selected, enabled = enabled),
+                animationSpec = tween(ItemAnimationDurationMillis)
+            )
             ProvideContentColorTextStyle(
                 contentColor = textColor,
                 textStyle = style,
@@ -376,7 +386,7 @@ object NavigationRailItemDefaults {
  * @param disabledIconColor the color to use for the icon when the item is disabled.
  * @param disabledTextColor the color to use for the text label when the item is disabled.
  */
-@Stable
+@Immutable
 class NavigationRailItemColors constructor(
     val selectedIconColor: Color,
     val selectedTextColor: Color,
@@ -414,17 +424,11 @@ class NavigationRailItemColors constructor(
      * @param selected whether the item is selected
      * @param enabled whether the item is enabled
      */
-    @Composable
-    internal fun iconColor(selected: Boolean, enabled: Boolean): State<Color> {
-        val targetValue = when {
-            !enabled -> disabledIconColor
-            selected -> selectedIconColor
-            else -> unselectedIconColor
-        }
-        return animateColorAsState(
-            targetValue = targetValue,
-            animationSpec = tween(ItemAnimationDurationMillis)
-        )
+    @Stable
+    internal fun iconColor(selected: Boolean, enabled: Boolean): Color = when {
+        !enabled -> disabledIconColor
+        selected -> selectedIconColor
+        else -> unselectedIconColor
     }
 
     /**
@@ -433,17 +437,11 @@ class NavigationRailItemColors constructor(
      * @param selected whether the item is selected
      * @param enabled whether the item is enabled
      */
-    @Composable
-    internal fun textColor(selected: Boolean, enabled: Boolean): State<Color> {
-        val targetValue = when {
-            !enabled -> disabledTextColor
-            selected -> selectedTextColor
-            else -> unselectedTextColor
-        }
-        return animateColorAsState(
-            targetValue = targetValue,
-            animationSpec = tween(ItemAnimationDurationMillis)
-        )
+    @Stable
+    internal fun textColor(selected: Boolean, enabled: Boolean): Color = when {
+        !enabled -> disabledTextColor
+        selected -> selectedTextColor
+        else -> unselectedTextColor
     }
 
     /** Represents the color of the indicator used for selected items. */

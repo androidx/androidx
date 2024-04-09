@@ -104,7 +104,7 @@ dependencies {
 
 androidx {
     name = "ConstraintLayout Compose"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"

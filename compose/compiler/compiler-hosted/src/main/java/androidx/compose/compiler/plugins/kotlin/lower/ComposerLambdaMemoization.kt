@@ -90,6 +90,7 @@ import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isFunctionOrKFunction
 import org.jetbrains.kotlin.ir.util.isLocal
+import org.jetbrains.kotlin.ir.util.isSuspendFunctionOrKFunction
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.util.primaryConstructor
@@ -541,7 +542,7 @@ class ComposerLambdaMemoization(
     ): IrExpression {
         // Get the local captures for local function ref, to make sure we invalidate memoized
         // reference if its capture is different.
-        val localCaptures = if (reference.symbol.owner.isLocal) {
+        val localCaptures = if (reference.symbol.owner.visibility == DescriptorVisibilities.LOCAL) {
             declarationContextStack.recordLocalCapture(reference.symbol.owner)
         } else {
             null
@@ -1035,9 +1036,9 @@ class ComposerLambdaMemoization(
             val cacheTmpVar = irTemporary(cache, "tmpCache")
             cacheTmpVar.wrap(
                 type = expression.type,
-                before = listOf(irStartReplaceableGroup(irCurrentComposer(), irConst(key))),
+                before = listOf(irStartReplaceGroup(irCurrentComposer(), irConst(key))),
                 after = listOf(
-                    irEndReplaceableGroup(irCurrentComposer()),
+                    irEndReplaceGroup(irCurrentComposer()),
                     irGet(cacheTmpVar)
                 )
             )
@@ -1129,10 +1130,15 @@ class ComposerLambdaMemoization(
         stabilityInferencer.stabilityOf(type).knownStable()
 
     private fun IrValueDeclaration.isInlinedLambda(): Boolean =
-        type.isFunctionOrKFunction() &&
+        isInlineableFunction() &&
             this is IrValueParameter &&
             (parent as? IrFunction)?.isInline == true &&
             !isNoinline
+
+    private fun IrValueDeclaration.isInlineableFunction(): Boolean =
+        type.isFunctionOrKFunction() ||
+            type.isSyntheticComposableFunction() ||
+            type.isSuspendFunctionOrKFunction()
 
     private fun <T : IrExpression> T.markAsStatic(mark: Boolean): T {
         if (mark) {

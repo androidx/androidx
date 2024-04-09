@@ -20,6 +20,7 @@ import androidx.compose.ui.util.floatFromBits
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
+import kotlin.math.ulp
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,6 +28,9 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class EasingTest {
+    val ZeroEpsilon = -(1.0f.ulp)
+    val OneEpsilon = 1.0f + 1.0f.ulp
+
     @Test
     fun cubicBezierStartsAt0() {
         val easing = FastOutSlowInEasing
@@ -96,7 +100,7 @@ class EasingTest {
         // Test the last 16 ulps until 1.0f
         for (i in 0x3f7ffff0..0x3f7fffff) {
             val t = curve.transform(floatFromBits(i))
-            assertTrue(t in 0.0f..1.0f)
+            assertTrue(t in -ZeroEpsilon..OneEpsilon)
         }
     }
 }

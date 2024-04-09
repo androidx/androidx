@@ -26,7 +26,7 @@ class BaseDaoTest {
             void insertMe(T t);
         """
         ) { dao ->
-            assertThat(dao.insertionMethods.size, `is`(1))
+            assertThat(dao.insertMethods.size, `is`(1))
         }
     }
 
@@ -38,7 +38,7 @@ class BaseDaoTest {
             void insertMe(T[] t);
         """
         ) { dao ->
-            assertThat(dao.insertionMethods.size, `is`(1))
+            assertThat(dao.insertMethods.size, `is`(1))
         }
     }
 
@@ -50,7 +50,7 @@ class BaseDaoTest {
             void insertMe(T... t);
         """
         ) { dao ->
-            assertThat(dao.insertionMethods.size, `is`(1))
+            assertThat(dao.insertMethods.size, `is`(1))
         }
     }
 
@@ -62,7 +62,7 @@ class BaseDaoTest {
             void insertMe(List<T> t);
         """
         ) { dao ->
-            assertThat(dao.insertionMethods.size, `is`(1))
+            assertThat(dao.insertMethods.size, `is`(1))
         }
     }
 
@@ -74,7 +74,7 @@ class BaseDaoTest {
             void deleteMe(T t);
         """
         ) { dao ->
-            assertThat(dao.deletionMethods.size, `is`(1))
+            assertThat(dao.deleteMethods.size, `is`(1))
         }
     }
 
@@ -86,7 +86,7 @@ class BaseDaoTest {
             void deleteMe(T[] t);
         """
         ) { dao ->
-            assertThat(dao.deletionMethods.size, `is`(1))
+            assertThat(dao.deleteMethods.size, `is`(1))
         }
     }
 
@@ -98,7 +98,7 @@ class BaseDaoTest {
             void deleteMe(T... t);
         """
         ) { dao ->
-            assertThat(dao.deletionMethods.size, `is`(1))
+            assertThat(dao.deleteMethods.size, `is`(1))
         }
     }
 
@@ -110,7 +110,7 @@ class BaseDaoTest {
             void deleteMe(List<T> t);
         """
         ) { dao ->
-            assertThat(dao.deletionMethods.size, `is`(1))
+            assertThat(dao.deleteMethods.size, `is`(1))
         }
     }
 

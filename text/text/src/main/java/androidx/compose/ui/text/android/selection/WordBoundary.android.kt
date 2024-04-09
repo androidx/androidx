@@ -16,71 +16,50 @@
 package androidx.compose.ui.text.android.selection
 
 import java.text.BreakIterator
-import java.util.Locale
 
 /**
- * Helper class to get word boundary for offset.
- *
- * Returns the start and end of the word at the given offset. Characters not part of a word, such as
+ * Returns the start of the word at the given offset. Characters not part of a word, such as
  * spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this method will
- * return [offset, offset+1].
+ * return offset.
  *
- * Word boundaries are defined more precisely in Unicode Standard Annex #29
- * http://www.unicode.org/reports/tr29/#Word_Boundaries
- *
- * Note: The contents of this file is initially copied from
- * [Editor.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/widget/Editor.java)
- * @param locale Locale of the input text.
- * @param text The input text to be analyzed.
+ * @param offset the interested offset.
+ * @return the offset of the start of the word.
  */
-internal class WordBoundary(
-    locale: Locale,
-    text: CharSequence
-) {
-    /**
-     * This word iterator is set with text and used to determine word boundaries when a user is
-     * selecting text.
-     */
-    private val wordIterator: WordIterator = WordIterator(text, 0, text.length, locale)
+internal fun WordIterator.getWordStart(offset: Int): Int {
+    // FIXME - For this and similar methods we're not doing anything to check if there's
+    //  a LocaleSpan in the text, this may be something we should try handling or checking for.
+    var retOffset = prevBoundary(offset)
+    retOffset =
+        if (isOnPunctuation(retOffset)) {
+            // On punctuation boundary or within group of punctuation, find punctuation start.
+            getPunctuationBeginning(offset)
+        } else {
+            // Not on a punctuation boundary, find the word start.
+            getPrevWordBeginningOnTwoWordsBoundary(offset)
+        }
+    return if (retOffset == BreakIterator.DONE) {
+        offset
+    } else retOffset
+}
 
-    /**
-     * Get the start of the word which the given offset is in.
-     *
-     * @return the offset of the start of the word.
-     */
-    fun getWordStart(offset: Int): Int {
-        // FIXME - For this and similar methods we're not doing anything to check if there's
-        //  a LocaleSpan in the text, this may be something we should try handling or checking for.
-        var retOffset = wordIterator.prevBoundary(offset)
-        retOffset =
-            if (wordIterator.isOnPunctuation(retOffset)) {
-                // On punctuation boundary or within group of punctuation, find punctuation start.
-                wordIterator.getPunctuationBeginning(offset)
-            } else {
-                // Not on a punctuation boundary, find the word start.
-                wordIterator.getPrevWordBeginningOnTwoWordsBoundary(offset)
-            }
-        return if (retOffset == BreakIterator.DONE) {
-            offset
-        } else retOffset
-    }
-
-    /**
-     * Get the end of the word which the given offset is in.
-     *
-     * @return the offset of the end of the word.
-     */
-    fun getWordEnd(offset: Int): Int {
-        var retOffset = wordIterator.nextBoundary(offset)
-        retOffset =
-            if (wordIterator.isAfterPunctuation(retOffset)) {
-                // On punctuation boundary or within group of punctuation, find punctuation end.
-                wordIterator.getPunctuationEnd(offset)
-            } else { // Not on a punctuation boundary, find the word end.
-                wordIterator.getNextWordEndOnTwoWordBoundary(offset)
-            }
-        return if (retOffset == BreakIterator.DONE) {
-            offset
-        } else retOffset
-    }
+/**
+ * Returns the end of the word at the given offset. Characters not part of a word, such as
+ * spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this method will
+ * return offset + 1.
+ *
+ * @param offset the interested offset.
+ * @return the offset of the end of the word.
+ */
+internal fun WordIterator.getWordEnd(offset: Int): Int {
+    var retOffset = nextBoundary(offset)
+    retOffset =
+        if (isAfterPunctuation(retOffset)) {
+            // On punctuation boundary or within group of punctuation, find punctuation end.
+            getPunctuationEnd(offset)
+        } else { // Not on a punctuation boundary, find the word end.
+            getNextWordEndOnTwoWordBoundary(offset)
+        }
+    return if (retOffset == BreakIterator.DONE) {
+        offset
+    } else retOffset
 }

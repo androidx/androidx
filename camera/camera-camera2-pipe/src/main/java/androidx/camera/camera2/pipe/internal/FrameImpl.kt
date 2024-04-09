@@ -141,7 +141,7 @@ internal class FrameImpl private constructor(
 
     override fun getFrameInfo(): FrameInfo? {
         if (closed.value) return null
-        return frameState.frameInfoOutput.getCompletedOrNull()
+        return frameState.frameInfoOutput.outputOrNull()
     }
 
     override suspend fun awaitImage(streamId: StreamId): OutputImage? {
@@ -155,7 +155,7 @@ internal class FrameImpl private constructor(
         if (closed.value) return null
         if (!imageStreams.contains(streamId)) return null
         val output = frameState.imageOutputs.firstOrNull { it.streamId == streamId }
-        return output?.getCompletedOrNull()
+        return output?.outputOrNull()
     }
 
     override fun imageStatus(streamId: StreamId): OutputStatus {
@@ -170,9 +170,4 @@ internal class FrameImpl private constructor(
     }
 
     override fun toString(): String = frameState.toString()
-
-    companion object {
-        private val frameIds = atomic(0L)
-        internal fun nextFrameId(): FrameId = FrameId(frameIds.incrementAndGet())
-    }
 }

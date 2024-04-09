@@ -40,7 +40,6 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
@@ -65,6 +64,7 @@ import androidx.wear.protolayout.proto.ModifiersProto.EnterTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.ExitTransition;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.proto.TypesProto.BoolProp;
+import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
 import com.google.common.collect.ImmutableList;
@@ -1161,11 +1161,11 @@ public class ProtoLayoutDynamicDataPipeline {
                         .sum();
     }
 
-    /** Returns How many dynamic data nodes exist in the pipeline. */
+    /** Returns the cost of nodes existing in the pipeline. */
     @VisibleForTesting
-    public int getDynamicExpressionsNodesCount() {
+    public int getDynamicExpressionsNodesCost() {
         return mPositionIdTree.getAllNodes().stream()
-                .mapToInt(NodeInfo::getExpressionNodesCount)
+                .mapToInt(NodeInfo::getExpressionDynamicNodesCost)
                 .sum();
     }
 

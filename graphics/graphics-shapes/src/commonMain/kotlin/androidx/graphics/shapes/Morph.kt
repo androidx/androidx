@@ -16,6 +16,7 @@
 
 package androidx.graphics.shapes
 
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -35,8 +36,8 @@ import kotlin.math.min
  * curve placement within the shapes is very different.
  */
 class Morph(
-    start: RoundedPolygon,
-    end: RoundedPolygon
+    private val start: RoundedPolygon,
+    private val end: RoundedPolygon
 ) {
     /**
      * The structure which holds the actual shape being morphed. It contains
@@ -48,6 +49,60 @@ class Morph(
         get() = _morphMatch
 
     private val _morphMatch: List<Pair<Cubic, Cubic>> = match(start, end)
+
+    /**
+     * Calculates the axis-aligned bounds of the object.
+     * @param approximate when true, uses a faster calculation to create the bounding
+     * box based on the min/max values of all anchor and control points that make up the shape.
+     * Default value is true.
+     * @param bounds a buffer to hold the results. If not supplied, a temporary buffer will be
+     * created.
+     * @return The axis-aligned bounding box for this object, where the rectangles left,
+     * top, right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
+     */
+    @JvmOverloads
+    fun calculateBounds(
+        bounds: FloatArray = FloatArray(4),
+        approximate: Boolean = true
+    ): FloatArray {
+        start.calculateBounds(bounds, approximate)
+        val minX = bounds[0]
+        val minY = bounds[1]
+        val maxX = bounds[2]
+        val maxY = bounds[3]
+        end.calculateBounds(bounds, approximate)
+        bounds[0] = min(minX, bounds[0])
+        bounds[1] = min(minY, bounds[1])
+        bounds[2] = max(maxX, bounds[2])
+        bounds[3] = max(maxY, bounds[3])
+        return bounds
+    }
+
+    /**
+     * Like [calculateBounds], this function calculates the axis-aligned bounds of the
+     * object and returns that rectangle. But this function determines the max dimension of
+     * the shape (by calculating the distance from its center to the start and midpoint of
+     * each curve) and returns a square which can be used to hold the object in any rotation.
+     * This function can be used, for example, to calculate the max size of a UI element meant
+     * to hold this shape in any rotation.
+     * @param bounds a buffer to hold the results. If not supplied, a temporary buffer will be
+     * created.
+     * @return The axis-aligned max bounding box for this object, where the rectangles left,
+     * top, right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
+     */
+    fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
+        start.calculateMaxBounds(bounds)
+        val minX = bounds[0]
+        val minY = bounds[1]
+        val maxX = bounds[2]
+        val maxY = bounds[3]
+        end.calculateMaxBounds(bounds)
+        bounds[0] = min(minX, bounds[0])
+        bounds[1] = min(minY, bounds[1])
+        bounds[2] = max(maxX, bounds[2])
+        bounds[3] = max(maxY, bounds[3])
+        return bounds
+    }
 
     /**
      * Returns a representation of the morph object at a given [progress] value as a list of Cubics.

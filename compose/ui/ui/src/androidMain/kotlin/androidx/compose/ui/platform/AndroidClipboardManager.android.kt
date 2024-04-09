@@ -19,11 +19,14 @@ package androidx.compose.ui.platform
 import android.content.ClipData
 import android.content.ClipDescription
 import android.content.Context
+import android.os.Build
 import android.os.Parcel
 import android.text.Annotation
 import android.text.SpannableString
 import android.text.Spanned
 import android.util.Base64
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -82,16 +85,17 @@ internal class AndroidClipboardManager internal constructor(
         return clipboardManager.primaryClip?.let(::ClipEntry)
     }
 
-    override fun getClipMetadata(): ClipMetadata? {
-        return clipboardManager.primaryClipDescription?.let(::ClipMetadata)
+    override fun setClip(clipEntry: ClipEntry?) {
+        if (clipEntry == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                Api28ClipboardManagerClipClear.clearPrimaryClip(clipboardManager)
+            } else {
+                clipboardManager.setPrimaryClip(ClipData.newPlainText("", ""))
+            }
+        } else {
+            clipboardManager.setPrimaryClip(clipEntry.clipData)
+        }
     }
-
-    override fun setClip(clipEntry: ClipEntry) {
-        // We ignore the clipDescription parameter on Android because clipEntry comes with one.
-        clipboardManager.setPrimaryClip(clipEntry.clipData)
-    }
-
-    override fun hasClip(): Boolean = clipboardManager.hasPrimaryClip()
 
     override val nativeClipboard: NativeClipboard
         get() = clipboardManager
@@ -102,7 +106,11 @@ internal class AndroidClipboardManager internal constructor(
  */
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to
 // add more functionality in it.
-actual class ClipEntry(val clipData: ClipData)
+actual class ClipEntry(val clipData: ClipData) {
+
+    actual val clipMetadata: ClipMetadata
+        get() = clipData.description.toClipMetadata()
+}
 
 fun ClipData.toClipEntry(): ClipEntry = ClipEntry(this)
 
@@ -117,6 +125,16 @@ actual class ClipMetadata(val clipDescription: ClipDescription)
 fun ClipDescription.toClipMetadata(): ClipMetadata = ClipMetadata(this)
 
 actual typealias NativeClipboard = android.content.ClipboardManager
+
+@RequiresApi(28)
+private object Api28ClipboardManagerClipClear {
+
+    @DoNotInline
+    @JvmStatic
+    fun clearPrimaryClip(clipboardManager: android.content.ClipboardManager) {
+        clipboardManager.clearPrimaryClip()
+    }
+}
 
 internal fun CharSequence?.convertToAnnotatedString(): AnnotatedString? {
     if (this == null) return null

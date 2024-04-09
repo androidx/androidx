@@ -23,6 +23,7 @@ import android.os.Looper.getMainLooper
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.TorchFlashRequiredFor3aUpdateQuirk
 import androidx.camera.camera2.internal.compat.workaround.UseFlashModeTorchFor3aUpdate
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
@@ -45,7 +46,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
-import org.robolectric.shadows.ShadowSystem
 import org.robolectric.shadows.ShadowTotalCaptureResult
 
 @Config(minSdk = 21)
@@ -64,18 +64,30 @@ class ScreenFlashTaskTest {
         executorService.shutdown()
     }
 
+    // 3s timeout is hardcoded in ImageCapture.ScreenFlash.apply documentation
     @Test
     fun screenFlashApplyInvokedWithAtLeast3sTimeout_whenPreCaptureCalled() {
         val screenFlashTask = createScreenFlashTask()
-        val initialTime = ShadowSystem.currentTimeMillis()
+        val initialTime = System.currentTimeMillis()
 
         screenFlashTask.preCapture(null)
         shadowOf(getMainLooper()).idle()
 
         assertThat(screenFlash.lastApplyExpirationTimeMillis).isAtLeast(
-            initialTime + TimeUnit.SECONDS.toMillis(
-                3
-            )
+            initialTime + TimeUnit.SECONDS.toMillis(3)
+        )
+    }
+
+    @Test
+    fun screenFlashApplyInvokedWithLessThan4sTimeout_whenPreCaptureCalled() {
+        val screenFlashTask = createScreenFlashTask()
+        val initialTime = System.currentTimeMillis()
+
+        screenFlashTask.preCapture(null)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(screenFlash.lastApplyExpirationTimeMillis).isLessThan(
+            initialTime + TimeUnit.SECONDS.toMillis(4)
         )
     }
 
@@ -170,14 +182,29 @@ class ScreenFlashTaskTest {
     }
 
     @Test
-    fun aePrecaptureNotTriggered_whenScreenFlashApplyNotCompleted() {
+    fun aePrecaptureNotTriggeredUntilTimeout_whenScreenFlashApplyNotCompleted() {
         val screenFlashTask = createScreenFlashTask()
         screenFlash.setApplyCompletedInstantly(false)
 
         screenFlashTask.preCapture(null)
         shadowOf(getMainLooper()).idle() // ScreenFlash#apply is invoked in main thread
 
-        assertThat(cameraControl.focusMeteringControl.triggerAePrecaptureCount).isEqualTo(0)
+        cameraControl.focusMeteringControl.awaitTriggerAePrecapture(1000)
+    }
+
+    @Test
+    fun aePrecaptureTriggeredAfterTimeout_whenScreenFlashApplyNotCompleted() {
+        val screenFlashTask = createScreenFlashTask()
+        screenFlash.setApplyCompletedInstantly(false)
+
+        screenFlashTask.preCapture(null)
+        shadowOf(getMainLooper()).idle() // ScreenFlash#apply is invoked in main thread
+
+        cameraControl.focusMeteringControl.awaitTriggerAePrecapture(
+            TimeUnit.SECONDS.toMillis(
+                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS + 1
+            )
+        )
     }
 
     @Test

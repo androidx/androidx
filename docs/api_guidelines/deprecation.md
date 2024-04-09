@@ -43,15 +43,19 @@ compiling against an API. It is a *source-breaking change* and not recommended.
 
 Soft removals **must** do the following:
 
-*   Mark the API as deprecated for at least one stable release prior to removal.
-*   In Java sources, mark the API with a `@RestrictTo(LIBRARY)` Java annotation
-    as well as a `@removed <reason>` docs annotation explaining why the API was
-    removed.
-*   In Kotlin sources, mark the API with `@Deprecated(message = <reason>,
-    level = DeprecationLevel.HIDDEN)` explaining why the API was removed.
-*   Maintain binary compatibility, as the API may still be called by existing
-    dependent libraries.
-*   Maintain behavioral compatibility and existing tests.
+1.  Mark the API as deprecated for at least one stable release prior to removal,
+    following language conventions for documenting why the API is being removed.
+1.  In a subsequent release:
+    *   In Java sources, mark the API as `@RestrictTo(LIBRARY_GROUP_PREFIX)`.
+        This will remove the API from `current.txt` but retain it in
+        `restricted_current.txt` for compatibility checking.
+    *   In Kotlin sources, mark the API as `@Deprecated(message = <reason>,
+        level = DeprecationLevel.HIDDEN)`. This will retain the API in
+        `current.txt` for compatibility checking.
+1.  For all future releases:
+    *   Maintain binary compatibility, as the API may still be called by
+        existing dependent libraries.
+    *   Maintain behavioral compatibility and existing tests.
 
 This is a disruptive change and should be avoided when possible.
 

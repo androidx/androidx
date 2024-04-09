@@ -17,7 +17,7 @@
 package androidx.camera.impl.utils.futures
 
 import androidx.arch.core.util.Function
-import androidx.camera.impl.utils.executor.CameraExecutors
+import androidx.camera.impl.utils.executor.ViewfinderExecutors
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
@@ -130,7 +130,7 @@ object Futures {
             input,
             { functionInput -> functionInput },
             completer,
-            CameraExecutors.directExecutor()
+            ViewfinderExecutors.directExecutor()
         )
     }
 
@@ -204,7 +204,7 @@ object Futures {
             // Propagate cancellation from completer to input future
             completer.addCancellationListener(
                 { input.cancel(true) },
-                CameraExecutors.directExecutor()
+                ViewfinderExecutors.directExecutor()
             )
         }
     }
@@ -230,7 +230,7 @@ object Futures {
             // Input of function is same as output
             propagateTransform(
                 false, future, { input -> input }, it,
-                CameraExecutors.directExecutor()
+                ViewfinderExecutors.directExecutor()
             )
             "nonCancellationPropagating[$future]"
         }
@@ -253,7 +253,7 @@ object Futures {
     ): ListenableFuture<List<V?>?> {
         return ListFuture(
             futures.toList(), false,
-            CameraExecutors.directExecutor()
+            ViewfinderExecutors.directExecutor()
         )
     }
 
@@ -277,7 +277,7 @@ object Futures {
         return ListFuture(
             futures.toList(),
             true,
-            CameraExecutors.directExecutor()
+            ViewfinderExecutors.directExecutor()
         )
     }
 

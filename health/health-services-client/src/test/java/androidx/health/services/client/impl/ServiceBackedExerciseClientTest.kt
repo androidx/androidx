@@ -93,7 +93,7 @@ class ServiceBackedExerciseClientTest {
     }
 
     @Test
-    fun registeredCallbackShouldBeInvoked() {
+    fun setUpdateCallback_registeredCallbackShouldBeInvoked() {
         client.setUpdateCallback(callback)
         shadowOf(getMainLooper()).idle()
 
@@ -102,7 +102,7 @@ class ServiceBackedExerciseClientTest {
     }
 
     @Test
-    fun registrationFailedCallbackShouldBeInvoked() {
+    fun setUpdateCallback_registrationFailedCallbackShouldBeInvoked() {
         fakeService.statusCallbackAction = { it!!.onFailure("Terrible failure!") }
 
         client.setUpdateCallback(callback)
@@ -111,6 +111,39 @@ class ServiceBackedExerciseClientTest {
         assertThat(callback.onRegisteredCalls).isEqualTo(0)
         assertThat(callback.onRegistrationFailedCalls).isEqualTo(1)
         assertThat(callback.registrationFailureThrowables[0].message).isEqualTo("Terrible failure!")
+    }
+
+    @Test
+    fun setUpdateCallback_secondCallbackReplacesFirst() {
+        client.setUpdateCallback(callback)
+        shadowOf(getMainLooper()).idle()
+        val callback2 = FakeExerciseUpdateCallback()
+        client.setUpdateCallback(callback2)
+        shadowOf(getMainLooper()).idle()
+
+        val resultFuture = client.clearUpdateCallbackAsync(callback)
+        shadowOf(getMainLooper()).idle()
+        resultFuture.get()
+        val resultFuture2 = client.clearUpdateCallbackAsync(callback2)
+        shadowOf(getMainLooper()).idle()
+        resultFuture2.get()
+
+        // Two registrations but only one clear request is sent to the
+        // FakeService since the previous listener was evicted and doesn't need
+        // to be cleared.
+        assertThat(fakeService.setListenerPackageNames).containsExactly(
+            "androidx.health.services.client.test",
+            "androidx.health.services.client.test")
+        assertThat(fakeService.clearListenerPackageNames).containsExactly(
+            "androidx.health.services.client.test")
+    }
+
+    @Test
+    fun clearUpdateCallbackAsync_callbackNotRegistered_noOp() {
+        val resultFuture = client.clearUpdateCallbackAsync(callback)
+        shadowOf(getMainLooper()).idle()
+
+        assertThat(resultFuture.get()).isNull()
     }
 
     @Test
@@ -331,6 +364,8 @@ class ServiceBackedExerciseClientTest {
         var listener: IExerciseUpdateListener? = null
         var statusCallbackAction: (IStatusCallback?) -> Unit = { it!!.onSuccess() }
         var exerciseConfig: ExerciseConfig? = null
+        val setListenerPackageNames = mutableListOf<String>()
+        val clearListenerPackageNames = mutableListOf<String>()
 
         override fun getApiVersion(): Int = 12
 
@@ -373,20 +408,25 @@ class ServiceBackedExerciseClientTest {
         }
 
         override fun setUpdateListener(
-            packageName: String?,
+            packageName: String,
             listener: IExerciseUpdateListener?,
             statusCallback: IStatusCallback?
         ) {
             this.listener = listener
+            setListenerPackageNames += packageName
             statusCallbackAction.invoke(statusCallback)
         }
 
         override fun clearUpdateListener(
-            packageName: String?,
+            packageName: String,
             listener: IExerciseUpdateListener?,
             statusCallback: IStatusCallback?
         ) {
-            throw NotImplementedError()
+            clearListenerPackageNames += packageName
+            if (this.listener == listener) {
+              this.listener = null
+            }
+            this.statusCallbackAction.invoke(statusCallback)
         }
 
         override fun addGoalToActiveExercise(

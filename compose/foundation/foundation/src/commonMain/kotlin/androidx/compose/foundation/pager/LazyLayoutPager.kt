@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
@@ -59,11 +61,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
-import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun Pager(
     /** Modifier to be applied for the inner layout */
@@ -81,7 +82,7 @@ internal fun Pager(
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean,
     /** Number of pages to compose and layout before and after the visible pages */
-    outOfBoundsPageCount: Int = PagerDefaults.OutOfBoundsPageCount,
+    beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
     /** Space between pages */
     pageSpacing: Dp = 0.dp,
     /** Allows to change how to calculate the Page size */
@@ -99,9 +100,9 @@ internal fun Pager(
     /** The content of the pager */
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
-    require(outOfBoundsPageCount >= 0) {
-        "outOfBoundsPageCount should be greater than or equal to 0, " +
-            "you selected $outOfBoundsPageCount"
+    require(beyondViewportPageCount >= 0) {
+        "beyondViewportPageCount should be greater than or equal to 0, " +
+            "you selected $beyondViewportPageCount"
     }
 
     val pagerItemProvider = rememberPagerItemProviderLambda(
@@ -110,24 +111,26 @@ internal fun Pager(
         key = key
     ) { state.pageCount }
 
+    val coroutineScope = rememberCoroutineScope()
+
     val measurePolicy = rememberPagerMeasurePolicy(
         state = state,
         contentPadding = contentPadding,
         reverseLayout = reverseLayout,
         orientation = orientation,
-        outOfBoundsPageCount = outOfBoundsPageCount,
+        beyondViewportPageCount = beyondViewportPageCount,
         pageSpacing = pageSpacing,
         pageSize = pageSize,
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         itemProviderLambda = pagerItemProvider,
         snapPosition = snapPosition,
+        coroutineScope = coroutineScope,
         pageCount = { state.pageCount }
     )
 
     val semanticState = rememberPagerSemanticState(
         state,
-        reverseLayout,
         orientation == Orientation.Vertical
     )
 
@@ -135,9 +138,13 @@ internal fun Pager(
         PagerWrapperFlingBehavior(flingBehavior, state)
     }
 
-    val pagerBringIntoViewSpec = remember(state) { PagerBringIntoViewSpec(state) }
-
-    val coroutineScope = rememberCoroutineScope()
+    val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
+    val pagerBringIntoViewSpec = remember(state, defaultBringIntoViewSpec) {
+        PagerBringIntoViewSpec(
+            state,
+            defaultBringIntoViewSpec
+        )
+    }
 
     LazyLayout(
         modifier = modifier
@@ -149,12 +156,11 @@ internal fun Pager(
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
                 reverseScrolling = reverseLayout,
-                coroutineScope = coroutineScope
             )
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberPagerBeyondBoundsState(
                     state = state,
-                    outOfBoundsPageCount = outOfBoundsPageCount
+                    beyondViewportPageCount = beyondViewportPageCount
                 ),
                 beyondBoundsInfo = state.beyondBoundsInfo,
                 reverseLayout = reverseLayout,
@@ -267,7 +273,6 @@ private fun rememberPagerItemProviderLambda(
 /**
  * A modifier to detect up and down events in a Pager.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.dragDirectionDetector(state: PagerState) =
     this then Modifier.pointerInput(state) {
         coroutineScope {
@@ -290,45 +295,78 @@ private fun Modifier.dragDirectionDetector(state: PagerState) =
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class PagerBringIntoViewSpec(val pagerState: PagerState) : BringIntoViewSpec {
+private class PagerBringIntoViewSpec(
+    val pagerState: PagerState,
+    val defaultBringIntoViewSpec: BringIntoViewSpec
+) : BringIntoViewSpec {
 
-    override val scrollAnimationSpec: AnimationSpec<Float> = spring()
+    override val scrollAnimationSpec: AnimationSpec<Float> =
+        defaultBringIntoViewSpec.scrollAnimationSpec
 
     /**
      * [calculateScrollDistance] for Pager behaves differently than in a normal list. We must
      * always respect the snapped pages over bringing a child into view. The logic here will
      * behave like so:
      *
-     * 1) If a child is outside of the view, start bringing it into view.
-     * 2) If a child's trailing edge is outside of the page bounds and the child is smaller than
-     * the page, scroll until the trailing edge is in view.
-     * 3) Once a child is fully in view, if it is smaller than the page, scroll until the page is
-     * settled.
-     * 4) If the child is larger than the page, scroll until it is partially in view and continue
-     * scrolling until the page is settled.
+     * 1) If there's an ongoing request from the default bring into view spec, override the value
+     * to make it land on the closest page to the requested offset.
+     * 2) If there's no ongoing request it means that either we moved enough to fulfill the
+     * previously on going request or we didn't need move at all.
+     * 2a) If we didn't move at all we do nothing (pagerState.firstVisiblePageOffset == 0)
+     * 2b) If we fulfilled the default request, settle to the next page in the direction where
+     * we were scrolling before. We use firstVisiblePage as anchor, but the goal is to keep
+     * the pager snapped.
      */
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
-        return if (offset >= containerSize || offset < 0) {
-            offset
+        val proposedOffsetMove =
+            defaultBringIntoViewSpec.calculateScrollDistance(offset, size, containerSize)
+
+        val finalOffset = if (proposedOffsetMove != 0.0f) {
+            overrideProposedOffsetMove(proposedOffsetMove)
         } else {
-            if (size <= containerSize && (offset + size) > containerSize) {
-                offset // bring into view
+            // if there's no info from the default behavior, or if we already satisfied their
+            // request.
+            if (pagerState.firstVisiblePageOffset == 0) {
+                // do nothing, we're settled
+                0f
             } else {
-                // are we in a settled position?
-                if (pagerState.currentPageOffsetFraction.absoluteValue == 0.0f) {
-                    0f
+                // move one page forward or backward, whilst making sure we don't move out of bounds
+                // again.
+                val reversedFirstPageScroll = pagerState.firstVisiblePageOffset * -1f
+                if (pagerState.lastScrolledForward) {
+                    reversedFirstPageScroll + pagerState.pageSizeWithSpacing
                 } else {
-                    offset
-                }
+                    reversedFirstPageScroll
+                }.coerceIn(-containerSize, containerSize)
+                // moving the pager outside of container size bounds will make the focused item
+                // disappear so we're limiting how much we can scroll so the page won't move too much.
             }
         }
+
+        return finalOffset
+    }
+
+    private fun overrideProposedOffsetMove(
+        proposedOffsetMove: Float
+    ): Float {
+        var correctedOffset = pagerState.firstVisiblePageOffset.toFloat() * -1
+
+        // if moving forward, start from the first visible page, move as many pages as proposed.
+        while (proposedOffsetMove > 0.0f && correctedOffset < proposedOffsetMove) {
+            correctedOffset += pagerState.pageSizeWithSpacing
+        }
+
+        // if moving backwards, start from the first visible page, move as many pages as proposed.
+        while (proposedOffsetMove < 0.0f && correctedOffset > proposedOffsetMove) {
+            correctedOffset -= pagerState.pageSizeWithSpacing
+        }
+        return correctedOffset
     }
 }
 
 /**
  * Wraps [SnapFlingBehavior] to give out information about target page coming from flings.
  */
-@OptIn(ExperimentalFoundationApi::class)
 private class PagerWrapperFlingBehavior(
     val originalFlingBehavior: TargetedFlingBehavior,
     val pagerState: PagerState
@@ -337,7 +375,11 @@ private class PagerWrapperFlingBehavior(
         val scope: ScrollScope = this
         return with(originalFlingBehavior) {
             performFling(initialVelocity) { remainingScrollOffset ->
-                val flingPageDisplacement = remainingScrollOffset / (pagerState.pageSizeWithSpacing)
+                val flingPageDisplacement = if (pagerState.pageSizeWithSpacing != 0) {
+                    remainingScrollOffset / (pagerState.pageSizeWithSpacing)
+                } else {
+                    0f
+                }
                 val targetPage = flingPageDisplacement.roundToInt() + pagerState.currentPage
                 with(pagerState) {
                     scope.updateTargetPage(targetPage)

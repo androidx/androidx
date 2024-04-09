@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import kotlinx.coroutines.Dispatchers;
+
 /**
  * Builds instances of {@link androidx.work.ListenableWorker} which can be used for testing.
  *
@@ -321,6 +323,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
                         mGeneration,
                         // This is unused for ListenableWorker
                         getExecutor(),
+                        Dispatchers.getDefault(),
                         getTaskExecutor(),
                         mWorkerFactory,
                         getProgressUpdater(),

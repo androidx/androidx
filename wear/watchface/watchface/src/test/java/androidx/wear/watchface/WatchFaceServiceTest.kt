@@ -454,6 +454,38 @@ public class WatchFaceServiceTest {
             affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS)
         )
 
+    private val leftComplication1 =
+        IdAndComplicationDataWireFormat(
+            LEFT_COMPLICATION_ID,
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Left1"))
+                .build()
+        )
+
+    private val leftComplication2 =
+        IdAndComplicationDataWireFormat(
+            LEFT_COMPLICATION_ID,
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Left2"))
+                .build()
+        )
+
+    private val rightComplication1 =
+        IdAndComplicationDataWireFormat(
+            RIGHT_COMPLICATION_ID,
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Right1"))
+                .build()
+        )
+
+    private val rightComplication2 =
+        IdAndComplicationDataWireFormat(
+            RIGHT_COMPLICATION_ID,
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("Right2"))
+                .build()
+        )
+
     private lateinit var renderer: TestRenderer
     private lateinit var complicationSlotsManager: ComplicationSlotsManager
     private lateinit var currentUserStyleRepository: CurrentUserStyleRepository
@@ -5681,6 +5713,44 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun selectComplicationDataForInstant_withTimelineDoesntUpdateWithNoChange() {
+        val complication =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("A"))
+                .build()
+        complication.setTimelineEntryCollection(
+            listOf(
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("B"))
+                    .build()
+                    .apply {
+                        timelineStartEpochSecond = 1000
+                        timelineEndEpochSecond = 4000
+                    },
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("C"))
+                    .build()
+                    .apply {
+                        timelineStartEpochSecond = 2000
+                        timelineEndEpochSecond = 3000
+                    }
+            )
+        )
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
+        engineWrapper.setComplicationDataList(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, complication))
+        )
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
+        reset(mockCanvasComplication)
+
+        // Calling selectComplicationDataForInstant again with another time inside the same timeline
+        // entry should not result in a call to loadData.
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1050))
+
+        verifyNoMoreInteractions(mockCanvasComplication)
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun renderParameters_isScreenshot() {
         initWallpaperInteractiveWatchFaceInstance(
@@ -6108,41 +6178,101 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        val left1 =
-            IdAndComplicationDataWireFormat(
-                LEFT_COMPLICATION_ID,
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(WireComplicationText.plainText("Left1"))
-                    .build()
-            )
+        engineWrapper.setComplicationDataList(listOf(leftComplication1))
 
-        val left2 =
-            IdAndComplicationDataWireFormat(
-                LEFT_COMPLICATION_ID,
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(WireComplicationText.plainText("Left2"))
-                    .build()
-            )
-
-        val right =
-            IdAndComplicationDataWireFormat(
-                RIGHT_COMPLICATION_ID,
-                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
-                    .setShortText(WireComplicationText.plainText("Right"))
-                    .build()
-            )
-
-        engineWrapper.setComplicationDataList(listOf(left1))
         // In initEngine we fill initial complication data using
         // setComplicationViaWallpaperCommand, that's why lastComplications initially is not empty
-        assertThat(engineWrapper.complicationsFlow.value).contains(left1)
+        assertThat(engineWrapper.complicationsFlow.value).containsAtLeast(
+            leftComplication1.id, leftComplication1.complicationData.toApiComplicationData()
+        )
 
         // Check merges are working as expected.
-        engineWrapper.setComplicationDataList(listOf(right))
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(left1, right)
+        engineWrapper.setComplicationDataList(listOf(rightComplication1))
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
+            leftComplication1.id,
+            leftComplication1.complicationData.toApiComplicationData(),
+            rightComplication1.id,
+            rightComplication1.complicationData.toApiComplicationData()
+        )
 
-        engineWrapper.setComplicationDataList(listOf(left2))
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(left2, right)
+        engineWrapper.setComplicationDataList(listOf(leftComplication2))
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
+            leftComplication2.id,
+            leftComplication2.complicationData.toApiComplicationData(),
+            rightComplication1.id,
+            rightComplication1.complicationData.toApiComplicationData()
+        )
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    public fun overrideComplications_then_removeAnyComplicationOverrides() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        engineWrapper.setComplicationDataList(listOf(leftComplication1, rightComplication1))
+
+        engineWrapper.overrideComplications(
+            mapOf(
+                leftComplication2.id to leftComplication2.complicationData.toApiComplicationData(),
+                rightComplication2.id to rightComplication2.complicationData.toApiComplicationData()
+            )
+        )
+
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
+            leftComplication2.id,
+            leftComplication2.complicationData.toApiComplicationData(),
+            rightComplication2.id,
+            rightComplication2.complicationData.toApiComplicationData()
+        )
+
+        engineWrapper.removeAnyComplicationOverrides()
+
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
+            leftComplication1.id,
+            leftComplication1.complicationData.toApiComplicationData(),
+            rightComplication1.id,
+            rightComplication1.complicationData.toApiComplicationData()
+        )
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    public fun setComplicationDataList_afterOverrideAppliedBy_removeAnyComplicationOverrides() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList())
+        )
+        engineWrapper.setComplicationDataList(listOf(leftComplication1))
+        engineWrapper.overrideComplications(
+            mapOf(
+                leftComplication2.id to leftComplication2.complicationData.toApiComplicationData(),
+                rightComplication2.id to rightComplication2.complicationData.toApiComplicationData()
+            )
+        )
+
+        // This should not change the value of the complicationsFlow
+        engineWrapper.setComplicationDataList(listOf(rightComplication1))
+
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
+            leftComplication2.id,
+            leftComplication2.complicationData.toApiComplicationData(),
+            rightComplication2.id,
+            rightComplication2.complicationData.toApiComplicationData()
+        )
+
+        engineWrapper.removeAnyComplicationOverrides()
+
+        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
+            leftComplication1.id,
+            leftComplication1.complicationData.toApiComplicationData(),
+            rightComplication1.id,
+            rightComplication1.complicationData.toApiComplicationData()
+        )
     }
 
     @Test

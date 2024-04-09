@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
 import androidx.build.Publish
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -57,18 +56,16 @@ benchmark {
     }
 
     targets {
-        if (KmpPlatformsKt.enableLinux(project) && HostManager.hostIsLinux) {
+        if (HostManager.hostIsLinux) {
             register("linuxX64")
         }
 
-        if (KmpPlatformsKt.enableMac(project)) {
-            if (HostManager.host == KonanTarget.MACOS_X64) {
-                register("macosX64")
-            }
+        if (HostManager.host == KonanTarget.MACOS_X64) {
+            register("macosX64")
+        }
 
-            if (HostManager.host == KonanTarget.MACOS_ARM64) {
-                register("macosArm64")
-            }
+        if (HostManager.host == KonanTarget.MACOS_ARM64) {
+            register("macosArm64")
         }
     }
 }

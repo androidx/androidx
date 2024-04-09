@@ -16,20 +16,15 @@
 
 package androidx.car.app.mediaextensions.analytics.client;
 
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_SHARE_PLATFORM_DIAGNOSTICS;
+import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_OPT_IN;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_SHARE_OEM_DIAGNOSTICS;
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_BROADCAST_COMPONENT_NAME;
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_PASSKEY;
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_ROOT_KEY_SESSION_ID;
+import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_SHARE_PLATFORM_DIAGNOSTICS;
 
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent;
 import androidx.media.MediaBrowserServiceCompat;
 
 /**
@@ -42,7 +37,6 @@ import androidx.media.MediaBrowserServiceCompat;
  * {@link MediaSessionCompat#setExtras(Bundle)}.
  *
  * @see MediaBrowserServiceCompat#onGetRoot(String, int, Bundle)
- * @see AnalyticsBroadcastReceiver
  * @see MediaSessionCompat#setExtras(Bundle)
  */
 @ExperimentalCarApi
@@ -54,26 +48,13 @@ public final class RootHintsPopulator {
     }
 
     /**
-     * Sets analytics opt in and {@link BroadcastReceiver} {@link ComponentName}.
+     * Sets analytics opt in state.
      *
      * @param analyticsOptIn boolean value indicating opt-in to receive analytics.
-     * @param receiverComponentName ComponentName of {@link BroadcastReceiver } that extends
-     * {@link AnalyticsBroadcastReceiver}. This is the receiver that will receive analytics
-     *                              event.
      */
     @NonNull
-    public RootHintsPopulator setAnalyticsOptIn(boolean analyticsOptIn,
-            @NonNull ComponentName receiverComponentName) {
-
-        if (analyticsOptIn) {
-            mRootHintsBundle.putString(ANALYTICS_ROOT_KEY_BROADCAST_COMPONENT_NAME,
-                    receiverComponentName.flattenToString());
-        } else {
-            mRootHintsBundle.putString(ANALYTICS_ROOT_KEY_BROADCAST_COMPONENT_NAME, "");
-        }
-
-        mRootHintsBundle.putString(ANALYTICS_ROOT_KEY_PASSKEY,
-                AnalyticsBroadcastReceiver.sAuthKey.toString());
+    public RootHintsPopulator setAnalyticsOptIn(boolean analyticsOptIn) {
+        mRootHintsBundle.putBoolean(ANALYTICS_ROOT_KEY_OPT_IN, analyticsOptIn);
         return this;
     }
 
@@ -82,7 +63,7 @@ public final class RootHintsPopulator {
      * @param shareOem boolean value indicating opt-in to share diagnostic analytics with OEM.
      */
     @NonNull
-    public RootHintsPopulator setOemShare(boolean shareOem) {
+    public RootHintsPopulator setShareOem(boolean shareOem) {
         mRootHintsBundle.putBoolean(ANALYTICS_SHARE_OEM_DIAGNOSTICS, shareOem);
         return this;
     }
@@ -93,21 +74,8 @@ public final class RootHintsPopulator {
      *                      the platform.
      */
     @NonNull
-    public RootHintsPopulator setPlatformShare(boolean sharePlatform) {
+    public RootHintsPopulator setSharePlatform(boolean sharePlatform) {
         mRootHintsBundle.putBoolean(ANALYTICS_SHARE_PLATFORM_DIAGNOSTICS, sharePlatform);
-        return this;
-    }
-
-    /**
-     * Sets sessionId. Session Id will set in each {@link AnalyticsEvent#getSessionId()}.
-     * <p>
-     *     Use this identify which session is generating {@link AnalyticsEvent events}.
-     * </p>
-     * @param sessionId Session Id used to identify which session generated event.
-     */
-    @NonNull
-    public RootHintsPopulator setSessionId(int sessionId) {
-        mRootHintsBundle.putInt(ANALYTICS_ROOT_KEY_SESSION_ID, sessionId);
         return this;
     }
 }

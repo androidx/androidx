@@ -112,6 +112,7 @@ interface PathIterator : Iterator<PathSegment> {
      * and fills [outPoints] with the points specific to the segment type. Each pair of floats in
      * the [outPoints] array represents a point for the given segment. The number of pairs of floats
      * depends on the [PathSegment.Type]:
+     *
      * - [Move][PathSegment.Type.Move]: 1 pair (indices 0 to 1)
      * - [Line][PathSegment.Type.Line]: 2 pairs (indices 0 to 3)
      * - [Quadratic][PathSegment.Type.Quadratic]: 3 pairs (indices 0 to 5)
@@ -121,6 +122,7 @@ interface PathIterator : Iterator<PathSegment> {
      * - [Cubic][PathSegment.Type.Cubic]: 4 pairs (indices 0 to 7)
      * - [Close][PathSegment.Type.Close]: 0 pair
      * - [Done][PathSegment.Type.Done]: 0 pair
+     *
      * This method does not allocate any memory.
      *
      * @param outPoints A [FloatArray] large enough to hold 8 floats starting at [offset],

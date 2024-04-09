@@ -17,9 +17,12 @@
 package androidx.build.uptodatedness
 
 import androidx.build.VERIFY_UP_TO_DATE
+import java.io.File
+import java.util.Date
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -48,11 +51,8 @@ val ALLOW_RERUNNING_TASKS =
     setOf(
         "buildOnServer",
         "checkExternalLicenses",
-        // caching disabled for now while we look for a fix for b/273294710
+        // verifies the existence of some archives to check for caching bugs: http://b/273294710
         "createAllArchives",
-        // https://youtrack.jetbrains.com/issue/KT-52632
-        "commonizeNativeDistribution",
-        "createDiffArchiveForAll",
         "externalNativeBuildDebug",
         "externalNativeBuildRelease",
         "generateDebugUnitTestConfig",
@@ -116,9 +116,6 @@ val ALLOW_RERUNNING_TASKS =
         ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
         ":lint-checks:integration-tests:copyDebugAndroidLintReports",
 
-        // https://youtrack.jetbrains.com/issue/KT-49933
-        "generateProjectStructureMetadata",
-
         // https://github.com/google/protobuf-gradle-plugin/issues/667
         ":appactions:interaction:interaction-service-proto:extractIncludeTestProto",
         ":datastore:datastore-preferences-proto:extractIncludeTestProto",
@@ -155,8 +152,6 @@ val DONT_TRY_RERUNNING_TASKS =
 
 val DONT_TRY_RERUNNING_TASK_TYPES =
     setOf(
-        // TODO(aurimas): add back when upgrading to AGP 8.0.0-beta01
-        "com.android.build.gradle.internal.tasks.BundleLibraryJavaRes_Decorated",
         "com.android.build.gradle.internal.lint.AndroidLintTextOutputTask_Decorated",
         // lint report tasks
         "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
@@ -179,6 +174,8 @@ abstract class TaskUpToDateValidator :
         // so that any configuration cache created during the first build can be reused during the
         // second build, saving build time
         var validate: Provider<Boolean>
+        // Directory for saving metadata about task executions
+        var metadataDir: Provider<Directory>
     }
 
     override fun onFinish(event: FinishEvent) {
@@ -195,38 +192,92 @@ abstract class TaskUpToDateValidator :
                 // null list means the task already failed, so we'll skip emitting our error
                 return
             }
-            if (isCausedByAKlibChange(result)) {
-                // ignore these until this bug in the KMP plugin is fixed.
-                // see the method for details.
-                return
-            }
             if (!isAllowedToRerunTask(name)) {
                 throw GradleException(
                     "Ran two consecutive builds of the same tasks, and in the " +
                         "second build, observed:\n" +
                         "task $name not UP-TO-DATE. It was out-of-date because:\n" +
-                        "${result.executionReasons}"
+                        "\n" +
+                        "  ${result.executionReasons}.\n" +
+                        "\n" +
+                        "Some additional diagnostics: \n" +
+                        "\n" +
+                        "  " + tryToExplainTaskExecution(name)
+                            .replace("\n", "\n  ")
                 )
             }
         }
+    }
+
+    fun getPreviousTaskExecutionCompletionTimestamp(taskPath: String): Date {
+        // we're already saving the inputs of the task into a file,
+        // so we can check the timestamp of that file to know when the task last reran
+        val inputsFile = getTaskInputListPath(taskPath, parameters.metadataDir, false)
+        return Date(inputsFile.lastModified())
+    }
+
+    fun checkForChangingSetOfInputs(taskPath: String): String {
+        val previousInputs = loadTaskInputs(taskPath, parameters.metadataDir, false)
+        val currentInputs = loadTaskInputs(taskPath, parameters.metadataDir, true)
+
+        val addedInputs = currentInputs.minus(previousInputs)
+        val removedInputs = previousInputs.minus(currentInputs)
+        val addedMessage = if (addedInputs.size > 0) {
+            "Added these " + addedInputs.size + " inputs: " +
+                addedInputs.joinToString("\n") + "\n"
+        } else {
+            ""
+        }
+        val removedMessage = if (removedInputs.size > 0) {
+            "Removed these " + removedInputs.size + " inputs: " +
+                removedInputs.joinToString("\n") + "\n"
+        } else {
+            ""
+        }
+        return addedMessage + removedMessage
+    }
+
+    fun tryToExplainTaskExecution(taskPath: String): String {
+        val numOutputFiles = loadTaskOutputs(taskPath, parameters.metadataDir, true).size
+        val outputsMessage = if (numOutputFiles > 0) {
+            taskPath + " declares " + numOutputFiles + " output files. This seems fine.\n"
+        } else {
+            taskPath + " declares " + numOutputFiles + " output files. This is probably " +
+                "an error.\n"
+        }
+
+        val inputSetModifiedMessage = checkForChangingSetOfInputs(taskPath)
+        val inputsMessage = if (inputSetModifiedMessage != "") {
+            inputSetModifiedMessage
+        } else {
+            val inputFiles = loadTaskInputs(taskPath, parameters.metadataDir, true)
+            var lastModifiedFile: File? = null
+            var lastModifiedWhen = Date(0)
+            for (inputFile in inputFiles) {
+                val modifiedWhen = Date(inputFile.lastModified())
+                if (modifiedWhen.compareTo(lastModifiedWhen) > 0) {
+                    lastModifiedFile = inputFile
+                    lastModifiedWhen = modifiedWhen
+                }
+            }
+
+            if (lastModifiedFile != null) {
+                taskPath + " declares " + inputFiles.size + " input files. The " +
+                    "last modified input file is\n" + lastModifiedFile + "\nmodified at " +
+                    lastModifiedWhen + " (the previous execution of this task completed at " +
+                    getPreviousTaskExecutionCompletionTimestamp(taskPath) + ")."
+            } else {
+                taskPath + " declares " + inputFiles.size + " input files.\n"
+            }
+        }
+
+        return outputsMessage + inputsMessage
     }
 
     companion object {
         // Tells whether to create a TaskUpToDateValidator listener
         private fun shouldEnable(project: Project): Boolean {
             return project.providers.gradleProperty(ENABLE_FLAG_NAME).isPresent
-        }
-
-        /**
-         * Currently, klibs are not reproducible, which means any task that depends on them might
-         * get invalidated at no fault of their own.
-         *
-         * https://youtrack.jetbrains.com/issue/KT-52741
-         */
-        private fun isCausedByAKlibChange(result: TaskExecutionResult): Boolean {
-            // the actual message looks something like:
-            // Input property 'rootSpec$1$3' file <some-path>.klib has changed
-            return result.executionReasons.orEmpty().any { it.contains(".klib has changed") }
         }
 
         private fun isAllowedToRerunTask(taskPath: String): Boolean {
@@ -237,15 +288,11 @@ abstract class TaskUpToDateValidator :
             if (ALLOW_RERUNNING_TASKS.contains(taskName)) {
                 return true
             }
-            if (taskName.startsWith("compile") && taskName.endsWith("KotlinMetadata")) {
-                // these tasks' up-to-date checks might flake.
-                // https://youtrack.jetbrains.com/issue/KT-52675
-                // We are not adding the task type to the DONT_TRY_RERUNNING_TASKS list because it
-                // is a common compilation task that is shared w/ other kotlin native compilations.
-                // (e.g. similar to the Exec task in Gradle)
-                return true
-            }
             return false
+        }
+
+        private fun isAllowedToRerunTask(task: Task): Boolean {
+            return isAllowedToRerunTask(task.path)
         }
 
         private fun shouldTryRerunningTask(task: Task): Boolean {
@@ -263,6 +310,8 @@ abstract class TaskUpToDateValidator :
                     .environmentVariable(DISALLOW_TASK_EXECUTION_VAR_NAME)
                     .map { true }
                     .orElse(false)
+            val metadataDir = project.rootProject.layout.buildDirectory.dir("TaskUpToDateValidator")
+
             // create listener for validating that any task that reran was expected to rerun
             val validatorProvider =
                 project.gradle.sharedServices.registerIfAbsent(
@@ -270,13 +319,99 @@ abstract class TaskUpToDateValidator :
                     TaskUpToDateValidator::class.java
                 ) { spec ->
                     spec.parameters.validate = validate
+                    spec.parameters.metadataDir = metadataDir
                 }
             registry.onTaskCompletion(validatorProvider)
 
             // skip rerunning tasks that are known to be unnecessary to rerun
             project.tasks.configureEach { task ->
-                task.onlyIf { shouldTryRerunningTask(task) || !validate.get() }
+                task.onlyIf {
+                    recordTaskData(task, metadataDir, validate)
+                    shouldTryRerunningTask(task) || !validate.get()
+                }
             }
+        }
+
+        private fun recordTaskData(
+            task: Task,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Provider<Boolean> // whether this run is expected to be all UP-TO-DATE
+        ) {
+            recordTaskInputs(task, metadataDir, isValidateRun)
+            recordTaskOutputs(task, metadataDir, isValidateRun)
+        }
+
+        private fun recordTaskInputs(
+            task: Task,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Provider<Boolean>
+        ) {
+            val text = task.inputs.files.files.joinToString("\n")
+            val destFile = getTaskInputListPath(task.path, metadataDir, isValidateRun.get())
+            destFile.parentFile.mkdirs()
+            destFile.writeText(text)
+        }
+
+        private fun loadTaskInputs(
+            taskPath: String,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Boolean
+        ): List<File> {
+            val dataFile = getTaskInputListPath(taskPath, metadataDir, isValidateRun)
+            return dataFile.readLines().map { line -> File(line) }
+        }
+
+        private fun recordTaskOutputs(
+            task: Task,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Provider<Boolean>
+        ) {
+            val text = task.outputs.files.files.joinToString("\n")
+            val destFile = getTaskOutputListPath(task.path, metadataDir, isValidateRun.get())
+            destFile.parentFile.mkdirs()
+            destFile.writeText(text)
+        }
+
+        private fun loadTaskOutputs(
+            taskPath: String,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Boolean
+        ): List<File> {
+            val dataFile = getTaskOutputListPath(taskPath, metadataDir, isValidateRun)
+            return dataFile.readLines().map { line -> File(line) }
+        }
+
+        // returns the file for storing the inputs of the given task
+        private fun getTaskInputListPath(
+            taskPath: String,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Boolean
+        ): File {
+            val baseDir = getTaskMetadataPath(taskPath, metadataDir, isValidateRun)
+            return File(baseDir, "inputs")
+        }
+
+        // returns the file for storing the outputs of the given task
+        private fun getTaskOutputListPath(
+            taskPath: String,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Boolean
+        ): File {
+            val baseDir = getTaskMetadataPath(taskPath, metadataDir, isValidateRun)
+            return File(baseDir, "outputs")
+        }
+
+        // returns the directory for storing metadata about the given task
+        private fun getTaskMetadataPath(
+            taskPath: String,
+            metadataDir: Provider<Directory>,
+            isValidateRun: Boolean
+        ): File {
+            val baseDir = metadataDir.get().getAsFile()
+            // convert from ":<project>:<subproject>:<taskname>" to "<project>/<subproject>/<taskname>"
+            val taskDir = File(baseDir, taskPath.substringAfter(":").replace(":", "/"))
+            val validateDirName = if (isValidateRun) "up-to-date" else "clean"
+            return File(taskDir, validateDirName)
         }
     }
 }

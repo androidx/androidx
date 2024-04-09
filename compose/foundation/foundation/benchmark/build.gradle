@@ -33,7 +33,6 @@ plugins {
 }
 
 dependencies {
-
     androidTestImplementation project(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:runtime:runtime")
     androidTestImplementation project(":compose:ui:ui-text:ui-text-benchmark")
@@ -60,6 +59,9 @@ tasks.withType(KotlinCompile).configureEach {
 
 android {
     namespace "androidx.compose.foundation.benchmark"
+
+    // DO NOT CHECK IN! Enable experimental benchmarking with R8 - for local runs only
+    // buildTypes.release.androidTest.enableMinification = true
 }
 
 androidx {

@@ -151,7 +151,15 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
     }
 
     /**
-     * {@inheritDoc}
+     * Analyzes the image with the ML Kit {@code Detector}s.
+     *
+     * <p>This method forwards the image and the transformation {@link Matrix} to the {@code
+     * Detector}s. The {@code Matrix} is calculated based on the target coordinate system set in
+     * the constructor.
+     *
+     * <p>Usually this method is invoked by {@link ImageAnalysis} when a new frame is available.
+     *
+     * @see ImageAnalysis.Analyzer#analyze
      */
     @Override
     @OptIn(markerClass = TransformExperimental.class)

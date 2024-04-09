@@ -187,8 +187,19 @@ private class FoldBoundsCalculator {
     }
 }
 
+/**
+ * Pulls the string interpolation and exception throwing bytecode out of the inlined
+ * [spLayoutParams] property at each call site
+ */
+private fun layoutParamsError(childView: View, layoutParams: LayoutParams?): Nothing {
+    error("SlidingPaneLayout child $childView had unexpected LayoutParams $layoutParams")
+}
+
 private inline val View.spLayoutParams: SlidingPaneLayout.LayoutParams
-    get() = layoutParams as SlidingPaneLayout.LayoutParams
+    get() = when (val layoutParams = layoutParams) {
+        is SlidingPaneLayout.LayoutParams -> layoutParams
+        else -> layoutParamsError(this, layoutParams)
+    }
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
@@ -459,7 +470,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      * Position of the division between split panes when [isSlideable] is `false`.
      * When the value is < 0 it should be one of the `SPLIT_DIVIDER_POSITION_*` constants,
      * e.g. [SPLIT_DIVIDER_POSITION_AUTO]. When the value is >= 0 it represents a value in pixels
-     * between 0 and [getWidth].
+     * between 0 and [getWidth]. The default value is [SPLIT_DIVIDER_POSITION_AUTO].
      *
      * Changing this property will result in a [requestLayout] and relayout of the contents
      * of the [SlidingPaneLayout].
@@ -995,7 +1006,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 if (child.visibility == GONE) return@forEachIndexed
                 val lp = child.spLayoutParams
                 val skippedFirstPass = !lp.canInfluenceParentSize || lp.weightOnlyWidth
-                val measuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
+                val firstPassMeasuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
                 val newWidth = when {
                     // Child view consumes available space if the combined width cannot fit into
                     // the layout available width.
@@ -1007,7 +1018,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                             val widthToDistribute = widthRemaining.coerceAtLeast(0)
                             val addedWidth =
                                 (lp.weight * widthToDistribute / weightSum).roundToInt()
-                            measuredWidth + addedWidth
+                            firstPassMeasuredWidth + addedWidth
                         } else { // Explicit dividing line is defined
                             val clampedPos = dividerPos.coerceAtMost(width - paddingRight)
                                 .coerceAtLeast(paddingLeft)
@@ -1025,9 +1036,9 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                         widthAvailable - lp.horizontalMargin - totalMeasuredWidth
                     }
                     lp.width > 0 -> lp.width
-                    else -> measuredWidth
+                    else -> firstPassMeasuredWidth
                 }
-                if (measuredWidth != newWidth) {
+                if (newWidth != child.measuredWidth) {
                     val childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY)
                     val childHeightSpec = getChildHeightMeasureSpec(
                         child,
@@ -2427,7 +2438,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         const val LOCK_MODE_LOCKED = 3
 
         /**
-         * Value for [splitDividerPosition] indicating that
+         * Value for [splitDividerPosition] indicating that the position should be automatically
+         * determined by other layout policy (e.g. [LayoutParams.weight]) rather than set to
+         * a specific pixel value. [visualDividerPosition] will continue to reflect the currently
+         * displayed position of the divider.
          */
         const val SPLIT_DIVIDER_POSITION_AUTO = -1
 

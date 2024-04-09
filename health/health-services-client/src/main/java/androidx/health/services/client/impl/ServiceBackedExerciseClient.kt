@@ -144,7 +144,7 @@ internal class ServiceBackedExerciseClient(
         callback: ExerciseUpdateCallback
     ) {
         val listenerStub =
-            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.getOrCreate(
+            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.create(
                 callback,
                 executor,
                 requestedDataTypesProvider = {
@@ -171,14 +171,14 @@ internal class ServiceBackedExerciseClient(
             executor)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun clearUpdateCallbackAsync(
         callback: ExerciseUpdateCallback
     ): ListenableFuture<Void> {
+        // Cast is unfortunately required as there is no non-null Void in Kotlin.
         val listenerStub =
             ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.remove(callback)
-                ?: return Futures.immediateFailedFuture(
-                    IllegalArgumentException("Given listener was not added.")
-                )
+                ?: return Futures.immediateFuture(null) as ListenableFuture<Void>
         return unregisterListener(listenerStub.listenerKey) { service, resultFuture ->
             service.clearUpdateListener(packageName, listenerStub, StatusCallback(resultFuture))
         }

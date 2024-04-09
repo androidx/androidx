@@ -36,13 +36,17 @@ plugins {
 dependencies {
 
     implementation(libs.kotlinStdlib)
+    api("androidx.core:core-ktx:1.12.0")
     api(project(":fragment:fragment-ktx"))
     api("androidx.compose.runtime:runtime:1.5.4")
     api("androidx.compose.ui:ui:1.5.4")
 
-    androidTestImplementation project(":compose:ui:ui-test-junit4")
-    androidTestImplementation project(":compose:material:material")
-    androidTestImplementation project(":compose:test-utils")
+    androidTestImplementation("androidx.activity:activity-compose:1.8.2")
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:material:material"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
@@ -60,4 +64,5 @@ androidx {
     inceptionYear = "2024"
     description = "Integrate Fragments with Compose to provide helper APIs for using Fragments in" +
             "Compose or Compose inside of Fragments"
+    samples(project(":fragment:fragment-compose:fragment-compose-samples"))
 }

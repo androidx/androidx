@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -446,6 +446,13 @@ object CardDefaults {
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
      * [Card], [AppCard] or [TitleCard].
+     */
+    @Composable
+    fun cardColors() = MaterialTheme.colorScheme.defaultCardColors
+
+    /**
+     * Creates a [CardColors] that represents the default container and content colors used in a
+     * [Card], [AppCard] or [TitleCard].
      *
      * @param containerColor the container color of this [Card].
      * @param contentColor the content color of this [Card].
@@ -456,20 +463,27 @@ object CardDefaults {
      */
     @Composable
     fun cardColors(
-        containerColor: Color = CardTokens.ContainerColor.value,
-        contentColor: Color = CardTokens.ContentColor.value,
-        appNameColor: Color = CardTokens.AppNameColor.value,
-        timeColor: Color = CardTokens.TimeColor.value,
-        titleColor: Color = CardTokens.TitleColor.value,
-        subtitleColor: Color = CardTokens.SubtitleColor.value,
-    ): CardColors = CardColors(
-        containerPainter = remember(containerColor) { ColorPainter(containerColor) },
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        appNameColor: Color = Color.Unspecified,
+        timeColor: Color = Color.Unspecified,
+        titleColor: Color = Color.Unspecified,
+        subtitleColor: Color = Color.Unspecified,
+    ): CardColors = MaterialTheme.colorScheme.defaultCardColors.copy(
+        containerColor = containerColor,
         contentColor = contentColor,
         appNameColor = appNameColor,
         timeColor = timeColor,
         titleColor = titleColor,
         subtitleColor = subtitleColor
     )
+
+    /**
+     * Creates a [CardColors] that represents the default container and content colors used in an
+     * [OutlinedCard], outlined [AppCard] or [TitleCard].
+     */
+    @Composable
+    fun outlinedCardColors() = MaterialTheme.colorScheme.defaultOutlinedCardColors
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in an
@@ -483,13 +497,13 @@ object CardDefaults {
      */
     @Composable
     fun outlinedCardColors(
-        contentColor: Color = OutlinedCardTokens.ContentColor.value,
-        appNameColor: Color = OutlinedCardTokens.AppNameColor.value,
-        timeColor: Color = OutlinedCardTokens.TimeColor.value,
-        titleColor: Color = OutlinedCardTokens.TitleColor.value,
-        subtitleColor: Color = OutlinedCardTokens.SubtitleColor.value
-    ): CardColors = CardColors(
-        containerPainter = remember { ColorPainter(Color.Transparent) },
+        contentColor: Color = Color.Unspecified,
+        appNameColor: Color = Color.Unspecified,
+        timeColor: Color = Color.Unspecified,
+        titleColor: Color = Color.Unspecified,
+        subtitleColor: Color = Color.Unspecified
+    ): CardColors = MaterialTheme.colorScheme.defaultOutlinedCardColors.copy(
+        containerColor = Color.Transparent,
         contentColor = contentColor,
         appNameColor = appNameColor,
         timeColor = timeColor,
@@ -511,19 +525,30 @@ object CardDefaults {
     @Composable
     fun imageCardColors(
         containerPainter: Painter,
-        contentColor: Color = ImageCardTokens.ContentColor.value,
-        appNameColor: Color = ImageCardTokens.AppNameColor.value,
-        timeColor: Color = ImageCardTokens.TimeColor.value,
-        titleColor: Color = ImageCardTokens.TitleColor.value,
-        subtitleColor: Color = ImageCardTokens.SubtitleColor.value
-    ): CardColors = CardColors(
-        containerPainter = containerPainter,
-        contentColor = contentColor,
-        appNameColor = appNameColor,
-        timeColor = timeColor,
-        titleColor = titleColor,
-        subtitleColor = subtitleColor
-    )
+        contentColor: Color = Color.Unspecified,
+        appNameColor: Color = Color.Unspecified,
+        timeColor: Color = Color.Unspecified,
+        titleColor: Color = Color.Unspecified,
+        subtitleColor: Color = Color.Unspecified
+    ): CardColors {
+        val colorScheme = MaterialTheme.colorScheme
+        return CardColors(
+            containerPainter = containerPainter,
+            contentColor = contentColor.takeOrElse {
+                colorScheme.fromToken(ImageCardTokens.ContentColor)
+            },
+            appNameColor = appNameColor.takeOrElse {
+                colorScheme.fromToken(ImageCardTokens.AppNameColor)
+            },
+            timeColor = timeColor.takeOrElse { colorScheme.fromToken(ImageCardTokens.TimeColor) },
+            titleColor = titleColor.takeOrElse {
+                colorScheme.fromToken(ImageCardTokens.TitleColor)
+            },
+            subtitleColor = subtitleColor.takeOrElse {
+                colorScheme.fromToken(ImageCardTokens.SubtitleColor)
+            }
+        )
+    }
 
     /**
      * Creates a [Painter] for the background of a [Card] that displays an Image with a scrim over
@@ -580,6 +605,30 @@ object CardDefaults {
      * The default size of the app icon/image when used inside a [AppCard].
      */
     val AppImageSize: Dp = CardTokens.AppImageSize
+
+    private val ColorScheme.defaultCardColors: CardColors
+        get() {
+            return defaultCardColorsCached ?: CardColors(
+                containerPainter = ColorPainter(fromToken(CardTokens.ContainerColor)),
+                contentColor = fromToken(CardTokens.ContentColor),
+                appNameColor = fromToken(CardTokens.AppNameColor),
+                timeColor = fromToken(CardTokens.TimeColor),
+                titleColor = fromToken(CardTokens.TitleColor),
+                subtitleColor = fromToken(CardTokens.SubtitleColor)
+            ).also { defaultCardColorsCached = it }
+        }
+
+    private val ColorScheme.defaultOutlinedCardColors: CardColors
+        get() {
+            return defaultOutlinedCardColorsCached ?: CardColors(
+                containerPainter = ColorPainter(Color.Transparent),
+                contentColor = fromToken(OutlinedCardTokens.ContentColor),
+                appNameColor = fromToken(OutlinedCardTokens.AppNameColor),
+                timeColor = fromToken(OutlinedCardTokens.TimeColor),
+                titleColor = fromToken(OutlinedCardTokens.TitleColor),
+                subtitleColor = fromToken(OutlinedCardTokens.SubtitleColor)
+            ).also { defaultOutlinedCardColorsCached = it }
+        }
 }
 
 /**
@@ -603,6 +652,24 @@ class CardColors(
     val titleColor: Color,
     val subtitleColor: Color
 ) {
+
+    internal fun copy(
+        containerColor: Color,
+        contentColor: Color,
+        appNameColor: Color,
+        timeColor: Color,
+        titleColor: Color,
+        subtitleColor: Color
+    ) = CardColors(
+        containerPainter = if (containerColor != Color.Unspecified) ColorPainter(containerColor)
+        else this.containerPainter,
+        contentColor = contentColor.takeOrElse { this.contentColor },
+        appNameColor = appNameColor.takeOrElse { this.appNameColor },
+        timeColor = timeColor.takeOrElse { this.timeColor },
+        titleColor = titleColor.takeOrElse { this.titleColor },
+        subtitleColor = subtitleColor.takeOrElse { this.subtitleColor }
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is CardColors) return false

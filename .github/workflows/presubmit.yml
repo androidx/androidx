@@ -46,11 +46,14 @@ jobs:
           # Enforces a `Test: <stanza>` in the pull request
           checks: '["(.*)?Test:(.*)?"]'
 
-      - name: "Setup JDK 17"
+      - name: "Setup JDK 17 and 21"
         id: setup-java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: "17"
+          distribution: "zulu"
+          java-version: |
+            17
+            21
 
       - name: "Set environment variables"
         shell: bash
@@ -117,11 +120,13 @@ jobs:
         os: [ubuntu-latest]
         # If you would like to remove some projects temporarily, use .github/ci-control/ci-config.json instead.
         # Keep these in alphabetical order.
-        project: ["activity", "appcompat", "biometric", "collection", "compose-runtime", "core", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "work"]
+        project: ["activity", "appcompat", "biometric", "collection", "compose-runtime", "core", "datastore", "fragment", "lifecycle", "navigation", "paging", "room", "sqlite", "work"]
         include:
           - project: "compose-runtime"
             project-root: "compose/runtime"
           - project: "collection"
+            custom-os: "macos-latest"
+          - project: "sqlite"
             custom-os: "macos-latest"
     runs-on: ${{ matrix.custom-os || matrix.os }}
     needs: [setup, lint]

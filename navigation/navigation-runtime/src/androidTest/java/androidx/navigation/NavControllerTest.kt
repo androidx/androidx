@@ -36,6 +36,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
@@ -2712,6 +2713,78 @@ class NavControllerTest {
         val newViewModel = ViewModelProvider(newBackStackEntry).get<TestAndroidViewModel>()
         assertThat(newBackStackEntry.id).isSameInstanceAs(originalBackStackEntry.id)
         assertThat(newViewModel).isSameInstanceAs(originalViewModel)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateOptionSaveRestoreStateNested() {
+        // navigated with Transition so child does not destroy parent graph too soon
+        val childNavigator = TestNavigator(hasTransitions = true)
+        val navController = NavHostController(ApplicationProvider.getApplicationContext()).apply {
+            navigatorProvider.addNavigator(childNavigator)
+            setViewModelStore(ViewModelStore())
+            graph = navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "outerChild"
+            ) {
+                test("outerChild")
+                navigation(route = "nestedParent", startDestination = "nestedChild") {
+                    test(route = "nestedChild")
+                }
+            }
+        }
+        val parentNavigator = navController.navigatorProvider.getNavigator(
+            NavGraphNavigator::class.java
+        )
+
+        // navigate to nested graph
+        navController.navigate("nestedParent")
+        assertThat(parentNavigator.backStack.value.size).isEqualTo(2)
+        val parentEntry = parentNavigator.backStack.value.last()
+        assertThat(parentEntry.destination.route).isEqualTo("nestedParent")
+        val childEntry = navController.currentBackStackEntry
+        assertThat(childEntry!!.destination.route).isEqualTo("nestedChild")
+
+        val parentVM = ViewModelProvider(parentEntry).get<TestAndroidViewModel>()
+        val childVM = ViewModelProvider(childEntry).get<TestAndroidViewModel>()
+
+        // navigate with pop to save ViewModels
+        navController.navigate(
+            "graph",
+            navOptions {
+                popUpTo(navController.graph.findStartDestination().route!!) {
+                    saveState = true
+                }
+                launchSingleTop = true
+            }
+        )
+        assertThat(navController.currentDestination?.route).isEqualTo("outerChild")
+        // now we finish transition to mark both child and parent as complete
+        childNavigator.onTransitionComplete(childEntry)
+
+        // navigate to nested graph once again to restore ViewModels
+        navController.navigate(
+            "nestedParent",
+            navOptions {
+                popUpTo(navController.graph.findStartDestination().route!!) {
+                    saveState = true
+                }
+                restoreState = true
+                launchSingleTop = true
+            }
+        )
+
+        val newChildEntry = childNavigator.backStack.last()
+        assertThat(newChildEntry.destination.route).isEqualTo("nestedChild")
+        val newChildVM = ViewModelProvider(newChildEntry).get<TestAndroidViewModel>()
+        assertThat(newChildEntry.id).isSameInstanceAs(childEntry.id)
+        assertThat(newChildVM).isSameInstanceAs(childVM)
+
+        val newParentEntry = parentNavigator.backStack.value.last()
+        assertThat(newParentEntry.destination.route).isEqualTo("nestedParent")
+        val newParentVM = ViewModelProvider(newParentEntry).get<TestAndroidViewModel>()
+        assertThat(newParentEntry.id).isSameInstanceAs(parentEntry.id)
+        assertThat(newParentVM).isSameInstanceAs(parentVM)
     }
 
     @UiThreadTest

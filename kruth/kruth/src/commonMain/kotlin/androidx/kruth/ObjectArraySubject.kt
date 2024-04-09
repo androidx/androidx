@@ -22,7 +22,7 @@ package androidx.kruth
 class ObjectArraySubject<T> internal constructor(
     actual: Array<out T>?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Array<out T>>(actual = actual, metadata = metadata) {
+) : Subject<Array<out T>>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
         HelperArraySubject(
@@ -52,8 +52,7 @@ class ObjectArraySubject<T> internal constructor(
 
     /** Converts this [ObjectArraySubject] to [IterableSubject].*/
     fun asList(): IterableSubject<*> {
-        metadata.assertNotNull(actual)
-
+        requireNonNull(actual)
         return IterableSubject(actual = actual.toList(), metadata = metadata)
     }
 }

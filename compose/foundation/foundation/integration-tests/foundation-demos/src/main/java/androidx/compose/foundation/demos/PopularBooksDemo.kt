@@ -102,7 +102,7 @@ fun PopularBooksDemo() {
                 val sortedList = PopularBooksList.sortedWith(comparator)
                 items(sortedList, key = { it.title }) {
                     Row(
-                        Modifier.animateItemPlacement()
+                        Modifier.animateItem()
                             .height(IntrinsicSize.Max),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {

@@ -490,8 +490,10 @@ src/sample/optin/RegressionTestKotlin298322402.kt:22: Error: This declaration is
 
         val expectedFix = """
 Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@androidx.annotation.OptIn(sample.optin.ExperimentalJavaAnnotation::class)' annotation to 'testMethod':
-@@ -21 +21
-+     @androidx.annotation.OptIn(ExperimentalJavaAnnotation::class)
+@@ -19 +19
++ import androidx.annotation.OptIn
+@@ -21 +22
++     @OptIn(ExperimentalJavaAnnotation::class)
 Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@sample.optin.ExperimentalJavaAnnotation' annotation to 'testMethod':
 @@ -21 +21
 +     @ExperimentalJavaAnnotation

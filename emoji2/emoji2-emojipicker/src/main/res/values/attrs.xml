@@ -30,5 +30,21 @@
         <attr name="emojiGridRows" format="float"/>
         <attr name="emojiGridColumns" format="integer"/>
     </declare-styleable>
+
+    <declare-styleable name="EmojiSkintoneSelector">
+        <attr name="emoji_variant_selector_color_1" format="color"/>
+        <attr name="emoji_variant_selector_color_2" format="color"/>
+        <attr name="emoji_variant_selector_color_3" format="color"/>
+        <attr name="emoji_variant_selector_color_4" format="color"/>
+        <attr name="emoji_variant_selector_color_5" format="color"/>
+        <attr name="emoji_variant_selector_color_6" format="color"/>
+        <attr name="emoji_variant_selector_color_7" format="color"/>
+        <attr name="emoji_variant_selector_color_8" format="color"/>
+        <attr name="emoji_variant_selector_color_9" format="color"/>
+        <attr name="emoji_variant_selector_color_10" format="color" />
+        <attr name="emoji_variant_selector_color_11" format="color"/>
+        <attr name="emoji_variant_selector_color_12" format="color"/>
+        <attr name="emoji_variant_selector_color_13" format="color"/>
+    </declare-styleable>
 </resources>
 

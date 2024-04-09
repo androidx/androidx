@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -34,9 +33,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+private const val UseOnFocusEvent = "onFocusEvent"
+private const val UseFocusEventModifier = "FocusEventModifier"
+
 @MediumTest
 @RunWith(Parameterized::class)
-class FocusEventCountTest(val focusEventType: String) {
+class FocusEventCountTest(private val focusEventType: String) {
     private val onFocusEvent = if (focusEventType == UseOnFocusEvent) {
         OnFocusEventCall
     } else {
@@ -53,8 +55,6 @@ class FocusEventCountTest(val focusEventType: String) {
         val FocusEventModifierCall: Modifier.((FocusState) -> Unit) -> Modifier = {
             focusEventModifier(it)
         }
-        private const val UseOnFocusEvent = "onFocusEvent"
-        private const val UseFocusEventModifier = "FocusEventModifier"
 
         @JvmStatic
         @Parameterized.Parameters(name = "onFocusEvent = {0}")
@@ -120,7 +120,6 @@ class FocusEventCountTest(val focusEventType: String) {
         rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun whenFocusMovesWithinParent_onFocusEventIsNotCalled() {
         // Arrange.
@@ -611,7 +610,6 @@ class FocusEventCountTest(val focusEventType: String) {
         rule.runOnIdle { assertThat(focusStates).isEmpty() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun changingFocusProperty_onFocusEventIsNotCalled() {
         // Arrange.

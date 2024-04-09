@@ -22,6 +22,8 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.testutils.createStartupCompilationParams
 import androidx.testutils.measureStartup
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,6 +37,16 @@ class StartupBenchmark(
 ) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
+
+    @Before
+    fun setUp() {
+        disableChargingExperience()
+    }
+
+    @After
+    fun destroy() {
+        enableChargingExperience()
+    }
 
     @Test
     fun startup() = benchmarkRule.measureStartup(

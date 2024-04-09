@@ -742,4 +742,65 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
             )
         }
     )
+
+    // regression test for https://youtrack.jetbrains.com/issue/KT-65791
+    @Test
+    fun testCrossinlineCapture() = testCompile(
+        """
+            import androidx.compose.runtime.*
+
+            @Composable
+            fun LazyColumn(
+                content: () -> Unit
+            ): Unit = TODO()
+
+            @Composable
+            inline fun Box(content: @Composable () -> Unit) {
+                content()
+            }
+
+            @Composable
+            inline fun ItemsPage(
+                crossinline itemContent: @Composable (Int) -> Unit,
+            ) {
+                Box {
+                    LazyColumn {
+                        val lambda: @Composable (item: Int) -> Unit = {
+                            itemContent(it)
+                        }
+                    }
+                }
+            }
+
+            @Composable
+            fun SearchResultScreen() {
+                ItemsPage(
+                    itemContent = {},
+                )
+            }
+        """
+    )
+
+    @Test
+    fun composeValueClassDefaultParameter() =
+        validateBytecode(
+            """
+                import androidx.compose.runtime.*
+
+                @JvmInline
+                value class Data(val string: String)
+                @JvmInline
+                value class IntData(val value: Int)
+
+                @Composable fun Example(data: Data = Data(""), intData: IntData = IntData(0)) {}
+            """,
+            validate = {
+                // select Example function body
+                val match = Regex("public final static Example[\\s\\S]*?LOCALVARIABLE").find(it)!!
+                assertFalse(message = "Function body should not contain a not-null check.") {
+                    match.value.contains("Intrinsics.checkNotNullParameter")
+                }
+            },
+            dumpClasses = true
+        )
 }

@@ -59,6 +59,8 @@ import androidx.compose.ui.demos.gestures.EventTypesDemo
 import androidx.compose.ui.demos.gestures.HorizontalScrollersInVerticalScrollersDemo
 import androidx.compose.ui.demos.gestures.LongPressDragGestureFilterDemo
 import androidx.compose.ui.demos.gestures.LongPressGestureDetectorDemo
+import androidx.compose.ui.demos.gestures.MultiButtonsWithLoggingUsingOnClick
+import androidx.compose.ui.demos.gestures.MultiButtonsWithLoggingUsingPointerInput
 import androidx.compose.ui.demos.gestures.NestedLongPressDemo
 import androidx.compose.ui.demos.gestures.NestedPressingDemo
 import androidx.compose.ui.demos.gestures.NestedScrollDispatchDemo
@@ -83,8 +85,9 @@ import androidx.compose.ui.demos.viewinterop.ComposeInAndroidDemos
 import androidx.compose.ui.demos.viewinterop.ComposeInSwipeToRefreshLayout
 import androidx.compose.ui.demos.viewinterop.ComposeViewComposeNestedInterop
 import androidx.compose.ui.demos.viewinterop.EditTextInteropDemo
-import androidx.compose.ui.demos.viewinterop.FocusTransferDemo
+import androidx.compose.ui.demos.viewinterop.FocusInteropDemo
 import androidx.compose.ui.demos.viewinterop.NestedScrollInteropComposeParentWithAndroidChild
+import androidx.compose.ui.demos.viewinterop.RecyclerViewFocusTransferDemo
 import androidx.compose.ui.demos.viewinterop.ResizeComposeViewDemo
 import androidx.compose.ui.demos.viewinterop.ScrollingAndroidViewsDemo
 import androidx.compose.ui.demos.viewinterop.ViewComposeViewNestedScrollInteropDemo
@@ -108,6 +111,12 @@ private val GestureDemos = DemoCategory(
                 ComposableDemo("Long Press Drag") { LongPressDragGestureFilterDemo() },
                 ComposableDemo("Scale") { ScaleGestureFilterDemo() },
                 ComposableDemo("Button/Meta State") { ButtonMetaStateDemo() },
+                ComposableDemo("Buttons with Logging using onClick") {
+                    MultiButtonsWithLoggingUsingOnClick()
+                },
+                ComposableDemo("Buttons with Logging using pointerInput") {
+                    MultiButtonsWithLoggingUsingPointerInput()
+                },
                 ComposableDemo("Event Types") { EventTypesDemo() },
             )
         ),
@@ -229,7 +238,8 @@ private val ViewInteropDemos = DemoCategory(
         AndroidInComposeDemos,
         ComplexTouchInterop,
         ComposableDemo("TextField Interop") { EditTextInteropDemo() },
-        ComposableDemo("Focus Transfer") { FocusTransferDemo() },
+        ComposableDemo("Focus Interop") { FocusInteropDemo() },
+        ComposableDemo("RecyclerView Focus Transfer") { RecyclerViewFocusTransferDemo() },
         NestedScrollInteropDemos,
         ComposableDemo("Resize ComposeView") { ResizeComposeViewDemo() },
         ComposableDemo("LazyColumn of Android Views") { ScrollingAndroidViewsDemo() }
@@ -275,6 +285,7 @@ val CoreDemos = DemoCategory(
         RecyclerViewDemos,
         AccessibilityDemos,
         ComposableDemo("Screen coordinates") { ScreenCoordinatesDemo(it) },
-        ComposableDemo("Clipboard") { ClipboardDemo() }
+        ComposableDemo("Clipboard") { ClipboardDemo() },
+        ActivityDemo("Simple chat", SimpleChatActivity::class)
     )
 )

@@ -16,17 +16,22 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.os.Build
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -47,19 +52,22 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkAnnotation.Url
 import androidx.compose.ui.text.Placeholder
@@ -68,20 +76,20 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class BasicTextLinkTest {
@@ -117,7 +125,7 @@ class BasicTextLinkTest {
             focusManager.moveFocus(FocusDirection.Previous)
         }
 
-        rule.onAllNodes(hasClickAction())[2].assertIsFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[2].assertIsFocused()
     }
 
     @Test
@@ -130,8 +138,8 @@ class BasicTextLinkTest {
             focusManager.moveFocus(FocusDirection.Previous)
         }
 
-        rule.onAllNodes(hasClickAction())[2].assertIsNotFocused()
-        rule.onAllNodes(hasClickAction())[1].assertIsFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[2].assertIsNotFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[1].assertIsFocused()
     }
 
     @Test
@@ -145,9 +153,9 @@ class BasicTextLinkTest {
             focusManager.moveFocus(FocusDirection.Previous)
         }
 
-        rule.onAllNodes(hasClickAction())[2].assertIsNotFocused()
-        rule.onAllNodes(hasClickAction())[1].assertIsNotFocused()
-        rule.onAllNodes(hasClickAction())[0].assertIsFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[2].assertIsNotFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[1].assertIsNotFocused()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[0].assertIsFocused()
     }
 
     @Test
@@ -322,7 +330,7 @@ class BasicTextLinkTest {
              * +--------------------+
              */
             val text = buildAnnotatedString {
-                withAnnotation(Url(Url1)) { append("link") }
+                withLink(Url(Url1)) { append("link") }
                 append(" text ")
                 appendInlineContent("box")
                 append(" text")
@@ -346,9 +354,9 @@ class BasicTextLinkTest {
             )
         }
 
-        rule.onAllNodes(hasClickAction())[0].performClick()
+        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[0].performClick()
 
-        rule.onNodeWithTag("box").assertExists()
+        rule.onNodeWithTag("box", useUnmergedTree = true).assertExists()
         rule.runOnIdle {
             assertThat(openedUri).isEqualTo(Url1)
         }
@@ -358,7 +366,7 @@ class BasicTextLinkTest {
     fun link_withTranslatedString() {
         val originalText = buildAnnotatedString {
             append("text ")
-            withAnnotation(Url(Url1)) {
+            withLink(Url(Url1)) {
                 append("link")
             }
         }
@@ -400,7 +408,7 @@ class BasicTextLinkTest {
                 val color = remember { mutableStateOf(Color.Red) }
                 BasicText(
                     buildAnnotatedString {
-                        withAnnotation(Url(Url1)) {
+                        withLink(Url(Url1)) {
                             withStyle(SpanStyle(color = color.value)) {
                                 append("link")
                             }
@@ -419,67 +427,323 @@ class BasicTextLinkTest {
         }
 
         rule.onNodeWithTag("box").assertIsNotFocused()
-        rule.onNode(hasClickAction()).assertIsFocused()
+        rule.onNode(hasClickAction(), useUnmergedTree = true).assertIsFocused()
     }
 
     @Test
-    fun link_handler_calledWithoutDefaultBehavior() {
-        var counter = 0
+    fun linkMeasure_withExceededMaxConstraintSize_doesNotCrash() {
+        val textWithLink = buildAnnotatedString {
+            withLink(Url("link")) { append("text ".repeat(25_000)) }
+        }
+
+        expectError<IllegalArgumentException>(expectError = false) {
+            setupContent {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    BasicText(text = textWithLink, modifier = Modifier.width(100.dp))
+                }
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_styleFromAnnotationUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    style = SpanStyle(color = Color.Red)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Red)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_withinOtherStyle_styleFromAnnotationUsed() {
+        val textWithLink = buildAnnotatedString {
+            withStyle(SpanStyle(background = Color.Red)) {
+                withLink(
+                    Url(
+                        "link",
+                        style = SpanStyle(color = Color.Green)
+                    )
+                ) { append("text") }
+            }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertContainsColor(Color.Red)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onHover_hoveredStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    style = SpanStyle(background = Color.Red),
+                    hoveredStyle = SpanStyle(background = Color.Green)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performMouseInput { enter(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertDoesNotContainColor(Color.Red)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_withinOtherStyle_onHover_hoveredStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withStyle(SpanStyle(color = Color.Blue)) {
+                withLink(
+                    Url(
+                        "link",
+                        style = SpanStyle(background = Color.Red),
+                        hoveredStyle = SpanStyle(background = Color.Green)
+                    )
+                ) { append("text") }
+            }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performMouseInput { enter(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertDoesNotContainColor(Color.Red)
+            .assertContainsColor(Color.Blue)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onHover_hoveredStyle_mergedIntoNormal() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    style = SpanStyle(color = Color.Red),
+                    hoveredStyle = SpanStyle(background = Color.Green)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performMouseInput { enter(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertContainsColor(Color.Red)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onFocus_focusedStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    style = SpanStyle(background = Color.Red),
+                    focusedStyle = SpanStyle(background = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertDoesNotContainColor(Color.Red)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_withinOtherStyle_onFocus_focusedStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withStyle(SpanStyle(color = Color.Green)) {
+                withLink(
+                    Url(
+                        "link",
+                        style = SpanStyle(background = Color.Red),
+                        focusedStyle = SpanStyle(background = Color.Blue)
+                    )
+                ) { append("text") }
+            }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertDoesNotContainColor(Color.Red)
+            .assertContainsColor(Color.Green)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onFocus_focusedStyle_mergedIntoNormal() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    style = SpanStyle(color = Color.Red),
+                    focusedStyle = SpanStyle(background = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertContainsColor(Color.Red)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onFocus_onHovered_onHoveredStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    hoveredStyle = SpanStyle(background = Color.Green),
+                    focusedStyle = SpanStyle(background = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .performMouseInput { enter(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertDoesNotContainColor(Color.Blue)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onHovered_onFocus_onHoveredStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    hoveredStyle = SpanStyle(background = Color.Green),
+                    focusedStyle = SpanStyle(background = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performMouseInput { enter(this.center) }
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertDoesNotContainColor(Color.Blue)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_hoveredAndFocused_mergedStyle() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    hoveredStyle = SpanStyle(color = Color.Green),
+                    focusedStyle = SpanStyle(background = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performMouseInput { enter(this.center) }
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertContainsColor(Color.Blue)
+    }
+
+    @Test
+    fun linkAnnotation_url_customInteractionListener_called() {
+        var clickedUrlAnnotation: Url? = null
         setupContent {
             BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(Url(Url1)) { append("link") }
-                },
-                onLinkClicked = {
-                    counter++
+                buildAnnotatedString {
+                    withLink(Url("qwerty") {
+                            clickedUrlAnnotation = it as LinkAnnotation.Url
+                        }
+                    ) { append("link") }
                 }
             )
         }
 
-        rule.onNodeWithText("link").performClick()
+        rule.onNode(hasClickAction(), useUnmergedTree = true).performClick()
 
         rule.runOnIdle {
             assertThat(openedUri).isNull()
-            assertThat(counter).isEqualTo(1)
+            assertThat(clickedUrlAnnotation).isNotNull()
+            assertThat(clickedUrlAnnotation!!.url).isEqualTo("qwerty")
         }
     }
 
     @Test
-    fun link_nullHandler_defaultBehavior() {
+    fun linkAnnotation_clickable_customInteractionListener_called() {
+        var clickedAnnotation: LinkAnnotation.Clickable? = null
         setupContent {
             BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(Url(Url1)) { append("link") }
-                },
-                onLinkClicked = null // default
-            )
-        }
-
-        rule.onNodeWithText("link").performClick()
-
-        rule.runOnIdle {
-            assertThat(openedUri).isEqualTo(Url1)
-        }
-    }
-
-    @Test
-    fun clickable_handler_called() {
-        var counter = 0
-        setupContent {
-            BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(LinkAnnotation.Clickable(Url1)) { append("clickable") }
-                },
-                onLinkClicked = {
-                    counter++
+                buildAnnotatedString {
+                    withLink(LinkAnnotation.Clickable("qwerty") {
+                            clickedAnnotation = it as LinkAnnotation.Clickable
+                        }
+                    ) { append("link") }
                 }
             )
         }
 
-        rule.onNodeWithText("clickable").performClick()
+        rule.onNode(hasClickAction(), useUnmergedTree = true).performClick()
 
         rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
+            assertThat(clickedAnnotation).isNotNull()
+            assertThat(clickedAnnotation!!.tag).isEqualTo("qwerty")
         }
     }
 
@@ -498,11 +762,11 @@ class BasicTextLinkTest {
 
             val text = buildAnnotatedString {
                 append("text ")
-                withAnnotation(Url(Url1)) {
+                withLink(Url(Url1)) {
                     append("link ")
                 }
                 append("text ")
-                withAnnotation(Url(Url2)) {
+                withLink(Url(Url2)) {
                     append("a long link ")
                 }
                 append("text")
@@ -517,7 +781,7 @@ class BasicTextLinkTest {
 
             BasicText(buildAnnotatedString {
                 append("text ")
-                withAnnotation(Url(Url3)) {
+                withLink(Url(Url3)) {
                     append("link ")
                 }
             }, style = style)
@@ -536,7 +800,7 @@ class BasicTextLinkTest {
     private fun BidiTextWithLinks() {
         val text = buildAnnotatedString {
             append("\u05D0\u05D1 \u05D2\u05D3")
-            withAnnotation(Url(Url1)) { append(" text ") }
+            withLink(Url(Url1)) { append(" text ") }
             append("\u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1 \u05D2\u05D3")
         }
         BasicText(text, onTextLayout = { layoutResult = it })
@@ -545,9 +809,9 @@ class BasicTextLinkTest {
     @Composable
     private fun RtlTextWithLinks() {
         val text = buildAnnotatedString {
-            withAnnotation(Url(Url1)) { append("\u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1") }
+            withLink(Url(Url1)) { append("\u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1") }
             append(" \u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1 \u05D0\u05D1 \u05D2\u05D3")
-            withAnnotation(Url(Url2)) {
+            withLink(Url(Url2)) {
                 append(" \u05D0\u05D1 \u05D2\u05D3 \u05D0\u05D1")
             }
             append("\u05D0\u05D1 \u05D2\u05D3")

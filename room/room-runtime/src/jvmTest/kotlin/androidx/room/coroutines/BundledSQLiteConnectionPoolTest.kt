@@ -18,12 +18,14 @@ package androidx.room.coroutines
 
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile
 
 class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
+    override val fileName = createTempFile("test.db").also { it.toFile().deleteOnExit() }
+        .absolutePathString()
 
     override fun getDriver(): SQLiteDriver {
-        val tempFile = createTempFile("test.db").also { it.toFile().deleteOnExit() }
-        return BundledSQLiteDriver(tempFile.toString())
+        return BundledSQLiteDriver()
     }
 }

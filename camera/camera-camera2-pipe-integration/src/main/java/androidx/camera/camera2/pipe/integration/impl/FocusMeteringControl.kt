@@ -27,8 +27,10 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTrigger
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
@@ -49,8 +51,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 /**
  * Implementation of focus and metering controls exposed by [CameraControlInternal].
@@ -104,8 +107,11 @@ class FocusMeteringControl @Inject constructor(
         cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AE, 0)
     private val maxAwbRegionCount =
         cameraProperties.metadata.getOrDefault(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB, 0)
+
     private var updateSignal: CompletableDeferred<FocusMeteringResult>? = null
     private var cancelSignal: CompletableDeferred<Result3A?>? = null
+
+    private var autoCancelJob: Job? = null
 
     fun startFocusAndMetering(
         action: FocusMeteringAction,
@@ -115,8 +121,10 @@ class FocusMeteringControl @Inject constructor(
 
         useCaseCamera?.let { useCaseCamera ->
             threads.sequentialScope.launch {
+                autoCancelJob?.cancel()
                 cancelSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
                 updateSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
+
                 updateSignal = signal
 
                 val aeRectangles = meteringRegionsFromMeteringPoints(
@@ -155,74 +163,73 @@ class FocusMeteringControl @Inject constructor(
                 if (afRectangles.isNotEmpty()) {
                     state3AControl.preferredFocusMode = CaptureRequest.CONTROL_AF_MODE_AUTO
                 }
-                val (isCancelEnabled, timeout) = if (action.isAutoCancelEnabled &&
-                    action.autoCancelDurationInMillis < autoFocusTimeoutMs
+
+                val aeRegions = if (maxAeRegionCount > 0)
+                    aeRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                else null
+                val afRegions = if (maxAfRegionCount > 0)
+                    afRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                else null
+                val awbRegions = if (maxAwbRegionCount > 0)
+                    awbRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
+                else null
+
+                val deferredResult3A = if (
+                    afRectangles.isEmpty() || !cameraProperties.metadata.supportsAutoFocusTrigger
                 ) {
-                    (true to action.autoCancelDurationInMillis)
+                    /*
+                     * Controller3A.lock3A() returns early in such cases without updating the 3A
+                     * regions which conflicts with [CameraControl.startFocusAndMetering] doc.
+                     * However, we should update the regions explicitly here only in these cases
+                     * instead of all cases because Controller3A.update3A() will invalidate
+                     * the CameraGraph and thus may cause extra requests to the camera.
+                     */
+                    debug { "startFocusAndMetering: updating 3A regions only" }
+                    useCaseCamera.requestControl.update3aRegions(
+                        aeRegions = aeRegions,
+                        afRegions = afRegions,
+                        awbRegions = awbRegions,
+                    )
                 } else {
-                    (false to autoFocusTimeoutMs)
+                    // No need to keep trying to focus if auto-cancel is already triggered
+                    val finalFocusTimeout = if (action.isAutoCancelEnabled &&
+                        action.autoCancelDurationInMillis < autoFocusTimeoutMs
+                    ) {
+                        action.autoCancelDurationInMillis
+                    } else {
+                        autoFocusTimeoutMs
+                    }
+
+                    debug { "startFocusAndMetering: updating 3A regions & triggering AF" }
+                    /*
+                     * If device does not support a 3A region, we should not update it at all.
+                     * If device does support but a region list is empty, it means any previously
+                     * set region should be removed, so the no-op METERING_REGIONS_DEFAULT is used.
+                     */
+                    useCaseCamera.requestControl.startFocusAndMeteringAsync(
+                        aeRegions = aeRegions,
+                        afRegions = afRegions,
+                        awbRegions = awbRegions,
+                        afLockBehavior = if (maxAfRegionCount > 0)
+                            Lock3ABehavior.IMMEDIATE
+                        else null,
+                        afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON),
+                        timeLimitNs = TimeUnit.NANOSECONDS.convert(
+                            finalFocusTimeout,
+                            TimeUnit.MILLISECONDS
+                        )
+                    )
                 }
 
-                /**
-                 * If device does not support a 3A region, we should not update it at all.
-                 * If device does support but a region list is empty, it means any previously
-                 * set region should be removed, so the no-op METERING_REGIONS_DEFAULT is used.
-                 */
-                val deferredResult3A = useCaseCamera.requestControl.startFocusAndMeteringAsync(
-                    aeRegions = if (maxAeRegionCount > 0)
-                        aeRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
-                    else null,
-                    afRegions = if (maxAfRegionCount > 0)
-                        afRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
-                    else null,
-                    awbRegions = if (maxAwbRegionCount > 0)
-                        awbRectangles.ifEmpty { METERING_REGIONS_DEFAULT.toList() }
-                    else null,
-                    aeLockBehavior = if (maxAeRegionCount > 0)
-                        Lock3ABehavior.IMMEDIATE
-                    else null,
-                    afLockBehavior = if (maxAfRegionCount > 0)
-                        Lock3ABehavior.IMMEDIATE
-                    else null,
-                    awbLockBehavior = if (maxAwbRegionCount > 0)
-                        Lock3ABehavior.IMMEDIATE
-                    else null,
-                    afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON),
-                    timeLimitNs = TimeUnit.NANOSECONDS.convert(
-                        timeout,
-                        TimeUnit.MILLISECONDS
-                    )
+                deferredResult3A.propagateToFocusMeteringResultDeferred(
+                    resultDeferred = signal,
+                    shouldTriggerAf = afRectangles.isNotEmpty(),
                 )
 
-                deferredResult3A.invokeOnCompletion { throwable ->
-                    if (throwable != null) {
-                        signal.completeExceptionally(throwable)
-                    } else {
-                        val result3A = deferredResult3A.getCompleted()
-                        if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
-                            signal.completeExceptionally(
-                                OperationCanceledException("Camera is not active.")
-                            )
-                        } else if (result3A.status == Result3A.Status.TIME_LIMIT_REACHED) {
-                            if (isCancelEnabled) {
-                                if (signal.isActive) {
-                                    runBlocking {
-                                        cancelFocusAndMeteringNowAsync(useCaseCamera, signal)
-                                    }
-                                }
-                            } else {
-                                signal.complete(FocusMeteringResult.create(false))
-                            }
-                        } else {
-                            signal.complete(
-                                result3A.toFocusMeteringResult(
-                                    shouldTriggerAf = afRectangles.isNotEmpty()
-                                )
-                            )
-                        }
-                    }
+                if (action.isAutoCancelEnabled) {
+                    triggerAutoCancel(action.autoCancelDurationInMillis, signal, useCaseCamera)
                 }
-            }
+           }
         } ?: run {
             signal.completeExceptionally(
                 OperationCanceledException("Camera is not active.")
@@ -230,6 +237,47 @@ class FocusMeteringControl @Inject constructor(
         }
 
         return signal.asListenableFuture()
+    }
+
+    private fun triggerAutoCancel(
+        delayMillis: Long,
+        resultToCancel: CompletableDeferred<FocusMeteringResult>,
+        useCaseCamera: UseCaseCamera,
+    ) {
+        autoCancelJob?.cancel()
+
+        autoCancelJob = threads.scope.launch {
+            delay(delayMillis)
+            debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
+            cancelFocusAndMeteringNowAsync(useCaseCamera, resultToCancel)
+        }
+    }
+
+    private fun Deferred<Result3A>.propagateToFocusMeteringResultDeferred(
+        resultDeferred: CompletableDeferred<FocusMeteringResult>,
+        shouldTriggerAf: Boolean,
+    ) {
+        invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                resultDeferred.completeExceptionally(throwable)
+            } else {
+                val result3A = getCompleted()
+                debug { "propagateToFocusMeteringResultDeferred: result3A = $result3A" }
+                if (result3A.status == Result3A.Status.SUBMIT_FAILED) {
+                    resultDeferred.completeExceptionally(
+                        OperationCanceledException("Camera is not active.")
+                    )
+                } else if (result3A.status == Result3A.Status.TIME_LIMIT_REACHED) {
+                    resultDeferred.complete(FocusMeteringResult.create(false))
+                } else {
+                    resultDeferred.complete(
+                        result3A.toFocusMeteringResult(
+                            shouldTriggerAf = shouldTriggerAf
+                        )
+                    )
+                }
+            }
+        }
     }
 
     fun isFocusMeteringSupported(
@@ -283,6 +331,7 @@ class FocusMeteringControl @Inject constructor(
         val signal = CompletableDeferred<Result3A?>()
         useCaseCamera?.let { useCaseCamera ->
             threads.sequentialScope.launch {
+                autoCancelJob?.cancel()
                 cancelSignal?.setCancelException("Cancelled by another cancelFocusAndMetering()")
                 cancelSignal = signal
                 cancelFocusAndMeteringNowAsync(useCaseCamera, updateSignal).propagateTo(signal)

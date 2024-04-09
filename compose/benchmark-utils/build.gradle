@@ -57,4 +57,9 @@ tasks.withType(KotlinCompile).configureEach {
 
 android {
     namespace "androidx.compose.benchmarkutils"
+
+    // workarounds for b/328649293
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }

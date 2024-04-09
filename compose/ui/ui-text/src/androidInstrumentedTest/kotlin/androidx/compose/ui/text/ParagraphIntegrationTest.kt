@@ -75,6 +75,26 @@ class ParagraphIntegrationTest {
 
     private val resourceLoader = UncachedFontFamilyResolver(context)
 
+    private fun hasEdgeLetterSpacingBugFix(): Boolean {
+        val text = "a"
+        val fontSize = 10.sp
+        val singleLetterLetterSpacing = simpleParagraph(
+            text = text,
+            style = TextStyle(fontSize = fontSize, letterSpacing = 10.sp),
+            width = Float.MAX_VALUE)
+
+        val singleLetterWithoutLetterSpacing = simpleParagraph(
+            text = text,
+            style = TextStyle(fontSize = fontSize),
+            width = Float.MAX_VALUE)
+
+        // If the platform has a letter spacing fix, the letter spacing will not be added before and
+        // after the visually left most letter and visually right most letter. Therefore, if the fix
+        // is available, the letter spacing is no-op for single letter text.
+        return singleLetterLetterSpacing.getLineWidth(0) ==
+            singleLetterWithoutLetterSpacing.getLineWidth(0)
+    }
+
     @Test
     fun empty_string() {
         with(defaultDensity) {
@@ -2744,6 +2764,31 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineBaseline() {
+        with(defaultDensity) {
+            val text = "aaa\nbbb\nccc"
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize)
+            )
+            // 1st
+            assertThat(paragraph.getLineBaseline(0)).isEqualTo(fontSizeInPx * 0.8f)
+            assertThat(paragraph.getLineBaseline(0)).isEqualTo(paragraph.firstBaseline)
+            // 2nd
+            assertThat(paragraph.getLineBaseline(1))
+                .isEqualTo(fontSizeInPx + fontSizeInPx * 0.8f)
+            // last
+            assertThat(paragraph.getLineBaseline(2))
+                .isEqualTo(fontSizeInPx * 2 + fontSizeInPx * 0.8f)
+            assertThat(paragraph.getLineBaseline(2)).isEqualTo(paragraph.lastBaseline)
+        }
+    }
+
+    @Test
     fun getLineBottom() {
         with(defaultDensity) {
             val text = "aaa\nbbb"
@@ -3336,8 +3381,16 @@ class ParagraphIntegrationTest {
 
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
-            assertThat(paragraph.getLineWidth(0))
-                .isEqualTo(fontSizeInPx * text.length * (1 + letterSpacing))
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(fontSizeInPx * text.length * (1 + letterSpacing) -
+                        fontSizeInPx * letterSpacing * 0.5f - // left edge letter spacing
+                        fontSizeInPx * letterSpacing * 0.5f // right edge letter spacing
+                    )
+            } else {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(fontSizeInPx * text.length * (1 + letterSpacing))
+            }
         }
     }
 
@@ -3359,8 +3412,15 @@ class ParagraphIntegrationTest {
 
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
-            assertThat(paragraph.getLineWidth(0))
-                .isEqualTo((fontSizeInPx + letterSpacing) * text.length)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo((fontSizeInPx + letterSpacing) * text.length -
+                        letterSpacing * 0.5f - // left edge letter spacing
+                        letterSpacing * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo((fontSizeInPx + letterSpacing) * text.length)
+            }
         }
     }
 
@@ -3383,7 +3443,14 @@ class ParagraphIntegrationTest {
             assertThat(paragraph.lineCount).isEqualTo(1)
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = ("abc".length * letterSpacing + text.length) * fontSizeInPx
-            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(expectedWidth -
+                        letterSpacing * fontSizeInPx * 0.5f - // left edge letter spacing
+                        0f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            }
         }
     }
 
@@ -3413,7 +3480,14 @@ class ParagraphIntegrationTest {
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = "abc".length * (1 + letterSpacingOverwrite) * fontSizeInPx +
                 "de".length * (1 + letterSpacing) * fontSizeInPx
-            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(expectedWidth -
+                        fontSizeInPx * letterSpacingOverwrite * 0.5f - // left edge letter spacing
+                        fontSizeInPx * letterSpacing * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            }
         }
     }
 
@@ -3445,7 +3519,14 @@ class ParagraphIntegrationTest {
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = (1 + letterSpacing) *
                 ("abc".length * fontSizeOverwriteInPx + "de".length * fontSizeInPx)
-            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(expectedWidth -
+                        letterSpacing * fontSizeOverwriteInPx * 0.5f - // left edge letter spacing
+                        letterSpacing * fontSizeInPx * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            }
         }
     }
 
@@ -3476,7 +3557,14 @@ class ParagraphIntegrationTest {
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = (1 + letterSpacing) *
                 ("abc".length * fontSizeInPx * scaleX + "de".length * fontSizeInPx)
-            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(expectedWidth -
+                        letterSpacing * fontSizeInPx * scaleX * 0.5f - // left edge letter spacing
+                        letterSpacing * fontSizeInPx * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            }
         }
     }
 
@@ -3509,7 +3597,14 @@ class ParagraphIntegrationTest {
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = text.length * letterSpacingInPx +
                 ("abc".length * fontSizeOverwriteInPx + "de".length * fontSizeInPx)
-            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(expectedWidth -
+                        letterSpacingInPx * 0.5f - // left edge letter spacing
+                        letterSpacingInPx * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            }
         }
     }
 
@@ -3541,7 +3636,14 @@ class ParagraphIntegrationTest {
             // Notice that in this test font, the width of character equals to fontSize.
             val expectedWidth = text.length * letterSpacingInPx +
                 ("abc".length * fontSizeInPx * scaleX + "de".length * fontSizeInPx)
-            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineWidth(0))
+                    .isEqualTo(expectedWidth -
+                        letterSpacingInPx * 0.5f - // left edge letter spacing
+                        letterSpacingInPx * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+            }
         }
     }
 
@@ -3570,7 +3672,14 @@ class ParagraphIntegrationTest {
         // Notice that in this test font, the width of character equals to fontSize.
         val expectedWidth = fontSize * text.length + "abc".length * letterSpacingSp +
             "de".length * fontSize * letterSpacingEm
-        assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        if (hasEdgeLetterSpacingBugFix()) {
+            assertThat(paragraph.getLineWidth(0))
+                .isEqualTo(expectedWidth -
+                    letterSpacingSp * 0.5f - // left edge letter spacing
+                    fontSize * letterSpacingEm * 0.5f) // right edge letter spacing
+        } else {
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
     }
 
     @Test
@@ -3597,7 +3706,14 @@ class ParagraphIntegrationTest {
         assertThat(paragraph.lineCount).isEqualTo(1)
         // Notice that in this test font, the width of character equals to fontSize.
         val expectedWidth = fontSize * text.length * (1 + letterSpacingEm)
-        assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        if (hasEdgeLetterSpacingBugFix()) {
+            assertThat(paragraph.getLineWidth(0))
+                .isEqualTo(expectedWidth -
+                    letterSpacingEm * fontSize * 0.5f - // left edge letter spacing
+                    letterSpacingEm * fontSize * 0.5f) // right edge letter spacing
+        } else {
+            assertThat(paragraph.getLineWidth(0)).isEqualTo(expectedWidth)
+        }
     }
 
     @Test
@@ -3866,8 +3982,15 @@ class ParagraphIntegrationTest {
                 )
             )
 
-            assertThat(paragraph.getLineRight(0))
-                .isEqualTo(fontSizeInPx * (1 + letterSpacing) * text.length)
+            if (hasEdgeLetterSpacingBugFix()) {
+                assertThat(paragraph.getLineRight(0))
+                    .isEqualTo(fontSizeInPx * (1 + letterSpacing) * text.length -
+                        fontSizeInPx * 0.5f - // left edge letter spacing
+                        fontSizeInPx * 0.5f) // right edge letter spacing
+            } else {
+                assertThat(paragraph.getLineRight(0))
+                    .isEqualTo(fontSizeInPx * (1 + letterSpacing) * text.length)
+            }
         }
     }
 

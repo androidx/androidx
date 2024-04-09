@@ -280,51 +280,49 @@ class VideoRecordingTest(
     }
 
     @Test
-    fun getCorrectResolution_when_setAspectRatio() {
+    fun getCorrectResolution_when_setAspectRatio4by3() {
+        testGetCorrectResolution_when_setAspectRatio(RATIO_4_3)
+    }
+
+    @Test
+    fun getCorrectResolution_when_setAspectRatio16by9() {
+        testGetCorrectResolution_when_setAspectRatio(RATIO_16_9)
+    }
+
+    private fun testGetCorrectResolution_when_setAspectRatio(aspectRatio: Int) {
         // Pre-arrange.
         assumeExtraCroppingQuirk()
         assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
 
-        for (aspectRatio in listOf(RATIO_4_3, RATIO_16_9)) {
-            // Arrange.
-            val recorder = Recorder.Builder()
-                .setAspectRatio(aspectRatio)
-                .build()
-            val videoCapture = VideoCapture.withOutput(recorder)
+        // Arrange.
+        val recorder = Recorder.Builder()
+            .setAspectRatio(aspectRatio)
+            .build()
+        val videoCapture = VideoCapture.withOutput(recorder)
 
-            if (!camera.isUseCasesCombinationSupported(preview, videoCapture)) {
-                continue
-            }
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture))
 
-            instrumentation.runOnMainSync {
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    videoCapture
-                )
-            }
-
-            val file = File.createTempFile("video_", ".tmp").apply { deleteOnExit() }
-
-            latchForVideoSaved = CountDownLatch(1)
-            latchForVideoRecording = CountDownLatch(5)
-
-            // Act.
-            completeVideoRecording(videoCapture, file)
-
-            // Verify.
-            verifyVideoAspectRatio(
-                getRotatedAspectRatio(aspectRatio, getRotationNeeded(videoCapture, cameraInfo)),
-                file
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                videoCapture
             )
-
-            // Cleanup.
-            instrumentation.runOnMainSync {
-                cameraProvider.unbindAll()
-            }
-            file.delete()
         }
+
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        // Act.
+        val file = temporaryFolder.newFile()
+        completeVideoRecording(videoCapture, file)
+
+        // Verify.
+        verifyVideoAspectRatio(
+            getRotatedAspectRatio(aspectRatio, getRotationNeeded(videoCapture, cameraInfo)),
+            file
+        )
     }
 
     @Test

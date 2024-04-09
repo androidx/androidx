@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
+import androidx.camera.camera2.pipe.integration.adapter.PhysicalCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.getSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraInfo
@@ -86,6 +87,12 @@ class Camera2CameraInfo private constructor(
          */
         @JvmStatic
         fun from(@Suppress("UNUSED_PARAMETER") cameraInfo: CameraInfo): Camera2CameraInfo {
+            // Physical camera
+            if (cameraInfo is PhysicalCameraInfoAdapter) {
+                return cameraInfo.unwrapAs(Camera2CameraInfo::class)!!
+            }
+
+            // Logical camera
             var cameraInfoImpl = (cameraInfo as CameraInfoInternal).implementation
             Preconditions.checkArgument(
                 cameraInfoImpl is CameraInfoAdapter,

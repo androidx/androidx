@@ -53,7 +53,10 @@ internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
     }
     if (previouslyFocusedChildHash == 0) return false
     visitChildren(Nodes.FocusTarget) {
-        if (it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash) {
+        // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+        if (it.isAttached &&
+            it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
+        ) {
             return it.restoreFocusedChild() || it.requestFocus()
         }
     }

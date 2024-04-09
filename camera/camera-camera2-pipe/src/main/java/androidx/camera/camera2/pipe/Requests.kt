@@ -243,14 +243,17 @@ class Request(
 
     override fun toString(): String {
         val parametersString =
-            if (parameters.isEmpty()) "" else ", parameters=${Debug.formatParameterMap(parameters)}"
+            if (parameters.isEmpty()) {
+                ""
+            } else {
+                ", parameters=${Debug.formatParameterMap(parameters, limit = 5)}"
+            }
         val extrasString =
-            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras)}"
+            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras, limit = 5)}"
         val templateString = if (template == null) "" else ", template=$template"
         // Ignore listener count, always include stream list (required), and use super.toString to
         // reference the class name.
-        return "Request@${super.hashCode().toString(16)}(streams=$streams" +
-            "$parametersString$extrasString$templateString)"
+        return "Request(streams=$streams$templateString$parametersString$extrasString)"
     }
 }
 
@@ -261,16 +264,22 @@ class Request(
  * constructor prevents directly creating an instance of it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface RequestFailure {
+interface RequestFailure : UnsafeWrapper {
+    /** Metadata about the request that has failed. */
     val requestMetadata: RequestMetadata
 
+    /** The Camera [FrameNumber] for the request that has failed. */
     val frameNumber: FrameNumber
 
+    /** Indicates the reason the particular request failed, see [CaptureFailure] for details. */
     val reason: Int
 
+    /**
+     * Indicates if images were still captured for this request. If this is true, the camera should
+     * invoke [Request.Listener.onBufferLost] individually for each output that failed. If this is
+     * false, these outputs will never arrive, and the individual callbacks will not be invoked.
+     */
     val wasImageCaptured: Boolean
-
-    val captureFailure: CaptureFailure?
 }
 
 /**
@@ -296,14 +305,12 @@ value class RequestTemplate(val value: Int) {
 
 /**
  * The intended use for this class is to submit the input needed for a reprocessing request, the
- * [InputStream], [ImageWrapper] and [FrameMetadata]. Both values are non-nullable because
+ * [ImageWrapper] and [FrameInfo]. Both values are non-nullable because
  * both values are needed for reprocessing.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class InputRequest(
-    val inputStreamId: InputStreamId,
     val image: ImageWrapper,
-    val frameMetadata: FrameMetadata,
     val frameInfo: FrameInfo
 )
 

@@ -16,9 +16,14 @@
 
 package androidx.compose.ui.text.platform
 
+import android.text.style.ClickableSpan
 import android.text.style.URLSpan
+import android.view.View
+import androidx.annotation.RestrictTo
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.UrlAnnotation
 import java.util.WeakHashMap
 
@@ -37,10 +42,36 @@ import java.util.WeakHashMap
 @Suppress("AcronymName")
 @OptIn(ExperimentalTextApi::class)
 @InternalTextApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class URLSpanCache {
     private val spansByAnnotation = WeakHashMap<UrlAnnotation, URLSpan>()
+    private val urlSpansByAnnotation =
+        WeakHashMap<AnnotatedString.Range<LinkAnnotation.Url>, URLSpan>()
+    private val linkSpansWithListenerByAnnotation =
+        WeakHashMap<AnnotatedString.Range<LinkAnnotation>, ComposeClickableSpan>()
 
     @Suppress("AcronymName")
     fun toURLSpan(urlAnnotation: UrlAnnotation): URLSpan =
         spansByAnnotation.getOrPut(urlAnnotation) { URLSpan(urlAnnotation.url) }
+
+    @Suppress("AcronymName")
+    fun toURLSpan(urlRange: AnnotatedString.Range<LinkAnnotation.Url>): URLSpan =
+        urlSpansByAnnotation.getOrPut(urlRange) { URLSpan(urlRange.item.url) }
+
+    /**
+     * This method takes a [linkRange] which is an annotation that occupies range in Compose text
+     * and converts it into a ClickableSpan
+     */
+    fun toClickableSpan(
+        linkRange: AnnotatedString.Range<LinkAnnotation>
+    ): ClickableSpan? =
+        linkSpansWithListenerByAnnotation.getOrPut(linkRange) {
+            ComposeClickableSpan(linkRange.item)
+        }
+}
+
+private class ComposeClickableSpan(private val link: LinkAnnotation) : ClickableSpan() {
+    override fun onClick(widget: View) {
+        link.linkInteractionListener?.onClicked(link)
+    }
 }

@@ -25,7 +25,9 @@ import static java.util.Collections.emptyList;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.impl.fakes.FakeCameraConfig;
@@ -444,8 +446,8 @@ public final class LifecycleCameraRepositoryTest {
         LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
         LifecycleCamera retrieved = mRepository.getLifecycleCamera(mLifecycle,
-                mCamera.getCameraInfoInternal().getCameraId(),
-                mCameraUseCaseAdapter.getExtendedConfig());
+                CameraUseCaseAdapter.CameraId.create(mCamera.getCameraInfoInternal().getCameraId(),
+                        CameraConfigs.defaultConfig().getCompatibilityId()));
 
         assertThat(lifecycleCamera).isSameInstanceAs(retrieved);
     }
@@ -461,12 +463,10 @@ public final class LifecycleCameraRepositoryTest {
                 newCameraUseCaseAdapter);
 
         LifecycleCamera retrieved1 = mRepository.getLifecycleCamera(mLifecycle,
-                mCameraUseCaseAdapter.getCameraId(),
-                mCameraUseCaseAdapter.getExtendedConfig());
+                mCameraUseCaseAdapter.getCameraId());
 
         LifecycleCamera retrieved2 = mRepository.getLifecycleCamera(mLifecycle,
-                newCameraUseCaseAdapter.getCameraId(),
-                newCameraUseCaseAdapter.getExtendedConfig());
+                newCameraUseCaseAdapter.getCameraId());
 
         assertThat(lifecycleCamera1).isSameInstanceAs(retrieved1);
         assertThat(lifecycleCamera2).isSameInstanceAs(retrieved2);
@@ -476,11 +476,10 @@ public final class LifecycleCameraRepositoryTest {
     @Test
     public void keys() {
         LifecycleCameraRepository.Key key0 = LifecycleCameraRepository.Key.create(mLifecycle,
-                mCameraUseCaseAdapter.getCameraId(),
-                CameraConfigs.defaultConfig().getCompatibilityId());
+                mCameraUseCaseAdapter.getCameraId());
         LifecycleCameraRepository.Key key1 = LifecycleCameraRepository.Key.create(mLifecycle,
-                mCamera.getCameraInfoInternal().getCameraId(),
-                CameraConfigs.defaultConfig().getCompatibilityId());
+                CameraUseCaseAdapter.CameraId.create(mCamera.getCameraInfoInternal().getCameraId(),
+                CameraConfigs.defaultConfig().getCompatibilityId()));
 
         Map<LifecycleCameraRepository.Key, LifecycleOwner> map = new HashMap<>();
         map.put(key0, mLifecycle);
@@ -629,9 +628,10 @@ public final class LifecycleCameraRepositoryTest {
     private CameraUseCaseAdapter createCameraUseCaseAdapterWithNewCameraConfig() {
         CameraConfig cameraConfig = new FakeCameraConfig();
         return new CameraUseCaseAdapter(mCamera,
+                new RestrictedCameraInfo((CameraInfoInternal) mCamera.getCameraInfo(),
+                        cameraConfig),
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
-                new FakeUseCaseConfigFactory(),
-                cameraConfig);
+                new FakeUseCaseConfigFactory());
     }
 }

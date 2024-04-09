@@ -16,7 +16,7 @@
 
 package androidx.camera.impl.utils.futures
 
-import androidx.camera.impl.utils.executor.CameraExecutors
+import androidx.camera.impl.utils.executor.ViewfinderExecutors
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
@@ -84,7 +84,7 @@ internal class ListFuture<V>(
 
             // Let go of the memory held by other futuresInternal
             futuresInternal = null
-        }, CameraExecutors.directExecutor())
+        }, ViewfinderExecutors.directExecutor())
 
         // Now begin the "real" initialization.
 

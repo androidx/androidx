@@ -49,6 +49,8 @@ import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -250,14 +252,18 @@ class SupportedQualitiesVerificationTest(
         assertThat(finalizedEvent!!.error).isEqualTo(VideoRecordEvent.Finalize.ERROR_NONE)
 
         // Verify resolution.
-        if (!hasExtraCroppingQuirk(implName)) {
+        val resolutionToVerify = Size(videoProfile.width, videoProfile.height)
+        val rotationDegrees = getRotationNeeded(videoCapture, cameraInfo)
+        if (!hasExtraCroppingQuirk(implName) && !hasSizeCannotEncodeVideoQuirk(
+                resolutionToVerify,
+                rotationDegrees,
+                isSurfaceProcessingEnabled(videoCapture)
+            )
+        ) {
             verifyVideoResolution(
                 context,
                 file,
-                rotateSize(
-                    Size(videoProfile.width, videoProfile.height),
-                    getRotationNeeded(videoCapture, cameraInfo)
-                )
+                rotateSize(resolutionToVerify, rotationDegrees),
             )
         }
 
@@ -274,4 +280,17 @@ class SupportedQualitiesVerificationTest(
         ).start(
             CameraXExecutors.directExecutor(), eventListener
         )
+
+    private fun hasSizeCannotEncodeVideoQuirk(
+        resolution: Size,
+        rotationDegrees: Int,
+        isSurfaceProcessingEnabled: Boolean
+    ): Boolean {
+        // The quirk will adjust the video resolution so the resolution of VideoProfile can't be
+        // used to verify the saved video.
+        val quirk = DeviceQuirks.get(SizeCannotEncodeVideoQuirk::class.java)
+        return quirk != null && quirk.isProblematicEncodeSize(
+            if (isSurfaceProcessingEnabled) rotateSize(resolution, rotationDegrees) else resolution
+        )
+    }
 }

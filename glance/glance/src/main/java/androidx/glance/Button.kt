@@ -129,13 +129,10 @@ internal fun ButtonElement(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmittableButton : Emittable {
+class EmittableButton : EmittableWithText() {
     override var modifier: GlanceModifier = GlanceModifier
-    var text: String = ""
-    var style: TextStyle? = null
     var colors: ButtonColors? = null
     var enabled: Boolean = true
-    var maxLines: Int = Int.MAX_VALUE
 
     override fun copy(): Emittable = EmittableButton().also {
         it.modifier = modifier

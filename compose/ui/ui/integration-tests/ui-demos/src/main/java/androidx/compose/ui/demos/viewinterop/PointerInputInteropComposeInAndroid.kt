@@ -232,20 +232,16 @@ open class AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager : ComponentA
 
         myContext = peekAvailableContext()!!
 
-        findViewById<TextView>(R.id.text1).text =
-            "Demonstrates correct interop with simple tapping and a window manager"
-        findViewById<TextView>(R.id.text2).text =
-            "The top/outer text and button are Android, and the button dynamically triggers " +
-                "adding/removing a ComposeView via the WindowManager. The inner ComposeView also " +
-                "contains a button that tracks the number of clicks."
-
         button = findViewById<Button>(R.id.button)
         button.setOnClickListener {
-            viewLoaded = if (viewLoaded != null) {
-                myContext.removeWindow(viewLoaded!!)
-                null
+            if (viewLoaded == null) {
+                viewLoaded = myContext.addWindow()
             } else {
-                myContext.addWindow()
+                if (viewLoaded!!.isAttachedToWindow) {
+                    myContext.removeWindow(viewLoaded!!)
+                } else {
+                    myContext.addWindow(viewLoaded)
+                }
             }
         }
     }
@@ -280,7 +276,9 @@ private class ComposeViewLifecycleOwner : SavedStateRegistryOwner, ViewModelStor
         get() = mViewModelStore
 }
 
-private fun Context.buildWindowView(content: @Composable (composeView: View) -> Unit): View {
+private fun Context.buildWindowView(
+    content: @Composable (composeView: View) -> Unit
+): View {
     val lifecycleOwner = ComposeViewLifecycleOwner()
 
     lifecycleOwner.performRestore(null)
@@ -307,9 +305,11 @@ private fun Context.buildWindowView(content: @Composable (composeView: View) -> 
     }
 }
 
-private fun Context.addWindow(): View {
+private fun Context.addWindow(passedView: View? = null): View {
     val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val view = buildWindowView { SimpleClickableButton() }
+
+    // Reuse existing view (otherwise, create a new one).
+    val view = passedView ?: buildWindowView { SimpleClickableButton() }
 
     val layoutParas = WindowManager.LayoutParams()
 

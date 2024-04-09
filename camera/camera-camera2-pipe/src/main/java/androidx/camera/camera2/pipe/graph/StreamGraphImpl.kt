@@ -280,7 +280,7 @@ constructor(
     }
 
     override fun toString(): String {
-        return "StreamGraphImpl $_streamMap"
+        return "StreamGraph($_streamMap)"
     }
 
     /**

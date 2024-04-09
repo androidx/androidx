@@ -17,21 +17,23 @@
 package androidx.compose.foundation.layout.demos
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.samples.SimpleFlowRow
-import androidx.compose.foundation.layout.samples.SimpleFlowRowWithWeights
+import androidx.compose.foundation.layout.samples.SimpleFlowRowMaxLinesDynamicSeeMore
+import androidx.compose.foundation.layout.samples.SimpleFlowRowMaxLinesWithSeeMore
+import androidx.compose.foundation.layout.samples.SimpleFlowRowWithMaxHeight
 import androidx.compose.foundation.layout.samples.SimpleFlowRow_EqualHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SimpleFlowRowDemo() {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         SimpleFlowRow()
-        SimpleFlowRowWithWeights()
+        SimpleFlowRowMaxLinesWithSeeMore()
+        SimpleFlowRowMaxLinesDynamicSeeMore()
+        SimpleFlowRowWithMaxHeight()
         SimpleFlowRow_EqualHeight()
     }
 }

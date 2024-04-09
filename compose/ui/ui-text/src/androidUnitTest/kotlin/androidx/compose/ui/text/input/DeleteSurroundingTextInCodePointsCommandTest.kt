@@ -279,6 +279,36 @@ class DeleteSurroundingTextInCodePointsCommandTest {
     }
 
     @Test
+    fun deletes_whenBothOverflow_withMaxValue_cursorAtStart() {
+        val text = "abcde"
+        val selection = TextRange(0)
+        val eb = EditingBuffer(text, selection)
+
+        DeleteSurroundingTextInCodePointsCommand(
+            lengthBeforeCursor = Int.MAX_VALUE,
+            lengthAfterCursor = Int.MAX_VALUE
+        ).applyTo(eb)
+
+        assertThat(eb.toString()).isEqualTo("")
+        assertThat(eb.cursor).isEqualTo(0)
+    }
+
+    @Test
+    fun deletes_whenBothOverflow_withMaxValue_cursorAtEnd() {
+        val text = "abcde"
+        val selection = TextRange(5)
+        val eb = EditingBuffer(text, selection)
+
+        DeleteSurroundingTextInCodePointsCommand(
+            lengthBeforeCursor = Int.MAX_VALUE,
+            lengthAfterCursor = Int.MAX_VALUE
+        ).applyTo(eb)
+
+        assertThat(eb.toString()).isEqualTo("")
+        assertThat(eb.cursor).isEqualTo(0)
+    }
+
+    @Test
     fun deletes_whenLengthAfterCursorOverflows() {
         val text = "abcde"
         val textAfterDelete = "abcd"

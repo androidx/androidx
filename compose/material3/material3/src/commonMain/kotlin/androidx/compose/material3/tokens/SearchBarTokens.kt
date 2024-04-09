@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// VERSION: v0_126
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -24,11 +23,11 @@ import androidx.compose.ui.unit.dp
 internal object SearchBarTokens {
     val AvatarShape = ShapeKeyTokens.CornerFull
     val AvatarSize = 30.0.dp
-    val ContainerColor = ColorSchemeKeyTokens.Surface
+    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
     val ContainerElevation = ElevationTokens.Level3
     val ContainerHeight = 56.0.dp
     val ContainerShape = ShapeKeyTokens.CornerFull
-    val ContainerSurfaceTintLayerColor = ColorSchemeKeyTokens.SurfaceTint
+    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
     val HoverSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val InputTextColor = ColorSchemeKeyTokens.OnSurface
     val InputTextFont = TypographyKeyTokens.BodyLarge

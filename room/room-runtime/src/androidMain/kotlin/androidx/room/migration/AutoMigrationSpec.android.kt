@@ -41,11 +41,8 @@ actual interface AutoMigrationSpec {
      * @param connection The database connection.
      */
     actual fun onPostMigrate(connection: SQLiteConnection) {
-        // TODO(b/314338741): Signal users this non-abstract overload should be implemented
         if (connection is SupportSQLiteConnection) {
             onPostMigrate(connection.db)
-        } else {
-            TODO("Not yet migrated to use SQLiteDriver")
         }
     }
 }

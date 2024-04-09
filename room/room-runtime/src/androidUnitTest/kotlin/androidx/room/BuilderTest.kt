@@ -17,6 +17,7 @@ package androidx.room
 
 import android.content.Context
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room.Room.databaseBuilder
 import androidx.room.Room.inMemoryDatabaseBuilder
 import androidx.room.migration.Migration
@@ -27,6 +28,8 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import instantiateImpl
 import java.io.File
 import java.util.concurrent.Executor
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,8 +86,8 @@ class BuilderTest {
             mock(), TestDatabase::class.java, "foo"
         ).setQueryExecutor(executor).build()
 
-        assertThat(db.mDatabaseConfiguration.queryExecutor).isEqualTo(executor)
-        assertThat(db.mDatabaseConfiguration.transactionExecutor).isEqualTo(executor)
+        assertThat(db.databaseConfiguration.queryExecutor).isEqualTo(executor)
+        assertThat(db.databaseConfiguration.transactionExecutor).isEqualTo(executor)
     }
 
     @Test
@@ -94,8 +97,8 @@ class BuilderTest {
             mock(), TestDatabase::class.java, "foo"
         ).setTransactionExecutor(executor).build()
 
-        assertThat(db.mDatabaseConfiguration.queryExecutor).isEqualTo(executor)
-        assertThat(db.mDatabaseConfiguration.transactionExecutor).isEqualTo(executor)
+        assertThat(db.databaseConfiguration.queryExecutor).isEqualTo(executor)
+        assertThat(db.databaseConfiguration.transactionExecutor).isEqualTo(executor)
     }
 
     @Test
@@ -106,8 +109,48 @@ class BuilderTest {
             mock(), TestDatabase::class.java, "foo"
         ).setQueryExecutor(executor1).setTransactionExecutor(executor2).build()
 
-        assertThat(db.mDatabaseConfiguration.queryExecutor).isEqualTo(executor1)
-        assertThat(db.mDatabaseConfiguration.transactionExecutor).isEqualTo(executor2)
+        assertThat(db.databaseConfiguration.queryExecutor).isEqualTo(executor1)
+        assertThat(db.databaseConfiguration.transactionExecutor).isEqualTo(executor2)
+    }
+
+    @Test
+    fun executors_setCoroutineContext() {
+        assertThrows<IllegalArgumentException> {
+            databaseBuilder(
+                mock(), TestDatabase::class.java, "foo"
+            ).setQueryCoroutineContext(Dispatchers.IO).setTransactionExecutor(mock()).build()
+        }.hasMessageThat()
+            .contains("This builder has already been configured with a CoroutineContext.")
+    }
+
+    @Test
+    fun coroutineContext_setQueryExecutor() {
+        assertThrows<IllegalArgumentException> {
+            databaseBuilder(
+                mock(), TestDatabase::class.java, "foo"
+            ).setQueryExecutor(mock()).setQueryCoroutineContext(Dispatchers.IO).build()
+        }.hasMessageThat()
+            .contains("This builder has already been configured with an Executor.")
+    }
+
+    @Test
+    fun coroutineContext_setTransactionExecutor() {
+        assertThrows<IllegalArgumentException> {
+            databaseBuilder(
+                mock(), TestDatabase::class.java, "foo"
+            ).setTransactionExecutor(mock()).setQueryCoroutineContext(Dispatchers.IO).build()
+        }.hasMessageThat()
+            .contains("This builder has already been configured with an Executor.")
+    }
+
+    @Test
+    fun coroutineContext_missingDispatcher() {
+        assertThrows<IllegalArgumentException> {
+            databaseBuilder(
+                mock(), TestDatabase::class.java, "foo"
+            ).setQueryCoroutineContext(EmptyCoroutineContext).build()
+        }.hasMessageThat()
+            .contains("It is required that the coroutine context contain a dispatcher.")
     }
 
     @Test
@@ -325,7 +368,7 @@ class BuilderTest {
         )
             .addMigrations(EmptyMigration(1, 0))
             .build() as BuilderTest_TestDatabase_Impl
-        val config: DatabaseConfiguration = db.mDatabaseConfiguration
+        val config: DatabaseConfiguration = db.databaseConfiguration
         assertThat(
             config.migrationContainer.findMigrationPath(1, 2)).isEqualTo((db.mAutoMigrations)
         )
@@ -488,10 +531,10 @@ class BuilderTest {
     }
 
     internal abstract class TestDatabase : RoomDatabase() {
-        lateinit var mDatabaseConfiguration: DatabaseConfiguration
+        lateinit var databaseConfiguration: DatabaseConfiguration
         override fun init(configuration: DatabaseConfiguration) {
             super.init(configuration)
-            mDatabaseConfiguration = configuration
+            databaseConfiguration = configuration
         }
     }
 

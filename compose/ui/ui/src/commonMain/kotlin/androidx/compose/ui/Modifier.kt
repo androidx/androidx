@@ -182,7 +182,7 @@ interface Modifier {
      * @see androidx.compose.ui.node.ParentDataModifierNode
      * @see androidx.compose.ui.node.LayoutAwareModifierNode
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
-     * @see androidx.compose.ui.node.IntermediateLayoutModifierNode
+     * @see androidx.compose.ui.node.ApproachLayoutModifierNode
      */
     abstract class Node : DelegatableNode {
         @Suppress("LeakingThis")
@@ -369,7 +369,7 @@ interface Modifier {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }
 
-        internal fun setAsDelegateTo(owner: Node) {
+        internal open fun setAsDelegateTo(owner: Node) {
             node = owner
         }
     }

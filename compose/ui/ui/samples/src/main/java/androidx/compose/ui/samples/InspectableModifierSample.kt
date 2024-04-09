@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
+@Suppress("DEPRECATION")
 fun InspectableModifierSample() {
 
     /**

@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -46,13 +47,6 @@ internal fun DensityForcedSize(
 ) {
     SubcomposeLayout(
         modifier = modifier
-            .then(
-                if (size.isSpecified) {
-                    Modifier.size(size)
-                } else {
-                    Modifier
-                }
-            )
     ) { constraints ->
         val measurables = subcompose(Unit) {
             val maxWidth = constraints.maxWidth.toDp()
@@ -63,7 +57,7 @@ internal fun DensityForcedSize(
                 maxWidth
             }
             val requiredHeight = if (size.isSpecified) {
-                max(maxWidth, size.height)
+                max(maxHeight, size.height)
             } else {
                 maxHeight
             }
@@ -107,7 +101,7 @@ internal fun DensityForcedSize(
 
         val placeables = measurables.map { it.measure(constraints) }
 
-        layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(placeables.maxOf(Placeable::width), placeables.maxOf(Placeable::height)) {
             placeables.forEach {
                 it.placeRelative(0, 0)
             }

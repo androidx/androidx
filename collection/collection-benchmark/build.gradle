@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -34,8 +33,6 @@ plugins {
     id("androidx.benchmark")
     id("androidx.benchmark.darwin")
 }
-
-def macEnabled = KmpPlatformsKt.enableMac(project)
 
 androidXMultiplatform {
     android()
@@ -80,12 +77,10 @@ androidXMultiplatform {
             }
         }
 
-        if (macEnabled) {
-            darwinMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":benchmark:benchmark-darwin"))
-                }
+        darwinMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":benchmark:benchmark-darwin"))
             }
         }
 

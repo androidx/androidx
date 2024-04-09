@@ -171,7 +171,7 @@ package androidx.leanback.app {
     method @Deprecated public void showTitleView(boolean);
   }
 
-  @Deprecated public static class BrowseFragment.ListRowFragmentFactory extends androidx.leanback.app.BrowseFragment.FragmentFactory<androidx.leanback.app.RowsFragment> {
+  @Deprecated public static class BrowseFragment.ListRowFragmentFactory extends androidx.leanback.app.BrowseFragment.FragmentFactory<androidx.leanback.app.RowsFragment!> {
     ctor @Deprecated public BrowseFragment.ListRowFragmentFactory();
     method @Deprecated public androidx.leanback.app.RowsFragment! createFragment(Object!);
   }
@@ -271,7 +271,7 @@ package androidx.leanback.app {
     method public void showTitleView(boolean);
   }
 
-  public static class BrowseSupportFragment.ListRowFragmentFactory extends androidx.leanback.app.BrowseSupportFragment.FragmentFactory<androidx.leanback.app.RowsSupportFragment> {
+  public static class BrowseSupportFragment.ListRowFragmentFactory extends androidx.leanback.app.BrowseSupportFragment.FragmentFactory<androidx.leanback.app.RowsSupportFragment!> {
     ctor public BrowseSupportFragment.ListRowFragmentFactory();
     method public androidx.leanback.app.RowsSupportFragment! createFragment(Object!);
   }
@@ -863,11 +863,11 @@ package androidx.leanback.app {
     method @Deprecated public void setSelectedPosition(int, boolean, androidx.leanback.widget.Presenter.ViewHolderTask!);
   }
 
-  @Deprecated public static class RowsFragment.MainFragmentAdapter extends androidx.leanback.app.BrowseFragment.MainFragmentAdapter<androidx.leanback.app.RowsFragment> {
+  @Deprecated public static class RowsFragment.MainFragmentAdapter extends androidx.leanback.app.BrowseFragment.MainFragmentAdapter<androidx.leanback.app.RowsFragment!> {
     ctor @Deprecated public RowsFragment.MainFragmentAdapter(androidx.leanback.app.RowsFragment!);
   }
 
-  @Deprecated public static class RowsFragment.MainFragmentRowsAdapter extends androidx.leanback.app.BrowseFragment.MainFragmentRowsAdapter<androidx.leanback.app.RowsFragment> {
+  @Deprecated public static class RowsFragment.MainFragmentRowsAdapter extends androidx.leanback.app.BrowseFragment.MainFragmentRowsAdapter<androidx.leanback.app.RowsFragment!> {
     ctor @Deprecated public RowsFragment.MainFragmentRowsAdapter(androidx.leanback.app.RowsFragment!);
   }
 
@@ -902,11 +902,11 @@ package androidx.leanback.app {
     method public void setSelectedPosition(int, boolean, androidx.leanback.widget.Presenter.ViewHolderTask!);
   }
 
-  public static class RowsSupportFragment.MainFragmentAdapter extends androidx.leanback.app.BrowseSupportFragment.MainFragmentAdapter<androidx.leanback.app.RowsSupportFragment> {
+  public static class RowsSupportFragment.MainFragmentAdapter extends androidx.leanback.app.BrowseSupportFragment.MainFragmentAdapter<androidx.leanback.app.RowsSupportFragment!> {
     ctor public RowsSupportFragment.MainFragmentAdapter(androidx.leanback.app.RowsSupportFragment!);
   }
 
-  public static class RowsSupportFragment.MainFragmentRowsAdapter extends androidx.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter<androidx.leanback.app.RowsSupportFragment> {
+  public static class RowsSupportFragment.MainFragmentRowsAdapter extends androidx.leanback.app.BrowseSupportFragment.MainFragmentRowsAdapter<androidx.leanback.app.RowsSupportFragment!> {
     ctor public RowsSupportFragment.MainFragmentRowsAdapter(androidx.leanback.app.RowsSupportFragment!);
   }
 
@@ -1211,7 +1211,7 @@ package androidx.leanback.media {
     field @Deprecated protected final androidx.leanback.widget.PlaybackControlsRow.ThumbsUpAction! mThumbsUpAction;
   }
 
-  public class PlaybackBannerControlGlue<T extends androidx.leanback.media.PlayerAdapter> extends androidx.leanback.media.PlaybackBaseControlGlue<T> {
+  public class PlaybackBannerControlGlue<T extends androidx.leanback.media.PlayerAdapter> extends androidx.leanback.media.PlaybackBaseControlGlue<T!> {
     ctor public PlaybackBannerControlGlue(android.content.Context, int[], int[], T!);
     ctor public PlaybackBannerControlGlue(android.content.Context, int[], T!);
     method public int[] getFastForwardSpeeds();
@@ -1398,7 +1398,7 @@ package androidx.leanback.media {
     method public void onVideoSizeChanged(int, int);
   }
 
-  public class PlaybackTransportControlGlue<T extends androidx.leanback.media.PlayerAdapter> extends androidx.leanback.media.PlaybackBaseControlGlue<T> {
+  public class PlaybackTransportControlGlue<T extends androidx.leanback.media.PlayerAdapter> extends androidx.leanback.media.PlaybackBaseControlGlue<T!> {
     ctor public PlaybackTransportControlGlue(android.content.Context!, T!);
     method public final androidx.leanback.widget.PlaybackSeekDataProvider! getSeekProvider();
     method public final boolean isSeekEnabled();
@@ -2002,7 +2002,7 @@ package androidx.leanback.widget {
     field public static final int NO_CHECK_SET = 0; // 0x0
   }
 
-  public static class GuidedAction.Builder extends androidx.leanback.widget.GuidedAction.BuilderBase<androidx.leanback.widget.GuidedAction.Builder> {
+  public static class GuidedAction.Builder extends androidx.leanback.widget.GuidedAction.BuilderBase<androidx.leanback.widget.GuidedAction.Builder!> {
     ctor @Deprecated public GuidedAction.Builder();
     ctor public GuidedAction.Builder(android.content.Context?);
     method public androidx.leanback.widget.GuidedAction build();
@@ -2106,7 +2106,7 @@ package androidx.leanback.widget {
     method public void onAutofill(android.view.View!);
   }
 
-  public class GuidedActionDiffCallback extends androidx.leanback.widget.DiffCallback<androidx.leanback.widget.GuidedAction> {
+  public class GuidedActionDiffCallback extends androidx.leanback.widget.DiffCallback<androidx.leanback.widget.GuidedAction!> {
     ctor public GuidedActionDiffCallback();
     method public boolean areContentsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction);
     method public boolean areItemsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction);
@@ -2201,12 +2201,12 @@ package androidx.leanback.widget {
     method public void setDate(long);
   }
 
-  public static final class GuidedDatePickerAction.Builder extends androidx.leanback.widget.GuidedDatePickerAction.BuilderBase<androidx.leanback.widget.GuidedDatePickerAction.Builder> {
+  public static final class GuidedDatePickerAction.Builder extends androidx.leanback.widget.GuidedDatePickerAction.BuilderBase<androidx.leanback.widget.GuidedDatePickerAction.Builder!> {
     ctor public GuidedDatePickerAction.Builder(android.content.Context);
     method public androidx.leanback.widget.GuidedDatePickerAction build();
   }
 
-  public abstract static class GuidedDatePickerAction.BuilderBase<B extends androidx.leanback.widget.GuidedDatePickerAction.BuilderBase> extends androidx.leanback.widget.GuidedAction.BuilderBase<B> {
+  public abstract static class GuidedDatePickerAction.BuilderBase<B extends androidx.leanback.widget.GuidedDatePickerAction.BuilderBase> extends androidx.leanback.widget.GuidedAction.BuilderBase<B!> {
     ctor public GuidedDatePickerAction.BuilderBase(android.content.Context);
     method protected final void applyDatePickerValues(androidx.leanback.widget.GuidedDatePickerAction);
     method public B! date(long);
@@ -2484,10 +2484,10 @@ package androidx.leanback.widget {
     method public void onActionClicked(androidx.leanback.widget.Action);
   }
 
-  public interface OnItemViewClickedListener extends androidx.leanback.widget.BaseOnItemViewClickedListener<androidx.leanback.widget.Row> {
+  public interface OnItemViewClickedListener extends androidx.leanback.widget.BaseOnItemViewClickedListener<androidx.leanback.widget.Row!> {
   }
 
-  public interface OnItemViewSelectedListener extends androidx.leanback.widget.BaseOnItemViewSelectedListener<androidx.leanback.widget.Row> {
+  public interface OnItemViewSelectedListener extends androidx.leanback.widget.BaseOnItemViewSelectedListener<androidx.leanback.widget.Row!> {
   }
 
   public class PageRow extends androidx.leanback.widget.Row {
@@ -2530,7 +2530,7 @@ package androidx.leanback.widget {
     method @CallSuper public void updateValues();
   }
 
-  public static class Parallax.FloatProperty extends android.util.Property<androidx.leanback.widget.Parallax,java.lang.Float> {
+  public static class Parallax.FloatProperty extends android.util.Property<androidx.leanback.widget.Parallax!,java.lang.Float!> {
     ctor public Parallax.FloatProperty(String!, int);
     method public final androidx.leanback.widget.Parallax.PropertyMarkerValue! at(float, float);
     method public final androidx.leanback.widget.Parallax.PropertyMarkerValue! atAbsolute(float);
@@ -2546,7 +2546,7 @@ package androidx.leanback.widget {
     field public static final float UNKNOWN_BEFORE = -3.4028235E38f;
   }
 
-  public static class Parallax.IntProperty extends android.util.Property<androidx.leanback.widget.Parallax,java.lang.Integer> {
+  public static class Parallax.IntProperty extends android.util.Property<androidx.leanback.widget.Parallax!,java.lang.Integer!> {
     ctor public Parallax.IntProperty(String!, int);
     method public final androidx.leanback.widget.Parallax.PropertyMarkerValue! at(int, float);
     method public final androidx.leanback.widget.Parallax.PropertyMarkerValue! atAbsolute(int);
@@ -2870,7 +2870,7 @@ package androidx.leanback.widget {
     method public void unselect();
   }
 
-  public class RecyclerViewParallax extends androidx.leanback.widget.Parallax<androidx.leanback.widget.RecyclerViewParallax.ChildPositionProperty> {
+  public class RecyclerViewParallax extends androidx.leanback.widget.Parallax<androidx.leanback.widget.RecyclerViewParallax.ChildPositionProperty!> {
     ctor public RecyclerViewParallax();
     method public androidx.leanback.widget.RecyclerViewParallax.ChildPositionProperty! createProperty(String!, int);
     method public float getMaxValue();

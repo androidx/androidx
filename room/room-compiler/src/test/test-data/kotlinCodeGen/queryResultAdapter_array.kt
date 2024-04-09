@@ -15,11 +15,10 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.arrayOfNulls
 import kotlin.collections.List
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -126,7 +125,6 @@ public class MyDao_Impl(
   }
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

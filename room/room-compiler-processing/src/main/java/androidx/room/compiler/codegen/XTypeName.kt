@@ -193,6 +193,12 @@ open class XTypeName protected constructor(
          * respectively.
          */
         fun getArrayName(componentTypeName: XTypeName): XTypeName {
+            componentTypeName.java.let {
+                require(it !is JWildcardTypeName || it.lowerBounds.isEmpty()) {
+                    "Can't have contra-variant component types in Java arrays. Found '$it'."
+                }
+            }
+
             val (java, kotlin) = when (componentTypeName) {
                 PRIMITIVE_BOOLEAN ->
                     JArrayTypeName.of(JTypeName.BOOLEAN) to BOOLEAN_ARRAY
@@ -210,9 +216,16 @@ open class XTypeName protected constructor(
                     JArrayTypeName.of(JTypeName.FLOAT) to FLOAT_ARRAY
                 PRIMITIVE_DOUBLE ->
                     JArrayTypeName.of(JTypeName.DOUBLE) to DOUBLE_ARRAY
-                else ->
-                    JArrayTypeName.of(componentTypeName.java) to
-                        ARRAY.parameterizedBy(componentTypeName.kotlin)
+                else -> {
+                    componentTypeName.java.let {
+                        if (it is JWildcardTypeName) {
+                            JArrayTypeName.of(it.upperBounds.single())
+                        } else {
+                            JArrayTypeName.of(it)
+                        }
+                    } to
+                    ARRAY.parameterizedBy(componentTypeName.kotlin)
+                }
             }
             return XTypeName(
                 java = java,

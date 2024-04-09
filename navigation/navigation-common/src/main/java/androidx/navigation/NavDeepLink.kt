@@ -305,11 +305,9 @@ public class NavDeepLink internal constructor(
                     val argument = arguments[argName]
                     if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
                         // Passing in a value the exact same as the placeholder will be treated the
-                        // as if no value was passed, being replaced if it is optional or throwing an
-                        // error if it is required.
-                        if (value != "{$argName}" &&
-                            parseArgument(queryParamBundle, argName, value, argument)
-                        ) {
+                        // as if no value was passed (unless value is based on String),
+                        // being replaced if it is optional or throwing an error if it is required.
+                        if (parseArgument(queryParamBundle, argName, value, argument)) {
                             return false
                         }
                     }

@@ -435,7 +435,7 @@ private fun Avatar3SlotButton(enabled: Boolean) =
 @Composable
 private fun MultilineButton(
     enabled: Boolean,
-    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit = {
         Text(
@@ -457,7 +457,7 @@ private fun MultilineButton(
 @Composable
 private fun Multiline3SlotButton(
     enabled: Boolean,
-    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit = {
         Text(

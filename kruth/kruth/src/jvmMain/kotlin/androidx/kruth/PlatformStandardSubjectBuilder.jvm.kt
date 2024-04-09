@@ -17,6 +17,8 @@
 package androidx.kruth
 
 import com.google.common.base.Optional
+import com.google.common.collect.Multimap
+import com.google.common.collect.Multiset
 import java.math.BigDecimal
 
 internal actual interface PlatformStandardSubjectBuilder {
@@ -24,6 +26,8 @@ internal actual interface PlatformStandardSubjectBuilder {
     fun that(actual: Class<*>): ClassSubject
     fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T>
     fun that(actual: BigDecimal): BigDecimalSubject
+    fun <T> that(actual: Multiset<T>): MultisetSubject<T>
+    fun <K, V> that(actual: Multimap<K, V>): MultimapSubject<K, V>
 }
 
 internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
@@ -38,4 +42,10 @@ internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
 
     override fun that(actual: BigDecimal): BigDecimalSubject =
         BigDecimalSubject(actual = actual, metadata = metadata)
+
+    override fun <T> that(actual: Multiset<T>): MultisetSubject<T> =
+        MultisetSubject(actual = actual, metadata = metadata)
+
+    override fun <K, V> that(actual: Multimap<K, V>): MultimapSubject<K, V> =
+        MultimapSubject(actual = actual, metadata = metadata)
 }

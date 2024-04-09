@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Information about layout state of individual item in lazy staggered grid.
@@ -157,7 +159,8 @@ internal class LazyStaggeredGridMeasureResult(
     override val viewportEndOffset: Int,
     override val beforeContentPadding: Int,
     override val afterContentPadding: Int,
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
+    val coroutineScope: CoroutineScope
 ) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -198,16 +201,16 @@ internal class LazyStaggeredGridMeasureResult(
                 // not visible anymore, and with 0 to know when the firstVisibleItemIndices will
                 // change. when we have a beforeContentPadding those values will not be the same.
                 val canApply = if (delta < 0) { // scrolling forward
-                    it.mainAxisOffset + it.sizeWithSpacings - viewportStartOffset > -delta
+                    it.mainAxisOffset + it.mainAxisSizeWithSpacings - viewportStartOffset > -delta
                 } else { // scrolling backward
                     viewportStartOffset - it.mainAxisOffset > delta
                 }
                 if (!canApply) return false
             }
             // item is partially visible at the bottom.
-            if (it.mainAxisOffset + it.sizeWithSpacings >= viewportEndOffset) {
+            if (it.mainAxisOffset + it.mainAxisSizeWithSpacings >= viewportEndOffset) {
                 val canApply = if (delta < 0) { // scrolling forward
-                    it.mainAxisOffset + it.sizeWithSpacings - viewportEndOffset > -delta
+                    it.mainAxisOffset + it.mainAxisSizeWithSpacings - viewportEndOffset > -delta
                 } else { // scrolling backward
                     viewportEndOffset - it.mainAxisOffset > delta
                 }
@@ -256,5 +259,6 @@ internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
     mainAxisItemSpacing = 0,
     slots = LazyStaggeredGridSlots(EmptyArray, EmptyArray),
     spanProvider = LazyStaggeredGridSpanProvider(MutableIntervalList()),
-    density = Density(1f)
+    density = Density(1f),
+    coroutineScope = CoroutineScope(EmptyCoroutineContext)
 )

@@ -32,7 +32,7 @@ dependencies {
     compileOnly(libs.androidLintMinComposeApi)
     compileOnly(libs.kotlinStdlib)
 
-    api(libs.kotlinMetadataJvm)
+    api(libs.kotlinMetadataJvm) { exclude group: "org.jetbrains.kotlin" }
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)

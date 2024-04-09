@@ -16,16 +16,20 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.fastForEach
+import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.collection.wrapIntoSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import androidx.compose.runtime.snapshots.StateObjectImpl
+import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
+import androidx.compose.runtime.snapshots.fastFilterIndexed
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastGroupBy
 import androidx.compose.runtime.snapshots.fastMap
@@ -210,8 +214,8 @@ class Recomposer(
         _knownCompositionsCache = newCache
         newCache
     }
-    private var snapshotInvalidations = IdentityArraySet<Any>()
-    private val compositionInvalidations = mutableListOf<ControlledComposition>()
+    private var snapshotInvalidations = MutableScatterSet<Any>()
+    private val compositionInvalidations = mutableVectorOf<ControlledComposition>()
     private val compositionsAwaitingApply = mutableListOf<ControlledComposition>()
     private val compositionValuesAwaitingInsert = mutableListOf<MovableContentStateReference>()
     private val compositionValuesRemoved =
@@ -298,7 +302,7 @@ class Recomposer(
     private fun deriveStateLocked(): CancellableContinuation<Unit>? {
         if (_state.value <= State.ShuttingDown) {
             clearKnownCompositionsLocked()
-            snapshotInvalidations = IdentityArraySet()
+            snapshotInvalidations = MutableScatterSet()
             compositionInvalidations.clear()
             compositionsAwaitingApply.clear()
             compositionValuesAwaitingInsert.clear()
@@ -314,7 +318,7 @@ class Recomposer(
                 State.Inactive
             }
             runnerJob == null -> {
-                snapshotInvalidations = IdentityArraySet()
+                snapshotInvalidations = MutableScatterSet()
                 compositionInvalidations.clear()
                 if (hasBroadcastFrameClockAwaitersLocked) State.InactivePendingWork
                 else State.Inactive
@@ -436,7 +440,8 @@ class Recomposer(
     private fun recordComposerModifications(): Boolean {
         val changes = synchronized(stateLock) {
             if (snapshotInvalidations.isEmpty()) return hasFrameWorkLocked
-            snapshotInvalidations.also { snapshotInvalidations = IdentityArraySet() }
+            snapshotInvalidations.wrapIntoSet()
+                .also { snapshotInvalidations = MutableScatterSet() }
         }
         val compositions = synchronized(stateLock) {
             knownCompositions
@@ -452,7 +457,7 @@ class Recomposer(
                     if (_state.value <= State.ShuttingDown) return@run
                 }
             }
-            snapshotInvalidations = IdentityArraySet()
+            snapshotInvalidations = MutableScatterSet()
             complete = true
         } finally {
             if (!complete) {
@@ -475,14 +480,14 @@ class Recomposer(
     private inline fun recordComposerModifications(
         onEachInvalidComposition: (ControlledComposition) -> Unit
     ) {
-        val changes = snapshotInvalidations
+        val changes = snapshotInvalidations.wrapIntoSet()
         if (changes.isNotEmpty()) {
             knownCompositions.fastForEach { composition ->
                 composition.recordModificationsOf(changes)
             }
-            snapshotInvalidations = IdentityArraySet()
+            snapshotInvalidations = MutableScatterSet()
         }
-        compositionInvalidations.fastForEach(onEachInvalidComposition)
+        compositionInvalidations.forEach(onEachInvalidComposition)
         compositionInvalidations.clear()
         if (deriveStateLocked() != null) {
             error("called outside of runRecomposeAndApplyChanges")
@@ -516,7 +521,8 @@ class Recomposer(
         val toApply = mutableListOf<ControlledComposition>()
         val toLateApply = mutableScatterSetOf<ControlledComposition>()
         val toComplete = mutableScatterSetOf<ControlledComposition>()
-        val modifiedValues = IdentityArraySet<Any>()
+        val modifiedValues = MutableScatterSet<Any>()
+        val modifiedValuesSet = modifiedValues.wrapIntoSet()
         val alreadyComposed = mutableScatterSetOf<ControlledComposition>()
 
         fun clearRecompositionState() {
@@ -588,7 +594,7 @@ class Recomposer(
                     // composers to work on
                     recordComposerModifications()
                     synchronized(stateLock) {
-                        compositionInvalidations.fastForEach {
+                        compositionInvalidations.forEach {
                             toRecompose += it
                         }
                         compositionInvalidations.clear()
@@ -617,14 +623,26 @@ class Recomposer(
                         // of a value change by a composition. This can happen, for example, if
                         // a CompositionLocal changes in a parent and was read in a child
                         // composition that was otherwise valid.
-                        if (modifiedValues.isNotEmpty()) {
+                        if (modifiedValues.isNotEmpty() || compositionInvalidations.isNotEmpty()) {
                             synchronized(stateLock) {
                                 knownCompositions.fastForEach { value ->
                                     if (
                                         value !in alreadyComposed &&
-                                        value.observesAnyOf(modifiedValues)
+                                        value.observesAnyOf(modifiedValuesSet)
                                     ) {
                                         toRecompose += value
+                                    }
+                                }
+
+                                // Composable lambda is a special kind of value that is not observed
+                                // by the snapshot system, but invalidates composition scope
+                                // directly instead.
+                                compositionInvalidations.removeIf { value ->
+                                    if (value !in alreadyComposed && value !in toRecompose) {
+                                        toRecompose += value
+                                        true
+                                    } else {
+                                        false
                                     }
                                 }
                             }
@@ -728,7 +746,7 @@ class Recomposer(
 
                 compositionsAwaitingApply.clear()
                 compositionInvalidations.clear()
-                snapshotInvalidations = IdentityArraySet()
+                snapshotInvalidations = MutableScatterSet()
 
                 compositionValuesAwaitingInsert.clear()
                 compositionValuesRemoved.clear()
@@ -852,7 +870,7 @@ class Recomposer(
     suspend fun runRecomposeConcurrentlyAndApplyChanges(
         recomposeCoroutineContext: CoroutineContext
     ) = recompositionRunner { parentFrameClock ->
-        require(recomposeCoroutineContext[Job] == null) {
+        requirePrecondition(recomposeCoroutineContext[Job] == null) {
             "recomposeCoroutineContext may not contain a Job; found " +
                 recomposeCoroutineContext[Job]
         }
@@ -922,13 +940,13 @@ class Recomposer(
                     synchronized(stateLock) {
                         compositionsAwaitingApply.fastForEach { toApply += it }
                         compositionsAwaitingApply.clear()
-                        compositionInvalidations.fastForEach { toRecompose += it }
+                        compositionInvalidations.forEach { toRecompose += it }
                         compositionInvalidations.clear()
                         frameSignal.takeFrameRequestLocked()
                     }
 
                     // Perform recomposition for any invalidated composers
-                    val modifiedValues = IdentityArraySet<Any>()
+                    val modifiedValues = MutableScatterSet<Any>()
                     try {
                         toRecompose.fastForEach { composer ->
                             performRecompose(composer, modifiedValues)?.let {
@@ -1162,7 +1180,7 @@ class Recomposer(
 
     private fun performRecompose(
         composition: ControlledComposition,
-        modifiedValues: IdentityArraySet<Any>?
+        modifiedValues: MutableScatterSet<Any>?
     ): ControlledComposition? {
         if (composition.isComposing ||
             composition.isDisposed ||
@@ -1174,7 +1192,7 @@ class Recomposer(
                     // Record write performed by a previous composition as if they happened during
                     // composition.
                     composition.prepareCompose {
-                        modifiedValues.fastForEach { composition.recordWriteOf(it) }
+                        modifiedValues.forEach { composition.recordWriteOf(it) }
                     }
                 }
                 composition.recompose()
@@ -1184,7 +1202,7 @@ class Recomposer(
 
     private fun performInsertValues(
         references: List<MovableContentStateReference>,
-        modifiedValues: IdentityArraySet<Any>?
+        modifiedValues: MutableScatterSet<Any>?
     ): List<ControlledComposition> {
         val tasks = references.fastGroupBy { it.composition }
         for ((composition, refs) in tasks) {
@@ -1198,7 +1216,35 @@ class Recomposer(
                             compositionValuesRemoved.removeLastMultiValue(reference.content)
                     }
                 }
-                composition.insertMovableContent(pairs)
+
+                // Avoid mixing creating new content with moving content as the moved content
+                // may release content when it is moved as it is recomposed when move.
+                val toInsert = if (
+                    pairs.fastAll { it.second == null } || pairs.fastAll { it.second != null }
+                ) { pairs } else {
+                    // Return the content not moving to the awaiting list. These will come back
+                    // here in the next iteration of the caller's loop and either have content
+                    // to move or by still needing to create the content.
+                    val toReturn = pairs.fastMapNotNull { item ->
+                        if (item.second == null) item.first else null
+                    }
+                    synchronized(stateLock) {
+                        compositionValuesAwaitingInsert += toReturn
+                    }
+
+                    // Only insert the moving content this time
+                    pairs.fastFilterIndexed { _, item -> item.second != null }
+                }
+
+                // toInsert is guaranteed to be not empty as,
+                // 1) refs is guaranteed to be not empty as a condition of groupBy
+                // 2) pairs is guaranteed to be not empty as it is a map of refs
+                // 3) toInsert is guaranteed to not be empty because the toReturn and toInsert
+                //    lists have at least one item by the condition of the guard in the if
+                //    expression. If one would be empty the condition is true and the filter is not
+                //    performed. As both have at least one item toInsert has at least one item. If
+                //    the filter is not performed the list is pairs which has at least one item.
+                composition.insertMovableContent(toInsert)
             }
         }
         return tasks.keys.toList()
@@ -1229,7 +1275,7 @@ class Recomposer(
 
     private fun writeObserverOf(
         composition: ControlledComposition,
-        modifiedValues: IdentityArraySet<Any>?
+        modifiedValues: MutableScatterSet<Any>?
     ): (Any) -> Unit {
         return { value ->
             composition.recordWriteOf(value)
@@ -1239,7 +1285,7 @@ class Recomposer(
 
     private inline fun <T> composing(
         composition: ControlledComposition,
-        modifiedValues: IdentityArraySet<Any>?,
+        modifiedValues: MutableScatterSet<Any>?,
         block: () -> T
     ): T {
         val snapshot = Snapshot.takeMutableSnapshot(
@@ -1559,7 +1605,7 @@ private class ProduceFrameSignal {
      * available up until this point. (Synchronizing access to that data is up to the caller.)
      */
     fun takeFrameRequestLocked() {
-        check(pendingFrameContinuation === FramePending) { "frame not pending" }
+        checkPrecondition(pendingFrameContinuation === FramePending) { "frame not pending" }
         pendingFrameContinuation = null
     }
 

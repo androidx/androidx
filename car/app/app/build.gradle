@@ -49,6 +49,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -63,6 +64,9 @@ dependencies {
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     api("androidx.annotation:annotation-experimental:1.4.0")
 
+    api(libs.kotlinStdlib)
+    implementation(libs.kotlinStdlibCommon)
+
     annotationProcessor(libs.nullaway)
 
     // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
@@ -72,6 +76,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation project(path: ':car:app:app-testing')
@@ -478,5 +483,7 @@ afterEvaluate {
     }
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApi)
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
-    checkApi.dependsOn(checkProtocolApi)
+    afterEvaluate {
+        checkApi.dependsOn(checkProtocolApi)
+    }
 }

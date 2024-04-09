@@ -24,7 +24,6 @@ import java.awt.datatransfer.StringSelection
 import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
-import java.lang.IllegalStateException
 
 internal actual class PlatformClipboardManager : ClipboardManager {
     internal val systemClipboard = try {
@@ -55,25 +54,9 @@ internal actual class PlatformClipboardManager : ClipboardManager {
         }
     }
 
-    override fun getClipMetadata(): ClipMetadata? {
-        return try {
-            systemClipboard?.getContents(this)?.let(::ClipMetadata)
-        } catch (_: IllegalStateException) {
-            null
-        }
-    }
-
-    override fun setClip(clipEntry: ClipEntry) {
+    override fun setClip(clipEntry: ClipEntry?) {
         // Ignore clipDescription.
-        systemClipboard?.setContents(clipEntry.transferable, null)
-    }
-
-    override fun hasClip(): Boolean {
-        return try {
-            systemClipboard?.availableDataFlavors?.isNotEmpty() ?: false
-        } catch (_: IllegalStateException) {
-            false
-        }
+        systemClipboard?.setContents(clipEntry?.transferable, null)
     }
 
     /**
@@ -96,6 +79,9 @@ actual class ClipEntry(
     fun getTransferData(flavor: DataFlavor): Any? {
         return transferable.getTransferData(flavor)
     }
+
+    actual val clipMetadata: ClipMetadata
+        get() = ClipMetadata(transferable)
 }
 
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to

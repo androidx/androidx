@@ -30,7 +30,7 @@ internal class PageStore<T : Any>(
     pages: List<TransformablePage<T>>,
     placeholdersBefore: Int,
     placeholdersAfter: Int,
-) : NullPaddedList<T> {
+) : PlaceholderPaddedList<T> {
     constructor(
         insertEvent: PageEvent.Insert<T>
     ) : this(

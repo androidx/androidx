@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import androidx.build.RunApiTasks
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -35,6 +35,7 @@ dependencies {
     api(project(":compose:ui:ui"))
     api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
+    implementation(libs.kotlinSerializationCore)
 
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation project(":compose:test-utils")
@@ -61,10 +62,9 @@ dependencies {
 
 androidx {
     name = "Compose Navigation"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
-    runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
 }

@@ -27,6 +27,7 @@ import androidx.build.license.CheckExternalDependencyLicensesTask
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
 import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
+import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
 import java.io.File
@@ -40,9 +41,11 @@ import org.gradle.api.plugins.JvmEcosystemPlugin
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.bundling.ZipEntryCompression
+import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
+    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
     override fun apply(project: Project) {
         if (!project.isRoot) {
             throw Exception("This plugin should only be applied to root project")
@@ -103,7 +106,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
          */
         val finalizeConfigsTask =
             project.tasks.register(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK, Copy::class.java) {
-                it.from(project.getPrivacySandboxApksDirectory())
+                it.from(project.getPrivacySandboxFilesDirectory())
                 it.into(project.getTestConfigDirectory())
                 it.eachFile { f -> f.relativePath = RelativePath(true, f.name) }
                 it.includeEmptyDirs = false
@@ -145,13 +148,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                         subproject.name != "docs-public" &&
                         subproject.name != "docs-tip-of-tree" &&
                         subproject.name != "camera-testapp-timing" &&
-                        subproject.name != "room-testapp" &&
-                        !(subproject.path.contains(
-                            "media2:media2-session:version-compat-tests:client-previous"
-                        )) &&
-                        !(subproject.path.contains(
-                            "media2:media2-session:version-compat-tests:service-previous"
-                        ))
+                        subproject.name != "room-testapp"
                 ) {
                     subproject.configurations.all { configuration ->
                         configuration.resolutionStrategy.dependencySubstitution.apply {
@@ -179,7 +176,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         project.zipComposeCompilerMetrics()
         project.zipComposeCompilerReports()
-        project.configureRootProjectForKmpLink()
+
+        TaskUpToDateValidator.setup(project, registry)
     }
 
     private fun Project.setDependencyVersions() {

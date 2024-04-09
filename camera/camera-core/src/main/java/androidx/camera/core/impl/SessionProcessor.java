@@ -48,6 +48,7 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SessionProcessor {
+
     /**
      * Initializes the session and returns a transformed {@link SessionConfig} which should be
      * used to configure the camera instead of original one.
@@ -139,7 +140,7 @@ public interface SessionProcessor {
      * Returns the supported camera operations when the SessionProcessor is enabled.
      */
     @NonNull
-    default @RestrictedCameraControl.CameraOperation Set<Integer> getSupportedCameraOperations() {
+    default @RestrictedCameraInfo.CameraOperation Set<Integer> getSupportedCameraOperations() {
         return Collections.emptySet();
     }
 

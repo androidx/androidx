@@ -17,9 +17,14 @@
 package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.IntervalTree
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathIterator
 import androidx.compose.ui.graphics.PathSegment
+import androidx.compose.ui.graphics.computeHorizontalBounds
+import androidx.compose.ui.graphics.evaluateY
+import androidx.compose.ui.graphics.findFirstRoot
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * An easing function for an arbitrary [Path].
@@ -84,7 +89,7 @@ class PathEasing(private val path: Path) : Easing {
                         segment.type != PathSegment.Type.Done
                     ) {
                         val bounds = computeHorizontalBounds(segment, roots)
-                        this += Interval(bounds.first, bounds.second, segment)
+                        addInterval(bounds.first, bounds.second, segment)
                     }
                 }
             }
@@ -106,6 +111,6 @@ class PathEasing(private val path: Path) : Easing {
             "The easing path is invalid. Make sure it does not contain NaN/Infinity values."
         }
 
-        return evaluateY(segment, t).coerceAtLeast(0.0f).coerceAtMost(1.0f)
+        return evaluateY(segment, t).fastCoerceIn(0.0f, 1.0f)
     }
 }

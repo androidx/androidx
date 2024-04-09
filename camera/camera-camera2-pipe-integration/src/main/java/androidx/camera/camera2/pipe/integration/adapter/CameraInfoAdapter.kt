@@ -24,20 +24,26 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATIO
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
+import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.ZslDisablerQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
+import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.DeviceInfoLogger
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
@@ -91,6 +97,17 @@ class CameraInfoAdapter @Inject constructor(
         DeviceInfoLogger.logDeviceInfo(cameraProperties)
     }
 
+    private val _physicalCameraInfos by lazy {
+        cameraProperties.metadata.physicalCameraIds.mapTo(mutableSetOf<CameraInfo>()) {
+                physicalCameraId ->
+            val cameraProperties = CameraPipeCameraProperties(
+                CameraConfig(physicalCameraId),
+                cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId)
+            )
+            PhysicalCameraInfoAdapter(cameraProperties)
+        }
+    }
+
     private val isLegacyDevice by lazy {
         cameraProperties.metadata[
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
@@ -101,6 +118,12 @@ class CameraInfoAdapter @Inject constructor(
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
         Camera2CameraInfo.create(cameraProperties)
     }
+
+    override fun isLogicalMultiCameraSupported(): Boolean {
+        return cameraProperties.metadata.supportsLogicalMultiCamera
+    }
+
+    override fun getPhysicalCameraInfos(): Set<CameraInfo> = _physicalCameraInfos
 
     override fun getCameraId(): String = cameraConfig.cameraId.value
     override fun getLensFacing(): Int =
@@ -213,13 +236,12 @@ class CameraInfoAdapter @Inject constructor(
         ?: emptySet()
 
     override fun isZslSupported(): Boolean {
-        Log.warn { "TODO: isZslSupported are not yet supported." }
-        return false
+        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported &&
+            DeviceQuirks[ZslDisablerQuirk::class.java] == null
     }
 
     override fun isPrivateReprocessingSupported(): Boolean {
-        Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
-        return false
+        return cameraProperties.metadata.supportsPrivateReprocessing
     }
 
     override fun getSupportedDynamicRanges(): Set<DynamicRange> {

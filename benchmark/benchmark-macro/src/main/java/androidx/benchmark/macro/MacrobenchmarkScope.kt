@@ -168,12 +168,12 @@ public class MacrobenchmarkScope(
                     packageName
                 ))
             ) {
-            isMethodTracing = true
-            val tracePath = methodTraceRecordPath(packageName)
-            "--start-profiler \"$tracePath\" --streaming"
-        } else {
-            ""
-        }
+                isMethodTracing = true
+                val tracePath = methodTraceRecordPath(packageName)
+                "--start-profiler \"$tracePath\" --streaming"
+            } else {
+                ""
+            }
         val cmd = "am start $profileArgs -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
@@ -228,9 +228,11 @@ public class MacrobenchmarkScope(
                 Thread.sleep(100)
             }
         }
-        throw IllegalStateException("Unable to confirm activity launch completion $lastFrameStats" +
-            " Please report a bug with the output of" +
-            " `adb shell dumpsys gfxinfo $packageName framestats`")
+        throw IllegalStateException(
+            "Unable to confirm activity launch completion $lastFrameStats" +
+                " Please report a bug with the output of" +
+                " `adb shell dumpsys gfxinfo $packageName framestats`"
+        )
     }
 
     /**
@@ -304,12 +306,20 @@ public class MacrobenchmarkScope(
      * signalled to drop its shader cache.
      */
     public fun dropShaderCache() {
-        Log.d(TAG, "Dropping shader cache for $packageName")
-        val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
-        if (dropError != null && !DeviceInfo.isEmulator) {
-            if (!dropShaderCacheRoot()) {
-                throw IllegalStateException(dropError)
+        if (Arguments.dropShadersEnable) {
+            Log.d(TAG, "Dropping shader cache for $packageName")
+            val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
+            if (dropError != null && !DeviceInfo.isEmulator) {
+                if (!dropShaderCacheRoot()) {
+                    if (Arguments.dropShadersThrowOnFailure) {
+                        throw IllegalStateException(dropError)
+                    } else {
+                        Log.d(TAG, dropError)
+                    }
+                }
             }
+        } else {
+            Log.d(TAG, "Skipping drop shader cache for $packageName")
         }
     }
 
@@ -337,21 +347,24 @@ public class MacrobenchmarkScope(
      * @return a [Pair] representing the label, and the absolute path of the method trace.
      */
     internal fun stopMethodTracing(uniqueLabel: String): Pair<String, String> {
-        Shell.executeScriptSilent("am profile stop $packageName")
-        // Wait for the profiles to get dumped :(
-        // ART Method tracing has a buffer size of 8M, so 1 second should be enough
-        // to dump the contents of the buffer.
-
         val tracePath = methodTraceRecordPath(packageName)
-        // Using 50 ms as a poll duration for a max of 20 iterations. This is because
-        // we don't want to wait for longer than 1s. Also, anecdotally when polling from the
-        // shell I found a stable iteration count of 3 to be sufficient.
+
+        // We have to poll here as `am profile stop` is async, but it's hard to calibrate these
+        // numbers, as different devices take drastically different amounts of time.
+        // E.g. pixel 8 takes 100ms for it's full flush, while mokey takes 1700ms to start, then a
+        // few hundred ms to complete.
+        //
+        // Ideally, we'd use the native approach that Studio profilers use (on P+):
+        // https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:transport/native/utils/activity_manager.cc;l=111;drc=a4c97db784418341c9f1be60b98ba22301b5ced8
         Shell.waitForFileFlush(
             tracePath,
-            maxIterations = 20,
-            stableIterations = 3,
+            maxInitialFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to start
+            maxStableFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to complete
+            stableIterations = 8, // 400ms of stability after flush starts
             pollDurationMs = 50L
-        )
+        ) {
+            Shell.executeScriptSilent("am profile stop $packageName")
+        }
         // unique label so source is clear, dateToFileName so each run of test is unique on host
         val outputFileName = "$uniqueLabel-methodTracing-${dateToFileName()}.trace"
         val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
@@ -472,6 +485,32 @@ public class MacrobenchmarkScope(
                 }
                 Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
             }
+        }
+    }
+
+    /**
+     * Cancels the job responsible for running background `dexopt`.
+     *
+     * Background `dexopt` is a CPU intensive operation that can interfere with benchmarks.
+     * By cancelling this job, we ensure that this operation will not interfere with the benchmark,
+     * and we get stable numbers.
+     */
+    @RequiresApi(33)
+    internal fun cancelBackgroundDexopt() {
+        val result = if (Build.VERSION.SDK_INT >= 34) {
+            Shell.executeScriptCaptureStdout("pm bg-dexopt-job --cancel")
+        } else {
+            // This command is deprecated starting Android U, and is just an alias for the
+            // command above. More info in the link below.
+            // https://cs.android.com/android/platform/superproject/main/+/main:art/libartservice/service/java/com/android/server/art/ArtShellCommand.java;l=123;drc=93f35d39de15c555b0ddea16121b0ee3f0aa9f91
+            Shell.executeScriptCaptureStdout("pm cancel-bg-dexopt-job")
+        }
+        // We expect one of the following messages in stdout.
+        val expected = listOf("Success", "Background dexopt job cancelled")
+        if (expected.none { it == result.trim() }) {
+            throw IllegalStateException(
+                "Failed to cancel background dexopt job, result: '$result'"
+            )
         }
     }
 

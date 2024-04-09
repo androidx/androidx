@@ -279,7 +279,7 @@
     <string name="png_bitmap_title" msgid="3385912074130977032">"Bit-mapa gisa bidalitako PNG bat"</string>
     <string name="just_row_title" msgid="965700021568970725">"Izen bat baino ez"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Aplikazioaren ikonoa duen izena"</string>
-    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Baliabide IDaren irudia duen izena"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Baliabide-identifikatzailearen irudia duen izena"</string>
     <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG irudi bat duen izena"</string>
     <string name="colored_secondary_row_title" msgid="5173288934252528929">"Bigarren mailako testu koloreztatua"</string>
     <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"Bigarren mailako hainbat testu-lerro dituen izena"</string>

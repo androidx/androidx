@@ -65,6 +65,8 @@ object Arguments {
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
     val dryRunMode: Boolean
+    val dropShadersEnable: Boolean
+    val dropShadersThrowOnFailure: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -74,6 +76,8 @@ object Arguments {
     internal val profilerDefault: Boolean
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
+    internal val profilerSkipWhenDurationRisksAnr: Boolean
+    internal val profilerPerfCompareEnable: Boolean
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
@@ -211,6 +215,11 @@ object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
                 ?.toLong()
                 ?: 5
+        profilerSkipWhenDurationRisksAnr =
+            arguments.getBenchmarkArgument("profiling.skipWhenDurationRisksAnr")?.toBoolean()
+                ?: true
+        profilerPerfCompareEnable =
+            arguments.getBenchmarkArgument("profiling.perfCompare.enable")?.toBoolean() ?: false
         if (profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
@@ -249,11 +258,28 @@ object Arguments {
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
 
+        dropShadersEnable =
+            arguments.getBenchmarkArgument("dropShaders.enable")?.toBoolean() ?: true
+        dropShadersThrowOnFailure =
+            arguments.getBenchmarkArgument("dropShaders.throwOnFailure")?.toBoolean() ?: true
+
         // very relaxed default to start, ideally this would be less than 5 (ANR timeout),
         // but configurability should help experimenting / narrowing over time
         runOnMainDeadlineSeconds =
             arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
         Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
+
+        if (arguments.getString("orchestratorService") != null) {
+            InstrumentationResults.scheduleIdeWarningOnNextReport(
+                """
+                    AndroidX Benchmark does not support running with the AndroidX Test Orchestrator.
+
+                    AndroidX benchmarks (micro and macro) produce one JSON file per test module,
+                    which together with Test Orchestrator restarting the process frequently causes
+                    benchmark output JSON files to be repeatedly overwritten during the test.
+                    """.trimIndent()
+            )
+        }
     }
 
     fun macrobenchMethodTracingEnabled(): Boolean {

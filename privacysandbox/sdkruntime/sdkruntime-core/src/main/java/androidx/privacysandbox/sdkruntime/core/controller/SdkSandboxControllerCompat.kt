@@ -32,8 +32,13 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.impl.LocalImpl
-import androidx.privacysandbox.sdkruntime.core.controller.impl.NoOpImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformUDCImpl
+import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -65,8 +70,15 @@ class SdkSandboxControllerCompat internal constructor(
      * @return [SandboxedSdkCompat] from SDK on a successful run.
      * @throws [LoadSdkCompatException] on fail.
      */
-    suspend fun loadSdk(sdkName: String, params: Bundle) =
-        controllerImpl.loadSdk(sdkName, params)
+    suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat =
+        suspendCancellableCoroutine { continuation ->
+            controllerImpl.loadSdk(
+                sdkName,
+                params,
+                Runnable::run,
+                ContinuationLoadSdkCallback(continuation)
+            )
+        }
 
     /**
      * Fetches information about Sdks that are loaded in the sandbox or locally.
@@ -115,10 +127,18 @@ class SdkSandboxControllerCompat internal constructor(
     fun unregisterSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat) =
         controllerImpl.unregisterSdkSandboxActivityHandler(handlerCompat)
 
+    /**
+     * Returns the package name of the client app.
+     *
+     * @return Package name of the client app.
+     */
+    fun getClientPackageName(): String =
+        controllerImpl.getClientPackageName()
+
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
 
-        suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
+        fun loadSdk(sdkName: String, params: Bundle, executor: Executor, callback: LoadSdkCallback)
 
         fun getSandboxedSdks(): List<SandboxedSdkCompat>
 
@@ -130,6 +150,8 @@ class SdkSandboxControllerCompat internal constructor(
         fun unregisterSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat
         )
+
+        fun getClientPackageName(): String
     }
 
     companion object {
@@ -147,11 +169,10 @@ class SdkSandboxControllerCompat internal constructor(
         fun from(context: Context): SdkSandboxControllerCompat {
             val clientVersion = Versions.CLIENT_VERSION
             if (clientVersion != null) {
-                val implFromClient = localImpl
-                if (implFromClient != null) {
-                    return SdkSandboxControllerCompat(LocalImpl(implFromClient, clientVersion))
-                }
-                return SdkSandboxControllerCompat(NoOpImpl())
+                val implFromClient = localImpl ?: throw UnsupportedOperationException(
+                    "Shouldn't happen: No controller implementation available"
+                )
+                return SdkSandboxControllerCompat(LocalImpl(implFromClient, context, clientVersion))
             }
             val platformImpl = PlatformImplFactory.create(context)
             return SdkSandboxControllerCompat(platformImpl)
@@ -185,5 +206,25 @@ class SdkSandboxControllerCompat internal constructor(
             }
             throw UnsupportedOperationException("SDK should be loaded locally on API below 34")
         }
+    }
+
+    private class ContinuationLoadSdkCallback(
+        private val continuation: Continuation<SandboxedSdkCompat>
+    ) : LoadSdkCallback, AtomicBoolean(false) {
+        override fun onResult(result: SandboxedSdkCompat) {
+            // Do not attempt to resume more than once, even if the caller is buggy.
+            if (compareAndSet(false, true)) {
+                continuation.resume(result)
+            }
+        }
+
+        override fun onError(error: LoadSdkCompatException) {
+            // Do not attempt to resume more than once, even if the caller is buggy.
+            if (compareAndSet(false, true)) {
+                continuation.resumeWithException(error)
+            }
+        }
+
+        override fun toString() = "ContinuationLoadSdkCallback(outcomeReceived = ${get()})"
     }
 }

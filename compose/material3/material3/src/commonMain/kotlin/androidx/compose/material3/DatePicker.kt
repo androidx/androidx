@@ -34,6 +34,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,8 +65,21 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.OutlinedTextFieldDefaults.defaultOutlinedTextFieldColors
+import androidx.compose.material3.internal.CalendarLocale
+import androidx.compose.material3.internal.CalendarModel
+import androidx.compose.material3.internal.CalendarMonth
+import androidx.compose.material3.internal.DaysInWeek
+import androidx.compose.material3.internal.MillisecondsIn24Hours
+import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.createCalendarModel
+import androidx.compose.material3.internal.defaultLocale
+import androidx.compose.material3.internal.formatWithSkeleton
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.toLocalString
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DividerTokens
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -191,7 +206,7 @@ fun DatePicker(
             DatePickerModalTokens.HeaderHeadlineFont
         ),
         headerMinHeight = DatePickerModalTokens.HeaderContainerHeight,
-        colors = colors
+        colors = colors,
     ) {
         SwitchableDateEntryContent(
             selectedDateMillis = state.selectedDateMillis,
@@ -699,13 +714,18 @@ object DatePickerDefaults {
         lazyListState: LazyListState,
         decayAnimationSpec: DecayAnimationSpec<Float> = exponentialDecay()
     ): FlingBehavior {
-        val density = LocalDensity.current
-        return remember(density) {
+        return remember(decayAnimationSpec, lazyListState) {
+            val original = SnapLayoutInfoProvider(lazyListState)
+            val snapLayoutInfoProvider = object : SnapLayoutInfoProvider by original {
+                override fun calculateApproachOffset(initialVelocity: Float): Float {
+                    return 0.0f
+                }
+            }
+
             SnapFlingBehavior(
-                lazyListState = lazyListState,
+                snapLayoutInfoProvider = snapLayoutInfoProvider,
                 decayAnimationSpec = decayAnimationSpec,
-                snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                density = density
+                snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow)
             )
         }
     }
@@ -714,7 +734,7 @@ object DatePickerDefaults {
     val YearRange: IntRange = IntRange(1900, 2100)
 
     /** The default tonal elevation used for [DatePickerDialog]. */
-    val TonalElevation: Dp = DatePickerModalTokens.ContainerElevation
+    val TonalElevation: Dp = ElevationTokens.Level0
 
     /** The default shape for date picker dialogs. */
     val shape: Shape @Composable get() = DatePickerModalTokens.ContainerShape.value
@@ -1307,7 +1327,7 @@ internal fun DateEntryContainer(
             .semantics {
                 @Suppress("DEPRECATION")
                 isContainer = true
-            }
+            }.background(colors.containerColor)
     ) {
         DatePickerHeader(
             modifier = Modifier,
@@ -1611,7 +1631,8 @@ internal fun DatePickerHeader(
                 )
             ProvideContentColorTextStyle(
                 contentColor = titleContentColor,
-                textStyle = textStyle) {
+                textStyle = textStyle
+            ) {
                 Box(contentAlignment = Alignment.BottomStart) {
                     title()
                 }
@@ -1657,8 +1678,6 @@ private fun HorizontalMonthsList(
                 horizontalScrollAxisRange = ScrollAxisRange(value = { 0f }, maxValue = { 0f })
             },
             state = lazyListState,
-            // TODO(b/264687693): replace with the framework's rememberSnapFlingBehavior
-            //  (lazyListState) when promoted to stable
             flingBehavior = DatePickerDefaults.rememberSnapFlingBehavior(lazyListState)
         ) {
             items(numberOfMonthsInRange(yearRange)) {
@@ -2006,10 +2025,7 @@ private fun YearPicker(
                 )
             )
         // Match the years container color to any elevated surface color that is composed under it.
-        val containerColor = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = colors.containerColor,
-            elevation = LocalAbsoluteTonalElevation.current
-        )
+        val containerColor = colors.containerColor
         val coroutineScope = rememberCoroutineScope()
         val scrollToEarlierYearsLabel = getString(Strings.DatePickerScrollToShowEarlierYears)
         val scrollToLaterYearsLabel = getString(Strings.DatePickerScrollToShowLaterYears)

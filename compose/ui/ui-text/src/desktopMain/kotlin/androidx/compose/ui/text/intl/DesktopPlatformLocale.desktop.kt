@@ -18,27 +18,10 @@ package androidx.compose.ui.text.intl
 
 import java.util.Locale
 
-internal class DesktopLocale(val locale: Locale) : PlatformLocale {
-    override val language: String
-        get() = locale.language
-
-    override val script: String
-        get() = locale.script
-
-    override val region: String
-        get() = locale.country
-
-    override fun toLanguageTag(): String = locale.toLanguageTag()
-}
-
 internal actual fun createPlatformLocaleDelegate() = object : PlatformLocaleDelegate {
     override val current: LocaleList
-        get() = LocaleList(listOf(Locale(DesktopLocale(Locale.getDefault()))))
+        get() = LocaleList(listOf(Locale(Locale.getDefault())))
 
     override fun parseLanguageTag(languageTag: String): PlatformLocale =
-        DesktopLocale(
-            Locale.forLanguageTag(
-                languageTag
-            )
-        )
+        Locale.forLanguageTag(languageTag)
 }

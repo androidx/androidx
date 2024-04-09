@@ -18,6 +18,7 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
@@ -98,24 +99,16 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    @Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
+    @Deprecated("Use `isTraversalGroup` instead.",
+        replaceWith = ReplaceWith("IsTraversalGroup"),
+    )
     val IsContainer: SemanticsPropertyKey<Boolean>
         get() = IsTraversalGroup
 
     /**
      * @see SemanticsPropertyReceiver.isTraversalGroup
      */
-    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
-
-    /**
-     * @see SemanticsPropertyReceiver.isOpaque
-     */
-    val IsOpaque = AccessibilityKey<Unit>(
-        name = "IsOpaque",
-        mergePolicy = { parentValue, _ ->
-            parentValue
-        }
-    )
+    val IsTraversalGroup = AccessibilityKey<Boolean>("IsTraversalGroup")
 
     /**
      * @see SemanticsPropertyReceiver.invisibleToUser
@@ -131,7 +124,7 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.traversalIndex
      */
-    val TraversalIndex = SemanticsPropertyKey<Float>(
+    val TraversalIndex = AccessibilityKey<Float>(
         name = "TraversalIndex",
         mergePolicy = { parentValue, _ ->
             // Never merge traversal indices
@@ -264,6 +257,11 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.editable
      */
     val Editable = SemanticsPropertyKey<Unit>("Editable")
+
+    /**
+     * @see SemanticsPropertyReceiver.maxTextLength
+     */
+    val MaxTextLength = SemanticsPropertyKey<Int>("MaxTextLength")
 }
 
 /**
@@ -295,6 +293,11 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.scrollBy
      */
     val ScrollBy = ActionPropertyKey<(x: Float, y: Float) -> Boolean>("ScrollBy")
+
+    /**
+     * @see SemanticsPropertyReceiver.scrollByOffset
+     */
+    val ScrollByOffset = SemanticsPropertyKey<suspend (offset: Offset) -> Offset>("ScrollByOffset")
 
     /**
      * @see SemanticsPropertyReceiver.scrollToIndex
@@ -340,6 +343,18 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.onImeAction
      */
     val OnImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
+
+    // b/322269946
+    @Suppress("unused")
+    @Deprecated(
+        message = "Use `SemanticsActions.OnImeAction` instead.",
+        replaceWith = ReplaceWith(
+            "OnImeAction",
+            "androidx.compose.ui.semantics.SemanticsActions.OnImeAction",
+        ),
+        level = DeprecationLevel.ERROR,
+    )
+    val PerformImeAction = ActionPropertyKey<() -> Boolean>("PerformImeAction")
 
     /**
      * @see SemanticsPropertyReceiver.copyText
@@ -401,6 +416,12 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.pageRight
      */
     val PageRight = ActionPropertyKey<() -> Boolean>("PageRight")
+
+    /**
+     * @see SemanticsPropertyReceiver.getScrollViewportLength
+     */
+    val GetScrollViewportLength =
+        ActionPropertyKey<(MutableList<Float>) -> Boolean>("GetScrollViewportLength")
 }
 
 /**
@@ -800,43 +821,6 @@ value class LiveRegionMode private constructor(@Suppress("unused") private val v
  */
 interface SemanticsPropertyReceiver {
     operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)
-
-    /**
-     * Unset an individual property.
-     *
-     * Note: this can only unset properties originally on the same modifier chain, not properties
-     * merged from children (for those, use [clearAndSetSemantics] instead). And because the
-     * semantics system processes modifier chains back-to-front, the unset must be ordered earlier
-     * on the modifier chain if it's in a separate `semantics {}` block.
-
-     * 1. Examples of correct uses (resulting in empty semantics):
-     *
-     *   ```
-     *   Modifier.semantics { heading(); unset(SemanticsProperties.Heading) }
-     *   Modifier.semantics { unset(SemanticsProperties.Heading) }.semantics { heading() }
-     *   ```
-     *
-     * 2. Examples of ineffective, no-op uses (where the heading remains instead of being unset):
-     *
-     *   ```
-     *   Modifier.semantics { unset(SemanticsProperties.Heading); heading() } // order
-     *   Modifier.semantics { heading() }.semantics { unset(SemanticsProperties.Heading) } // order
-     *   Box(Modifier.semantics(mergeDescendants = true) { unset(SemanticsProperties.Heading) }) {
-     *       Box(Modifier.semantics { heading() }) // not originally on the same modifier chain`
-     *   }
-     *
-     * 3. Examples of complex cases where there is more than one set:
-     *
-     *   ```
-     *   // Result is empty semantics:
-     *   Modifier.semantics { unset(SemanticsProperties.TestTag) }.testTag("b").testTag("a")
-     *
-     *   // Result is testTag = "b":`
-     *   Modifier.testTag("b").semantics { unset(SemanticsProperties.TestTag) }.testTag("a")
-     *   ```
-     */
-    @ExperimentalComposeUiApi
-    fun <T> unset(key: SemanticsPropertyKey<T>)
 }
 
 /**
@@ -929,44 +913,18 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-@Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
-@get:Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
-@set:Deprecated("Use `isTraversalGroup` and `isOpaque` instead.")
-@OptIn(ExperimentalComposeUiApi::class)
-var SemanticsPropertyReceiver.isContainer: Boolean
-    get() = throwSemanticsGetNotSupported()
-    set(bool) {
-        isTraversalGroup = bool
-        if (bool) {
-            this[SemanticsProperties.IsOpaque] = Unit
-        } else {
-            unset(SemanticsProperties.IsOpaque)
-        }
-    }
+@Deprecated("Use `isTraversalGroup` instead.",
+    replaceWith = ReplaceWith("isTraversalGroup"),
+)
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
 
 /**
- * Whether this semantics node is a traversal group.
- *
- * See https://developer.android.com/jetpack/compose/accessibility#modify-traversal-order
+ * Whether this semantics node is a traversal group. This is defined as a node whose function
+ * is to serve as a boundary or border in organizing its children.
  *
  * @see SemanticsProperties.IsTraversalGroup
  */
 var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversalGroup
-
-/**
- * Non-mergeable property used to mark that whether a node is semantically opaque.
- *
- * In other words, whether nodes fully covered by it ought to be pruned from the a11y tree.  (Note
- * that most semantic properties other than testTag also have this effect, so it should be rarely
- * needed.)
- *
- * If true, then a11y nodes behind will be pruned unless this node's graphics alpha is 0.
- *
- * @see SemanticsProperties.IsOpaque
- */
-fun SemanticsPropertyReceiver.isOpaque() {
-    this[SemanticsProperties.IsOpaque] = Unit
-}
 
 /**
  * Whether this node is specially known to be invisible to the user.
@@ -1162,6 +1120,12 @@ fun SemanticsPropertyReceiver.editable() {
 }
 
 /**
+ * Limits the number of characters that can be entered, e.g. in an editable text field. By default
+ * this value is -1, signifying there is no maximum text length limit.
+ */
+var SemanticsPropertyReceiver.maxTextLength by SemanticsProperties.MaxTextLength
+
+/**
  * The node is marked as a collection of horizontally or vertically stacked selectable elements.
  *
  * Unlike [collectionInfo] which marks a collection of any elements and asks developer to
@@ -1215,18 +1179,38 @@ fun SemanticsPropertyReceiver.onLongClick(label: String? = null, action: (() -> 
 }
 
 /**
- * Action to scroll by a specified amount.
+ * Action to asynchronously scroll by a specified amount.
  *
- * Expected to be used in conjunction with verticalScrollAxisRange/horizontalScrollAxisRange.
+ * [scrollByOffset] should be preferred in most cases, since it is synchronous and returns the
+ * amount of scroll that was actually consumed.
+ *
+ * Expected to be used in conjunction with [verticalScrollAxisRange]/[horizontalScrollAxisRange].
  *
  * @param label Optional label for this action.
- * @param action Action to be performed when the [SemanticsActions.ScrollBy] is called.
+ * @param action Action to be performed when [SemanticsActions.ScrollBy] is called.
  */
 fun SemanticsPropertyReceiver.scrollBy(
     label: String? = null,
     action: ((x: Float, y: Float) -> Boolean)?
 ) {
     this[SemanticsActions.ScrollBy] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to scroll by a specified amount and return how much of the offset was actually consumed.
+ * E.g. if the node can't scroll at all in the given direction, [Offset.Zero] should be returned.
+ * The action should not return until the scroll operation has finished.
+ *
+ * Expected to be used in conjunction with [verticalScrollAxisRange]/[horizontalScrollAxisRange].
+ *
+ * Unlike [scrollBy], this action is synchronous, and returns the amount of scroll consumed.
+ *
+ * @param action Action to be performed when [SemanticsActions.ScrollByOffset] is called.
+ */
+fun SemanticsPropertyReceiver.scrollByOffset(
+    action: suspend (offset: Offset) -> Offset
+) {
+    this[SemanticsActions.ScrollByOffset] = action
 }
 
 /**
@@ -1353,6 +1337,24 @@ fun SemanticsPropertyReceiver.onImeAction(
     action: (() -> Boolean)?
 ) {
     this[SemanticsProperties.ImeAction] = imeActionType
+    this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
+}
+
+// b/322269946
+@Suppress("unused")
+@Deprecated(
+    message = "Use `SemanticsPropertyReceiver.onImeAction` instead.",
+    replaceWith = ReplaceWith(
+        "onImeAction(imeActionType = ImeAction.Default, label = label, action = action)",
+        "androidx.compose.ui.semantics.onImeAction",
+        "androidx.compose.ui.text.input.ImeAction",
+    ),
+    level = DeprecationLevel.ERROR,
+)
+fun SemanticsPropertyReceiver.performImeAction(
+    label: String? = null,
+    action: (() -> Boolean)?
+) {
     this[SemanticsActions.OnImeAction] = AccessibilityAction(label, action)
 }
 
@@ -1518,4 +1520,19 @@ fun SemanticsPropertyReceiver.pageRight(
     action: (() -> Boolean)?
 ) {
     this[SemanticsActions.PageRight] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to get a scrollable's active view port amount for scrolling actions. The result is the
+ * first element of the array in the argument of the AccessibilityAction.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.GetScrollViewportLength] is
+ * called.
+ */
+fun SemanticsPropertyReceiver.getScrollViewportLength(
+    label: String? = null,
+    action: ((MutableList<Float>) -> Boolean)
+) {
+    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label, action)
 }

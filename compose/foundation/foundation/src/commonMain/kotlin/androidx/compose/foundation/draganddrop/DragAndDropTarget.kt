@@ -63,10 +63,10 @@ private class DropTargetElement(
         shouldStartDragAndDrop = shouldStartDragAndDrop,
     )
 
-    override fun update(node: DragAndDropTargetNode) = with(node) {
-        target = this@DropTargetElement.target
-        shouldStartDragAndDrop = this@DropTargetElement.shouldStartDragAndDrop
-    }
+    override fun update(node: DragAndDropTargetNode) = node.update(
+        target = target,
+        shouldStartDragAndDrop = shouldStartDragAndDrop
+    )
 
     override fun InspectorInfo.inspectableProperties() {
         name = "dropTarget"
@@ -91,14 +91,39 @@ private class DropTargetElement(
 
 @ExperimentalFoundationApi
 private class DragAndDropTargetNode(
-    var shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
-    var target: DragAndDropTarget
+    private var shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+    private var target: DragAndDropTarget
 ) : DelegatingNode() {
-    init {
-        delegate(
+
+    private var dragAndDropNode: DragAndDropModifierNode? = null
+
+    override fun onAttach() {
+        createAndAttachDragAndDropModifierNode()
+    }
+
+    fun update(
+        shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+        target: DragAndDropTarget
+    ) {
+        this.shouldStartDragAndDrop = shouldStartDragAndDrop
+        if (target != this.target) {
+            dragAndDropNode?.let { undelegate(it) }
+            this.target = target
+            createAndAttachDragAndDropModifierNode()
+        }
+    }
+
+    override fun onDetach() {
+        undelegate(dragAndDropNode!!)
+    }
+
+    private fun createAndAttachDragAndDropModifierNode() {
+        dragAndDropNode = delegate(
             DragAndDropModifierNode(
-                shouldStartDragAndDrop = shouldStartDragAndDrop,
-                target = target
+                // We wrap the this.shouldStartDragAndDrop invocation in a lambda as it might change over
+                // time, and updates to shouldStartDragAndDrop are not destructive.
+                shouldStartDragAndDrop = { this.shouldStartDragAndDrop(it) },
+                target = this.target
             )
         )
     }

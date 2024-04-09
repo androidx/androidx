@@ -332,7 +332,8 @@ public final class Preview extends UseCase {
         // output target for these two cases.
         if (mSurfaceProvider != null) {
             sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
-                    streamSpec.getDynamicRange());
+                    streamSpec.getDynamicRange(),
+                    getPhysicalCameraId());
         }
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -817,7 +818,7 @@ public final class Preview extends UseCase {
     }
 
     /** Builder for a {@link Preview}. */
-    @SuppressWarnings("ObjectToString")
+    @SuppressWarnings({"ObjectToString", "HiddenSuperclass"})
     public static final class Builder
             implements UseCaseConfig.Builder<Preview, PreviewConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,

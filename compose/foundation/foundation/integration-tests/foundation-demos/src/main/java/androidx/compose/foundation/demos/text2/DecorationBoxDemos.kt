@@ -27,8 +27,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalContentColor
@@ -56,14 +56,14 @@ fun DecorationBoxDemos() {
         SimpleDecorationWithLabel()
 
         TagLine(tag = "OutlinedTextField")
-        OutlinedBasicTextField2()
+        OutlinedBasicTextField()
     }
 }
 
 @Composable
 fun SimpleDecorationWithLabel() {
     val state = remember { TextFieldState() }
-    BasicTextField2(
+    BasicTextField(
         state = state,
         modifier = Modifier,
         textStyle = LocalTextStyle.current,
@@ -78,14 +78,14 @@ fun SimpleDecorationWithLabel() {
 }
 
 @Composable
-fun OutlinedBasicTextField2() {
+fun OutlinedBasicTextField(modifier: Modifier = Modifier) {
     val state = remember { TextFieldState() }
     val cursorColor by TextFieldDefaults
         .outlinedTextFieldColors()
         .cursorColor(isError = false)
-    BasicTextField2(
+    BasicTextField(
         state = state,
-        modifier = Modifier,
+        modifier = modifier,
         textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
         cursorBrush = SolidColor(cursorColor),
         decorator = {

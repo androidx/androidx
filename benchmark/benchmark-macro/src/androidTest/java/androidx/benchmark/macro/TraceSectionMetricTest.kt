@@ -114,11 +114,11 @@ class TraceSectionMetricTest {
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
-            val metric = TraceSectionMetric(sectionName, "testLabel", mode, targetPackageOnly)
+            val metric = TraceSectionMetric(sectionName, mode, "testLabel", targetPackageOnly)
             metric.configure(packageName = packageName)
 
             val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                metric.getResult(
+                metric.getMeasurements(
                     // note that most args are incorrect here, but currently
                     // only targetPackageName matters in this context
                     captureInfo = Metric.CaptureInfo(
@@ -131,9 +131,13 @@ class TraceSectionMetricTest {
                 )
             }
 
-            var measurements = listOf(Metric.Measurement("testLabel${mode.name}Ms", expectedMs))
+            var measurements = if (mode != TraceSectionMetric.Mode.Count) {
+                listOf(Metric.Measurement("testLabel${mode.name}Ms", expectedMs))
+            } else {
+                emptyList()
+            }
 
-            if (mode == TraceSectionMetric.Mode.Sum) {
+            if (mode == TraceSectionMetric.Mode.Sum || mode == TraceSectionMetric.Mode.Count) {
                 measurements = measurements + listOf(
                     Metric.Measurement("testLabelCount", expectedCount.toDouble())
                 )
@@ -163,7 +167,7 @@ class TraceSectionMetricTest {
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.First,
                 expectedMs = expectedFirstMs,
-                expectedCount = 1,
+                expectedCount = 1, // unused
                 targetPackageOnly = targetPackageOnly,
             )
             verifyMetric(
@@ -181,7 +185,7 @@ class TraceSectionMetricTest {
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.Min,
                 expectedMs = expectedMinMs,
-                expectedCount = 1,
+                expectedCount = 1, // unused
                 targetPackageOnly = targetPackageOnly,
             )
             verifyMetric(
@@ -190,7 +194,25 @@ class TraceSectionMetricTest {
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.Max,
                 expectedMs = expectedMaxMs,
-                expectedCount = 1,
+                expectedCount = 1, // unused
+                targetPackageOnly = targetPackageOnly,
+            )
+            verifyMetric(
+                tracePath = tracePath,
+                packageName = packageName,
+                sectionName = sectionName,
+                mode = TraceSectionMetric.Mode.Count,
+                expectedMs = 1.0, // unused
+                expectedCount = expectedSumCount,
+                targetPackageOnly = targetPackageOnly,
+            )
+            verifyMetric(
+                tracePath = tracePath,
+                packageName = packageName,
+                sectionName = sectionName,
+                mode = TraceSectionMetric.Mode.Average,
+                expectedMs = expectedSumMs / expectedSumCount,
+                expectedCount = 1, // unused
                 targetPackageOnly = targetPackageOnly,
             )
         }

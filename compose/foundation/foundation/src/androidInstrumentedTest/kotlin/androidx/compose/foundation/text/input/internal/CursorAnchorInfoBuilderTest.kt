@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,6 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import android.os.Build
 import android.view.inputmethod.CursorAnchorInfo
-import android.view.inputmethod.CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
-import android.view.inputmethod.CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION
-import android.view.inputmethod.CursorAnchorInfo.FLAG_IS_RTL
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
@@ -35,8 +32,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -50,7 +45,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import kotlin.math.ceil
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,63 +64,90 @@ class CursorAnchorInfoBuilderTest {
 
     @Test
     fun testSelectionDefault() {
-        val textFieldValue = TextFieldValue()
+        val text = ""
+        val selection = TextRange(0)
+        val composition: TextRange? = null
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+                .build(text, selection, composition, getTextLayoutResult(text), matrix)
 
-        assertThat(cursorAnchorInfo.selectionStart).isEqualTo(0)
-        assertThat(cursorAnchorInfo.selectionEnd).isEqualTo(0)
+        Truth.assertThat(cursorAnchorInfo.selectionStart).isEqualTo(0)
+        Truth.assertThat(cursorAnchorInfo.selectionEnd).isEqualTo(0)
     }
 
     @Test
     fun testSelectionCursor() {
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(2))
+        val text = "abc"
+        val selection = TextRange(2)
+        val composition: TextRange? = null
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+                .build(text, selection, composition, getTextLayoutResult(text), matrix)
 
-        assertThat(cursorAnchorInfo.selectionStart).isEqualTo(2)
-        assertThat(cursorAnchorInfo.selectionEnd).isEqualTo(2)
+        Truth.assertThat(cursorAnchorInfo.selectionStart).isEqualTo(2)
+        Truth.assertThat(cursorAnchorInfo.selectionEnd).isEqualTo(2)
     }
 
     @Test
     fun testSelectionRange() {
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(1, 2))
+        val text = "abc"
+        val selection = TextRange(1, 2)
+        val composition: TextRange? = null
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+                .build(
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
+                    matrix
+                )
 
-        assertThat(cursorAnchorInfo.selectionStart).isEqualTo(1)
-        assertThat(cursorAnchorInfo.selectionEnd).isEqualTo(2)
+        Truth.assertThat(cursorAnchorInfo.selectionStart).isEqualTo(1)
+        Truth.assertThat(cursorAnchorInfo.selectionEnd).isEqualTo(2)
     }
 
     @Test
     fun testCompositionNone() {
-        val textFieldValue = TextFieldValue(composition = null)
+        val text = ""
+        val selection = TextRange(0)
+        val composition: TextRange? = null
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+                .build(
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
+                    matrix
+                )
 
-        assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(-1)
-        assertThat(cursorAnchorInfo.composingText).isNull()
+        Truth.assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(-1)
+        Truth.assertThat(cursorAnchorInfo.composingText).isNull()
     }
 
     @Test
     fun testCompositionCoveringAllString() {
         val text = "abc"
-        val textFieldValue = TextFieldValue(text, composition = TextRange(0, text.length))
+        val selection = TextRange(0)
+        val composition = TextRange(0, text.length)
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+                .build(
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
+                    matrix
+                )
 
-        assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(0)
-        assertThat(cursorAnchorInfo.composingText.toString()).isEqualTo(text)
+        Truth.assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(0)
+        Truth.assertThat(cursorAnchorInfo.composingText.toString()).isEqualTo(text)
     }
 
     @Test
@@ -133,18 +155,22 @@ class CursorAnchorInfoBuilderTest {
         val word1 = "123 "
         val word2 = "456"
         val word3 = " 789"
-        val textFieldValue =
-            TextFieldValue(
-                word1 + word2 + word3,
-                composition = TextRange(word1.length, (word1 + word2).length)
-            )
+        val text = word1 + word2 + word3
+        val selection = TextRange(0)
+        val composition = TextRange(word1.length, (word1 + word2).length)
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+                .build(
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
+                    matrix
+                )
 
-        assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(word1.length)
-        assertThat(cursorAnchorInfo.composingText.toString()).isEqualTo(word2)
+        Truth.assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(word1.length)
+        Truth.assertThat(cursorAnchorInfo.composingText.toString()).isEqualTo(word2)
     }
 
     @Test
@@ -152,81 +178,106 @@ class CursorAnchorInfoBuilderTest {
         val word1 = "123 "
         val word2 = "456"
         val word3 = " 789"
-        val textFieldValue =
-            TextFieldValue(
-                word1 + word2 + word3,
-                composition = TextRange(word1.length, (word1 + word2).length)
-            )
+        val text = word1 + word2 + word3
+        val selection = TextRange(0)
+        val composition = TextRange(word1.length, (word1 + word2).length)
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    getTextLayoutResult(textFieldValue.text),
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
                     matrix,
                     includeCharacterBounds = false
                 )
 
-        assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(-1)
-        assertThat(cursorAnchorInfo.composingText).isNull()
+        Truth.assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(-1)
+        Truth.assertThat(cursorAnchorInfo.composingText).isNull()
     }
 
     @Test
     fun testResetsBetweenExecutions() {
         val text = "abc"
-        val textFieldValue = TextFieldValue(text, composition = TextRange(0, text.length))
+        val selection = TextRange(0)
+        val composition = TextRange(0, text.length)
         val builder = CursorAnchorInfo.Builder()
 
         val cursorAnchorInfo =
-            builder.build(textFieldValue, getTextLayoutResult(textFieldValue.text), matrix)
+            builder.build(
+                text,
+                selection,
+                composition,
+                getTextLayoutResult(text),
+                matrix
+            )
 
-        assertThat(cursorAnchorInfo.composingText.toString()).isEqualTo(text)
-        assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(textFieldValue.composition!!.min)
+        Truth.assertThat(cursorAnchorInfo.composingText.toString()).isEqualTo(text)
+        Truth.assertThat(cursorAnchorInfo.composingTextStart).isEqualTo(composition.min)
 
         val cursorAnchorInfo1 =
-            builder.build(TextFieldValue("abcd"), getTextLayoutResult(textFieldValue.text), matrix)
+            builder.build(
+                "abcd",
+                selection = TextRange(0),
+                composition = null,
+                getTextLayoutResult(text),
+                matrix
+            )
 
-        assertThat(cursorAnchorInfo1.composingText).isNull()
-        assertThat(cursorAnchorInfo1.composingTextStart).isEqualTo(-1)
+        Truth.assertThat(cursorAnchorInfo1.composingText).isNull()
+        Truth.assertThat(cursorAnchorInfo1.composingTextStart).isEqualTo(-1)
     }
 
     @Test
     fun testInsertionMarkerCursor() {
         val fontSize = 10.sp
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(1))
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        val text = "abc"
+        val selection = TextRange(1)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text, fontSize = fontSize)
 
         val cursorAnchorInfo =
-            CursorAnchorInfo.Builder().build(textFieldValue, textLayoutResult, matrix)
+            CursorAnchorInfo.Builder().build(text, selection, composition, textLayoutResult, matrix)
 
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(FLAG_HAS_VISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerFlags)
+            .isEqualTo(CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION)
     }
 
     @Test
     fun testInsertionMarkerSelectionIsSameWithCursor() {
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(1, 2))
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text)
+        val text = "abc"
+        val selection = TextRange(1, 2)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text)
         val builder = CursorAnchorInfo.Builder()
 
-        val cursorAnchorInfo1 = builder.build(textFieldValue, textLayoutResult, matrix)
+        val cursorAnchorInfo1 =
+            builder.build(text, selection, composition, textLayoutResult, matrix)
 
         val cursorAnchorInfo2 =
-            builder.build(textFieldValue.copy(selection = TextRange(1)), textLayoutResult, matrix)
+            builder.build(
+                text,
+                selection = TextRange(1),
+                composition,
+                textLayoutResult,
+                matrix
+            )
 
-        assertThat(cursorAnchorInfo1.insertionMarkerHorizontal)
+        Truth.assertThat(cursorAnchorInfo1.insertionMarkerHorizontal)
             .isEqualTo(cursorAnchorInfo2.insertionMarkerHorizontal)
-        assertThat(cursorAnchorInfo1.insertionMarkerTop)
+        Truth.assertThat(cursorAnchorInfo1.insertionMarkerTop)
             .isEqualTo(cursorAnchorInfo2.insertionMarkerTop)
-        assertThat(cursorAnchorInfo1.insertionMarkerBottom)
+        Truth.assertThat(cursorAnchorInfo1.insertionMarkerBottom)
             .isEqualTo(cursorAnchorInfo2.insertionMarkerBottom)
-        assertThat(cursorAnchorInfo1.insertionMarkerBaseline)
+        Truth.assertThat(cursorAnchorInfo1.insertionMarkerBaseline)
             .isEqualTo(cursorAnchorInfo2.insertionMarkerBaseline)
-        assertThat(cursorAnchorInfo1.insertionMarkerFlags)
+        Truth.assertThat(cursorAnchorInfo1.insertionMarkerFlags)
             .isEqualTo(cursorAnchorInfo2.insertionMarkerFlags)
     }
 
@@ -235,20 +286,23 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
 
-        val textFieldValue = TextFieldValue("abc   ", selection = TextRange(5))
+        val text = "abc   "
+        val selection = TextRange(5)
+        val composition: TextRange? = null
         val width = 4 * fontSizeInPx
         val textLayoutResult =
-            getTextLayoutResult(textFieldValue.text, fontSize = fontSize, width = width)
+            getTextLayoutResult(text, fontSize = fontSize, width = width)
 
         val cursorAnchorInfo =
-            CursorAnchorInfo.Builder().build(textFieldValue, textLayoutResult, matrix)
+            CursorAnchorInfo.Builder().build(text, selection, composition, textLayoutResult, matrix)
 
         // The cursor position is clamped to the width of the layout.
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(width)
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(FLAG_HAS_VISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(width)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerFlags)
+            .isEqualTo(CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION)
     }
 
     @Test
@@ -256,49 +310,31 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
 
-        val textFieldValue = TextFieldValue("\u05D0\u05D1\u05D2", selection = TextRange(0))
+        val text = "\u05D0\u05D1\u05D2"
+        val selection = TextRange(0)
+        val composition: TextRange? = null
         val width = 3 * fontSizeInPx
         val textLayoutResult =
-            getTextLayoutResult(textFieldValue.text, fontSize = fontSize, width = width)
+            getTextLayoutResult(text, fontSize = fontSize, width = width)
 
         val cursorAnchorInfo =
-            CursorAnchorInfo.Builder().build(textFieldValue, textLayoutResult, matrix)
+            CursorAnchorInfo.Builder().build(text, selection, composition, textLayoutResult, matrix)
 
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(width)
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerFlags)
-            .isEqualTo(FLAG_HAS_VISIBLE_REGION or FLAG_IS_RTL)
-    }
-
-    @Test
-    fun testInsertionMarkerWithVisualTransformation() {
-        val fontSize = 10.sp
-        val textFieldValue = TextFieldValue("abcde", selection = TextRange(2))
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int) = if (offset < 2) offset else offset + 3
-            override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
-        }
-        val textLayoutResult = getTextLayoutResult("ab---cde", fontSize = fontSize)
-
-        val cursorAnchorInfo =
-            CursorAnchorInfo.Builder()
-                .build(textFieldValue, textLayoutResult, matrix, offsetMapping = offsetMapping)
-
-        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(5 * fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(FLAG_HAS_VISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(width)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerFlags)
+            .isEqualTo(CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION or CursorAnchorInfo.FLAG_IS_RTL)
     }
 
     @Test
     fun testInsertionMarkerNotVisible() {
         val fontSize = 10.sp
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(1))
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        val text = "abc"
+        val selection = TextRange(1)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text, fontSize = fontSize)
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         // insertionMarkerHorizontal = fontSizeInPx, so the insertion marker is completely outside
         // this rectangle.
@@ -308,26 +344,30 @@ class CursorAnchorInfoBuilderTest {
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
+                    text,
+                    selection,
+                    composition,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
                     decorationBoxBounds = innerTextFieldBounds
                 )
 
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(FLAG_HAS_INVISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerFlags)
+            .isEqualTo(CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION)
     }
 
     @Test
     fun testInsertionMarkerPartiallyVisible() {
         val fontSize = 10.sp
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(1))
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        val text = "abc"
+        val selection = TextRange(1)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text, fontSize = fontSize)
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         // insertionMarkerTop = 0 and insertionMarkerBottom = fontSizeInPx, so this rectangle covers
         // the top of the insertion marker but not the bottom.
@@ -336,37 +376,50 @@ class CursorAnchorInfoBuilderTest {
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
+                    text,
+                    selection,
+                    composition,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
                     decorationBoxBounds = innerTextFieldBounds
                 )
 
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
-        assertThat(cursorAnchorInfo.insertionMarkerFlags)
-            .isEqualTo(FLAG_HAS_VISIBLE_REGION or FLAG_HAS_INVISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerTop).isEqualTo(0f)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBottom).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBaseline).isEqualTo(fontSizeInPx)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerFlags)
+            .isEqualTo(
+                CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION or
+                CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
+            )
     }
 
     @Test
     fun testInsertionMarkerNotIncludedWhenIncludeInsertionMarkerFalse() {
         val fontSize = 10.sp
-        val textFieldValue = TextFieldValue("abc", selection = TextRange(1))
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        val text = "abc"
+        val selection = TextRange(1)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text, fontSize = fontSize)
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, textLayoutResult, matrix, includeInsertionMarker = false)
+                .build(
+                    text,
+                    selection,
+                    composition,
+                    textLayoutResult,
+                    matrix,
+                    includeInsertionMarker = false
+                )
 
-        assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isNaN()
-        assertThat(cursorAnchorInfo.insertionMarkerTop).isNaN()
-        assertThat(cursorAnchorInfo.insertionMarkerBottom).isNaN()
-        assertThat(cursorAnchorInfo.insertionMarkerBaseline).isNaN()
-        assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(0)
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerHorizontal).isNaN()
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerTop).isNaN()
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBottom).isNaN()
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerBaseline).isNaN()
+        Truth.assertThat(cursorAnchorInfo.insertionMarkerFlags).isEqualTo(0)
     }
 
     @Test
@@ -374,27 +427,27 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         val text = "a bc d"
+        val selection = TextRange(0)
         // Composition is on "bc"
         val composition = TextRange(2, 4)
-        val textFieldValue = TextFieldValue(text, composition = composition)
         val width = text.length * fontSizeInPx
         val textLayoutResult =
-            getTextLayoutResult(textFieldValue.text, fontSize = fontSize, width = width)
+            getTextLayoutResult(text, fontSize = fontSize, width = width)
 
         val cursorAnchorInfo =
-            CursorAnchorInfo.Builder().build(textFieldValue, textLayoutResult, matrix)
+            CursorAnchorInfo.Builder().build(text, selection, composition, textLayoutResult, matrix)
 
         for (index in text.indices) {
             if (index in composition) {
-                assertThat(cursorAnchorInfo.getCharacterBounds(index))
+                Truth.assertThat(cursorAnchorInfo.getCharacterBounds(index))
                     .isEqualTo(
                         RectF(index * fontSizeInPx, 0f, (index + 1) * fontSizeInPx, fontSizeInPx)
                     )
-                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index))
-                    .isEqualTo(FLAG_HAS_VISIBLE_REGION)
+                Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index))
+                    .isEqualTo(CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION)
             } else {
-                assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
-                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
+                Truth.assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
+                Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
             }
         }
     }
@@ -404,19 +457,19 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         val text = "\u05D0 \u05D1\u05D2 \u05D3"
+        val selection = TextRange(0)
         // Composition is on "\u05D1\u05D2"
         val composition = TextRange(2, 4)
-        val textFieldValue = TextFieldValue(text, composition = composition)
         val width = text.length * fontSizeInPx
         val textLayoutResult =
-            getTextLayoutResult(textFieldValue.text, fontSize = fontSize, width = width)
+            getTextLayoutResult(text, fontSize = fontSize, width = width)
 
         val cursorAnchorInfo =
-            CursorAnchorInfo.Builder().build(textFieldValue, textLayoutResult, matrix)
+            CursorAnchorInfo.Builder().build(text, selection, composition, textLayoutResult, matrix)
 
         for (index in text.indices) {
             if (index in composition) {
-                assertThat(cursorAnchorInfo.getCharacterBounds(index))
+                Truth.assertThat(cursorAnchorInfo.getCharacterBounds(index))
                     .isEqualTo(
                         RectF(
                             width - ((index + 1) * fontSizeInPx),
@@ -425,52 +478,14 @@ class CursorAnchorInfoBuilderTest {
                             fontSizeInPx
                         )
                     )
-                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index))
-                    .isEqualTo(FLAG_HAS_VISIBLE_REGION or FLAG_IS_RTL)
-            } else {
-                assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
-                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
-            }
-        }
-    }
-
-    @Test
-    fun testCharacterBoundsWithVisualTransformation() {
-        val fontSize = 10.sp
-        val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
-        val text = "abcd"
-        // Composition is on "bc"
-        val composition = TextRange(2, 4)
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int) = 2 * offset
-            override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
-        }
-        val transformedText = "a-b-c-d-"
-        val textFieldValue = TextFieldValue(text, composition = composition)
-        val width = transformedText.length * fontSizeInPx
-        val textLayoutResult =
-            getTextLayoutResult(transformedText, fontSize = fontSize, width = width)
-
-        val cursorAnchorInfo =
-            CursorAnchorInfo.Builder()
-                .build(textFieldValue, textLayoutResult, matrix, offsetMapping = offsetMapping)
-
-        for (index in text.indices) {
-            if (index in composition) {
-                assertThat(cursorAnchorInfo.getCharacterBounds(index))
+                Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index))
                     .isEqualTo(
-                        RectF(
-                            2 * index * fontSizeInPx,
-                            0f,
-                            (2 * index + 1) * fontSizeInPx,
-                            fontSizeInPx
-                        )
+                        CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION or
+                            CursorAnchorInfo.FLAG_IS_RTL
                     )
-                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index))
-                    .isEqualTo(FLAG_HAS_VISIBLE_REGION)
             } else {
-                assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
-                assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
+                Truth.assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
+                Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
             }
         }
     }
@@ -480,19 +495,20 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         val text = "a bc d"
+        val selection = TextRange(0)
         // Composition is on "bc"
         val composition = TextRange(2, 4)
-        val textFieldValue = TextFieldValue(text, composition = composition)
         val width = text.length * fontSizeInPx
         val textLayoutResult =
-            getTextLayoutResult(textFieldValue.text, fontSize = fontSize, width = width)
+            getTextLayoutResult(text, fontSize = fontSize, width = width)
         val innerTextFieldBounds = Rect(3.5f * fontSizeInPx, 0f, 4f * fontSizeInPx, fontSizeInPx)
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
+                    text,
+                    selection,
+                    composition,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -501,11 +517,15 @@ class CursorAnchorInfoBuilderTest {
 
         // Character at index 2 spans horizontal range [2 * fontSizeInPx, 3 * fontSizeInPx], so it
         // is completely outside innerTextFieldBounds.
-        assertThat(cursorAnchorInfo.getCharacterBoundsFlags(2)).isEqualTo(FLAG_HAS_INVISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(2))
+            .isEqualTo(CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION)
         // Character at index 3 spans horizontal range [3 * fontSizeInPx, 4 * fontSizeInPx], so it
         // is partially inside innerTextFieldBounds.
-        assertThat(cursorAnchorInfo.getCharacterBoundsFlags(3))
-            .isEqualTo(FLAG_HAS_VISIBLE_REGION or FLAG_HAS_INVISIBLE_REGION)
+        Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(3))
+            .isEqualTo(
+                CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION or
+                    CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
+            )
     }
 
     @Test
@@ -513,62 +533,76 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         val text = "a bc d"
+        val selection = TextRange(0)
         // Composition is on "bc"
         val composition = TextRange(2, 4)
-        val textFieldValue = TextFieldValue(text, composition = composition)
         val width = text.length * fontSizeInPx
         val textLayoutResult =
-            getTextLayoutResult(textFieldValue.text, fontSize = fontSize, width = width)
+            getTextLayoutResult(text, fontSize = fontSize, width = width)
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
-                .build(textFieldValue, textLayoutResult, matrix, includeCharacterBounds = false)
+                .build(
+                    text,
+                    selection,
+                    composition,
+                    textLayoutResult,
+                    matrix,
+                    includeCharacterBounds = false
+                )
 
         for (index in text.indices) {
-            assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
-            assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
+            Truth.assertThat(cursorAnchorInfo.getCharacterBounds(index)).isNull()
+            Truth.assertThat(cursorAnchorInfo.getCharacterBoundsFlags(index)).isEqualTo(0)
         }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun testEditorBounds() {
-        val textFieldValue = TextFieldValue()
+        val text = ""
+        val selection = TextRange(0)
+        val composition: TextRange? = null
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
-                    getTextLayoutResult(textFieldValue.text),
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
                     matrix,
                     innerTextFieldBounds = Rect(1f, 2f, 3f, 4f),
                     decorationBoxBounds = Rect(5f, 6f, 7f, 8f)
                 )
 
-        assertThat(cursorAnchorInfo.editorBoundsInfo?.editorBounds).isEqualTo(RectF(5f, 6f, 7f, 8f))
-        assertThat(cursorAnchorInfo.editorBoundsInfo?.handwritingBounds)
+        Truth.assertThat(cursorAnchorInfo.editorBoundsInfo?.editorBounds)
+            .isEqualTo(RectF(5f, 6f, 7f, 8f))
+        Truth.assertThat(cursorAnchorInfo.editorBoundsInfo?.handwritingBounds)
             .isEqualTo(RectF(5f, 6f, 7f, 8f))
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun testEditorBoundsNotIncludedWhenIncludeEditorBoundsFalse() {
-        val textFieldValue = TextFieldValue()
+        val text = ""
+        val selection = TextRange(0)
+        val composition: TextRange? = null
 
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
-                    getTextLayoutResult(textFieldValue.text),
+                    text,
+                    selection,
+                    composition,
+                    getTextLayoutResult(text),
                     matrix,
                     innerTextFieldBounds = Rect(1f, 2f, 3f, 4f),
                     decorationBoxBounds = Rect(5f, 6f, 7f, 8f),
                     includeEditorBounds = false
                 )
 
-        assertThat(cursorAnchorInfo.editorBoundsInfo).isNull()
+        Truth.assertThat(cursorAnchorInfo.editorBoundsInfo).isNull()
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -577,8 +611,10 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         // 6 lines of text
-        val textFieldValue = TextFieldValue("a\nbb\nccc\ndddd\neeeee\nffffff")
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        val text = "a\nbb\nccc\ndddd\neeeee\nffffff"
+        val selection = TextRange(0)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text, fontSize = fontSize)
         // Lines 2, 3, 4 are visible
         val innerTextFieldBounds =
             Rect(
@@ -591,17 +627,18 @@ class CursorAnchorInfoBuilderTest {
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
+                    text,
+                    selection,
+                    composition,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
                     decorationBoxBounds = innerTextFieldBounds
                 )
 
-        assertThat(cursorAnchorInfo.visibleLineBounds.size).isEqualTo(3)
+        Truth.assertThat(cursorAnchorInfo.visibleLineBounds.size).isEqualTo(3)
         // Line 2 "ccc" has 3 characters
-        assertThat(cursorAnchorInfo.visibleLineBounds[0])
+        Truth.assertThat(cursorAnchorInfo.visibleLineBounds[0])
             .isEqualTo(
                 RectF(
                     0f,
@@ -611,7 +648,7 @@ class CursorAnchorInfoBuilderTest {
                 )
             )
         // Line 3 "dddd" has 4 characters
-        assertThat(cursorAnchorInfo.visibleLineBounds[1])
+        Truth.assertThat(cursorAnchorInfo.visibleLineBounds[1])
             .isEqualTo(
                 RectF(
                     0f,
@@ -621,7 +658,7 @@ class CursorAnchorInfoBuilderTest {
                 )
             )
         // Line 4 "eeeee" has 5 characters
-        assertThat(cursorAnchorInfo.visibleLineBounds[2])
+        Truth.assertThat(cursorAnchorInfo.visibleLineBounds[2])
             .isEqualTo(
                 RectF(
                     0f,
@@ -638,8 +675,10 @@ class CursorAnchorInfoBuilderTest {
         val fontSize = 10.sp
         val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
         // 6 lines of text
-        val textFieldValue = TextFieldValue("a\nbb\nccc\ndddd\neeeee\nffffff")
-        val textLayoutResult = getTextLayoutResult(textFieldValue.text, fontSize = fontSize)
+        val text = "a\nbb\nccc\ndddd\neeeee\nffffff"
+        val selection = TextRange(0)
+        val composition: TextRange? = null
+        val textLayoutResult = getTextLayoutResult(text, fontSize = fontSize)
         // Lines 2, 3, 4 are visible
         val innerTextFieldBounds =
             Rect(
@@ -652,8 +691,9 @@ class CursorAnchorInfoBuilderTest {
         val cursorAnchorInfo =
             CursorAnchorInfo.Builder()
                 .build(
-                    textFieldValue,
-                    OffsetMapping.Identity,
+                    text,
+                    selection,
+                    composition,
                     textLayoutResult,
                     matrix,
                     innerTextFieldBounds = innerTextFieldBounds,
@@ -661,7 +701,7 @@ class CursorAnchorInfoBuilderTest {
                     includeLineBounds = false
                 )
 
-        assertThat(cursorAnchorInfo.visibleLineBounds.size).isEqualTo(0)
+        Truth.assertThat(cursorAnchorInfo.visibleLineBounds.size).isEqualTo(0)
     }
 
     private fun getTextLayoutResult(
@@ -701,10 +741,11 @@ class CursorAnchorInfoBuilderTest {
 }
 
 private fun CursorAnchorInfo.Builder.build(
-    textFieldValue: TextFieldValue,
+    text: CharSequence,
+    selection: TextRange,
+    composition: TextRange?,
     textLayoutResult: TextLayoutResult,
     matrix: Matrix,
-    offsetMapping: OffsetMapping = OffsetMapping.Identity,
     includeInsertionMarker: Boolean = true,
     includeCharacterBounds: Boolean = true,
     includeEditorBounds: Boolean = true,
@@ -713,8 +754,9 @@ private fun CursorAnchorInfo.Builder.build(
     val innerTextFieldBounds =
         Rect(0f, 0f, textLayoutResult.size.width.toFloat(), textLayoutResult.size.height.toFloat())
     return build(
-        textFieldValue,
-        offsetMapping,
+        text,
+        selection,
+        composition,
         textLayoutResult,
         matrix,
         innerTextFieldBounds = innerTextFieldBounds,

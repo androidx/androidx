@@ -23,9 +23,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
-import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Slider
@@ -64,7 +64,7 @@ fun TextFieldLineLimitsDemos() {
 fun DefaultLineLimits() {
     Text("Default")
 
-    BasicTextField2(
+    BasicTextField(
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.Default,
         textStyle = LocalTextStyle.current,
@@ -77,7 +77,7 @@ fun DefaultLineLimits() {
 fun SingleLineLimits() {
     Text("Single Line")
 
-    BasicTextField2(
+    BasicTextField(
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.SingleLine,
         textStyle = LocalTextStyle.current,
@@ -119,7 +119,7 @@ fun MultiLineLimits() {
 
     maxLines = maxLines.coerceAtLeast(minLines)
 
-    BasicTextField2(
+    BasicTextField(
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.MultiLine(
             minHeightInLines = minLines,

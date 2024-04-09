@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -45,14 +45,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun TextField2CursorNotBlinkingInUnfocusedWindowDemo() {
+fun TextFieldCursorNotBlinkingInUnfocusedWindowDemo() {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         val textFieldDecoration = Modifier
             .border(2.dp, Color.DarkGray, RoundedCornerShape(5.dp))
             .padding(8.dp)
 
         val textState = rememberTextFieldState("hello")
-        BasicTextField2(textState, textFieldDecoration)
+        BasicTextField(textState, textFieldDecoration)
 
         var showDialog by remember { mutableStateOf(false) }
         Button(

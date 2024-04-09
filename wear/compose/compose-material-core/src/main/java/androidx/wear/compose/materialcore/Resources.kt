@@ -16,10 +16,11 @@
 
 package androidx.wear.compose.materialcore
 
+import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -27,16 +28,19 @@ import androidx.compose.ui.unit.LayoutDirection
 @Composable
 fun isLayoutDirectionRtl(): Boolean {
     val layoutDirection: LayoutDirection = LocalLayoutDirection.current
-    return remember(layoutDirection) {
-        layoutDirection == LayoutDirection.Rtl
-    }
+    return layoutDirection == LayoutDirection.Rtl
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 fun isRoundDevice(): Boolean {
     val configuration = LocalConfiguration.current
-    return remember(configuration) {
-        configuration.isScreenRound
-    }
+    return configuration.isScreenRound
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun currentTimeMillis(): Long = System.currentTimeMillis()

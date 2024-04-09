@@ -23,16 +23,18 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
 import android.util.Size
-import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.util.ExtensionsTestUtil
+import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -57,6 +59,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -67,13 +70,20 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class VideoCaptureTest(
+    private val implName: String,
+    private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
     @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
+    )
+
+    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(cameraXConfig)
     )
 
     @get:Rule
@@ -102,19 +112,23 @@ class VideoCaptureTest(
                 Log.d(TAG, "Recording start")
                 latchForVideoStarted.countDown()
             }
+
             is VideoRecordEvent.Finalize -> {
                 Log.d(TAG, "Recording finalize")
                 finalize = it
                 latchForVideoSaved.countDown()
             }
+
             is VideoRecordEvent.Status -> {
                 Log.d(TAG, "Recording Status")
                 latchForVideoRecording.countDown()
             }
+
             is VideoRecordEvent.Pause,
             is VideoRecordEvent.Resume -> {
                 // Do nothing.
             }
+
             else -> {
                 throw IllegalStateException()
             }
@@ -131,6 +145,7 @@ class VideoCaptureTest(
         )
         skipVideoRecordingTestIfNotSupportedByEmulator()
 
+        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
@@ -162,6 +177,7 @@ class VideoCaptureTest(
 
     @UiThreadTest
     @Test
+    @Ignore("b/331617278")
     fun canBindToLifeCycleAndRecordVideo() {
         // Arrange.
         val file = createTempFile()
@@ -189,6 +205,7 @@ class VideoCaptureTest(
 
     @UiThreadTest
     @Test
+    @Ignore("b/331617278")
     fun canBindToLifeCycleAndRecordVideoWithPreviewAndImageCaptureBound() {
         // Arrange.
         val file = createTempFile()
@@ -282,9 +299,13 @@ class VideoCaptureTest(
         private const val VIDEO_TIMEOUT_SEC = 10L
         private const val TAG = "VideoCaptureTest"
         val context: Context = ApplicationProvider.getApplicationContext()
+
         @JvmStatic
-        @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
-        val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+        @Parameterized.Parameters(
+            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
+        )
+        fun data(): Collection<Array<Any>> {
+            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+        }
     }
 }

@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.SkiaBackedCanvas
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.asSkiaPath
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkiaRRect
@@ -212,7 +213,7 @@ internal class SkiaLayer(
         }
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         if (picture == null) {
             val bounds = size.toSize().toRect()
             val pictureCanvas = pictureRecorder.beginRecording(bounds.toSkiaRect())

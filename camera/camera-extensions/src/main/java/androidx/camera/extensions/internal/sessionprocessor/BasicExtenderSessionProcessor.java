@@ -78,7 +78,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @NonNull
     private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
-    final Object mLock = new Object();
     volatile StillCaptureProcessor mStillCaptureProcessor = null;
     volatile PreviewProcessor mPreviewProcessor = null;
     volatile RequestUpdateProcessorImpl mRequestUpdateProcessor = null;
@@ -291,6 +290,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         }
 
         if (mPreviewProcessor != null) {
+            mPreviewProcessor.resume();
             setImageProcessor(mPreviewOutputConfig.getId(),
                     new ImageProcessor() {
                         @Override
@@ -299,6 +299,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                 @Nullable String physicalCameraId) {
                             if (mPreviewProcessor != null) {
                                 mPreviewProcessor.notifyImage(imageReference);
+                            } else {
+                                imageReference.decrement();
                             }
                         }
                     });
@@ -356,6 +358,9 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Override
     public void onCaptureSessionEnd() {
         mOnEnableDisableSessionDurationCheck.onDisableSessionInvoked();
+        if (mPreviewProcessor != null) {
+            mPreviewProcessor.pause();
+        }
         List<CaptureStageImpl> captureStages = new ArrayList<>();
         CaptureStageImpl captureStage1 = mPreviewExtenderImpl.onDisableSession();
         Logger.d(TAG, "preview onDisableSession: " + captureStage1);
@@ -596,6 +601,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                     "onNextImageAvailable  outputStreamId=" + outputStreamId);
                             if (mStillCaptureProcessor != null) {
                                 mStillCaptureProcessor.notifyImage(imageReference);
+                            } else {
+                                imageReference.decrement();
                             }
 
                             if (mIsFirstFrame) {

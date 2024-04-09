@@ -23,6 +23,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
+import androidx.compose.testutils.benchmark.benchmarkReuseFor
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkLayout
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkMeasure
@@ -58,6 +59,11 @@ class ScrollerBenchmark {
     @Test
     fun first_draw() {
         benchmarkRule.benchmarkFirstDraw(scrollerCaseFactory)
+    }
+
+    @Test
+    fun reuse() {
+        benchmarkRule.benchmarkReuseFor { ScrollerTestCase().MeasuredContent() }
     }
 
     @Test

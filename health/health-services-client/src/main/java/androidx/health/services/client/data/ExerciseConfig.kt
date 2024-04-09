@@ -70,8 +70,8 @@ constructor(
         proto.isGpsUsageEnabled,
         proto.exerciseGoalsList.map { ExerciseGoal.fromProto(it) },
         BundlesUtil.fromProto(proto.exerciseParams),
-        if (proto.hasSwimmingPoolLength()) {
-            proto.swimmingPoolLength
+        if (proto.hasSwimmingPoolLengthMeters()) {
+            proto.swimmingPoolLengthMeters
         } else {
             SWIMMING_POOL_LENGTH_UNSPECIFIED
         },
@@ -261,7 +261,7 @@ constructor(
             .setIsGpsUsageEnabled(isGpsEnabled)
             .addAllExerciseGoals(exerciseGoals.map { it.proto })
             .setExerciseParams(BundlesUtil.toProto(exerciseParams))
-            .setSwimmingPoolLength(swimmingPoolLengthMeters)
+            .setSwimmingPoolLengthMeters(swimmingPoolLengthMeters)
             .addAllBatchingModeOverrides(batchingModeOverrides.map { it.toProto() })
             .addAllExerciseEventTypes(exerciseEventTypes.map { it.toProto() })
         if (exerciseTypeConfig != null) {

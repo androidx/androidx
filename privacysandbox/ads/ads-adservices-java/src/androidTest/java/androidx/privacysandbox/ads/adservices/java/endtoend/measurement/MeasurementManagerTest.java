@@ -36,8 +36,10 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -67,6 +69,19 @@ public class MeasurementManagerTest {
     private static final Uri DOMAIN_URI = Uri.parse("https://example2.com");
 
     private MeasurementManagerFutures mMeasurementManager;
+
+    @BeforeClass
+    public static void presuite() {
+        TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+        testUtil.disableDeviceConfigSyncForTests(true);
+        testUtil.enableVerboseLogging();
+    }
+
+    @AfterClass
+    public static void postsuite() {
+        TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+        testUtil.disableDeviceConfigSyncForTests(false);
+    }
 
     @Before
     public void setup() throws Exception {
@@ -109,12 +124,13 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
-        assertThat(mMeasurementManager.registerSourceAsync(
-                SOURCE_REGISTRATION_URI,
-                /* inputEvent= */ null).get())
+        assertThat(
+                        mMeasurementManager
+                                .registerSourceAsync(
+                                        SOURCE_REGISTRATION_URI, /* inputEvent= */ null)
+                                .get())
                 .isNotNull();
     }
 
@@ -123,16 +139,14 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
         // Skip the test if SDK extension 5 is not present.
 
         SourceRegistrationRequest request =
                 new SourceRegistrationRequest.Builder(
-                        Collections.singletonList(SOURCE_REGISTRATION_URI))
+                                Collections.singletonList(SOURCE_REGISTRATION_URI))
                         .build();
-        assertThat(mMeasurementManager.registerSourceAsync(request).get())
-                .isNotNull();
+        assertThat(mMeasurementManager.registerSourceAsync(request).get()).isNotNull();
     }
 
     @Test
@@ -140,8 +154,7 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
         assertThat(mMeasurementManager.registerTriggerAsync(TRIGGER_REGISTRATION_URI).get())
                 .isNotNull();
@@ -152,11 +165,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
-        WebSourceParams webSourceParams =
-                new WebSourceParams(SOURCE_REGISTRATION_URI, false);
+        WebSourceParams webSourceParams = new WebSourceParams(SOURCE_REGISTRATION_URI, false);
 
         WebSourceRegistrationRequest webSourceRegistrationRequest =
                 new WebSourceRegistrationRequest(
@@ -176,15 +187,12 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
-        WebTriggerParams webTriggerParams =
-                new WebTriggerParams(TRIGGER_REGISTRATION_URI, false);
+        WebTriggerParams webTriggerParams = new WebTriggerParams(TRIGGER_REGISTRATION_URI, false);
         WebTriggerRegistrationRequest webTriggerRegistrationRequest =
                 new WebTriggerRegistrationRequest(
-                        Collections.singletonList(webTriggerParams),
-                        DESTINATION);
+                        Collections.singletonList(webTriggerParams), DESTINATION);
 
         assertThat(mMeasurementManager.registerWebTriggerAsync(webTriggerRegistrationRequest).get())
                 .isNotNull();
@@ -200,13 +208,12 @@ public class MeasurementManagerTest {
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
-                        DeletionRequest.DELETION_MODE_ALL,
-                        DeletionRequest.MATCH_BEHAVIOR_DELETE)
+                                DeletionRequest.DELETION_MODE_ALL,
+                                DeletionRequest.MATCH_BEHAVIOR_DELETE)
                         .setDomainUris(Collections.singletonList(DOMAIN_URI))
                         .setOriginUris(Collections.singletonList(ORIGIN_URI))
                         .build();
-        assertThat(mMeasurementManager.deleteRegistrationsAsync(deletionRequest).get())
-                .isNotNull();
+        assertThat(mMeasurementManager.deleteRegistrationsAsync(deletionRequest).get()).isNotNull();
     }
 
     @Test
@@ -215,20 +222,18 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
-                        DeletionRequest.DELETION_MODE_ALL,
-                        DeletionRequest.MATCH_BEHAVIOR_DELETE)
+                                DeletionRequest.DELETION_MODE_ALL,
+                                DeletionRequest.MATCH_BEHAVIOR_DELETE)
                         .setDomainUris(Collections.singletonList(DOMAIN_URI))
                         .setOriginUris(Collections.singletonList(ORIGIN_URI))
                         .setStart(Instant.ofEpochMilli(0))
                         .setEnd(Instant.now())
                         .build();
-        assertThat(mMeasurementManager.deleteRegistrationsAsync(deletionRequest).get())
-                .isNotNull();
+        assertThat(mMeasurementManager.deleteRegistrationsAsync(deletionRequest).get()).isNotNull();
     }
 
     @Test
@@ -237,22 +242,21 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
-                        DeletionRequest.DELETION_MODE_ALL,
-                        DeletionRequest.MATCH_BEHAVIOR_DELETE)
+                                DeletionRequest.DELETION_MODE_ALL,
+                                DeletionRequest.MATCH_BEHAVIOR_DELETE)
                         .setDomainUris(Collections.singletonList(DOMAIN_URI))
                         .setOriginUris(Collections.singletonList(ORIGIN_URI))
                         .setStart(Instant.now().plusMillis(1000))
                         .setEnd(Instant.now())
                         .build();
-        Exception exception = assertThrows(
-                ExecutionException.class,
-                () ->
-                mMeasurementManager.deleteRegistrationsAsync(deletionRequest).get());
+        Exception exception =
+                assertThrows(
+                        ExecutionException.class,
+                        () -> mMeasurementManager.deleteRegistrationsAsync(deletionRequest).get());
         assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -261,8 +265,7 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 5,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
 
         int result = mMeasurementManager.getMeasurementApiStatusAsync().get();
         assertThat(result).isEqualTo(1);

@@ -29,6 +29,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageProxy
@@ -49,7 +50,6 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessor
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.internal.ScreenFlashUiInfo
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.test.annotation.UiThreadTest

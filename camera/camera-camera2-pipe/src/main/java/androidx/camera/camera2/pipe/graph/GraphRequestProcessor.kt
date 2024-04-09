@@ -152,11 +152,6 @@ private constructor(
             return false
         }
 
-        // Reject incorrectly structured capture sequences:
-        check(captureSequence.captureRequestList.size == captureSequence.captureMetadataList.size) {
-            "CaptureSequence ($captureSequence) has mismatched request and metadata lists!"
-        }
-
         // Non-repeating requests must always be aware of abort calls.
         if (!captureSequence.repeating) {
             synchronized(activeCaptureSequences) { activeCaptureSequences.add(captureSequence) }

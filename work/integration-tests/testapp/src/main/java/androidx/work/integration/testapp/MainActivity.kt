@@ -57,6 +57,7 @@ import androidx.work.integration.testapp.RemoteService.Companion.queryWorkInfoIn
 import androidx.work.integration.testapp.RemoteService.Companion.updateUniquePeriodicIntent
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity
+import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import androidx.work.multiprocess.RemoteWorkerService
 import androidx.work.workDataOf
@@ -234,7 +235,8 @@ class MainActivity : AppCompatActivity() {
             workManager.enqueue(request)
         }
         findViewById<View>(R.id.run_constraint_tracking_worker).setOnClickListener {
-            val inputData = workDataOf(ARGUMENT_CLASS_NAME to ForegroundWorker::class.java.name)
+            val inputData = workDataOf(
+                CONSTRAINT_WORKER_ARGUMENT_CLASS_NAME to ForegroundWorker::class.java.name)
 
             val request = OneTimeWorkRequest.Builder(ConstraintTrackingWorker::class.java)
                 .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
@@ -403,5 +405,5 @@ private const val CONSTRAINT_TRACKING_TAG = "ConstraintTrackingWorker"
 private const val UNIQUE_WORK_NAME = "importantUniqueWork"
 private const val REPLACE_COMPLETED_WORK = "replaceCompletedWork"
 private const val NUM_WORKERS = 150
-private const val ARGUMENT_CLASS_NAME =
+private const val CONSTRAINT_WORKER_ARGUMENT_CLASS_NAME =
     "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME"

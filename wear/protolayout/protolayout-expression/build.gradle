@@ -32,9 +32,9 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
 
-    implementation("androidx.annotation:annotation-experimental:1.4.0-rc01")
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.collection:collection:1.2.0")
-    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))
     lintPublish(project(":wear:protolayout:protolayout-lint"))

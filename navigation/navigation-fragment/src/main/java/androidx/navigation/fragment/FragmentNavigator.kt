@@ -305,6 +305,22 @@ public open class FragmentNavigator(
             beforePopList.size
         )
         val initialEntry = beforePopList.first()
+
+        // add pending ops here before any animation (if present) or FragmentManager work starts
+        val incomingEntry = beforePopList.elementAtOrNull(popUpToIndex - 1)
+        if (incomingEntry != null) {
+            addPendingOps(incomingEntry.id)
+        }
+        poppedList.filter { entry ->
+            // normally we don't add initialEntry to pending ops because the adding/popping
+            // of an isolated fragment does not trigger onBackStackCommitted. But if initial
+            // entry was already added to pendingOps, it was likely an incomingEntry that now
+            // needs to be popped, so we need to overwrite isPop to true here.
+            pendingOps.asSequence().map { it.first }.contains(entry.id) ||
+                entry.id != initialEntry.id
+        }.forEach { entry ->
+            addPendingOps(entry.id, isPop = true)
+        }
         if (savedState) {
             // Now go through the list in reversed order (i.e., started from the most added)
             // and save the back stack state of each.
@@ -331,22 +347,6 @@ public open class FragmentNavigator(
                 "Calling popWithTransition via popBackStack() on entry " +
                     "$popUpTo with savedState $savedState"
             )
-        }
-
-        val incomingEntry = beforePopList.elementAtOrNull(popUpToIndex - 1)
-        if (incomingEntry != null) {
-            addPendingOps(incomingEntry.id)
-        }
-        // add pending ops here before any animation (if present) starts
-        poppedList.filter { entry ->
-            // normally we don't add initialEntry to pending ops because the adding/popping
-            // of an isolated fragment does not trigger onBackStackCommitted. But if initial
-            // entry was already added to pendingOps, it was likely an incomingEntry that now
-            // needs to be popped, so we need to overwrite isPop to true here.
-            pendingOps.asSequence().map { it.first }.contains(entry.id) ||
-                entry.id != initialEntry.id
-        }.forEach { entry ->
-            addPendingOps(entry.id, isPop = true)
         }
 
         state.popWithTransition(popUpTo, savedState)

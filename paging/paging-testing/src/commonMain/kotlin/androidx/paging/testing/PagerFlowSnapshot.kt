@@ -25,6 +25,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
+import androidx.paging.awaitNotLoading
 import androidx.paging.testing.ErrorRecovery.RETRY
 import androidx.paging.testing.ErrorRecovery.RETURN_CURRENT_SNAPSHOT
 import androidx.paging.testing.ErrorRecovery.THROW
@@ -36,10 +37,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 /**
@@ -188,11 +186,9 @@ internal abstract class CompletablePagingDataPresenter<Value : Any>(
 internal suspend fun <Value : Any> CompletablePagingDataPresenter<Value>.awaitNotLoading(
     errorHandler: LoadErrorHandler
 ) {
-    val state = completableLoadStateFlow.filterNotNull().debounce(1).filter {
-        it.isIdle() || it.hasError()
-    }.firstOrNull()
+    val state = completableLoadStateFlow.filterNotNull().awaitNotLoading()
 
-    if (state != null && state.hasError()) {
+    if (state != null && state.hasError) {
         handleLoadError(state, errorHandler)
     }
 }
@@ -209,26 +205,6 @@ internal fun <Value : Any> PagingDataPresenter<Value>.handleLoadError(
     }
 }
 private class ReturnSnapshotStub : Exception()
-
-private fun CombinedLoadStates?.isIdle(): Boolean {
-    if (this == null) return false
-    return source.isIdle() && mediator?.isIdle() ?: true
-}
-
-private fun LoadStates.isIdle(): Boolean {
-    return refresh is LoadState.NotLoading && append is LoadState.NotLoading &&
-        prepend is LoadState.NotLoading
-}
-
-private fun CombinedLoadStates?.hasError(): Boolean {
-    if (this == null) return false
-    return source.hasError() || mediator?.hasError() ?: false
-}
-
-private fun LoadStates.hasError(): Boolean {
-    return refresh is LoadState.Error || append is LoadState.Error ||
-        prepend is LoadState.Error
-}
 
 private fun CombinedLoadStates.getErrorState(): LoadState.Error {
     return if (refresh is LoadState.Error) {

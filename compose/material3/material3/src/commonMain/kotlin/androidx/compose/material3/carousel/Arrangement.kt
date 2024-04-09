@@ -61,6 +61,13 @@ internal class Arrangement(
         return abs(targetLargeSize - largeSize) * priority
     }
 
+    /**
+     * Returns number of items (keylines) in the arrangement
+     */
+    fun itemCount(): Int {
+        return largeCount + mediumCount + smallCount
+    }
+
     companion object {
         // Specifies a percentage of a medium item's size by which it can be increased or decreased
         // to help fit an arrangement into the carousel's available space.
@@ -77,6 +84,7 @@ internal class Arrangement(
          * fitting the arrangement to the size of the carousel.
          *
          * @param availableSpace the space the arrangement needs to fit
+         * @param itemSpacing the space between items in the arrangement
          * @param targetSmallSize the size small items would like to be
          * @param minSmallSize the minimum size of which small item sizes are allowed to be
          * @param maxSmallSize the maximum size of which small item sizes are allowed to be
@@ -93,6 +101,7 @@ internal class Arrangement(
          */
         fun findLowestCostArrangement(
             availableSpace: Float,
+            itemSpacing: Float,
             targetSmallSize: Float,
             minSmallSize: Float,
             maxSmallSize: Float,
@@ -110,6 +119,7 @@ internal class Arrangement(
                         val arrangement = fit(
                             priority = priority,
                             availableSpace = availableSpace,
+                            itemSpacing = itemSpacing,
                             smallCount = smallCount,
                             smallSize = targetSmallSize,
                             minSmallSize = minSmallSize,
@@ -148,8 +158,9 @@ internal class Arrangement(
          * adjusting small items as much as possible, then adjusting medium items as much as
          * possible, and finally adjusting large items if the arrangement is still unable to fit.
          *
-         * @param priority The priority to place on this particular arrangement of item counts
-         * @param availableSpace The space in which to fit the arrangement
+         * @param priority the priority to place on this particular arrangement of item counts
+         * @param availableSpace the space in which to fit the arrangement
+         * @param itemSpacing the space between itens
          * @param smallCount the number of small items to fit
          * @param smallSize the size of each small item
          * @param minSmallSize the minimum size a small item is allowed to be
@@ -163,6 +174,7 @@ internal class Arrangement(
         private fun fit(
             priority: Int,
             availableSpace: Float,
+            itemSpacing: Float,
             smallCount: Int,
             smallSize: Float,
             minSmallSize: Float,
@@ -172,6 +184,8 @@ internal class Arrangement(
             largeCount: Int,
             largeSize: Float
         ): Arrangement {
+            val totalItemCount = largeCount + mediumCount + smallCount
+            val availableSpaceWithoutSpacing = availableSpace - ((totalItemCount - 1) * itemSpacing)
             var arrangedSmallSize = smallSize.coerceIn(
                 minSmallSize,
                 maxSmallSize
@@ -181,7 +195,7 @@ internal class Arrangement(
 
             val totalSpaceTakenByArrangement = arrangedLargeSize * largeCount +
                 arrangedMediumSize * mediumCount + arrangedSmallSize * smallCount
-            val delta = availableSpace - totalSpaceTakenByArrangement
+            val delta = availableSpaceWithoutSpacing - totalSpaceTakenByArrangement
             // First, resize small items within their allowable min-max range to try to fit the
             // arrangement into the available space.
             if (smallCount > 0 && delta > 0) {
@@ -201,7 +215,7 @@ internal class Arrangement(
             // Zero out small size if there are no small items
             arrangedSmallSize = if (smallCount > 0) arrangedSmallSize else 0f
             arrangedLargeSize = calculateLargeSize(
-                availableSpace, smallCount, arrangedSmallSize,
+                availableSpaceWithoutSpacing, smallCount, arrangedSmallSize,
                 mediumCount, largeCount
             )
             arrangedMediumSize = (arrangedLargeSize + arrangedSmallSize) / 2f

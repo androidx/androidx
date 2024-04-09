@@ -390,7 +390,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * Computes the offset to add to the index when loading items from presenter.
      *
      * The purpose of this is to address shifted item positions when new items are prepended
-     * with placeholders disabled. For example, loaded items(10-12) in the NullPaddedList
+     * with placeholders disabled. For example, loaded items(10-12) in the PlaceholderPaddedList
      * would have item(12) at presenter[2]. If we prefetched items(7-9), item(12) would now be in
      * presenter[5].
      *

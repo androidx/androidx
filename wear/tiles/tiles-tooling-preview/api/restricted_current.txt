@@ -19,12 +19,15 @@ package androidx.wear.tiles.tooling.preview {
   }
 
   public final class TilePreviewData {
+    ctor public TilePreviewData(optional kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, optional androidx.wear.protolayout.expression.PlatformDataValues? platformDataValues, kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
     ctor public TilePreviewData(optional kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
     ctor public TilePreviewData(kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
     method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> getOnTileRequest();
     method public kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> getOnTileResourceRequest();
+    method public androidx.wear.protolayout.expression.PlatformDataValues? getPlatformDataValues();
     property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest;
     property public final kotlin.jvm.functions.Function1<androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest;
+    property public final androidx.wear.protolayout.expression.PlatformDataValues? platformDataValues;
   }
 
   public final class TilePreviewHelper {

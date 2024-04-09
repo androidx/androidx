@@ -37,14 +37,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.MenuTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,7 +64,7 @@ import kotlin.math.min
  */
 object MenuDefaults {
     /** The default tonal elevation for a menu. */
-    val TonalElevation = MenuTokens.ContainerElevation
+    val TonalElevation = ElevationTokens.Level0
 
     /** The default shadow elevation for a menu. */
     val ShadowElevation = MenuTokens.ContainerElevation
@@ -115,14 +116,15 @@ object MenuDefaults {
     internal val ColorScheme.defaultMenuItemColors: MenuItemColors
         get() {
             return defaultMenuItemColorsCached ?: MenuItemColors(
-                textColor = fromToken(MenuTokens.ListItemLabelTextColor),
-                leadingIconColor = fromToken(MenuTokens.ListItemLeadingIconColor),
-                trailingIconColor = fromToken(MenuTokens.ListItemTrailingIconColor),
-                disabledTextColor = fromToken(MenuTokens.ListItemDisabledLabelTextColor),
-                disabledLeadingIconColor = fromToken(MenuTokens.ListItemDisabledLeadingIconColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledLeadingIconOpacity),
-                disabledTrailingIconColor = fromToken(MenuTokens.ListItemDisabledTrailingIconColor)
-                    .copy(alpha = MenuTokens.ListItemDisabledTrailingIconOpacity),
+                textColor = fromToken(ListTokens.ListItemLabelTextColor),
+                leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
+                trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                disabledTextColor = fromToken(ListTokens.ListItemDisabledLabelTextColor)
+                    .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                disabledLeadingIconColor = fromToken(ListTokens.ListItemDisabledLeadingIconColor)
+                    .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                disabledTrailingIconColor = fromToken(ListTokens.ListItemDisabledTrailingIconColor)
+                    .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
             ).also {
                 defaultMenuItemColorsCached = it
             }
@@ -188,17 +190,16 @@ class MenuItemColors(
      *
      * @param enabled whether the menu item is enabled
      */
-    @Composable
-    internal fun textColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) textColor else disabledTextColor)
-    }
+    @Stable
+    internal fun textColor(enabled: Boolean): Color =
+        if (enabled) textColor else disabledTextColor
 
     /**
      * Represents the leading icon color for a menu item, depending on its [enabled] state.
      *
      * @param enabled whether the menu item is enabled
      */
-    @Composable
+    @Stable
     internal fun leadingIconColor(enabled: Boolean): Color =
         if (enabled) leadingIconColor else disabledLeadingIconColor
 
@@ -207,7 +208,7 @@ class MenuItemColors(
      *
      * @param enabled whether the menu item is enabled
      */
-    @Composable
+    @Stable
     internal fun trailingIconColor(enabled: Boolean): Color =
         if (enabled) trailingIconColor else disabledTrailingIconColor
 
@@ -335,22 +336,23 @@ internal fun DropdownMenuItemContent(
             .sizeIn(
                 minWidth = DropdownMenuItemDefaultMinWidth,
                 maxWidth = DropdownMenuItemDefaultMaxWidth,
-                minHeight = MenuTokens.ListItemContainerHeight
+                minHeight = MenuListItemContainerHeight
             )
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProvideTextStyle(MaterialTheme.typography.fromToken(MenuTokens.ListItemLabelTextFont)) {
+        // TODO(b/271818892): Align menu list item style with general list item style.
+        ProvideTextStyle(MaterialTheme.typography.labelLarge) {
             if (leadingIcon != null) {
                 CompositionLocalProvider(
                     LocalContentColor provides colors.leadingIconColor(enabled),
                 ) {
-                    Box(Modifier.defaultMinSize(minWidth = MenuTokens.ListItemLeadingIconSize)) {
+                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemLeadingIconSize)) {
                         leadingIcon()
                     }
                 }
             }
-            CompositionLocalProvider(LocalContentColor provides colors.textColor(enabled).value) {
+            CompositionLocalProvider(LocalContentColor provides colors.textColor(enabled)) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -374,7 +376,7 @@ internal fun DropdownMenuItemContent(
                 CompositionLocalProvider(
                     LocalContentColor provides colors.trailingIconColor(enabled)
                 ) {
-                    Box(Modifier.defaultMinSize(minWidth = MenuTokens.ListItemTrailingIconSize)) {
+                    Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemTrailingIconSize)) {
                         trailingIcon()
                     }
                 }
@@ -414,6 +416,7 @@ internal fun calculateTransformOrigin(
 
 // Size defaults.
 internal val MenuVerticalMargin = 48.dp
+private val MenuListItemContainerHeight = 48.dp
 private val DropdownMenuItemHorizontalPadding = 12.dp
 internal val DropdownMenuVerticalPadding = 8.dp
 private val DropdownMenuItemDefaultMinWidth = 112.dp

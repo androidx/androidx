@@ -249,6 +249,13 @@ public class PlatformHealthSources {
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public DynamicProto.DynamicInt32 toDynamicInt32Proto(boolean withFingerprint) {
+            return mImpl.toDynamicInt32Proto(withFingerprint);
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Nullable
         @Override
         public Fingerprint getFingerprint() {

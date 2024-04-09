@@ -54,6 +54,7 @@ import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,7 +74,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
@@ -107,6 +107,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
@@ -134,7 +135,6 @@ import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -1498,12 +1498,14 @@ class AndroidViewTest {
 
             Column {
                 repeat(10) { slot ->
-                    if (slot == slotWithContent) {
-                        ReusableContent(Unit) {
-                            movableContext()
+                    key(slot) {
+                        if (slot == slotWithContent) {
+                            ReusableContent(Unit) {
+                                movableContext()
+                            }
+                        } else {
+                            Text("Slot $slot")
                         }
-                    } else {
-                        Text("Slot $slot")
                     }
                 }
             }
@@ -1540,7 +1542,10 @@ class AndroidViewTest {
         assertEquals(
             "AndroidView experienced unexpected lifecycle events when " +
                 "moved in the composition",
-            emptyList<AndroidViewLifecycleEvent>(),
+            listOf(
+                OnViewDetach,
+                OnViewAttach
+            ),
             lifecycleEvents
         )
 
@@ -1760,6 +1765,43 @@ class AndroidViewTest {
         }
     }
 
+    @Test
+    @LargeTest
+    fun androidView_attachingDoesNotCauseRelayout() {
+        lateinit var root: RequestLayoutTrackingFrameLayout
+        lateinit var composeView: ComposeView
+        lateinit var viewInsideCompose: View
+        var showAndroidView by mutableStateOf(false)
+
+        rule.activityRule.scenario.onActivity { activity ->
+            root = RequestLayoutTrackingFrameLayout(activity)
+            composeView = ComposeView(activity)
+            viewInsideCompose = View(activity)
+
+            activity.setContentView(root)
+            root.addView(composeView)
+            composeView.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    if (showAndroidView) {
+                        AndroidView({ viewInsideCompose })
+                    }
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            assertThat(viewInsideCompose.parent).isNull()
+            assertThat(root.requestLayoutCalled).isTrue()
+            root.requestLayoutCalled = false
+            showAndroidView = true
+        }
+
+        rule.runOnIdle {
+            assertThat(viewInsideCompose.parent).isNotNull()
+            assertThat(root.requestLayoutCalled).isFalse()
+        }
+    }
+
     @ExperimentalComposeUiApi
     @Composable
     private inline fun <T : View> ReusableAndroidViewWithLifecycleTracking(
@@ -1874,4 +1916,13 @@ class AndroidViewTest {
             value,
             displayMetrics
         ).roundToInt()
+
+    private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(context) {
+        var requestLayoutCalled = false
+
+        override fun requestLayout() {
+            super.requestLayout()
+            requestLayoutCalled = true
+        }
+    }
 }

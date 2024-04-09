@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQuality
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.requirePrecondition
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -80,6 +81,8 @@ class CanvasDrawScope : DrawScope {
         override var density: Density
             get() = drawParams.density
             set(value) { drawParams.density = value }
+
+        override var graphicsLayer: GraphicsLayer? = null
     }
 
     /**

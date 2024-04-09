@@ -46,6 +46,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.children
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -64,10 +66,22 @@ import org.junit.runner.RunWith
 class WindowInsetsDeviceTest {
     @get:Rule
     val rule = createAndroidComposeRule<WindowInsetsActivity>()
+    private lateinit var finishLatch: CountDownLatch
+    private val finishLatchGetter
+        get() = finishLatch
+    private val observer = object : DefaultLifecycleObserver {
+        override fun onDestroy(owner: LifecycleOwner) {
+            finishLatchGetter.countDown()
+        }
+    }
 
     @Before
     fun setup() {
         rule.activity.createdLatch.await(1, TimeUnit.SECONDS)
+        finishLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            rule.activity.lifecycle.addObserver(observer)
+        }
     }
 
     @After
@@ -75,6 +89,7 @@ class WindowInsetsDeviceTest {
         rule.runOnUiThread {
             rule.activity.finish()
         }
+        assertThat(finishLatch.await(1, TimeUnit.SECONDS)).isTrue()
     }
 
     @OptIn(ExperimentalLayoutApi::class)
@@ -91,8 +106,12 @@ class WindowInsetsDeviceTest {
         val innerComposable: @Composable () -> Unit = {
             imeInset2 = WindowInsets.ime.getBottom(LocalDensity.current)
             Box(
-                Modifier.fillMaxSize().imePadding().imeNestedScroll()
-                    .nestedScroll(connection, dispatcher).background(
+                Modifier
+                    .fillMaxSize()
+                    .imePadding()
+                    .imeNestedScroll()
+                    .nestedScroll(connection, dispatcher)
+                    .background(
                         Color.Cyan
                     )
             )
@@ -140,7 +159,7 @@ class WindowInsetsDeviceTest {
                 dispatcher.dispatchPostScroll(
                     Offset.Zero,
                     Offset(0f, -10f),
-                    NestedScrollSource.Drag
+                    NestedScrollSource.UserInput
                 )
                 Snapshot.sendApplyNotifications()
                 iteration++

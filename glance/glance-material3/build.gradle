@@ -32,11 +32,10 @@ android {
 
 androidx {
     name = "Glance Material"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2022"
     description = "Glance Material integration library." +
             " This library provides interop APIs with Material 3."
     metalavaK2UastEnabled = true
-    targetsJavaConsumers = false
 }
 

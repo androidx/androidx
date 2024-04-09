@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 
 private fun KSAnnotated.hasAnnotationWithQName(qName: String) = annotations.any {
     it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
@@ -37,11 +36,10 @@ internal fun KSAnnotated.hasJvmDefaultAnnotation() = hasAnnotationWithQName("kot
  * Return a reference to the containing file or class declaration via a wrapper that implements the
  * [javax.lang.model.element.Element] API so that we can report it to JavaPoet.
  */
-internal fun KSAnnotated.wrapAsOriginatingElement(): OriginatingElementWrapper {
-    val ksDeclaration = this as KSDeclaration
-    // Use the source file as originating element if the KSAnnotated is from a source file, and use
-    // the class declaration if it's from a compiled class file.
-    return ksDeclaration.containingFile?.let {
+internal fun KSClassDeclaration.wrapAsOriginatingElement(): OriginatingElementWrapper {
+    // Use the source file as originating element if the KSClassDeclaration is from a source file,
+    // and use the class declaration if it's from a compiled class file.
+    return containingFile?.let {
         KSFileAsOriginatingElement(it)
-    } ?: KSClassDeclarationAsOriginatingElement(ksDeclaration as KSClassDeclaration)
+    } ?: KSClassDeclarationAsOriginatingElement(this)
 }

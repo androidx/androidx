@@ -44,12 +44,12 @@ import kotlinx.coroutines.CoroutineScope
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class RequestProcessorAdapter(
     private val useCaseGraphConfig: UseCaseGraphConfig,
-    private val sessionConfig: SessionConfig?,
     private val processorSurfaces: List<SessionProcessorSurface>,
     private val scope: CoroutineScope,
 ) : RequestProcessor {
     private val coroutineMutex = CoroutineMutex()
     private val sequenceIds = atomic(0)
+    internal var sessionConfig: SessionConfig? = null
 
     private class RequestProcessorCallbackAdapter(
         private val callback: RequestProcessor.Callback,

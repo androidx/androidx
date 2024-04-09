@@ -73,13 +73,13 @@ public abstract class TakePictureRequest {
      * Gets the app provided callback for in-memory capture.
      */
     @Nullable
-    abstract ImageCapture.OnImageCapturedCallback getInMemoryCallback();
+    public abstract ImageCapture.OnImageCapturedCallback getInMemoryCallback();
 
     /**
      * Gets the app provided callback for on-disk capture.
      */
     @Nullable
-    abstract ImageCapture.OnImageSavedCallback getOnDiskCallback();
+    public abstract ImageCapture.OnImageSavedCallback getOnDiskCallback();
 
     /**
      * Gets the app provided options for on-disk capture.

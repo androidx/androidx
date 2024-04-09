@@ -22,7 +22,7 @@ package androidx.kruth
 class PrimitiveBooleanArraySubject internal constructor(
     actual: BooleanArray?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<BooleanArray?>(actual = actual, metadata = metadata) {
+) : Subject<BooleanArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
         HelperArraySubject(
@@ -52,8 +52,7 @@ class PrimitiveBooleanArraySubject internal constructor(
 
     /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject].*/
     fun asList(): IterableSubject<Boolean> {
-        metadata.assertNotNull(actual)
-
+        requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)
     }
 }

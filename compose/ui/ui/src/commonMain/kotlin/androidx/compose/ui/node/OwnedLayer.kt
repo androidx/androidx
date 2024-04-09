@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -59,7 +60,7 @@ internal interface OwnedLayer {
     /**
      * Causes the layer to be drawn into [canvas]
      */
-    fun drawLayer(canvas: Canvas)
+    fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?)
 
     /**
      * Updates the drawing on the current canvas.

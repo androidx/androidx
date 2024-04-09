@@ -31,7 +31,7 @@ class GroupSizeValidationTests {
     fun spacerLike() = compositionTest {
         slotExpect(
             name = "SpacerLike",
-            noMoreGroupsThan = 5,
+            noMoreGroupsThan = 3,
             noMoreSlotsThan = 10,
         ) {
             SpacerLike(Modifier)
@@ -42,7 +42,7 @@ class GroupSizeValidationTests {
     fun columnLikeSize() = compositionTest {
         slotExpect(
             name = "ColumnLike",
-            noMoreGroupsThan = 6,
+            noMoreGroupsThan = 3,
             noMoreSlotsThan = 9,
         ) {
             ColumnLike { }
@@ -64,7 +64,7 @@ class GroupSizeValidationTests {
     fun basicTextLikeSize() = compositionTest {
         slotExpect(
             name = "TextLike",
-            noMoreGroupsThan = 9,
+            noMoreGroupsThan = 5,
             noMoreSlotsThan = 13
         ) {
             BasicTextLike("")
@@ -75,7 +75,7 @@ class GroupSizeValidationTests {
     fun checkboxLike() = compositionTest {
         slotExpect(
             name = "CheckboxLike",
-            noMoreGroupsThan = 12,
+            noMoreGroupsThan = 8,
             noMoreSlotsThan = 17
         ) {
             CheckboxLike(checked = false, onCheckedChange = { })
@@ -639,7 +639,12 @@ private fun CanvasLike(modifier: Modifier, onDraw: DrawScope.() -> Unit) =
 // Utility functions for the tests
 
 @Composable
-private inline fun Marker(content: @Composable () -> Unit) = content()
+@ExplicitGroupsComposable
+private inline fun Marker(content: @Composable () -> Unit) {
+    currentComposer.startReplaceGroup(MarkerGroup)
+    content()
+    currentComposer.endReplaceGroup()
+}
 
 // left unused for debugging. This is useful for debugging differences in the slot table
 @Suppress("unused")

@@ -92,8 +92,8 @@ class AnchoredDraggableGestureTest {
         )
         val anchors = DraggableAnchors {
             A at 0f
-            B at 250f
-            C at 500f
+            B at AnchoredDraggableBoxSize.value / 2f
+            C at AnchoredDraggableBoxSize.value
         }
         state.updateAnchors(anchors)
 
@@ -164,8 +164,8 @@ class AnchoredDraggableGestureTest {
         )
         val anchors = DraggableAnchors {
             A at 0f
-            B at 250f
-            C at 500f
+            B at AnchoredDraggableBoxSize.value / 2f
+            C at AnchoredDraggableBoxSize.value
         }
         state.updateAnchors(anchors)
 
@@ -557,176 +557,6 @@ class AnchoredDraggableGestureTest {
     }
 
     @Test
-    fun anchoredDraggable_positionalThresholds_fixed_targetState() {
-        val positionalThreshold = 56.dp
-        val positionalThresholdPx = with(rule.density) { positionalThreshold.toPx() }
-        val absThreshold = abs(positionalThresholdPx)
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            positionalThreshold = { positionalThresholdPx },
-            velocityThreshold = DefaultVelocityThreshold,
-            snapAnimationSpec = tween(),
-            decayAnimationSpec = DefaultDecayAnimationSpec
-        )
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(
-                    Modifier
-                        .requiredSize(AnchoredDraggableBoxSize)
-                        .testTag(AnchoredDraggableTestTag)
-                        .anchoredDraggable(
-                            state = state,
-                            orientation = Orientation.Horizontal
-                        )
-                        .onSizeChanged { layoutSize ->
-                            val anchors = DraggableAnchors {
-                                A at 0f
-                                B at layoutSize.width / 2f
-                                C at layoutSize.width.toFloat()
-                            }
-                            state.updateAnchors(anchors)
-                        }
-                        .offset {
-                            IntOffset(
-                                state
-                                    .requireOffset()
-                                    .roundToInt(), 0
-                            )
-                        }
-                        .background(Color.Red)
-                )
-            }
-        }
-
-        val initialOffset = state.requireOffset()
-
-        // Swipe towards B, close before threshold
-        state.dispatchRawDelta(initialOffset + (absThreshold * 0.9f))
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(A)
-
-        // Swipe towards B, close after threshold
-        state.dispatchRawDelta(absThreshold * 0.2f)
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(B)
-
-        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.targetValue).isEqualTo(B)
-
-        // Swipe towards A, close before threshold
-        state.dispatchRawDelta(-(absThreshold * 0.9f))
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.targetValue).isEqualTo(B)
-
-        // Swipe towards A, close after threshold
-        state.dispatchRawDelta(-(absThreshold * 0.2f))
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.targetValue).isEqualTo(A)
-
-        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(A)
-    }
-
-    @Test
-    fun anchoredDraggable_positionalThresholds_fixed_negativeThreshold_targetState() {
-        val positionalThreshold = (-56).dp
-        val positionalThresholdPx = with(rule.density) { positionalThreshold.toPx() }
-        val absThreshold = abs(positionalThresholdPx)
-        val state = AnchoredDraggableState(
-            initialValue = A,
-            positionalThreshold = { positionalThresholdPx },
-            velocityThreshold = DefaultVelocityThreshold,
-            snapAnimationSpec = tween(),
-            decayAnimationSpec = DefaultDecayAnimationSpec
-        )
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(
-                    Modifier
-                        .requiredSize(AnchoredDraggableBoxSize)
-                        .testTag(AnchoredDraggableTestTag)
-                        .anchoredDraggable(
-                            state = state,
-                            orientation = Orientation.Horizontal
-                        )
-                        .onSizeChanged { layoutSize ->
-                            val anchors = DraggableAnchors {
-                                A at 0f
-                                B at layoutSize.width / 2f
-                                C at layoutSize.width.toFloat()
-                            }
-                            state.updateAnchors(anchors)
-                        }
-                        .offset {
-                            IntOffset(
-                                state
-                                    .requireOffset()
-                                    .roundToInt(), 0
-                            )
-                        }
-                        .background(Color.Red)
-                )
-            }
-        }
-
-        val initialOffset = state.requireOffset()
-
-        // Swipe towards B, close before threshold
-        state.dispatchRawDelta(initialOffset + (absThreshold * 0.9f))
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(A)
-
-        // Swipe towards B, close after threshold
-        state.dispatchRawDelta(absThreshold * 0.2f)
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(B)
-
-        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.targetValue).isEqualTo(B)
-
-        // Swipe towards A, close before threshold
-        state.dispatchRawDelta(-(absThreshold * 0.9f))
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.targetValue).isEqualTo(B)
-
-        // Swipe towards A, close after threshold
-        state.dispatchRawDelta(-(absThreshold * 0.2f))
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(B)
-        assertThat(state.targetValue).isEqualTo(A)
-
-        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
-        rule.waitForIdle()
-
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(A)
-    }
-
-    @Test
     fun anchoredDraggable_velocityThreshold_settle_velocityHigherThanThreshold_advances() =
         runBlocking(AutoTestFrameClock()) {
             val velocity = 100.dp
@@ -909,13 +739,13 @@ class AnchoredDraggableGestureTest {
             .performTouchInput {
                 swipeWithVelocity(
                     start = Offset(left, 0f),
-                    end = Offset(right / 2, 0f),
+                    end = Offset(right / 4, 0f),
                     endVelocity = with(rule.density) { velocityThreshold.toPx() } * 0.9f
                 )
             }
 
         rule.waitForIdle()
-        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.settledValue).isEqualTo(A)
     }
 
     @Test

@@ -66,6 +66,14 @@ public class FakeSurfaceEffect extends CameraEffect {
         mSurfaceProcessorInternal = surfaceProcessorInternal;
     }
 
+    public FakeSurfaceEffect(@Targets int targets, @Transformations int transformation,
+            @OutputOptions int targetOption,
+            @NonNull SurfaceProcessorInternal surfaceProcessorInternal) {
+        super(targets, transformation, targetOption, mainThreadExecutor(), surfaceProcessorInternal,
+                throwable -> {
+                });
+    }
+
     /**
      * Create a fake {@link CameraEffect} the {@link #createSurfaceProcessorInternal} value
      * overridden.

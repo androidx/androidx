@@ -1155,7 +1155,7 @@ public final class Camera2CameraImplTest {
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
 
         assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG);
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
         assertThat(
                 mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();

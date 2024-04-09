@@ -43,12 +43,6 @@ import org.gradle.work.DisableCachingByDefault
 abstract class SdkResourceGenerator : DefaultTask() {
     @get:Input lateinit var tipOfTreeMavenRepoRelativePath: String
 
-    /**
-     * project-relative path to folder where outputs from buildSrc builds can be found (perhaps
-     * something like ../out/buildSrc)
-     */
-    @get:Input lateinit var buildSrcOutRelativePath: String
-
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val debugKeystore: RegularFileProperty
 
@@ -115,7 +109,6 @@ abstract class SdkResourceGenerator : DefaultTask() {
             if (prebuiltsRelativePath != null) {
                 writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
             }
-            writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
         }
     }
 
@@ -149,8 +142,6 @@ abstract class SdkResourceGenerator : DefaultTask() {
                     }
                 )
                 it.kgpVersion.set(KOTLIN_GRADLE_PLUGIN_VERSION)
-                it.buildSrcOutRelativePath =
-                    (project.properties["buildSrcOut"] as File).toRelativeString(project.projectDir)
                 // Copy repositories used for the library project so that it can replicate the same
                 // maven structure in test.
                 it.repositoryUrls =

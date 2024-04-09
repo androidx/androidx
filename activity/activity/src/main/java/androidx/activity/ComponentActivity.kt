@@ -89,12 +89,10 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.enableSavedStateHandles
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import androidx.lifecycle.whenCreated
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -103,7 +101,6 @@ import androidx.tracing.Trace
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.launch
 
 /**
  * Base class for activities that enables composition of higher level components.
@@ -640,18 +637,27 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
                 }
             }
         }.also { dispatcher ->
-            lifecycleScope.launch {
-                whenCreated {
-                    if (Build.VERSION.SDK_INT >= 33) {
-                        dispatcher.setOnBackInvokedDispatcher(
-                            Api33Impl.getOnBackInvokedDispatcher(
-                                this@ComponentActivity
-                            )
-                        )
+            if (Build.VERSION.SDK_INT >= 33) {
+                if (Looper.myLooper() != Looper.getMainLooper()) {
+                    Handler(Looper.getMainLooper()).post {
+                        addObserverForBackInvoker(dispatcher)
                     }
+                } else {
+                    addObserverForBackInvoker(dispatcher)
                 }
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun addObserverForBackInvoker(dispatcher: OnBackPressedDispatcher) {
+        lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_CREATE) {
+                dispatcher.setOnBackInvokedDispatcher(
+                    Api33Impl.getOnBackInvokedDispatcher(this@ComponentActivity)
+                )
+            }
+        })
     }
 
     final override val savedStateRegistry: SavedStateRegistry

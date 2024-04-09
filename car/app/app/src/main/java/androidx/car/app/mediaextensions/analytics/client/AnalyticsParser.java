@@ -24,19 +24,23 @@ import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVE
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVENT_VIEW_CHANGE;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVENT_VISIBLE_ITEMS;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.mediaextensions.analytics.Constants;
+import androidx.car.app.mediaextensions.analytics.ThreadUtils;
 import androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent;
 import androidx.car.app.mediaextensions.analytics.event.BrowseChangeEvent;
 import androidx.car.app.mediaextensions.analytics.event.ErrorEvent;
 import androidx.car.app.mediaextensions.analytics.event.MediaClickedEvent;
 import androidx.car.app.mediaextensions.analytics.event.ViewChangeEvent;
 import androidx.car.app.mediaextensions.analytics.event.VisibleItemsEvent;
+import androidx.media.MediaBrowserServiceCompat;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -50,29 +54,79 @@ public class AnalyticsParser {
     private AnalyticsParser() {}
 
     /**
-     * Parses batch of {@link AnalyticsEvent}s from intent.
+     *
+     * Checks if supplied action is an Analytics action.
+     *
+     * @param action custom action
+     * @return boolean value whether the action is an analytics action.
+     */
+    public static boolean isAnalyticsAction(@NonNull String action) {
+        return Constants.ACTION_ANALYTICS.equalsIgnoreCase(action);
+    }
+
+    /**
+     * Parses a batch of {@link AnalyticsEvent}s from a custom action and extras.
      * <p>
-     *  Deserializes each event in batch and sends to analyticsCallback
+     *  Deserializes each event in batch and sends to analyticsCallback.
      * <p>
      *
-     * @param intent intent with batch of events in extras.
+     * <p>
+     *     Usage: Pass in action string and extras bundle to this method from
+     *     {@link androidx.media.MediaBrowserServiceCompat#onCustomAction(String, Bundle,
+     *     MediaBrowserServiceCompat.Result)}.
+     *     If present, the batch of analytic events will be parsed, deserialized and passed to the
+     *     supplied {@link AnalyticsCallback}.
+     * </p>
+     *
+     * @param action custom action
+     * @param extras custom action extras.
+     * @param analyticsCallback callback for deserialized events.
+     */
+    public static void parseAnalyticsAction(@NonNull String action, @Nullable Bundle extras,
+            @NonNull AnalyticsCallback analyticsCallback) {
+        parseAnalyticsAction(action, extras, ThreadUtils.getMainThreadExecutor(),
+                analyticsCallback);
+    }
+
+    /**
+     * Parses a batch of {@link AnalyticsEvent}s from a custom action and extras.
+     * <p>
+     *  Deserializes each event in batch and sends to analyticsCallback.
+     * <p>
+     *
+     * <p>
+     *     Usage: Pass in action string and extras bundle to this method from
+     *     {@link
+     *     androidx.media.MediaBrowserServiceCompat#onCustomAction(String, Bundle,
+     *     MediaBrowserServiceCompat.Result)}.
+     *     If present, the batch of analytic events will be parsed, deserialized and passed to the
+     *     supplied {@link AnalyticsCallback}.
+     * </p>
+     *
+     * @param action custom action
+     * @param extras custom action extras.
      * @param executor Valid Executor on which callback will be called.
      * @param analyticsCallback callback for deserialized events.
      */
     @SuppressWarnings("deprecation")
-    public static void parseAnalyticsIntent(@NonNull Intent intent, @NonNull Executor executor,
-            @NonNull AnalyticsCallback analyticsCallback) {
-        Bundle intentExtras = intent.getExtras();
+    public static void parseAnalyticsAction(@NonNull String action, @Nullable Bundle extras,
+            @NonNull Executor executor, @NonNull AnalyticsCallback analyticsCallback) {
 
-        if (intentExtras == null || intentExtras.isEmpty()) {
+        if (!action.equals(Constants.ACTION_ANALYTICS)) {
+            analyticsCallback.onErrorEvent(new ErrorEvent(new Bundle(),
+                    ErrorEvent.ERROR_CODE_INVALID_EVENT));
+            return;
+        }
+
+        if (extras == null || extras.isEmpty()) {
             Log.e(TAG, "Analytics event bundle is null or empty.");
             analyticsCallback.onErrorEvent(new ErrorEvent(new Bundle(),
-                    ErrorEvent.ERROR_CODE_INVALID_INTENT));
+                    ErrorEvent.ERROR_CODE_INVALID_EXTRAS));
             return;
         }
 
         ArrayList<Bundle> eventBundles =
-                intentExtras.getParcelableArrayList(ANALYTICS_EVENT_BUNDLE_ARRAY_KEY);
+                extras.getParcelableArrayList(ANALYTICS_EVENT_BUNDLE_ARRAY_KEY);
 
         if (eventBundles == null || eventBundles.isEmpty()) {
             Log.e(TAG, "Analytics event bundle list is empty.");
@@ -82,6 +136,7 @@ public class AnalyticsParser {
         }
 
         for (Bundle bundle : eventBundles) {
+            // TODO(b/322512398): Handle version mismatch
             AnalyticsParser.parseAnalyticsBundle(bundle, executor, analyticsCallback);
         }
     }
@@ -95,6 +150,12 @@ public class AnalyticsParser {
     public static void parseAnalyticsBundle(@NonNull Bundle analyticsBundle,
             @NonNull Executor executor, @NonNull AnalyticsCallback analyticsCallback) {
         String eventName = analyticsBundle.getString(ANALYTICS_EVENT_DATA_KEY_EVENT_NAME, "");
+
+        if (TextUtils.isEmpty(eventName)) {
+            executor.execute(() -> analyticsCallback.onErrorEvent(new ErrorEvent(analyticsBundle,
+                    ErrorEvent.ERROR_CODE_INVALID_EVENT)));
+            return;
+        }
 
         executor.execute(() -> createEvent(analyticsCallback, getEventType(eventName),
                 analyticsBundle));
@@ -124,7 +185,8 @@ public class AnalyticsParser {
         }
     }
 
-    private static @AnalyticsEvent.EventType int getEventType(String eventName) {
+    @AnalyticsEvent.EventType
+    private static int getEventType(String eventName) {
         switch (eventName) {
             case ANALYTICS_EVENT_MEDIA_CLICKED:
                 return AnalyticsEvent.EVENT_TYPE_MEDIA_CLICKED_EVENT;

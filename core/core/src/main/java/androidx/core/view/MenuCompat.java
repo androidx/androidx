@@ -34,6 +34,7 @@ public final class MenuCompat {
      *
      * @deprecated Use {@link MenuItem#setShowAsAction(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.setShowAsAction(actionEnum)")
     @Deprecated
     public static void setShowAsAction(MenuItem item, int actionEnum) {
         item.setShowAsAction(actionEnum);

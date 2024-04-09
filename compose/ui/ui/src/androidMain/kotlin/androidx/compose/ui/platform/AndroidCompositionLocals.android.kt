@@ -35,6 +35,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.ImageVectorCache
 import androidx.compose.ui.res.ResourceIdCache
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 
 /**
@@ -63,9 +64,11 @@ internal val LocalResourceIdCache = staticCompositionLocalOf<ResourceIdCache> {
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
-val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
-    noLocalProvidedFor("LocalLifecycleOwner")
-}
+ @Deprecated(
+    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
+    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+ )
+val LocalLifecycleOwner get() = LocalLifecycleOwner
 
 /**
  * The CompositionLocal containing the current [SavedStateRegistryOwner].
@@ -113,6 +116,8 @@ internal fun ProvideAndroidCompositionLocals(
 
     val imageVectorCache = obtainImageVectorCache(context, configuration)
     val resourceIdCache = obtainResourceIdCache(context)
+    val scrollCaptureInProgress =
+        LocalScrollCaptureInProgress.current or owner.scrollCaptureInProgress
     CompositionLocalProvider(
         LocalConfiguration provides configuration,
         LocalContext provides context,
@@ -121,7 +126,8 @@ internal fun ProvideAndroidCompositionLocals(
         LocalSaveableStateRegistry provides saveableStateRegistry,
         LocalView provides owner.view,
         LocalImageVectorCache provides imageVectorCache,
-        LocalResourceIdCache provides resourceIdCache
+        LocalResourceIdCache provides resourceIdCache,
+        LocalProvidableScrollCaptureInProgress provides scrollCaptureInProgress,
     ) {
         ProvideCommonCompositionLocals(
             owner = owner,

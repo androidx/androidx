@@ -48,7 +48,7 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 \$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # b/230127926
 [0-9]+ problem.* found storing the configuration cache.*
-See the complete report at file://\$OUT_DIR/androidx/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
+See the complete report at file://.*/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -241,6 +241,7 @@ WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setAutoSizeTextTypeUniformWithPresetSizes
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setFirstBaselineToTopHeight
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setLastBaselineToBottomHeight
+WARN: .*\/unzippedJvmSources\/androidx\/credentials\/PrepareGetCredentialResponse\.kt:[0-9]+ Unable to find reference @property frameworkHandle in DClass PendingGetCredentialHandle
 WARN: .*\/unzippedJvmSources\/androidx\/cursoradapter\/widget\/ResourceCursorAdapter\.java:UnknownLine Missing @param tag for parameter `c` in DFunction ResourceCursorAdapter
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/poolingcontainer\/PoolingContainer\.kt:[0-9]+ Missing @param tag for parameter `listener` in DFunction addPoolingContainerListener
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/widget\/ViewDragHelper\.java:[0-9]+ Missing @param tag for parameter `pointerId` in DFunction isEdgeTouched
@@ -284,6 +285,7 @@ WARN: .*\/unzippedJvmSources\/androidx\/navigation\/NavType\.kt:[0-9]+ Missing @
 WARN: .*\/unzippedJvmSources\/androidx\/paging\/compose\/LazyPagingItems\.kt:[0-9]+ Failed to resolve See PagingSource\.invalidate in DFunction refresh\. Did you mean PagingSource#invalidate\?
 WARN: .*\/unzippedJvmSources\/androidx\/paging\/LoadStateAdapter\.kt:[0-9]+ Missing @param tag for parameter `holder` in DFunction onBindViewHolder
 WARN: .*\/unzippedJvmSources\/androidx\/palette\/graphics\/Palette\.java:[0-9]+ Missing @param tag for parameter `target` in DFunction getColorForTarget
+WARN\: \$OUT_DIR\/androidx\/docs\-tip\-of\-tree\/build\/unzippedMultiplatformSources\/nativeMain\/androidx\/room\/RoomDatabase\.native\.kt\:UnknownLine Link does not resolve for \@throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\, e\.g\. \`\@throws java\.io\.IOException under some conditions\`\.
 WARN: .*\/unzippedJvmSources\/androidx\/recyclerview\/widget\/BatchingListUpdateCallback\.java:[0-9]+ Missing @param tag for parameter `payload` in DFunction onChanged
 WARN: .*\/unzippedJvmSources\/androidx\/recyclerview\/widget\/DefaultItemAnimator\.java:[0-9]+ Missing @param tag for parameter `fromX` in DFunction animateMove
 WARN: .*\/unzippedJvmSources\/androidx\/recyclerview\/widget\/DefaultItemAnimator\.java:[0-9]+ Missing @param tag for parameter `fromY` in DFunction animateMove
@@ -393,6 +395,7 @@ WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0-9]+ Unable to find reference @param supportedTypes in DClass Builder\. Are you trying to refer to something not visible to users\?
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/Renderer\.kt:[0-9]+ Link does not resolve for @throws Renderer\.GlesException in DClass GlesRenderer2\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/style\/CurrentUserStyleRepository\.kt:[0-9]+ Unable to find reference @param copySelectedOptions in DClass UserStyle\. Are you trying to refer to something not visible to users\?
+WARN\: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/lifecycle\/LifecycleRegistry\.nonJvm\.kt\:[0-9]+ Link does not resolve for \@throws IllegalStateException in DFunction addObserver\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\, e\.g\. \`\@throws java\.io\.IOException under some conditions\`\.
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/CookieManagerCompat\.java:UnknownLine Missing @param tag for parameter `cookieManager` in DFunction getCookieInfo
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebSettingsCompat\.java:[0-9]+ Missing @param tag for parameter `settings` in DFunction setSafeBrowsingEnabled
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebSettingsCompat\.java:[0-9]+ Missing @param tag for parameter `settings` in DFunction setDisabledActionModeMenuItems
@@ -405,17 +408,18 @@ WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebViewCompat\.java:[0-9]+ Missi
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebViewCompat\.java:[0-9]+ Missing @param tag for parameter `webview` in DFunction removeWebMessageListener
 WARN: .*\/unzippedJvmSources\/androidx\/work\/testing\/TestListenableWorkerBuilder\.kt:UnknownLine Missing @param tag for parameter `tags` in DFunction TestListenableWorkerBuilder
 WARN: .*\/unzippedJvmSources\/androidx\/work\/testing\/TestWorkerBuilder\.kt:UnknownLine Missing @param tag for parameter `tags` in DFunction TestWorkerBuilder
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedInitialKey` in DFunction LoadInitialParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `nextPageKey` in DFunction onResult
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `previousPageKey` in DFunction onResult
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
-WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedInitialKey` in DFunction LoadInitialParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `nextPageKey` in DFunction onResult
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `previousPageKey` in DFunction onResult
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
+WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadState\.kt:[0-9]+ Failed to resolve See androidx\.paging\.PagedList\.retry in DClass Error\. Did you mean androidx\.paging\.PagedList#retry\?
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/animation\/graphics\/res\/AnimatedVectorPainterResources\.android\.kt:[0-9]+ Missing @param tag for parameter `animatedImageVector` in DFunction rememberAnimatedVectorPainter
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/material\/AndroidMenu\.android\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/graphics\/AndroidPath\.android\.kt:[0-9]+ Missing @param tag for parameter `operation` in DFunction op
@@ -600,3 +604,8 @@ docs-public:docs starting
 docs-public:docs completing
 docs-tip-of-tree:docs starting
 docs-tip-of-tree:docs completing
+# Investigate more b/325465332
+# > Task :room:integration-tests:room-testapp-multiplatform:ksp.*
+i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
+# buildPrivacySandboxSdkApksForDebug (b/329101823)
+Extracted sandbox SDK APK for.*

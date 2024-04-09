@@ -25,6 +25,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -72,7 +73,7 @@ internal class CommonRippleNode(
 ) : RippleNode(interactionSource, bounded, radius, color, rippleAlpha) {
     private val ripples = MutableScatterMap<PressInteraction.Press, RippleAnimation>()
 
-    override fun addRipple(interaction: PressInteraction.Press) {
+    override fun addRipple(interaction: PressInteraction.Press, size: Size, targetRadius: Float) {
         // Finish existing ripples
         ripples.forEach { _, ripple -> ripple.finish() }
         val origin = if (bounded) interaction.pressPosition else null

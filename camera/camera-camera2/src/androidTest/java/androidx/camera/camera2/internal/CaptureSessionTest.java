@@ -187,6 +187,8 @@ public final class CaptureSessionTest {
 
     private DynamicRangesCompat mDynamicRangesCompat;
 
+    private Quirks mCameraQuirks;
+
     @Rule
     public TestRule wakelockEmptyActivityRule = new WakelockEmptyActivityRule();
 
@@ -229,6 +231,8 @@ public final class CaptureSessionTest {
         } catch (CameraAccessExceptionCompat e) {
             throw new AssumptionViolatedException("Could not retrieve camera characteristics", e);
         }
+
+        mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristics);
 
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutor, mHandler, mCaptureSessionRepository,
@@ -442,7 +446,7 @@ public final class CaptureSessionTest {
         FakeOpener fakeOpener = new FakeOpener();
 
         // 2. Act
-        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat, mCameraQuirks);
         captureSession.setSessionConfig(sessionConfig); // set repeating request
         captureSession.open(sessionConfig,
                 mCameraDeviceHolder.get(), fakeOpener);
@@ -1122,7 +1126,7 @@ public final class CaptureSessionTest {
     }
 
     private CaptureSession createCaptureSession() {
-        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat, mCameraQuirks);
         mCaptureSessions.add(captureSession);
         return captureSession;
     }
@@ -1409,7 +1413,7 @@ public final class CaptureSessionTest {
         FakeOpener fakeOpener = new FakeOpener();
         // Don't use #createCaptureSession since FakeOpenerImpl won't create CameraCaptureSession
         // so no need to be released.
-        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat);
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat, mCameraQuirks);
         captureSession.open(sessionConfigBuilder.build(), mCameraDeviceHolder.get(), fakeOpener);
 
         ArgumentCaptor<SessionConfigurationCompat> captor =

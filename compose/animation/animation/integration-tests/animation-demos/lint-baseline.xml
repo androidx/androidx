@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
 
     <issue
         id="PrimitiveInCollection"
@@ -35,24 +35,6 @@
         errorLine2="             ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/animation/demos/layoutanimation/AnimatedVisiblilityLazyColumnDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable sizeMap with type Map&lt;T, IntSize>: replace with ObjectLongMap"
-        errorLine1="    val sizeMap = remember { mutableMapOf&lt;T, IntSize>() }"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/demos/lookahead/CraneDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable offsetMap with type Map&lt;T, Offset>: replace with ObjectLongMap"
-        errorLine1="    val offsetMap = remember { mutableMapOf&lt;T, Offset>() }"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/demos/lookahead/CraneDemo.kt"/>
     </issue>
 
     <issue

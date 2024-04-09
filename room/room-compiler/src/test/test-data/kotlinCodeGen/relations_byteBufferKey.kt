@@ -5,10 +5,8 @@ import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndex
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.newStringBuilder
 import androidx.room.util.query
 import androidx.room.util.recursiveFetchHashMap
-import java.lang.StringBuilder
 import java.nio.ByteBuffer
 import java.util.HashMap
 import javax.`annotation`.processing.Generated
@@ -19,11 +17,11 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Set
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
+import kotlin.text.StringBuilder
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -85,7 +83,7 @@ public class MyDao_Impl(
       }
       return
     }
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT `artistId` FROM `Artist` WHERE `artistId` IN (")
     val _inputSize: Int = __mapKeySet.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -122,7 +120,6 @@ public class MyDao_Impl(
   }
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

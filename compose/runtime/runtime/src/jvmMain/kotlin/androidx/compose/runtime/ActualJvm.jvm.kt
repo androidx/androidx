@@ -56,6 +56,7 @@ internal actual class SnapshotThreadLocal<T> {
 
     @Suppress("UNCHECKED_CAST")
     actual fun get(): T? {
+        @Suppress("deprecation") // b/317114874
         val threadId = Thread.currentThread().id
         return if (threadId == MainThreadId) {
             mainThreadValue
@@ -65,6 +66,7 @@ internal actual class SnapshotThreadLocal<T> {
     }
 
     actual fun set(value: T?) {
+        @Suppress("deprecation") // b/317114874
         val key = Thread.currentThread().id
         if (key == MainThreadId) {
             mainThreadValue = value
@@ -118,6 +120,7 @@ internal actual fun ensureMutable(it: Any) { /* NOTHING */ }
 internal actual class WeakReference<T : Any> actual constructor(reference: T) :
     java.lang.ref.WeakReference<T>(reference)
 
+@Suppress("deprecation") // b/317114874
 internal actual fun currentThreadId(): Long = Thread.currentThread().id
 
 internal actual fun currentThreadName(): String = Thread.currentThread().name

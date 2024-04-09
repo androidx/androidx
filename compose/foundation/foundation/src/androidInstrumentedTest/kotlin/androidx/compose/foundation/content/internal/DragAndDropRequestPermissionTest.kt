@@ -20,7 +20,7 @@ import android.net.Uri
 import android.view.DragEvent
 import androidx.compose.foundation.TestActivity
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.text2.input.internal.DragAndDropTestUtils
+import androidx.compose.foundation.text.input.internal.DragAndDropTestUtils
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -51,7 +51,8 @@ class DragAndDropRequestPermissionTest {
         rule.setContent {
             Box(Modifier.then(TestElement { testNode = it }))
         }
-        val event = DragAndDropEvent(DragAndDropTestUtils.makeImageDragEvent(
+        val event = DragAndDropEvent(
+            DragAndDropTestUtils.makeImageDragEvent(
             DragEvent.ACTION_DROP,
             Uri.parse("content://com.example/content.png")
         ))
@@ -70,7 +71,8 @@ class DragAndDropRequestPermissionTest {
         rule.setContent {
             Box(Modifier.then(TestElement { testNode = it }))
         }
-        val event = DragAndDropEvent(DragAndDropTestUtils.makeImageDragEvent(
+        val event = DragAndDropEvent(
+            DragAndDropTestUtils.makeImageDragEvent(
             DragEvent.ACTION_DROP,
             Uri.parse("file://com.example/content.png")
         ))
@@ -92,7 +94,8 @@ class DragAndDropRequestPermissionTest {
                 Box(Modifier.then(TestElement { testNode = it }))
             }
         }
-        val event = DragAndDropEvent(DragAndDropTestUtils.makeImageDragEvent(
+        val event = DragAndDropEvent(
+            DragAndDropTestUtils.makeImageDragEvent(
             DragEvent.ACTION_DROP,
             Uri.parse("file://com.example/content.png")
         ))

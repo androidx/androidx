@@ -29,9 +29,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -482,6 +484,22 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
             assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
                 .isEqualTo(pagerSize - pageSize)
         }
+    }
+
+    @Test
+    fun flingOnUnattachedPager_shouldNotCrash() {
+        val pageSize = object : PageSize {
+            override fun Density.calculateMainAxisPageSize(
+                availableSpace: Int,
+                pageSpacing: Int
+            ): Int = 0
+        }
+
+        createPager(pageSize = { pageSize }, modifier = Modifier.fillMaxSize())
+
+        onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(1000f) }
+
+        rule.onNodeWithTag("0").isNotDisplayed()
     }
 
     companion object {

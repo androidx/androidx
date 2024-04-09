@@ -338,7 +338,7 @@
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interactions des utilisateurs"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Démos de demandes d\'autorisation"</string>
     <string name="application_overflow_title" msgid="396427940886169325">"Programme de validation du menu de développement de l\'appli"</string>
-    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Veuillez tester les modèles suivant lorsque vous faites passer"</string>
+    <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Veuillez tester les modèles suivants lorsque vous changez"</string>
     <string name="application_overflow_subtitle2" msgid="4385123036846369714">"l\'état du véhicule de garé à en mouvement"</string>
     <string name="perm_group" msgid="3834918337351876270">"Groupe d\'autorisations"</string>
     <string name="perm_group_description" msgid="7348847631139139024">"Groupe d\'autorisations pour l\'appli Showcase"</string>

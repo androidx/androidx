@@ -16,6 +16,10 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
+
+import java.util.Set;
+
 /**
  * ImageCaptureCapabilities is used to query {@link ImageCapture} use case capabilities on the
  * device.
@@ -41,4 +45,18 @@ public interface ImageCaptureCapabilities {
      * the apps.
      */
     boolean isCaptureProcessProgressSupported();
+
+    /**
+     * Gets the supported {@link ImageCapture.OutputFormat} set.
+     *
+     * <p>The set returned will always contain {@link ImageCapture.OutputFormat#OUTPUT_FORMAT_JPEG}
+     * format, support for other formats will vary by camera.
+     *
+     * @return a set of supported output formats.
+     *
+     * @see ImageCapture.Builder#setOutputFormat(int)
+     */
+    @ExperimentalImageCaptureOutputFormat
+    @NonNull
+    Set<@ImageCapture.OutputFormat Integer> getSupportedOutputFormats();
 }

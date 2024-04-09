@@ -17,7 +17,6 @@
 package androidx.compose.foundation.demos.text
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,42 +29,47 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.LocalTextLinkStyle
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
+import androidx.compose.material.TextDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
+import androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
+import androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
+import androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.random.Random
+import androidx.compose.ui.util.fastForEach
 
-private const val WebLink = "https://developer.android.com"
+private const val WebLink = "https://google.com"
 private const val LongWebLink =
     "https://developer.android.com/design/ui/mobile/guides/foundations/system-bars"
 private const val PhoneUri = "tel:+123456789"
 
 @SuppressLint("NullAnnotationGroup")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Hyperlinks() {
     Column(
@@ -76,11 +80,44 @@ fun Hyperlinks() {
             .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+
+        val dac = "https://developer.android.com/develop/ui/compose/"
+
+        Sample("State-based styling through builder") {
+            Text(buildAnnotatedString {
+                append("Text and a ")
+                withLink(
+                    LinkAnnotation.Url(
+                        url = "$dac/accessibility",
+                        style = SpanStyle(color = Color.Magenta),
+                        focusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
+                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+                    )
+                ) {
+                    append("DEVELOPER ANDROID COM LINK")
+                }
+                append(" immediately following.")
+            }
+            )
+        }
+        Sample("State-based styling from Html-tagged string") {
+            val htmlString = """
+                This is a <span style=\"color:red\"><a href=$dac/animation>link</a></span> 
+                here. Another <a href=$dac/semantics>link</a> follows.
+            """.trimIndent()
+            val annotatedString = AnnotatedString.fromHtml(
+                htmlString,
+                linkStyle = SpanStyle(color = Color.Magenta),
+                linkFocusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
+                linkHoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+            )
+            Text(annotatedString)
+        }
         Sample("Single link styling with SpanStyle") {
             val stringWithLink = buildAnnotatedString {
                 append("Example with a custom style ")
                 withStyle(SpanStyle(fontSize = 26.sp)) {
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                    withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                 }
                 append(" link and a phone number ")
                 withStyle(
@@ -89,49 +126,39 @@ fun Hyperlinks() {
                         textDecoration = TextDecoration.None
                     )
                 ) {
-                    withAnnotation(LinkAnnotation.Url(PhoneUri)) { append("+1 (234) 567890") }
+                    withLink(LinkAnnotation.Url(PhoneUri)) { append("+1 (234) 567890") }
                 }
                 append(" with a custom style.")
             }
             Text(text = stringWithLink)
         }
-        Sample("Link styling via composition local") {
-            CompositionLocalProvider(
-                LocalTextLinkStyle provides LocalTextLinkStyle.current.copy(
-                    color = Color(139, 195, 74, 255)
-                )
-            ) {
-                Text(buildAnnotatedString {
-                    append("Text with ")
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
-                    append(" link wrapped in green theming.")
-                })
-            }
-        }
-        Sample("BasicText styling") {
-            BasicText(buildAnnotatedString {
-                append("BasicText with ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+        Sample("Material colors for links from builder") {
+            Text(buildAnnotatedString {
+                append("Text and ")
+                withLink(TextDefaults.Url(url = WebLink)) { append("developer.android.com") }
                 append(" link.")
             })
         }
-
+        Sample("Material colors for links from html") {
+            val htmlString = "Text and <a href=https://google.com>developer.android.com</a> link"
+            Text(TextDefaults.fromHtml(htmlString = htmlString))
+        }
         Sample("Long links") {
             val text = buildAnnotatedString {
                 append("Example that contains ")
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append("a very very very very very very long long long long link")
                 }
                 append(" followed by another long link ")
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) { append(LongWebLink) }
+                withLink(LinkAnnotation.Url(LongWebLink)) { append(LongWebLink) }
             }
             Text(text)
         }
         Sample("Links with overlapped bounds") {
             val text = buildAnnotatedString {
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) { append("The first link") }
+                withLink(LinkAnnotation.Url(LongWebLink)) { append("The first link") }
                 append(" immediately followed by ")
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append("the second quite long link")
                 }
                 append(" so their bounds are overlapped")
@@ -141,7 +168,7 @@ fun Hyperlinks() {
         Sample("Link inside clickable text") {
             Text(buildAnnotatedString {
                 append("Clickable text with a ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                 append(" link.")
             }, Modifier.clickable { })
         }
@@ -149,7 +176,7 @@ fun Hyperlinks() {
             SelectionContainer {
                 Text(buildAnnotatedString {
                     append("Selectable text with a ")
-                    withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                    withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                     append(" link.")
                 })
             }
@@ -167,7 +194,7 @@ fun Hyperlinks() {
                 append("A ")
                 appendInlineContent("box")
                 append(" inline content and a ")
-                withAnnotation(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
+                withLink(LinkAnnotation.Url(WebLink)) { append("developer.android.com") }
                 append(" link.")
             }, inlineContent = mapOf("box" to inlineTextContent))
         }
@@ -175,7 +202,7 @@ fun Hyperlinks() {
             Text(
                 buildAnnotatedString {
                     append("Attached ")
-                    withAnnotation(LinkAnnotation.Url("asdf")) {
+                    withLink(LinkAnnotation.Url("asdf")) {
                         withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
                             append("link")
                         }
@@ -184,47 +211,13 @@ fun Hyperlinks() {
                 }
             )
         }
-        Sample("Clickable inside a text") {
-            var color by remember { mutableStateOf(Color.LightGray) }
-            var background by remember { mutableStateOf(Color.LightGray) }
-
-            BasicText(
-                buildAnnotatedString {
-                    append("Text contains ")
-                    withAnnotation(LinkAnnotation.Clickable("color")) {
-                        withStyle(SpanStyle(color = color)) {
-                            append("a variable color clickable")
-                        }
-                    }
-                    append(" and ")
-                    withAnnotation(LinkAnnotation.Clickable("background")) {
-                        withStyle(SpanStyle(background = background)) {
-                            append("a variable background clickable")
-                        }
-                    }
-                    append(" parts.")
-                },
-                onLinkClicked = { link ->
-                    (link as? LinkAnnotation.Clickable)?.let { clickable ->
-                        when (clickable.tag) {
-                            "color" -> {
-                                color = Color(Random.nextInt())
-                            }
-                            "background" -> {
-                                background = Color(Random.nextInt()).copy(alpha = 0.3f)
-                            }
-                        }
-                    }
-                }
-            )
-        }
         Sample("RTL text") {
             val text = buildAnnotatedString {
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append(loremIpsum(Language.Arabic, 2))
                 }
                 append(loremIpsum(Language.Arabic, 5))
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append(loremIpsum(Language.Arabic, 3))
                 }
                 append(loremIpsum(Language.Arabic, 5))
@@ -234,12 +227,105 @@ fun Hyperlinks() {
         Sample("Bidi text") {
             val text = buildAnnotatedString {
                 append(loremIpsum(Language.Arabic, 2))
-                withAnnotation(LinkAnnotation.Url(LongWebLink)) {
+                withLink(LinkAnnotation.Url(LongWebLink)) {
                     append(" developer.android.com ")
                 }
                 append(loremIpsum(Language.Arabic, 5))
             }
             Text(text)
+        }
+        Sample("Samples") {
+            AnnotatedStringWithLinkSample()
+            AnnotatedStringWithHoveredLinkStylingSample()
+            AnnotatedStringWithListenerSample()
+        }
+        Sample("Custom Saver with link listener restoration") {
+            val listener = LinkInteractionListener { /* do something */ }
+            val text = buildAnnotatedString {
+                withLink(TextDefaults.Clickable("tag", linkInteractionListener = listener)) {
+                    append("Click me")
+                }
+            }
+            val saveableText = rememberSaveable(stateSaver = AnnotatedStringSaver(listener)) {
+                mutableStateOf(text)
+            }
+            Text(saveableText.value)
+        }
+        Sample("Link with listener - accessibility") {
+            val localUriHandler = LocalUriHandler.current
+            val listener = LinkInteractionListener { localUriHandler.openUri(WebLink) }
+            val text = buildAnnotatedString {
+                append("Click ")
+                withLink(TextDefaults.Clickable("tag", linkInteractionListener = listener)) {
+                    append("the first link")
+                }
+                append(" or ")
+                withLink(TextDefaults.Url(WebLink, linkInteractionListener = listener)) {
+                    append("the second link")
+                }
+            }
+            Text(text)
+        }
+    }
+}
+
+private class AnnotatedStringSaver(
+    private val linkInteractionListener: LinkInteractionListener?
+) : Saver<AnnotatedString, Any> {
+    override fun SaverScope.save(value: AnnotatedString): Any? {
+        // It will store LinkAnnotation ignoring the LinkInteractionListener that needs to be put
+        // back manually after restoration
+        return with(AnnotatedString.Saver) {
+            save(value)
+        }
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Suppress("UNCHECKED_CAST")
+    @SuppressLint("NullAnnotationGroup")
+    override fun restore(value: Any): AnnotatedString? {
+       with(AnnotatedString.Saver as Saver<AnnotatedString, Any>) {
+           val result = this.restore(value)
+           result?.let { text ->
+               // create a builder and copy over all styles
+               val builder = AnnotatedString.Builder(text.text)
+               text.spanStyles.fastForEach { builder.addStyle(it.item, it.start, it.end) }
+               text.paragraphStyles.fastForEach { builder.addStyle(it.item, it.start, it.end) }
+               // put annotations back apart from links
+               text.getStringAnnotations(0, text.length).fastForEach {
+                   builder.addStringAnnotation(it.tag, it.item, it.start, it.end)
+               }
+               text.getTtsAnnotations(0, text.length).fastForEach {
+                   builder.addTtsAnnotation(it.item, it.start, it.end)
+               }
+               // copy link annotations and apply the listener where needed
+               text.getLinkAnnotations(0, text.length).fastForEach { linkRange ->
+                   when (linkRange.item) {
+                       is LinkAnnotation.Url -> {
+                           // in our example we assume that we never provide listeners to the
+                           // LinkAnnotation.Url annotations. Therefore we restore them as is.
+                           builder.addLink(
+                               linkRange.item as LinkAnnotation.Url,
+                               linkRange.start,
+                               linkRange.end
+                           )
+                       }
+                       is LinkAnnotation.Clickable -> {
+                           val link = LinkAnnotation.Clickable(
+                               (linkRange.item as LinkAnnotation.Clickable).tag,
+                               linkRange.item.style,
+                               linkRange.item.focusedStyle,
+                               linkRange.item.hoveredStyle,
+                               linkInteractionListener
+                           )
+                           builder.addLink(link, linkRange.start, linkRange.end)
+                       }
+                   }
+               }
+
+               return builder.toAnnotatedString()
+           }
+           return null
         }
     }
 }

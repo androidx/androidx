@@ -34,6 +34,9 @@ android {
     defaultConfig {
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
     }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
     namespace "androidx.benchmark.junit4"
 }
 

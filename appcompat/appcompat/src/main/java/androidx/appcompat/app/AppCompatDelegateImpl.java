@@ -150,11 +150,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private static final boolean sCanReturnDifferentContext =
             !"robolectric".equals(Build.FINGERPRINT);
 
-    /**
-     * Flag indicating whether ContextThemeWrapper.applyOverrideConfiguration() is available.
-     */
-    private static final boolean sCanApplyOverrideConfiguration = Build.VERSION.SDK_INT >= 17;
-
     private static boolean sInstalledExceptionHandler;
 
     static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
@@ -412,8 +407,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // If the base context is a ContextThemeWrapper (thus not an Application context)
         // and nobody's touched its Resources yet, we can shortcut and directly apply our
         // override configuration.
-        if (sCanApplyOverrideConfiguration
-                && baseContext instanceof android.view.ContextThemeWrapper) {
+        if (baseContext instanceof android.view.ContextThemeWrapper) {
             final Configuration config = createOverrideAppConfiguration(
                     baseContext, modeToApply, localesToApply, null, false);
             if (DEBUG) {
@@ -461,32 +455,30 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         Configuration configOverlay = null;
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            // There is a bug in createConfigurationContext where it applies overrides to the
-            // canonical configuration, e.g. ActivityThread.mCurrentConfig, rather than the base
-            // configuration, e.g. Activity.getResources().getConfiguration(). We can lean on this
-            // bug to obtain a reference configuration and reconstruct any custom configuration
-            // that may have been applied by the app, thereby avoiding the bug later on.
-            Configuration overrideConfig = new Configuration();
-            // We have to modify a value to receive a new Configuration, so use one that developers
-            // can't override.
-            overrideConfig.uiMode = -1;
-            // Workaround for incorrect default fontScale on earlier SDKs.
-            overrideConfig.fontScale = 0f;
-            Configuration referenceConfig =
-                    baseContext.createConfigurationContext(overrideConfig)
-                            .getResources().getConfiguration();
-            // Revert the uiMode change so that the diff doesn't include uiMode.
-            Configuration baseConfig = baseContext.getResources().getConfiguration();
-            referenceConfig.uiMode = baseConfig.uiMode;
+        // There is a bug in createConfigurationContext where it applies overrides to the
+        // canonical configuration, e.g. ActivityThread.mCurrentConfig, rather than the base
+        // configuration, e.g. Activity.getResources().getConfiguration(). We can lean on this
+        // bug to obtain a reference configuration and reconstruct any custom configuration
+        // that may have been applied by the app, thereby avoiding the bug later on.
+        Configuration overrideConfig = new Configuration();
+        // We have to modify a value to receive a new Configuration, so use one that developers
+        // can't override.
+        overrideConfig.uiMode = -1;
+        // Workaround for incorrect default fontScale on earlier SDKs.
+        overrideConfig.fontScale = 0f;
+        Configuration referenceConfig =
+                baseContext.createConfigurationContext(overrideConfig)
+                        .getResources().getConfiguration();
+        // Revert the uiMode change so that the diff doesn't include uiMode.
+        Configuration baseConfig = baseContext.getResources().getConfiguration();
+        referenceConfig.uiMode = baseConfig.uiMode;
 
-            // Extract any customizations as an overlay.
-            if (!referenceConfig.equals(baseConfig)) {
-                configOverlay = generateConfigDelta(referenceConfig, baseConfig);
-                if (DEBUG) {
-                    Log.d(TAG, "Application config (" + referenceConfig + ") does not match base "
-                            + "config (" + baseConfig + "), using base overlay: " + configOverlay);
-                }
+        // Extract any customizations as an overlay.
+        if (!referenceConfig.equals(baseConfig)) {
+            configOverlay = generateConfigDelta(referenceConfig, baseConfig);
+            if (DEBUG) {
+                Log.d(TAG, "Application config (" + referenceConfig + ") does not match base "
+                        + "config (" + baseConfig + "), using base overlay: " + configOverlay);
             }
         }
 

@@ -62,7 +62,6 @@ import androidx.compose.ui.unit.Dp
  * interactions will still happen internally.
  * @param content main content of this composable
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Composable
 fun NavigationDrawerScope.NavigationDrawerItem(
     selected: Boolean,
@@ -162,7 +161,6 @@ fun NavigationDrawerScope.NavigationDrawerItem(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemShape.toToggleableListItemShape() =
     ListItemDefaults.shape(
@@ -176,7 +174,6 @@ private fun NavigationDrawerItemShape.toToggleableListItemShape() =
         pressedSelectedShape = pressedSelectedShape,
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemColors.toToggleableListItemColors(
     doesNavigationDrawerHaveFocus: Boolean
@@ -199,7 +196,6 @@ private fun NavigationDrawerItemColors.toToggleableListItemColors(
         pressedSelectedContentColor = pressedSelectedContentColor,
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemScale.toToggleableListItemScale() =
     ListItemDefaults.scale(
@@ -213,7 +209,6 @@ private fun NavigationDrawerItemScale.toToggleableListItemScale() =
         pressedSelectedScale = pressedSelectedScale,
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemBorder.toToggleableListItemBorder() =
     ListItemDefaults.border(
@@ -227,7 +222,6 @@ private fun NavigationDrawerItemBorder.toToggleableListItemBorder() =
         pressedSelectedBorder = pressedSelectedBorder,
     )
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemGlow.toToggleableListItemGlow() =
     ListItemDefaults.glow(

@@ -79,6 +79,24 @@ class DelegatingNodeTest {
     }
 
     @Test
+    fun testNestedDelegatesHaveNodePointersCorrectlyUpdated() {
+        val d = DrawMod()
+        val c = DrawMod()
+        val b = object : DelegatingNode() {
+            val c = delegate(c)
+        }
+        val a = object : DelegatingNode() {
+            val b = delegate(b)
+            val d = delegate(d)
+        }
+
+        assert(a.node === a)
+        assert(b.node === a)
+        assert(c.node === a)
+        assert(d.node === a)
+    }
+
+    @Test
     fun testAsKindReturnsNestedDelegate() {
         val node = DelegatedWrapper { DelegatedWrapper { DrawMod() } }
         assert(node.isKind(Nodes.Draw))

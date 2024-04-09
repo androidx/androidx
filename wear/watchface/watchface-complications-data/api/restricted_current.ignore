@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-AddedMethod: androidx.wear.watchface.complications.data.ColorRamp#isInterpolated():
-    Added method androidx.wear.watchface.complications.data.ColorRamp.isInterpolated()
-
-
 ChangedType: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDataSource(android.content.ComponentName):
     Method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder
 ChangedType: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDisplayPolicy(int):
@@ -59,8 +55,6 @@ ChangedType: androidx.wear.watchface.complications.data.WeightedElementsComplica
     Method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder
 
 
-RemovedMethod: androidx.wear.watchface.complications.data.ColorRamp#getInterpolated():
-    Removed method androidx.wear.watchface.complications.data.ColorRamp.getInterpolated()
 RemovedMethod: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
     Removed method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
 RemovedMethod: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):

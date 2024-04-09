@@ -27,8 +27,6 @@ public final class EventBuilders {
 
     /**
      * Event fired when a tile has been added to the carousel.
-     *
-     * @since 1.0
      */
     public static final class TileAddEvent {
         private final EventProto.TileAddEvent mImpl;
@@ -41,8 +39,6 @@ public final class EventBuilders {
          * Gets the instance ID of the tile, allocated when the tile instance is added to the
          * carousel. This ID will remain the same for this tile instance as long it is not removed
          * from the carousel.
-         *
-         * @since 1.0
          */
         public int getTileId() {
             return mImpl.getTileId();
@@ -77,8 +73,6 @@ public final class EventBuilders {
 
             /**
              * Sets the ID of the tile added to the carousel.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -96,8 +90,6 @@ public final class EventBuilders {
 
     /**
      * Event fired when a tile has been removed from the carousel.
-     *
-     * @since 1.0
      */
     public static final class TileRemoveEvent {
         private final EventProto.TileRemoveEvent mImpl;
@@ -110,8 +102,6 @@ public final class EventBuilders {
          * Gets the instance ID of the tile, allocated when the tile instance is added to the
          * carousel. This ID will remain the same for this tile instance as long it is not removed
          * from the carousel.
-         *
-         * @since 1.0
          */
         public int getTileId() {
             return mImpl.getTileId();
@@ -146,8 +136,6 @@ public final class EventBuilders {
 
             /**
              * Sets the ID of the tile removed from the carousel.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -165,8 +153,6 @@ public final class EventBuilders {
 
     /**
      * Event fired when a tile is swiped to by the user (i.e. it's visible on screen).
-     *
-     * @since 1.0
      */
     public static final class TileEnterEvent {
         private final EventProto.TileEnterEvent mImpl;
@@ -179,8 +165,6 @@ public final class EventBuilders {
          * Gets the instance ID of the tile, allocated when the tile instance is added to the
          * carousel. This ID will remain the same for this tile instance as long it is not removed
          * from the carousel.
-         *
-         * @since 1.0
          */
         public int getTileId() {
             return mImpl.getTileId();
@@ -215,8 +199,6 @@ public final class EventBuilders {
 
             /**
              * Sets the ID of the entered tile.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -235,8 +217,6 @@ public final class EventBuilders {
     /**
      * Event fired when a tile is swiped away from by the user (i.e. it's no longer visible on
      * screen).
-     *
-     * @since 1.0
      */
     public static final class TileLeaveEvent {
         private final EventProto.TileLeaveEvent mImpl;
@@ -249,8 +229,6 @@ public final class EventBuilders {
          * Gets the instance ID of the tile, allocated when the tile instance is added to the
          * carousel. This ID will remain the same for this tile instance as long it is not removed
          * from the carousel.
-         *
-         * @since 1.0
          */
         public int getTileId() {
             return mImpl.getTileId();
@@ -285,8 +263,6 @@ public final class EventBuilders {
 
             /**
              * Sets the ID of the tile.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setTileId(int tileId) {

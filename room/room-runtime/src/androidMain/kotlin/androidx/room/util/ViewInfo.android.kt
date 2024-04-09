@@ -23,43 +23,30 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 /**
  * A data class that holds the information about a view.
  *
- *
  * This derives information from sqlite_master.
  *
- *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class ViewInfo(
+actual class ViewInfo actual constructor(
     /**
      * The view name
      */
     @JvmField
-    val name: String,
+    actual val name: String,
     /**
      * The SQL of CREATE VIEW.
      */
     @JvmField
-    val sql: String?
+    actual val sql: String?
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ViewInfo) return false
-        return ((name == other.name) && if (sql != null) sql == other.sql else other.sql == null)
-    }
+    actual override fun equals(other: Any?) = equalsCommon(other)
 
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + (sql?.hashCode() ?: 0)
-        return result
-    }
+    actual override fun hashCode() = hashCodeCommon()
 
-    override fun toString(): String {
-        return ("ViewInfo{" + "name='" + name + '\'' + ", sql='" + sql + '\'' + '}')
-    }
+    actual override fun toString() = toStringCommon()
 
-    companion object {
+    actual companion object {
         /**
          * Reads the view information from the given database.
          *
@@ -67,27 +54,22 @@ class ViewInfo(
          * @param viewName The view name.
          * @return A ViewInfo containing the schema information for the provided view name.
          */
+        @Deprecated("No longer used by generated code.")
         @JvmStatic
         fun read(database: SupportSQLiteDatabase, viewName: String): ViewInfo {
-            return database.query(
-                "SELECT name, sql FROM sqlite_master " +
-                    "WHERE type = 'view' AND name = '$viewName'"
-            ).useCursor { cursor ->
-                if (cursor.moveToFirst()) {
-                    ViewInfo(cursor.getString(0), cursor.getString(1))
-                } else {
-                    ViewInfo(viewName, null)
-                }
-            }
+            return read(SupportSQLiteConnection(database), viewName)
         }
 
+        /**
+         * Reads the view information from the given database.
+         *
+         * @param connection The database connection to read the information from.
+         * @param viewName The view name.
+         * @return A ViewInfo containing the schema information for the provided view name.
+         */
         @JvmStatic
-        fun read(connection: SQLiteConnection, viewName: String): ViewInfo {
-            if (connection is SupportSQLiteConnection) {
-                return read(connection.db, viewName)
-            } else {
-                TODO("Not yet migrated to use SQLiteDriver")
-            }
+        actual fun read(connection: SQLiteConnection, viewName: String): ViewInfo {
+            return readViewInfo(connection, viewName)
         }
     }
 }

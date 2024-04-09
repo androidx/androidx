@@ -36,7 +36,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
@@ -79,6 +78,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
             .extensions
             .getByType(KotlinMultiplatformAndroidTarget::class.java)
     }
+
     val agpKmpExtension: KotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
 
     /**
@@ -167,7 +167,15 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     fun sourceSets(closure: Closure<*>) {
         if (kotlinExtensionDelegate.isInitialized()) {
-            kotlinExtension.sourceSets.configure(closure)
+            kotlinExtension.sourceSets.configure(closure).also {
+                if (!project.enableMac()) {
+                    for (sourceSetName in macOnlySourceSetNames) {
+                        kotlinExtension.sourceSets.findByName(sourceSetName)?.let {
+                            kotlinExtension.sourceSets.remove(it)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -275,31 +283,11 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun addNativeLibrariesToJniLibs(
         androidTarget: KotlinAndroidTarget,
         nativeCompilation: MultiTargetNativeCompilation,
-        variantBuildType: String = "debug",
         forTest: Boolean = false
     ) = nativeLibraryBundler.addNativeLibrariesToJniLibs(
         androidTarget = androidTarget,
         nativeCompilation = nativeCompilation,
-        variantBuildType = variantBuildType,
         forTest = forTest
-    )
-
-    /**
-     * Convenience method to add native libraries to the jniLibs input of an Android instrumentation
-     * test.
-     *
-     * @see addNativeLibrariesToJniLibs
-     */
-    @JvmOverloads
-    fun addNativeLibrariesToTestJniLibs(
-        androidTarget: KotlinAndroidTarget,
-        nativeCompilation: MultiTargetNativeCompilation,
-        variantBuildType: String = "debug",
-    ) = addNativeLibrariesToJniLibs(
-        androidTarget = androidTarget,
-        nativeCompilation = nativeCompilation,
-        variantBuildType = variantBuildType,
-        forTest = true
     )
 
     /**
@@ -383,7 +371,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeX86().also { block?.execute(it) }
         } else {
             null
@@ -393,7 +381,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeX64().also { block?.execute(it) }
         } else {
             null
@@ -403,7 +391,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeArm64().also { block?.execute(it) }
         } else {
             null
@@ -413,7 +401,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
-        return if (project.enableNative()) {
+        return if (project.enableAndroidNative()) {
             kotlinExtension.androidNativeArm32().also { block?.execute(it) }
         } else {
             null
@@ -533,17 +521,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
+        private val macOnlySourceSetNames = setOf(
+            "darwinMain",
+            "darwinTest",
+            "iosMain",
+            "iosSimulatorArm64Main",
+            "iosX64Main",
+            "iosArm64Main"
+        )
     }
 }
-
-/**
- * Returns a provider that is set to true if and only if this project has at least 1 kotlin native
- * target (mac, linux, ios).
- */
-internal fun Project.hasKotlinNativeTarget(): Provider<Boolean> =
-    project.provider {
-        project.extensions.getByType(AndroidXMultiplatformExtension::class.java).hasNativeTarget()
-    }
 
 fun Project.validatePublishedMultiplatformHasDefault() {
     val extension = project.extensions.getByType(AndroidXMultiplatformExtension::class.java)

@@ -4168,16 +4168,12 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressWarnings("MixedMutabilityReturnType")
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);
-            List<AccessibilityNodeInfoCompat> result = new ArrayList<>();
-            for (AccessibilityNodeInfo node : nodes) {
+        List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);
+        List<AccessibilityNodeInfoCompat> result = new ArrayList<>();
+        for (AccessibilityNodeInfo node : nodes) {
                 result.add(AccessibilityNodeInfoCompat.wrap(node));
             }
-            return result;
-        } else {
-            return Collections.emptyList();
-        }
+        return result;
     }
 
     /**

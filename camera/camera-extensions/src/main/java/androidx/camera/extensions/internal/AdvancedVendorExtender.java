@@ -20,6 +20,8 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -40,7 +42,6 @@ import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
-import androidx.camera.extensions.internal.compat.workaround.ImageAnalysisAvailability;
 import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor;
 import androidx.core.util.Preconditions;
 
@@ -162,13 +163,8 @@ public class AdvancedVendorExtender implements VendorExtender {
     @Override
     public Size[] getSupportedYuvAnalysisResolutions() {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
-        ImageAnalysisAvailability imageAnalysisAvailability = new ImageAnalysisAvailability();
-        if (!imageAnalysisAvailability.isAvailable(mCameraId, mMode)) {
-            return new Size[0];
-        }
-
-        List<Size> yuvList = mAdvancedExtenderImpl.getSupportedYuvAnalysisResolutions(mCameraId);
-        return yuvList == null ? new Size[0] : yuvList.toArray(new Size[0]);
+        // Disable ImageAnalysis
+        return new Size[0];
     }
 
     @NonNull
@@ -180,6 +176,21 @@ public class AdvancedVendorExtender implements VendorExtender {
                         mAdvancedExtenderImpl.getAvailableCaptureRequestKeys());
             } catch (Exception e) {
                 Logger.e(TAG, "AdvancedExtenderImpl.getAvailableCaptureRequestKeys "
+                        + "throws exceptions", e);
+            }
+        }
+        return keys;
+    }
+
+    @NonNull
+    private List<CaptureResult.Key> getSupportedResultKeys() {
+        List<CaptureResult.Key> keys = Collections.emptyList();
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_3) >= 0) {
+            try {
+                keys = Collections.unmodifiableList(
+                        mAdvancedExtenderImpl.getAvailableCaptureResultKeys());
+            } catch (Exception e) {
+                Logger.e(TAG, "AdvancedExtenderImpl.getAvailableCaptureResultKeys "
                         + "throws exceptions", e);
             }
         }
@@ -218,6 +229,30 @@ public class AdvancedVendorExtender implements VendorExtender {
         }
     }
 
+    @Override
+    public boolean isExtensionStrengthAvailable() {
+        // EXTENSION_STRENGTH is supported since API level 34
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return getSupportedParameterKeys().contains(CaptureRequest.EXTENSION_STRENGTH);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isCurrentExtensionModeAvailable() {
+        // EXTENSION_CURRENT_TYPE is supported since API level 34
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return getSupportedResultKeys().contains(CaptureResult.EXTENSION_CURRENT_TYPE);
+        } else {
+            return false;
+        }
+    }
+
     @Nullable
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {
@@ -226,6 +261,7 @@ public class AdvancedVendorExtender implements VendorExtender {
                 mAdvancedExtenderImpl.createSessionProcessor(),
                 getSupportedParameterKeys(),
                 this,
-                context);
+                context,
+                mMode);
     }
 }

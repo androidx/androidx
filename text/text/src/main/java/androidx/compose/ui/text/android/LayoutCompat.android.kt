@@ -124,6 +124,17 @@ internal object LayoutCompat {
     )
     internal annotation class TextDirection
 
+    const val TEXT_GRANULARITY_CHARACTER = 0
+    const val TEXT_GRANULARITY_WORD = 1
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        TEXT_GRANULARITY_CHARACTER,
+        TEXT_GRANULARITY_WORD,
+
+    )
+    internal annotation class TextGranularity
+
     const val DEFAULT_ALIGNMENT = ALIGN_NORMAL
 
     internal const val DEFAULT_TEXT_DIRECTION = TEXT_DIRECTION_FIRST_STRONG_LTR

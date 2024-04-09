@@ -120,14 +120,18 @@ class BaselineProfile {
     private fun MacrobenchmarkScope.testExpandables() {
         findAndClick(By.desc(EXPANDABLES))
         device.waitForIdle()
-        findAndClick(By.desc(EXPAND_ITEMS))
+        // Expand the bottom expandable first for other to be on screen
         findAndClick(By.desc(EXPAND_TEXT))
+        findAndClick(By.desc(EXPAND_ITEMS))
         device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }
 
     private fun MacrobenchmarkScope.testProgressIndicators() {
+        // swipe down for the "Progress Indicator" button to be on screen
+        device.executeShellCommand("input swipe 250 200 250 100 300")
+        device.waitForIdle()
         findAndClick(By.desc(PROGRESSINDICATORS))
         device.waitForIdle()
         testDestination(description = PROGRESS_INDICATOR)

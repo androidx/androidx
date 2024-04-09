@@ -48,6 +48,10 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.toLocalString
+import androidx.compose.material3.internal.touchExplorationState
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.TimeInputTokens
 import androidx.compose.material3.tokens.TimeInputTokens.PeriodSelectorContainerHeight
@@ -642,7 +646,6 @@ class TimePickerState(
     internal var selection by mutableStateOf(Selection.Hour)
     internal var isAfternoonToggle by mutableStateOf(initialHour >= 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
-
     internal var hourAngle by mutableFloatStateOf(
         RadiansPerHour * (initialHour % 12) - FullCircle / 4
     )
@@ -651,17 +654,24 @@ class TimePickerState(
     )
 
     private val mutex = MutatorMutex()
-    private val isAfternoon by derivedStateOf { is24hour && isInnerCircle || isAfternoonToggle }
+    private val isAfternoon
+        get() = is24hour && isInnerCircle || isAfternoonToggle
 
-    internal val currentAngle = Animatable(hourAngle)
+    internal var currentAngle = Animatable(hourAngle)
 
     internal fun setMinute(minute: Int) {
         minuteAngle = RadiansPerMinute * minute - FullCircle / 4
+        if (selection == Selection.Minute) {
+            currentAngle = Animatable(minuteAngle)
+        }
     }
 
     internal fun setHour(hour: Int) {
         isInnerCircle = hour >= 12
         hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
+        if (selection == Selection.Hour) {
+            currentAngle = Animatable(hourAngle)
+        }
     }
 
     internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
@@ -669,13 +679,6 @@ class TimePickerState(
             isInnerCircle = dist(x, y, center.x, center.y) < maxDist
         }
     }
-
-    internal fun isSelected(value: Int): Boolean =
-        if (selection == Selection.Minute) {
-            value == minute
-        } else {
-            hour == (value + if (isAfternoon) 12 else 0)
-        }
 
     internal suspend fun update(value: Float, fromTap: Boolean = false) {
         mutex.mutate(MutatePriority.UserInput) {
@@ -1651,7 +1654,7 @@ private fun TimePickerTextField(
                     interactionSource = interactionSource,
                     contentPadding = PaddingValues(0.dp),
                     container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
+                        OutlinedTextFieldDefaults.Container(
                             enabled = true,
                             isError = false,
                             interactionSource = interactionSource,

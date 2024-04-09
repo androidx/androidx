@@ -57,16 +57,24 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     private val testTag = "SearchBar"
 
     @Test
-    fun searchBar_inactive() {
+    fun searchBar_notExpanded() {
         rule.setMaterialContent(scheme.colorScheme) {
+            val expanded = false
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 content = {},
             )
         }
@@ -76,15 +84,23 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun searchBar_disabled() {
         rule.setMaterialContent(scheme.colorScheme) {
+            val expanded = false
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                enabled = false,
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                        enabled = false,
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 content = {},
             )
         }
@@ -92,15 +108,23 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun searchBar_active() {
+    fun searchBar_expanded() {
         rule.setMaterialContent(scheme.colorScheme) {
+            val expanded = true
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 content = { Text("Content") },
             )
         }
@@ -108,17 +132,25 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun searchBar_active_withIcons() {
+    fun searchBar_expanded_withIcons() {
         rule.setMaterialContent(scheme.colorScheme) {
+            val expanded = true
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 content = { Text("Content") },
             )
         }
@@ -126,15 +158,23 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun searchBar_active_customColors() {
+    fun searchBar_expanded_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
+            val expanded = true
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 colors = SearchBarDefaults.colors(
                     containerColor = Color.Yellow,
                     dividerColor = Color.Green,
@@ -146,16 +186,24 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun searchBar_shadow_inactive() {
+    fun searchBar_shadow_notExpanded() {
         rule.setMaterialContent(lightColorScheme()) {
+            val expanded = false
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 shadowElevation = 6.dp,
                 content = {},
             )
@@ -164,15 +212,24 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun searchBar_shadow_active() {
+    fun searchBar_shadow_expanded() {
         rule.setMaterialContent(lightColorScheme()) {
+            val expanded = true
+            val onExpandedChange: (Boolean) -> Unit = {}
             SearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = expanded,
+                        onExpandedChange = onExpandedChange,
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = expanded,
+                onExpandedChange = onExpandedChange,
                 shadowElevation = 6.dp,
                 content = { Text("Content") },
             )
@@ -221,16 +278,22 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_inactive() {
+    fun dockedSearchBar_notExpanded() {
         rule.setMaterialContent(scheme.colorScheme) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = false,
+                onExpandedChange = {},
                 content = {},
             )
         }
@@ -242,13 +305,19 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         rule.setMaterialContent(scheme.colorScheme) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                enabled = false,
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        enabled = false,
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = false,
+                onExpandedChange = {},
                 content = {},
             )
         }
@@ -256,15 +325,21 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_active() {
+    fun dockedSearchBar_expanded() {
         rule.setMaterialContent(scheme.colorScheme) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = true,
+                        onExpandedChange = {},
+                    )
+                },
+                expanded = true,
+                onExpandedChange = {},
                 content = { Text("Content") },
             )
         }
@@ -272,17 +347,23 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_active_withIcons() {
+    fun dockedSearchBar_expanded_withIcons() {
         rule.setMaterialContent(scheme.colorScheme) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = true,
+                        onExpandedChange = {},
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                    )
+                },
+                expanded = true,
+                onExpandedChange = {},
                 content = { Text("Content") },
             )
         }
@@ -290,15 +371,21 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_active_customShape() {
+    fun dockedSearchBar_expanded_customShape() {
         rule.setMaterialContent(lightColorScheme()) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = true,
+                        onExpandedChange = {},
+                    )
+                },
+                expanded = true,
+                onExpandedChange = {},
                 shape = CutCornerShape(24.dp),
                 content = { Text("Content") },
             )
@@ -307,15 +394,21 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_active_customColors() {
+    fun dockedSearchBar_expanded_customColors() {
         rule.setMaterialContent(lightColorScheme()) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = true,
+                        onExpandedChange = {},
+                    )
+                },
+                expanded = true,
+                onExpandedChange = {},
                 colors = SearchBarDefaults.colors(
                     containerColor = Color.Yellow,
                     dividerColor = Color.Green,
@@ -327,16 +420,22 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_shadow_inactive() {
+    fun dockedSearchBar_shadow_notExpanded() {
         rule.setMaterialContent(lightColorScheme()) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = false,
+                onExpandedChange = {},
                 shadowElevation = 6.dp,
                 content = {},
             )
@@ -345,15 +444,21 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun dockedSearchBar_shadow_active() {
+    fun dockedSearchBar_shadow_expanded() {
         rule.setMaterialContent(lightColorScheme()) {
             DockedSearchBar(
                 modifier = Modifier.testTag(testTag),
-                query = "Query",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "Query",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = true,
+                        onExpandedChange = {},
+                    )
+                },
+                expanded = true,
+                onExpandedChange = {},
                 shadowElevation = 6.dp,
                 content = { Text("Content") },
             )
@@ -407,17 +512,21 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
 
-        SearchBarInternal(
+        SearchBarImpl(
             animationProgress = animationProgress,
             finalBackProgress = finalBackProgress,
             firstBackEvent = firstBackEvent,
             currentBackEvent = currentBackEvent,
             modifier = Modifier.testTag(testTag),
-            query = "Query",
-            onQueryChange = {},
-            onSearch = {},
-            active = true,
-            onActiveChange = {},
+            inputField = {
+                SearchBarDefaults.InputField(
+                    query = "Query",
+                    onQueryChange = {},
+                    onSearch = {},
+                    expanded = true,
+                    onExpandedChange = {},
+                )
+            },
             content = { Text("Content") },
         )
     }

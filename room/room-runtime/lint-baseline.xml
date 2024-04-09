@@ -7,7 +7,7 @@
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                                                        ~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
         errorLine2="                                                                            ~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)"
         errorLine2="                                                                     ~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
         errorLine2="                                          ~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
         errorLine2="                                                    ~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -79,7 +79,7 @@
         errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
         errorLine2="                                                              ~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/AutoClosingRoomOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/AutoClosingRoomOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -88,7 +88,7 @@
         errorLine1="        val copyLock = ProcessLock("
         errorLine2="                       ~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/SQLiteCopyOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         errorLine1="            name,"
         errorLine2="            ~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/SQLiteCopyOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -106,7 +106,7 @@
         errorLine1="            context.filesDir,"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/SQLiteCopyOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -115,7 +115,7 @@
         errorLine1="            copyLock.lock()"
         errorLine2="                     ~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/SQLiteCopyOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
 
     <issue
@@ -124,7 +124,7 @@
         errorLine1="            copyLock.unlock()"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/androidMain/kotlin/androidx/room/SQLiteCopyOpenHelper.android.kt"/>
+            file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
 
 </issues>

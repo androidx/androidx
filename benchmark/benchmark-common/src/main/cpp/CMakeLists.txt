@@ -35,3 +35,4 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC log)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE dl)
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC android)
+target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "-Wl,-z,max-page-size=16384")

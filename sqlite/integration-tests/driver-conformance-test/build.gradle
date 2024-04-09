@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
+
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -29,11 +29,8 @@ plugins {
     id("com.android.library")
 }
 
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
-
 androidXMultiplatform {
     android()
-    androidNative()
     ios()
     jvm()
     linux()
@@ -67,13 +64,11 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestJunit)
             }
         }
-        if (nativeEnabled) {
-            nativeTest {
-                dependsOn(commonTest)
-                dependencies {
-                    implementation(project(":sqlite:sqlite-framework"))
-                    implementation(project(":sqlite:sqlite-bundled"))
-                }
+        nativeTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-framework"))
+                implementation(project(":sqlite:sqlite-bundled"))
             }
         }
         targets.all { target ->

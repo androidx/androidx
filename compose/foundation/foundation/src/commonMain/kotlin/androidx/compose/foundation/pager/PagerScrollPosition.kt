@@ -81,7 +81,7 @@ internal class PagerScrollPosition(
      * c) there will be not enough pages to fill the viewport after the requested index, so we
      * would have to compose few elements before the asked index, changing the first visible page.
      */
-    fun requestPosition(index: Int, offsetFraction: Float) {
+    fun requestPositionAndForgetLastKnownKey(index: Int, offsetFraction: Float) {
         update(index, offsetFraction)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [checkIfFirstVisibleItemWasMoved] shouldn't override this.
@@ -110,12 +110,6 @@ internal class PagerScrollPosition(
         currentPageOffsetFraction = offsetFraction
     }
 
-    fun currentAbsoluteScrollOffset(): Long {
-        val currentPageOffset = currentPage.toLong() * state.pageSizeWithSpacing
-        val offsetFraction = (currentPageOffsetFraction * state.pageSizeWithSpacing).roundToLong()
-        return currentPageOffset + offsetFraction
-    }
-
     fun applyScrollDelta(delta: Int) {
         debugLog { "Applying Delta=$delta" }
         val fractionUpdate = if (state.pageSizeWithSpacing == 0) {
@@ -142,4 +136,10 @@ private inline fun debugLog(generateMsg: () -> String) {
     if (PagerDebugConfig.ScrollPosition) {
         println("PagerScrollPosition: ${generateMsg()}")
     }
+}
+
+internal fun PagerState.currentAbsoluteScrollOffset(): Long {
+    val currentPageOffset = currentPage.toLong() * pageSizeWithSpacing
+    val offsetFraction = (currentPageOffsetFraction * pageSizeWithSpacing).roundToLong()
+    return currentPageOffset + offsetFraction
 }

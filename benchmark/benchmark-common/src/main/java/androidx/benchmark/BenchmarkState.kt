@@ -26,6 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
 import androidx.benchmark.InstrumentationResults.instrumentationReport
 import androidx.benchmark.InstrumentationResults.reportBundle
+import androidx.benchmark.json.BenchmarkData
 import java.util.concurrent.TimeUnit
 
 /**
@@ -96,6 +97,7 @@ class BenchmarkState internal constructor(
             dryRunMode = Arguments.dryRunMode,
             startupMode = Arguments.startupMode,
             profiler = config?.profiler?.profiler ?: Arguments.profiler,
+            profilerPerfCompareMode = Arguments.profilerPerfCompareEnable,
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
             simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
@@ -257,10 +259,8 @@ class BenchmarkState internal constructor(
             currentPhase.profiler?.stop()
             InMemoryTracing.endSection()
             thermalThrottleSleepSeconds += currentPhase.thermalThrottleSleepSeconds
-            if (currentPhase.loopMode.warmupManager == null && currentPhase.profiler == null) {
-                // Always save metrics, except during warmup / profiling
-                // Note that dryRunMode avoids reporting these to JSON by other means, they
-                // still should be accessible to tests
+            if (currentPhase.loopMode.warmupManager == null) {
+                // Save captured metrics except during warmup, where we intentionally discard
                 metricResults.addAll(
                     currentMetrics.captureFinished(maxIterations = currentLoopsPerMeasurement)
                 )
@@ -293,10 +293,17 @@ class BenchmarkState internal constructor(
                 warmupEstimatedIterationTimeNs * METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
             if (this == MethodTracing &&
                 Looper.myLooper() == Looper.getMainLooper() &&
-                estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS) {
+                estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS &&
+                Arguments.profilerSkipWhenDurationRisksAnr
+            ) {
+                val expectedDurSec = estimatedMethodTraceDurNs / 1_000_000_000.0
                 InstrumentationResults.scheduleIdeWarningOnNextReport(
-                    "Skipping method trace of estimated duration" +
-                        " ${estimatedMethodTraceDurNs / 1_000_000_000.0} sec to avoid ANR"
+                    """
+                        Skipping method trace of estimated duration $expectedDurSec sec to avoid ANR
+
+                        To disable this behavior, set instrumentation arg:
+                            androidx.benchmark.profiling.skipWhenDurationRisksAnr = false
+                    """.trimIndent()
                 )
                 null
             } else {
@@ -507,21 +514,44 @@ class BenchmarkState internal constructor(
             " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
     }
 
-    private fun getReport(testName: String, className: String) = BenchmarkResult(
+    private fun getTestResult(
+        testName: String,
+        className: String,
+        perfettoTracePath: String?
+    ) = BenchmarkData.TestResult(
+        name = testName,
         className = className,
-        testName = testName,
         totalRunTimeNs = totalRunTimeNs,
         metrics = metricResults,
+        warmupIterations = warmupRepeats,
         repeatIterations = iterationsPerRepeat,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-        warmupIterations = warmupRepeats
+        profilerOutputs = listOfNotNull(
+            perfettoTracePath?.let {
+                BenchmarkData.TestResult.ProfilerOutput(
+                    Profiler.ResultFile.ofPerfettoTrace(
+                        label = "Trace",
+                        absolutePath = perfettoTracePath
+                    )
+                )
+            },
+            profilerResult?.let {
+                BenchmarkData.TestResult.ProfilerOutput(it)
+            }
+        )
     )
 
     @ExperimentalBenchmarkStateApi
     fun getMeasurementTimeNs(): List<Double> =
         metricResults.first { it.name == "timeNs" }.data
 
-    internal fun getReport() = checkFinished().run { getReport("", "") }
+    internal fun peekTestResult() = checkFinished().run {
+        getTestResult(
+            testName = "",
+            className = "",
+            perfettoTracePath = null
+        )
+    }
 
     /**
      * Acquires a status report bundle
@@ -543,12 +573,17 @@ class BenchmarkState internal constructor(
         }
         InstrumentationResultScope(status).reportSummaryToIde(
             testName = key,
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = metricResults,
                 sampledMetrics = emptyList()
             ),
             profilerResults = listOfNotNull(
-                tracePath?.let { Profiler.ResultFile(label = "Trace", absolutePath = tracePath) },
+                tracePath?.let {
+                    Profiler.ResultFile.ofPerfettoTrace(
+                        label = "Trace",
+                        absolutePath = tracePath
+                    )
+                },
                 profilerResult
             )
         )
@@ -560,14 +595,14 @@ class BenchmarkState internal constructor(
         fullClassName: String,
         simpleClassName: String,
         methodName: String,
-        tracePath: String?
+        perfettoTracePath: String?
     ) {
         if (phaseIndex == -1) {
             return // nothing to report, BenchmarkState wasn't used
         }
 
-        if (tracePath != null) {
-            profilerResult?.embedInPerfettoTrace(tracePath)
+        if (perfettoTracePath != null) {
+            profilerResult?.embedInPerfettoTrace(perfettoTracePath)
         }
 
         checkFinished() // this method is triggered externally
@@ -575,13 +610,14 @@ class BenchmarkState internal constructor(
         val bundle = getFullStatusReport(
             key = fullTestName,
             reportMetrics = !Arguments.dryRunMode,
-            tracePath = tracePath
+            tracePath = perfettoTracePath
         )
         reportBundle(bundle)
-        ResultWriter.appendReport(
-            getReport(
+        ResultWriter.appendTestResult(
+            getTestResult(
                 testName = PREFIX + methodName,
-                className = fullClassName
+                className = fullClassName,
+                perfettoTracePath = perfettoTracePath
             )
         )
     }
@@ -674,14 +710,16 @@ class BenchmarkState internal constructor(
             dataNs.forEachIndexed { index, value ->
                 metricsContainer.data[index][0] = value
             }
-            val report = BenchmarkResult(
+            val metrics = metricsContainer.captureFinished(maxIterations = 1)
+            val report = BenchmarkData.TestResult(
                 className = className,
-                testName = testName,
+                name = testName,
                 totalRunTimeNs = totalRunTimeNs,
-                metrics = metricsContainer.captureFinished(maxIterations = 1),
+                metrics = metrics,
                 repeatIterations = repeatIterations,
                 thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-                warmupIterations = warmupIterations
+                warmupIterations = warmupIterations,
+                profilerOutputs = null,
             )
             // Report value to Studio console
             val fullTestName = PREFIX +
@@ -690,12 +728,12 @@ class BenchmarkState internal constructor(
             instrumentationReport {
                 reportSummaryToIde(
                     testName = fullTestName,
-                    measurements = report.metrics,
+                    measurements = Measurements(metrics, emptyList()),
                 )
             }
 
             // Report values to file output
-            ResultWriter.appendReport(report)
+            ResultWriter.appendTestResult(report)
         }
     }
 }

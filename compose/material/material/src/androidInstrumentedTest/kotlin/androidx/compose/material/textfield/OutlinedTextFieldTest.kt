@@ -17,7 +17,6 @@
 package androidx.compose.material.textfield
 
 import android.os.Build
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_GO
 import android.view.inputmethod.EditorInfo.TYPE_CLASS_TEXT
@@ -62,6 +61,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -72,17 +72,15 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.PlatformTextInputMethodRequest
-import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -108,7 +106,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -117,7 +114,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OutlinedTextFieldTest {
@@ -1019,25 +1015,20 @@ class OutlinedTextFieldTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testOutlinedTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         var editorInfo: EditorInfo? = null
-        val sessionHandler = object : PlatformTextInputSession {
-            override val view: View = View(getInstrumentation().targetContext)
-
-            override suspend fun startInputMethod(
-                request: PlatformTextInputMethodRequest
-            ): Nothing {
-                EditorInfo().also {
-                    request.createInputConnection(it)
-                    editorInfo = it
-                }
-                awaitCancellation()
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            EditorInfo().also {
+                request.createInputConnection(it)
+                editorInfo = it
             }
+            awaitCancellation()
         }
         rule.setContent {
-            PlatformTextInputMethodTestOverride(sessionHandler) {
-                val text = remember { mutableStateOf("") }
+            val text = remember { mutableStateOf("") }
+            InterceptPlatformTextInput(interceptor) {
                 OutlinedTextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = text.value,

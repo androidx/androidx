@@ -21,18 +21,107 @@ package androidx.room.util
 
 import android.database.AbstractWindowedCursor
 import android.database.Cursor
-import android.database.sqlite.SQLiteConstraintException
 import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
+import androidx.room.TransactionElement
+import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.driver.SupportSQLiteConnection
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+
+/**
+ * Performs a database operation.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+actual suspend fun <R> performSuspending(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> R
+): R = db.compatCoroutineExecute(inTransaction) {
+    db.internalPerform(isReadOnly, inTransaction) { connection ->
+        val rawConnection = (connection as RawConnectionAccessor).rawConnection
+        block.invoke(rawConnection)
+    }
+}
+
+/**
+ * Blocking version of [performSuspending]
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <R> performBlocking(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> R
+): R {
+    db.assertNotMainThread()
+    db.assertNotSuspendingTransaction()
+    return runBlocking {
+        db.internalPerform(isReadOnly, inTransaction) { connection ->
+            val rawConnection = (connection as RawConnectionAccessor).rawConnection
+            block.invoke(rawConnection)
+        }
+    }
+}
+
+/**
+ * Utility function to wrap a suspend block in Room's transaction coroutine.
+ *
+ * This function should only be invoked from generated code and is needed to support `@Transaction`
+ * delegates in Java and Kotlin. It is preferred to use the other 'perform' functions.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+actual suspend fun <R> performInTransactionSuspending(
+    db: RoomDatabase,
+    block: suspend () -> R
+): R = db.compatCoroutineExecute(true) {
+    db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+}
+
+/**
+ * Compatibility suspend function execution with driver usage. This will maintain the dispatcher
+ * behaviour in [androidx.room.CoroutinesRoom.execute] when Room is in compatibility mode executing
+ * driver codegen utility functions.
+ */
+private suspend inline fun <R> RoomDatabase.compatCoroutineExecute(
+    inTransaction: Boolean,
+    crossinline block: suspend () -> R
+): R {
+    if (inCompatibilityMode() && isOpenInternal && inTransaction()) {
+        return block.invoke()
+    }
+    return withContext(getCoroutineContext(inTransaction)) { block.invoke() }
+}
+
+/**
+ * Gets the database [CoroutineContext] to perform database operation on utility functions. Prefer
+ * using this function over directly accessing [RoomDatabase.getCoroutineScope] as it has platform
+ * compatibility behaviour.
+ */
+internal actual suspend fun RoomDatabase.getCoroutineContext(
+    inTransaction: Boolean
+): CoroutineContext {
+    return if (inCompatibilityMode()) {
+        // If in compatibility mode check if we are on a transaction coroutine, if so combine
+        // it with the database context, otherwise use the database dispatchers.
+        coroutineContext[TransactionElement]?.transactionDispatcher?.let { getQueryContext() + it }
+            ?: if (inTransaction) getTransactionContext() else getQueryContext()
+    } else {
+        getCoroutineScope().coroutineContext
+    }
+}
 
 /**
  * Performs the SQLiteQuery on the given database.
@@ -112,12 +201,10 @@ fun foreignKeyCheck(
     db: SupportSQLiteDatabase,
     tableName: String
 ) {
-    db.query("PRAGMA foreign_key_check(`$tableName`)").useCursor { cursor ->
-        if (cursor.count > 0) {
-            val errorMsg = processForeignKeyCheckFailure(cursor)
-            throw SQLiteConstraintException(errorMsg)
-        }
-    }
+    foreignKeyCheck(
+        SupportSQLiteConnection(db),
+        tableName
+    )
 }
 
 /**
@@ -156,50 +243,4 @@ fun readVersion(databaseFile: File): Int {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun createCancellationSignal(): CancellationSignal {
     return CancellationSignal()
-}
-
-/**
- * Converts the [Cursor] returned in case of a foreign key violation into a detailed
- * error message for debugging.
- *
- * The foreign_key_check pragma returns one row output for each foreign key violation.
- *
- * The cursor received has four columns for each row output. The first column is the name of
- * the child table. The second column is the rowId of the row that contains the foreign key
- * violation (or NULL if the child table is a WITHOUT ROWID table). The third column is the
- * name of the parent table. The fourth column is the index of the specific foreign key
- * constraint that failed.
- *
- * @param cursor Cursor containing information regarding the FK violation
- * @return Error message generated containing debugging information
- */
-private fun processForeignKeyCheckFailure(cursor: Cursor): String {
-    return buildString {
-        val rowCount = cursor.count
-        val fkParentTables = mutableMapOf<String, String>()
-
-        while (cursor.moveToNext()) {
-            if (cursor.isFirst) {
-                append("Foreign key violation(s) detected in '")
-                append(cursor.getString(0)).append("'.\n")
-            }
-            val constraintIndex = cursor.getString(3)
-            if (!fkParentTables.containsKey(constraintIndex)) {
-                fkParentTables[constraintIndex] = cursor.getString(2)
-            }
-        }
-
-        append("Number of different violations discovered: ")
-        append(fkParentTables.keys.size).append("\n")
-        append("Number of rows in violation: ")
-        append(rowCount).append("\n")
-        append("Violation(s) detected in the following constraint(s):\n")
-
-        for ((key, value) in fkParentTables) {
-            append("\tParent Table = ")
-            append(value)
-            append(", Foreign Key Constraint Index = ")
-            append(key).append("\n")
-        }
-    }
 }

@@ -130,6 +130,7 @@ import androidx.wear.protolayout.proto.ColorProto.SweepGradient;
 import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.DimensionProto.ArcLineLength;
 import androidx.wear.protolayout.proto.DimensionProto.ArcSpacerLength;
+import androidx.wear.protolayout.proto.DimensionProto.BoundingBoxRatio;
 import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
 import androidx.wear.protolayout.proto.DimensionProto.DpProp;
@@ -137,11 +138,13 @@ import androidx.wear.protolayout.proto.DimensionProto.ExpandedAngularDimensionPr
 import androidx.wear.protolayout.proto.DimensionProto.ExpandedDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.ExtensionDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ImageDimension;
+import androidx.wear.protolayout.proto.DimensionProto.PivotDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ProportionalDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
 import androidx.wear.protolayout.proto.DimensionProto.WrappedDimensionProp;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.LayoutElementProto.Arc;
+import androidx.wear.protolayout.proto.LayoutElementProto.ArcAdapter;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLine;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcSpacer;
@@ -705,7 +708,7 @@ public class ProtoLayoutInflaterTest {
 
         // This tests that minimum dimension is correctly set.
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
-        expect.that(tv.getMinimumWidth()).isEqualTo(width);
+        expect.that(tv.getMeasuredWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
     }
 
@@ -738,13 +741,9 @@ public class ProtoLayoutInflaterTest {
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
         View spacerAfterMutation = boxAfterMutation.getChildAt(0);
 
-        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
-        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(0);
-        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(0);
-
-        // This tests that minimum dimension is correctly set.
-        expect.that(spacerAfterMutation.getMinimumWidth()).isEqualTo(newWidth);
-        expect.that(spacerAfterMutation.getMinimumHeight()).isEqualTo(newHeight);
+        // This tests that the layout dimension is correctly set.
+        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(newWidth);
+        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(newHeight);
     }
 
     @Test
@@ -796,7 +795,7 @@ public class ProtoLayoutInflaterTest {
         Renderer renderer = renderer(layout1);
         ViewGroup inflatedViewParent = renderer.inflate();
 
-        Layout layout2 = layoutBoxWithSpacer(newHeight, newWidth, modifiers);
+        Layout layout2 = layoutBoxWithSpacer(newWidth, newHeight, modifiers);
 
         // Compute the mutation.
         ViewGroupMutation mutation =
@@ -812,8 +811,8 @@ public class ProtoLayoutInflaterTest {
         View spacerAfterMutation = boxAfterMutation.getChildAt(0);
 
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
-        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(0);
-        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(0);
+        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(newWidth);
+        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(newHeight);
     }
 
     @Test
@@ -5056,6 +5055,212 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getVisibility()).isEqualTo(INVISIBLE);
         // The second image shouldn't move around.
         assertThat(secondImage.getLeft()).isEqualTo(secondImageLeft);
+    }
+
+    @Test
+    public void inflate_box_withOpacityModifier() {
+        float opacity = 0.7f;
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setOpacity(
+                                                                FloatProp.newBuilder()
+                                                                        .setValue(opacity)
+                                                                        .build())
+                                                        .build()))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+
+        assertThat(box.getAlpha()).isEqualTo(opacity);
+    }
+
+    @Test
+    public void inflate_box_withTransformationModifier() {
+        DpProp translationX = dp(10.f).build();
+        DpProp translationY = dp(12.f).build();
+        DegreesProp degree = degrees(60).build();
+        FloatProp scaleX = FloatProp.newBuilder().setValue(2.f).build();
+        FloatProp scaleY = FloatProp.newBuilder().setValue(3.f).build();
+        PivotDimension pivotY =
+                PivotDimension.newBuilder()
+                        .setLocationRatio(
+                                BoundingBoxRatio.newBuilder()
+                                        .setRatio(FloatProp.newBuilder().setValue(0.4f).build())
+                                        .build())
+                        .build();
+        ModifiersProto.Transformation transformation =
+                ModifiersProto.Transformation.newBuilder()
+                        .setTranslationX(translationX)
+                        .setTranslationY(translationY)
+                        .setRotation(degree)
+                        .setScaleX(scaleX)
+                        .setScaleY(scaleY)
+                        .setPivotY(pivotY) // without setting pivotX
+                        .build();
+
+        ContainerDimension boxWidth =
+                ContainerDimension.newBuilder().setLinearDimension(dp(100.f).build()).build();
+        ContainerDimension boxHeight =
+                ContainerDimension.newBuilder().setLinearDimension(dp(120.f).build()).build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(boxWidth)
+                                        .setHeight(boxHeight)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setTransformation(transformation)
+                                                        .build()))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+
+        assertThat(box.getTranslationX()).isEqualTo(translationX.getValue());
+        assertThat(box.getTranslationY()).isEqualTo(translationY.getValue());
+        assertThat(box.getRotation()).isEqualTo(degree.getValue());
+        assertThat(box.getScaleX()).isEqualTo(scaleX.getValue());
+        assertThat(box.getScaleY()).isEqualTo(scaleY.getValue());
+        // pivot is default to the middle of the element.
+        assertThat(box.getPivotX()).isEqualTo(boxWidth.getLinearDimension().getValue() * 0.5f);
+        assertThat(box.getPivotY())
+                .isEqualTo(
+                        boxHeight.getLinearDimension().getValue()
+                                * pivotY.getLocationRatio().getRatio().getValue());
+    }
+
+    @Test
+    public void inflate_box_wrapAndExpandSize_withPivotTransformationModifier() {
+        PivotDimension pivotX = PivotDimension.newBuilder().setOffsetDp(dp(30.f)).build();
+        PivotDimension pivotY =
+                PivotDimension.newBuilder()
+                        .setLocationRatio(
+                                BoundingBoxRatio.newBuilder()
+                                        .setRatio(FloatProp.newBuilder().setValue(0.4f).build())
+                                        .build())
+                        .build();
+        ModifiersProto.Transformation transformation =
+                ModifiersProto.Transformation.newBuilder()
+                        .setPivotX(pivotX)
+                        .setPivotY(pivotY)
+                        .build();
+
+        ContainerDimension outerBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(100.f).build()).build();
+        ContainerDimension innerBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(60.f).build()).build();
+        Box.Builder boxBuilder = Box.newBuilder()
+                .setWidth(expand())
+                .setHeight(wrap())
+                .setModifiers(
+                        Modifiers.newBuilder()
+                                .setTransformation(
+                                        transformation)
+                                .build())
+                .addContents(
+                        LayoutElement.newBuilder()
+                                .setBox(
+                                        Box.newBuilder()
+                                                .setWidth(innerBoxSize)
+                                                .setHeight(innerBoxSize)));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(outerBoxSize)
+                                        .setHeight(outerBoxSize)
+                                        .addContents(LayoutElement.newBuilder().setBox(boxBuilder)))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = ((ViewGroup) rootLayout.getChildAt(0)).getChildAt(0);
+
+        assertThat(box.getPivotX())
+                .isEqualTo(
+                        outerBoxSize.getLinearDimension().getValue() * 0.5f
+                                + pivotX.getOffsetDp().getValue());
+        assertThat(box.getPivotY())
+                .isEqualTo(
+                        innerBoxSize.getLinearDimension().getValue()
+                                * pivotY.getLocationRatio().getRatio().getValue());
+
+        // default values for translation, rotation and scale
+        assertThat(box.getTranslationX()).isEqualTo(0);
+        assertThat(box.getTranslationY()).isEqualTo(0);
+        assertThat(box.getRotation()).isEqualTo(0);
+        assertThat(box.getScaleX()).isEqualTo(1);
+        assertThat(box.getScaleY()).isEqualTo(1);
+    }
+
+    @Test
+    public void inflate_box_withPivotTransformationModifier_noValidPivot_defaultToCenter() {
+        // PivotDimension without offSetDp nor locationRation
+        PivotDimension pivotDimension = PivotDimension.newBuilder().build();
+        ModifiersProto.Transformation transformation =
+                ModifiersProto.Transformation.newBuilder().setPivotX(pivotDimension).build();
+        ContainerDimension boxWidth =
+                ContainerDimension.newBuilder().setLinearDimension(dp(100.f).build()).build();
+        ContainerDimension boxHeight =
+                ContainerDimension.newBuilder().setLinearDimension(dp(120.f).build()).build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(boxWidth)
+                                        .setHeight(boxHeight)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setTransformation(transformation)
+                                                        .build()))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat(box.getPivotX()).isEqualTo(boxWidth.getLinearDimension().getValue() * 0.5f);
+        assertThat(box.getPivotY()).isEqualTo(boxHeight.getLinearDimension().getValue() * 0.5f);
+    }
+
+    @Test
+    public void inflate_textWithTransformation_inArcAdapter_skipped() {
+        LayoutElement.Builder text =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string("test"))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setTransformation(
+                                                                ModifiersProto.Transformation
+                                                                        .newBuilder()))
+                                        .build());
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setAdapter(
+                                                                ArcAdapter.newBuilder()
+                                                                        .setContent(text))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        // The text inside the ArcAdapter is skipped
+        assertThat(arcLayout.getChildCount()).isEqualTo(0);
     }
 
     @Test

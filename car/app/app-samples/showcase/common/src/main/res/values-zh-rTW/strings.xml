@@ -94,7 +94,7 @@
     <string name="no_energy_profile_permission" msgid="4662285713731308888">"沒有能源設定檔權限。"</string>
     <string name="fuel_types" msgid="6811375173343218212">"燃料類型"</string>
     <string name="unavailable" msgid="3636401138255192934">"無法取得"</string>
-    <string name="ev_connector_types" msgid="735458637011996125">"電動車連接器類型"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"電動車充電插頭類型"</string>
     <string name="example_title" msgid="530257630320010494">"範例 %d"</string>
     <string name="example_1_text" msgid="8456567953748293512">"這是紅色的文字"</string>
     <string name="example_2_text" msgid="718820705318661440">"這是綠色的文字"</string>

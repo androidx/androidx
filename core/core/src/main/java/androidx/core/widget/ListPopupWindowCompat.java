@@ -90,7 +90,10 @@ public final class ListPopupWindowCompat {
      * @param src the view on which the resulting listener will be set
      * @return a touch listener that controls drag-to-open behavior, or {@code null} on
      *         unsupported APIs
+     * @deprecated Call {@link ListPopupWindow#createDragToOpenListener()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "listPopupWindow.createDragToOpenListener(src)")
     @Nullable
     public static OnTouchListener createDragToOpenListener(
             @NonNull ListPopupWindow listPopupWindow, @NonNull View src) {

@@ -70,7 +70,7 @@ package androidx.recyclerview.widget {
     method public void onRemoved(int, int);
   }
 
-  public final class ConcatAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder> {
+  public final class ConcatAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder!> {
     ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!...);
     ctor public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!>);
     ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!...);
@@ -343,7 +343,7 @@ package androidx.recyclerview.widget {
     method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
   }
 
-  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
+  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH!> {
     ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
     ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public java.util.List<T!> getCurrentList();
@@ -1026,7 +1026,7 @@ package androidx.recyclerview.widget {
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
-  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
+  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2!> {
     ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>!);
     method public boolean areContentsTheSame(T2!, T2!);
     method public boolean areItemsTheSame(T2!, T2!);
@@ -1038,7 +1038,7 @@ package androidx.recyclerview.widget {
     method public void onRemoved(int, int);
   }
 
-  public abstract static class SortedList.Callback<T2> implements java.util.Comparator<T2> androidx.recyclerview.widget.ListUpdateCallback {
+  public abstract static class SortedList.Callback<T2> implements java.util.Comparator<T2!> androidx.recyclerview.widget.ListUpdateCallback {
     ctor public SortedList.Callback();
     method public abstract boolean areContentsTheSame(T2!, T2!);
     method public abstract boolean areItemsTheSame(T2!, T2!);
@@ -1048,7 +1048,7 @@ package androidx.recyclerview.widget {
     method public void onChanged(int, int, Object!);
   }
 
-  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
+  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2!> {
     ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>!);
     method public void onChanged(int, int);
     method public void onInserted(int, int);

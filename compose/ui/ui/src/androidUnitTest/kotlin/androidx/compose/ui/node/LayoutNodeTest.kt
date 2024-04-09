@@ -30,11 +30,13 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -2516,6 +2518,8 @@ internal class MockOwner(
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
 
@@ -2641,7 +2645,8 @@ internal class MockOwner(
 
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         val transform = Matrix()
         val inverseTransform = Matrix()
@@ -2667,7 +2672,7 @@ internal class MockOwner(
             override fun resize(size: IntSize) {
             }
 
-            override fun drawLayer(canvas: Canvas) {
+            override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
                 drawBlock(canvas)
             }
 

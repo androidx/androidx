@@ -27,6 +27,7 @@ import java.io.File
 import java.io.InputStream
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Configuration class for a [RoomDatabase].
@@ -61,7 +62,7 @@ constructor(
     actual val migrationContainer: RoomDatabase.MigrationContainer,
 
     @JvmField
-    val callbacks: List<RoomDatabase.Callback>?,
+    actual val callbacks: List<RoomDatabase.Callback>?,
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
@@ -126,7 +127,10 @@ constructor(
     val allowDestructiveMigrationForAllTables: Boolean,
 
     @JvmField
-    actual val sqliteDriver: SQLiteDriver?
+    actual val sqliteDriver: SQLiteDriver?,
+
+    @JvmField
+    actual val queryCoroutineContext: CoroutineContext?,
 ) {
     /**
      * If true, table invalidation in an instance of [RoomDatabase] is broadcast and
@@ -188,6 +192,7 @@ constructor(
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -252,6 +257,7 @@ constructor(
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -320,6 +326,7 @@ constructor(
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -391,6 +398,7 @@ constructor(
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -465,6 +473,7 @@ constructor(
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -541,6 +550,7 @@ constructor(
         autoMigrationSpecs = emptyList(),
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -619,6 +629,7 @@ constructor(
         autoMigrationSpecs = autoMigrationSpecs,
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -694,6 +705,7 @@ constructor(
         autoMigrationSpecs = autoMigrationSpecs,
         allowDestructiveMigrationForAllTables = false,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -741,6 +753,7 @@ constructor(
         autoMigrationSpecs = autoMigrationSpecs,
         allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
         sqliteDriver = null,
+        queryCoroutineContext = null
     )
 
     /**
@@ -770,7 +783,8 @@ constructor(
         return isMigrationRequiredExt(fromVersion, toVersion)
     }
 
-    internal fun copy(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun copy(
         context: Context = this.context,
         name: String? = this.name,
         sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory? = this.sqliteOpenHelperFactory,
@@ -793,7 +807,8 @@ constructor(
         typeConverters: List<Any> = this.typeConverters,
         autoMigrationSpecs: List<AutoMigrationSpec> = this.autoMigrationSpecs,
         allowDestructiveMigrationForAllTables: Boolean = this.allowDestructiveMigrationForAllTables,
-        sqliteDriver: SQLiteDriver? = this.sqliteDriver
+        sqliteDriver: SQLiteDriver? = this.sqliteDriver,
+        queryCoroutineContext: CoroutineContext? = this.queryCoroutineContext
     ) = DatabaseConfiguration(
         context,
         name,
@@ -816,5 +831,6 @@ constructor(
         autoMigrationSpecs,
         allowDestructiveMigrationForAllTables,
         sqliteDriver,
+        queryCoroutineContext
     )
 }

@@ -52,6 +52,7 @@ import androidx.compose.ui.background
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.assertColor
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.isExactly
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -2762,6 +2763,47 @@ class SubcomposeLayoutTest {
         assertThat(exception).isNotNull()
     }
 
+    @Test
+    fun nestedDisposeIsCalledInOrder() {
+        val disposeOrder = mutableListOf<String>()
+        var active by mutableStateOf(true)
+        rule.setContent {
+            if (active) {
+                BoxWithConstraints {
+                    BoxWithConstraints {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposeOrder += "inner 1"
+                            }
+                        }
+                    }
+
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            disposeOrder += "outer"
+                        }
+                    }
+
+                    BoxWithConstraints {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposeOrder += "inner 2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(disposeOrder).isExactly("inner 2", "outer", "inner 1")
+        }
+    }
+
     private fun SubcomposeMeasureScope.measure(
         slotId: Any,
         constraints: Constraints,
@@ -2817,7 +2859,7 @@ class SubcomposeLayoutTest {
     private fun SemanticsNodeInteraction.assertIsDetached() {
         assertDoesNotExist()
         // we want to verify the node is not deactivated, but such API does not exist yet
-        expectAssertionError(true) {
+        expectAssertionError {
             assertIsDeactivated()
         }
     }

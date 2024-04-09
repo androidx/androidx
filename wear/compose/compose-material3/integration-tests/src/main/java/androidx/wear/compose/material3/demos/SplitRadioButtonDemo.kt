@@ -126,7 +126,7 @@ private fun DemoSplitRadioButton(
             }
         },
         selected = selected,
-        onSelected = onSelected,
+        onSelect = onSelected,
         onClick = {
             val toastText = if (selected) "Checked" else "Not Checked"
             Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()

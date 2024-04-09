@@ -18,6 +18,12 @@ package androidx.navigation
 
 import androidx.annotation.IdRes
 import androidx.core.os.bundleOf
+import androidx.navigation.serialization.generateNavArguments
+import androidx.navigation.serialization.generateRoutePattern
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 @DslMarker
 public annotation class NavDestinationDsl
@@ -28,7 +34,8 @@ public annotation class NavDestinationDsl
 @NavDestinationDsl
 public open class NavDestinationBuilder<out D : NavDestination> internal constructor(
     /**
-     * The navigator the destination was created from
+     * The navigator the destination that will be used in [instantiateDestination]
+     * to create the destination.
      */
     protected val navigator: Navigator<out D>,
     /**
@@ -72,6 +79,36 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
         this(navigator, -1, route)
 
     /**
+     * DSL for constructing a new [NavDestination] with a serializable [KClass].
+     *
+     * This will also update the [id] of the destination based on KClass's serializer.
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. May be empty if destination does not use custom NavTypes.
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    @ExperimentalSafeArgsApi
+    @OptIn(InternalSerializationApi::class)
+    public constructor(
+        navigator: Navigator<out D>,
+        @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+    ) : this(
+        navigator,
+        route?.serializer()?.hashCode() ?: -1,
+        route?.serializer()?.generateRoutePattern(typeMap)
+    ) {
+        route?.apply {
+            serializer().generateNavArguments(typeMap).forEach {
+                arguments[it.name] = it.argument
+            }
+        }
+    }
+
+    /**
      * The descriptive label of the destination
      */
     public var label: CharSequence? = null
@@ -83,6 +120,14 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
      */
     public fun argument(name: String, argumentBuilder: NavArgumentBuilder.() -> Unit) {
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
+    }
+
+    /**
+     * Add a [NavArgument] to this destination.
+     */
+    @Suppress("BuilderSetStyle")
+    public fun argument(name: String, argument: NavArgument) {
+        arguments[name] = argument
     }
 
     private var deepLinks = mutableListOf<NavDeepLink>()
@@ -130,6 +175,28 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
         deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
     }
 
+    /**
+     * Add a deep link to this destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * *    Uris without a scheme are assumed as http and https. For example,
+     *      `www.example.com` will match `http://www.example.com` and
+     *      `https://www.example.com`.
+     * *    Placeholders in the form of `{placeholder_name}` matches 1 or more
+     *      characters. The String value of the placeholder will be available in the arguments
+     *      [Bundle] with a key of the same name. For example,
+     *      `http://www.example.com/users/{id}` will match
+     *      `http://www.example.com/users/4`.
+     * *    The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * @param navDeepLink the NavDeepLink to be added to this destination
+     */
+    @Suppress("BuilderSetStyle")
+    public fun deepLink(navDeepLink: NavDeepLink) {
+        deepLinks.add(navDeepLink)
+    }
+
     private var actions = mutableMapOf<Int, NavAction>()
 
     /**
@@ -144,10 +211,19 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
     }
 
     /**
+     * Instantiate a new instance of [D] that will be passed to [build].
+     *
+     * By default, this calls [Navigator.createDestination] on [navigator], but can
+     * be overridden to call a custom constructor, etc.
+     */
+    @Suppress("BuilderSetStyle")
+    protected open fun instantiateDestination(): D = navigator.createDestination()
+
+    /**
      * Build the NavDestination by calling [Navigator.createDestination].
      */
     public open fun build(): D {
-        return navigator.createDestination().also { destination ->
+        return instantiateDestination().also { destination ->
             destination.label = label
             arguments.forEach { (name, argument) ->
                 destination.addArgument(name, argument)
@@ -248,6 +324,22 @@ public class NavArgumentBuilder {
         set(value) {
             field = value
             builder.setDefaultValue(value)
+        }
+
+    /**
+     * Set whether there is an unknown default value present.
+     *
+     * Use with caution!! In general you should let [defaultValue] to automatically set this state.
+     * This state should be set to true only if all these conditions are met:
+     *
+     * 1. There is default value present
+     * 2. You do not have access to actual default value (thus you can't use [defaultValue])
+     * 3. You know the default value will never ever be null if [nullable] is true.
+     */
+    internal var unknownDefaultValuePresent: Boolean = false
+        set(value) {
+            field = value
+            builder.setUnknownDefaultValuePresent(value)
         }
 
     /**

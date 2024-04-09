@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
 
     <issue
         id="MissingPermission"
@@ -183,7 +183,7 @@
 
     <issue
         id="UnspecifiedRegisterReceiverFlag"
-        message="`this` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for com.example.android.supportv4.media.next, com.example.android.supportv4.media.pause, com.example.android.supportv4.media.play, com.example.android.supportv4.media.prev"
+        message="`this` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for com.example.android.supportv4.media.next, com.example.android.supportv4.media.pause, com.example.android.supportv4.media.play, com.example.android.supportv4.media.prev"
         errorLine1="                mService.registerReceiver(this, filter);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

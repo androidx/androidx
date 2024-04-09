@@ -23,6 +23,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -223,6 +225,32 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
             }
             reset {
                 state1 = 1
+            }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_reverse_list() = runBlockingTestWithFrameClock {
+        val state = mutableStateListOf(
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+        )
+
+        measureRecomposeSuspending {
+            compose {
+                Column {
+                    for (value in state) {
+                        key(value) {
+                            Text(value.toString())
+                        }
+                    }
+                }
+            }
+            update {
+                state.reverse()
+            }
+            reset {
+                state.reverse()
             }
         }
     }

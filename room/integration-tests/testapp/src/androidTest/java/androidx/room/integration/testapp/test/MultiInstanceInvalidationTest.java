@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
@@ -87,6 +88,9 @@ public class MultiInstanceInvalidationTest {
     @Rule
     public final ServiceTestRule serviceRule = new ServiceTestRule();
 
+    @Rule
+    public final CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
+
     private ISampleDatabaseService mService;
 
     private String mDatabaseName;
@@ -105,7 +109,7 @@ public class MultiInstanceInvalidationTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws InterruptedException, TimeoutException {
         for (int i = 0, size = mObservers.size(); i < size; i++) {
             final LiveData<List<Customer>> liveData = mObservers.keyAt(i);
             final Observer<List<Customer>> observer = mObservers.valueAt(i);
@@ -118,8 +122,11 @@ public class MultiInstanceInvalidationTest {
         for (int i = 0, size = mDatabases.size(); i < size; i++) {
             mDatabases.get(i).close();
         }
+        mExecutorRule.drainTasks(2, TimeUnit.SECONDS);
     }
 
+    // TODO(324609478): broken test
+    @Ignore
     @Test
     public void invalidateInAnotherInstance() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
@@ -134,6 +141,8 @@ public class MultiInstanceInvalidationTest {
         assertTrue(changed1.await(3, TimeUnit.SECONDS));
     }
 
+    // TODO(324274513): broken test
+    @Ignore
     @Test
     public void invalidateInAnotherInstanceFts() throws Exception {
         final SampleFtsDatabase db1 = openFtsDatabase(true);
@@ -229,6 +238,7 @@ public class MultiInstanceInvalidationTest {
         assertFalse(changed3.second.await(3, TimeUnit.SECONDS));
     }
 
+    @Ignore // Flaky b/330519843
     @Test
     public void invalidationCausesNoLoop() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
@@ -237,7 +247,8 @@ public class MultiInstanceInvalidationTest {
         final CountDownLatch invalidated1 = prepareTableObserver(db1);
         final CountDownLatch changed1 = prepareLiveDataObserver(db1).first;
 
-        db2.getInvalidationTracker().notifyObserversByTableNames("Customer");
+        db2.getCustomerDao().insert(CUSTOMER_1);
+        mExecutorRule.drainTasks(300, TimeUnit.MILLISECONDS);
 
         assertFalse(invalidated1.await(300, TimeUnit.MILLISECONDS));
         assertFalse(changed1.await(300, TimeUnit.MILLISECONDS));

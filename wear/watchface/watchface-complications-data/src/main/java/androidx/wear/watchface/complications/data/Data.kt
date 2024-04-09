@@ -533,6 +533,7 @@ internal constructor(
      *   do not have textual representation this attribute can be used for providing such. Please do
      *   not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val text: ComplicationText,
         private val contentDescription: ComplicationText
@@ -717,6 +718,7 @@ internal constructor(
      *   do not have textual representation this attribute can be used for providing such. Please do
      *   not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val text: ComplicationText,
         private val contentDescription: ComplicationText
@@ -1002,6 +1004,7 @@ internal constructor(
      * [value] or [dynamicValue], and at least one of [monochromaticImage], [smallImage], [text] or
      * [title].
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
@@ -1385,6 +1388,7 @@ internal constructor(
      * or [dynamicValue], and at least one of [monochromaticImage], [smallImage], [text] or [title].
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
@@ -1436,7 +1440,26 @@ internal constructor(
             fallbackValue: Float,
             targetValue: Float,
             contentDescription: ComplicationText
-        ) : this(fallbackValue, dynamicValue, targetValue, contentDescription)
+        ) : this(value = fallbackValue, dynamicValue, targetValue = targetValue, contentDescription)
+
+        /**
+         * Creates a [Builder] for a [RangedValueComplicationData] with a [DynamicFloat] value, and
+         * no `fallbackValue` for API levels known to support dynamic values.
+         *
+         * @param dynamicValue The [DynamicFloat] of the goal complication which will be evaluated
+         *   into a value dynamically, and should be >= 0.
+         * @param targetValue The target value. This must be less than [Float.MAX_VALUE].
+         * @param contentDescription Defines localized text that briefly describes content of the
+         *   complication. This property is used primarily for accessibility. Since some
+         *   complications do not have textual representation this attribute can be used for
+         *   providing such. Please do not include the word 'complication' in the description.
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        public constructor(
+            dynamicValue: DynamicFloat,
+            targetValue: Float,
+            contentDescription: ComplicationText
+        ) : this(value = 0f, dynamicValue, targetValue = targetValue, contentDescription)
 
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
@@ -1747,6 +1770,7 @@ internal constructor(
      *   not include the word 'complication' in the description.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         elements: List<Element>,
         private val contentDescription: ComplicationText
@@ -1963,6 +1987,7 @@ internal constructor(
      *   content description is provided, a generic content description will be used instead. Please
      *   do not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val monochromaticImage: MonochromaticImage,
         private val contentDescription: ComplicationText
@@ -2080,6 +2105,7 @@ internal constructor(
      *   content description is provided, a generic content description will be used instead. Please
      *   do not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val smallImage: SmallImage,
         private val contentDescription: ComplicationText
@@ -2202,6 +2228,7 @@ internal constructor(
      *   content description is provided, a generic content description will be used instead. Please
      *   do not include the word 'complication' in the description.
      */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder(
         private val photoImage: Icon,
         private val contentDescription: ComplicationText
@@ -2327,6 +2354,7 @@ internal constructor(
         dynamicValueInvalidationFallback = null,
     ) {
     /** Builder for [NoPermissionComplicationData]. */
+    @SuppressWarnings("HiddenSuperclass")
     public class Builder : BaseBuilder<Builder, NoPermissionComplicationData>() {
         private var text: ComplicationText? = null
         private var title: ComplicationText? = null

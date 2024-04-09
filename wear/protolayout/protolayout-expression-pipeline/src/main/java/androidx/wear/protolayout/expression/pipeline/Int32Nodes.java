@@ -75,6 +75,11 @@ class Int32Nodes {
         @Override
         @UiThread
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic integer node that gets value from the platform source. */
@@ -288,6 +293,11 @@ class Int32Nodes {
         public void destroy() {
             mQuotaAwareAnimator.stopAnimator();
         }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
+        }
     }
 
     /** Dynamic int32 node that gets animatable value from dynamic source. */
@@ -369,6 +379,11 @@ class Int32Nodes {
 
         public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
+        }
+
+        @Override
+        public int getCost() {
+            return DEFAULT_NODE_COST;
         }
     }
 

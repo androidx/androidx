@@ -96,9 +96,9 @@ public final class ScreenFlashView extends View {
     }
 
     /**
-     * Sets {@link ScreenFlashUiInfo} to a {@link CameraController}.
+     * Sets the {@link CameraController}.
      *
-     * <p> Once set, the controller will use {@link ScreenFlashView} for screen flash related UI
+     * <p> Once set, the controller will use the {@code ScreenFlashView} for screen flash related UI
      * operations.
      *
      * @throws IllegalStateException If {@link ImageCapture#FLASH_MODE_SCREEN} is set to the
@@ -141,7 +141,7 @@ public final class ScreenFlashView extends View {
 
     /**
      * Sets a {@link Window} instance for subsequent photo capture requests with
-     * {@link ImageCapture} use case when{@link ImageCapture#FLASH_MODE_SCREEN} is set.
+     * {@link ImageCapture} use case when {@link ImageCapture#FLASH_MODE_SCREEN} is set.
      *
      * <p>The calling of this API will take effect for {@code ImageCapture#FLASH_MODE_SCREEN} only
      * and the {@code Window} will be ignored for other flash modes. During screen flash photo

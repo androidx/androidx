@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.boundingRect
+import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -72,7 +73,7 @@ sealed class Outline {
         internal val roundRectPath: Path?
 
         init {
-            roundRectPath = if (!roundRect.hasSameCornerRadius()) {
+            roundRectPath = if (!roundRect.isSimple) {
                 Path().apply { addRoundRect(roundRect) }
             } else {
                 null

@@ -18,6 +18,7 @@ package androidx.camera.core.streamsharing
 
 import android.content.Context
 import android.graphics.ImageFormat
+import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
@@ -59,6 +60,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
@@ -112,6 +114,7 @@ class StreamSharingTest {
         FakeCamera(null, FakeCameraInfoInternal(SENSOR_ROTATION, LENS_FACING_FRONT))
     private lateinit var streamSharing: StreamSharing
     private val size = Size(800, 600)
+    private val cropRect = Rect(150, 100, 750, 500)
     private lateinit var defaultConfig: UseCaseConfig<*>
     private lateinit var effectProcessor: FakeSurfaceProcessorInternal
     private lateinit var sharingProcessor: FakeSurfaceProcessorInternal
@@ -145,26 +148,63 @@ class StreamSharingTest {
     }
 
     @Test
-    fun effectHandleRotation_remainingRotationIs0() {
+    fun effectHandleSharing_effectUsedAsSharingNode() {
+        // Arrange: create an effect that handles sharing.
+        effect = FakeSurfaceEffect(
+            PREVIEW or VIDEO_CAPTURE,
+            CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
+            CameraEffect.OUTPUT_OPTION_ONE_FOR_EACH_TARGET,
+            effectProcessor
+        )
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        streamSharing =
+            StreamSharing(frontCamera, setOf(preview, videoCapture), useCaseConfigFactory)
+        streamSharing.setViewPortCropRect(cropRect)
+        streamSharing.effect = effect
+
+        // Act: Bind effect and get sharing input edge.
+        streamSharing.bindToCamera(frontCamera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+
+        // Assert: the sharing node is built with the effect's processor
+        val sharingProcessor =
+            (streamSharing.sharingNode!!.surfaceProcessor as SurfaceProcessorWithExecutor).processor
+        assertThat(sharingProcessor).isEqualTo(effectProcessor)
+        assertThat(streamSharing.sharingInputEdge).isEqualTo(streamSharing.cameraEdge)
+        assertThat(streamSharing.virtualCameraAdapter.mChildrenEdges[preview]!!.targets)
+            .isEqualTo(PREVIEW)
+        assertThat(streamSharing.virtualCameraAdapter.mChildrenEdges[videoCapture]!!.targets)
+            .isEqualTo(VIDEO_CAPTURE)
+    }
+
+    @Test
+    fun effectHandleRotationAndMirroring_remainingTransformationIsEmpty() {
         // Arrange: create an effect that handles rotation.
         effect = FakeSurfaceEffect(
             PREVIEW or VIDEO_CAPTURE,
             CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
             effectProcessor
         )
-        streamSharing = StreamSharing(camera, setOf(child1), useCaseConfigFactory)
+        streamSharing = StreamSharing(frontCamera, setOf(child1), useCaseConfigFactory)
+        streamSharing.setViewPortCropRect(cropRect)
         streamSharing.effect = effect
         // Act: Bind effect and get sharing input edge.
         streamSharing.bindToCamera(frontCamera, null, defaultConfig)
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
         // Assert: no remaining rotation because it's handled by the effect.
         assertThat(streamSharing.sharingInputEdge!!.rotationDegrees).isEqualTo(0)
+        assertThat(streamSharing.sharingInputEdge!!.cropRect).isEqualTo(
+            Rect(100, 50, 500, 650)
+        )
+        assertThat(streamSharing.sharingInputEdge!!.isMirroring).isEqualTo(false)
     }
 
     @Test
-    fun effectDoNotHandleRotation_remainingRotationIsNot0() {
+    fun effectDoNotHandleRotationAndMirroring_remainingTransformationIsNotEmpty() {
         // Arrange: create an effect that does not handle rotation.
         streamSharing = StreamSharing(camera, setOf(child1), useCaseConfigFactory)
+        streamSharing.setViewPortCropRect(cropRect)
         streamSharing.effect = effect
         // Act: bind effect.
         streamSharing.bindToCamera(frontCamera, null, defaultConfig)
@@ -172,6 +212,8 @@ class StreamSharingTest {
         // Assert: the remaining rotation still exists because the effect doesn't handle it. It will
         // be handled by downstream pipeline.
         assertThat(streamSharing.sharingInputEdge!!.rotationDegrees).isEqualTo(SENSOR_ROTATION)
+        assertThat(streamSharing.sharingInputEdge!!.cropRect).isEqualTo(Rect(0, 0, 600, 400))
+        assertThat(streamSharing.sharingInputEdge!!.isMirroring).isEqualTo(true)
     }
 
     @Test

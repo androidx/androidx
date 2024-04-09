@@ -50,7 +50,7 @@ internal class GarbageCollectionTestHelper {
         var collectedItemCount = 0
         val expectedItemCount = size - expected.sumOf { it.second }
         while (collectedItemCount < expectedItemCount &&
-            queue.remove(10.seconds.inWholeMilliseconds) != null
+            queue.remove(5.seconds.inWholeMilliseconds) != null
         ) {
             collectedItemCount++
         }
@@ -59,6 +59,9 @@ internal class GarbageCollectionTestHelper {
         val leakedObjectToStrings = references.mapNotNull {
             it.get()
         }.joinToString("\n")
+        assertWithMessage(
+            "expected to collect $expectedItemCount, collected $collectedItemCount"
+        ).that(collectedItemCount).isEqualTo(expectedItemCount)
         assertWithMessage(
             """
             expected to collect $expectedItemCount, collected $collectedItemCount.

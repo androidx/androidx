@@ -33,13 +33,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
@@ -47,13 +47,15 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.scrollByOffset
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastRoundToInt
@@ -163,6 +165,14 @@ class ScrollState(initial: Int) : ScrollableState {
 
     override val canScrollBackward: Boolean by derivedStateOf { value > 0 }
 
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
+
     /**
      * Scroll to position in pixels with animation.
      *
@@ -268,35 +278,16 @@ private fun Modifier.scroll(
     isVertical: Boolean
 ) = composed(
     factory = {
-        val coroutineScope = rememberCoroutineScope()
-        semantics {
-            isTraversalGroup = true
-            val accessibilityScrollState = ScrollAxisRange(
-                value = { state.value.toFloat() },
-                maxValue = { state.maxValue.toFloat() },
-                reverseScrolling = reverseScrolling
-            )
-            if (isVertical) {
-                this.verticalScrollAxisRange = accessibilityScrollState
-            } else {
-                this.horizontalScrollAxisRange = accessibilityScrollState
-            }
-            if (isScrollable) {
-                // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
-                scrollBy(
-                    action = { x: Float, y: Float ->
-                        coroutineScope.launch {
-                            if (isVertical) {
-                                (state as ScrollableState).animateScrollBy(y)
-                            } else {
-                                (state as ScrollableState).animateScrollBy(x)
-                            }
-                        }
-                        return@scrollBy true
-                    }
+        Modifier
+            .then(
+                ScrollSemanticsElement(
+                    state = state,
+                    reverseScrolling = reverseScrolling,
+                    flingBehavior = flingBehavior,
+                    isScrollable = isScrollable,
+                    isVertical = isVertical,
                 )
-            }
-        }
+            )
             .scrollingContainer(
                 state = state,
                 orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
@@ -316,6 +307,81 @@ private fun Modifier.scroll(
         properties["isVertical"] = isVertical
     }
 )
+
+private data class ScrollSemanticsElement(
+    val state: ScrollState,
+    val reverseScrolling: Boolean,
+    val flingBehavior: FlingBehavior?,
+    val isScrollable: Boolean,
+    val isVertical: Boolean
+) : ModifierNodeElement<ScrollSemanticsModifierNode>() {
+    override fun create(): ScrollSemanticsModifierNode = ScrollSemanticsModifierNode(
+        state = state,
+        reverseScrolling = reverseScrolling,
+        flingBehavior = flingBehavior,
+        isScrollable = isScrollable,
+        isVertical = isVertical,
+    )
+
+    override fun update(node: ScrollSemanticsModifierNode) {
+        node.state = state
+        node.reverseScrolling = reverseScrolling
+        node.flingBehavior = flingBehavior
+        node.isScrollable = isScrollable
+        node.isVertical = isVertical
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        // Not a public modifier.
+    }
+}
+
+private class ScrollSemanticsModifierNode(
+    var state: ScrollState,
+    var reverseScrolling: Boolean,
+    var flingBehavior: FlingBehavior?,
+    var isScrollable: Boolean,
+    var isVertical: Boolean
+) : Modifier.Node(), SemanticsModifierNode {
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        isTraversalGroup = true
+        val accessibilityScrollState = ScrollAxisRange(
+            value = { state.value.toFloat() },
+            maxValue = { state.maxValue.toFloat() },
+            reverseScrolling = reverseScrolling
+        )
+        if (isVertical) {
+            this.verticalScrollAxisRange = accessibilityScrollState
+        } else {
+            this.horizontalScrollAxisRange = accessibilityScrollState
+        }
+        if (isScrollable) {
+            // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
+            scrollBy(
+                action = { x: Float, y: Float ->
+                    coroutineScope.launch {
+                        if (isVertical) {
+                            (state as ScrollableState).animateScrollBy(y)
+                        } else {
+                            (state as ScrollableState).animateScrollBy(x)
+                        }
+                    }
+                    return@scrollBy true
+                }
+            )
+
+            scrollByOffset { offset ->
+                if (isVertical) {
+                    val consumed = (state as ScrollableState).animateScrollBy(offset.y)
+                    Offset(0f, consumed)
+                } else {
+                    val consumed = (state as ScrollableState).animateScrollBy(offset.x)
+                    Offset(consumed, 0f)
+                }
+            }
+        }
+    }
+}
 
 internal class ScrollingLayoutElement(
     val scrollState: ScrollState,
@@ -393,7 +459,13 @@ internal class ScrollingLayoutNode(
             val absScroll = if (isReversed) scroll - side else -scroll
             val xOffset = if (isVertical) 0 else absScroll
             val yOffset = if (isVertical) absScroll else 0
-            placeable.placeRelativeWithLayer(xOffset, yOffset)
+
+            // Tagging as direct manipulation, such that consumers of this offset can decide whether
+            // to exclude this offset on their coordinates calculation. Such as whether an
+            // `approachLayout` will animate it or directly apply the offset without animation.
+            withDirectManipulationPlacement {
+                placeable.placeRelativeWithLayer(xOffset, yOffset)
+            }
         }
     }
 

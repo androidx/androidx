@@ -65,6 +65,7 @@ dependencies {
     implementation(project(":camera:camera-mlkit-vision"))
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
+    implementation(project(":camera:camera-viewfinder-core"))
     // Needed because AGP enforces same version between main and androidTest classpaths
     implementation(project(":concurrent:concurrent-futures"))
 

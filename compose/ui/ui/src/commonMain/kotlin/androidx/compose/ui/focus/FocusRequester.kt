@@ -190,7 +190,6 @@ class FocusRequester {
          *
          * @sample androidx.compose.ui.samples.CreateFocusRequesterRefsSample
          */
-        @ExperimentalComposeUiApi
         object FocusRequesterFactory {
             operator fun component1() = FocusRequester()
             operator fun component2() = FocusRequester()
@@ -216,8 +215,7 @@ class FocusRequester {
          *
          * @sample androidx.compose.ui.samples.CreateFocusRequesterRefsSample
          */
-        @ExperimentalComposeUiApi
-        fun createRefs() = FocusRequesterFactory
+        fun createRefs(): FocusRequesterFactory = FocusRequesterFactory
     }
 
     /**

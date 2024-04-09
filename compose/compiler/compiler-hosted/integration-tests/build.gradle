@@ -55,8 +55,8 @@ androidXMultiplatform {
                 implementation(libs.protobufLite)
                 implementation(libs.guavaAndroid)
                 implementation(project(":compose:compiler:compiler-hosted"))
-                implementation("androidx.compose.foundation:foundation:1.6.0-beta02")
-                implementation("androidx.compose.ui:ui:1.6.0-beta02")
+                implementation("androidx.compose.foundation:foundation:1.6.0")
+                implementation("androidx.compose.ui:ui:1.6.0")
                 implementation(project(":compose:runtime:runtime"))
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
                 implementation("com.google.dagger:dagger:2.40.1")
@@ -68,8 +68,8 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinMetadataJvm)
                 implementation(libs.robolectric)
-                implementation("androidx.activity:activity-ktx:1.9.0-alpha01")
-                implementation("androidx.core:core-ktx:1.13.0-alpha03")
+                implementation("androidx.activity:activity-ktx:1.9.0-alpha03")
+                implementation("androidx.core:core-ktx:1.13.0-alpha05")
                 runtimeOnly(
                         project(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged")
                 )
@@ -94,18 +94,16 @@ android {
     namespace "androidx.compose.runtime.tests"
 }
 
-afterEvaluate {
-    tasks.withType(Test) { t ->
-        t.dependsOn(":compose:compiler:compiler:embeddedPlugin")
-
-        maxHeapSize("1024m")
-        t.jvmArgs += ["--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED"]
+tasks.withType(Test).configureEach { test ->
+    test.dependsOn(":compose:compiler:compiler:embeddedPlugin")
+    test.maxHeapSize("1024m")
+    test.jvmArgs += ["--add-opens=jdk.jdi/com.sun.tools.jdi=ALL-UNNAMED"]
+    if (test.name == "test") {
+        // The compose compiler debugger runs on desktop in AndroidStudio, and so the debugger test is
+        // implemented as a desktop test to avoid the need to inject tools.jar (from desktop jvm) into
+        // android tests
+        test.dependsOn("desktopTest")
     }
-
-    // The compose compiler debugger runs on desktop in AndroidStudio, and so the debugger test is
-    // implemented as a desktop test to avoid the need to inject tools.jar (from desktop jvm) into
-    // android tests
-    tasks.findByPath("test").dependsOn(tasks.findByPath("desktopTest"))
 }
 
 androidx {

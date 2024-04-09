@@ -186,6 +186,8 @@ value class CameraError private constructor(val value: Int) {
             return topMethodName == "_enableShutterSound"
         }
     }
+
+    override fun toString(): String = "CameraError($value)"
 }
 
 // TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.

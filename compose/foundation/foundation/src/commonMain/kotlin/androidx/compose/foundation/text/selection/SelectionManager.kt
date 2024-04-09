@@ -22,8 +22,8 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.foundation.text.input.internal.coerceIn
 import androidx.compose.foundation.text.selection.Selection.AnchorInfo
-import androidx.compose.foundation.text2.input.internal.coerceIn
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -98,7 +98,19 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * change. The expectation is that this callback will end up causing `setSelection` to get
      * called. This is what makes this a "controlled component".
      */
-    var onSelectionChange: (Selection?) -> Unit = {}
+    var onSelectionChange: (Selection?) -> Unit = { selection = it }
+        set(newOnSelectionChange) {
+            // Wrap the given lambda with one that sets the selection immediately.
+            // The onSelectionChange loop requires a composition to happen for the selection
+            // to be updated, so we want to shorten that loop for gesture use cases where
+            // multiple selection changing events can be acted on within a single composition
+            // loop. Previous selection is used as part of that loop so keeping it up to date
+            // is important.
+            field = { newSelection ->
+                selection = newSelection
+                newOnSelectionChange(newSelection)
+            }
+        }
 
     /**
      * [HapticFeedback] handle to perform haptic feedback.
@@ -304,6 +316,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             currentDragPosition = null
         }
 
+        // This function is meant to handle changes in the selectable content,
+        // such as the text changing.
         selectionRegistrar.onSelectableChangeCallback = { selectableKey ->
             if (selectableKey in selectionRegistrar.subselections) {
                 // Clear the selection range of each Selectable.
@@ -539,7 +553,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         if (visibleRect.width < 0 || visibleRect.height < 0) return null
 
         val rootRect = visibleRect.translate(containerCoordinates.positionInRoot())
-        return rootRect.copy(bottom = visibleRect.bottom + HandleHeight.value * 4)
+        return rootRect.copy(bottom = rootRect.bottom + HandleHeight.value * 4)
     }
 
     // This is for PressGestureDetector to cancel the selection.

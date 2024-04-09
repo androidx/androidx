@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -85,12 +86,23 @@ fun LazyLayout(
         val subcomposeLayoutState = remember {
             SubcomposeLayoutState(LazyLayoutItemReusePolicy(itemContentFactory))
         }
-        prefetchState?.let {
-            LazyLayoutPrefetcher(
+        if (prefetchState != null) {
+            val executor = prefetchState.prefetchExecutor ?: rememberDefaultPrefetchExecutor()
+            DisposableEffect(
                 prefetchState,
                 itemContentFactory,
-                subcomposeLayoutState
-            )
+                subcomposeLayoutState,
+                executor
+            ) {
+                prefetchState.prefetchHandleProvider = PrefetchHandleProvider(
+                    itemContentFactory,
+                    subcomposeLayoutState,
+                    executor
+                )
+                onDispose {
+                    prefetchState.prefetchHandleProvider = null
+                }
+            }
         }
 
         SubcomposeLayout(
@@ -143,15 +155,3 @@ private class LazyLayoutItemReusePolicy(
  * 5 (RecycledViewPool.DEFAULT_MAX_SCRAP) + 2 (Recycler.DEFAULT_CACHE_SIZE)
  */
 private const val MaxItemsToRetainForReuse = 7
-
-/**
- * Platform specific implementation of lazy layout items prefetching - precomposing next items in
- * advance during the scrolling.
- */
-@ExperimentalFoundationApi
-@Composable
-internal expect fun LazyLayoutPrefetcher(
-    prefetchState: LazyLayoutPrefetchState,
-    itemContentFactory: LazyLayoutItemContentFactory,
-    subcomposeLayoutState: SubcomposeLayoutState
-)

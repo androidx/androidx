@@ -60,6 +60,7 @@ public final class DrawableCompat {
      *
      * @deprecated Use {@link Drawable#jumpToCurrentState()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "drawable.jumpToCurrentState()")
     @Deprecated
     public static void jumpToCurrentState(@NonNull Drawable drawable) {
         drawable.jumpToCurrentState();
@@ -76,7 +77,10 @@ public final class DrawableCompat {
      * @param drawable The Drawable against which to invoke the method.
      * @param mirrored Set to true if the Drawable should be mirrored, false if
      *            not.
+     * @deprecated Call {@link Drawable#setAutoMirrored()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "drawable.setAutoMirrored(mirrored)")
     public static void setAutoMirrored(@NonNull Drawable drawable, boolean mirrored) {
         drawable.setAutoMirrored(mirrored);
     }
@@ -91,7 +95,10 @@ public final class DrawableCompat {
      * @param drawable The Drawable against which to invoke the method.
      * @return boolean Returns true if this Drawable will be automatically
      *         mirrored.
+     * @deprecated Call {@link Drawable#isAutoMirrored()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "drawable.isAutoMirrored()")
     public static boolean isAutoMirrored(@NonNull Drawable drawable) {
         return drawable.isAutoMirrored();
     }
@@ -173,7 +180,10 @@ public final class DrawableCompat {
      * 0 means fully transparent, 255 means fully opaque.
      *
      * @param drawable The Drawable against which to invoke the method.
+     * @deprecated Call {@link Drawable#getAlpha()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "drawable.getAlpha()")
     @SuppressWarnings("unused")
     public static int getAlpha(@NonNull Drawable drawable) {
         return drawable.getAlpha();
@@ -359,7 +369,7 @@ public final class DrawableCompat {
     public static boolean setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.setLayoutDirection(drawable, layoutDirection);
-        } else if (Build.VERSION.SDK_INT >= 17) {
+        } else {
             if (!sSetLayoutDirectionMethodFetched) {
                 try {
                     sSetLayoutDirectionMethod =
@@ -381,8 +391,6 @@ public final class DrawableCompat {
                 }
             }
             return false;
-        } else {
-            return false;
         }
     }
 
@@ -397,7 +405,7 @@ public final class DrawableCompat {
     public static int getLayoutDirection(@NonNull Drawable drawable) {
         if (Build.VERSION.SDK_INT >= 23) {
             return Api23Impl.getLayoutDirection(drawable);
-        } else if (Build.VERSION.SDK_INT >= 17) {
+        } else {
             if (!sGetLayoutDirectionMethodFetched) {
                 try {
                     sGetLayoutDirectionMethod =
@@ -417,8 +425,6 @@ public final class DrawableCompat {
                     sGetLayoutDirectionMethod = null;
                 }
             }
-            return View.LAYOUT_DIRECTION_LTR;
-        } else {
             return View.LAYOUT_DIRECTION_LTR;
         }
     }

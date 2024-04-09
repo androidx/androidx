@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
 
     <issue
         id="NewApi"
@@ -575,15 +575,6 @@
         errorLine2="        ~~~~~">
         <location
             file="src/androidTest/java/androidx/core/widget/TestContentView.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 26 (current min is 19): `OreoCallback`"
-        errorLine1="        if (callback instanceof OreoCallback &amp;&amp; Build.VERSION.SDK_INT >= 26) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/TextViewCompat.java"/>
     </issue>
 
     <issue
@@ -2546,173 +2537,6 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/DrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT > 17) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/GestureDetectorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/HandlerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        } else if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/HandlerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (sTrySetAsynchronous &amp;&amp; Build.VERSION.SDK_INT >= 16) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/MessageCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (sTryIsAsynchronous &amp;&amp; Build.VERSION.SDK_INT >= 16) {"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/MessageCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 16) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NavUtils.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 16) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 16 &amp;&amp; Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                if (Build.VERSION.SDK_INT >= 16) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (mBuilder.mSubText != null &amp;&amp; Build.VERSION.SDK_INT >= 16) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 16 &amp;&amp; style != null) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 16 &amp;&amp; style != null) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 18 &amp;&amp; Build.VERSION.SDK_INT &lt; 29) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/TraceCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 16 || !mAnimEndCalled) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewPropertyAnimatorCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v16`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `layout`.">
-        <location
-            file="src/main/res/layout-v16"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v16`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
-        <location
-            file="src/main/res/values-v16"/>
     </issue>
 
     <issue

@@ -36,6 +36,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutMeasureScope.measurePager(
@@ -54,10 +55,11 @@ internal fun LazyLayoutMeasureScope.measurePager(
     reverseLayout: Boolean,
     visualPageOffset: IntOffset,
     pageAvailableSize: Int,
-    outOfBoundsPageCount: Int,
+    beyondViewportPageCount: Int,
     pinnedPages: List<Int>,
     snapPosition: SnapPosition,
     placementScopeInvalidator: ObservableScopeInvalidator,
+    coroutineScope: CoroutineScope,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -84,12 +86,13 @@ internal fun LazyLayoutMeasureScope.measurePager(
             firstVisiblePage = null,
             firstVisiblePageScrollOffset = 0,
             reverseLayout = false,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             canScrollForward = false,
             currentPage = null,
             currentPageOffsetFraction = 0.0f,
             snapPosition = snapPosition,
-            remeasureNeeded = false
+            remeasureNeeded = false,
+            coroutineScope = coroutineScope
         )
     } else {
 
@@ -311,7 +314,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
         // Compose extra pages before
         val extraPagesBefore = createPagesBeforeList(
             currentFirstPage = currentFirstPage,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             pinnedPages = pinnedPages
         ) {
             getAndMeasure(
@@ -337,7 +340,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
         val extraPagesAfter = createPagesAfterList(
             currentLastPage = visiblePages.last().index,
             pagesCount = pageCount,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             pinnedPages = pinnedPages
         ) {
             getAndMeasure(
@@ -464,14 +467,15 @@ internal fun LazyLayoutMeasureScope.measurePager(
             pageSize = pageAvailableSize,
             pageSpacing = spaceBetweenPages,
             afterContentPadding = afterContentPadding,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             canScrollForward = index < pageCount || currentMainAxisOffset > maxOffset,
             currentPage = newCurrentPage,
             currentPageOffsetFraction = currentPageOffsetFraction,
             snapPosition = snapPosition,
             remeasureNeeded = remeasureNeeded,
             extraPagesBefore = positionedPagesBefore,
-            extraPagesAfter = positionedPagesAfter
+            extraPagesAfter = positionedPagesAfter,
+            coroutineScope = coroutineScope
         )
     }
 }
@@ -479,13 +483,13 @@ internal fun LazyLayoutMeasureScope.measurePager(
 private fun createPagesAfterList(
     currentLastPage: Int,
     pagesCount: Int,
-    outOfBoundsPageCount: Int,
+    beyondViewportPageCount: Int,
     pinnedPages: List<Int>,
     getAndMeasure: (Int) -> MeasuredPage
 ): List<MeasuredPage> {
     var list: MutableList<MeasuredPage>? = null
 
-    val end = minOf(currentLastPage + outOfBoundsPageCount, pagesCount - 1)
+    val end = minOf(currentLastPage + beyondViewportPageCount, pagesCount - 1)
 
     for (i in currentLastPage + 1..end) {
         if (list == null) list = mutableListOf()
@@ -504,13 +508,13 @@ private fun createPagesAfterList(
 
 private fun createPagesBeforeList(
     currentFirstPage: Int,
-    outOfBoundsPageCount: Int,
+    beyondViewportPageCount: Int,
     pinnedPages: List<Int>,
     getAndMeasure: (Int) -> MeasuredPage
 ): List<MeasuredPage> {
     var list: MutableList<MeasuredPage>? = null
 
-    val start = maxOf(0, currentFirstPage - outOfBoundsPageCount)
+    val start = maxOf(0, currentFirstPage - beyondViewportPageCount)
 
     for (i in currentFirstPage - 1 downTo start) {
         if (list == null) list = mutableListOf()

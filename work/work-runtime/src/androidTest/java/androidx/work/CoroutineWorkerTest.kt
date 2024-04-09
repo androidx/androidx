@@ -32,6 +32,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -96,12 +97,12 @@ class CoroutineWorkerTest {
         workManager.enqueue(request)
         val worker = workerFactory.await(request.id) as ProgressUpdatingWorker
 
-        val progress1 = workManager.getWorkInfoByIdFlow(request.id)
+        val progress1 = workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
             .first { it.progress.getInt("progress", 0) != 0 }.progress
         assertThat(progress1.getInt("progress", 0)).isEqualTo(1)
         worker.firstCheckPoint.complete(Unit)
 
-        val progress2 = workManager.getWorkInfoByIdFlow(request.id)
+        val progress2 = workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
             .first { it.progress.getInt("progress", 0) != 1 }.progress
         assertThat(progress2.getInt("progress", 0)).isEqualTo(100)
         worker.secondCheckPoint.complete(Unit)

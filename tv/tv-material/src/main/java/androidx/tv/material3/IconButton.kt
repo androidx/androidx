@@ -60,7 +60,6 @@ import androidx.compose.ui.semantics.semantics
  * still happen internally.
  * @param content the content of the button, typically an [Icon]
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun IconButton(
@@ -130,7 +129,6 @@ fun IconButton(
  * still happen internally.
  * @param content the content of the button, typically an [Icon]
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun OutlinedIconButton(

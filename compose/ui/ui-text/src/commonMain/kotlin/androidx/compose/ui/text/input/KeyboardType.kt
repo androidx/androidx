@@ -22,10 +22,11 @@ import androidx.compose.runtime.Stable
  * Values representing the different available Keyboard Types.
  */
 @kotlin.jvm.JvmInline
-value class KeyboardType internal constructor(@Suppress("unused") private val value: Int) {
+value class KeyboardType private constructor(@Suppress("unused") private val value: Int) {
 
     override fun toString(): String {
         return when (this) {
+            Unspecified -> "Unspecified"
             Text -> "Text"
             Ascii -> "Ascii"
             Number -> "Number"
@@ -40,6 +41,12 @@ value class KeyboardType internal constructor(@Suppress("unused") private val va
     }
 
     companion object {
+        /**
+         * The keyboard type is not specified.
+         */
+        @Stable
+        val Unspecified: KeyboardType = KeyboardType(0)
+
         /**
          * A keyboard type used to request an IME that shows regular keyboard.
          */

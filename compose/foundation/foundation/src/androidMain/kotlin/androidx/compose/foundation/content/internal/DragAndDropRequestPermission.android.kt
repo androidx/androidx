@@ -24,19 +24,18 @@ import android.os.Build
 import android.view.View
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.requireView
 import androidx.core.view.DragAndDropPermissionsCompat
 
-internal actual fun CompositionLocalConsumerModifierNode.dragAndDropRequestPermission(
+internal actual fun DelegatableNode.dragAndDropRequestPermission(
     event: DragAndDropEvent
 ) {
     if (Build.VERSION.SDK_INT < 24) return
     // If there is no contentUri, there's no need to request permissions
     if (!event.toAndroidDragEvent().clipData.containsContentUri()) return
     if (node.isAttached) {
-        val view = currentValueOf(LocalView)
+        val view = requireView()
         val activity = tryGetActivity(view) ?: return
         DragAndDropPermissionsCompat.request(activity, event.toAndroidDragEvent())
     }

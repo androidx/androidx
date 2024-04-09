@@ -21,9 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shadow
@@ -183,14 +180,7 @@ internal class TextStringSimpleNode(
         textChanged: Boolean,
         layoutChanged: Boolean
     ) {
-        if (!isAttached) {
-            // no-up for !isAttached. The node will invalidate when attaching again.
-            return
-        }
-        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            invalidateSemantics()
-        }
-
+        // bring caches up to date even if the node is detached in case it is used again later
         if (textChanged || layoutChanged) {
             layoutCache.update(
                 text = text,
@@ -201,6 +191,17 @@ internal class TextStringSimpleNode(
                 maxLines = maxLines,
                 minLines = minLines
             )
+        }
+
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
+        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
+            invalidateSemantics()
+        }
+
+        if (textChanged || layoutChanged) {
             invalidateMeasurement()
             invalidateDraw()
         }
@@ -393,9 +394,8 @@ internal class TextStringSimpleNode(
             if (willClip) {
                 val width = layoutCache.layoutSize.width.toFloat()
                 val height = layoutCache.layoutSize.height.toFloat()
-                val bounds = Rect(Offset.Zero, Size(width, height))
                 canvas.save()
-                canvas.clipRect(bounds)
+                canvas.clipRect(left = 0f, top = 0f, right = width, bottom = height)
             }
             try {
                 val textDecoration = style.textDecoration ?: TextDecoration.None

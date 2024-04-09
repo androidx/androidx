@@ -39,8 +39,11 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.graphics.layer.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
@@ -127,8 +130,10 @@ internal class SkiaBasedOwner(
     override val focusOwner: FocusOwner = FocusOwnerImpl(
         onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
         onRequestFocusForOwner = { _, _ -> true }, // TODO request focus from framework.
+        onMoveFocusInterop = { _ -> true },
         onClearFocusForOwner = {}, // TODO clear focus from framework.
-        layoutDirection = { layoutDirection } // TODO(demin): support RTL [onRtlPropertiesChanged].
+        onFocusRectInterop = { null },
+        onLayoutDirection = { layoutDirection } // TODO(demin): RTL [onRtlPropertiesChanged].
     )
 
     // TODO: Set the input mode. For now we don't support touch mode, (always in Key mode).
@@ -228,6 +233,7 @@ internal class SkiaBasedOwner(
     override val clipboardManager = PlatformClipboardManager()
 
     override val accessibilityManager = DefaultAccessibilityManager()
+    override val graphicsContext: GraphicsContext = GraphicsContext()
 
     override val textToolbar = DefaultTextToolbar()
 
@@ -371,7 +377,8 @@ internal class SkiaBasedOwner(
 
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ) = SkiaLayer(
         density,
         invalidateParentLayer = {
@@ -410,7 +417,7 @@ internal class SkiaBasedOwner(
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 
     fun draw(canvas: org.jetbrains.skia.Canvas) {
-        root.draw(canvas.asComposeCanvas())
+        root.draw(canvas.asComposeCanvas(), null)
     }
 
     private var desiredPointerIcon: PointerIcon? = null

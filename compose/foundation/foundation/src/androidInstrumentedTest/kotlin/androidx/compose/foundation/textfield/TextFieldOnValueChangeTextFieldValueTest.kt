@@ -17,7 +17,7 @@
 package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text2.input.InputMethodInterceptor
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset

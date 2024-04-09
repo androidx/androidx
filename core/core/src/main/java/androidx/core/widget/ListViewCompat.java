@@ -35,6 +35,7 @@ public final class ListViewCompat {
      * @param y the amount of pixels to scroll by vertically
      * @deprecated Use {@link ListView#scrollListBy(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "listView.scrollListBy(y)")
     @Deprecated
     public static void scrollListBy(@NonNull ListView listView, int y) {
         // Call the framework version directly
@@ -52,6 +53,7 @@ public final class ListViewCompat {
      * @see #scrollListBy(ListView, int)
      * @deprecated Use {@link ListView#canScrollList(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "listView.canScrollList(direction)")
     @Deprecated
     public static boolean canScrollList(@NonNull ListView listView, int direction) {
         // Call the framework version directly

@@ -22,3 +22,11 @@ target_link_libraries(apptest
         googletest::gtest
         junit-gtest::junit-gtest
         )
+target_link_options(adder
+        PRIVATE
+        "-Wl,-z,max-page-size=16384"
+)
+target_link_options(apptest
+        PRIVATE
+        "-Wl,-z,max-page-size=16384"
+)

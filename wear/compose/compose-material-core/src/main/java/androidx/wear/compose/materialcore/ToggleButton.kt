@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -141,8 +142,10 @@ fun ToggleButton(
  * @param onCheckedChange Callback to be invoked when this buttons checked status is
  * @param label A slot for providing the ToggleButton's main label. The contents are expected
  * to be text which is "start" aligned.
- * @param toggleControl A slot for providing the ToggleButton's toggle control.
- * Three built-in types of toggle control are supported.
+ * @param toggleControl A slot for providing a toggle control - one and only one of toggleControl
+ * and selectionControl must be provided.
+ * @param selectionControl A slot for providing a selection control - one and only one of
+ * toggleControl and selectionControl must be provided.
  * @param modifier Modifier to be applied to the ToggleButton. Pass Modifier.height(height)
  * or Modifier.defaultMinSize(minHeight = minHeight) to set a fixed height or a minimum height
  * for the button respectively.
@@ -173,7 +176,8 @@ fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
-    toggleControl: @Composable () -> Unit,
+    toggleControl: (@Composable () -> Unit)?,
+    selectionControl: (@Composable () -> Unit)?,
     modifier: Modifier,
     icon: @Composable (BoxScope.() -> Unit)?,
     secondaryLabel: @Composable (RowScope.() -> Unit)?,
@@ -184,20 +188,38 @@ fun ToggleButton(
     shape: Shape,
     toggleControlWidth: Dp,
     toggleControlHeight: Dp,
+    labelSpacerSize: Dp,
     ripple: Indication
 ) {
+    // One and only one of toggleControl and selectionControl should be provided.
+    require((toggleControl != null) xor (selectionControl != null)) {
+        "Provide exactly one of toggleControl/selectionControl"
+    }
+
     // Stadium/Chip shaped toggle button
     Row(
         modifier = modifier
             .clip(shape = shape)
             .width(IntrinsicSize.Max)
             .then(background(enabled, checked))
-            .toggleable(
-                enabled = enabled,
-                value = checked,
-                onValueChange = onCheckedChange,
-                indication = ripple,
-                interactionSource = interactionSource
+            .then(
+                if (toggleControl != null) {
+                    Modifier.toggleable(
+                        enabled = enabled,
+                        value = checked,
+                        onValueChange = onCheckedChange,
+                        indication = ripple,
+                        interactionSource = interactionSource
+                    )
+                } else {
+                    Modifier.selectable(
+                        enabled = enabled,
+                        selected = checked,
+                        onClick = { onCheckedChange(true) },
+                        indication = ripple,
+                        interactionSource = interactionSource
+                    )
+                }
             )
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
@@ -205,7 +227,8 @@ fun ToggleButton(
         ToggleButtonIcon(content = icon)
         Labels(
             label = label,
-            secondaryLabel = secondaryLabel
+            secondaryLabel = secondaryLabel,
+            spacerSize = labelSpacerSize
         )
         Spacer(
             modifier = Modifier.size(
@@ -215,7 +238,7 @@ fun ToggleButton(
         ToggleControl(
             width = toggleControlWidth,
             height = toggleControlHeight,
-            content = toggleControl
+            content = toggleControl ?: selectionControl!!
         )
     }
 }
@@ -245,7 +268,10 @@ fun ToggleButton(
  * The contents are expected to be text which is "start" aligned.
  * @param onClick Click listener called when the user clicks the main body of the
  * SplitToggleButton, the area behind the labels.
- * @param toggleControl A slot for providing the SplitToggleButton's toggle control.
+ * @param toggleControl A slot for providing a toggle control - one and only one of toggleControl
+ * and selectionControl must be provided.
+ * @param selectionControl A slot for providing a selection control - one and only one of toggleControl
+ * and selectionControl must be provided.
  * @param modifier Modifier to be applied to the SplitToggleButton
  * @param secondaryLabel A slot for providing the SplitToggleButton's secondary label.
  * The contents are expected to be "start" or "center" aligned. label and secondaryLabel
@@ -276,7 +302,8 @@ fun SplitToggleButton(
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
-    toggleControl: @Composable BoxScope.() -> Unit,
+    toggleControl: (@Composable BoxScope.() -> Unit)?,
+    selectionControl: (@Composable BoxScope.() -> Unit)?,
     modifier: Modifier,
     secondaryLabel: @Composable (RowScope.() -> Unit)?,
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
@@ -286,6 +313,7 @@ fun SplitToggleButton(
     clickInteractionSource: MutableInteractionSource?,
     contentPadding: PaddingValues,
     shape: Shape,
+    labelSpacerSize: Dp,
     ripple: Indication
 ) {
     val (startPadding, endPadding) = contentPadding.splitHorizontally()
@@ -316,6 +344,7 @@ fun SplitToggleButton(
             Labels(
                 label = label,
                 secondaryLabel = secondaryLabel,
+                spacerSize = labelSpacerSize
             )
             Spacer(
                 modifier = Modifier
@@ -328,15 +357,29 @@ fun SplitToggleButton(
             checked,
         ).value
 
-        Box(
-            modifier = Modifier
-                .toggleable(
+        val boxModifier =
+            if (toggleControl != null) {
+                Modifier
+                    .toggleable(
+                        enabled = enabled,
+                        value = checked,
+                        onValueChange = onCheckedChange,
+                        indication = ripple,
+                        interactionSource = checkedInteractionSource
+                    )
+            } else {
+                Modifier.selectable(
                     enabled = enabled,
-                    value = checked,
-                    onValueChange = onCheckedChange,
+                    selected = checked,
+                    onClick = { onCheckedChange(true) },
                     indication = ripple,
                     interactionSource = checkedInteractionSource
                 )
+            }
+
+        Box(
+            modifier =
+            boxModifier
                 .fillMaxHeight()
                 .drawWithCache {
                     onDrawWithContent {
@@ -349,7 +392,7 @@ fun SplitToggleButton(
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .wrapContentWidth(align = Alignment.End)
                 .then(endPadding),
-            content = toggleControl
+            content = toggleControl ?: selectionControl!!
         )
     }
 }
@@ -370,11 +413,13 @@ private fun ToggleButtonIcon(
 @Composable
 private fun RowScope.Labels(
     label: @Composable RowScope.() -> Unit,
-    secondaryLabel: @Composable (RowScope.() -> Unit)?
+    secondaryLabel: @Composable (RowScope.() -> Unit)?,
+    spacerSize: Dp = 0.dp
 ) {
     Column(modifier = Modifier.weight(1.0f)) {
         Row(content = label)
         if (secondaryLabel != null) {
+            Spacer(modifier = Modifier.size(spacerSize))
             Row(content = secondaryLabel)
         }
     }

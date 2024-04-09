@@ -53,7 +53,8 @@ internal object ArtifactResolver {
     internal val jetbrainsRepositories = listOf(
         "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/",
         "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev",
-        "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+        "https://maven.pkg.jetbrains.space/public/p/compose/dev",
+        "https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"
     )
 
     internal val gradlePluginPortalRepo = "https://plugins.gradle.org/m2/"

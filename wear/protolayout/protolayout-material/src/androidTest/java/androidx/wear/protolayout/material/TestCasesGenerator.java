@@ -218,6 +218,12 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,
+                new CompactChip.Builder(context, clickable, deviceParameters)
+                        .setTextContent("Action")
+                        .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
+                        .build());
+        testCases.put(
+                "compactchip_custom_default_deprecated_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
                         .build());
@@ -242,6 +248,11 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
+                        .build());
+        testCases.put(
+                "compactchip_icon_only_golden" + goldenSuffix,
+                new CompactChip.Builder(context, clickable, deviceParameters)
+                        .setIconContent(ICON_ID_SMALL)
                         .build());
 
         testCases.put(
@@ -311,6 +322,26 @@ public class TestCasesGenerator {
                         .setCircularProgressIndicatorColors(
                                 new ProgressIndicatorColors(Color.BLUE, Color.YELLOW))
                         .build());
+        testCases.put(
+                "circularprogressindicator_in_smaller_box_with_margins_full_90",
+                new Box.Builder()
+                        .setWidth(dp(50))
+                        .setHeight(dp(50))
+                        .addContent(
+                                new CircularProgressIndicator.Builder().setProgress(0.25f).build())
+                        .build());
+        testCases.put(
+                "circularprogressindicator_in_smaller_box_without_margins_full_90",
+                new Box.Builder()
+                        .setWidth(dp(50))
+                        .setHeight(dp(50))
+                        .addContent(
+                                new CircularProgressIndicator.Builder()
+                                        .setProgress(0.25f)
+                                        .setOuterMarginApplied(false)
+                                        .build())
+                        .build());
+
         testCases.put(
                 "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
         testCases.put(
@@ -407,6 +438,11 @@ public class TestCasesGenerator {
                         .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                         .build());
         testCases.put(
+                "overflow_text_center_golden" + goldenSuffix,
+                new Text.Builder(context, longText)
+                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_CENTER)
+                        .build());
+        testCases.put(
                 "overflow_ellipsize_maxlines_notreached" + goldenSuffix,
                 new Box.Builder()
                         .setWidth(dp(100))
@@ -417,8 +453,6 @@ public class TestCasesGenerator {
                                         // Line height = 20sp
                                         .setTypography(Typography.TYPOGRAPHY_BODY1)
                                         .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
-                                        .setMultilineAlignment(
-                                                LayoutElementBuilders.TEXT_ALIGN_START)
                                         .setMaxLines(6)
                                         .build())
                         .build());
@@ -434,8 +468,6 @@ public class TestCasesGenerator {
                                         .setTypography(Typography.TYPOGRAPHY_BODY1)
                                         .setOverflow(
                                                 LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
-                                        .setMultilineAlignment(
-                                                LayoutElementBuilders.TEXT_ALIGN_START)
                                         .setMaxLines(6)
                                         .build())
                         .build());

@@ -27,11 +27,11 @@ import android.view.Surface
  */
 interface ViewfinderSurfaceProvider {
     /**
-     * Called when a new [Surface] has been requested by the camera.
+     * Called when a new [Surface] has been requested by the frame producer.
      *
      *
      * This is called every time a new surface is required to keep the viewfinder running.
-     * The camera may repeatedly request surfaces, but only a single request will be active at a
+     * The producer may repeatedly request surfaces, but only a single request will be active at a
      * time.
      *
      * @param request the request for a surface which contains the requirements of the

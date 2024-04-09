@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -46,7 +45,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalFoundationApi::class)
 val Carrousel = listOf(
     ComposableDemo("Horizontal") { HorizontalCarrouselDemo() },
     ComposableDemo("Vertical") { VerticalCarrouselDemo() },
@@ -56,7 +54,6 @@ val Carrousel = listOf(
     }
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 val SnapPositionDemos = listOf(
     ComposableDemo("Snap Position - Start") { HorizontalCarrouselDemo(SnapPosition.Start) },
     ComposableDemo("Snap Position - Center") { HorizontalCarrouselDemo(SnapPosition.Center) },
@@ -64,7 +61,6 @@ val SnapPositionDemos = listOf(
     ComposableDemo("Snap Position - Custom") { HorizontalCarrouselDemoWithCustomSnapPosition() },
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCarrouselDemoWithCustomSnapPosition() {
     val pagerState = rememberPagerState { PagesCount }
@@ -113,7 +109,6 @@ private fun HorizontalCarrouselDemoWithCustomSnapPosition() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCarrouselDemo(snapPosition: SnapPosition = SnapPosition.Start) {
     val pagerState = rememberPagerState { PagesCount }
@@ -131,7 +126,6 @@ private fun HorizontalCarrouselDemo(snapPosition: SnapPosition = SnapPosition.St
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VerticalCarrouselDemo() {
     val pagerState = rememberPagerState { PagesCount }
@@ -148,7 +142,6 @@ private fun VerticalCarrouselDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCustomPageSizeDemo() {
     val pagerState = rememberPagerState { PagesCount }
@@ -166,7 +159,6 @@ private fun HorizontalCustomPageSizeDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HorizontalCustomPageSizeWithCustomMaxScrollDemo() {
     val pagerState = rememberPagerState { PagesCount }
@@ -207,7 +199,6 @@ private fun CarrouselItem(index: Int, fillOrientation: Orientation) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private val ThreePagesPerViewport = object : PageSize {
     override fun Density.calculateMainAxisPageSize(
         availableSpace: Int,

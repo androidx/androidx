@@ -18,6 +18,7 @@ package androidx.compose.foundation.selection
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.TapIndicationDelay
+import androidx.compose.foundation.TestIndication
 import androidx.compose.foundation.TestIndicationNodeFactory
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -39,6 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -730,7 +732,7 @@ class ToggleableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "value",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource",
                 "enabled",
                 "role",
@@ -768,7 +770,7 @@ class ToggleableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "state",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource",
                 "enabled",
                 "role",
@@ -1410,7 +1412,7 @@ class ToggleableTest {
     }
 
     @Test
-    fun triStateToggleableTest_noInteractionSource_lazilyCreated_pointerInput() {
+    fun triStateToggleable_noInteractionSource_lazilyCreated_pointerInput() {
         var created = false
         val state = ToggleableState(value = false)
         lateinit var interactionSource: InteractionSource
@@ -1452,5 +1454,223 @@ class ToggleableTest {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
+    }
+
+    @Test
+    fun toggleable_composedOverload_nonEquality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        val modifier1 = Modifier.toggleable(value = true, onValueChange = onValueChange)
+        val modifier2 = Modifier.toggleable(value = true, onValueChange = onValueChange)
+
+        // The composed overload can never compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun toggleable_nullInteractionSourceNullIndication_equality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        assertModifierIsPure { toggleInput ->
+            Modifier.toggleable(
+                value = toggleInput,
+                interactionSource = null,
+                indication = null,
+                onValueChange = onValueChange
+            )
+        }
+    }
+
+    @Test
+    fun toggleable_nonNullInteractionSourceNullIndication_equality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        val interactionSource = MutableInteractionSource()
+        assertModifierIsPure { toggleInput ->
+            Modifier.toggleable(
+                value = toggleInput,
+                interactionSource = interactionSource,
+                indication = null,
+                onValueChange = onValueChange
+            )
+        }
+    }
+
+    @Test
+    fun toggleable_nullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.toggleable(
+                value = toggleInput,
+                interactionSource = null,
+                indication = indication,
+                onValueChange = onValueChange
+            )
+        }
+    }
+
+    @Test
+    fun toggleable_nullInteractionSourceNonNullIndication_nonEquality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        val indication = TestIndication {}
+        val modifier1 = Modifier.toggleable(
+            value = true,
+            interactionSource = null,
+            indication = indication,
+            onValueChange = onValueChange
+        )
+        val modifier2 = Modifier.toggleable(
+            value = true,
+            interactionSource = null,
+            indication = indication,
+            onValueChange = onValueChange
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun toggleable_nonNullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.toggleable(
+                value = toggleInput,
+                interactionSource = interactionSource,
+                indication = indication,
+                onValueChange = onValueChange
+            )
+        }
+    }
+
+    @Test
+    fun toggleable_nonNullInteractionSourceNonNullIndication_nonEquality() {
+        val onValueChange: (Boolean) -> Unit = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndication {}
+        val modifier1 = Modifier.toggleable(
+            value = true,
+            interactionSource = interactionSource,
+            indication = indication,
+            onValueChange = onValueChange
+        )
+        val modifier2 = Modifier.toggleable(
+            value = true,
+            interactionSource = interactionSource,
+            indication = indication,
+            onValueChange = onValueChange
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun triStateToggleable_composedOverload_nonEquality() {
+        val onClick = {}
+        val modifier1 = Modifier.triStateToggleable(state = ToggleableState.On, onClick = onClick)
+        val modifier2 = Modifier.triStateToggleable(state = ToggleableState.On, onClick = onClick)
+
+        // The composed overload can never compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun triStateToggleable_nullInteractionSourceNullIndication_equality() {
+        val onClick = {}
+        assertModifierIsPure { toggleInput ->
+            Modifier.triStateToggleable(
+                state = ToggleableState(toggleInput),
+                interactionSource = null,
+                indication = null,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun triStateToggleable_nonNullInteractionSourceNullIndication_equality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        assertModifierIsPure { toggleInput ->
+            Modifier.triStateToggleable(
+                state = ToggleableState(toggleInput),
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun triStateToggleable_nullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onClick = {}
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.triStateToggleable(
+                state = ToggleableState(toggleInput),
+                interactionSource = null,
+                indication = indication,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun triStateToggleable_nullInteractionSourceNonNullIndication_nonEquality() {
+        val onClick = {}
+        val indication = TestIndication {}
+        val modifier1 = Modifier.triStateToggleable(
+            state = ToggleableState.On,
+            interactionSource = null,
+            indication = indication,
+            onClick = onClick
+        )
+        val modifier2 = Modifier.triStateToggleable(
+            state = ToggleableState.On,
+            interactionSource = null,
+            indication = indication,
+            onClick = onClick
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun triStateToggleable_nonNullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.triStateToggleable(
+                state = ToggleableState(toggleInput),
+                interactionSource = interactionSource,
+                indication = indication,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun triStateToggleable_nonNullInteractionSourceNonNullIndication_nonEquality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndication {}
+        val modifier1 = Modifier.triStateToggleable(
+            state = ToggleableState.On,
+            interactionSource = interactionSource,
+            indication = indication,
+            onClick = onClick
+        )
+        val modifier2 = Modifier.triStateToggleable(
+            state = ToggleableState.On,
+            interactionSource = interactionSource,
+            indication = indication,
+            onClick = onClick
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
     }
 }

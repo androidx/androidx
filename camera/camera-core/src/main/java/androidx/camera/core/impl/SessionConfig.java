@@ -647,7 +647,7 @@ public final class SessionConfig {
          */
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface) {
-            return addSurface(surface, DynamicRange.SDR);
+            return addSurface(surface, DynamicRange.SDR, null);
         }
 
         /**
@@ -656,8 +656,10 @@ public final class SessionConfig {
          */
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface,
-                @NonNull DynamicRange dynamicRange) {
+                @NonNull DynamicRange dynamicRange,
+                @Nullable String physicalCameraId) {
             OutputConfig outputConfig = OutputConfig.builder(surface)
+                    .setPhysicalCameraId(physicalCameraId)
                     .setDynamicRange(dynamicRange)
                     .build();
             mOutputConfigs.add(outputConfig);

@@ -19,9 +19,11 @@ package androidx.compose.ui.test
 import android.content.res.Configuration
 import android.util.DisplayMetrics
 import android.view.View
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -123,7 +125,85 @@ class DeviceConfigurationOverrideTest {
     }
 
     @Test
-    fun sizeOverride_allowsForCorrectSpace() {
+    fun sizeOverride_allowsForCorrectSpace_smallPortraitAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(30.dp, 40.dp))
+            ) {
+                Spacer(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        actualConstraints = constraints
+                        actualDensity = this
+
+                        val placeable = measurable.measure(constraints)
+
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
+    }
+
+    @Test
+    fun sizeOverride_allowsForCorrectSpace_smallLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
+
+        rule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(40.dp, 30.dp))
+            ) {
+                Spacer(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        actualConstraints = constraints
+                        actualDensity = this
+
+                        val placeable = measurable.measure(constraints)
+
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 40.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 30.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
+    }
+
+    @Test
+    fun sizeOverride_allowsForCorrectSpace_largePortraitAspectRatio() {
         lateinit var actualDensity: Density
         var actualConstraints: Constraints? = null
 
@@ -146,29 +226,170 @@ class DeviceConfigurationOverrideTest {
             }
         }
 
-        assertTrue(with(actualDensity) { actualConstraints!!.maxWidth.toDp() >= 3000.dp })
-        assertTrue(with(actualDensity) { actualConstraints!!.maxHeight.toDp() >= 4000.dp })
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
     }
 
     @Test
-    fun sizeOverride_overridesConfigurationDensity() {
-        lateinit var density: Density
-        lateinit var configuration: Configuration
+    fun sizeOverride_allowsForCorrectSpace_largeLandscapeAspectRatio() {
+        lateinit var actualDensity: Density
+        var actualConstraints: Constraints? = null
 
         rule.setContent {
             DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(4000.dp, 3000.dp))
+            ) {
+                Spacer(
+                    modifier = Modifier.layout { measurable, constraints ->
+                        actualConstraints = constraints
+                        actualDensity = this
+
+                        val placeable = measurable.measure(constraints)
+
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+
+        // The constraint should be within 0.5 pixels of the specified size
+        // Due to rounding, we can't expect to have the Spacer take exactly the requested size which
+        // is true in normal Compose code as well
+        assertEquals(
+            with(actualDensity) { 4000.dp.toPx() },
+            actualConstraints!!.maxWidth.toFloat(),
+            0.5f
+        )
+        assertEquals(
+            with(actualDensity) { 3000.dp.toPx() },
+            actualConstraints!!.maxHeight.toFloat(),
+            0.5f
+        )
+    }
+
+    @Test
+    fun sizeOverride_largeRequestedSize_overridesConfigurationDensity() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            DeviceConfigurationOverride(
                 DeviceConfigurationOverride.ForcedSize(DpSize(3000.dp, 4000.dp))
             ) {
-                density = LocalDensity.current
-                configuration = LocalConfiguration.current
+                overriddenDensity = LocalDensity.current
+                overriddenConfiguration = LocalConfiguration.current
+            }
+        }
+
+        // A 3000dp by 4000dp device is so big, that we can assume that the density needs to be
+        // overridden.
+        // If this test runs on a device with that size screen, where overriding density is not
+        // necessary, this test might fail. If that is happening, hopefully the future is a nice
+        // place.
+        assertTrue(originalDensity.density > overriddenDensity.density)
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f
+        )
+    }
+
+    @Test
+    fun sizeOverride_notNeededForPortrait_doesNotOverrideConfigurationDensity() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            Box(Modifier.size(35.dp, 45.dp)) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(30.dp, 40.dp))
+                ) {
+                    overriddenDensity = LocalDensity.current
+                    overriddenConfiguration = LocalConfiguration.current
+                }
             }
         }
 
         // This is a strict equality for floating point values which is normally problematic, but
-        // this should be precisely equal
+        // these should be precisely equal
         assertEquals(
-            density.density,
-            configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+            originalDensity.density,
+            overriddenDensity.density
+        )
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f
+        )
+    }
+
+    @Test
+    fun sizeOverride_notNeededForLandscape_doesNotOverrideConfigurationDensity() {
+        lateinit var originalDensity: Density
+        lateinit var overriddenDensity: Density
+        lateinit var overriddenConfiguration: Configuration
+
+        rule.setContent {
+            originalDensity = LocalDensity.current
+            Box(Modifier.size(45.dp, 35.dp)) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.ForcedSize(DpSize(40.dp, 30.dp))
+                ) {
+                    overriddenDensity = LocalDensity.current
+                    overriddenConfiguration = LocalConfiguration.current
+                }
+            }
+        }
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            originalDensity.density,
+            overriddenDensity.density
+        )
+
+        // Convert the Configuration's density in DPI to the raw float multiplier
+        val overriddenConfigurationDensityMultiplier =
+            overriddenConfiguration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
+
+        // This is a strict equality for floating point values which is normally problematic, but
+        // these should be precisely equal
+        assertEquals(
+            overriddenDensity.density,
+            overriddenConfigurationDensityMultiplier,
+            // Compare within half a step of density DPI changes
+            1f / DisplayMetrics.DENSITY_DEFAULT / 2f
         )
     }
 

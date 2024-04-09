@@ -35,6 +35,8 @@ import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.testing.impl.TestImageUtil.createA24ProblematicJpegByteArray
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createJpegrBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegrFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
@@ -83,6 +85,32 @@ class ProcessingNodeTest {
         // Act: process the request.
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val image = createJpegFakeImageProxy(jpegBytes)
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the image is saved.
+        assertThat(callback.onDiskResult).isNotNull()
+    }
+
+    @Config(minSdk = 34)
+    @Test
+    fun processRequest_hasDiskResult_whenFormatIsJpegr() {
+        // Arrange: create a request with callback.
+        val callback = FakeTakePictureCallback()
+        val request = ProcessingRequest(
+            { listOf() },
+            OUTPUT_FILE_OPTIONS,
+            Rect(0, 0, WIDTH, HEIGHT),
+            ROTATION_DEGREES,
+            /*jpegQuality=*/100,
+            SENSOR_TO_BUFFER,
+            callback,
+            Futures.immediateFuture(null)
+        )
+
+        // Act: process the request.
+        val jpegBytes = createJpegrBytes(WIDTH, HEIGHT)
+        val image = createJpegrFakeImageProxy(jpegBytes)
         processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, image))
         shadowOf(getMainLooper()).idle()
 

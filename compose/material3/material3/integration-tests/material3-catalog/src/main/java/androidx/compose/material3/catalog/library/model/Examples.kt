@@ -21,10 +21,11 @@ package androidx.compose.material3.catalog.library.model
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldCustomConfigSample
-import androidx.compose.material3.adaptive.navigation.suite.samples.NavigationSuiteScaffoldSample
+import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
+import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldWithNavigationSample
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
@@ -38,7 +39,6 @@ import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
-import androidx.compose.material3.samples.CarouselSample
 import androidx.compose.material3.samples.CheckboxSample
 import androidx.compose.material3.samples.CheckboxWithTextSample
 import androidx.compose.material3.samples.ChipGroupReflowSample
@@ -67,6 +67,7 @@ import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExposedDropdownMenuSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.ExtendedFloatingActionButtonTextSample
+import androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
 import androidx.compose.material3.samples.FancyIndicatorContainerTabs
 import androidx.compose.material3.samples.FancyIndicatorTabs
 import androidx.compose.material3.samples.FancyTabs
@@ -78,6 +79,8 @@ import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
+import androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
+import androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
 import androidx.compose.material3.samples.IconButtonSample
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
@@ -166,6 +169,7 @@ import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSuppor
 import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
+import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.runtime.Composable
@@ -192,7 +196,12 @@ val AdaptiveExamples =
             name = ::ListDetailPaneScaffoldSampleWithExtraPane.name,
             description = AdaptiveExampleDescription,
             sourceUrl = AdaptiveExampleSourceUrl
-        ) { ListDetailPaneScaffoldSampleWithExtraPane() }
+        ) { ListDetailPaneScaffoldSampleWithExtraPane() },
+        Example(
+            name = ::ListDetailPaneScaffoldWithNavigationSample.name,
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl
+        ) { ListDetailPaneScaffoldWithNavigationSample() }
     )
 
 private const val BadgeExampleDescription = "Badge examples"
@@ -314,11 +323,25 @@ private const val CarouselExampleDescription = "Carousel examples"
 private const val CarouselExampleSourceUrl = "$SampleSourceUrl/CarouselSamples.kt"
 val CarouselExamples = listOf(
     Example(
-        name = ::CarouselSample.name,
+        name = ::HorizontalMultiBrowseCarouselSample.name,
         description = CarouselExampleDescription,
         sourceUrl = CarouselExampleSourceUrl
     ) {
-        CarouselSample()
+        HorizontalMultiBrowseCarouselSample()
+    },
+    Example(
+        name = ::HorizontalUncontainedCarouselSample.name,
+        description = CarouselExampleDescription,
+        sourceUrl = CarouselExampleSourceUrl
+    ) {
+        HorizontalUncontainedCarouselSample()
+    },
+    Example(
+        name = ::FadingHorizontalMultiBrowseCarouselSample.name,
+        description = CarouselExampleDescription,
+        sourceUrl = CarouselExampleSourceUrl
+    ) {
+        FadingHorizontalMultiBrowseCarouselSample()
     }
 )
 
@@ -632,6 +655,11 @@ val IconButtonExamples =
             description = IconButtonExampleDescription,
             sourceUrl = IconButtonExampleSourceUrl,
         ) { IconButtonSample() },
+        Example(
+            name = ::TintedIconButtonSample.name,
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+        ) { TintedIconButtonSample() },
         Example(
             name = ::IconToggleButtonSample.name,
             description = IconButtonExampleDescription,

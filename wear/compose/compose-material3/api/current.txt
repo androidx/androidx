@@ -27,8 +27,6 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors buttonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors childButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors childButtonColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledButtonColors();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledTonalButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledTonalButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method public float getButtonHorizontalPadding();
@@ -91,12 +89,14 @@ package androidx.wear.compose.material3 {
   }
 
   public final class CardDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors(optional long containerColor, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors imageCardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedCardBorder(optional long outlineColor, optional float borderWidth);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors(optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     property public final float AppImageSize;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
@@ -346,8 +346,6 @@ package androidx.wear.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
     ctor public RadioButtonColors(long selectedContainerColor, long selectedContentColor, long selectedSecondaryContentColor, long selectedIconColor, long unselectedContainerColor, long unselectedContentColor, long unselectedSecondaryContentColor, long unselectedIconColor, long disabledSelectedContainerColor, long disabledSelectedContentColor, long disabledSelectedSecondaryContentColor, long disabledSelectedIconColor, long disabledUnselectedContainerColor, long disabledUnselectedContentColor, long disabledUnselectedSecondaryContentColor, long disabledUnselectedIconColor);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> containerColor(boolean enabled, boolean selected);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> contentColor(boolean enabled, boolean selected);
     method public long getDisabledSelectedContainerColor();
     method public long getDisabledSelectedContentColor();
     method public long getDisabledSelectedIconColor();
@@ -364,8 +362,6 @@ package androidx.wear.compose.material3 {
     method public long getUnselectedContentColor();
     method public long getUnselectedIconColor();
     method public long getUnselectedSecondaryContentColor();
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> iconColor(boolean enabled, boolean selected);
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> secondaryContentColor(boolean enabled, boolean selected);
     property public final long disabledSelectedContainerColor;
     property public final long disabledSelectedContentColor;
     property public final long disabledSelectedIconColor;
@@ -386,15 +382,17 @@ package androidx.wear.compose.material3 {
 
   public final class RadioButtonDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors radioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedIconColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedIconColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedSplitContainerColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedSplitContainerColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors radioButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioButtonColors radioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedIconColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedIconColor, optional long disabledSelectedContainerColor, optional long disabledSelectedContentColor, optional long disabledSelectedSecondaryContentColor, optional long disabledSelectedIconColor, optional long disabledUnselectedContainerColor, optional long disabledUnselectedContentColor, optional long disabledUnselectedSecondaryContentColor, optional long disabledUnselectedIconColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitRadioButtonColors splitRadioButtonColors(optional long selectedContainerColor, optional long selectedContentColor, optional long selectedSecondaryContentColor, optional long selectedSplitContainerColor, optional long unselectedContainerColor, optional long unselectedContentColor, optional long unselectedSecondaryContentColor, optional long unselectedSplitContainerColor, optional long disabledSelectedContainerColor, optional long disabledSelectedContentColor, optional long disabledSelectedSecondaryContentColor, optional long disabledSelectedSplitContainerColor, optional long disabledUnselectedContainerColor, optional long disabledUnselectedContentColor, optional long disabledUnselectedSecondaryContentColor, optional long disabledUnselectedSplitContainerColor);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.RadioButtonDefaults INSTANCE;
   }
 
   public final class RadioButtonKt {
-    method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.SelectionControlScope,kotlin.Unit> selectionControl, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.RadioButtonColors colors, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? icon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label);
-    method @androidx.compose.runtime.Composable public static void SplitRadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.SelectionControlScope,kotlin.Unit> selectionControl, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.SplitRadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? selectionInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource? clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label);
+    method @androidx.compose.runtime.Composable public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.SelectionControlScope,kotlin.Unit> selectionControl, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.RadioButtonColors colors, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? icon, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label);
+    method @androidx.compose.runtime.Composable public static void SplitRadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.SelectionControlScope,kotlin.Unit> selectionControl, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.SplitRadioButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? selectionInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource? clickInteractionSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label);
   }
 
   @androidx.compose.runtime.Immutable public final class RadioColors {
@@ -489,7 +487,6 @@ package androidx.wear.compose.material3 {
     method public long getUnselectedContentColor();
     method public long getUnselectedSecondaryContentColor();
     method public long getUnselectedSplitContainerColor();
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> splitContainerColor(boolean enabled, boolean selected);
     property public final long disabledSelectedContainerColor;
     property public final long disabledSelectedContentColor;
     property public final long disabledSelectedSecondaryContentColor;
@@ -649,6 +646,34 @@ package androidx.wear.compose.material3 {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
+  public interface TimeSource {
+    method @androidx.compose.runtime.Composable public String getCurrentTime();
+    property @androidx.compose.runtime.Composable public abstract String currentTime;
+  }
+
+  public final class TimeTextDefaults {
+    method public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedTextStyle? curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
+    method @androidx.compose.runtime.Composable public void TextSeparator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding();
+    method @androidx.compose.runtime.Composable public String timeFormat();
+    method public androidx.wear.compose.material3.TimeSource timeSource(String timeFormat);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long background, optional long color, optional long fontSize);
+    field public static final androidx.wear.compose.material3.TimeTextDefaults INSTANCE;
+    field public static final String TimeFormat12Hours = "h:mm";
+    field public static final String TimeFormat24Hours = "HH:mm";
+  }
+
+  public final class TimeTextKt {
+    method @androidx.compose.runtime.Composable public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.CurvedModifier curvedModifier, optional androidx.wear.compose.material3.TimeSource timeSource, optional androidx.compose.ui.text.TextStyle timeTextStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.TimeTextScope,kotlin.Unit> content);
+  }
+
+  public abstract sealed class TimeTextScope {
+    method public abstract void composable(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public abstract void separator(optional androidx.compose.ui.text.TextStyle? style);
+    method public abstract void text(String text, optional androidx.compose.ui.text.TextStyle? style);
+    method public abstract void time();
+  }
+
   @androidx.compose.runtime.Immutable public final class ToggleButtonColors {
     ctor public ToggleButtonColors(long checkedContainerColor, long checkedContentColor, long uncheckedContainerColor, long uncheckedContentColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor);
     ctor public ToggleButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedIconColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedIconColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedIconColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedIconColor);
@@ -688,7 +713,9 @@ package androidx.wear.compose.material3 {
 
   public final class ToggleButtonDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitToggleButtonColors splitToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitToggleButtonColors splitToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedSplitContainerColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedSplitContainerColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedSplitContainerColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedSplitContainerColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors toggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors toggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedIconColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedIconColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedIconColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedIconColor);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.ToggleButtonDefaults INSTANCE;

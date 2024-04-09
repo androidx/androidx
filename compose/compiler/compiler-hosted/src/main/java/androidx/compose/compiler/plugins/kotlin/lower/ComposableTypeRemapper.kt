@@ -69,6 +69,29 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
+internal fun IrFunction.needsComposableRemapping(): Boolean {
+    if (
+        dispatchReceiverParameter?.type.containsComposableAnnotation() ||
+        extensionReceiverParameter?.type.containsComposableAnnotation() ||
+        returnType.containsComposableAnnotation()
+    ) return true
+
+    for (param in valueParameters) {
+        if (param.type.containsComposableAnnotation()) return true
+    }
+    return false
+}
+
+internal fun IrType?.containsComposableAnnotation(): Boolean {
+    if (this == null) return false
+    if (hasComposableAnnotation()) return true
+
+    return when (this) {
+        is IrSimpleType -> arguments.any { it.typeOrNull.containsComposableAnnotation() }
+        else -> false
+    }
+}
+
 internal class DeepCopyIrTreeWithRemappedComposableTypes(
     private val context: IrPluginContext,
     private val symbolRemapper: DeepCopySymbolRemapper,
@@ -85,25 +108,32 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         }
 
         return super.visitSimpleFunction(declaration).also {
-            it.overriddenSymbols.forEach { symbol ->
-                if (!symbol.isBound) {
-                    // symbol will be rebound by deep copy on later iteration
-                    return@forEach
-                }
-                val overriddenFn = symbol.owner
-                if (overriddenFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
-                    // this is external function that is in a different compilation unit,
-                    // so we potentially need to update composable types for it.
-                    // if the function is in the current module, it should be updated eventually
-                    // by this deep copy pass.
-                    if (overriddenFn.needsComposableRemapping() && !overriddenFn.isDecoy()) {
-                        overriddenFn.remapTypes(typeRemapper)
-                    }
-                }
-            }
+            it.remapOverriddenFunctionTypes()
             it.correspondingPropertySymbol = declaration.correspondingPropertySymbol
         }
     }
+
+    private fun IrSimpleFunction.remapOverriddenFunctionTypes() {
+        overriddenSymbols.forEach { symbol ->
+            if (!symbol.isBound) {
+                // symbol will be remapped by deep copy on later iteration
+                return@forEach
+            }
+            val overriddenFn = symbol.owner
+            if (overriddenFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
+                // this is external function that is in a different compilation unit,
+                // so we potentially need to update composable types for it.
+                // if the function is in the current module, it should be updated eventually
+                // by this deep copy pass.
+                if (overriddenFn.needsComposableRemapping() && !overriddenFn.isDecoy()) {
+                    overriddenFn.remapTypes(typeRemapper)
+                }
+            }
+            // traverse recursively to ensure that base function is transformed correctly
+            overriddenFn.remapOverriddenFunctionTypes()
+        }
+    }
+
     override fun visitProperty(declaration: IrProperty): IrProperty {
         return super.visitProperty(declaration).also {
             it.copyAttributes(declaration)
@@ -207,27 +237,6 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         }
 
         return super.visitTypeOperator(expression)
-    }
-
-    private fun IrFunction.needsComposableRemapping(): Boolean {
-        if (
-            needsComposableRemapping(dispatchReceiverParameter?.type) ||
-            needsComposableRemapping(extensionReceiverParameter?.type) ||
-            needsComposableRemapping(returnType)
-        ) return true
-
-        for (param in valueParameters) {
-            if (needsComposableRemapping(param.type)) return true
-        }
-        return false
-    }
-
-    private fun needsComposableRemapping(type: IrType?): Boolean {
-        if (type == null) return false
-        if (type !is IrSimpleType) return false
-        if (type.hasComposableAnnotation()) return true
-        if (type.arguments.any { needsComposableRemapping(it.typeOrNull) }) return true
-        return false
     }
 
     override fun visitDelegatingConstructorCall(

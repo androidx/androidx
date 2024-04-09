@@ -133,10 +133,19 @@ internal class TextAnnotatedStringNode(
      * Element has text parameters to update
      */
     fun updateText(text: AnnotatedString): Boolean {
-        if (this.text == text) return false
-        this.text = text
-        clearSubstitution()
-        return true
+        val charDiff = this.text.text != text.text
+        val spanDiff = this.text.spanStyles != text.spanStyles
+        val paragraphDiff = this.text.paragraphStyles != text.paragraphStyles
+        val annotationDiff = !this.text.hasEqualsAnnotations(text)
+        val anyDiff = charDiff || spanDiff || paragraphDiff || annotationDiff
+
+        if (anyDiff) {
+            this.text = text
+        }
+        if (charDiff) {
+            clearSubstitution()
+        }
+        return anyDiff
     }
 
     /**
@@ -231,14 +240,7 @@ internal class TextAnnotatedStringNode(
         layoutChanged: Boolean,
         callbacksChanged: Boolean
     ) {
-        if (!isAttached) {
-            // no-up for !isAttached. The node will invalidate when attaching again.
-            return
-        }
-        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            invalidateSemantics()
-        }
-
+        // bring caches up to date even if the node is detached in case it is used again later
         if (textChanged || layoutChanged || callbacksChanged) {
             layoutCache.update(
                 text = text,
@@ -250,6 +252,17 @@ internal class TextAnnotatedStringNode(
                 minLines = minLines,
                 placeholders = placeholders
             )
+        }
+
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
+        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
+            invalidateSemantics()
+        }
+
+        if (textChanged || layoutChanged || callbacksChanged) {
             invalidateMeasurement()
             invalidateDraw()
         }
@@ -268,9 +281,9 @@ internal class TextAnnotatedStringNode(
         // TODO(b/283944749): add animation
     )
 
-    private var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
+    internal var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
 
-    private fun setSubstitution(updatedText: AnnotatedString): Boolean {
+    internal fun setSubstitution(updatedText: AnnotatedString): Boolean {
         val currentTextSubstitution = textSubstitution
         if (currentTextSubstitution != null) {
             if (updatedText == currentTextSubstitution.substitution) {
@@ -306,7 +319,7 @@ internal class TextAnnotatedStringNode(
         return true
     }
 
-    private fun clearSubstitution() {
+    internal fun clearSubstitution() {
         textSubstitution = null
     }
 
@@ -377,6 +390,9 @@ internal class TextAnnotatedStringNode(
         }
         getTextLayoutResult(action = localSemanticsTextLayoutResult)
     }
+
+    override val shouldClearDescendantSemantics: Boolean
+        get() = true
 
     fun measureNonExtension(
         measureScope: MeasureScope,

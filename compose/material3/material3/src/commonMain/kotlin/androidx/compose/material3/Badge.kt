@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.BadgeTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -91,13 +92,15 @@ fun BadgedBox(
         },
         modifier = modifier
             .onGloballyPositioned { coordinates ->
-                layoutAbsoluteLeft = coordinates.boundsInWindow().left
-                layoutAbsoluteTop = coordinates.boundsInWindow().top
+                val windowBoundsRect = coordinates.boundsInWindow()
+                layoutAbsoluteLeft = windowBoundsRect.left
+                layoutAbsoluteTop = windowBoundsRect.top
                 val layoutGreatGrandParent =
                     coordinates.parentLayoutCoordinates?.parentLayoutCoordinates?.parentCoordinates
                 layoutGreatGrandParent?.let {
-                    greatGrandParentAbsoluteRight = it.boundsInWindow().right
-                    greatGrandParentAbsoluteTop = it.boundsInWindow().top
+                    val greatGrandParentWindowBoundsRect = it.boundsInWindow()
+                    greatGrandParentAbsoluteRight = greatGrandParentWindowBoundsRect.right
+                    greatGrandParentAbsoluteTop = greatGrandParentWindowBoundsRect.top
                 }
             }
     ) { measurables, constraints ->
@@ -136,8 +139,8 @@ fun BadgedBox(
             anchorPlaceable.placeRelative(0, 0)
 
             // Desired Badge placement
-            var badgeX = anchorPlaceable.width + badgeHorizontalOffset.roundToPx()
-            var badgeY = -badgePlaceable.height / 2 + badgeVerticalOffset.roundToPx()
+            var badgeX = anchorPlaceable.width - badgeHorizontalOffset.roundToPx()
+            var badgeY = -badgePlaceable.height + badgeVerticalOffset.roundToPx()
             // Badge correction logic if the badge will be cut off by the grandparent bounds.
             val badgeAbsoluteTop = layoutAbsoluteTop + badgeY
             val badgeAbsoluteRight = layoutAbsoluteLeft + badgeX + badgePlaceable.width.toFloat()
@@ -229,10 +232,14 @@ object BadgeDefaults {
 internal val BadgeWithContentHorizontalPadding = 4.dp
 
 /*@VisibleForTesting*/
-// Horizontally align start/end of text badge 6dp from the top end corner of its anchor
-internal val BadgeWithContentHorizontalOffset = -6.dp
-internal val BadgeWithContentVerticalOffset = 6.dp
+// Offsets for badge when there is short or long content
+// Horizontally align start/end of text badge 12.dp from the top end corner of its anchor
+// Vertical overlap with anchor is 14.dp
+internal val BadgeWithContentHorizontalOffset = 12.dp
+internal val BadgeWithContentVerticalOffset = 14.dp
 
 /*@VisibleForTesting*/
-// Horizontally align start/end of icon only badge 0.dp from the end/start edge of anchor
-internal val BadgeOffset = 0.dp
+// Offsets for badge when there is no content
+// Horizontally align start/end of icon only badge 6.dp from the end/start edge of anchor
+// Vertical overlap with anchor is 6.dp
+internal val BadgeOffset = 6.dp

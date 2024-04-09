@@ -363,4 +363,14 @@ class MacrobenchmarkScopeTest {
         )
         scope.dropKernelPageCache() // shouldn't crash
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    fun cancelBackgroundDexopt() {
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = false
+        )
+        scope.cancelBackgroundDexopt() // shouldn't crash
+    }
 }

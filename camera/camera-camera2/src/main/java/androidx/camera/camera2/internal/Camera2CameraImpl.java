@@ -307,7 +307,8 @@ final class Camera2CameraImpl implements CameraInternal {
     private CaptureSessionInterface newCaptureSession() {
         synchronized (mLock) {
             if (mSessionProcessor == null) {
-                return new CaptureSession(mDynamicRangesCompat);
+                return new CaptureSession(mDynamicRangesCompat,
+                        mCameraInfoInternal.getCameraQuirks());
             } else {
                 return new ProcessingCaptureSession(mSessionProcessor,
                         mCameraInfoInternal, mDynamicRangesCompat, mExecutor,
@@ -1051,6 +1052,12 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
                 if (isSurfaceCombinationWithMeteringRepeatingSupported()) {
                     addMeteringRepeating();
+                } else {
+                    Logger.e(TAG, "Failed to add a repeating surface, CameraControl and "
+                            + "ImageCapture may encounter issues due to the absence of repeating "
+                            + "surface. Please add a UseCase (Preview or ImageAnalysis) that can "
+                            + "provide a repeating surface for CameraControl and ImageCapture to "
+                            + "function properly.");
                 }
             } else {
                 // There is mMeteringRepeating and attached, check to remove it or not.
@@ -1066,7 +1073,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     removeMeteringRepeating();
                 } else {
                     // Other normal cases, do nothing.
-                    Logger.d(TAG, "mMeteringRepeating is ATTACHED, "
+                    Logger.d(TAG, "No need to remove a previous mMeteringRepeating, "
                             + "SessionConfig Surfaces: " + sizeSessionSurfaces + ", "
                             + "CaptureConfig Surfaces: " + sizeRepeatingSurfaces);
                 }

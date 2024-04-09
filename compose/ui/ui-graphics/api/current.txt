@@ -20,6 +20,10 @@ package androidx.compose.ui.graphics {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.colorspace.ColorSpace toComposeColorSpace(android.graphics.ColorSpace);
   }
 
+  public final class AndroidGraphicsContext_androidKt {
+    method public static androidx.compose.ui.graphics.GraphicsContext GraphicsContext(android.view.ViewGroup layerContainer);
+  }
+
   public final class AndroidImageBitmap_androidKt {
     method public static android.graphics.Bitmap asAndroidBitmap(androidx.compose.ui.graphics.ImageBitmap);
     method public static androidx.compose.ui.graphics.ImageBitmap asImageBitmap(android.graphics.Bitmap);
@@ -444,6 +448,11 @@ package androidx.compose.ui.graphics {
     property public final int None;
   }
 
+  public interface GraphicsContext {
+    method public androidx.compose.ui.graphics.layer.GraphicsLayer createGraphicsLayer();
+    method public void releaseGraphicsLayer(androidx.compose.ui.graphics.layer.GraphicsLayer layer);
+  }
+
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ImageBitmap {
     method public androidx.compose.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public int getConfig();
@@ -689,8 +698,6 @@ package androidx.compose.ui.graphics {
   }
 
   public enum Path.Direction {
-    method public static androidx.compose.ui.graphics.Path.Direction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.graphics.Path.Direction[] values();
     enum_constant public static final androidx.compose.ui.graphics.Path.Direction Clockwise;
     enum_constant public static final androidx.compose.ui.graphics.Path.Direction CounterClockwise;
   }
@@ -717,6 +724,22 @@ package androidx.compose.ui.graphics {
     property public final int NonZero;
   }
 
+  public final class PathGeometryKt {
+    method public static androidx.compose.ui.graphics.Path.Direction computeDirection(androidx.compose.ui.graphics.Path);
+    method public static java.util.List<androidx.compose.ui.graphics.Path> divide(androidx.compose.ui.graphics.Path, optional java.util.List<androidx.compose.ui.graphics.Path> contours);
+    method public static androidx.compose.ui.graphics.Path reverse(androidx.compose.ui.graphics.Path, optional androidx.compose.ui.graphics.Path destination);
+  }
+
+  public final class PathHitTester {
+    ctor public PathHitTester();
+    method public operator boolean contains(long position);
+    method public void updatePath(androidx.compose.ui.graphics.Path path, optional @FloatRange(from=0.0) float tolerance);
+  }
+
+  public final class PathHitTesterKt {
+    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional @FloatRange(from=0.0) float tolerance);
+  }
+
   public interface PathIterator extends java.util.Iterator<androidx.compose.ui.graphics.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
     method public int calculateSize(optional boolean includeConvertedConics);
     method public androidx.compose.ui.graphics.PathIterator.ConicEvaluation getConicEvaluation();
@@ -730,8 +753,6 @@ package androidx.compose.ui.graphics {
   }
 
   public enum PathIterator.ConicEvaluation {
-    method public static androidx.compose.ui.graphics.PathIterator.ConicEvaluation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.graphics.PathIterator.ConicEvaluation[] values();
     enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsConic;
     enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsQuadratics;
   }
@@ -784,8 +805,6 @@ package androidx.compose.ui.graphics {
   }
 
   public enum PathSegment.Type {
-    method public static androidx.compose.ui.graphics.PathSegment.Type valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.graphics.PathSegment.Type[] values();
     enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Close;
     enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Conic;
     enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Cubic;
@@ -800,6 +819,11 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.PathSegment getDoneSegment();
     property public static final androidx.compose.ui.graphics.PathSegment CloseSegment;
     property public static final androidx.compose.ui.graphics.PathSegment DoneSegment;
+  }
+
+  public final class PathSvgKt {
+    method public static void addSvg(androidx.compose.ui.graphics.Path, String pathData);
+    method public static String toSvg(androidx.compose.ui.graphics.Path, optional boolean asDocument);
   }
 
   public final class PixelMap {
@@ -841,6 +865,7 @@ package androidx.compose.ui.graphics {
     method public static android.graphics.RectF toAndroidRectF(androidx.compose.ui.geometry.Rect);
     method public static androidx.compose.ui.unit.IntRect toComposeIntRect(android.graphics.Rect);
     method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.Rect);
+    method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.RectF);
   }
 
   public final class RectangleShapeKt {
@@ -1250,15 +1275,18 @@ package androidx.compose.ui.graphics.drawscope {
   public interface DrawContext {
     method public default androidx.compose.ui.graphics.Canvas getCanvas();
     method public default androidx.compose.ui.unit.Density getDensity();
+    method public default androidx.compose.ui.graphics.layer.GraphicsLayer? getGraphicsLayer();
     method public default androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public long getSize();
     method public androidx.compose.ui.graphics.drawscope.DrawTransform getTransform();
     method public default void setCanvas(androidx.compose.ui.graphics.Canvas);
     method public default void setDensity(androidx.compose.ui.unit.Density);
+    method public default void setGraphicsLayer(androidx.compose.ui.graphics.layer.GraphicsLayer?);
     method public default void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method public void setSize(long);
     property public default androidx.compose.ui.graphics.Canvas canvas;
     property public default androidx.compose.ui.unit.Density density;
+    property public default androidx.compose.ui.graphics.layer.GraphicsLayer? graphicsLayer;
     property public default androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract long size;
     property public abstract androidx.compose.ui.graphics.drawscope.DrawTransform transform;
@@ -1288,6 +1316,7 @@ package androidx.compose.ui.graphics.drawscope {
     method public androidx.compose.ui.graphics.drawscope.DrawContext getDrawContext();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public default long getSize();
+    method public default void record(androidx.compose.ui.graphics.layer.GraphicsLayer, optional long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     property public default long center;
     property public abstract androidx.compose.ui.graphics.drawscope.DrawContext drawContext;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
@@ -1305,7 +1334,8 @@ package androidx.compose.ui.graphics.drawscope {
   public final class DrawScopeKt {
     method public static inline void clipPath(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.Path path, optional int clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void clipRect(androidx.compose.ui.graphics.drawscope.DrawScope, optional float left, optional float top, optional float right, optional float bottom, optional int clipOp, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
-    method public static inline void draw(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public static inline void draw(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size, optional androidx.compose.ui.graphics.layer.GraphicsLayer? graphicsLayer, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method @Deprecated public static inline void draw(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void drawIntoCanvas(androidx.compose.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Canvas,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, float left, float top, float right, float bottom, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
     method public static inline void inset(androidx.compose.ui.graphics.drawscope.DrawScope, optional float horizontal, optional float vertical, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
@@ -1371,6 +1401,112 @@ package androidx.compose.ui.graphics.drawscope {
     method public int getDefaultJoin();
     property public final int DefaultCap;
     property public final int DefaultJoin;
+  }
+
+}
+
+package androidx.compose.ui.graphics.layer {
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class CompositingStrategy {
+    field public static final androidx.compose.ui.graphics.layer.CompositingStrategy.Companion Companion;
+  }
+
+  public static final class CompositingStrategy.Companion {
+    method public int getAuto();
+    method public int getModulateAlpha();
+    method public int getOffscreen();
+    property public final int Auto;
+    property public final int ModulateAlpha;
+    property public final int Offscreen;
+  }
+
+  public final class GraphicsLayer {
+    method public float getAlpha();
+    method public long getAmbientShadowColor();
+    method public int getBlendMode();
+    method public float getCameraDistance();
+    method public boolean getClip();
+    method public androidx.compose.ui.graphics.ColorFilter? getColorFilter();
+    method public int getCompositingStrategy();
+    method public long getLayerId();
+    method public androidx.compose.ui.graphics.Outline getOutline();
+    method public long getOwnerViewId();
+    method public long getPivotOffset();
+    method public androidx.compose.ui.graphics.RenderEffect? getRenderEffect();
+    method public float getRotationX();
+    method public float getRotationY();
+    method public float getRotationZ();
+    method public float getScaleX();
+    method public float getScaleY();
+    method public float getShadowElevation();
+    method public long getSize();
+    method public long getSpotShadowColor();
+    method public long getTopLeft();
+    method public float getTranslationX();
+    method public float getTranslationY();
+    method public boolean isReleased();
+    method public void record(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, long size, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> block);
+    method public void setAlpha(float);
+    method public void setAmbientShadowColor(long);
+    method public void setBlendMode(int);
+    method public void setCameraDistance(float);
+    method public void setClip(boolean);
+    method public void setColorFilter(androidx.compose.ui.graphics.ColorFilter?);
+    method public void setCompositingStrategy(int);
+    method public void setPathOutline(androidx.compose.ui.graphics.Path path);
+    method public void setPivotOffset(long);
+    method public void setRectOutline(optional long topLeft, optional long size);
+    method public void setRenderEffect(androidx.compose.ui.graphics.RenderEffect?);
+    method public void setRotationX(float);
+    method public void setRotationY(float);
+    method public void setRotationZ(float);
+    method public void setRoundRectOutline(optional long topLeft, optional long size, optional float cornerRadius);
+    method public void setScaleX(float);
+    method public void setScaleY(float);
+    method public void setShadowElevation(float);
+    method public void setSpotShadowColor(long);
+    method public void setTopLeft(long);
+    method public void setTranslationX(float);
+    method public void setTranslationY(float);
+    method public suspend Object? toImageBitmap(kotlin.coroutines.Continuation<? super androidx.compose.ui.graphics.ImageBitmap>);
+    property public final float alpha;
+    property public final long ambientShadowColor;
+    property public final int blendMode;
+    property public final float cameraDistance;
+    property public final boolean clip;
+    property public final androidx.compose.ui.graphics.ColorFilter? colorFilter;
+    property public final int compositingStrategy;
+    property public final boolean isReleased;
+    property public final long layerId;
+    property public final androidx.compose.ui.graphics.Outline outline;
+    property public final long ownerViewId;
+    property public final long pivotOffset;
+    property public final androidx.compose.ui.graphics.RenderEffect? renderEffect;
+    property public final float rotationX;
+    property public final float rotationY;
+    property public final float rotationZ;
+    property public final float scaleX;
+    property public final float scaleY;
+    property public final float shadowElevation;
+    property public final long size;
+    property public final long spotShadowColor;
+    property public final long topLeft;
+    property public final float translationX;
+    property public final float translationY;
+    field public static final androidx.compose.ui.graphics.layer.GraphicsLayer.Companion Companion;
+  }
+
+  public static final class GraphicsLayer.Companion {
+    method public long getUnsetOffset();
+    method public long getUnsetSize();
+    property public final long UnsetOffset;
+    property public final long UnsetSize;
+  }
+
+  public final class GraphicsLayerKt {
+    method public static void drawLayer(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.graphics.layer.GraphicsLayer graphicsLayer);
+    method public static void setOutline(androidx.compose.ui.graphics.layer.GraphicsLayer, androidx.compose.ui.graphics.Outline outline);
+    field public static final float DefaultCameraDistance = 8.0f;
   }
 
 }

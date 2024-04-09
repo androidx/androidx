@@ -21,6 +21,7 @@ import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.view.View.MeasureSpec.EXACTLY;
 import static android.view.View.MeasureSpec.UNSPECIFIED;
 import static android.view.View.MeasureSpec.makeMeasureSpec;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -673,9 +674,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @deprecated TO BE REMOVED
-     * @removed
      */
     @Deprecated
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void showTitleItems(boolean enabled) {
         setShowTitleItems(enabled);
     }
@@ -692,9 +693,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @deprecated TO BE REMOVED
-     * @removed
      */
     @Deprecated
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void showHeaderDivider(boolean enabled) {
         setShowHeaderDivider(enabled);
     }
@@ -711,9 +712,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     /**
      * @deprecated TO BE REMOVED
-     * @removed
      */
     @Deprecated
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void showActionDividers(boolean enabled) {
         setShowActionDividers(enabled);
     }

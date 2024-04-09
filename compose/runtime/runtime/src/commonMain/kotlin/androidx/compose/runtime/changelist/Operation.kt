@@ -35,7 +35,6 @@ import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.deactivateCurrentGroup
 import androidx.compose.runtime.internal.IntRef
@@ -204,12 +203,15 @@ internal sealed class Operation(
             rememberManager: RememberManager
         ) {
             val count = getInt(Count)
-            slots.forEachTailSlot(slots.parent, count) { index, value ->
+            val slotsSize = slots.slotsSize
+            slots.forEachTailSlot(slots.parent, count) { slotIndex, value ->
                 when (value) {
-                    is RememberObserverHolder ->
-                        slots.withAfterAnchorInfo(value.after) { priority, after ->
-                            rememberManager.forgetting(value.wrapped, index, priority, after)
-                        }
+                    is RememberObserverHolder -> {
+                        // Values are always updated in the composition order (not slot table order)
+                        // so there is no need to reorder these.
+                        val endRelativeOrder = slotsSize - slotIndex
+                        rememberManager.forgetting(value.wrapped, endRelativeOrder, -1, -1)
+                    }
                     is RecomposeScopeImpl -> value.release()
                 }
             }
@@ -242,15 +244,15 @@ internal sealed class Operation(
                 rememberManager.remembering(value.wrapped)
             }
             when (val previous = slots.set(groupSlotIndex, value)) {
-                is RememberObserverHolder ->
-                    slots.withAfterAnchorInfo(previous.after) { priority, after ->
-                        rememberManager.forgetting(
-                            previous.wrapped,
-                            groupSlotIndex,
-                            priority,
-                            after
-                        )
-                    }
+                is RememberObserverHolder -> {
+                    val endRelativeOrder = slots.slotsSize - slots.slotIndexOfGroupSlotIndex(
+                        slots.currentGroup,
+                        groupSlotIndex
+                    )
+                    // Values are always updated in the composition order (not slot table order)
+                    // so there is no need to reorder these.
+                    rememberManager.forgetting(previous.wrapped, endRelativeOrder, -1, -1)
+                }
                 is RecomposeScopeImpl -> previous.release()
             }
         }
@@ -285,15 +287,18 @@ internal sealed class Operation(
             }
             val groupIndex = slots.anchorIndex(anchor)
             when (val previous = slots.set(groupIndex, groupSlotIndex, value)) {
-                is RememberObserverHolder ->
-                    slots.withAfterAnchorInfo(previous.after) { priority, after ->
+                is RememberObserverHolder -> {
+                    val endRelativeSlotOrder = slots.slotsSize -
+                        slots.slotIndexOfGroupSlotIndex(groupIndex, groupSlotIndex)
+                    slots.withAfterAnchorInfo(previous.after) { priority, endRelativeAfter ->
                         rememberManager.forgetting(
                             previous.wrapped,
-                            groupSlotIndex,
+                            endRelativeSlotOrder,
                             priority,
-                            after
+                            endRelativeAfter
                         )
                     }
+                }
                 is RecomposeScopeImpl -> previous.release()
             }
         }
@@ -952,9 +957,7 @@ private fun releaseMovableGroupAtCurrent(
                 // If the original owner ignores this then we need to record it in the
                 // reference
                 if (result == InvalidationResult.IGNORED) {
-                    reference.invalidations += scope to instance?.let {
-                        IdentityArraySet<Any>().also { it.add(it) }
-                    }
+                    reference.invalidations += scope to instance
                     return InvalidationResult.SCHEDULED
                 }
                 return result

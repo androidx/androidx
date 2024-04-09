@@ -22,7 +22,7 @@ package androidx.kruth
 class PrimitiveLongArraySubject internal constructor(
     actual: LongArray?,
     metadata: FailureMetadata = FailureMetadata(),
-) : Subject<LongArray?>(actual = actual, metadata = metadata) {
+) : Subject<LongArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
 
     private val helper =
         HelperArraySubject(
@@ -52,8 +52,7 @@ class PrimitiveLongArraySubject internal constructor(
 
     /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject].*/
     fun asList(): IterableSubject<Long> {
-        metadata.assertNotNull(actual)
-
+        requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)
     }
 }

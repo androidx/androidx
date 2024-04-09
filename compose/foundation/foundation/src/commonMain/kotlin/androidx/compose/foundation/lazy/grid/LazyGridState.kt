@@ -22,10 +22,12 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -46,8 +48,11 @@ import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates a [LazyGridState] that is remembered across compositions.
@@ -215,7 +220,7 @@ class LazyGridState constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal val placementAnimator = LazyGridItemPlacementAnimator()
+    internal val itemAnimator = LazyLayoutItemAnimator<LazyGridMeasuredItem>()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
@@ -245,17 +250,63 @@ class LazyGridState constructor(
         scrollOffset: Int = 0
     ) {
         scroll {
-            snapToItemIndexInternal(index, scrollOffset)
+            snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
-    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        scrollPosition.requestPosition(index, scrollOffset)
-        // placement animation is not needed because we snap into a new position.
-        placementAnimator.reset()
-        remeasurement?.forceRemeasure()
+    internal val measurementScopeInvalidator = ObservableScopeInvalidator()
+
+    /**
+     * Requests the item at [index] to be at the start of the viewport during the next
+     * remeasure, offset by [scrollOffset], and schedules a remeasure.
+     *
+     * The scroll position will be updated to the requested position rather than maintain
+     * the index based on the first visible item key (when a data set change will also be
+     * applied during the next remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset the offset that the item should end up after the scroll. Note that
+     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     * scroll the item further upward (taking it partly offscreen).
+     */
+    fun requestScrollToItem(
+        @AndroidXIntRange(from = 0)
+        index: Int,
+        scrollOffset: Int = 0
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            layoutInfoState.value.coroutineScope.launch {
+                stopScroll()
+            }
+        }
+
+        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
     }
 
+    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int, forceRemeasure: Boolean) {
+        val positionChanged = scrollPosition.index != index ||
+            scrollPosition.scrollOffset != scrollOffset
+        // sometimes this method is called not to scroll, but to stay on the same index when
+        // the data changes, as by default we maintain the scroll position by key, not index.
+        // when this happens we don't need to reset the animations as from the user perspective
+        // we didn't scroll anywhere and if there is an offset change for an item, this change
+        // should be animated.
+        // however, when the request is to really scroll to a different position, we have to
+        // reset previously known item positions as we don't want offset changes to be animated.
+        // this offset should be considered as a scroll, not the placement change.
+        if (positionChanged) {
+            itemAnimator.reset()
+        }
+        scrollPosition.requestPositionAndForgetLastKnownKey(index, scrollOffset)
+        if (forceRemeasure) {
+            remeasurement?.forceRemeasure()
+        } else {
+            measurementScopeInvalidator.invalidateScope()
+        }
+    }
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be
@@ -282,6 +333,13 @@ class LazyGridState constructor(
         private set
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
+
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
 
     // TODO: Coroutine scrolling APIs will allow this to be private again once we have more
     //  fine-grained control over scrolling
@@ -472,6 +530,7 @@ private val EmptyLazyGridLayoutInfo = LazyGridMeasureResult(
     measureResult = object : MeasureResult {
         override val width: Int = 0
         override val height: Int = 0
+
         @Suppress("PrimitiveInCollection")
         override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
         override fun placeChildren() {}
@@ -487,5 +546,6 @@ private val EmptyLazyGridLayoutInfo = LazyGridMeasureResult(
     remeasureNeeded = false,
     density = Density(1f),
     slotsPerLine = 0,
+    coroutineScope = CoroutineScope(EmptyCoroutineContext),
     prefetchInfoRetriever = { emptyList() }
 )

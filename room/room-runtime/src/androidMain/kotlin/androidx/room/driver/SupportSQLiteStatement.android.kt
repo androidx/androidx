@@ -18,6 +18,7 @@ package androidx.room.driver
 
 import android.database.Cursor
 import android.database.DatabaseUtils
+import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteProgram
@@ -26,7 +27,8 @@ import androidx.sqlite.throwSQLiteException
 
 private typealias SupportStatement = androidx.sqlite.db.SupportSQLiteStatement
 
-internal sealed class SupportSQLiteStatement(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+sealed class SupportSQLiteStatement(
     protected val db: SupportSQLiteDatabase,
     protected val sql: String,
 ) : SQLiteStatement {
@@ -137,47 +139,22 @@ internal sealed class SupportSQLiteStatement(
 
         override fun getColumnCount(): Int {
             throwIfClosed()
+            ensureCursor()
             return cursor?.columnCount ?: 0
         }
 
         override fun getColumnName(index: Int): String {
             throwIfClosed()
-            val c = throwIfNoRow()
+            ensureCursor()
+            val c = checkNotNull(cursor)
             throwIfInvalidColumn(c, index)
             return c.getColumnName(index)
         }
 
         override fun step(): Boolean {
             throwIfClosed()
-            if (cursor == null) {
-                cursor = db.query(
-                    object : SupportSQLiteQuery {
-                        override val sql: String
-                            get() = this@SupportAndroidSQLiteStatement.sql
-
-                        override fun bindTo(statement: SupportSQLiteProgram) {
-                            for (index in 1 until bindingTypes.size) {
-                                when (bindingTypes[index]) {
-                                    COLUMN_TYPE_LONG ->
-                                        statement.bindLong(index, longBindings[index])
-                                    COLUMN_TYPE_DOUBLE ->
-                                        statement.bindDouble(index, doubleBindings[index])
-                                    COLUMN_TYPE_STRING ->
-                                        statement.bindString(index, stringBindings[index]!!)
-                                    COLUMN_TYPE_BLOB ->
-                                        statement.bindBlob(index, blobBindings[index]!!)
-                                    COLUMN_TYPE_NULL ->
-                                        statement.bindNull(index)
-                                }
-                            }
-                        }
-
-                        override val argCount: Int
-                            get() = bindingTypes.size
-                    }
-                )
-            }
-            return requireNotNull(cursor).moveToNext()
+            ensureCursor()
+            return checkNotNull(cursor).moveToNext()
         }
 
         override fun reset() {
@@ -197,6 +174,7 @@ internal sealed class SupportSQLiteStatement(
 
         override fun close() {
             if (!isClosed) {
+                clearBindings()
                 reset()
             }
             isClosed = true
@@ -228,6 +206,37 @@ internal sealed class SupportSQLiteStatement(
                         blobBindings = blobBindings.copyOf(requiredSize)
                     }
                 }
+            }
+        }
+
+        private fun ensureCursor() {
+            if (cursor == null) {
+                cursor = db.query(
+                    object : SupportSQLiteQuery {
+                        override val sql: String
+                            get() = this@SupportAndroidSQLiteStatement.sql
+
+                        override fun bindTo(statement: SupportSQLiteProgram) {
+                            for (index in 1 until bindingTypes.size) {
+                                when (bindingTypes[index]) {
+                                    COLUMN_TYPE_LONG ->
+                                        statement.bindLong(index, longBindings[index])
+                                    COLUMN_TYPE_DOUBLE ->
+                                        statement.bindDouble(index, doubleBindings[index])
+                                    COLUMN_TYPE_STRING ->
+                                        statement.bindString(index, stringBindings[index]!!)
+                                    COLUMN_TYPE_BLOB ->
+                                        statement.bindBlob(index, blobBindings[index]!!)
+                                    COLUMN_TYPE_NULL ->
+                                        statement.bindNull(index)
+                                }
+                            }
+                        }
+
+                        override val argCount: Int
+                            get() = bindingTypes.size
+                    }
+                )
             }
         }
 

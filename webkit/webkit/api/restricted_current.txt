@@ -144,7 +144,7 @@ package androidx.webkit {
     method public abstract boolean stop(java.io.OutputStream?, java.util.concurrent.Executor);
   }
 
-  public class URLUtilCompat {
+  public final class URLUtilCompat {
     method public static String? getFilenameFromContentDisposition(String);
     method public static String guessFileName(String, String?, String?);
   }
@@ -236,6 +236,7 @@ package androidx.webkit {
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static java.util.Set<java.lang.String!> getRequestedWithHeaderOriginAllowList(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.UserAgentMetadata getUserAgentMetadata(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_AUTHENTICATION, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getWebAuthenticationSupport(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isAlgorithmicDarkeningAllowed(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.ALGORITHMIC_DARKENING, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAlgorithmicDarkeningAllowed(android.webkit.WebSettings, boolean);
@@ -248,6 +249,7 @@ package androidx.webkit {
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setRequestedWithHeaderOriginAllowList(android.webkit.WebSettings, java.util.Set<java.lang.String!>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setUserAgentMetadata(android.webkit.WebSettings, androidx.webkit.UserAgentMetadata);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_AUTHENTICATION, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebAuthenticationSupport(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewMediaIntegrityApiStatus(android.webkit.WebSettings, androidx.webkit.WebViewMediaIntegrityApiStatusConfig);
     field public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER = 3; // 0x3
     field public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER = 1; // 0x1
@@ -259,6 +261,9 @@ package androidx.webkit {
     field @Deprecated public static final int FORCE_DARK_AUTO = 1; // 0x1
     field @Deprecated public static final int FORCE_DARK_OFF = 0; // 0x0
     field @Deprecated public static final int FORCE_DARK_ON = 2; // 0x2
+    field public static final int WEB_AUTHENTICATION_SUPPORT_FOR_APP = 1; // 0x1
+    field public static final int WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER = 2; // 0x2
+    field public static final int WEB_AUTHENTICATION_SUPPORT_NONE = 0; // 0x0
   }
 
   public final class WebViewAssetLoader {
@@ -313,10 +318,12 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_WEB_VIEW_CLIENT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static android.webkit.WebViewClient getWebViewClient(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_WEB_VIEW_RENDERER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.WebViewRenderProcess? getWebViewRenderProcess(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.WebViewRenderProcessClient? getWebViewRenderProcessClient(android.webkit.WebView);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isAudioMuted(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROCESS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isMultiProcessEnabled();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.VISUAL_STATE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.POST_WEB_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void removeWebMessageListener(android.webkit.WebView, String);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAudioMuted(android.webkit.WebView, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void setProfile(android.webkit.WebView, String);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ALLOWLIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingAllowlist(java.util.Set<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
     method @Deprecated @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_WHITELIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
@@ -351,6 +358,7 @@ package androidx.webkit {
     field public static final String GET_WEB_VIEW_RENDERER = "GET_WEB_VIEW_RENDERER";
     field public static final String MULTI_PROCESS = "MULTI_PROCESS";
     field public static final String MULTI_PROFILE = "MULTI_PROFILE";
+    field public static final String MUTE_AUDIO = "MUTE_AUDIO";
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
@@ -379,6 +387,7 @@ package androidx.webkit {
     field public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
     field public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
     field public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS = "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
+    field public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
     field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
     field public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";

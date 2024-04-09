@@ -132,6 +132,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
     public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
 
     private CameraSelector mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;

@@ -36,8 +36,8 @@ limitations under the License.
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"更多操作"</string>
     <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"取消选择顶操作"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"选择顶操作"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"取消选择踩操作"</string>
-    <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"选择踩操作"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"取消不喜欢"</string>
+    <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"选择不喜欢"</string>
     <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"不重复播放"</string>
     <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"重复播放全部"</string>
     <string name="lb_playback_controls_repeat_one" msgid="676658705837320560">"重复播放一项"</string>

@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -52,6 +53,8 @@ internal class FocusTargetNode :
     // During a transaction, changes to the state are stored as uncommitted focus state. At the
     // end of the transaction, this state is stored as committed focus state.
     private var committedFocusState: FocusStateImpl? = null
+
+    override val shouldAutoInvalidate = false
 
     @OptIn(ExperimentalComposeUiApi::class)
     override var focusState: FocusStateImpl
@@ -89,7 +92,8 @@ internal class FocusTargetNode :
                 requireOwner().focusOwner.clearFocus(
                     force = true,
                     refreshFocusEvents = true,
-                    clearOwnerFocus = false
+                    clearOwnerFocus = false,
+                    focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
                 )
                 // We don't clear the owner's focus yet, because this could trigger an initial
                 // focus scenario after the focus is cleared. Instead, we schedule invalidation
@@ -210,7 +214,13 @@ internal class FocusTargetNode :
             mask = Nodes.FocusEvent or Nodes.FocusTarget,
             includeSelf = true
         ) {
-            if (it.isKind(Nodes.FocusTarget)) return@visitAncestors
+            // We want invalidation to propagate until the next focus target in the hierarchy, but
+            // if the current node is both a FocusEvent and FocusTarget node, we still want to
+            // visit this node and invalidate the focus event nodes. This case is not recommended,
+            // using the state from the FocusTarget node directly is preferred to the indirection of
+            // listening to events from the state you already own, but we should support this case
+            // anyway to be safe.
+            if (it !== this.node && it.isKind(Nodes.FocusTarget)) return@visitAncestors
 
             if (it.isAttached) {
                 it.dispatchForKind(Nodes.FocusEvent) { eventNode ->

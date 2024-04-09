@@ -19,10 +19,12 @@
 package androidx.testutils
 
 import androidx.annotation.IdRes
+import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
+import kotlin.reflect.KClass
 
 /**
  * Construct a new [TestNavigator.Destination]
@@ -33,6 +35,11 @@ inline fun NavGraphBuilder.test(@IdRes id: Int) = test(id) {}
  * Construct a new [TestNavigator.Destination]
  */
 inline fun NavGraphBuilder.test(route: String) = test(route) {}
+
+/**
+ * Construct a new [TestNavigator.Destination]
+ */
+inline fun NavGraphBuilder.test(route: KClass<*>) = test(route) {}
 
 /**
  * Construct a new [TestNavigator.Destination]
@@ -59,6 +66,16 @@ inline fun NavGraphBuilder.test(
 )
 
 /**
+ * Construct a new [TestNavigator.Destination]
+ */
+inline fun NavGraphBuilder.test(
+    route: KClass<*>,
+    builder: TestNavigatorDestinationBuilder.() -> Unit
+) = destination(
+    TestNavigatorDestinationBuilder(provider[TestNavigator::class], route).apply(builder)
+)
+
+/**
  * DSL for constructing a new [TestNavigator.Destination]
  */
 @NavDestinationDsl
@@ -66,4 +83,6 @@ class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Dest
     @Suppress("DEPRECATION")
     constructor(navigator: TestNavigator, @IdRes id: Int = 0) : super(navigator, id)
     constructor(navigator: TestNavigator, route: String) : super(navigator, route)
+    @OptIn(ExperimentalSafeArgsApi::class)
+    constructor(navigator: TestNavigator, route: KClass<*>) : super(navigator, route, emptyMap())
 }

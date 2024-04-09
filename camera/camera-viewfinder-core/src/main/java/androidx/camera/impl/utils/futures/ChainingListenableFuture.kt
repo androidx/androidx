@@ -16,7 +16,7 @@
 
 package androidx.camera.impl.utils.futures
 
-import androidx.camera.impl.utils.executor.CameraExecutors
+import androidx.camera.impl.utils.executor.ViewfinderExecutors
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
 import java.lang.reflect.UndeclaredThrowableException
@@ -220,7 +220,7 @@ internal class ChainingListenableFuture<I, O>(
                     // Don't pin inputs beyond completion
                     mOutputFuture = null
                 }
-            }, CameraExecutors.directExecutor())
+            }, ViewfinderExecutors.directExecutor())
         } catch (e: UndeclaredThrowableException) {
             // Set the cause of the exception as this future's exception
             e.cause?.let { setException(it) }

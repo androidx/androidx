@@ -70,6 +70,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     var pagerSize: Int = 0
     var placed = mutableSetOf<Int>()
     var focused = mutableSetOf<Int>()
+    var focusRequesters = mutableMapOf<Int, FocusRequester>()
     var pageSize: Int = 0
     lateinit var focusManager: FocusManager
     lateinit var initialFocusedItem: FocusRequester
@@ -117,7 +118,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         initialPageOffsetFraction: Float = 0f,
         pageCount: () -> Int = { DefaultPageCount },
         modifier: Modifier = Modifier,
-        outOfBoundsPageCount: Int = config.outOfBoundsPageCount,
+        beyondViewportPageCount: Int = config.beyondViewportPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
         snappingPage: PagerSnapDistance = PagerSnapDistance.atMost(1),
@@ -139,15 +140,16 @@ open class BasePagerTest(private val config: ParamConfig) :
             }
             composeView = LocalView.current
             focusManager = LocalFocusManager.current
-            val resolvedFlingBehavior = flingBehavior ?: PagerDefaults.flingBehavior(
-                state = state,
-                pagerSnapDistance = snappingPage,
-                snapPositionalThreshold = snapPositionalThreshold
-            )
             CompositionLocalProvider(
                 LocalLayoutDirection provides config.layoutDirection,
                 LocalOverscrollConfiguration provides null
             ) {
+                val resolvedFlingBehavior = flingBehavior ?: PagerDefaults.flingBehavior(
+                    state = state,
+                    pagerSnapDistance = snappingPage,
+                    snapPositionalThreshold = snapPositionalThreshold
+                )
+
                 scope = rememberCoroutineScope()
                 Box(
                     modifier = Modifier
@@ -156,7 +158,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 ) {
                     HorizontalOrVerticalPager(
                         state = state,
-                        outOfBoundsPageCount = outOfBoundsPageCount,
+                        beyondViewportPageCount = beyondViewportPageCount,
                         modifier = modifier
                             .testTag(PagerTestTag)
                             .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
@@ -180,6 +182,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     internal fun Page(index: Int, initialFocusedItemIndex: Int = 0) {
         val focusRequester = FocusRequester().also {
             if (index == initialFocusedItemIndex) initialFocusedItem = it
+            focusRequesters[index] = it
         }
         Box(modifier = Modifier
             .focusRequester(focusRequester)
@@ -285,7 +288,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         userScrollEnabled: Boolean = true,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        outOfBoundsPageCount: Int = 0,
+        beyondViewportPageCount: Int = 0,
         pageSize: PageSize = PageSize.Fill,
         flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state),
         pageSpacing: Dp = 0.dp,
@@ -300,7 +303,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                outOfBoundsPageCount = outOfBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
@@ -315,7 +318,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 userScrollEnabled = userScrollEnabled,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
-                outOfBoundsPageCount = outOfBoundsPageCount,
+                beyondViewportPageCount = beyondViewportPageCount,
                 pageSize = pageSize,
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
@@ -374,7 +377,7 @@ class ParamConfig(
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     val pageSpacing: Dp = 0.dp,
     val mainAxisContentPadding: PaddingValues = PaddingValues(0.dp),
-    val outOfBoundsPageCount: Int = 0,
+    val beyondViewportPageCount: Int = 0,
     val snapPosition: Pair<SnapPosition, String> = SnapPosition.Start to "Start",
 ) {
     override fun toString(): String {
@@ -383,7 +386,7 @@ class ParamConfig(
             "layoutDirection=$layoutDirection " +
             "pageSpacing=$pageSpacing " +
             "mainAxisContentPadding=$mainAxisContentPadding " +
-            "outOfBoundsPageCount=$outOfBoundsPageCount " +
+            "beyondViewportPageCount=$beyondViewportPageCount " +
             "snapPosition=${snapPosition.second}"
     }
 }

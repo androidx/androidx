@@ -117,11 +117,10 @@ android {
 
 androidx {
     name = "Glance For App Widgets"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
-    targetsJavaConsumers = false
     samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
 }
 

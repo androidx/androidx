@@ -17,12 +17,22 @@
 package androidx.compose.testutils.benchmark
 
 import android.view.View
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.testutils.recomposeAssertHadChanges
+import androidx.compose.testutils.setupContent
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.SubcomposeLayoutState
+import androidx.compose.ui.layout.SubcomposeSlotReusePolicy
+import androidx.compose.ui.unit.IntOffset
 import kotlin.math.abs
 
 /**
@@ -422,5 +432,79 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkMeasureLayout(
                 assertNoPendingChanges()
             }
         }
+    }
+}
+
+/**
+ * Runs a reuse benchmark for the given [content].
+ * @param content The Content to be benchmarked.
+ */
+fun ComposeBenchmarkRule.benchmarkReuseFor(
+    content: @Composable () -> Unit
+) {
+    val testCase = { SubcomposeLayoutReuseTestCase(reusableSlots = 1, content) }
+    runBenchmarkFor(testCase) {
+        runOnUiThread {
+            setupContent()
+            doFramesUntilIdle()
+        }
+
+        measureRepeatedOnUiThread {
+            runWithTimingDisabled {
+                assertNoPendingChanges()
+                getTestCase().clearContent()
+                doFramesUntilIdle()
+                assertNoPendingChanges()
+            }
+
+            getTestCase().initContent()
+            doFramesUntilIdle()
+        }
+    }
+}
+
+private fun ComposeExecutionControl.doFramesUntilIdle() {
+    do {
+        doFrame()
+    } while (hasPendingChanges() || hasPendingMeasureOrLayout())
+}
+
+/**
+ * A [ComposeTestCase] to emulate content reuse.
+ *
+ * @param reusableSlots The max number of slots that will be kept for use. For instance, if
+ * reusableSlots=0 the content will be always disposed.
+ * @param content The composable content that will be benchmarked
+ */
+class SubcomposeLayoutReuseTestCase(
+    private val reusableSlots: Int = 0,
+    private val content: @Composable () -> Unit
+) : ComposeTestCase {
+    private var active by mutableStateOf(true)
+
+    @Composable
+    override fun Content() {
+        SubcomposeLayout(
+            SubcomposeLayoutState(SubcomposeSlotReusePolicy(reusableSlots))
+        ) { constraints ->
+            val measurables = if (active) {
+                subcompose(Unit) { content() }
+            } else {
+                null
+            }
+
+            val placeable = measurables?.single()?.measure(constraints)
+            layout(placeable?.width ?: 0, placeable?.height ?: 0) {
+                placeable?.place(IntOffset.Zero)
+            }
+        }
+    }
+
+    fun clearContent() {
+        active = false
+    }
+
+    fun initContent() {
+        active = true
     }
 }

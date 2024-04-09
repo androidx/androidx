@@ -40,12 +40,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.Rule
@@ -712,6 +715,400 @@ class AsyncPagingDataDifferTest {
             assertEquals(secondList, differ.snapshot())
             assertEquals(secondList, onInsertedSnapshot)
             assertEquals(secondList, onRemovedSnapshot)
+        }
+    }
+
+    @Test
+    fun loadStateListenerYieldsToRecyclerView() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val asyncDiffer = AsyncPagingDataDiffer(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                // main tasks run without queueing, we need this to simulate real life order of
+                // events
+                mainDispatcher = mainDispatcher,
+                updateCallback = listUpdateCapture,
+                workerDispatcher = backgroundScope.coroutineContext
+            )
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 10,
+                    enablePlaceholders = false,
+                    prefetchDistance = 3,
+                    initialLoadSize = 10,
+                )
+            ) { TestPagingSource() }
+
+            asyncDiffer.addLoadStateListener {
+                events.add(it.toString())
+            }
+
+            val collectPager = launch(mainDispatcher) {
+                pager.flow.collectLatest { asyncDiffer.submitData(it) }
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly(
+                localLoadStatesOf(refreshLocal = Loading).toString(),
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+            events.clear()
+
+            // Simulate RV dispatch layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(6)
+                asyncDiffer.getItem(7) // this triggers load
+                asyncDiffer.getItem(8)
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // make sure we received the LoadStateUpdate only after dispatchLayout ended
+            assertThat(events).containsExactly(
+                "start dispatchLayout",
+                "end dispatchLayout",
+                localLoadStatesOf(
+                    appendLocal = Loading,
+                    prependLocal = NotLoading(true)
+                ).toString(),
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            collectPager.cancel()
+        }
+    }
+
+    @Test
+    fun loadStateFlowYieldsToRecyclerView() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val asyncDiffer = AsyncPagingDataDiffer(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                // main tasks run without queueing, we need this to simulate real life order of
+                // events
+                mainDispatcher = mainDispatcher,
+                updateCallback = listUpdateCapture,
+                workerDispatcher = backgroundScope.coroutineContext
+            )
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 10,
+                    enablePlaceholders = false,
+                    prefetchDistance = 3,
+                    initialLoadSize = 10,
+                )
+            ) { TestPagingSource() }
+
+            val collectLoadState = launch(mainDispatcher) {
+                asyncDiffer.loadStateFlow.collect {
+                    events.add(it.toString())
+                }
+            }
+
+            val collectPager = launch(mainDispatcher) {
+                pager.flow.collectLatest { asyncDiffer.submitData(it) }
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // withContext prevents flake in API 28 where sometimes we start asserting before
+            // the NotLoading state is added to events list
+            assertThat(events).containsExactly(
+                localLoadStatesOf(refreshLocal = Loading).toString(),
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(6)
+                asyncDiffer.getItem(7) // this triggers load
+                asyncDiffer.getItem(8)
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // make sure we received the LoadStateUpdate only after dispatchLayout ended
+            assertThat(events).containsExactly(
+                "start dispatchLayout",
+                "end dispatchLayout",
+                localLoadStatesOf(
+                    appendLocal = Loading,
+                    prependLocal = NotLoading(true)
+                ).toString(),
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            collectLoadState.cancel()
+            collectPager.cancel()
+        }
+    }
+
+    @Test
+    fun loadStateFlowYieldsToGetItem() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val asyncDiffer = AsyncPagingDataDiffer(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                // main tasks run without queueing, we need this to simulate real life order of
+                // events
+                mainDispatcher = mainDispatcher,
+                updateCallback = listUpdateCapture,
+                workerDispatcher = backgroundScope.coroutineContext
+            )
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 10,
+                    enablePlaceholders = false,
+                    prefetchDistance = 3,
+                    initialLoadSize = 10,
+                )
+            ) { TestPagingSource() }
+
+            val collectInGetItem = launch(mainDispatcher) {
+                asyncDiffer.inGetItem.collect {
+                    events.add("inGetItem $it")
+                }
+            }
+
+            val collectLoadState = launch(mainDispatcher) {
+                asyncDiffer.loadStateFlow.collect {
+                    events.add(it.toString())
+                }
+            }
+
+            // since we cannot intercept the internal loadStateFlow, we collect from its source
+            // flow to see when the internal flow first collected the LoadState before
+            // waiting for getItem
+            val collectParallelLoadState = launch(mainDispatcher) {
+                asyncDiffer.presenter.loadStateFlow.filterNotNull().collect {
+                    events.add("internal flow collected")
+                }
+            }
+
+            val collectPager = launch(mainDispatcher) {
+                pager.flow.collectLatest { asyncDiffer.submitData(it) }
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly(
+                "inGetItem false",
+                "internal flow collected",
+                localLoadStatesOf(refreshLocal = Loading).toString(),
+                "internal flow collected",
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            // reset events count
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(6)
+                asyncDiffer.getItem(7) // this triggers load
+                asyncDiffer.getItem(8)
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // assert two things: loadStates were received after dispatchLayout and that
+            // the internal flow did collect a LoadState while inGetItem is true but had waited
+            assertThat(events).containsExactly(
+                "start dispatchLayout",
+                // getItem(6)
+                "inGetItem true",
+                "inGetItem false",
+                // getItem(7) triggers append
+                "inGetItem true",
+                "internal flow collected",
+                "inGetItem false",
+                // getItem(8)
+                "inGetItem true",
+                "inGetItem false",
+                "end dispatchLayout",
+                localLoadStatesOf(
+                    appendLocal = Loading,
+                    prependLocal = NotLoading(true)
+                ).toString(),
+                "internal flow collected",
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            collectInGetItem.cancel()
+            collectLoadState.cancel()
+            collectParallelLoadState.cancel()
+            collectPager.cancel()
+        }
+    }
+
+    @Test
+    fun loadStateListenerYieldsToGetItem() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val asyncDiffer = AsyncPagingDataDiffer(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                // main tasks run without queueing, we need this to simulate real life order of
+                // events
+                mainDispatcher = mainDispatcher,
+                updateCallback = listUpdateCapture,
+                workerDispatcher = backgroundScope.coroutineContext
+            )
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 10,
+                    enablePlaceholders = false,
+                    prefetchDistance = 3,
+                    initialLoadSize = 10,
+                )
+            ) { TestPagingSource() }
+
+            val collectInGetItem = launch(mainDispatcher) {
+                asyncDiffer.inGetItem.collect {
+                    events.add("inGetItem $it")
+                }
+            }
+
+            // override internal loadStateListener that is registered with PagingDataPresenter
+            asyncDiffer.addLoadStateListenerInternal {
+                events.add("internal listener invoked")
+                asyncDiffer.internalLoadStateListener.invoke(it)
+            }
+
+            // add actual UI listener
+            asyncDiffer.addLoadStateListener {
+                events.add(it.toString())
+            }
+
+            val collectPager = launch(mainDispatcher) {
+                pager.flow.collectLatest { asyncDiffer.submitData(it) }
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly(
+                "inGetItem false",
+                "internal listener invoked",
+                localLoadStatesOf(refreshLocal = Loading).toString(),
+                "internal listener invoked",
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            // reset events count
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(6)
+                asyncDiffer.getItem(7) // this triggers load
+                asyncDiffer.getItem(8)
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // assert two things: loadStates were received after dispatchLayout and that
+            // the internal listener was invoked while inGetItem is true but had waited
+            assertThat(events).containsExactly(
+                "start dispatchLayout",
+                // getItem(6)
+                "inGetItem true",
+                "inGetItem false",
+                // getItem(7) triggers append
+                "inGetItem true",
+                "internal listener invoked",
+                "inGetItem false",
+                // getItem(8)
+                "inGetItem true",
+                "inGetItem false",
+                "end dispatchLayout",
+                localLoadStatesOf(
+                    appendLocal = Loading,
+                    prependLocal = NotLoading(true)
+                ).toString(),
+                "internal listener invoked",
+                localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+            ).inOrder()
+
+            collectInGetItem.cancel()
+            collectPager.cancel()
         }
     }
 

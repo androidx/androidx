@@ -42,6 +42,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import androidx.testutils.withActivity
+import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -1063,6 +1064,54 @@ class FragmentAnimationTest {
         assertThat(fragment1.loadedAnimation).isEqualTo(ENTER_OTHER)
         assertThat(fragment2.loadedAnimation).isEqualTo(EXIT)
         assertThat(fragment3.loadedAnimation).isEqualTo(EXIT_OTHER)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun predictiveBackNoAnimation() {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity { setContentView(R.layout.simple_container) }
+            val fragment1 = StrictViewFragment()
+            val fragment2 = StrictViewFragment()
+
+            val fm = withActivity { supportFragmentManager }
+
+            withActivity {
+                fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragmentContainer, fragment1, "fragment1")
+                    .addToBackStack("fragment1")
+                    .commit()
+            }
+            waitForExecution()
+
+            withActivity {
+                fm.beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragmentContainer, fragment2, "fragment2")
+                    .addToBackStack("fragment2")
+                    .commit()
+            }
+            waitForExecution()
+
+            fragment1.mContainer = null
+            fragment2.mContainer = null
+
+            val dispatcher = activityRule.activity.onBackPressedDispatcher
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+            executePendingTransactions()
+
+            withActivity {
+                dispatcher.onBackPressed()
+            }
+            executePendingTransactions()
+
+            assertThat(fragment2.calledOnDestroy).isTrue()
+        }
     }
 
     private fun assertEnterPopExit(fragment: AnimationFragment) {

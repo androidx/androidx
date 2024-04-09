@@ -18,7 +18,6 @@ package androidx.kruth
 
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import kotlin.test.fail
 
 class PrimitiveIntArraySubjectTest {
 
@@ -53,11 +52,8 @@ class PrimitiveIntArraySubjectTest {
 
     @Test
     fun hasLengthNegative() {
-        try {
+        assertFailsWith<IllegalArgumentException> {
             assertThat(intArrayOf(2, 5)).hasLength(-1)
-            fail("Should have failed.")
-        } catch (expected: IllegalArgumentException) {
-            // no-op
         }
     }
 

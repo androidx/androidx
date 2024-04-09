@@ -18,6 +18,7 @@ package androidx.compose.foundation.selection
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.TapIndicationDelay
+import androidx.compose.foundation.TestIndication
 import androidx.compose.foundation.TestIndicationNodeFactory
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -36,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -638,7 +640,7 @@ class SelectableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "selected",
                 "interactionSource",
-                "indication",
+                "indicationNodeFactory",
                 "enabled",
                 "role",
                 "onClick"
@@ -1190,5 +1192,114 @@ class SelectableTest {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
+    }
+
+    @Test
+    fun composedOverload_nonEquality() {
+        val onClick = {}
+        val modifier1 = Modifier.selectable(selected = true, onClick = onClick)
+        val modifier2 = Modifier.selectable(selected = true, onClick = onClick)
+
+        // The composed overload can never compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun nullInteractionSourceNullIndication_equality() {
+        val onClick = {}
+        assertModifierIsPure { toggleInput ->
+            Modifier.selectable(
+                selected = toggleInput,
+                interactionSource = null,
+                indication = null,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nonNullInteractionSourceNullIndication_equality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        assertModifierIsPure { toggleInput ->
+            Modifier.selectable(
+                selected = toggleInput,
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onClick = {}
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.selectable(
+                selected = toggleInput,
+                interactionSource = null,
+                indication = indication,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nullInteractionSourceNonNullIndication_nonEquality() {
+        val onClick = {}
+        val indication = TestIndication {}
+        val modifier1 = Modifier.selectable(
+            selected = true,
+            interactionSource = null,
+            indication = indication,
+            onClick = onClick
+        )
+        val modifier2 = Modifier.selectable(
+            selected = true,
+            interactionSource = null,
+            indication = indication,
+            onClick = onClick
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun nonNullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.selectable(
+                selected = toggleInput,
+                interactionSource = interactionSource,
+                indication = indication,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nonNullInteractionSourceNonNullIndication_nonEquality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndication {}
+        val modifier1 = Modifier.selectable(
+            selected = true,
+            interactionSource = interactionSource,
+            indication = indication,
+            onClick = onClick
+        )
+        val modifier2 = Modifier.selectable(
+            selected = true,
+            interactionSource = interactionSource,
+            indication = indication,
+            onClick = onClick
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
     }
 }

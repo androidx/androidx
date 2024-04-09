@@ -63,12 +63,17 @@ internal object FrameTimingQuery {
     """.trimIndent()
 
     enum class SubMetric {
+        // Duration of UI thread
         FrameDurationCpuNs,
+        // Total duration from UI through RT slice
         FrameDurationUiNs,
-        FrameOverrunNs;
+        // How much longer did frame take than expected
+        FrameOverrunNs,
+        // Total duration from expected frame start through true end of frame
+        FrameDurationFullNs;
 
         fun supportedOnApiLevel(apiLevel: Int): Boolean {
-            return apiLevel >= 31 || this != FrameOverrunNs
+            return apiLevel >= 31 || this != FrameOverrunNs && this != FrameDurationFullNs
         }
     }
 
@@ -97,6 +102,10 @@ internal object FrameTimingQuery {
                 SubMetric.FrameOverrunNs -> {
                     // workaround b/279088460, where actual slice ends too early
                     maxOf(actualSlice!!.endTs, rtSlice.endTs) - expectedSlice!!.endTs
+                }
+                SubMetric.FrameDurationFullNs -> {
+                    // workaround b/279088460, where actual slice ends too early
+                    maxOf(actualSlice!!.endTs, rtSlice.endTs) - expectedSlice!!.ts
                 }
             }
         }
@@ -209,13 +218,19 @@ internal object FrameTimingQuery {
                 //     the complete end of frame is present, and we want to discard those. This
                 //     doesn't happen at front of trace, since we find actuals from the end.
                 if (uiSlice != null) {
-                    // Use fixed offset since synthetic tracepoint for actual may start after the
-                    // actual UI slice (have observed 2us in practice)
-                    val actualSlice = actualSlicesPool.lastOrNull { it.ts < uiSlice.ts + 50_000 }
+                    val actualSlice = actualSlicesPool.lastOrNull {
+                        // Use fixed offset since synthetic tracepoint for actual may start after the
+                        // actual UI slice (have observed 2us in practice)
+                        it.ts < uiSlice.ts + 50_000 &&
+                            // ensure there's some overlap - if actual doesn't contain ui, may just
+                            // be "abandoned" slice at beginning of trace
+                            it.contains(uiSlice.ts + (uiSlice.dur / 2))
+                    }
                     actualSlicesPool.remove(actualSlice)
                     val expectedSlice = actualSlice?.frameId?.run {
                         expectedSlices.binarySearchFrameId(this)
                     }
+
                     FrameData.tryCreate31(
                         uiSlice = uiSlice,
                         rtSlice = rtSlice,

@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -83,7 +84,6 @@ import kotlinx.coroutines.launch
  * or preview the switch in different states. Note that if `null` is provided, interactions will
  * still happen internally.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 fun Switch(
@@ -164,7 +164,6 @@ fun Switch(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 private fun BoxScope.SwitchImpl(
@@ -238,8 +237,14 @@ private val AnimationSpec = TweenSpec<Float>(durationMillis = 100)
 /**
  * Contains the default values used by [Switch]
  */
-@ExperimentalTvMaterial3Api
 object SwitchDefaults {
+    /**
+     * Creates a [SwitchColors] that represents the different colors used in a [Switch] in
+     * different states.
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultSwitchColors
+
     /**
      * Creates a [SwitchColors] that represents the different colors used in a [Switch] in
      * different states.
@@ -263,38 +268,23 @@ object SwitchDefaults {
      */
     @Composable
     fun colors(
-        checkedThumbColor: Color = SwitchTokens.SelectedHandleColor.toColor(),
-        checkedTrackColor: Color = SwitchTokens.SelectedTrackColor.toColor(),
-        checkedBorderColor: Color = Color.Transparent,
-        checkedIconColor: Color = SwitchTokens.SelectedIconColor.toColor(),
-        uncheckedThumbColor: Color = SwitchTokens.UnselectedHandleColor.toColor(),
-        uncheckedTrackColor: Color = SwitchTokens.UnselectedTrackColor.toColor(),
-        uncheckedBorderColor: Color = SwitchTokens.UnselectedFocusTrackOutlineColor.toColor(),
-        uncheckedIconColor: Color = SwitchTokens.UnselectedIconColor.toColor(),
-        disabledCheckedThumbColor: Color = SwitchTokens.DisabledSelectedHandleColor.toColor()
-            .copy(alpha = SwitchTokens.DisabledSelectedHandleOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledCheckedTrackColor: Color = SwitchTokens.DisabledSelectedTrackColor.toColor()
-            .copy(alpha = SwitchTokens.DisabledTrackOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledCheckedBorderColor: Color = Color.Transparent,
-        disabledCheckedIconColor: Color = SwitchTokens.DisabledSelectedIconColor.toColor()
-            .copy(alpha = SwitchTokens.DisabledSelectedIconOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledUncheckedThumbColor: Color = SwitchTokens.DisabledUnselectedHandleColor.toColor()
-            .copy(alpha = SwitchTokens.DisabledUnselectedHandleOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledUncheckedTrackColor: Color = SwitchTokens.DisabledUnselectedTrackColor.toColor()
-            .copy(alpha = SwitchTokens.DisabledTrackOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledUncheckedBorderColor: Color =
-            SwitchTokens.DisabledUnselectedTrackOutlineColor.toColor()
-                .copy(alpha = SwitchTokens.DisabledTrackOpacity)
-                .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledUncheckedIconColor: Color = SwitchTokens.DisabledUnselectedIconColor.toColor()
-            .copy(alpha = SwitchTokens.DisabledUnselectedIconOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-    ): SwitchColors = SwitchColors(
+        checkedThumbColor: Color = Color.Unspecified,
+        checkedTrackColor: Color = Color.Unspecified,
+        checkedBorderColor: Color = Color.Unspecified,
+        checkedIconColor: Color = Color.Unspecified,
+        uncheckedThumbColor: Color = Color.Unspecified,
+        uncheckedTrackColor: Color = Color.Unspecified,
+        uncheckedBorderColor: Color = Color.Unspecified,
+        uncheckedIconColor: Color = Color.Unspecified,
+        disabledCheckedThumbColor: Color = Color.Unspecified,
+        disabledCheckedTrackColor: Color = Color.Unspecified,
+        disabledCheckedBorderColor: Color = Color.Unspecified,
+        disabledCheckedIconColor: Color = Color.Unspecified,
+        disabledUncheckedThumbColor: Color = Color.Unspecified,
+        disabledUncheckedTrackColor: Color = Color.Unspecified,
+        disabledUncheckedBorderColor: Color = Color.Unspecified,
+        disabledUncheckedIconColor: Color = Color.Unspecified,
+    ): SwitchColors = MaterialTheme.colorScheme.defaultSwitchColors.copy(
         checkedThumbColor = checkedThumbColor,
         checkedTrackColor = checkedTrackColor,
         checkedBorderColor = checkedBorderColor,
@@ -313,6 +303,45 @@ object SwitchDefaults {
         disabledUncheckedIconColor = disabledUncheckedIconColor
     )
 
+    internal val ColorScheme.defaultSwitchColors: SwitchColors
+        get() {
+            return defaultSwitchColorsCached ?: SwitchColors(
+                checkedThumbColor = fromToken(SwitchTokens.SelectedHandleColor),
+                checkedTrackColor = fromToken(SwitchTokens.SelectedTrackColor),
+                checkedBorderColor = Color.Transparent,
+                checkedIconColor = fromToken(SwitchTokens.SelectedIconColor),
+                uncheckedThumbColor = fromToken(SwitchTokens.UnselectedHandleColor),
+                uncheckedTrackColor = fromToken(SwitchTokens.UnselectedTrackColor),
+                uncheckedBorderColor = fromToken(SwitchTokens.UnselectedFocusTrackOutlineColor),
+                uncheckedIconColor = fromToken(SwitchTokens.UnselectedIconColor),
+                disabledCheckedThumbColor = fromToken(SwitchTokens.DisabledSelectedHandleColor)
+                    .copy(alpha = SwitchTokens.DisabledSelectedHandleOpacity)
+                    .compositeOver(surface),
+                disabledCheckedTrackColor = fromToken(SwitchTokens.DisabledSelectedTrackColor)
+                    .copy(alpha = SwitchTokens.DisabledTrackOpacity)
+                    .compositeOver(surface),
+                disabledCheckedBorderColor = Color.Transparent,
+                disabledCheckedIconColor = fromToken(SwitchTokens.DisabledSelectedIconColor)
+                    .copy(alpha = SwitchTokens.DisabledSelectedIconOpacity)
+                    .compositeOver(surface),
+                disabledUncheckedThumbColor = fromToken(SwitchTokens.DisabledUnselectedHandleColor)
+                    .copy(alpha = SwitchTokens.DisabledUnselectedHandleOpacity)
+                    .compositeOver(surface),
+                disabledUncheckedTrackColor = fromToken(SwitchTokens.DisabledUnselectedTrackColor)
+                    .copy(alpha = SwitchTokens.DisabledTrackOpacity)
+                    .compositeOver(surface),
+                disabledUncheckedBorderColor =
+                fromToken(SwitchTokens.DisabledUnselectedTrackOutlineColor)
+                    .copy(alpha = SwitchTokens.DisabledTrackOpacity)
+                    .compositeOver(surface),
+                disabledUncheckedIconColor = fromToken(SwitchTokens.DisabledUnselectedIconColor)
+                    .copy(alpha = SwitchTokens.DisabledUnselectedIconOpacity)
+                    .compositeOver(surface),
+            ).also {
+                defaultSwitchColorsCached = it
+            }
+        }
+
     /**
      * Icon size to use for `thumbContent`
      */
@@ -322,29 +351,86 @@ object SwitchDefaults {
 /**
  * Represents the colors used by a [Switch] in different states
  *
+ * @constructor create an instance with arbitrary colors.
  * See [SwitchDefaults.colors] for the default implementation that follows Material
  * specifications.
+ *
+ * @param checkedThumbColor the color used for the thumb when enabled and checked
+ * @param checkedTrackColor the color used for the track when enabled and checked
+ * @param checkedBorderColor the color used for the border when enabled and checked
+ * @param checkedIconColor the color used for the icon when enabled and checked
+ * @param uncheckedThumbColor the color used for the thumb when enabled and unchecked
+ * @param uncheckedTrackColor the color used for the track when enabled and unchecked
+ * @param uncheckedBorderColor the color used for the border when enabled and unchecked
+ * @param uncheckedIconColor the color used for the icon when enabled and unchecked
+ * @param disabledCheckedThumbColor the color used for the thumb when disabled and checked
+ * @param disabledCheckedTrackColor the color used for the track when disabled and checked
+ * @param disabledCheckedBorderColor the color used for the border when disabled and checked
+ * @param disabledCheckedIconColor the color used for the icon when disabled and checked
+ * @param disabledUncheckedThumbColor the color used for the thumb when disabled and unchecked
+ * @param disabledUncheckedTrackColor the color used for the track when disabled and unchecked
+ * @param disabledUncheckedBorderColor the color used for the border when disabled and unchecked
+ * @param disabledUncheckedIconColor the color used for the icon when disabled and unchecked
  */
-@ExperimentalTvMaterial3Api
 @Immutable
-class SwitchColors internal constructor(
-    private val checkedThumbColor: Color,
-    private val checkedTrackColor: Color,
-    private val checkedBorderColor: Color,
-    private val checkedIconColor: Color,
-    private val uncheckedThumbColor: Color,
-    private val uncheckedTrackColor: Color,
-    private val uncheckedBorderColor: Color,
-    private val uncheckedIconColor: Color,
-    private val disabledCheckedThumbColor: Color,
-    private val disabledCheckedTrackColor: Color,
-    private val disabledCheckedBorderColor: Color,
-    private val disabledCheckedIconColor: Color,
-    private val disabledUncheckedThumbColor: Color,
-    private val disabledUncheckedTrackColor: Color,
-    private val disabledUncheckedBorderColor: Color,
-    private val disabledUncheckedIconColor: Color
+class SwitchColors(
+    val checkedThumbColor: Color,
+    val checkedTrackColor: Color,
+    val checkedBorderColor: Color,
+    val checkedIconColor: Color,
+    val uncheckedThumbColor: Color,
+    val uncheckedTrackColor: Color,
+    val uncheckedBorderColor: Color,
+    val uncheckedIconColor: Color,
+    val disabledCheckedThumbColor: Color,
+    val disabledCheckedTrackColor: Color,
+    val disabledCheckedBorderColor: Color,
+    val disabledCheckedIconColor: Color,
+    val disabledUncheckedThumbColor: Color,
+    val disabledUncheckedTrackColor: Color,
+    val disabledUncheckedBorderColor: Color,
+    val disabledUncheckedIconColor: Color
 ) {
+    /**
+     * Returns a copy of this SwitchColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        checkedThumbColor: Color = this.checkedThumbColor,
+        checkedTrackColor: Color = this.checkedTrackColor,
+        checkedBorderColor: Color = this.checkedBorderColor,
+        checkedIconColor: Color = this.checkedIconColor,
+        uncheckedThumbColor: Color = this.uncheckedThumbColor,
+        uncheckedTrackColor: Color = this.uncheckedTrackColor,
+        uncheckedBorderColor: Color = this.uncheckedBorderColor,
+        uncheckedIconColor: Color = this.uncheckedIconColor,
+        disabledCheckedThumbColor: Color = this.disabledCheckedThumbColor,
+        disabledCheckedTrackColor: Color = this.disabledCheckedTrackColor,
+        disabledCheckedBorderColor: Color = this.disabledCheckedBorderColor,
+        disabledCheckedIconColor: Color = this.disabledCheckedIconColor,
+        disabledUncheckedThumbColor: Color = this.disabledUncheckedThumbColor,
+        disabledUncheckedTrackColor: Color = this.disabledUncheckedTrackColor,
+        disabledUncheckedBorderColor: Color = this.disabledUncheckedBorderColor,
+        disabledUncheckedIconColor: Color = this.disabledUncheckedIconColor,
+    ) = SwitchColors(
+        checkedThumbColor.takeOrElse { this.checkedThumbColor },
+        checkedTrackColor.takeOrElse { this.checkedTrackColor },
+        checkedBorderColor.takeOrElse { this.checkedBorderColor },
+        checkedIconColor.takeOrElse { this.checkedIconColor },
+        uncheckedThumbColor.takeOrElse { this.uncheckedThumbColor },
+        uncheckedTrackColor.takeOrElse { this.uncheckedTrackColor },
+        uncheckedBorderColor.takeOrElse { this.uncheckedBorderColor },
+        uncheckedIconColor.takeOrElse { this.uncheckedIconColor },
+        disabledCheckedThumbColor.takeOrElse { this.disabledCheckedThumbColor },
+        disabledCheckedTrackColor.takeOrElse { this.disabledCheckedTrackColor },
+        disabledCheckedBorderColor.takeOrElse { this.disabledCheckedBorderColor },
+        disabledCheckedIconColor.takeOrElse { this.disabledCheckedIconColor },
+        disabledUncheckedThumbColor.takeOrElse { this.disabledUncheckedThumbColor },
+        disabledUncheckedTrackColor.takeOrElse { this.disabledUncheckedTrackColor },
+        disabledUncheckedBorderColor.takeOrElse { this.disabledUncheckedBorderColor },
+        disabledUncheckedIconColor.takeOrElse { this.disabledUncheckedIconColor },
+    )
+
     /**
      * Represents the color used for the switch's thumb, depending on [enabled] and [checked].
      *

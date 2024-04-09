@@ -103,7 +103,7 @@ class RippleTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
+            calculateResultingRippleColor(contentColor, rippleOpacity = 0.10f)
         )
     }
 
@@ -145,7 +145,7 @@ class RippleTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
+            calculateResultingRippleColor(contentColor, rippleOpacity = 0.1f)
         )
     }
 
@@ -187,7 +187,7 @@ class RippleTest {
             scope,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
+            calculateResultingRippleColor(contentColor, rippleOpacity = 0.10f)
         )
     }
 
@@ -229,7 +229,7 @@ class RippleTest {
             scope,
             interactionSource,
             FocusInteraction.Focus(),
-            calculateResultingRippleColor(contentColor, rippleOpacity = 0.12f)
+            calculateResultingRippleColor(contentColor, rippleOpacity = 0.1f)
         )
     }
 

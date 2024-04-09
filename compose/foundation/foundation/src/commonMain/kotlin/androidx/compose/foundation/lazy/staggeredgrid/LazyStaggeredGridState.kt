@@ -16,16 +16,19 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
@@ -46,6 +49,7 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 /**
  * Creates a [LazyStaggeredGridState] that is remembered across composition.
@@ -140,6 +144,13 @@ class LazyStaggeredGridState private constructor(
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
+
     /** implementation of [LazyLayoutAnimateScrollScope] scope required for [animateScrollToItem] */
     private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)
 
@@ -200,7 +211,7 @@ class LazyStaggeredGridState private constructor(
      */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
-    internal val placementAnimator = LazyStaggeredGridItemPlacementAnimator()
+    internal val itemAnimator = LazyLayoutItemAnimator<LazyStaggeredGridMeasuredItem>()
 
     internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
@@ -291,7 +302,7 @@ class LazyStaggeredGridState private constructor(
         scrollOffset: Int = 0
     ) {
         scroll {
-            snapToItemInternal(index, scrollOffset)
+            snapToItemInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
@@ -318,20 +329,72 @@ class LazyStaggeredGridState private constructor(
         )
     }
 
-    internal fun ScrollScope.snapToItemInternal(index: Int, scrollOffset: Int) {
-        val layoutInfo = layoutInfo
+    internal val measurementScopeInvalidator = ObservableScopeInvalidator()
+
+    /**
+     * Requests the item at [index] to be at the start of the viewport during the next
+     * remeasure, offset by [scrollOffset], and schedules a remeasure.
+     *
+     * The scroll position will be updated to the requested position rather than maintain
+     * the index based on the first visible item key (when a data set change will also be
+     * applied during the next remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset the offset that the item should end up after the scroll. Note that
+     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     * scroll the item further upward (taking it partly offscreen).
+     */
+    fun requestScrollToItem(
+        @AndroidXIntRange(from = 0)
+        index: Int,
+        scrollOffset: Int = 0
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            layoutInfoState.value.coroutineScope.launch {
+                stopScroll()
+            }
+        }
+
+        snapToItemInternal(index, scrollOffset, forceRemeasure = false)
+    }
+
+    internal fun snapToItemInternal(index: Int, scrollOffset: Int, forceRemeasure: Boolean) {
+        val positionChanged = scrollPosition.index != index ||
+            scrollPosition.scrollOffset != scrollOffset
+        // sometimes this method is called not to scroll, but to stay on the same index when
+        // the data changes, as by default we maintain the scroll position by key, not index.
+        // when this happens we don't need to reset the animations as from the user perspective
+        // we didn't scroll anywhere and if there is an offset change for an item, this change
+        // should be animated.
+        // however, when the request is to really scroll to a different position, we have to
+        // reset previously known item positions as we don't want offset changes to be animated.
+        // this offset should be considered as a scroll, not the placement change.
+        if (positionChanged) {
+            itemAnimator.reset()
+        }
+        val layoutInfo = layoutInfoState.value
         val visibleItem = layoutInfo.findVisibleItem(index)
-        if (visibleItem != null) {
+        if (visibleItem != null && positionChanged) {
             val currentOffset = if (layoutInfo.orientation == Orientation.Vertical) {
                 visibleItem.offset.y
             } else {
                 visibleItem.offset.x
             }
             val delta = currentOffset + scrollOffset
-            scrollBy(delta.toFloat())
+            val offsets = IntArray(layoutInfo.firstVisibleItemScrollOffsets.size) {
+                layoutInfo.firstVisibleItemScrollOffsets[it] + delta
+            }
+            scrollPosition.updateScrollOffset(offsets)
         } else {
-            scrollPosition.requestPosition(index, scrollOffset)
+            scrollPosition.requestPositionAndForgetLastKnownKey(index, scrollOffset)
+        }
+        if (forceRemeasure) {
             remeasurement?.forceRemeasure()
+        } else {
+            measurementScopeInvalidator.invalidateScope()
         }
     }
 
@@ -382,7 +445,7 @@ class LazyStaggeredGridState private constructor(
                 }
                 if (
                     targetIndex !in (0 until info.totalItemsCount) ||
-                        targetIndex in prefetchHandlesUsed
+                    targetIndex in prefetchHandlesUsed
                 ) {
                     break
                 }

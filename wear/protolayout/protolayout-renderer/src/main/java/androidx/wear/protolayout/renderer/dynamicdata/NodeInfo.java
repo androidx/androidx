@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
@@ -33,6 +32,7 @@ import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.proto.ModifiersProto.AnimatedVisibility;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger.InnerCase;
+import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.PositionIdTree.TreeNode;
 
 import java.util.ArrayList;
@@ -148,7 +148,9 @@ class NodeInfo implements TreeNode {
     @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int size() {
-        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
+        return mActiveBoundTypes.stream()
+                .mapToInt(BoundDynamicType::getDynamicNodeCount)
+                .sum();
     }
 
     /** Play the animation with the given trigger type. */
@@ -241,10 +243,10 @@ class NodeInfo implements TreeNode {
                         + mResolvedAvds.stream().filter(avd -> avd.mDrawable.isRunning()).count());
     }
 
-    /** Returns how many expression nodes evaluated. */
+    /** Returns the cost of evaluated expression nodes. */
     @VisibleForTesting
-    public int getExpressionNodesCount() {
-        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
+    public int getExpressionDynamicNodesCost() {
+        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCost).sum();
     }
 
     /** Stores the {@link AnimatedVisibility} associated with this node. */

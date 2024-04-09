@@ -18,7 +18,11 @@ package androidx.navigation
 import androidx.annotation.AnimRes
 import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
+import androidx.annotation.RestrictTo
 import androidx.navigation.NavDestination.Companion.createRoute
+import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 /**
  * NavOptions stores special options for navigate actions
@@ -92,6 +96,40 @@ public class NavOptions internal constructor(
         private set
 
     /**
+     * Route from a [KClass] for the destination to pop up to before navigating. When set,
+     * all non-matching destinations should be popped from the back stack.
+     * @return the destination route to pop up to, clearing all intervening destinations
+     * @see Builder.setPopUpTo
+     *
+     * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
+     */
+    // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
+    @get:ExperimentalSafeArgsApi
+    // required due to getter with ExperimentalSafeArgsApi annotation
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalSafeArgsApi
+    public var popUpToRouteClass: KClass<*>? = null
+        private set
+
+    /**
+     * Route from an Object for the destination to pop up to before navigating. When set,
+     * all non-matching destinations should be popped from the back stack.
+     * @return the destination route to pop up to, clearing all intervening destinations
+     * @see Builder.setPopUpTo
+     *
+     * @see isPopUpToInclusive
+     * @see shouldPopUpToSaveState
+     */
+    // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
+    @get:ExperimentalSafeArgsApi
+    // required due to getter with ExperimentalSafeArgsApi annotation
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @ExperimentalSafeArgsApi
+    public var popUpToRouteObject: Any? = null
+        private set
+
+    /**
      * NavOptions stores special options for navigate actions
      */
     internal constructor(
@@ -116,6 +154,62 @@ public class NavOptions internal constructor(
         popExitAnim
     ) {
         this.popUpToRoute = popUpToRoute
+    }
+
+    /**
+     * NavOptions stores special options for navigate actions
+     */
+    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    internal constructor(
+        singleTop: Boolean,
+        restoreState: Boolean,
+        popUpToRouteClass: KClass<*>?,
+        popUpToInclusive: Boolean,
+        popUpToSaveState: Boolean,
+        enterAnim: Int,
+        exitAnim: Int,
+        popEnterAnim: Int,
+        popExitAnim: Int
+    ) : this(
+        singleTop,
+        restoreState,
+        popUpToRouteClass!!.serializer().hashCode(),
+        popUpToInclusive,
+        popUpToSaveState,
+        enterAnim,
+        exitAnim,
+        popEnterAnim,
+        popExitAnim
+    ) {
+        this.popUpToRouteClass = popUpToRouteClass
+    }
+
+    /**
+     * NavOptions stores special options for navigate actions
+     */
+    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    internal constructor(
+        singleTop: Boolean,
+        restoreState: Boolean,
+        popUpToRouteObject: Any,
+        popUpToInclusive: Boolean,
+        popUpToSaveState: Boolean,
+        enterAnim: Int,
+        exitAnim: Int,
+        popEnterAnim: Int,
+        popExitAnim: Int
+    ) : this(
+        singleTop,
+        restoreState,
+        popUpToRouteObject::class.serializer().hashCode(),
+        popUpToInclusive,
+        popUpToSaveState,
+        enterAnim,
+        exitAnim,
+        popEnterAnim,
+        popExitAnim
+    ) {
+        this.popUpToRouteObject = popUpToRouteObject
     }
 
     /**
@@ -159,6 +253,7 @@ public class NavOptions internal constructor(
         return popUpToSaveState
     }
 
+    @OptIn(ExperimentalSafeArgsApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is NavOptions) return false
@@ -166,6 +261,8 @@ public class NavOptions internal constructor(
             restoreState == other.restoreState &&
             popUpToId == other.popUpToId &&
             popUpToRoute == other.popUpToRoute &&
+            popUpToRouteClass == other.popUpToRouteClass &&
+            popUpToRouteObject == other.popUpToRouteObject &&
             popUpToInclusive == other.popUpToInclusive &&
             popUpToSaveState == other.popUpToSaveState &&
             enterAnim == other.enterAnim &&
@@ -174,11 +271,14 @@ public class NavOptions internal constructor(
             popExitAnim == other.popExitAnim
     }
 
+    @OptIn(ExperimentalSafeArgsApi::class)
     override fun hashCode(): Int {
         var result = if (shouldLaunchSingleTop()) 1 else 0
         result = 31 * result + if (shouldRestoreState()) 1 else 0
         result = 31 * result + popUpToId
         result = 31 * result + popUpToRoute.hashCode()
+        result = 31 * result + popUpToRouteClass.hashCode()
+        result = 31 * result + popUpToRouteObject.hashCode()
         result = 31 * result + if (isPopUpToInclusive()) 1 else 0
         result = 31 * result + if (shouldPopUpToSaveState()) 1 else 0
         result = 31 * result + enterAnim
@@ -188,6 +288,7 @@ public class NavOptions internal constructor(
         return result
     }
 
+    @OptIn(ExperimentalSafeArgsApi::class)
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append(javaClass.simpleName)
@@ -203,6 +304,10 @@ public class NavOptions internal constructor(
             sb.append("popUpTo(")
             if (popUpToRoute != null) {
                 sb.append(popUpToRoute)
+            } else if (popUpToRouteClass != null) {
+                sb.append(popUpToRouteClass)
+            } else if (popUpToRouteObject != null) {
+                sb.append(popUpToRouteObject)
             } else {
                 sb.append("0x")
                 sb.append(Integer.toHexString(popUpToId))
@@ -239,6 +344,8 @@ public class NavOptions internal constructor(
         @IdRes
         private var popUpToId = -1
         private var popUpToRoute: String? = null
+        private var popUpToRouteClass: KClass<*>? = null
+        private var popUpToRouteObject: Any? = null
         private var popUpToInclusive = false
         private var popUpToSaveState = false
 
@@ -340,6 +447,80 @@ public class NavOptions internal constructor(
         }
 
         /**
+         * Pop up to a given destination before navigating. This pops all non-matching destinations
+         * from the back stack until this destination is found.
+         *
+         * @param T route from a [KClass] for destination to pop up to, clearing all
+         * intervening destinations.
+         * @param inclusive true to also pop the given destination from the back stack.
+         * @param saveState true if the back stack and the state of all destinations between the
+         * current destination and [T] should be saved for later restoration via
+         * [setRestoreState] or the `restoreState` attribute using the same route from [KClass]
+         * as [popUpToRouteClass] (note: this matching route is true whether [inclusive] is true or
+         * false).
+         * @return this Builder
+         *
+         * @see NavOptions.popUpToId
+         * @see NavOptions.isPopUpToInclusive
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder") // no need for getter
+        @ExperimentalSafeArgsApi
+        public inline fun <reified T : Any> setPopUpTo(
+            inclusive: Boolean,
+            saveState: Boolean = false
+        ): Builder {
+            setPopUpTo(T::class, inclusive, saveState)
+            return this
+        }
+
+        // this restricted public is needed so that the public reified [popUpTo] can call
+        // private popUpToRouteClass setter
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setPopUpTo(
+            klass: KClass<*>,
+            inclusive: Boolean,
+            saveState: Boolean = false
+        ): Builder {
+            popUpToRouteClass = klass
+            popUpToId = -1
+            popUpToInclusive = inclusive
+            popUpToSaveState = saveState
+            return this
+        }
+
+        /**
+         * Pop up to a given destination before navigating. This pops all non-matching destinations
+         * from the back stack until this destination is found.
+         *
+         * @param route route from an Object for destination to pop up to, clearing all
+         * intervening destinations.
+         * @param inclusive true to also pop the given destination from the back stack.
+         * @param saveState true if the back stack and the state of all destinations between the
+         * current destination and [route] should be saved for later restoration via
+         * [setRestoreState] or the `restoreState` attribute using the same route from an Object
+         * as [popUpToRouteObject] (note: this matching route is true whether [inclusive] is
+         * true or false).
+         * @return this Builder
+         *
+         * @see NavOptions.popUpToId
+         * @see NavOptions.isPopUpToInclusive
+         */
+        @JvmOverloads
+        @Suppress("MissingGetterMatchingBuilder")
+        @ExperimentalSafeArgsApi
+        @OptIn(InternalSerializationApi::class)
+        public fun <T : Any> setPopUpTo(
+            route: T,
+            inclusive: Boolean,
+            saveState: Boolean = false
+        ): Builder {
+            popUpToRouteObject = route
+            setPopUpTo(route::class.serializer().hashCode(), inclusive, saveState)
+            return this
+        }
+
+        /**
          * Sets a custom Animation or Animator resource for the enter animation.
          *
          * Note: Animator resources are not supported for navigating to a new Activity
@@ -401,18 +582,31 @@ public class NavOptions internal constructor(
          * @return a constructed NavOptions
          */
         public fun build(): NavOptions {
-            return if (popUpToRoute != null)
+            return if (popUpToRoute != null) {
                 NavOptions(
                     singleTop, restoreState,
                     popUpToRoute, popUpToInclusive, popUpToSaveState,
                     enterAnim, exitAnim, popEnterAnim, popExitAnim
                 )
-            else
+            } else if (popUpToRouteClass != null) {
+                NavOptions(
+                    singleTop, restoreState,
+                    popUpToRouteClass, popUpToInclusive, popUpToSaveState,
+                    enterAnim, exitAnim, popEnterAnim, popExitAnim
+                )
+            } else if (popUpToRouteObject != null) {
+                NavOptions(
+                    singleTop, restoreState,
+                    popUpToRouteObject!!, popUpToInclusive, popUpToSaveState,
+                    enterAnim, exitAnim, popEnterAnim, popExitAnim
+                )
+            } else {
                 NavOptions(
                     singleTop, restoreState,
                     popUpToId, popUpToInclusive, popUpToSaveState,
                     enterAnim, exitAnim, popEnterAnim, popExitAnim
                 )
+            }
         }
     }
 }

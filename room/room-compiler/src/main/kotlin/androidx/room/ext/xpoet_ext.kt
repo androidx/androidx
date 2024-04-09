@@ -55,9 +55,15 @@ object RoomTypeNames {
     val ROOM_DB_KT = XClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CALLBACK = XClassName.get(ROOM_PACKAGE, "RoomDatabase", "Callback")
     val ROOM_DB_CONFIG = XClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
-    val INSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
-    val UPSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
-    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
+    val INSERT_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertAdapter")
+    val UPSERT_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertAdapter")
+    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeleteOrUpdateAdapter")
+    val INSERT_ADAPTER_COMPAT = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERT_ADAPTER_COMPAT = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
+    val DELETE_OR_UPDATE_ADAPTER_COMPAT = XClassName.get(
+        ROOM_PACKAGE,
+        "EntityDeletionOrUpdateAdapter"
+    )
     val SHARED_SQLITE_STMT = XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER = XClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val ROOM_SQL_QUERY = XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
@@ -79,6 +85,9 @@ object RoomTypeNames {
     val ROOM_OPEN_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate")
     val ROOM_OPEN_DELEGATE_VALIDATION_RESULT =
         XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate", "ValidationResult")
+    val STATEMENT_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteStatementUtil")
+    val CONNECTION_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteConnectionUtil")
+    val FLOW_UTIL = XClassName.get("$ROOM_PACKAGE.coroutines", "FlowUtil")
 }
 
 object RoomAnnotationTypeNames {
@@ -160,8 +169,10 @@ object CommonTypeNames {
 }
 
 object ExceptionTypeNames {
-    val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
-    val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
+    val JAVA_ILLEGAL_STATE_EXCEPTION = XClassName.get("java.lang", "IllegalStateException")
+    val JAVA_ILLEGAL_ARG_EXCEPTION = XClassName.get("java.lang", "IllegalArgumentException")
+    val KOTLIN_ILLEGAL_STATE_EXCEPTION = XClassName.get("kotlin", "IllegalStateException")
+    val KOTLIN_ILLEGAL_ARG_EXCEPTION = XClassName.get("kotlin", "IllegalArgumentException")
 }
 
 object GuavaTypeNames {
@@ -284,6 +295,8 @@ object KotlinTypeNames {
     val COLLECTIONS_KT = XClassName.get("kotlin.collections", "CollectionsKt")
     val SETS_KT = XClassName.get("kotlin.collections", "SetsKt")
     val MAPS_KT = XClassName.get("kotlin.collections", "MapsKt")
+    val STRING_BUILDER = XClassName.get("kotlin.text", "StringBuilder")
+    val LINKED_HASH_MAP = XClassName.get("kotlin.collections", "LinkedHashMap")
 }
 
 object RoomMemberNames {

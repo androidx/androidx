@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.hilt.navigation.compose.HiltViewModelKt#hiltViewModel(androidx.lifecycle.ViewModelStoreOwner):
-    Removed method androidx.hilt.navigation.compose.HiltViewModelKt.hiltViewModel(androidx.lifecycle.ViewModelStoreOwner)

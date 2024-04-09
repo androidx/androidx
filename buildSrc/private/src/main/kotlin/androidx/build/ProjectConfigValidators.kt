@@ -122,8 +122,14 @@ fun Project.validateProjectStructure(groupId: String) {
     val actualDir =
         canonicalProjectDir.toRelativeString(project.getSupportRootFolder().canonicalFile)
     if (expectDir != actualDir) {
-        throw GradleException(
-            "Invalid project structure! Expected $expectDir as project directory, found $actualDir"
-        )
+        // If we're allowing optional projects, try stripping any leading "../../".
+        val includeOptionalProjects =
+            providers.gradleProperty(INCLUDE_OPTIONAL_PROJECTS).getOrElse("false").toBoolean()
+        if (!includeOptionalProjects || expectDir != actualDir.removePrefix("../../")) {
+            throw GradleException(
+                "Invalid project structure! Expected $expectDir as project directory, found " +
+                    actualDir
+            )
+        }
     }
 }

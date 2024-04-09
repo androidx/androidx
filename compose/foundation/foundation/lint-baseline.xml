@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
 
     <issue
         id="BanSuppressTag"
@@ -94,17 +94,8 @@
     <issue
         id="PrimitiveInCollection"
         message="field currentKeyPressInteractions with type Map&lt;Key, Press>: replace with LongObjectMap"
-        errorLine1="        val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Key, Press> of getCurrentKeyPressInteractions: replace with LongObjectMap"
-        errorLine1="        val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    private val currentKeyPressInteractions = mutableMapOf&lt;Key, PressInteraction.Press>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/Clickable.kt"/>
     </issue>
@@ -611,15 +602,6 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionRegistrarImpl.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field baselineCache with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    private var baselineCache: Map&lt;AlignmentLine, Int>? = null"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
     </issue>
 
     <issue

@@ -20,18 +20,23 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.Paragraph
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -394,4 +399,77 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
+}
+
+/** Contains the methods to be used by [Text] */
+object TextDefaults {
+    /**
+     * Converts a string with HTML tags into [AnnotatedString]. Applies default styling from the
+     * [MaterialTheme] to links present in the [htmlString].
+     *
+     * Check [androidx.compose.ui.text.AnnotatedString.Companion.fromHtml] for more details on
+     * supported tags and usage.
+     *
+     * @param htmlString HTML-tagged string to be parsed to construct AnnotatedString
+     * @param linkStyle style to be applied to links present in the string
+     * @param linkFocusedStyle style to be applied to links present in the string when they are
+     * focused
+     * @param linkHoveredStyle style to be applied to links present in the string when they are
+     * hovered
+     * @param linkInteractionListener a listener that will be attached to links that are present in
+     * the string and triggered when user clicks on those links. When set to null, which is
+     * a default, the system will try to open the corresponding links with the
+     * [androidx.compose.ui.platform.UriHandler] composition local
+     *
+     * @see androidx.compose.ui.text.AnnotatedString.Companion.fromHtml
+     */
+    @Composable
+    @ReadOnlyComposable
+    fun fromHtml(
+        htmlString: String,
+        linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colors.primary),
+        linkFocusedStyle: SpanStyle? = null,
+        linkHoveredStyle: SpanStyle? = null,
+        linkInteractionListener: LinkInteractionListener? = null
+    ): AnnotatedString {
+        return AnnotatedString.fromHtml(
+            htmlString, linkStyle, linkFocusedStyle, linkHoveredStyle, linkInteractionListener
+        )
+    }
+
+    /**
+     * Constructs a [LinkAnnotation.Url] and applies default styling from the [MaterialTheme]
+     *
+     * @sample androidx.compose.material.samples.AnnotatedStringWithLinks
+     */
+    @Composable
+    @ReadOnlyComposable
+    fun Url(
+        url: String,
+        linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colors.primary),
+        linkFocusedStyle: SpanStyle? = null,
+        linkHoveredStyle: SpanStyle? = null,
+        linkInteractionListener: LinkInteractionListener? = null
+    ): LinkAnnotation.Url {
+        return LinkAnnotation.Url(
+            url, linkStyle, linkFocusedStyle, linkHoveredStyle, linkInteractionListener
+        )
+    }
+
+    /**
+     * Constructs a [LinkAnnotation.Clickable] and applies default styling from the [MaterialTheme]
+     */
+    @Composable
+    @ReadOnlyComposable
+    fun Clickable(
+        tag: String,
+        linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colors.primary),
+        linkFocusedStyle: SpanStyle? = null,
+        linkHoveredStyle: SpanStyle? = null,
+        linkInteractionListener: LinkInteractionListener?
+    ): LinkAnnotation.Clickable {
+        return LinkAnnotation.Clickable(
+            tag, linkStyle, linkFocusedStyle, linkHoveredStyle, linkInteractionListener
+        )
+    }
 }

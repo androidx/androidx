@@ -40,4 +40,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     runApiTasks = new RunApiTasks.Yes()
     metalavaK2UastEnabled = true
+    doNotDocumentReason = "Only used externally by Android Studio"
 }

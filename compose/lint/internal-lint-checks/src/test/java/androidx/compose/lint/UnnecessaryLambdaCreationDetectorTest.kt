@@ -363,5 +363,59 @@ src/test/SomeScope.kt:24: Error: Creating an unnecessary lambda to emit a captur
         """
         ).expectClean()
     }
+
+    @Test
+    fun warnsForFunctionsReturningALambda() {
+        check(
+            """
+            package test
+
+            import androidx.compose.runtime.Composable
+
+            fun returnsLambda(): () -> Unit = {}
+            fun returnsComposableLambda(): @Composable () -> Unit = {}
+
+            @Composable
+            fun Test() {
+                ComposableFunction {
+                    returnsLambda()()
+                }
+
+                InlineComposableFunction {
+                    returnsLambda()()
+                }
+
+                ReifiedComposableFunction<Any> {
+                    returnsLambda()()
+                }
+
+                ComposableFunction {
+                    returnsComposableLambda()()
+                }
+
+                InlineComposableFunction {
+                    returnsComposableLambda()()
+                }
+
+                ReifiedComposableFunction<Any> {
+                    returnsComposableLambda()()
+                }
+            }
+        """
+        ).expect(
+            """
+src/test/test.kt:23: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        returnsComposableLambda()()
+                                 ~
+src/test/test.kt:27: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        returnsComposableLambda()()
+                                 ~
+src/test/test.kt:31: Error: Creating an unnecessary lambda to emit a captured lambda [UnnecessaryLambdaCreation]
+        returnsComposableLambda()()
+                                 ~
+3 errors, 0 warnings
+        """
+        )
+    }
 }
 /* ktlint-enable max-line-length */

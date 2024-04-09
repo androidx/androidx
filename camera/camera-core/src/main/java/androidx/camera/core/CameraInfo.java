@@ -330,6 +330,20 @@ public interface CameraInfo {
     }
 
     /**
+     * Returns if logical multi camera is supported on the device.
+     *
+     * <p>A logical camera is a grouping of two or more of those physical cameras.
+     * See <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>
+     *
+     * @return true if supported, otherwise false.
+     * @see android.hardware.camera2.CameraMetadata
+     * #REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+     */
+    default boolean isLogicalMultiCameraSupported() {
+        return false;
+    }
+
+    /**
      * Returns if {@link ImageFormat#PRIVATE} reprocessing is supported on the device.
      *
      * @return true if supported, otherwise false.
@@ -403,6 +417,24 @@ public interface CameraInfo {
         // For the default implementation, only assume SDR is supported.
         return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges,
                 Collections.singleton(DynamicRange.SDR));
+    }
+
+    /**
+     * Returns a set of physical camera {@link CameraInfo}s.
+     *
+     * <p>A logical camera is a grouping of two or more of those physical cameras.
+     * See <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>
+     *
+     * <p> Check {@link #isLogicalMultiCameraSupported()} to see if the device is supporting
+     * physical camera or not. If the device doesn't support physical camera, empty set will
+     * be returned.
+     *
+     * @return Set of physical camera {@link CameraInfo}s.
+     * @see #isLogicalMultiCameraSupported()
+     */
+    @NonNull
+    default Set<CameraInfo> getPhysicalCameraInfos() {
+        return Collections.emptySet();
     }
 
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,

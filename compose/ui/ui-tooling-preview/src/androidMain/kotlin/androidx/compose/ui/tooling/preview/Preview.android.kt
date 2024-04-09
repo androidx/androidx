@@ -41,7 +41,8 @@ import androidx.compose.runtime.Composable
  * restrict the size of the rendering viewport.
  * @param locale Current user preference for the locale, corresponding to
  * [locale](https://d.android.com/guide/topics/resources/providing-resources.html#LocaleQualifier) resource
- * qualifier. By default, the `default` folder will be used.
+ * qualifier. By default, the `default` folder will be used. To preview an RTL layout use
+ * a locale that uses right to left script, such as `ar` (or the `ar-rXB` pseudo locale).
  * @param fontScale User preference for the scaling factor for fonts, relative to the base
  * density scaling.
  * @param showSystemUi If true, the status bar and action bar of the device will be displayed.

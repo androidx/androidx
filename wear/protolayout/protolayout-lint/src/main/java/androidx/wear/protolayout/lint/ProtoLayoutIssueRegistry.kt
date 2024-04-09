@@ -25,7 +25,12 @@ import com.android.tools.lint.detector.api.CURRENT_API
 class ProtoLayoutIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues = listOf(ProtoLayoutMinSchemaDetector.ISSUE)
+    override val issues =
+        listOf(
+            ProtoLayoutMinSchemaDetector.ISSUE,
+            ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE,
+            ResponsiveLayoutDetector.EDGE_CONTENT_LAYOUT_ISSUE
+        )
     override val vendor =
         Vendor(
             feedbackUrl = "https://issuetracker.google.com/issues/new?component=1112273",

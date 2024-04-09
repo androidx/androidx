@@ -40,6 +40,7 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.animateToWithDecay
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,7 +54,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
@@ -172,8 +172,8 @@ class AnchoredDraggableStateTest {
                             state.updateAnchors(
                                 DraggableAnchors {
                                     A at 0f
-                                    B at layoutSize.width / 2f
-                                    C at layoutSize.width.toFloat()
+                                    B at layoutSize.height / 2f
+                                    C at layoutSize.height.toFloat()
                                 }
                             )
                         }
@@ -286,66 +286,136 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
-    fun anchoredDraggable_progress_matchesSwipePosition() {
+    fun anchoredDraggable_targetState_updatedWithDeltaDispatch() {
         val state = AnchoredDraggableState(
             initialValue = A,
-            positionalThreshold = defaultPositionalThreshold,
+            positionalThreshold = { it / 2f },
             velocityThreshold = defaultVelocityThreshold,
-            snapAnimationSpec = defaultAnimationSpec,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 400f
+            }
+        )
+
+        val initialOffset = state.requireOffset()
+
+        // Swipe towards B, close before threshold
+        val aToBThreshold = abs(state.anchors.positionOf(A) - state.anchors.positionOf(B)) / 2f
+        state.dispatchRawDelta(initialOffset + (aToBThreshold * 0.9f))
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        // Swipe towards B, close after threshold
+        state.dispatchRawDelta(aToBThreshold * 0.2f)
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        // Swipe towards A, close before threshold
+        state.dispatchRawDelta(-(aToBThreshold * 0.9f))
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        // Swipe towards A, close after threshold
+        state.dispatchRawDelta(-(aToBThreshold * 0.2f))
+
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        runBlocking(AutoTestFrameClock()) { state.settle(velocity = 0f) }
+
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+    }
+
+    @Test
+    fun anchoredDraggable_progress() {
+        rule.mainClock.autoAdvance = false
+        val animationDuration = 320
+        val frameLengthMillis = 16
+        val amountOfFramesForAnimation = animationDuration / frameLengthMillis
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            snapAnimationSpec = tween(animationDuration, easing = LinearEasing),
+            positionalThreshold = { distance -> distance * 0.5f },
+            velocityThreshold = defaultVelocityThreshold,
             decayAnimationSpec = defaultDecayAnimationSpec
         )
+        lateinit var scope: CoroutineScope
         rule.setContent {
-            WithTouchSlop(touchSlop = 0f) {
-                Box(Modifier.fillMaxSize()) {
-                    Box(
-                        Modifier
-                            .requiredSize(AnchoredDraggableBoxSize)
-                            .testTag(AnchoredDraggableTestTag)
-                            .anchoredDraggable(
-                                state = state,
-                                orientation = Orientation.Vertical
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier
+                        .requiredSize(AnchoredDraggableBoxSize)
+                        .testTag(AnchoredDraggableTestTag)
+                        .anchoredDraggable(
+                            state = state,
+                            orientation = Orientation.Vertical
+                        )
+                        .onSizeChanged { layoutSize ->
+                            state.updateAnchors(
+                                DraggableAnchors {
+                                    A at 0f
+                                    B at layoutSize.width / 2f
+                                    C at layoutSize.width.toFloat()
+                                }
                             )
-                            .onSizeChanged { layoutSize ->
-                                state.updateAnchors(
-                                    DraggableAnchors {
-                                        A at 0f
-                                        B at layoutSize.width / 2f
-                                        C at layoutSize.width.toFloat()
-                                    }
-                                )
-                            }
-                            .offset {
-                                IntOffset(
-                                    state
-                                        .requireOffset()
-                                        .roundToInt(), 0
-                                )
-                            }
-                            .background(Color.Red)
-                    )
-                }
+                        }
+                        .offset {
+                            IntOffset(
+                                state
+                                    .requireOffset()
+                                    .roundToInt(), 0
+                            )
+                        }
+                        .background(Color.Red)
+                )
             }
         }
 
-        val anchorA = state.anchors.positionOf(A)
-        val anchorB = state.anchors.positionOf(B)
-        val almostAnchorB = anchorB * 0.9f
-        var expectedProgress = almostAnchorB / (anchorB - anchorA)
-
-        rule.onNodeWithTag(AnchoredDraggableTestTag)
-            .performTouchInput { swipeDown(endY = almostAnchorB) }
-
-        assertThat(state.targetValue).isEqualTo(B)
-        assertThat(state.progress).isEqualTo(expectedProgress)
-
-        val almostAnchorA = anchorA + ((anchorB - anchorA) * 0.1f)
-        expectedProgress = 1 - (almostAnchorA / (anchorB - anchorA))
-
-        rule.onNodeWithTag(AnchoredDraggableTestTag)
-            .performTouchInput { swipeUp(startY = anchorB, endY = almostAnchorA) }
-
+        assertThat(state.currentValue).isEqualTo(A)
         assertThat(state.targetValue).isEqualTo(A)
-        assertThat(state.progress).isEqualTo(expectedProgress)
+        assertThat(state.progress(from = A, to = B)).isEqualTo(0f)
+
+        scope.launch { state.animateTo(B) }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val hiddenToHalfExpandedProgress = state.progress(from = A, to = B)
+            val hiddenToExpandedProgress = state.progress(from = A, to = C)
+            assertThat(hiddenToHalfExpandedProgress).isWithin(0.001f).of(frameFraction)
+            assertThat(hiddenToExpandedProgress).isWithin(0.001f).of(frameFraction / 2f)
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        scope.launch { state.animateTo(A) }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val aToBProgress = state.progress(from = A, to = B)
+            val aToCProgress = state.progress(from = A, to = C)
+
+            assertThat(aToBProgress).isWithin(0.001f).of(1 - frameFraction)
+            assertThat(aToCProgress).isWithin(0.001f).of(0.5f - (frameFraction / 2f))
+            rule.mainClock.advanceTimeByFrame()
+        }
     }
 
     @Test
@@ -498,8 +568,9 @@ class AnchoredDraggableStateTest {
                     decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
-            LaunchedEffect(state.progress) {
-                progress = state.progress
+            val latestProgress = state.progress(from = A, to = B)
+            LaunchedEffect(latestProgress) {
+                progress = latestProgress
             }
             Box(Modifier.fillMaxSize()) {
                 Box(
@@ -880,31 +951,32 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
-    fun anchoredDraggable_customDrag_updatesOffset() = runBlocking {
+    fun anchoredDraggable_customDrag_doesNotSnapToClosestAnchor() = runBlocking {
         val state = AnchoredDraggableState(
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
             snapAnimationSpec = defaultAnimationSpec,
-            decayAnimationSpec = defaultDecayAnimationSpec
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 300f
+            }
         )
-        val anchors = DraggableAnchors {
-            A at 0f
-            B at 200f
-            C at 300f
-        }
 
-        state.updateAnchors(anchors)
         state.anchoredDrag {
             dragTo(150f)
         }
 
+        assertThat(state.currentValue).isEqualTo(B)
         assertThat(state.requireOffset()).isEqualTo(150f)
 
         state.anchoredDrag {
-            dragTo(250f)
+            dragTo(260f)
         }
-        assertThat(state.requireOffset()).isEqualTo(250f)
+        assertThat(state.currentValue).isEqualTo(C)
+        assertThat(state.requireOffset()).isEqualTo(260f)
     }
 
     @Test
@@ -1495,9 +1567,57 @@ class AnchoredDraggableStateTest {
             assertThat(state.offset).isEqualTo(positionB)
 
             // since offset == positionB, decay animation is used
-            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(1)
+            assertThat(inspectDecayAnimationSpec.animationWasExecutions).isEqualTo(0)
             assertThat(tweenAnimationSpec.animationWasExecutions).isEqualTo(0)
         }
+
+    @Test
+    fun anchoredDraggable_animateTo_alreadyAtTarget_noOps() {
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 300f
+            }
+        )
+        val clock = HandPumpTestFrameClock()
+        val scope = CoroutineScope(clock)
+
+        assertThat(state.offset).isEqualTo(200f)
+        scope.launch { state.animateTo(B) }
+        runBlocking { clock.advanceByFrame() } // Advance only one frame, we should be done
+        assertThat(state.offset).isEqualTo(200f)
+    }
+
+    @Test
+    fun anchoredDraggable_animateToWithDecay_alreadyAtTarget_noOps() {
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            positionalThreshold = defaultPositionalThreshold,
+            velocityThreshold = defaultVelocityThreshold,
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 200f
+                C at 300f
+            }
+        )
+        val clock = HandPumpTestFrameClock()
+        val scope = CoroutineScope(clock)
+
+        assertThat(state.offset).isEqualTo(200f)
+        scope.launch {
+            state.animateToWithDecay(B, velocity = 100f)
+        }
+        runBlocking { clock.advanceByFrame() } // Advance only one frame, we should be done
+        assertThat(state.offset).isEqualTo(200f)
+    }
 
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
 

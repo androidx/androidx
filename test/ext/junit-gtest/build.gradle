@@ -52,6 +52,7 @@ androidx {
 
 android {
     defaultConfig {
+        minSdkVersion 21
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_shared"

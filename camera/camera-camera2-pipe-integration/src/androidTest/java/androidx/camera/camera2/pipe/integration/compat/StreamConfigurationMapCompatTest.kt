@@ -31,6 +31,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,6 +65,11 @@ class StreamConfigurationMapCompatTest {
             streamConfigurationMap,
             OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
         )
+    }
+
+    @After
+    fun tearDown() {
+        CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
     @Test

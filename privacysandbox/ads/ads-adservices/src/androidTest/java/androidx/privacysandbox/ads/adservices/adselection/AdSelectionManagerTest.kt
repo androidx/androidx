@@ -60,7 +60,7 @@ import org.mockito.quality.Strictness
 class AdSelectionManagerTest {
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExtVersion = AdServicesInfo.adServicesVersion() >= 4
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
 
     @Before
     fun setUp() {
@@ -86,7 +86,17 @@ class AdSelectionManagerTest {
     fun testAdSelectionOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33/34 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(obtain(mContext)).isEqualTo(null)
+        assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testAdSelectionManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(android.adservices.adselection.AdSelectionManager.get(any())).thenThrow(
+            NoClassDefFoundError()
+        )
+        assertThat(obtain(mContext)).isNull()
     }
 
     @Test
@@ -154,8 +164,9 @@ class AdSelectionManagerTest {
 
         /* API is not available */
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
-            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
+            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersionS() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         val getAdSelectionDataRequest = GetAdSelectionDataRequest(seller)
         // Verify that it throws an exception
@@ -175,8 +186,9 @@ class AdSelectionManagerTest {
 
         /* API is not available */
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
-            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
+            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersionS() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         val persistAdSelectionResultRequest = PersistAdSelectionResultRequest(
             adSelectionId,
@@ -200,8 +212,9 @@ class AdSelectionManagerTest {
 
         /* API is not available */
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
-            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
+            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersionS() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         val reportImpressionRequest = ReportImpressionRequest(adSelectionId)
 
@@ -223,8 +236,9 @@ class AdSelectionManagerTest {
 
         /* API is not available */
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
-            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
+            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersionS() < 10)
 
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
         // Verify that it throws an exception
         assertThrows(UnsupportedOperationException::class.java) {
@@ -263,7 +277,7 @@ class AdSelectionManagerTest {
     @Test
     fun testSelectAdsFromOutcomes() {
         Assume.assumeTrue("minSdkVersion = API 31 ext 10",
-            AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10)
+            AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersionS() >= 10)
 
         val adSelectionManager = mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         setupAdSelectionFromOutcomesResponse(adSelectionManager)
@@ -375,7 +389,7 @@ class AdSelectionManagerTest {
     fun testPersistAdSelectionResult() {
         Assume.assumeTrue("minSdkVersion = API 31 ext 10",
             AdServicesInfo.adServicesVersion() >= 10 ||
-                AdServicesInfo.extServicesVersion() >= 10)
+                AdServicesInfo.extServicesVersionS() >= 10)
 
         val adSelectionManager = mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
         setupGetAdSelectionResponse(adSelectionManager)
@@ -653,7 +667,7 @@ class AdSelectionManagerTest {
             request: android.adservices.adselection.ReportEventRequest
         ) {
             val checkInputEvent = AdServicesInfo.adServicesVersion() >= 10 ||
-                AdServicesInfo.extServicesVersion() >= 10
+                AdServicesInfo.extServicesVersionS() >= 10
             val expectedRequestBuilder = android.adservices.adselection.ReportEventRequest.Builder(
                 adSelectionId,
                 eventKey,

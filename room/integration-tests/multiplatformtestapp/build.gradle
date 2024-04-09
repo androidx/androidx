@@ -13,44 +13,121 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import androidx.build.KmpPlatformsKt
+import org.apache.commons.io.FileUtils
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("com.google.devtools.ksp")
+    id("androidx.room")
 }
 
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
+// Disabled due to https://youtrack.jetbrains.com/issue/KT-65761
+ext["kotlin.native.disableCompilerDaemon"] = 'true'
 
 androidXMultiplatform {
-    mac()
-    linux()
+    android()
     ios()
+    jvm()
+    linux()
+    mac()
     sourceSets {
         commonTest {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(project(":room:room-runtime"))
+                implementation(project(":room:room-testing"))
+                implementation(project(":sqlite:sqlite-bundled"))
                 implementation(project(":kruth:kruth"))
                 implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
             }
         }
-        if (nativeEnabled) {
-            nativeTest {
-                dependsOn(commonTest)
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+            }
+        }
+        nativeTest {
+            dependsOn(commonTest)
+        }
+        nonIosNativeTest {
+            dependsOn(nativeTest)
+        }
+        if (KmpPlatformsKt.enableMac(project)) {
+            iosTest {
+                dependsOn(nativeTest)
             }
         }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
+                def test = target.compilations["test"]
+                if (target.konanTarget.family == Family.IOS) {
+                    test.defaultSourceSet {
+                        dependsOn(iosTest)
+                    }
+                } else {
+                    test.defaultSourceSet {
+                        dependsOn(nonIosNativeTest)
+                    }
                 }
             }
         }
     }
 }
 
-ksp {
-    arg("room.generateKotlin", "true")
+// TODO(b/325111583): Create a helper function to configure KSP with KMP targets
+dependencies {
+    def roomCompilerDependency = project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    add("kspAndroidAndroidTest", roomCompilerDependency)
+    add("kspJvmTest", roomCompilerDependency)
+    add("kspLinuxX64Test", roomCompilerDependency)
+    if (KmpPlatformsKt.enableMac(project)) {
+        add("kspIosSimulatorArm64Test", roomCompilerDependency)
+        add("kspIosX64Test", roomCompilerDependency)
+        add("kspMacosX64Test", roomCompilerDependency)
+        add("kspMacosArm64Test", roomCompilerDependency)
+    }
+}
+
+android {
+    namespace "androidx.room.integration.multiplatformtestapp"
+    // TODO(b/317909626): Should be configured by Room Gradle Plugin
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
+    }
+}
+
+// Copy schema files to the iOS binary output test directory that will be part of the bundle's
+// resources and read with NSBundle. This needs to be replaced with a more proper mechanism.
+// TODO(b/317909626): Should be configured by Room Gradle Plugin
+tasks.withType(KotlinNativeLink).configureEach { task ->
+    if (name.contains("linkDebugTestIos")) {
+        def inputSchemaDir = layout.projectDirectory.dir("schemas-ksp").getAsFile()
+        def outputSchemaDir = new File(task.destinationDirectory.getAsFile().get(), "/schemas-ksp")
+        task.doLast {
+            FileUtils.copyDirectory(inputSchemaDir, outputSchemaDir)
+        }
+    }
+}
+
+room {
+    schemaDirectory(
+            provider { layout.projectDirectory.dir("schemas-ksp").getAsFile().getAbsolutePath() }
+    )
+    generateKotlin = true
 }

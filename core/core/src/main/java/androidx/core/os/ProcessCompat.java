@@ -39,10 +39,8 @@ public final class ProcessCompat {
      * Compatibility behavior:
      * <ul>
      * <li>SDK 24 and above, this method matches platform behavior.
-     * <li>SDK 16 through 23, this method is a best-effort to match platform behavior, but may
+     * <li>SDK 23 and earlier, this method is a best-effort to match platform behavior, but may
      * default to returning {@code true} if an accurate result is not available.
-     * <li>SDK 15 and below, this method always returns {@code true} as application UIDs and
-     * isolated processes did not exist yet.
      * </ul>
      *
      * @param uid a kernel uid
@@ -55,7 +53,7 @@ public final class ProcessCompat {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.isApplicationUid(uid);
         } else {
-            return Api17Impl.isApplicationUid(uid);
+            return Api19Impl.isApplicationUid(uid);
         }
     }
 
@@ -72,20 +70,20 @@ public final class ProcessCompat {
         }
     }
 
-    static class Api17Impl {
+    static class Api19Impl {
         private static final Object sResolvedLock = new Object();
 
         private static Method sMethodUserHandleIsAppMethod;
         private static boolean sResolved;
 
-        private Api17Impl() {
+        private Api19Impl() {
             // This class is non-instantiable.
         }
 
         @SuppressWarnings({"JavaReflectionMemberAccess", "CatchAndPrintStackTrace"})
         @SuppressLint("DiscouragedPrivateApi")
         static boolean isApplicationUid(int uid) {
-            // In JELLY_BEAN_MR2, the equivalent isApp(int) hidden method moved to public class
+            // Prior to API 24, the equivalent isApp(int) hidden method moved to public class
             // android.os.UserHandle.
             try {
                 synchronized (sResolvedLock) {

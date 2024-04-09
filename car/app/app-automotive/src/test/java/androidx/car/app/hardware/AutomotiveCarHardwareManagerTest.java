@@ -47,10 +47,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 
-@Config(
-        manifest = Config.NONE,
-        shadows = {ShadowCar.class}
-)
+@Config(shadows = {ShadowCar.class})
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AutomotiveCarHardwareManagerTest {

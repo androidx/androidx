@@ -63,8 +63,6 @@ fun configureAarAsJarForConfiguration(project: Project, configurationName: Strin
         .dependencies
         .add(project.dependencies.create(aarAsJar))
 
-    // Added to allow the :external:paparazzi:paparazzi build to select the correct jar (not get
-    // confused by the mpp jars) when the mpp builds are enabled
     project.configurations
         .getByName(testAarsAsJars.name)
         .attributes

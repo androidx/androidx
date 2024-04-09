@@ -1,9 +1,47 @@
 // Signature format: 4.0
+package androidx.camera.viewfinder.core {
+
+  @RequiresApi(21) public final class ZoomGestureDetector {
+    ctor public ZoomGestureDetector(android.content.Context context, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
+    ctor public ZoomGestureDetector(android.content.Context context, optional int spanSlop, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
+    ctor public ZoomGestureDetector(android.content.Context context, optional int spanSlop, optional int minSpan, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
+    method public long getEventTime();
+    method public float getFocusX();
+    method public float getFocusY();
+    method public float getScaleFactor();
+    method public long getTimeDelta();
+    method public boolean isInProgress();
+    method public boolean isQuickZoomEnabled();
+    method public boolean isStylusZoomEnabled();
+    method @UiThread public boolean onTouchEvent(android.view.MotionEvent event);
+    method public void setQuickZoomEnabled(boolean);
+    method public void setStylusZoomEnabled(boolean);
+    property public final long eventTime;
+    property public final float focusX;
+    property public final float focusY;
+    property public final boolean isInProgress;
+    property public final boolean isQuickZoomEnabled;
+    property public final boolean isStylusZoomEnabled;
+    property public final float scaleFactor;
+    property public final long timeDelta;
+    field public static final androidx.camera.viewfinder.core.ZoomGestureDetector.Companion Companion;
+    field public static final int ZOOM_GESTURE_BEGIN = 1; // 0x1
+    field public static final int ZOOM_GESTURE_END = 2; // 0x2
+    field public static final int ZOOM_GESTURE_MOVE = 0; // 0x0
+  }
+
+  public static final class ZoomGestureDetector.Companion {
+  }
+
+  public static fun interface ZoomGestureDetector.OnZoomGestureListener {
+    method @UiThread public boolean onZoomEvent(int type, androidx.camera.viewfinder.core.ZoomGestureDetector detector);
+  }
+
+}
+
 package @RequiresApi(21) androidx.camera.viewfinder.surface {
 
   public enum ImplementationMode {
-    method public static androidx.camera.viewfinder.surface.ImplementationMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.camera.viewfinder.surface.ImplementationMode[] values();
     enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode COMPATIBLE;
     enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode PERFORMANCE;
     field public static final androidx.camera.viewfinder.surface.ImplementationMode.Companion Companion;
@@ -34,17 +72,21 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
 
   public final class ViewfinderSurfaceRequest {
     method public androidx.camera.viewfinder.surface.ImplementationMode? getImplementationMode();
-    method public int getLensFacing();
+    method public int getOutputMirrorMode();
     method public android.util.Size getResolution();
-    method public int getSensorOrientation();
+    method public int getSourceOrientation();
+    method public suspend Object? getSurface(kotlin.coroutines.Continuation<? super android.view.Surface>);
+    method public com.google.common.util.concurrent.ListenableFuture<android.view.Surface> getSurfaceAsync();
     method public void markSurfaceSafeToRelease();
     method public void provideSurface(android.view.Surface surface, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result?> resultListener);
     method public boolean willNotProvideSurface();
     property public final androidx.camera.viewfinder.surface.ImplementationMode? implementationMode;
-    property public final int lensFacing;
+    property public final int outputMirrorMode;
     property public final android.util.Size resolution;
-    property public final int sensorOrientation;
+    property public final int sourceOrientation;
     field public static final androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion Companion;
+    field public static final int MIRROR_MODE_HORIZONTAL = 1; // 0x1
+    field public static final int MIRROR_MODE_NONE = 0; // 0x0
   }
 
   public static final class ViewfinderSurfaceRequest.Builder {
@@ -53,8 +95,8 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
     ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder builder);
     method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest build();
     method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setImplementationMode(androidx.camera.viewfinder.surface.ImplementationMode? implementationMode);
-    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setLensFacing(int lensFacing);
-    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setSensorOrientation(int sensorOrientation);
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setOutputMirrorMode(int outputMirrorMode);
+    method public androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder setSourceOrientation(int sourceOrientation);
   }
 
   public static final class ViewfinderSurfaceRequest.Companion {
@@ -78,6 +120,10 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
   }
 
   public static final class ViewfinderSurfaceRequest.Result.Companion {
+  }
+
+  public final class ViewfinderSurfaceRequestUtil {
+    method @RequiresApi(21) public static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
   }
 
 }

@@ -18,7 +18,6 @@ package androidx.car.app.mediaextensions.analytics.event;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVENT_DATA_KEY_HOST_COMPONENT_ID;
-import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVENT_DATA_KEY_SESSION_ID;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVENT_DATA_KEY_TIMESTAMP;
 import static androidx.car.app.mediaextensions.analytics.Constants.ANALYTICS_EVENT_DATA_KEY_VERSION;
 
@@ -29,7 +28,6 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator;
 
 import java.lang.annotation.Retention;
 
@@ -120,7 +118,6 @@ public  abstract class AnalyticsEvent {
     public @interface EventType {}
 
     private final int mAnalyticsVersion;
-    private final int mSessionId;
     private final @EventType int mEventType;
     private final long mTimeStampMillis;
     private final String mComponent;
@@ -128,7 +125,6 @@ public  abstract class AnalyticsEvent {
     @RestrictTo(LIBRARY)
     public AnalyticsEvent(@NonNull Bundle eventBundle, @EventType int eventType) {
         mAnalyticsVersion = eventBundle.getInt(ANALYTICS_EVENT_DATA_KEY_VERSION, -1);
-        mSessionId = eventBundle.getInt(ANALYTICS_EVENT_DATA_KEY_SESSION_ID, 0);
         mTimeStampMillis = eventBundle.getLong(ANALYTICS_EVENT_DATA_KEY_TIMESTAMP, -1);
         mComponent = eventBundle.getString(ANALYTICS_EVENT_DATA_KEY_HOST_COMPONENT_ID, "");
         mEventType = eventType;
@@ -163,20 +159,11 @@ public  abstract class AnalyticsEvent {
         return mComponent;
     }
 
-    /**
-     * Returns session Id set in
-     * {@link RootHintsPopulator#setSessionId(int)}
-     */
-    public int getSessionId() {
-        return mSessionId;
-    }
-
     @NonNull
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AnalyticsEvent{");
         sb.append("mAnalyticsVersion=").append(mAnalyticsVersion);
-        sb.append(", mSessionId='").append(mSessionId).append('\'');
         sb.append(", mEventType=").append(mEventType);
         sb.append(", mTime=").append(mTimeStampMillis);
         sb.append(", mComponent='").append(mComponent).append('\'');

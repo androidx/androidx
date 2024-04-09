@@ -48,7 +48,36 @@ class GetCustomCredentialOptionTest {
 
     @Test
     fun constructor_nonEmptyTypeNonNullBundle_success() {
-        GetCustomCredentialOption("T", Bundle(), Bundle(), true, true)
+        GetCustomCredentialOption("T", Bundle(), Bundle(), true,
+            true)
+    }
+
+    @Test
+    fun constructor_priorityNotPassedIn_defaultPriorityRetrievedSuccess() {
+        val customCredentialOption = GetCustomCredentialOption(
+            "T",
+            Bundle(), Bundle(), true, false
+        )
+
+        assertThat(customCredentialOption.typePriorityHint).isEqualTo(
+            EXPECTED_CUSTOM_DEFAULT_PRIORITY
+        )
+    }
+
+    @Test
+    fun constructor_priorityPassedIn_setPriorityRetrievedSuccess() {
+        val expectedOverwrittenPriorityHint: @PriorityHints Int =
+            PriorityHints.PRIORITY_OIDC_OR_SIMILAR
+
+        val customCredentialOption = GetCustomCredentialOption(
+            "T",
+            Bundle(), Bundle(), true, false,
+            emptySet(), expectedOverwrittenPriorityHint
+        )
+
+        assertThat(customCredentialOption.typePriorityHint).isEqualTo(
+            expectedOverwrittenPriorityHint
+        )
     }
 
     @Test
@@ -63,6 +92,10 @@ class GetCustomCredentialOptionTest {
         val expectedAllowedProviders: Set<ComponentName> = setOf(
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")
+        )
+        val expectedPriorityCategoryValue = EXPECTED_CUSTOM_DEFAULT_PRIORITY
+        expectedBundle.putInt(
+            CredentialOption.BUNDLE_KEY_TYPE_PRIORITY_VALUE, expectedPriorityCategoryValue
         )
 
         val option = GetCustomCredentialOption(
@@ -86,6 +119,7 @@ class GetCustomCredentialOptionTest {
         assertThat(option.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
         assertThat(option.allowedProviders)
             .containsAtLeastElementsIn(expectedAllowedProviders)
+        assertThat(option.typePriorityHint).isEqualTo(EXPECTED_CUSTOM_DEFAULT_PRIORITY)
     }
 
     @Test
@@ -101,13 +135,15 @@ class GetCustomCredentialOptionTest {
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")
         )
+        val expectedPriorityHint: @PriorityHints Int = PriorityHints.PRIORITY_OIDC_OR_SIMILAR
         val option = GetCustomCredentialOption(
             expectedType,
             expectedBundle,
             expectedCandidateQueryDataBundle,
             expectedSystemProvider,
             expectedAutoSelectAllowed,
-            expectedAllowedProviders
+            expectedAllowedProviders,
+            expectedPriorityHint
         )
 
         val convertedOption = createFrom(
@@ -129,5 +165,11 @@ class GetCustomCredentialOptionTest {
         assertThat(actualOption.isSystemProviderRequired).isEqualTo(expectedSystemProvider)
         assertThat(actualOption.allowedProviders)
             .containsAtLeastElementsIn(expectedAllowedProviders)
+        assertThat(actualOption.typePriorityHint).isEqualTo(expectedPriorityHint)
+    }
+
+    private companion object {
+        private const val EXPECTED_CUSTOM_DEFAULT_PRIORITY: @PriorityHints Int =
+            PriorityHints.PRIORITY_DEFAULT
     }
 }

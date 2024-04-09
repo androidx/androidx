@@ -27,16 +27,18 @@ import androidx.compose.ui.util.floatFromBits
  *
  * The IEEE 754 standard specifies an fp16 as having the following format:
  *
- *  * Sign bit: 1 bit
- *  * Exponent width: 5 bits
- *  * Significand: 10 bits
+ *  - Sign bit: 1 bit
+ *  - Exponent width: 5 bits
+ *  - Significand: 10 bits
  *
  * The format is laid out as follows:
+ * ```
  *     1   11111   1111111111
  *     ^   --^--   -----^----
  *     sign  |          |_______ significand
  *     |
  *     -- exponent
+ * ```
  *
  * Half-precision floating points can be useful to save memory and/or
  * bandwidth at the expense of range and precision when compared to single-precision
@@ -49,31 +51,31 @@ import androidx.compose.ui.util.floatFromBits
  *
  * <table summary="Precision of fp16 across the range">
  * <tr><th>Range start</th><th>Precision</th></tr>
- * <tr><td>0</td><td>1  16,777,216</td></tr>
- * <tr><td>1  16,384</td><td>1  16,777,216</td></tr>
- * <tr><td>1  8,192</td><td>1  8,388,608</td></tr>
- * <tr><td>1  4,096</td><td>1  4,194,304</td></tr>
- * <tr><td>1  2,048</td><td>1  2,097,152</td></tr>
- * <tr><td>1  1,024</td><td>1  1,048,576</td></tr>
- * <tr><td>1  512</td><td>1  524,288</td></tr>
- * <tr><td>1  256</td><td>1  262,144</td></tr>
- * <tr><td>1  128</td><td>1  131,072</td></tr>
- * <tr><td>1  64</td><td>1  65,536</td></tr>
- * <tr><td>1  32</td><td>1  32,768</td></tr>
- * <tr><td>1  16</td><td>1  16,384</td></tr>
- * <tr><td>1  8</td><td>1  8,192</td></tr>
- * <tr><td>1  4</td><td>1  4,096</td></tr>
- * <tr><td>1  2</td><td>1  2,048</td></tr>
- * <tr><td>1</td><td>1  1,024</td></tr>
- * <tr><td>2</td><td>1  512</td></tr>
- * <tr><td>4</td><td>1  256</td></tr>
- * <tr><td>8</td><td>1  128</td></tr>
- * <tr><td>16</td><td>1  64</td></tr>
- * <tr><td>32</td><td>1  32</td></tr>
- * <tr><td>64</td><td>1  16</td></tr>
- * <tr><td>128</td><td>1  8</td></tr>
- * <tr><td>256</td><td>1  4</td></tr>
- * <tr><td>512</td><td>1  2</td></tr>
+ * <tr><td>0</td><td>1/16,777,216</td></tr>
+ * <tr><td>1/16,384</td><td>1/16,777,216</td></tr>
+ * <tr><td>1/8,192</td><td>1/8,388,608</td></tr>
+ * <tr><td>1/4,096</td><td>1/4,194,304</td></tr>
+ * <tr><td>1/2,048</td><td>1/2,097,152</td></tr>
+ * <tr><td>1/1,024</td><td>1/1,048,576</td></tr>
+ * <tr><td>1/512</td><td>1/524,288</td></tr>
+ * <tr><td>1/256</td><td>1/262,144</td></tr>
+ * <tr><td>1/128</td><td>1/131,072</td></tr>
+ * <tr><td>1/64</td><td>1/65,536</td></tr>
+ * <tr><td>1/32</td><td>1/32,768</td></tr>
+ * <tr><td>1/16</td><td>1/16,384</td></tr>
+ * <tr><td>1/8</td><td>1/8,192</td></tr>
+ * <tr><td>1/4</td><td>1/4,096</td></tr>
+ * <tr><td>1/2</td><td>1/2,048</td></tr>
+ * <tr><td>1</td><td>1/1,024</td></tr>
+ * <tr><td>2</td><td>1/512</td></tr>
+ * <tr><td>4</td><td>1/256</td></tr>
+ * <tr><td>8</td><td>1/128</td></tr>
+ * <tr><td>16</td><td>1/64</td></tr>
+ * <tr><td>32</td><td>1/32</td></tr>
+ * <tr><td>64</td><td>1/16</td></tr>
+ * <tr><td>128</td><td>1/8</td></tr>
+ * <tr><td>256</td><td>1/4</td></tr>
+ * <tr><td>512</td><td>1/2</td></tr>
  * <tr><td>1,024</td><td>1</td></tr>
  * <tr><td>2,048</td><td>2</td></tr>
  * <tr><td>4,096</td><td>4</td></tr>
@@ -82,12 +84,10 @@ import androidx.compose.ui.util.floatFromBits
  * <tr><td>32,768</td><td>32</td></tr>
  * </table>
  *
- *
  * This table shows that numbers higher than 1024 lose all fractional precision.
  */
 @JvmInline
 internal value class Float16(val halfValue: Short) : Comparable<Float16> {
-
     /**
      * Constructs a newly allocated `Float16` object that represents the
      * argument converted to a half-precision float.
@@ -599,14 +599,11 @@ private inline fun toCompareValue(value: Short): Int {
  * Convert a single-precision float to a half-precision float, stored as
  * [Short] data type to hold its 16 bits.
  */
-internal expect fun floatToHalf(f: Float): Short
-
-// Provided here as a convenience for `actual` implementations
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun softwareFloatToHalf(f: Float): Short {
+internal inline fun floatToHalf(f: Float): Short {
     val bits = f.toRawBits()
-    val s = bits.ushr(Fp32SignShift)
-    var e = bits.ushr(Fp32ExponentShift) and Fp32ExponentMask
+    val s = bits ushr Fp32SignShift
+    var e = bits ushr Fp32ExponentShift and Fp32ExponentMask
     var m = bits and Fp32SignificandMask
 
     var outE = 0
@@ -647,14 +644,11 @@ internal inline fun softwareFloatToHalf(f: Float): Short {
 /**
  * Convert a half-precision float to a single-precision float.
  */
-internal expect fun halfToFloat(h: Short): Float
-
-// Provided here as a convenience for `actual` implementations
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun softwareHalfToFloat(h: Short): Float {
+internal inline fun halfToFloat(h: Short): Float {
     val bits = h.toInt() and 0xffff
     val s = bits and Fp16SignMask
-    val e = bits.ushr(Fp16ExponentShift) and Fp16ExponentMask
+    val e = bits ushr Fp16ExponentShift and Fp16ExponentMask
     val m = bits and Fp16SignificandMask
 
     var outE = 0

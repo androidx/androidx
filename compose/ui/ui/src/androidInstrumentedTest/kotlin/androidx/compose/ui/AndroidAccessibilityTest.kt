@@ -70,17 +70,19 @@ import androidx.compose.foundation.progressSemantics
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text2.BasicSecureTextField
-import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
+import androidx.compose.material.FilterChip
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -137,8 +139,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.invisibleToUser
-import androidx.compose.ui.semantics.isContainer
-import androidx.compose.ui.semantics.isOpaque
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
@@ -236,6 +236,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 @LargeTest
+@OptIn(ExperimentalMaterialApi::class)
 @RunWith(AndroidJUnit4::class)
 class AndroidAccessibilityTest {
     @get:Rule
@@ -459,13 +460,14 @@ class AndroidAccessibilityTest {
             with(AccessibilityNodeInfoCompat.wrap(info)) {
                 assertThat(className).isEqualTo("android.view.View")
                 assertThat(stateDescription).isEqualTo("Selected")
-                assertThat(isClickable).isFalse()
+                assertThat(isClickable).isTrue()
                 assertThat(isCheckable).isTrue()
                 assertThat(isVisibleToUser).isTrue()
                 assertThat(actionList)
                     .containsExactly(
                         AccessibilityActionCompat(ACTION_ACCESSIBILITY_FOCUS, null),
                         AccessibilityActionCompat(ACTION_FOCUS, null),
+                        AccessibilityActionCompat(ACTION_CLICK, null),
                     )
             }
         }
@@ -504,6 +506,67 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @Test
+    fun testCreateAccessibilityNodeInfo_forRadioButton() {
+        // Arrange.
+        setContent {
+            Box(
+                Modifier
+                    .selectable(selected = true, onClick = {}, role = Role.RadioButton)
+                    .testTag(tag)) {
+                BasicText("Text")
+            }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(AccessibilityNodeInfoCompat.wrap(info)) {
+                assertThat(className).isEqualTo("android.view.View")
+                assertThat(isClickable).isFalse()
+                assertThat(isVisibleToUser).isTrue()
+                assertThat(isChecked).isTrue()
+                assertThat(actionList)
+                    .containsExactly(
+                        AccessibilityActionCompat(ACTION_ACCESSIBILITY_FOCUS, null),
+                        AccessibilityActionCompat(ACTION_FOCUS, null),
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun testCreateAccessibilityNodeInfo_forFilterButton() {
+        // Arrange.
+        setContent {
+            FilterChip(selected = true, onClick = {}, modifier = Modifier.testTag(tag)) {
+                Text("Filter chip")
+            }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(AccessibilityNodeInfoCompat.wrap(info)) {
+                // We don't check for a CheckBox role since the role is found in a fake descendant.
+                assertThat(stateDescription).isEqualTo("Selected")
+                assertThat(isClickable).isTrue()
+                assertThat(isCheckable).isTrue()
+                assertThat(isChecked).isTrue()
+                assertThat(isVisibleToUser).isTrue()
+                assertThat(actionList)
+                    .contains(
+                        AccessibilityActionCompat(ACTION_CLICK, null),
+                    )
+            }
+        }
+    }
     @Test
     fun testCreateAccessibilityNodeInfo_progressIndicator_determinate() {
         // Arrange.
@@ -3057,6 +3120,7 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun selectionEventBeforeTraverseEvent_whenTraverseTextField() {
         val text = "h"
         setContent {
@@ -3891,144 +3955,6 @@ class AndroidAccessibilityTest {
             assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
             assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
                 .isEqualTo("Child Two")
-        }
-    }
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    @Test
-    fun testSemanticsHitTest_unimportantTraversalProperties() {
-        // Arrange.
-        setContent {
-            Box(
-                Modifier
-                    .size(100.dp)
-                    .testTag(tag)
-                    .semantics { isTraversalGroup = true; traversalIndex = 1f }) {
-            }
-        }
-        val bounds = with(rule.density) { rule.onNodeWithTag(tag).getBoundsInRoot().toRect() }
-
-        // Act.
-        val hitNodeId = rule.runOnIdle {
-            delegate.hitTestSemanticsAt(
-                bounds.left + bounds.width / 2,
-                bounds.top + bounds.height / 2
-            )
-        }
-
-        // Assert it doesn't hit the tagged node since it only has unimportant properties.
-        rule.runOnIdle { assertThat(hitNodeId).isEqualTo(InvalidId) }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class)
-    @Suppress("DEPRECATION")
-    fun testAccessibilityNodeInfoTreePruned_isContainerFalseDoesNotPrune() {
-        // Arrange.
-        val parentTag = "ParentForOverlappedChildren"
-        val childOneTag = "OverlappedChildOne"
-        val childTwoTag = "OverlappedChildTwo"
-        setContent {
-            Box(Modifier.testTag(parentTag)) {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier
-                            .zIndex(1f)
-                            .testTag(childOneTag)
-                            .semantics { isContainer = false }
-                            .semantics { isContainer = true }
-                            .requiredSize(50.toDp())
-                    )
-                    BasicText(
-                        "Child Two",
-                        Modifier
-                            .testTag(childTwoTag)
-                            .requiredSize(50.toDp())
-                    )
-                }
-            }
-        }
-        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
-        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
-
-        rule.runOnIdle {
-            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
-            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
-                .isEqualTo("Child Two")
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class)
-    fun testAccessibilityNodeInfoTreePruned_invisibleDoesNotPrune() {
-        // Arrange.
-        val parentTag = "ParentForOverlappedChildren"
-        val childOneTag = "OverlappedChildOne"
-        val childTwoTag = "OverlappedChildTwo"
-        setContent {
-            Box(Modifier.testTag(parentTag)) {
-                with(LocalDensity.current) {
-                    BasicText(
-                        "Child One",
-                        Modifier
-                            .zIndex(1f)
-                            .testTag(childOneTag)
-                            .semantics { invisibleToUser() }
-                            .requiredSize(50.toDp())
-                    )
-                    BasicText(
-                        "Child Two",
-                        Modifier
-                            .testTag(childTwoTag)
-                            .requiredSize(50.toDp())
-                    )
-                }
-            }
-        }
-        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
-        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
-
-        rule.runOnIdle {
-            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
-            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
-                .isEqualTo("Child Two")
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class)
-    fun testAccessibilityNodeInfoTreePruned_isOpaquePrunes() {
-        // Arrange.
-        val parentTag = "ParentForOverlappedChildren"
-        val childOneTag = "OverlappedChildOne"
-        val childTwoTag = "OverlappedChildTwo"
-        setContent {
-            Box(Modifier.testTag(parentTag)) {
-                with(LocalDensity.current) {
-                    Box(
-                        Modifier
-                            .zIndex(1f)
-                            .testTag(childOneTag)
-                            .semantics { isOpaque() }
-                            .requiredSize(50.toDp())
-                    )
-                    BasicText(
-                        "Child Two",
-                        Modifier
-                            .testTag(childTwoTag)
-                            .requiredSize(50.toDp())
-                    )
-                }
-            }
-        }
-        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
-        val overlappedChildOneNodeId = rule.onNodeWithTag(childOneTag).semanticsId
-        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
-
-        rule.runOnIdle {
-            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(1)
-            assertThat(provider.createAccessibilityNodeInfo(overlappedChildOneNodeId)).isNotNull()
-            assertThat(provider.createAccessibilityNodeInfo(overlappedChildTwoNodeId)).isNull()
         }
     }
 

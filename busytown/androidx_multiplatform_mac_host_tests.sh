@@ -8,9 +8,6 @@ set -e
 
 export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
 
-# disable GCP cache, these machines don't have credentials.
-export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
-
 echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"

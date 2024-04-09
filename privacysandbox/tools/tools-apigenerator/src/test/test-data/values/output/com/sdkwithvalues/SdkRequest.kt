@@ -8,4 +8,5 @@ public data class SdkRequest(
     public val maybeInnerValue: InnerSdkValue?,
     public val moreValues: List<InnerSdkValue>,
     public val activityLauncher: SdkActivityLauncher,
+    public val requestFlag: RequestFlag,
 )

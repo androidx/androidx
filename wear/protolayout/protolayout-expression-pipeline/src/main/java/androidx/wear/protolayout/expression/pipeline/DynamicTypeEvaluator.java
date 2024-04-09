@@ -112,7 +112,15 @@ import java.util.function.Supplier;
 public class DynamicTypeEvaluator {
     private static final String TAG = "DynamicTypeEvaluator";
     private static final QuotaManager NO_OP_QUOTA_MANAGER =
-            new FixedQuotaManagerImpl(Integer.MAX_VALUE, "dynamic nodes noop");
+            new QuotaManager() {
+                @Override
+                public boolean tryAcquireQuota(int quota) {
+                    return true;
+                }
+
+                @Override
+                public void releaseQuota(int quota) {}
+            };
 
     @NonNull
     private static final QuotaManager DISABLED_ANIMATIONS_QUOTA_MANAGER =
@@ -381,7 +389,7 @@ public class DynamicTypeEvaluator {
     public BoundDynamicType bind(@NonNull DynamicTypeBindingRequest request)
             throws EvaluationException {
         BoundDynamicTypeImpl boundDynamicType = request.callBindOn(this);
-        if (!mDynamicTypesQuotaManager.tryAcquireQuota(boundDynamicType.getDynamicNodeCount())) {
+        if (!mDynamicTypesQuotaManager.tryAcquireQuota(boundDynamicType.getDynamicNodeCost())) {
             throw new EvaluationException(
                     "Dynamic type expression limit reached. Try making the dynamic type expression"
                             + " shorter or reduce the number of dynamic type expressions.");

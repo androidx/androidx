@@ -337,6 +337,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
         signal.setOnCancelListener(() -> {
             if (cancelRunnable == null) {
                 realTransition.cancel();
+                transitionCompleteRunnable.run();
             } else {
                 cancelRunnable.run();
             }

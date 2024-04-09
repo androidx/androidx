@@ -16,7 +16,10 @@
 
 package androidx.camera.core;
 
+import static android.graphics.ImageFormat.JPEG_R;
+
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
+import static androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -28,6 +31,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_P
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SCREEN_FLASH;
@@ -132,8 +136,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -286,6 +292,26 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final int FLASH_TYPE_USE_TORCH_AS_FLASH = 1;
+
+    /**
+     * Captures 8-bit standard dynamic range (SDR) images using the {@link ImageFormat#JPEG}
+     * image format.
+     */
+    @ExperimentalImageCaptureOutputFormat
+    public static final int OUTPUT_FORMAT_JPEG = 0;
+
+    /**
+     * Captures Ultra HDR compressed images using the {@link ImageFormat#JPEG_R} image format.
+     *
+     * <p>This format is backward compatible with SDR JPEG images and supports HDR rendering of
+     * content. This means that on older apps or devices, images appear seamlessly as regular JPEG;
+     * on apps and devices that have been updated to fully support the format, images appear as HDR.
+     *
+     * <p>For more information see
+     * <a href="https://developer.android.com/media/grow/ultra-hdr">Support Ultra HDR</a>.
+     */
+    @ExperimentalImageCaptureOutputFormat
+    public static final int OUTPUT_FORMAT_JPEG_ULTRA_HDR = 1;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -444,7 +470,11 @@ public final class ImageCapture extends UseCase {
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                     useSoftwareJpeg ? ImageFormat.YUV_420_888 : bufferFormat);
         } else {
-            if (useSoftwareJpeg) {
+            if (isOutputFormatUltraHdr(builder.getMutableConfig())) {
+                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
+                builder.getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
+                        HDR_UNSPECIFIED_10_BIT);
+            } else if (useSoftwareJpeg) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                         ImageFormat.YUV_420_888);
             } else {
@@ -479,6 +509,12 @@ public final class ImageCapture extends UseCase {
             }
         }
         return false;
+    }
+
+    @OptIn(markerClass = ExperimentalImageCaptureOutputFormat.class)
+    private static boolean isOutputFormatUltraHdr(@NonNull MutableConfig config) {
+        return Objects.equals(config.retrieveOption(OPTION_OUTPUT_FORMAT, null),
+                OUTPUT_FORMAT_JPEG_ULTRA_HDR);
     }
 
     /**
@@ -812,13 +848,30 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Returns the output format setting.
+     *
+     * <p>If the output format was not provided to
+     * {@link ImageCapture.Builder#setOutputFormat(int)}, this will return the default of
+     * {@link #OUTPUT_FORMAT_JPEG}.
+     *
+     * @return the output format set for this {@code ImageCapture} use case.
+     *
+     * @see ImageCapture.Builder#setOutputFormat(int)
+     */
+    @ExperimentalImageCaptureOutputFormat
+    @OutputFormat
+    public int getOutputFormat() {
+        return checkNotNull(getCurrentConfig().retrieveOption(OPTION_OUTPUT_FORMAT,
+                Defaults.DEFAULT_OUTPUT_FORMAT));
+    }
+
+    /**
      * Captures a new still image for in memory access.
      *
-     * <p>The callback will be called only once for every invocation of this method. The listener
-     * is responsible for calling {@link Image#close()} on the returned image.
+     * <p>The listener is responsible for calling {@link Image#close()} on the returned image.
      *
      * @param executor The executor in which the callback methods will be run.
-     * @param callback Callback to be invoked for the newly captured image
+     * @param callback Callback to be invoked for the newly captured image.
      *
      * @throws IllegalArgumentException If {@link ImageCapture#FLASH_MODE_SCREEN} is used without a
      *                                  non-null {@code ScreenFlash} instance set.
@@ -836,8 +889,6 @@ public final class ImageCapture extends UseCase {
 
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
-     *
-     * <p> The callback will be called only once for every invocation of this method.
      *
      * <p> If the {@link ImageCapture} is in a {@link UseCaseGroup} where {@link ViewPort} is
      * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
@@ -917,6 +968,28 @@ public final class ImageCapture extends UseCase {
             if (mCameraInfo instanceof CameraInfoInternal) {
                 return ((CameraInfoInternal) mCameraInfo).isCaptureProcessProgressSupported();
             }
+            return false;
+        }
+
+        @ExperimentalImageCaptureOutputFormat
+        @NonNull
+        @Override
+        public Set<@OutputFormat Integer> getSupportedOutputFormats() {
+            Set<Integer> formats = new HashSet<>();
+            formats.add(OUTPUT_FORMAT_JPEG);
+            if (isUltraHdrSupported()) {
+                formats.add(OUTPUT_FORMAT_JPEG_ULTRA_HDR);
+            }
+
+            return formats;
+        }
+
+        private boolean isUltraHdrSupported() {
+            if (mCameraInfo instanceof CameraInfoInternal) {
+                CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) mCameraInfo;
+                return cameraInfoInternal.getSupportedOutputFormats().contains(JPEG_R);
+            }
+
             return false;
         }
     }
@@ -1506,6 +1579,17 @@ public final class ImageCapture extends UseCase {
     public @interface FlashType {
     }
 
+    /**
+     * The output format of the captured image.
+     */
+    @OptIn(markerClass = androidx.camera.core.ExperimentalImageCaptureOutputFormat.class)
+    @Target({ElementType.TYPE_USE})
+    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface OutputFormat {
+    }
+
     /** Listener containing callbacks for image file I/O events. */
     public interface OnImageSavedCallback {
         /**
@@ -1595,8 +1679,8 @@ public final class ImageCapture extends UseCase {
          * <p>The application is responsible for calling {@link ImageProxy#close()} to close the
          * image.
          *
-         * <p>The image is of format {@link ImageFormat#JPEG}, queryable via
-         * {@link ImageProxy#getFormat()}.
+         * <p>The image is of format {@link ImageFormat#JPEG} or {@link ImageFormat#JPEG_R},
+         * queryable via {@link ImageProxy#getFormat()}.
          *
          * <p>The image is provided as captured by the underlying {@link ImageReader} without
          * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
@@ -1691,7 +1775,6 @@ public final class ImageCapture extends UseCase {
         void onCompleted();
     }
 
-
     /**
      * Interface to do the application changes required for screen flash operations.
      *
@@ -1763,11 +1846,13 @@ public final class ImageCapture extends UseCase {
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
      */
+    @OptIn(markerClass = androidx.camera.core.ExperimentalImageCaptureOutputFormat.class)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
+        private static final int DEFAULT_OUTPUT_FORMAT = OUTPUT_FORMAT_JPEG;
 
         private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
                 new ResolutionSelector.Builder().setAspectRatioStrategy(
@@ -1784,6 +1869,7 @@ public final class ImageCapture extends UseCase {
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
+                    .setOutputFormat(DEFAULT_OUTPUT_FORMAT)
                     .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
@@ -2127,7 +2213,7 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Builder for an {@link ImageCapture}. */
-    @SuppressWarnings({"ObjectToString", "unused"})
+    @SuppressWarnings({"ObjectToString", "unused", "HiddenSuperclass"})
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
@@ -2220,7 +2306,13 @@ public final class ImageCapture extends UseCase {
             if (bufferFormat != null) {
                 getMutableConfig().insertOption(OPTION_INPUT_FORMAT, bufferFormat);
             } else {
-                getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                if (isOutputFormatUltraHdr(getMutableConfig())) {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
+                    getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
+                            HDR_UNSPECIFIED_10_BIT);
+                } else {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                }
             }
 
             ImageCaptureConfig imageCaptureConfig = getUseCaseConfig();
@@ -2714,6 +2806,37 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
+        /**
+         * Sets the output format of the captured image.
+         *
+         * <p>The supported output formats for capturing image depend on the capabilities of the
+         * camera. The supported output formats of the camera can be queried using
+         * {@link ImageCaptureCapabilities#getSupportedOutputFormats()}.
+         *
+         * <p>If not set, the output format will default to {@link #OUTPUT_FORMAT_JPEG}.
+         *
+         * <p>If an Ultra HDR output format is used, a {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}
+         * will be used as the dynamic range of this use case. Please note that some devices may not
+         * be able to support configuring both SDR and HDR use cases at the same time, e.g. use
+         * Ultra HDR ImageCapture with a SDR Preview. Configuring concurrent SDR and HDR on these
+         * devices will result in an {@link IllegalArgumentException} to be thrown when invoking
+         * {@code bindToLifecycle()}. Such device specific constraints can be queried by calling
+         * {@link android.hardware.camera2.params.DynamicRangeProfiles#getProfileCaptureRequestConstraints(long)}.
+         *
+         * @param outputFormat The output image format. Value is {@link #OUTPUT_FORMAT_JPEG} or
+         *                     {@link #OUTPUT_FORMAT_JPEG_ULTRA_HDR}.
+         * @return The current Builder.
+         *
+         * @see OutputFormat
+         * @see ImageCaptureCapabilities#getSupportedOutputFormats()
+         */
+        @ExperimentalImageCaptureOutputFormat
+        @NonNull
+        public Builder setOutputFormat(@OutputFormat int outputFormat) {
+            getMutableConfig().insertOption(OPTION_OUTPUT_FORMAT, outputFormat);
+            return this;
+        }
+
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @NonNull
@@ -2804,10 +2927,6 @@ public final class ImageCapture extends UseCase {
         @NonNull
         @Override
         public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {
-            // TODO(b/280893255): ImageCapture currently does not support HDR.
-            if (!Objects.equals(DynamicRange.SDR, dynamicRange)) {
-                throw new UnsupportedOperationException("ImageCapture currently only supports SDR");
-            }
             getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
             return this;
         }

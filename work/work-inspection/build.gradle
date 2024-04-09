@@ -38,6 +38,7 @@ dependencies {
     compileOnly(project(":work:work-runtime"))
     compileOnly("androidx.room:room-runtime:2.6.1")
     androidTestImplementation(project(":inspection:inspection-testing"))
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":work:work-runtime"))
     androidTestImplementation(project(":work:work-runtime-ktx"))
     androidTestImplementation(libs.testRunner)

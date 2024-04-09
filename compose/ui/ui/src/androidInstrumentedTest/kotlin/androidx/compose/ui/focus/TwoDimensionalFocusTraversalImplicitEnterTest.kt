@@ -42,7 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
@@ -79,6 +78,7 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
         val (child1, child2, child3, child4) = FocusRequester.createRefs()
         val customFocusEnter = Modifier.focusProperties {
+            @OptIn(ExperimentalComposeUiApi::class)
             enter = {
                 when (it) {
                     Left -> child1
@@ -158,6 +158,7 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val child = mutableStateOf(false)
         var (upItem, downItem, leftItem, rightItem, childItem) = FocusRequester.createRefs()
         var directionSentToEnter: FocusDirection? = null
+        @OptIn(ExperimentalComposeUiApi::class)
         val customFocusEnter = Modifier.focusProperties {
             enter = {
                 directionSentToEnter = it
@@ -238,6 +239,7 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val child = mutableStateOf(false)
         var (upItem, downItem, leftItem, rightItem, childItem) = FocusRequester.createRefs()
         var directionSentToEnter: FocusDirection? = null
+        @OptIn(ExperimentalComposeUiApi::class)
         val customFocusEnter = Modifier.focusProperties {
             enter = {
                 directionSentToEnter = it
@@ -348,6 +350,7 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
         val (up, down, left, right) = List(4) { mutableStateOf(false) }
         val (item, other) = List(2) { mutableStateOf(false) }
         var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
+        @OptIn(ExperimentalComposeUiApi::class)
         val customFocusEnter = Modifier.focusProperties { enter = { Cancel } }
         when (focusDirection) {
             Left -> rightItem = initialFocus

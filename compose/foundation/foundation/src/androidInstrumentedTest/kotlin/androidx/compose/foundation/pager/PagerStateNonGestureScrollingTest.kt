@@ -240,17 +240,17 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
     }
 
     @Test
-    fun calculatePageCountOffset_shouldBeBasedOnCurrentPage() {
+    fun getOffsetDistanceInPages_shouldBeBasedOnCurrentPage() {
         val pageToOffsetCalculations = mutableMapOf<Int, Float>()
         createPager(modifier = Modifier.fillMaxSize(), pageSize = { PageSize.Fixed(20.dp) }) {
-            pageToOffsetCalculations[it] = pagerState.getOffsetFractionForPage(it)
+            pageToOffsetCalculations[it] = pagerState.getOffsetDistanceInPages(it)
             Page(index = it)
         }
 
         for ((page, offset) in pageToOffsetCalculations) {
             val currentPage = pagerState.currentPage
             val currentPageOffset = pagerState.currentPageOffsetFraction
-            Truth.assertThat(offset).isEqualTo((currentPage - page) + currentPageOffset)
+            Truth.assertThat(offset).isEqualTo((page - currentPage) - currentPageOffset)
         }
     }
 

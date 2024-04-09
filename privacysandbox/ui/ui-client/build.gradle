@@ -37,8 +37,8 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-common:2.6.2")
     implementation("androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha08")
-    implementation("androidx.customview:customview-poolingcontainer:1.0.0-alpha01")
-    implementation project(path: ':privacysandbox:ui:ui-core')
+    implementation("androidx.customview:customview-poolingcontainer:1.0.0")
+    implementation(project(":privacysandbox:ui:ui-core"))
 
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.junit)

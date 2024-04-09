@@ -5,10 +5,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
-import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
+import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -32,19 +31,18 @@ androidXMultiplatform {
             }
         }
 
-        if (KmpPlatformsKt.enableNative(project)) {
-            nonJvmMain {
-                dependsOn commonMain
-            }
+        nonJvmMain {
+            dependsOn commonMain
+        }
 
-            targets.all { target ->
-                if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                    target.compilations["main"].defaultSourceSet {
-                        dependsOn(nonJvmMain)
-                    }
+        targets.all { target ->
+            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
                 }
             }
         }
+
 
         // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
         // Make sure commonization runs before any compilation task.

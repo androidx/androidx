@@ -46,16 +46,17 @@ class SaversTest {
     @Test
     fun test_TextUnit() {
         val original = 2.sp
-        val saved = with(TextUnit.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, TextUnit.Saver, defaultSaverScope)
+        val restored: TextUnit? = restore(saved, TextUnit.Saver)
 
-        assertThat(TextUnit.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_TextUnit_unspecified() {
         val original = TextUnit.Unspecified
-        val saved = with(TextUnit.Saver) { defaultSaverScope.save(original) }
-        val restored = TextUnit.Saver.restore(saved!!)
+        val saved = save(original, TextUnit.Saver, defaultSaverScope)
+        val restored: TextUnit? = restore(saved, TextUnit.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -63,16 +64,17 @@ class SaversTest {
     @Test
     fun test_Offset() {
         val original = Offset(10f, 10f)
-        val saved = with(Offset.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, Offset.Saver, defaultSaverScope)
+        val restored: Offset? = restore(saved, Offset.Saver)
 
-        assertThat(Offset.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_Offset_Unspecified() {
         val original = Offset.Unspecified
-        val saved = with(Offset.Saver) { defaultSaverScope.save(original) }
-        val restored = Offset.Saver.restore(saved!!)
+        val saved = save(original, Offset.Saver, defaultSaverScope)
+        val restored: Offset? = restore(saved, Offset.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -80,8 +82,8 @@ class SaversTest {
     @Test
     fun test_Offset_Infinite() {
         val original = Offset.Infinite
-        val saved = with(Offset.Saver) { defaultSaverScope.save(original) }
-        val restored = Offset.Saver.restore(saved!!)
+        val saved = save(original, Offset.Saver, defaultSaverScope)
+        val restored: Offset? = restore(saved, Offset.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -89,16 +91,17 @@ class SaversTest {
     @Test
     fun test_Color() {
         val original = Color.Yellow
-        val saved = with(Color.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, Color.Saver, defaultSaverScope)
+        val restored: Color? = restore(saved, Color.Saver)
 
-        assertThat(Color.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_Color_Unspecified() {
         val original = Color.Unspecified
-        val saved = with(Color.Saver) { defaultSaverScope.save(original) }
-        val restored = Color.Saver.restore(saved!!)
+        val saved = save(original, Color.Saver, defaultSaverScope)
+        val restored: Color? = restore(saved, Color.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -106,8 +109,8 @@ class SaversTest {
     @Test
     fun test_Shadow() {
         val original = Shadow(color = Color.Blue, offset = Offset(5f, 5f), blurRadius = 2f)
-        val saved = with(Shadow.Saver) { defaultSaverScope.save(original) }
-        val restored = Shadow.Saver.restore(saved!!)
+        val saved = save(original, Shadow.Saver, defaultSaverScope)
+        val restored: Shadow? = restore(saved, Shadow.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -115,8 +118,8 @@ class SaversTest {
     @Test
     fun test_Shadow_None() {
         val original = Shadow.None
-        val saved = with(Shadow.Saver) { defaultSaverScope.save(original) }
-        val restored = Shadow.Saver.restore(saved!!)
+        val saved = save(original, Shadow.Saver, defaultSaverScope)
+        val restored: Shadow? = restore(saved, Shadow.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -124,8 +127,8 @@ class SaversTest {
     @Test
     fun test_ParagraphStyle() {
         val original = ParagraphStyle()
-        val saved = with(ParagraphStyleSaver) { defaultSaverScope.save(original) }
-        val restored = ParagraphStyleSaver.restore(saved!!)
+        val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
+        val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -133,8 +136,8 @@ class SaversTest {
     @Test
     fun test_ParagraphStyle_with_a_nonnull_value() {
         val original = ParagraphStyle(textDirection = TextDirection.Rtl)
-        val saved = with(ParagraphStyleSaver) { defaultSaverScope.save(original) }
-        val restored = ParagraphStyleSaver.restore(saved!!)
+        val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
+        val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -147,8 +150,8 @@ class SaversTest {
             lineHeight = 10.sp,
             textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp)
         )
-        val saved = with(ParagraphStyleSaver) { defaultSaverScope.save(original) }
-        val restored = ParagraphStyleSaver.restore(saved!!)
+        val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
+        val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -156,8 +159,8 @@ class SaversTest {
     @Test
     fun test_SpanStyle() {
         val original = SpanStyle()
-        val saved = with(SpanStyleSaver) { defaultSaverScope.save(original) }
-        val restored = SpanStyleSaver.restore(saved!!)
+        val saved = save(original, SpanStyleSaver, defaultSaverScope)
+        val restored: SpanStyle? = restore(saved, SpanStyleSaver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -165,8 +168,8 @@ class SaversTest {
     @Test
     fun test_SpanStyle_with_a_nonnull_value() {
         val original = SpanStyle(baselineShift = BaselineShift.Subscript)
-        val saved = with(SpanStyleSaver) { defaultSaverScope.save(original) }
-        val restored = SpanStyleSaver.restore(saved!!)
+        val saved = save(original, SpanStyleSaver, defaultSaverScope)
+        val restored: SpanStyle? = restore(saved, SpanStyleSaver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -193,8 +196,8 @@ class SaversTest {
             textDecoration = TextDecoration.LineThrough,
             shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
         )
-        val saved = with(SpanStyleSaver) { defaultSaverScope.save(original) }
-        val restored = SpanStyleSaver.restore(saved!!)
+        val saved = save(original, SpanStyleSaver, defaultSaverScope)
+        val restored: SpanStyle? = restore(saved, SpanStyleSaver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -202,33 +205,35 @@ class SaversTest {
     @Test
     fun test_FontWeight() {
         val original = FontWeight(123)
-        val saved = with(FontWeight.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, FontWeight.Saver, defaultSaverScope)
+        val restored: FontWeight? = restore(saved, FontWeight.Saver)
 
-        assertThat(FontWeight.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_FontWeight_w100() {
         val original = FontWeight.W100
-        val saved = with(FontWeight.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, FontWeight.Saver, defaultSaverScope)
+        val restored: FontWeight? = restore(saved, FontWeight.Saver)
 
-        val restored = FontWeight.Saver.restore(saved!!)
         assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_BaselineShift() {
         val original = BaselineShift(2f)
-        val saved = with(BaselineShift.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, BaselineShift.Saver, defaultSaverScope)
+        val restored: BaselineShift? = restore(saved, BaselineShift.Saver)
 
-        assertThat(BaselineShift.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_BaselineShift_None() {
         val original = BaselineShift.None
-        val saved = with(BaselineShift.Saver) { defaultSaverScope.save(original) }
-        val restored = BaselineShift.Saver.restore(saved!!)
+        val saved = save(original, BaselineShift.Saver, defaultSaverScope)
+        val restored: BaselineShift? = restore(saved, BaselineShift.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -238,25 +243,26 @@ class SaversTest {
         val original = TextDecoration.combine(
             listOf(TextDecoration.LineThrough, TextDecoration.Underline)
         )
-        val saved = with(TextDecoration.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, TextDecoration.Saver, defaultSaverScope)
+        val restored: TextDecoration? = restore(saved, TextDecoration.Saver)
 
-        assertThat(TextDecoration.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_TextDecoration_None() {
         val original = TextDecoration.None
-        val saved = with(TextDecoration.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, TextDecoration.Saver, defaultSaverScope)
+        val restored: TextDecoration? = restore(saved, TextDecoration.Saver)
 
-        val restored = TextDecoration.Saver.restore(saved!!)
         assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun testSaveRestore_lineThrough() {
         val original = TextDecoration.LineThrough
-        val saved = with(TextDecoration.Saver) { defaultSaverScope.save(original) }
-        val restored = TextDecoration.Saver.restore(saved!!)
+        val saved = save(original, TextDecoration.Saver, defaultSaverScope)
+        val restored: TextDecoration? = restore(saved, TextDecoration.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -264,8 +270,8 @@ class SaversTest {
     @Test
     fun testSaveRestore_underline() {
         val original = TextDecoration.Underline
-        val saved = with(TextDecoration.Saver) { defaultSaverScope.save(original) }
-        val restored = TextDecoration.Saver.restore(saved!!)
+        val saved = save(original, TextDecoration.Saver, defaultSaverScope)
+        val restored: TextDecoration? = restore(saved, TextDecoration.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -273,16 +279,17 @@ class SaversTest {
     @Test
     fun test_TextGeometricTransform() {
         val original = TextGeometricTransform(1f, 2f)
-        val saved = with(TextGeometricTransform.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, TextGeometricTransform.Saver, defaultSaverScope)
+        val restored: TextGeometricTransform? = restore(saved, TextGeometricTransform.Saver)
 
-        assertThat(TextGeometricTransform.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_TextGeometricTransform_None() {
         val original = TextGeometricTransform.None
-        val saved = with(TextGeometricTransform.Saver) { defaultSaverScope.save(original) }
-        val restored = TextGeometricTransform.Saver.restore(saved!!)
+        val saved = save(original, TextGeometricTransform.Saver, defaultSaverScope)
+        val restored: TextGeometricTransform? = restore(saved, TextGeometricTransform.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -290,16 +297,17 @@ class SaversTest {
     @Test
     fun test_TextIndent() {
         val original = TextIndent(1.sp, 2.sp)
-        val saved = with(TextIndent.Saver) { defaultSaverScope.save(original) }
+        val saved = save(original, TextIndent.Saver, defaultSaverScope)
+        val restored: TextIndent? = restore(saved, TextIndent.Saver)
 
-        assertThat(TextIndent.Saver.restore(saved!!)).isEqualTo(original)
+        assertThat(restored).isEqualTo(original)
     }
 
     @Test
     fun test_TextIndent_None() {
         val original = TextIndent.None
-        val saved = with(TextIndent.Saver) { defaultSaverScope.save(original) }
-        val restored = TextIndent.Saver.restore(saved!!)
+        val saved = save(original, TextIndent.Saver, defaultSaverScope)
+        val restored: TextIndent? = restore(saved, TextIndent.Saver)
 
         assertThat(restored).isEqualTo(original)
     }
@@ -348,8 +356,25 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("4") }
             withAnnotation(UrlAnnotation("url1")) { append("5") }
             withAnnotation(UrlAnnotation("url2")) { append("6") }
-            withAnnotation(LinkAnnotation.Url("url3")) { append("7") }
-            withAnnotation(LinkAnnotation.Clickable("tag3")) { append("8") }
+            withLink(
+                LinkAnnotation.Url(
+                    "url3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue)
+                )
+            ) { append("7") }
+            withLink(
+                LinkAnnotation.Clickable(
+                    "tag3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue),
+                    null
+                )
+            ) {
+                append("8")
+            }
         }
 
         val saved = with(AnnotatedStringSaver) { defaultSaverScope.save(original) }
@@ -373,8 +398,25 @@ class SaversTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("8") }
             withAnnotation(UrlAnnotation("url1")) { append("9") }
             withAnnotation(UrlAnnotation("url2")) { append("10") }
-            withAnnotation(LinkAnnotation.Url("url3")) { append("11") }
-            withAnnotation(LinkAnnotation.Clickable("tag3")) { append("12") }
+            withLink(
+                LinkAnnotation.Url(
+                    "url3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue)
+                )
+            ) { append("11") }
+            withLink(
+                LinkAnnotation.Clickable(
+                    "tag3",
+                    SpanStyle(color = Color.Red),
+                    SpanStyle(color = Color.Green),
+                    SpanStyle(color = Color.Blue),
+                    null
+                )
+            ) {
+                append("12")
+            }
         }
 
         val saved = with(AnnotatedStringSaver) { defaultSaverScope.save(original) }

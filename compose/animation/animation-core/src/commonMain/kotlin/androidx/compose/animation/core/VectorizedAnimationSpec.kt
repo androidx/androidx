@@ -417,21 +417,21 @@ class VectorizedKeyframesSpec<V : AnimationVector> internal constructor(
         val timestampStart = timestamps[index]
         val startValue: V = if (keyframes.contains(timestampStart)) {
             keyframes[timestampStart]!!.vectorValue
-        } else if (index == 0) {
-            // Use initial value if it wasn't overwritten by the user
-            initialValue
         } else {
-            throw IllegalStateException("No value to animate from at $clampedPlayTime millis")
+            // Use initial value if it wasn't overwritten by the user
+            // This is always the correct fallback assuming timestamps and keyframes were populated
+            // as expected
+            initialValue
         }
 
         val timestampEnd = timestamps[index + 1]
         val endValue = if (keyframes.contains(timestampEnd)) {
             keyframes[timestampEnd]!!.vectorValue
-        } else if (index + 1 == timestamps.size - 1) {
-            // Use target value if it wasn't overwritten by the user
-            targetValue
         } else {
-            throw IllegalStateException("No value to animate to at $clampedPlayTime millis")
+            // Use target value if it wasn't overwritten by the user
+            // This is always the correct fallback assuming timestamps and keyframes were populated
+            // as expected
+            targetValue
         }
 
         for (i in 0 until valueVector.size) {
@@ -529,15 +529,6 @@ class VectorizedKeyframesSpec<V : AnimationVector> internal constructor(
         val index = timestamps.binarySearch(timeMillis)
         return if (index < -1) -(index + 2) else index
     }
-
-    @Suppress("unused")
-    private val ArcMode.value: Int
-        get() = when (this) {
-            ArcMode.Companion.ArcAbove -> ArcSpline.ArcAbove
-            ArcMode.Companion.ArcBelow -> ArcSpline.ArcBelow
-            ArcMode.Companion.ArcLinear -> ArcSpline.ArcStartLinear
-            else -> ArcSpline.ArcStartLinear // Unknown mode, fallback to linear
-        }
 }
 
 @OptIn(ExperimentalAnimationSpecApi::class)
@@ -557,35 +548,28 @@ internal data class VectorizedKeyframeSpecElementInfo<V : AnimationVector>(
  * @see ArcAnimationSpec
  */
 @ExperimentalAnimationSpecApi
-sealed class ArcMode {
+@JvmInline
+value class ArcMode internal constructor(internal val value: Int) {
+
     companion object {
         /**
          * Interpolates using a quarter of an Ellipse where the curve is "above" the center of the
          * Ellipse.
          */
-        @ExperimentalAnimationSpecApi
-        object ArcAbove : ArcMode()
+        val ArcAbove = ArcMode(ArcSpline.ArcAbove)
 
         /**
          * Interpolates using a quarter of an Ellipse where the curve is "below" the center of the
          * Ellipse.
          */
-        @ExperimentalAnimationSpecApi
-        object ArcBelow : ArcMode()
+        val ArcBelow = ArcMode(ArcSpline.ArcBelow)
 
         /**
          * An [ArcMode] that forces linear interpolation.
          *
          * You'll likely only use this mode within a keyframe.
          */
-        @ExperimentalAnimationSpecApi
-        object ArcLinear : ArcMode()
-
-        /**
-         * Unused [ArcMode] to prevent exhaustive `when` usage.
-         */
-        @Suppress("unused")
-        private object UnexpectedArc : ArcMode()
+        val ArcLinear = ArcMode(ArcSpline.ArcStartLinear)
     }
 }
 

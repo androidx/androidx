@@ -41,8 +41,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-
-                implementation("androidx.compose.runtime:runtime:1.2.1")
+                implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
             }
         }
@@ -70,7 +69,6 @@ androidXMultiplatform {
         desktopMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -97,7 +95,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Geometry"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2020"
     description = "Compose classes related to dimensions without units"
     legacyDisableKotlinStrictApiMode = true

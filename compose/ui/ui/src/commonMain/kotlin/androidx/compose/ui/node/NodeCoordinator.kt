@@ -31,8 +31,10 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadLayoutCoordinates
@@ -61,6 +63,8 @@ internal abstract class NodeCoordinator(
     LayoutCoordinates,
     OwnerScope {
 
+    internal var forcePlaceWithLookaheadOffset: Boolean = false
+    internal var forceMeasureWithLookaheadConstraints: Boolean = false
     abstract val tail: Modifier.Node
 
     internal var wrapped: NodeCoordinator? = null
@@ -80,6 +84,9 @@ internal abstract class NodeCoordinator(
 
     override val coordinates: LayoutCoordinates
         get() = this
+
+    override val isPositionedByParentWithDirectManipulation: Boolean
+        get() = isDirectManipulationPlacement
 
     private var released = false
 
@@ -142,7 +149,12 @@ internal abstract class NodeCoordinator(
         get() = wrapped
 
     override fun replace() {
-        placeAt(position, zIndex, layerBlock)
+        val explicitLayer = explicitLayer
+        if (explicitLayer != null) {
+            placeAt(position, zIndex, explicitLayer)
+        } else {
+            placeAt(position, zIndex, layerBlock)
+        }
     }
 
     override val hasMeasureResult: Boolean
@@ -168,6 +180,7 @@ internal abstract class NodeCoordinator(
                 ) {
                     alignmentLinesOwner.alignmentLines.onAlignmentsChanged()
 
+                    @Suppress("PrimitiveInCollection")
                     val oldLines = oldAlignmentLines
                         ?: (mutableMapOf<AlignmentLine, Int>().also { oldAlignmentLines = it })
                     oldLines.clear()
@@ -212,7 +225,9 @@ internal abstract class NodeCoordinator(
             wrappedBy?.invalidateLayer()
         }
         measuredSize = IntSize(width, height)
-        updateLayerParameters(invokeOnLayoutChange = false)
+        if (layerBlock != null) {
+            updateLayerParameters(invokeOnLayoutChange = false)
+        }
         visitNodes(Nodes.Draw) {
             it.onMeasureResultChanged()
         }
@@ -308,15 +323,57 @@ internal abstract class NodeCoordinator(
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?
     ) {
-        placeSelf(position, zIndex, layerBlock)
+        if (forcePlaceWithLookaheadOffset) {
+            placeSelf(lookaheadDelegate!!.position, zIndex, layerBlock, null)
+        } else {
+            placeSelf(position, zIndex, layerBlock, null)
+        }
+    }
+
+    override fun placeAt(
+        position: IntOffset,
+        zIndex: Float,
+        layer: GraphicsLayer
+    ) {
+        if (forcePlaceWithLookaheadOffset) {
+            placeSelf(lookaheadDelegate!!.position, zIndex, null, layer)
+        } else {
+            placeSelf(position, zIndex, null, layer)
+        }
     }
 
     private fun placeSelf(
         position: IntOffset,
         zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
+        explicitLayer: GraphicsLayer?
     ) {
-        updateLayerBlock(layerBlock)
+        if (explicitLayer != null) {
+            requirePrecondition(layerBlock == null) {
+                "both ways to create layers shouldn't be used together"
+            }
+            if (this.explicitLayer !== explicitLayer) {
+                // reset previous layer object first if the explicitLayer changed
+                this.explicitLayer = null
+                updateLayerBlock(null)
+                this.explicitLayer = explicitLayer
+            }
+            if (layer == null) {
+                layer = layoutNode.requireOwner().createLayer(
+                    drawBlock,
+                    invalidateParentLayer,
+                    explicitLayer
+                ).apply {
+                    resize(measuredSize)
+                    move(position)
+                }
+                layoutNode.innerLayerCoordinatorIsDirty = true
+                invalidateParentLayer()
+            }
+        } else {
+            releaseExplicitLayer()
+            updateLayerBlock(layerBlock)
+        }
         if (this.position != position) {
             this.position = position
             layoutNode.layoutDelegate.measurePassDelegate
@@ -336,42 +393,50 @@ internal abstract class NodeCoordinator(
         }
     }
 
+    fun releaseExplicitLayer() {
+        if (explicitLayer != null) {
+            explicitLayer = null
+            updateLayerBlock(null)
+        }
+    }
+
     fun placeSelfApparentToRealOffset(
         position: IntOffset,
         zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
+        layer: GraphicsLayer?
     ) {
-        placeSelf(position + apparentToRealOffset, zIndex, layerBlock)
+        placeSelf(position + apparentToRealOffset, zIndex, layerBlock, layer)
     }
 
     /**
      * Draws the content of the LayoutNode
      */
-    fun draw(canvas: Canvas) {
+    fun draw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val layer = layer
         if (layer != null) {
-            layer.drawLayer(canvas)
+            layer.drawLayer(canvas, graphicsLayer)
         } else {
             val x = position.x.toFloat()
             val y = position.y.toFloat()
             canvas.translate(x, y)
-            drawContainedDrawModifiers(canvas)
+            drawContainedDrawModifiers(canvas, graphicsLayer)
             canvas.translate(-x, -y)
         }
     }
 
-    private fun drawContainedDrawModifiers(canvas: Canvas) {
+    private fun drawContainedDrawModifiers(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val head = head(Nodes.Draw)
         if (head == null) {
-            performDraw(canvas)
+            performDraw(canvas, graphicsLayer)
         } else {
             val drawScope = layoutNode.mDrawScope
-            drawScope.draw(canvas, size.toSize(), this, head)
+            drawScope.draw(canvas, size.toSize(), this, head, graphicsLayer)
         }
     }
 
-    open fun performDraw(canvas: Canvas) {
-        wrapped?.draw(canvas)
+    open fun performDraw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
+        wrapped?.draw(canvas, graphicsLayer)
     }
 
     fun onPlaced() {
@@ -385,7 +450,7 @@ internal abstract class NodeCoordinator(
     private val drawBlock: (Canvas) -> Unit = { canvas ->
         if (layoutNode.isPlaced) {
             snapshotObserver.observeReads(this, onCommitAffectingLayer) {
-                drawContainedDrawModifiers(canvas)
+                drawContainedDrawModifiers(canvas, explicitLayer)
             }
             lastLayerDrawingWasSkipped = false
         } else {
@@ -400,14 +465,17 @@ internal abstract class NodeCoordinator(
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
         forceUpdateLayerParameters: Boolean = false
     ) {
+        requirePrecondition(layerBlock == null || explicitLayer == null) {
+            "layerBlock can't be provided when explicitLayer is provided"
+        }
         val layoutNode = layoutNode
         val updateParameters = forceUpdateLayerParameters || this.layerBlock !== layerBlock ||
             layerDensity != layoutNode.density || layerLayoutDirection != layoutNode.layoutDirection
-        this.layerBlock = layerBlock
         this.layerDensity = layoutNode.density
         this.layerLayoutDirection = layoutNode.layoutDirection
 
         if (layoutNode.isAttached && layerBlock != null) {
+            this.layerBlock = layerBlock
             if (layer == null) {
                 layer = layoutNode.requireOwner().createLayer(
                     drawBlock,
@@ -423,6 +491,7 @@ internal abstract class NodeCoordinator(
                 updateLayerParameters()
             }
         } else {
+            this.layerBlock = null
             layer?.let {
                 it.destroy()
                 layoutNode.innerLayerCoordinatorIsDirty = true
@@ -437,6 +506,10 @@ internal abstract class NodeCoordinator(
     }
 
     private fun updateLayerParameters(invokeOnLayoutChange: Boolean = true) {
+        if (explicitLayer != null) {
+            // the parameters of the explicit layers are configured differently.
+            return
+        }
         val layer = layer
         if (layer != null) {
             val layerBlock = checkPreconditionNotNull(layerBlock) {
@@ -479,6 +552,8 @@ internal abstract class NodeCoordinator(
 
     var layer: OwnedLayer? = null
         private set
+
+    private var explicitLayer: GraphicsLayer? = null
 
     override val isValidOwnerScope: Boolean
         get() = layer != null && !released && layoutNode.isAttached
@@ -758,9 +833,20 @@ internal abstract class NodeCoordinator(
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
+    ): Offset = localPositionOf(sourceCoordinates, relativeToSource, false)
+
+    override fun localPositionOf(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset,
+        excludeDirectManipulationOffset: Boolean
     ): Offset {
         if (sourceCoordinates is LookaheadLayoutCoordinates) {
-            return -sourceCoordinates.localPositionOf(this, -relativeToSource)
+            sourceCoordinates.coordinator.onCoordinatesUsed()
+            return -sourceCoordinates.localPositionOf(
+                sourceCoordinates = this,
+                relativeToSource = -relativeToSource,
+                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            )
         }
 
         val nodeCoordinator = sourceCoordinates.toCoordinator()
@@ -770,11 +856,11 @@ internal abstract class NodeCoordinator(
         var position = relativeToSource
         var coordinator = nodeCoordinator
         while (coordinator !== commonAncestor) {
-            position = coordinator.toParentPosition(position)
+            position = coordinator.toParentPosition(position, excludeDirectManipulationOffset)
             coordinator = coordinator.wrappedBy!!
         }
 
-        return ancestorToLocal(commonAncestor, position)
+        return ancestorToLocal(commonAncestor, position, excludeDirectManipulationOffset)
     }
 
     override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {
@@ -854,15 +940,22 @@ internal abstract class NodeCoordinator(
         return bounds.toRect()
     }
 
-    private fun ancestorToLocal(ancestor: NodeCoordinator, offset: Offset): Offset {
+    private fun ancestorToLocal(
+        ancestor: NodeCoordinator,
+        offset: Offset,
+        excludeDirectManipulationOffset: Boolean,
+    ): Offset {
         if (ancestor === this) {
             return offset
         }
         val wrappedBy = wrappedBy
         if (wrappedBy == null || ancestor == wrappedBy) {
-            return fromParentPosition(offset)
+            return fromParentPosition(offset, excludeDirectManipulationOffset)
         }
-        return fromParentPosition(wrappedBy.ancestorToLocal(ancestor, offset))
+        return fromParentPosition(
+            position = wrappedBy.ancestorToLocal(ancestor, offset, excludeDirectManipulationOffset),
+            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+        )
     }
 
     private fun ancestorToLocal(
@@ -901,18 +994,33 @@ internal abstract class NodeCoordinator(
      * Converts [position] in the local coordinate system to a [Offset] in the
      * [parentLayoutCoordinates] coordinate system.
      */
-    open fun toParentPosition(position: Offset): Offset {
+    open fun toParentPosition(
+        position: Offset,
+        excludeDirectManipulationOffset: Boolean = false
+    ): Offset {
         val layer = layer
         val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
-        return targetPosition + this.position
+        return if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+            targetPosition
+        } else {
+            targetPosition + this.position
+        }
     }
 
     /**
      * Converts [position] in the [parentLayoutCoordinates] coordinate system to a [Offset] in the
      * local coordinate system.
      */
-    open fun fromParentPosition(position: Offset): Offset {
-        val relativeToPosition = position - this.position
+    open fun fromParentPosition(
+        position: Offset,
+        excludeDirectManipulationOffset: Boolean = false
+    ): Offset {
+        val relativeToPosition =
+            if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+                position
+            } else {
+                position - this.position
+            }
         val layer = layer
         return layer?.mapOffset(relativeToPosition, inverse = true)
             ?: relativeToPosition
@@ -944,6 +1052,7 @@ internal abstract class NodeCoordinator(
      * released or when the [NodeCoordinator] is released (will not be used anymore).
      */
     fun onRelease() {
+        releaseExplicitLayer()
         released = true
         // It is important to call invalidateParentLayer() here, even though updateLayerBlock() may
         // call it. The reason is because we end up calling this from the bottom up, which means
@@ -1199,6 +1308,7 @@ internal abstract class NodeCoordinator(
             if (coordinator.isValidOwnerScope) {
                 // coordinator.layerPositionalProperties should always be non-null here, but
                 // we'll just be careful with a null check.
+                // todo how this will be communicated to us in the new impl?
                 val layerPositionalProperties = coordinator.layerPositionalProperties
                 if (layerPositionalProperties == null) {
                     coordinator.updateLayerParameters()

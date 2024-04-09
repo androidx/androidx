@@ -235,7 +235,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 sources.elements.map { jars ->
                     // Now that we publish sample jars, they can get confused with normal source
                     // jars. We want to handle sample jars separately, so filter by the name.
-                    jars.filter { "samples" !in it.toString() }.map { jar ->
+                    jars.filter { "samples" !in it.toString() }
+                        .map { it.asFile }.toSortedSet().map { jar ->
                         localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
                     }
                 }
@@ -275,9 +276,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             "mergeMultiplatformMetadata",
             MergeMultiplatformMetadataTask::class.java
         ) {
-            it.dependsOn(unzipMultiplatformSources)
             it.mergedProjectMetadata.set(mergedProjectMetadata)
-            it.inputDirectory.set(tempMultiplatformMetadataDirectory)
+            it.inputDirectory.set(unzipMultiplatformSources.flatMap { it.metadataOutput })
         }
     }
 
@@ -502,9 +502,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     )
                 )
                 task.apply {
+                    // Remove once there is property version of Copy#destinationDir
+                    // Use samplesDir.set(unzipSamplesTask.flatMap { it.destinationDirectory })
+                    // https://github.com/gradle/gradle/issues/25824
                     dependsOn(unzipJvmSourcesTask)
                     dependsOn(unzipSamplesTask)
-                    dependsOn(generateMetadataTask)
                     dependsOn(configureMultiplatformSourcesTask)
 
                     description =
@@ -531,10 +533,14 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     excludedPackages.set(hiddenPackages.toSet())
                     excludedPackagesForJava.set(hiddenPackagesJava)
                     excludedPackagesForKotlin.set(emptySet())
-                    libraryMetadataFile.set(getMetadataRegularFile(project))
+                    libraryMetadataFile.set(generateMetadataTask.flatMap { it.destinationFile })
                     projectStructureMetadataFile.set(mergedProjectMetadata)
-                    // See go/dackka-source-link for details on this link.
-                    baseSourceLink.set("https://cs.android.com/search?" + "q=file:%s+class:%s")
+                    // See go/dackka-source-link for details on these links.
+                    baseSourceLink.set("https://cs.android.com/search?q=file:%s+class:%s")
+                    baseFunctionSourceLink.set(
+                        "https://cs.android.com/search?q=file:%s+function:%s"
+                    )
+                    basePropertySourceLink.set("https://cs.android.com/search?q=file:%s+symbol:%s")
                     annotationsNotToDisplay.set(hiddenAnnotations)
                     annotationsNotToDisplayJava.set(hiddenAnnotationsJava)
                     annotationsNotToDisplayKotlin.set(hiddenAnnotationsKotlin)
@@ -558,8 +564,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         val zipTask =
             project.tasks.register("zipDocs", Zip::class.java) { task ->
                 task.apply {
-                    dependsOn(dackkaTask)
-                    from(generatedDocsDir)
+                    from(dackkaTask.flatMap { it.destinationDir })
 
                     val baseName = "docs-$docsType"
                     val buildId = getBuildId()
@@ -686,6 +691,7 @@ private val hiddenPackagesJava =
     setOf(
         "androidx.*compose.*",
         "androidx.*glance.*",
+        "androidx\\.tv\\..*",
     )
 
 // List of annotations which should not be displayed in the docs
@@ -711,7 +717,9 @@ private val hiddenAnnotations: List<String> =
         // This annotations is not useful for developers but right now is @ShowAnnotation?
         "kotlin.js.JsName",
         // This annotation is intended to target the compiler and is general not useful for devs.
-        "java.lang.Override"
+        "java.lang.Override",
+        // This annotation is used by the room processor and isn't useful for developers
+        "androidx.room.Ignore"
     )
 
 val validNullabilityAnnotations = listOf(
@@ -728,7 +736,11 @@ private val hiddenAnnotationsKotlin: List<String> = listOf("kotlin.ExtensionFunc
 private val hiddenAnnotationsJava: List<String> = emptyList()
 
 // Annotations which mean the elements they are applied to should be hidden from the docs
-private val annotationsToHideApis: List<String> = listOf("androidx.annotation.RestrictTo")
+private val annotationsToHideApis: List<String> = listOf(
+    "androidx.annotation.RestrictTo",
+    // Appears in androidx.test sources
+    "dagger.internal.DaggerGenerated",
+)
 
 /** Data class that matches JSON structure of kotlin source set metadata */
 data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>)
@@ -753,7 +765,12 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        val sources = inputJars.get().associate { it.name to archiveOperations.zipTree(it) }
+        val sources = inputJars.get()
+            // Now that we publish sample jars, they can get confused with normal source
+            // jars. We want to handle sample jars separately, so filter by the name.
+            .filter { "samples" !in it.toString() }
+            .associate { it.name to archiveOperations.zipTree(it) }
+            .toSortedMap()
         fileSystemOperations.sync {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
             it.from(sources.values)

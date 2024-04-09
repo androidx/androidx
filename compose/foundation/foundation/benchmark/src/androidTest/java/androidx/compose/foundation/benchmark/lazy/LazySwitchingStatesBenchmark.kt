@@ -49,15 +49,28 @@ class LazySwitchingStatesBenchmark {
 
     @Test
     fun lazyColumn_switchingItems_composition() {
-        benchmarkRule.runBenchmark(composition = true)
+        benchmarkRule.runBenchmark(composition = true, switchingStateCount = NUMBER_OF_LAZY_ITEMS)
     }
 
     @Test
     fun lazyColumn_switchingItems_measure() {
-        benchmarkRule.runBenchmark(composition = false)
+        benchmarkRule.runBenchmark(composition = false, switchingStateCount = NUMBER_OF_LAZY_ITEMS)
     }
 
-    private fun ComposeBenchmarkRule.runBenchmark(composition: Boolean) {
+    @Test
+    fun lazyColumn_switchingItems_composition_one_state() {
+        benchmarkRule.runBenchmark(composition = true, switchingStateCount = 1)
+    }
+
+    @Test
+    fun lazyColumn_switchingItems_measure_one_state() {
+        benchmarkRule.runBenchmark(composition = false, switchingStateCount = 1)
+    }
+
+    private fun ComposeBenchmarkRule.runBenchmark(
+        composition: Boolean,
+        switchingStateCount: Int
+    ) {
         runBenchmarkFor(
             { LazyColumnSwitchingItemsCase(readInComposition = composition) },
         ) {
@@ -69,14 +82,14 @@ class LazySwitchingStatesBenchmark {
             measureRepeatedOnUiThread {
                 runWithTimingDisabled {
                     assertNoPendingChanges()
-                    repeat(getTestCase().items.size) {
+                    repeat(switchingStateCount) {
                         getTestCase().toggle(it)
                     }
                     doFramesUntilIdle()
                     assertNoPendingChanges()
                 }
 
-                repeat(getTestCase().items.size) {
+                repeat(switchingStateCount) {
                     getTestCase().toggle(it)
                 }
                 doFramesUntilIdle()
@@ -85,11 +98,12 @@ class LazySwitchingStatesBenchmark {
     }
 }
 
+// The number is based on height of items below (20 visible + 5 extra).
+private const val NUMBER_OF_LAZY_ITEMS = 25
 class LazyColumnSwitchingItemsCase(
     private val readInComposition: Boolean = false
 ) : ComposeTestCase {
-    // The number is based on height of items below (20 visible + 5 extra).
-    val items = List(25) {
+    val items = List(NUMBER_OF_LAZY_ITEMS) {
         mutableStateOf(false)
     }
 

@@ -55,7 +55,7 @@ class ImageViewTintDetector : LayoutDetector() {
             element,
             context.getLocation(element.getAttributeNodeNS(SdkConstants.ANDROID_URI, "tint")),
             "Must use `app:tint` instead of `android:tint`",
-            LintFix.create().composite(
+            LintFix.create().name("Use `app:tint` instead of `android:tint`").composite(
                 LintFix.create().set(
                     SdkConstants.AUTO_URI, "tint",
                     element.getAttributeNS(SdkConstants.ANDROID_URI, "tint")

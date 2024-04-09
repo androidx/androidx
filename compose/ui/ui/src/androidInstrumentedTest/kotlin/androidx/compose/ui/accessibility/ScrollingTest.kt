@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -44,7 +43,9 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.getScrollViewportLength
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.verticalScrollAxisRange
@@ -59,8 +60,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUSED
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -78,6 +81,7 @@ class ScrollingTest {
     private val dispatchedAccessibilityEvents = mutableListOf<AccessibilityEvent>()
     private val accessibilityEventLoopIntervalMs = 100L
 
+    @SdkSuppress(maxSdkVersion = 33) // b/322354981
     @Test
     fun sendScrollEvent_byStateObservation_horizontal() {
         // Arrange.
@@ -460,6 +464,78 @@ class ScrollingTest {
             assertThat(androidComposeView.canScrollVertically(0)).isFalse()
             assertThat(androidComposeView.canScrollVertically(-1)).isFalse()
         }
+    }
+
+    @Test
+    fun scrollViewPort_notProvided_shouldUseFallbackViewPort() {
+        // Arrange.
+        var actualScrolledAmount = 0f
+        val viewPortSize = 100
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier
+                    .size(viewPortSize.toDp())
+                    .semantics(mergeDescendants = true) {
+                        testTag = tag
+                        horizontalScrollAxisRange = ScrollAxisRange(
+                            value = { 0.5f },
+                            maxValue = { 1f },
+                            reverseScrolling = true
+                        )
+
+                        scrollBy { x, _ ->
+                            actualScrolledAmount += x
+                            false
+                        }
+                    }
+            )
+        }
+
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        rule.runOnIdle {
+            androidComposeView.accessibilityNodeProvider
+                .performAction(virtualViewId, ACTION_SCROLL_BACKWARD, null)
+        }
+        assertThat(actualScrolledAmount).isEqualTo(viewPortSize)
+    }
+
+    @Test
+    fun scrollViewPort_provided_shouldUseScrollProvidedValues() {
+        // Arrange.
+        var actualScrolledAmount = 0f
+        val viewPortSize = 100
+        val contentPadding = 5f
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier
+                    .size(viewPortSize.toDp())
+                    .semantics(mergeDescendants = true) {
+                        testTag = tag
+                        horizontalScrollAxisRange = ScrollAxisRange(
+                            value = { 0.5f },
+                            maxValue = { 1f },
+                            reverseScrolling = true
+                        )
+
+                        scrollBy { x, _ ->
+                            actualScrolledAmount += x
+                            false
+                        }
+
+                        getScrollViewportLength {
+                            it.add((viewPortSize - contentPadding))
+                            true
+                        }
+                    }
+            )
+        }
+
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        rule.runOnIdle {
+            androidComposeView.accessibilityNodeProvider
+                .performAction(virtualViewId, ACTION_SCROLL_BACKWARD, null)
+        }
+        assertThat(actualScrolledAmount).isEqualTo(viewPortSize - contentPadding)
     }
 
     @Test

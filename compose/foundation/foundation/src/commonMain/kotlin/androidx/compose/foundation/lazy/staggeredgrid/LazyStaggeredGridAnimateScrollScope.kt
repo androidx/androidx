@@ -20,8 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
-import kotlin.math.abs
 
 @ExperimentalFoundationApi
 internal class LazyStaggeredGridAnimateScrollScope(
@@ -37,37 +37,35 @@ internal class LazyStaggeredGridAnimateScrollScope(
 
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
-    override fun getVisibleItemScrollOffset(index: Int): Int {
-        val layoutInfo = state.layoutInfo
-        val searchedIndex = layoutInfo.visibleItemsInfo.binarySearch { it.index - index }
-        val item = layoutInfo.visibleItemsInfo[searchedIndex]
-        return item.offset.let {
-            if (layoutInfo.orientation == Orientation.Vertical) it.y else it.x
-        }
-    }
-
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         with(state) {
-            snapToItemInternal(index, scrollOffset)
+            snapToItemInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
-    override fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float {
-        val averageMainAxisItemSize = visibleItemsAverageSize
+    override fun calculateDistanceTo(targetIndex: Int): Float {
+        val visibleItem =
+            state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
+        return if (visibleItem == null) {
+            val averageMainAxisItemSize = visibleItemsAverageSize
 
-        val laneCount = state.laneCount
-        val lineDiff = targetIndex / laneCount - firstVisibleItemIndex / laneCount
-        var coercedOffset = minOf(abs(targetItemOffset), averageMainAxisItemSize)
-        if (targetItemOffset < 0) coercedOffset *= -1
-        return averageMainAxisItemSize * lineDiff.toFloat() +
-            coercedOffset - firstVisibleItemScrollOffset
+            val laneCount = state.laneCount
+            val lineDiff = targetIndex / laneCount - firstVisibleItemIndex / laneCount
+            averageMainAxisItemSize * lineDiff.toFloat() - firstVisibleItemScrollOffset
+        } else {
+            if (state.layoutInfo.orientation == Orientation.Vertical) {
+                visibleItem.offset.y
+            } else {
+                visibleItem.offset.x
+            }.toFloat()
+        }
     }
 
     override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {
         state.scroll(block = block)
     }
 
-    override val visibleItemsAverageSize: Int
+    private val visibleItemsAverageSize: Int
         get() {
             val layoutInfo = state.layoutInfo
             val visibleItems = layoutInfo.visibleItemsInfo

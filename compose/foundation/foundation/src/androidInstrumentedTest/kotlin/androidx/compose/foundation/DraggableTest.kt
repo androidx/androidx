@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -1007,7 +1008,6 @@ class DraggableTest {
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "orientation",
                 "enabled",
-                "canDrag",
                 "reverseDirection",
                 "interactionSource",
                 "startDragImmediately",
@@ -1015,6 +1015,19 @@ class DraggableTest {
                 "onDragStopped",
                 "state",
             )
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals() {
+        val state = DraggableState { }
+
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.draggable(state, Orientation.Horizontal)
+            } else {
+                Modifier.draggable(state, Orientation.Vertical)
+            }
         }
     }
 

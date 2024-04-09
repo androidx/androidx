@@ -36,8 +36,10 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalDrawer
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -1009,6 +1011,30 @@ class LayoutInspectorTreeTest {
         ThreadUtils.runOnMainThread {
             builder.convert(androidComposeView)
         }
+    }
+
+    @Test
+    fun testScaffold() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Scaffold {
+                    Column {
+                        LinearProgressIndicator(progress = 0.3F)
+                    }
+                }
+            }
+        }
+        val androidComposeView = findAndroidComposeView()
+        androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        builder.hideSystemNodes = false
+        builder.includeAllParameters = true
+        val linearProgressIndicator = builder.convert(androidComposeView)
+            .flatMap { flatten(it) }
+            .firstOrNull { it.name == "LinearProgressIndicator" }
+        assertThat(linearProgressIndicator).isNotNull()
     }
 
     @Suppress("SameParameterValue")

@@ -215,4 +215,20 @@ public class WebSettingsAdapter {
                 .build();
     }
 
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
+     */
+    public void setWebAuthenticationSupport(int support) {
+        mBoundaryInterface.setWebauthnSupport(support);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
+     */
+    public int getWebAuthenticationSupport() {
+        return mBoundaryInterface.getWebauthnSupport();
+    }
+
 }

@@ -21,13 +21,11 @@ import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.testing.TestPager
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
-import androidx.room.awaitPendingRefresh
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -760,15 +758,15 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
         )
 
         // blocks invalidation notification from Room
-        queryExecutor.filterFunction = { runnable ->
-            runnable !== db.invalidationTracker.refreshRunnable
+        queryExecutor.filterFunction = {
+            // TODO(b/): Avoid relying on function name, very brittle.
+            !it.toString().contains("refreshInvalidationAsync")
         }
 
         // now write to the database
         dao.deleteTestItem(ITEMS_LIST[30])
 
         // make sure room requests a refresh
-        db.invalidationTracker.awaitPendingRefresh()
         // and that this is blocked to simulate delayed notification from room
         queryExecutor.awaitDeferredSizeAtLeast(1)
 
@@ -791,15 +789,14 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
         )
 
         // blocks invalidation notification from Room
-        queryExecutor.filterFunction = { runnable ->
-            runnable !== db.invalidationTracker.refreshRunnable
+        queryExecutor.filterFunction = {
+            !it.toString().contains("refreshInvalidationAsync")
         }
 
         // now write to the database
         dao.deleteTestItem(ITEMS_LIST[30])
 
         // make sure room requests a refresh
-        db.invalidationTracker.awaitPendingRefresh()
         // and that this is blocked to simulate delayed notification from room
         queryExecutor.awaitDeferredSizeAtLeast(1)
 

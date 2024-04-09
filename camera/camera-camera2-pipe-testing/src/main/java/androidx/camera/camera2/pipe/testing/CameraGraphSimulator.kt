@@ -118,7 +118,6 @@ class CameraGraphSimulator private constructor(
 
     private val closed = atomic(false)
 
-    private val surfaceTextureNames = atomic(0)
     private val frameClockNanos = atomic(0L)
     private val frameCounter = atomic(0L)
     private val pendingFrameQueue = mutableListOf<FrameSimulator>()

@@ -78,6 +78,7 @@ inline fun Layout(
 ) {
     val compositeKeyHash = currentCompositeKeyHash
     val localMap = currentComposer.currentCompositionLocalMap
+    val materialized = currentComposer.materialize(modifier)
     ReusableComposeNode<ComposeUiNode, Applier<Any>>(
         factory = ComposeUiNode.Constructor,
         update = {
@@ -85,8 +86,8 @@ inline fun Layout(
             set(localMap, SetResolvedCompositionLocals)
             @OptIn(ExperimentalComposeUiApi::class)
             set(compositeKeyHash, SetCompositeKeyHash)
+            set(materialized, SetModifier)
         },
-        skippableUpdate = materializerOf(modifier),
         content = content
     )
 }
@@ -364,6 +365,38 @@ internal class IntrinsicsMeasureScope(
     intrinsicMeasureScope: IntrinsicMeasureScope,
     override val layoutDirection: LayoutDirection,
 ) : MeasureScope, IntrinsicMeasureScope by intrinsicMeasureScope {
+    override fun layout(
+        width: Int,
+        height: Int,
+        alignmentLines: Map<AlignmentLine, Int>,
+        rulers: (RulerScope.() -> Unit)?,
+        placementBlock: Placeable.PlacementScope.() -> Unit
+    ): MeasureResult {
+        val w = width.coerceAtLeast(0)
+        val h = height.coerceAtLeast(0)
+        checkMeasuredSize(w, h)
+        return object : MeasureResult {
+            override val width: Int
+                get() = w
+            override val height: Int
+                get() = h
+            override val alignmentLines: Map<AlignmentLine, Int>
+                get() = alignmentLines
+            override val rulers: (RulerScope.() -> Unit)?
+                get() = rulers
+
+            override fun placeChildren() {
+                // Intrinsics should never be placed
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal class ApproachIntrinsicsMeasureScope(
+    intrinsicMeasureScope: ApproachIntrinsicMeasureScope,
+    override val layoutDirection: LayoutDirection,
+) : ApproachMeasureScope, ApproachIntrinsicMeasureScope by intrinsicMeasureScope {
     override fun layout(
         width: Int,
         height: Int,

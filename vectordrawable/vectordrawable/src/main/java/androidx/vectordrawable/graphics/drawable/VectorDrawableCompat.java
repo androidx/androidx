@@ -1738,7 +1738,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         public void toPath(Path path) {
             path.reset();
             if (mNodes != null) {
-                PathParser.PathDataNode.nodesToPath(mNodes, path);
+                PathParser.nodesToPath(mNodes, path);
             }
         }
 

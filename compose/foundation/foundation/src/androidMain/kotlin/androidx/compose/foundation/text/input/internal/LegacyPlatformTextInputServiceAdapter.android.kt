@@ -23,6 +23,9 @@ import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.LegacyTextFieldState
+import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -36,7 +39,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.emoji2.text.EmojiCompat
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 private const val DEBUG_CLASS = "AndroidLegacyPlatformTextInputServiceAdapter"
 
@@ -55,6 +65,21 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
 
     private var job: Job? = null
     private var currentRequest: LegacyTextInputMethodRequest? = null
+    private var backingStylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+    private var stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+        get() {
+            val finalStylusHandwritingTrigger = backingStylusHandwritingTrigger
+            if (finalStylusHandwritingTrigger != null) {
+                return finalStylusHandwritingTrigger
+            }
+            if (!isStylusHandwritingSupported) {
+                return null
+            }
+            return MutableSharedFlow<Unit>(
+                replay = 1,
+                onBufferOverflow = BufferOverflow.DROP_LATEST
+            ).also { backingStylusHandwritingTrigger = it }
+        }
 
     override fun startInput(
         value: TextFieldValue,
@@ -63,7 +88,13 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         startInput {
-            it.startInput(value, imeOptions, onEditCommand, onImeActionPerformed)
+            it.startInput(
+                value,
+                textInputModifierNode,
+                imeOptions,
+                onEditCommand,
+                onImeActionPerformed
+            )
         }
     }
 
@@ -89,27 +120,40 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
         // No need to cancel any previous job, the text input system ensures the previous session
         // will be cancelled.
         job = node.launchTextInputSession {
-            val request = LegacyTextInputMethodRequest(
-                view = view,
-                localToScreen = ::localToScreen,
-                inputMethodManager = inputMethodManagerFactory(view)
-            )
-            initializeRequest?.invoke(request)
-            currentRequest = request
-            try {
-                startInputMethod(request)
-            } finally {
-                currentRequest = null
+            coroutineScope {
+                val inputMethodManager = inputMethodManagerFactory(view)
+                val request = LegacyTextInputMethodRequest(
+                    view = view,
+                    localToScreen = ::localToScreen,
+                    inputMethodManager = inputMethodManager
+                )
+
+                if (isStylusHandwritingSupported) {
+                    launch(start = CoroutineStart.UNDISPATCHED) {
+                        stylusHandwritingTrigger?.collect {
+                            inputMethodManager.startStylusHandwriting()
+                        }
+                    }
+                }
+                initializeRequest?.invoke(request)
+                currentRequest = request
+                try {
+                    startInputMethod(request)
+                } finally {
+                    currentRequest = null
+                }
             }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun stopInput() {
         if (DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.stopInput")
         }
         job?.cancel()
         job = null
+        stylusHandwritingTrigger?.resetReplayCache()
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
@@ -136,6 +180,14 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
             decorationBoxBounds
         )
     }
+
+    /**
+     * Signal the InputMethodManager to startStylusHandwriting. This method can be called
+     * after the editor calls startInput or just before the editor calls startInput.
+     */
+    override fun startStylusHandwriting() {
+        stylusHandwritingTrigger?.tryEmit(Unit)
+    }
 }
 
 /**
@@ -153,6 +205,8 @@ internal class LegacyTextInputMethodRequest(
      */
     private var onEditCommand: (List<EditCommand>) -> Unit = {}
     private var onImeActionPerformed: (ImeAction) -> Unit = {}
+    private var legacyTextFieldState: LegacyTextFieldState? = null
+    private var textFieldSelectionManager: TextFieldSelectionManager? = null
 
     // Visible for testing
     var state = TextFieldValue(text = "", selection = TextRange.Zero)
@@ -176,7 +230,7 @@ internal class LegacyTextInputMethodRequest(
     internal var focusedRect: AndroidRect? = null
 
     private val cursorAnchorInfoController =
-        CursorAnchorInfoController(localToScreen, inputMethodManager)
+        LegacyCursorAnchorInfoController(localToScreen, inputMethodManager)
 
     init {
         if (DEBUG) {
@@ -186,6 +240,7 @@ internal class LegacyTextInputMethodRequest(
 
     fun startInput(
         value: TextFieldValue,
+        textInputNode: LegacyPlatformTextInputServiceAdapter.LegacyPlatformTextInputNode?,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
@@ -194,6 +249,8 @@ internal class LegacyTextInputMethodRequest(
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
         this.onImeActionPerformed = onImeActionPerformed
+        this.legacyTextFieldState = textInputNode?.legacyTextFieldState
+        this.textFieldSelectionManager = textInputNode?.textFieldSelectionManager
     }
 
     override fun createInputConnection(outAttributes: EditorInfo): RecordingInputConnection {
@@ -242,7 +299,9 @@ internal class LegacyTextInputMethodRequest(
                         }
                     }
                 }
-            }
+            },
+            legacyTextFieldState = legacyTextFieldState,
+            textFieldSelectionManager = textFieldSelectionManager
         ).also {
             ics.add(WeakReference(it))
             if (DEBUG) {

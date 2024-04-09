@@ -60,7 +60,7 @@ class CustomAudienceManagerTest {
 
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExtVersion = AdServicesInfo.adServicesVersion() >= 4
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
 
     @Before
     fun setUp() {
@@ -86,7 +86,15 @@ class CustomAudienceManagerTest {
     fun testOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        Truth.assertThat(obtain(mContext)).isEqualTo(null)
+        Truth.assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testCustomAudienceManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(CustomAudienceManager.get(any())).thenThrow(NoClassDefFoundError())
+        Truth.assertThat(obtain(mContext)).isNull()
     }
 
     @Test
@@ -98,7 +106,7 @@ class CustomAudienceManagerTest {
 
         /* API is not available */
         Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
-            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersion() < 10)
+            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersionS() < 10)
         mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)
         val managerCompat = obtain(mContext)
 
@@ -153,7 +161,7 @@ class CustomAudienceManagerTest {
     fun testFetchAndJoinCustomAudience() {
         Assume.assumeTrue("minSdkVersion = API 31 ext 10",
             AdServicesInfo.adServicesVersion() >= 10 ||
-                AdServicesInfo.extServicesVersion() >= 10)
+                AdServicesInfo.extServicesVersionS() >= 10)
 
         val customAudienceManager =
             mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)

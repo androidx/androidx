@@ -17,6 +17,7 @@ package androidx.window.layout
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContextWrapper
 import android.os.Build
 import android.view.Display
 import android.view.WindowManager
@@ -39,14 +40,14 @@ import org.junit.runner.RunWith
 /** Tests for [WindowMetricsCalculatorCompat] class.  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-public class WindowMetricsCalculatorCompatTest {
+class WindowMetricsCalculatorCompatTest {
 
     @get:Rule
-    public var activityScenarioRule: ActivityScenarioRule<TestActivity> =
+    var activityScenarioRule: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
     @Test
-    public fun testGetCurrentWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
+    fun testGetCurrentWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetCurrentWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -62,7 +63,17 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetCurrentWindowBounds_fixedWindowSize_avoidCutouts_preR() {
+    fun testGetCurrentWindowBounds_withWrappedContext() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            val calculator = WindowMetricsCalculator.getOrCreate()
+
+            // Test that this does not crash.
+            calculator.computeCurrentWindowMetrics(ContextWrapper(activity))
+        }
+    }
+
+    @Test
+    fun testGetCurrentWindowBounds_fixedWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetCurrentWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -78,7 +89,7 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetCurrentWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
+    fun testGetCurrentWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetCurrentWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -94,7 +105,7 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetCurrentWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
+    fun testGetCurrentWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetCurrentWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -111,7 +122,7 @@ public class WindowMetricsCalculatorCompatTest {
 
     @SuppressLint("NewApi")
     @Test
-    public fun testGetCurrentWindowBounds_postR() {
+    fun testGetCurrentWindowBounds_postR() {
         assumePlatformROrAbove()
         runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
             val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity).bounds
@@ -121,7 +132,7 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetMaximumWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
+    fun testGetMaximumWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetMaximumWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -137,7 +148,7 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetMaximumWindowBounds_fixedWindowSize_avoidCutouts_preR() {
+    fun testGetMaximumWindowBounds_fixedWindowSize_avoidCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetMaximumWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -153,7 +164,7 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetMaximumWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
+    fun testGetMaximumWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetMaximumWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -169,7 +180,7 @@ public class WindowMetricsCalculatorCompatTest {
     }
 
     @Test
-    public fun testGetMaximumWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
+    fun testGetMaximumWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
         assumePlatformBeforeR()
         assumeNotMultiWindow()
         testGetMaximumWindowBoundsMatchesRealDisplaySize { activity: TestActivity ->
@@ -186,7 +197,7 @@ public class WindowMetricsCalculatorCompatTest {
 
     @SuppressLint("NewApi")
     @Test
-    public fun testGetMaximumWindowBounds_postR() {
+    fun testGetMaximumWindowBounds_postR() {
         assumePlatformROrAbove()
         runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
             val bounds = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(activity).bounds
@@ -198,7 +209,7 @@ public class WindowMetricsCalculatorCompatTest {
     @SuppressLint("NewApi")
     @Test
     @OptIn(ExperimentalWindowApi::class)
-    public fun testGetWindowInsetsCompat_currentWindowMetrics_postR() {
+    fun testGetWindowInsetsCompat_currentWindowMetrics_postR() {
         assumePlatformROrAbove()
         runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
             val windowMetrics = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity)
@@ -212,7 +223,7 @@ public class WindowMetricsCalculatorCompatTest {
     @SuppressLint("NewApi")
     @Test
     @OptIn(ExperimentalWindowApi::class)
-    public fun testGetWindowInsetsCompat_maximumWindowMetrics_postR() {
+    fun testGetWindowInsetsCompat_maximumWindowMetrics_postR() {
         assumePlatformROrAbove()
         runActionsAcrossActivityLifecycle({ }) { activity: TestActivity ->
             val windowMetrics = WindowMetricsCalculatorCompat.computeMaximumWindowMetrics(activity)

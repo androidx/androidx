@@ -9,11 +9,9 @@ import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.guava.GuavaRoom
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.newStringBuilder
 import androidx.room.util.query
 import androidx.sqlite.db.SupportSQLiteStatement
 import com.google.common.util.concurrent.ListenableFuture
-import java.lang.StringBuilder
 import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -21,11 +19,11 @@ import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
+import kotlin.text.StringBuilder
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -33,9 +31,9 @@ public class MyDao_Impl(
 
   private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
 
-  private val __deletionAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __deleteCompatAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
 
-  private val __updateAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __updateCompatAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
 
   private val __upsertionAdapterOfMyEntity: EntityUpsertionAdapter<MyEntity>
   init {
@@ -49,14 +47,14 @@ public class MyDao_Impl(
         statement.bindString(2, entity.other)
       }
     }
-    this.__deletionAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__deleteCompatAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
       protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
       protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
       }
     }
-    this.__updateAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__updateCompatAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
       protected override fun createQuery(): String =
           "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
@@ -108,7 +106,7 @@ public class MyDao_Impl(
       var _total: Int = 0
       __db.beginTransaction()
       try {
-        _total += __deletionAdapterOfMyEntity.handle(entity)
+        _total += __deleteCompatAdapterOfMyEntity.handle(entity)
         __db.setTransactionSuccessful()
         return _total
       } finally {
@@ -123,7 +121,7 @@ public class MyDao_Impl(
       var _total: Int = 0
       __db.beginTransaction()
       try {
-        _total += __updateAdapterOfMyEntity.handle(entity)
+        _total += __updateCompatAdapterOfMyEntity.handle(entity)
         __db.setTransactionSuccessful()
         return _total
       } finally {
@@ -148,7 +146,7 @@ public class MyDao_Impl(
   })
 
   public override fun getListenableFuture(vararg arg: String?): ListenableFuture<MyEntity> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -192,7 +190,7 @@ public class MyDao_Impl(
 
   public override fun getListenableFutureNullable(vararg arg: String?):
       ListenableFuture<MyEntity?> {
-    val _stringBuilder: StringBuilder = newStringBuilder()
+    val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size
     appendPlaceholders(_stringBuilder, _inputSize)
@@ -235,7 +233,6 @@ public class MyDao_Impl(
   }
 
   public companion object {
-    @JvmStatic
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

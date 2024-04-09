@@ -21,12 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import com.google.protobuf.gradle.ProtobufExtract
 
 plugins {
     id("AndroidXPlugin")
@@ -34,8 +31,6 @@ plugins {
     id("com.google.protobuf")
     id ("kotlin-parcelize")
 }
-
-def enableNative = KmpPlatformsKt.enableNative(project)
 
 android {
     externalNativeBuild {
@@ -152,16 +147,14 @@ androidXMultiplatform {
             }
         }
 
-        if (enableNative) {
-            nativeMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.atomicFu)
-                }
+        nativeMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
             }
-            nativeTest {
-                dependsOn(commonTest)
-            }
+        }
+        nativeTest {
+            dependsOn(commonTest)
         }
 
         targets.all { target ->

@@ -41,7 +41,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
@@ -73,7 +72,6 @@ import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
-import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
 import androidx.wear.protolayout.proto.DimensionProto.DegreesProp;
 import androidx.wear.protolayout.proto.DimensionProto.DpProp;
@@ -85,6 +83,7 @@ import androidx.wear.protolayout.proto.TriggerProto.OnVisibleOnceTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.OnVisibleTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger.InnerCase;
+import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline.PipelineMaker;
 import androidx.wear.protolayout.renderer.inflater.DefaultAndroidSeekableAnimatedImageResourceByResIdResolver;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAccessException;
@@ -841,7 +840,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         String staticValue = "static";
 
         AtomicReference<String> currentValue = new AtomicReference<>();
-        FixedQuotaManagerImpl quotaManager = new FixedQuotaManagerImpl(/* quotaCap= */ 3);
+        FixedQuotaManagerImpl quotaManager = new FixedQuotaManagerImpl(/* quotaCap= */ 2);
 
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
@@ -872,7 +871,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         makePipelineForDynamicString(
                 pipeline, dynamicString, staticValue, "posId", currentValue::set);
         pipeline.initNewLayout();
-        expect.that(pipeline.getDynamicExpressionsNodesCount()).isEqualTo(3);
+        expect.that(pipeline.getDynamicExpressionsNodesCost()).isEqualTo(2);
         // No quota left
         expect.that(quotaManager.getRemainingQuota()).isEqualTo(0);
         expect.that(currentValue.get()).isEqualTo(expectedOutput);
@@ -880,8 +879,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
 
     @Test
     public void newLayout_noExpressionNodesQuota_useStaticData() {
-
-        String dynamicValue = "dynamic";
         String staticValue = "static";
         AtomicReference<String> currentValue = new AtomicReference<>();
         FixedQuotaManagerImpl quotaManager = new FixedQuotaManagerImpl(/* quotaCap= */ 0);
@@ -894,7 +891,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
 
         DynamicString dynamicString =
                 DynamicString.newBuilder()
-                        .setFixed(FixedString.newBuilder().setValue(dynamicValue).build())
+                        .setInt32FormatOp(
+                                Int32FormatOp.newBuilder().setInput(fixedDynamicInt32(1)).build())
                         .build();
 
         makePipelineForDynamicString(
@@ -909,7 +907,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
     public void newLayout_removeNodeInfo_releaseQuota() {
 
         int quota = 8;
-        DynamicBool expressionWith4Nodes = buildBoolExpressionWithFixedNumberOfNodes(4);
+        DynamicBool expressionWith4Nodes = buildBoolExpressionWithFixedNumberOfNodes(5);
         FixedQuotaManagerImpl quotaManager = new FixedQuotaManagerImpl(quota);
 
         ProtoLayoutDynamicDataPipeline pipeline =
@@ -945,8 +943,10 @@ public class ProtoLayoutDynamicDataPipelineTest {
         String nodeInfo2 = "posId2.1";
         String nodeInfo3 = "posId3.1";
         int quota = 8;
-        DynamicBool expressionWith5Nodes = buildBoolExpressionWithFixedNumberOfNodes(5);
-        DynamicBool expressionWith1Nodes = buildBoolExpressionWithFixedNumberOfNodes(1);
+        // Cost = 5
+        DynamicBool expressionWith5Nodes = buildBoolExpressionWithFixedNumberOfNodes(6);
+        // Cost = 1
+        DynamicBool expressionWith1Nodes = buildBoolExpressionWithFixedNumberOfNodes(2);
         FixedQuotaManagerImpl quotaManager = new FixedQuotaManagerImpl(quota);
 
         ProtoLayoutDynamicDataPipeline pipeline =
@@ -956,7 +956,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
                         new FixedQuotaManagerImpl(MAX_VALUE),
                         quotaManager);
 
-        // Adding an expressions with 5 dynamic nodes to nodeInfo1.
+        // Adding an expressions cost = 4 to nodeInfo1.
         makePipelineForDynamicBool(pipeline, expressionWith5Nodes, nodeInfo1);
         pipeline.initNewLayout();
 
@@ -975,11 +975,11 @@ public class ProtoLayoutDynamicDataPipelineTest {
 
         // Remove nodeInfo1 and add nodeInfo3. nodeInfo2 still in the pipeline.
         pipeline.mPositionIdTree.removeChildNodesFor(parentOfNode1);
-        // Adding an expressions with 1 dynamic node to nodeInfo3.
+        // Adding an expressions cost = 1 to nodeInfo3.
         makePipelineForDynamicBool(pipeline, expressionWith1Nodes, nodeInfo3);
 
         pipeline.initNewLayout();
-        // Now the pipeline will have a total expressionNodesCount of 6 = 5 + 1 nodeInfo2 (failed to
+        // Now the pipeline will have a total expression cost of 6 = 5 + 1 nodeInfo2 (failed to
         // bound previously) and nodeInfo3(new) should be able to bound
         expect.that(quotaManager.getRemainingQuota()).isEqualTo(2);
         expect.that(pipeline.mPositionIdTree.get(nodeInfo3).getFailedBindingRequest().size())
@@ -992,8 +992,11 @@ public class ProtoLayoutDynamicDataPipelineTest {
     public void newLayout_multipleBound_noEnoughDynamicNodesQuota_satisfyOnlyFewBounds() {
 
         int quota = 11;
-        DynamicBool expressionWith12Nodes = buildBoolExpressionWithFixedNumberOfNodes(12);
+        // Cost = 12
+        DynamicBool expressionWith12Nodes = buildBoolExpressionWithFixedNumberOfNodes(13);
+        // Cost = 3
         DynamicBool expressionWith4Nodes = buildBoolExpressionWithFixedNumberOfNodes(4);
+        // Cost = 0
         DynamicBool expressionWith1Nodes = buildBoolExpressionWithFixedNumberOfNodes(1);
 
         FixedQuotaManagerImpl quotaManager = new FixedQuotaManagerImpl(quota);
@@ -1013,7 +1016,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
 
         pipeline.initNewLayout();
 
-        // expressionWith12Nodes related BoundType should file to bind.
+        // expressionWith12Nodes related BoundType should fail to bind.
         expect.that(
                         pipeline.mPositionIdTree
                                 .findFirst((node) -> node.getPosId().equals("posId1.0"))
@@ -1062,6 +1065,10 @@ public class ProtoLayoutDynamicDataPipelineTest {
                 .build();
     }
 
+    /**
+     * If count is equal to 1, this returns a FixedBool. Otherwise, it returns a dynamic expression
+     * containing one FixedBool and (count-1) NotBoolOp nodes.
+     */
     private static DynamicBool buildBoolExpressionWithFixedNumberOfNodes(int count) {
         if (count < 1) {
             throw new IllegalArgumentException();

@@ -590,7 +590,6 @@ class ExerciseClientTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         statesList += (service.listener == null)
         val deferred = async {
-
             client.clearUpdateCallback(callback)
             statesList += (service.listener == null)
         }
@@ -598,6 +597,17 @@ class ExerciseClientTest {
         deferred.await()
 
         Truth.assertThat(statesList).containsExactly(false, true)
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun clearUpdateCallback_nothingRegistered_noOp() = runTest {
+        val deferred = async {
+            client.clearUpdateCallback(callback)
+        }
+        advanceMainLooperIdle()
+
+        Truth.assertThat(deferred.await()).isNull()
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)

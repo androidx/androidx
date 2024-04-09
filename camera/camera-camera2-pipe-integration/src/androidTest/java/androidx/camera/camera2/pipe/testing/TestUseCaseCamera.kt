@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
@@ -50,6 +51,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseManager.Companion.cr
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.toMap
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -94,8 +96,8 @@ class TestUseCaseCamera(
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
         val cameraGraphConfig = createCameraGraphConfig(
-            sessionConfigAdapter, streamConfigMap,
-            callbackMap, requestListener, cameraConfig, cameraQuirks, null
+            sessionConfigAdapter, streamConfigMap, callbackMap, requestListener, cameraConfig,
+            cameraQuirks, null, ZslControlNoOpImpl()
         )
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 
@@ -120,9 +122,9 @@ class TestUseCaseCamera(
                 configs: List<CaptureConfig>,
                 requestTemplate: RequestTemplate,
                 sessionConfigOptions: Config,
-                captureMode: Int,
-                flashType: Int,
-                flashMode: Int
+                @ImageCapture.CaptureMode captureMode: Int,
+                @ImageCapture.FlashType flashType: Int,
+                @ImageCapture.FlashMode flashMode: Int
             ): List<Deferred<Void?>> {
                 throw NotImplementedError("Not implemented")
             }
@@ -149,6 +151,7 @@ class TestUseCaseCamera(
                 streams = useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
                     sessionConfig.repeatingCaptureConfig.surfaces
                 ),
+                sessionConfig = sessionConfig,
             )
         }
     }

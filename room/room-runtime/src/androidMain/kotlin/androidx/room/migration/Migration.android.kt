@@ -52,8 +52,15 @@ actual abstract class Migration(
      * composite transaction of all necessary `Migration`s.
      *
      * @param db The database instance
+     * @throws NotImplementedError if migrate(SQLiteConnection) is not overridden.
      */
-    abstract fun migrate(db: SupportSQLiteDatabase)
+    open fun migrate(db: SupportSQLiteDatabase) {
+        throw NotImplementedError(
+            "Migration functionality with a SupportSQLiteDatabase " +
+                "(without a provided SQLiteDriver) requires overriding the " +
+                "migrate(SupportSQLiteDatabase) function."
+        )
+    }
 
     /**
      * Should run the necessary migrations.
@@ -62,13 +69,17 @@ actual abstract class Migration(
      * composite transaction of all necessary `Migration`s.
      *
      * @param connection The database connection
+     * @throws NotImplementedError if a driver is provided, but this function is not overridden.
      */
     actual open fun migrate(connection: SQLiteConnection) {
-        // TODO(b/314338741): Signal users this non-abstract overload should be implemented
         if (connection is SupportSQLiteConnection) {
+            // Compatibility mode
             migrate(connection.db)
         } else {
-            TODO("Not yet migrated to use SQLiteDriver")
+            throw NotImplementedError(
+                "Migration functionality with a provided SQLiteDriver requires overriding the " +
+                    "migrate(SQLiteConnection) function."
+            )
         }
     }
 }

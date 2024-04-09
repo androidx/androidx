@@ -33,6 +33,7 @@ import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.LongMessageTemplate;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.OnClickListener;
@@ -98,7 +99,8 @@ public class RequestPermissionScreen extends Screen {
             // Permission lookup failed. Show error.
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.package_not_found_error_msg))
-                    .setHeaderAction(headerAction)
+                    .setHeader(new Header.Builder().setStartHeaderAction(headerAction)
+                            .build())
                     .addAction(mRefreshAction)
                     .build();
         }
@@ -107,7 +109,8 @@ public class RequestPermissionScreen extends Screen {
             // No permissions needed. Prompt the user to exit.
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.permissions_granted_msg))
-                    .setHeaderAction(headerAction)
+                    .setHeader(new Header.Builder().setStartHeaderAction(headerAction)
+                            .build())
                     .addAction(
                             new Action.Builder()
                                     .setTitle(

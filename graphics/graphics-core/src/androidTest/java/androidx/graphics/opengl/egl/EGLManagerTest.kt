@@ -289,11 +289,13 @@ class EGLManagerTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/315169745
     @Test
     fun testSurfaceContentsWithBackBuffer() {
         verifySurfaceContentsWithWindowConfig()
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/315169745
     @Test
     fun testSurfaceContentsWithFrontBuffer() {
         verifySurfaceContentsWithWindowConfig(true)

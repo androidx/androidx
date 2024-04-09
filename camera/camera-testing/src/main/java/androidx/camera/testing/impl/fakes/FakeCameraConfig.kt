@@ -32,12 +32,12 @@ class FakeCameraConfig(
     private val postviewSupported: Boolean = false,
     private val captureProcessProgressSupported: Boolean = false
 ) : CameraConfig {
-    private val mUseCaseConfigFactory =
+    private val useCaseConfigFactory =
         UseCaseConfigFactory { _, _ -> null }
-    private val mIdentifier = Identifier.create(Any())
+    private val identifier = Identifier.create(Any())
 
     override fun getUseCaseConfigFactory(): UseCaseConfigFactory {
-        return mUseCaseConfigFactory
+        return useCaseConfigFactory
     }
 
     override fun isPostviewSupported(): Boolean {
@@ -49,7 +49,7 @@ class FakeCameraConfig(
     }
 
     override fun getCompatibilityId(): Identifier {
-        return mIdentifier
+        return identifier
     }
 
     override fun getConfig(): Config {

@@ -5,8 +5,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.BuildOnServerKt
-import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -16,7 +14,6 @@ plugins {
     id("androidx.benchmark.darwin")
 }
 
-def macEnabled = KmpPlatformsKt.enableMac(project)
 androidXMultiplatform {
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
@@ -33,22 +30,20 @@ androidXMultiplatform {
     }
 
     sourceSets {
-        if (macEnabled) {
-            iosMain {
-                dependencies {
-                    api(libs.kotlinStdlib)
-                    api(project(":benchmark:benchmark-darwin"))
-                }
+        iosMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":benchmark:benchmark-darwin"))
             }
-            iosArm64Main {
-                dependsOn(iosMain)
-            }
-            iosSimulatorArm64Main {
-                dependsOn(iosMain)
-            }
-            iosX64Main {
-                dependsOn(iosMain)
-            }
+        }
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
+        }
+        iosX64Main {
+            dependsOn(iosMain)
         }
     }
 

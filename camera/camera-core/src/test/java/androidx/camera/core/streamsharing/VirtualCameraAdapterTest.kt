@@ -75,7 +75,7 @@ class VirtualCameraAdapterTest {
         private val CROP_RECT = Rect(0, 0, 800, 600)
 
         // Arbitrary transform to test that the transform is propagated.
-        private val SENSOR_TO_BUFFER = Matrix().apply { setScale(1f, -1f) }
+        private val SENSOR_TO_BUFFER = Matrix().apply { setRotate(90F) }
         private var receivedSessionConfigError: SessionConfig.SessionError? = null
         private val SESSION_CONFIG_WITH_SURFACE = SessionConfig.Builder()
             .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE))
@@ -87,9 +87,8 @@ class VirtualCameraAdapterTest {
     private val surfaceEdgesToClose = mutableListOf<SurfaceEdge>()
     private val parentCamera = FakeCamera()
     private val child1 = FakeUseCaseConfig.Builder().setTargetRotation(Surface.ROTATION_0).build()
-    private val child2 = FakeUseCaseConfig.Builder()
-        .setMirrorMode(MIRROR_MODE_ON)
-        .build()
+    private val child2 = FakeUseCaseConfig.Builder().setMirrorMode(MIRROR_MODE_ON).build()
+
     private val childrenEdges = mapOf(
         Pair(child1 as UseCase, createSurfaceEdge()),
         Pair(child2 as UseCase, createSurfaceEdge())
@@ -246,6 +245,20 @@ class VirtualCameraAdapterTest {
         child1.notifyUpdatedForTesting()
         // Assert: edge is connected again.
         verifyEdge(child1, OPEN, HAS_PROVIDER)
+    }
+
+    @Test
+    fun parentHasMirroring_clientDoNotApplyMirroring() {
+        // Arrange: create an edge that has mirrored the input in the past.
+        val inputEdge = createSurfaceEdge(matrix = Matrix().apply { setScale(-1f, 1f) })
+        // Act: get the children's out configs.
+        val outConfigs = adapter.getChildrenOutConfigs(inputEdge, Surface.ROTATION_90, true)
+        // Assert: child1 needs additional mirroring because the parent mirrors the input while the
+        // child doesn't mirror.
+        assertThat(outConfigs[child1]!!.isMirroring).isTrue()
+        // Assert: child2 does not need additional mirroring because both the parent and the child
+        // mirrors the input.
+        assertThat(outConfigs[child2]!!.isMirroring).isFalse()
     }
 
     @Test

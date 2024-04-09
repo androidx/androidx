@@ -74,6 +74,8 @@ public final class CameraValidator {
                         + lensFacing);
 
         PackageManager pm = context.getPackageManager();
+        Throwable exception = null;
+        int availableCameraCount = 0;
         try {
             if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                 if (availableCamerasSelector == null
@@ -81,27 +83,49 @@ public final class CameraValidator {
                     // Only verify the main camera if it is NOT specifying the available lens
                     // facing or it required the LENS_FACING_BACK camera.
                     CameraSelector.DEFAULT_BACK_CAMERA.select(cameraRepository.getCameras());
+                    availableCameraCount++;
                 }
             }
+        } catch (IllegalArgumentException e) {
+            Logger.w(TAG, "Camera LENS_FACING_BACK verification failed", e);
+            exception = e;
+        }
+        try {
             if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
                 if (availableCamerasSelector == null
                         || lensFacing.intValue() == CameraSelector.LENS_FACING_FRONT) {
                     // Only verify the front camera if it is NOT specifying the available lens
                     // facing or it required the LENS_FACING_FRONT camera.
                     CameraSelector.DEFAULT_FRONT_CAMERA.select(cameraRepository.getCameras());
+                    availableCameraCount++;
                 }
             }
         } catch (IllegalArgumentException e) {
+            Logger.w(TAG, "Camera LENS_FACING_FRONT verification failed", e);
+            exception = e;
+        }
+
+        if (exception != null) {
             Logger.e(TAG, "Camera LensFacing verification failed, existing cameras: "
                     + cameraRepository.getCameras());
-            throw new CameraIdListIncorrectException("Expected camera missing from device.", e);
+            throw new CameraIdListIncorrectException(
+                    "Expected camera missing from device.", availableCameraCount, exception);
         }
     }
 
     /** The exception for the b/167201193: incorrect camera id list. */
     public static class CameraIdListIncorrectException extends Exception {
-        public CameraIdListIncorrectException(@Nullable String message, @Nullable Throwable cause) {
+
+        private int mAvailableCameraCount;
+
+        public CameraIdListIncorrectException(@Nullable String message,
+                int availableCameraCount, @Nullable Throwable cause) {
             super(message, cause);
+            mAvailableCameraCount = availableCameraCount;
+        }
+
+        public int getAvailableCameraCount() {
+            return mAvailableCameraCount;
         }
     }
 }

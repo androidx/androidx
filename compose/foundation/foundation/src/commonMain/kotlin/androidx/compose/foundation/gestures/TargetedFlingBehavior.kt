@@ -37,9 +37,10 @@ interface TargetedFlingBehavior : FlingBehavior {
      *
      * @param initialVelocity velocity available for fling in the orientation specified in
      * [androidx.compose.foundation.gestures.scrollable] that invoked this method.
-     * @param onRemainingDistanceUpdated a lambda that will be called anytime the
-     * distance to the settling offset is updated. The settling offset is the final offset where
-     * this fling will stop and may change depending on the snapping animation progression.
+     * @param onRemainingDistanceUpdated a lambda that will be called anytime the distance to the
+     * settling offset is updated. The settling offset in pixels is passed to this lambda an it
+     * represents the final offset where this fling will stop and may change depending on the
+     * snapping animation progression.
      *
      * @return remaining velocity after fling operation has ended
      */

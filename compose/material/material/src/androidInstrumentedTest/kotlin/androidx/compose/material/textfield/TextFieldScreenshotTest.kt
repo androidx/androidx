@@ -165,6 +165,10 @@ class TextFieldScreenshotTest {
         }
 
         rule.onNodeWithTag(TextFieldTag).focus()
+        rule.runOnIdle {
+            // stop animation of blinking cursor
+            rule.mainClock.autoAdvance = false
+        }
 
         assertAgainstGolden("filled_textField_focused_errorState")
     }

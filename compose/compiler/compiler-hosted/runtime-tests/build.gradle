@@ -22,7 +22,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm()
+    desktop()
 
     sourceSets {
         commonMain {
@@ -39,13 +39,13 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
+        desktopMain {
             dependsOn(commonMain)
             dependencies {
             }
         }
 
-        jvmTest {
+        desktopTest {
             dependsOn(commonTest)
             dependencies {
             }
@@ -71,6 +71,12 @@ def composePluginFiles = configurations.getByName("composePlugin")
 
 tasks.withType(KotlinCompile).configureEach {
     pluginClasspath.from(composePluginFiles)
+    kotlinOptions {
+        freeCompilerArgs += [
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:nonSkippingGroupOptimization=true"
+        ]
+    }
 }
 
 androidx {

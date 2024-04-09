@@ -150,6 +150,20 @@ public interface VendorExtender {
     }
 
     /**
+     * Returns if extension strength is supported or not.
+     */
+    default boolean isExtensionStrengthAvailable() {
+        return false;
+    }
+
+    /**
+     * Returns if reporting current extension mode is supported or not.
+     */
+    default boolean isCurrentExtensionModeAvailable() {
+        return false;
+    }
+
+    /**
      * Creates a {@link SessionProcessor} that is responsible for (1) determining the stream
      * configuration based on given output surfaces (2) Requesting OEM implementation to start
      * repeating request and performing a still image capture.

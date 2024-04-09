@@ -17,6 +17,7 @@
 package androidx.camera.core.imagecapture;
 
 import static android.graphics.ImageFormat.JPEG;
+import static android.graphics.ImageFormat.JPEG_R;
 import static android.graphics.ImageFormat.YUV_420_888;
 
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
@@ -64,7 +65,9 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
             int imageFormat = input.getPacket().getFormat();
             switch (imageFormat) {
                 case JPEG:
-                    return processJpegImage(input);
+                    // fall through
+                case JPEG_R:
+                    return processJpegImage(input, imageFormat);
                 case YUV_420_888:
                     return processYuvImage(input);
                 default:
@@ -75,12 +78,12 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
         }
     }
 
-    private Packet<byte[]> processJpegImage(@NonNull Image2JpegBytes.In input) {
+    private Packet<byte[]> processJpegImage(@NonNull Image2JpegBytes.In input, int imageFormat) {
         Packet<ImageProxy> packet = input.getPacket();
         return Packet.of(
                 mJpegMetadataCorrector.jpegImageToJpegByteArray(packet.getData()),
                 requireNonNull(packet.getExif()),
-                JPEG,
+                imageFormat,
                 packet.getSize(),
                 packet.getCropRect(),
                 packet.getRotationDegrees(),

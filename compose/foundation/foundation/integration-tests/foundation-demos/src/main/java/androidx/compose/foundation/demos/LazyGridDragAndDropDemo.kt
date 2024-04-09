@@ -22,7 +22,6 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
@@ -64,7 +63,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 @Preview
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyGridDragAndDropDemo() {
     var list by remember { mutableStateOf(List(50) { it }) }
@@ -91,7 +89,9 @@ fun LazyGridDragAndDropDemo() {
                     Text(
                         "Item $item",
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 40.dp)
                     )
                 }
             }
@@ -193,22 +193,15 @@ class GridDragDropState internal constructor(
                 draggingItem.index != item.index
         }
         if (targetItem != null) {
-            val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
-                draggingItem.index
-            } else if (draggingItem.index == state.firstVisibleItemIndex) {
-                targetItem.index
-            } else {
-                null
+            if (draggingItem.index == state.firstVisibleItemIndex ||
+                targetItem.index == state.firstVisibleItemIndex
+            ) {
+                state.requestScrollToItem(
+                    state.firstVisibleItemIndex,
+                    state.firstVisibleItemScrollOffset
+                )
             }
-            if (scrollToIndex != null) {
-                scope.launch {
-                    // this is needed to neutralize automatic keeping the first item first.
-                    state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-                    onMove.invoke(draggingItem.index, targetItem.index)
-                }
-            } else {
-                onMove.invoke(draggingItem.index, targetItem.index)
-            }
+            onMove.invoke(draggingItem.index, targetItem.index)
             draggingItemIndex = targetItem.index
         } else {
             val overscroll = when {
@@ -250,7 +243,6 @@ fun Modifier.dragContainer(dragDropState: GridDragDropState): Modifier {
     }
 }
 
-@ExperimentalFoundationApi
 @Composable
 fun LazyGridItemScope.DraggableItem(
     dragDropState: GridDragDropState,
@@ -267,13 +259,14 @@ fun LazyGridItemScope.DraggableItem(
                 translationY = dragDropState.draggingItemOffset.y
             }
     } else if (index == dragDropState.previousIndexOfDraggedItem) {
-        Modifier.zIndex(1f)
+        Modifier
+            .zIndex(1f)
             .graphicsLayer {
                 translationX = dragDropState.previousItemOffset.value.x
                 translationY = dragDropState.previousItemOffset.value.y
             }
     } else {
-        Modifier.animateItemPlacement()
+        Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
     }
     Box(modifier = modifier.then(draggingModifier), propagateMinConstraints = true) {
         content(dragging)

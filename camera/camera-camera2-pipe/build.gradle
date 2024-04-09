@@ -82,4 +82,5 @@ androidx {
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
     metalavaK2UastEnabled = true
+    doNotDocumentReason = "Not shipped externally"
 }

@@ -216,7 +216,6 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                 ctrlX = segmentX
                 ctrlY = segmentY
                 target.close()
-                target.moveTo(currentX, currentY)
             }
 
             is RelativeMoveTo -> {

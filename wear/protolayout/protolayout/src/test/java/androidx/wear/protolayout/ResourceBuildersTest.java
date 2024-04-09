@@ -20,15 +20,15 @@ import static androidx.wear.protolayout.ResourceBuilders.ANIMATED_IMAGE_FORMAT_A
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ResourceProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class ResourceBuildersTest {
     private static final int RESOURCE_ID = 10;
     private static final int FORMAT = ANIMATED_IMAGE_FORMAT_AVD;

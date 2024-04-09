@@ -58,7 +58,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.semantics
@@ -67,6 +66,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.wear.compose.integration.demos.common.rsbScroll
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon

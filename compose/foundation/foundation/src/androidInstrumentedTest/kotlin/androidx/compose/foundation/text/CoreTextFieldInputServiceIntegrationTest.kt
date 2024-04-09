@@ -24,11 +24,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.setFocusableContent
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.input.internal.InputMethodManager
 import androidx.compose.foundation.text.input.internal.LegacyTextInputMethodRequest
 import androidx.compose.foundation.text.input.internal.inputMethodManagerFactory
 import androidx.compose.foundation.text.input.internal.update
-import androidx.compose.foundation.text2.input.InputMethodInterceptor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -471,6 +471,7 @@ class CoreTextFieldInputServiceIntegrationTest {
                 cursorAnchorInfos += cursorAnchorInfo
             }
 
+            override fun startStylusHandwriting() {}
             override fun isActive(): Boolean = true
             override fun restartInput() {}
             override fun showSoftInput() {}

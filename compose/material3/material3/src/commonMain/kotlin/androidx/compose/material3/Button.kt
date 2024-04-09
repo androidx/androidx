@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
@@ -90,9 +92,8 @@ import androidx.compose.ui.unit.dp
  * @param colors [ButtonColors] that will be used to resolve the colors for this button in different
  * states. See [ButtonDefaults.buttonColors].
  * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
- * states. This controls the size of the shadow below the button. Additionally, when the container
- * color is [ColorScheme.surface], this controls the amount of primary color applied as an overlay.
- * See [ButtonElevation.shadowElevation] and [ButtonElevation.tonalElevation].
+ * states. This controls the size of the shadow below the button. See
+ * [ButtonElevation.shadowElevation].
  * @param border the border to draw around the container of this button
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
@@ -119,7 +120,6 @@ fun Button(
     val containerColor = colors.containerColor(enabled)
     val contentColor = colors.contentColor(enabled)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
-    val tonalElevation = elevation?.tonalElevation(enabled) ?: 0.dp
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -127,7 +127,6 @@ fun Button(
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
-        tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         border = border,
         interactionSource = interactionSource
@@ -344,7 +343,7 @@ fun OutlinedButton(
     shape: Shape = ButtonDefaults.outlinedShape,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder,
+    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
@@ -671,7 +670,7 @@ object ButtonDefaults {
                 disabledContentColor = fromToken(FilledTonalButtonTokens.DisabledLabelTextColor)
                     .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity)
             ).also {
-                defaultElevatedButtonColorsCached = it
+                defaultFilledTonalButtonColorsCached = it
             }
         }
 
@@ -735,12 +734,10 @@ object ButtonDefaults {
      */
     @Composable
     fun textButtonColors(
-        containerColor: Color = Color.Transparent,
-        contentColor: Color = TextButtonTokens.LabelTextColor.value,
-        disabledContainerColor: Color = Color.Transparent,
-        disabledContentColor: Color = TextButtonTokens.DisabledLabelTextColor
-            .value
-            .copy(alpha = TextButtonTokens.DisabledLabelTextOpacity),
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
     ): ButtonColors = MaterialTheme.colorScheme.defaultTextButtonColors.copy(
         containerColor = containerColor,
         contentColor = contentColor,
@@ -843,9 +840,31 @@ object ButtonDefaults {
     /** The default [BorderStroke] used by [OutlinedButton]. */
     val outlinedButtonBorder: BorderStroke
         @Composable
+        @Deprecated(
+            message = "Please use the version that takes an `enabled` param to get the " +
+                "`BorderStroke` with the correct opacity",
+            replaceWith = ReplaceWith("outlinedButtonBorder(enabled)")
+        )
         get() = BorderStroke(
             width = OutlinedButtonTokens.OutlineWidth,
             color = OutlinedButtonTokens.OutlineColor.value,
+        )
+
+    /** The default [BorderStroke] used by [OutlinedButton].
+     *
+     * @param enabled whether the button is enabled
+     */
+    @Composable
+    fun outlinedButtonBorder(enabled: Boolean = true): BorderStroke =
+        BorderStroke(
+            width = OutlinedButtonTokens.OutlineWidth,
+            color = if (enabled) {
+                OutlinedButtonTokens.OutlineColor.value
+            } else {
+                OutlinedButtonTokens.OutlineColor.value.copy(
+                    alpha = OutlinedButtonTokens.DisabledOutlineOpacity
+                )
+            }
         )
 }
 
@@ -865,27 +884,10 @@ class ButtonElevation internal constructor(
     private val disabledElevation: Dp,
 ) {
     /**
-     * Represents the tonal elevation used in a button, depending on its [enabled] state.
-     *
-     * Tonal elevation is used to apply a color shift to the surface to give the it higher emphasis.
-     * When surface's color is [ColorScheme.surface], a higher elevation will result in a darker
-     * color in light theme and lighter color in dark theme.
-     *
-     * See [shadowElevation] which controls the elevation of the shadow drawn around the button.
-     *
-     * @param enabled whether the button is enabled
-     */
-    internal fun tonalElevation(enabled: Boolean): Dp {
-        return if (enabled) defaultElevation else disabledElevation
-    }
-
-    /**
      * Represents the shadow elevation used in a button, depending on its [enabled] state and
      * [interactionSource].
      *
      * Shadow elevation is used to apply a shadow around the button to give it higher emphasis.
-     *
-     * See [tonalElevation] which controls the elevation with a color shift to the surface.
      *
      * @param enabled whether the button is enabled
      * @param interactionSource the [InteractionSource] for this button

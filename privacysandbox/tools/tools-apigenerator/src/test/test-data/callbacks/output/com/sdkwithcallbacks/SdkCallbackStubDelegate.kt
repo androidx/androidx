@@ -1,7 +1,9 @@
 package com.sdkwithcallbacks
 
 import android.os.Bundle
+import com.sdkwithcallbacks.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import com.sdkwithcallbacks.ResponseConverter.fromParcelable
+import com.sdkwithcallbacks.ResponseConverter.toParcelable
 import com.sdkwithcallbacks.SdkActivityLauncherConverter.getLocalOrProxyLauncher
 import kotlin.Int
 import kotlinx.coroutines.CoroutineScope
@@ -41,5 +43,19 @@ public class SdkCallbackStubDelegate internal constructor(
     coroutineScope.launch {
       delegate.onValueReceived(fromParcelable(response))
     }
+  }
+
+  public override fun testing(transactionCallback: IResponseTransactionCallback) {
+    val job = coroutineScope.launch {
+      try {
+        val result = delegate.testing()
+        transactionCallback.onSuccess(toParcelable(result))
+      }
+      catch (t: Throwable) {
+        transactionCallback.onFailure(toThrowableParcel(t))
+      }
+    }
+    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
+    transactionCallback.onCancellable(cancellationSignal)
   }
 }

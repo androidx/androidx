@@ -23,14 +23,16 @@ import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.Dependencies
-import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
-import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
+import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED_INCLUSIVE
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.copyBuildTypeSources
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.ApplicationVariantBuilder
+import com.android.build.api.variant.HasUnitTestBuilder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -51,8 +53,8 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN,
         AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN
     ),
-    minAgpVersion = MIN_AGP_VERSION_REQUIRED,
-    maxAgpVersion = MAX_AGP_VERSION_REQUIRED
+    minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
+    maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
 ) {
 
     private val ApplicationExtension.debugSigningConfig
@@ -121,6 +123,25 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             createBuildTypesWithAgp81AndAbove(extension)
         } else {
             createBuildTypesWithAgp80(extension)
+        }
+    }
+
+    override fun onApplicationBeforeVariants(variantBuilder: ApplicationVariantBuilder) {
+
+        // Process all the extended build types for both baseline profile and benchmark to
+        // disable unit tests.
+        if (variantBuilder.buildType in baselineProfileExtendedToOriginalTypeMap.keys ||
+            variantBuilder.buildType in benchmarkExtendedToOriginalTypeMap.keys
+        ) {
+
+            if (supportsFeature(AgpFeature.APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER)) {
+                (variantBuilder as? HasUnitTestBuilder)?.enableUnitTest = false
+            } else {
+                @Suppress("deprecation")
+                variantBuilder.enableUnitTest = false
+                @Suppress("deprecation")
+                variantBuilder.unitTestEnabled = false
+            }
         }
     }
 

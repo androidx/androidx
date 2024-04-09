@@ -41,6 +41,9 @@ import kotlin.math.ln
  * The Material color system and custom schemes provide default values for color as a starting point
  * for customization.
  *
+ * Example of extending color scheme, including implementing Fixed Accent colors:
+ * @sample androidx.compose.material3.samples.ColorSchemeFixedAccentColorSample
+ *
  * To learn more about colors, see [Material Design colors](https://m3.material.io/styles/color/overview).
  *
  * @property primary The primary color is the color displayed most frequently across your app’s
@@ -148,6 +151,46 @@ class ColorScheme(
     val surfaceContainerLow: Color,
     val surfaceContainerLowest: Color,
 ) {
+    @Deprecated(
+        level = DeprecationLevel.WARNING,
+        message = "Use constructor with additional 'surfaceContainer' roles.",
+        replaceWith = ReplaceWith("ColorScheme(primary,\n" +
+            "onPrimary,\n" +
+            "primaryContainer,\n" +
+            "onPrimaryContainer,\n" +
+            "inversePrimary,\n" +
+            "secondary,\n" +
+            "onSecondary,\n" +
+            "secondaryContainer,\n" +
+            "onSecondaryContainer,\n" +
+            "tertiary,\n" +
+            "onTertiary,\n" +
+            "tertiaryContainer,\n" +
+            "onTertiaryContainer,\n" +
+            "background,\n" +
+            "onBackground,\n" +
+            "surface,\n" +
+            "onSurface,\n" +
+            "surfaceVariant,\n" +
+            "onSurfaceVariant,\n" +
+            "surfaceTint,\n" +
+            "inverseSurface,\n" +
+            "inverseOnSurface,\n" +
+            "error,\n" +
+            "onError,\n" +
+            "errorContainer,\n" +
+            "onErrorContainer,\n" +
+            "outline,\n" +
+            "outlineVariant,\n" +
+            "scrim,\n" +
+            "surfaceBright,\n" +
+            "surfaceDim,\n" +
+            "surfaceContainer,\n" +
+            "surfaceContainerHigh,\n" +
+            "surfaceContainerHighest,\n" +
+            "surfaceContainerLow,\n" +
+            "surfaceContainerLowest,)")
+    )
     constructor(
         primary: Color,
         onPrimary: Color,
@@ -438,12 +481,21 @@ class ColorScheme(
     internal var defaultDatePickerColorsCached: DatePickerColors? = null
 
     internal var defaultIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultIconToggleButtonColorsCached: IconToggleButtonColors? = null
+    internal var defaultFilledIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultFilledIconToggleButtonColorsCached: IconToggleButtonColors? = null
+    internal var defaultFilledTonalIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultFilledTonalIconToggleButtonColorsCached: IconToggleButtonColors? = null
+    internal var defaultOutlinedIconButtonColorsCached: IconButtonColors? = null
+    internal var defaultOutlinedIconToggleButtonColorsCached: IconToggleButtonColors? = null
 
     internal var defaultMenuItemColorsCached: MenuItemColors? = null
 
     internal var defaultNavigationBarItemColorsCached: NavigationBarItemColors? = null
 
     internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
+
+    internal var defaultExpressiveNavigationBarItemColorsCached: NavigationItemColors? = null
 
     internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
 

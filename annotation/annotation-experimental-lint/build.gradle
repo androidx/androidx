@@ -48,7 +48,6 @@ dependencies {
 androidx {
     name = "Experimental annotation lint checks"
     type = LibraryType.LINT
-    mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
     inceptionYear = "2019"
     description = "Lint checks for the Experimental annotation library. Also enforces the " +
             "semantics of Kotlin @Experimental APIs from within Android Java source code."

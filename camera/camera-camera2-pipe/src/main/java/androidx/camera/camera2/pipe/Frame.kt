@@ -171,11 +171,11 @@ interface Frame : FrameReference, AutoCloseable {
 value class FrameId(val value: Long)
 
 /**
- * Represents the status of an output from the camera.
+ * Represents the status of an output from the camera with enum-like values.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class OutputStatus(val value: Int) {
+value class OutputStatus internal constructor(val value: Int) {
     companion object {
         /** Output is not yet available. */
         val PENDING = OutputStatus(0)
@@ -258,7 +258,7 @@ interface FrameCapture : AutoCloseable {
     /**
      * Get the status of the pending [Frame].
      */
-    val frameStatus: OutputStatus
+    val status: OutputStatus
 
     /**
      * Get or suspend until the [Frame] that will be produced by the camera for this [request] is

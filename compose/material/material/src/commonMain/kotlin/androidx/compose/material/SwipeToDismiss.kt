@@ -171,6 +171,7 @@ fun rememberDismissState(
  */
 @Composable
 @ExperimentalMaterialApi
+@SuppressWarnings("ReferencesDeprecated")
 fun SwipeToDismiss(
     state: DismissState,
     modifier: Modifier = Modifier,

@@ -45,6 +45,7 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import androidx.vectordrawable.test.R;
 
@@ -250,6 +251,10 @@ public class VectorDrawableTest {
 
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33)
+    // Skia changes resulted in inconsistent rendering of VectorDrawable gradient across
+    // different QPR releases for U. Suppress test on U for now until a better solution
+    // is worked out. b/322404096
     public void testVectorDrawableGradient() throws Exception {
         int[] edges = new int[GRADIENT_ICON_RES_IDS.length];
         Arrays.fill(edges, -1);

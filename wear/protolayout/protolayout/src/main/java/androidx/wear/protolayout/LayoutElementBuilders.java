@@ -1311,6 +1311,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Text}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Text.Builder mImpl =
                     LayoutElementProto.Text.newBuilder();
@@ -1833,6 +1834,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Image}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Image.Builder mImpl =
                     LayoutElementProto.Image.newBuilder();
@@ -2073,6 +2075,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Spacer}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spacer.Builder mImpl =
                     LayoutElementProto.Spacer.newBuilder();
@@ -2341,6 +2344,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Box}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Box.Builder mImpl =
                     LayoutElementProto.Box.newBuilder();
@@ -2554,6 +2558,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link SpanText}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanText.Builder mImpl =
                     LayoutElementProto.SpanText.newBuilder();
@@ -2749,6 +2754,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link SpanImage}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanImage.Builder mImpl =
                     LayoutElementProto.SpanImage.newBuilder();
@@ -3072,6 +3078,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Spannable}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spannable.Builder mImpl =
                     LayoutElementProto.Spannable.newBuilder();
@@ -3355,6 +3362,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Column}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Column.Builder mImpl =
                     LayoutElementProto.Column.newBuilder();
@@ -3580,6 +3588,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Row}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Row.Builder mImpl =
                     LayoutElementProto.Row.newBuilder();
@@ -3752,12 +3761,8 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets defines the direction in which child elements are laid out. If not set, defaults to
-         * ARC_DIRECTION_NORMAL.
-         */
+        /** Gets defines the direction in which child elements are laid out. */
         @Nullable
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public ArcDirectionProp getArcDirection() {
             if (mImpl.hasArcDirection()) {
                 return ArcDirectionProp.fromProto(mImpl.getArcDirection());
@@ -3820,6 +3825,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Arc}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Arc.Builder mImpl =
                     LayoutElementProto.Arc.newBuilder();
@@ -3927,7 +3933,6 @@ public final class LayoutElementBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
                 mImpl.setArcDirection(arcDirection.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3941,7 +3946,6 @@ public final class LayoutElementBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setArcDirection(@ArcDirection int arcDirection) {
                 return setArcDirection(
                         new ArcDirectionProp.Builder().setValue(arcDirection).build());
@@ -4000,12 +4004,8 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets defines the direction in which text is drawn. If not set, defaults to
-         * ARC_DIRECTION_CLOCKWISE.
-         */
+        /** Gets defines the direction in which text is drawn.*/
         @Nullable
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public ArcDirectionProp getArcDirection() {
             if (mImpl.hasArcDirection()) {
                 return ArcDirectionProp.fromProto(mImpl.getArcDirection());
@@ -4064,6 +4064,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcText}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcText.Builder mImpl =
                     LayoutElementProto.ArcText.newBuilder();
@@ -4127,7 +4128,6 @@ public final class LayoutElementBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
                 mImpl.setArcDirection(arcDirection.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -4141,7 +4141,6 @@ public final class LayoutElementBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setArcDirection(@ArcDirection int arcDirection) {
                 return setArcDirection(
                         new ArcDirectionProp.Builder().setValue(arcDirection).build());
@@ -4242,12 +4241,8 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets defines the direction in which line drawn. If not set, defaults to
-         * ARC_DIRECTION_CLOCKWISE.
-         */
+        /** Gets defines the direction in which line drawn. */
         @Nullable
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public ArcDirectionProp getArcDirection() {
             if (mImpl.hasArcDirection()) {
                 return ArcDirectionProp.fromProto(mImpl.getArcDirection());
@@ -4325,6 +4320,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcLine}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcLine.Builder mImpl =
                     LayoutElementProto.ArcLine.newBuilder();
@@ -4445,20 +4441,19 @@ public final class LayoutElementBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
                 mImpl.setArcDirection(arcDirection.toProto());
                 mFingerprint.recordPropertyUpdate(
                         8, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets the direction in which this line is drawn. If not set, defaults to
              * ARC_DIRECTION_CLOCKWISE.
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setArcDirection(@ArcDirection int arcDirection) {
                 return setArcDirection(
                         new ArcDirectionProp.Builder().setValue(arcDirection).build());
@@ -4701,6 +4696,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcSpacer}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcSpacer.Builder mImpl =
                     LayoutElementProto.ArcSpacer.newBuilder();
@@ -4850,6 +4846,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcAdapter}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcAdapter.Builder mImpl =
                     LayoutElementProto.ArcAdapter.newBuilder();
@@ -4857,15 +4854,6 @@ public final class LayoutElementBuilders {
 
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
-
-            /** Sets the element to adapt to an {@link Arc}. */
-            @RequiresSchemaVersion(major = 1, minor = 0)
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement content) {
-                mImpl.setContent(content.toLayoutElementProto());
-                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
-                return this;
-            }
 
             /**
              * Sets whether this adapter's contents should be rotated, according to its position in
@@ -4904,6 +4892,26 @@ public final class LayoutElementBuilders {
                 return setRotateContents(new BoolProp.Builder(rotateContents).build());
             }
 
+            /**
+             * Sets the element to adapt to an {@link Arc}.
+             *
+             * @throws IllegalArgumentException if the provided content has a transformation
+             *     modifier.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            @NonNull
+            public Builder setContent(@NonNull LayoutElement content) {
+                LayoutElementProto.LayoutElement contentProto = content.toLayoutElementProto();
+                if (hasTransformation(contentProto)) {
+                    throw new IllegalArgumentException(
+                            "Transformation modifier is not supported for the layout element inside"
+                                    + " an ArcAdapter.");
+                }
+                mImpl.setContent(contentProto);
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
+                return this;
+            }
+
             /** Builds an instance from accumulated values. */
             @Override
             @NonNull
@@ -4913,9 +4921,11 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /** An extensible {@code StrokeCap} property. */
+    /**
+     * An extensible {@code ArcDirection} property that can be set to any curved element to
+     * control the drawing direction.
+     */
     @RequiresSchemaVersion(major = 1, minor = 300)
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class ArcDirectionProp {
         private final LayoutElementProto.ArcDirectionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -4973,13 +4983,19 @@ public final class LayoutElementBuilders {
                     LayoutElementProto.ArcDirectionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-855955608);
 
-            /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            /** Creates an instance of {@link Builder} from the given value. */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            public Builder(@ArcDirection int value) {
+                setValue(value);
+            }
+
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            Builder() {}
 
             /** Sets the value. */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            public Builder setValue(@ArcDirection int value) {
+            Builder setValue(@ArcDirection int value) {
                 mImpl.setValue(LayoutElementProto.ArcDirection.forNumber(value));
                 mFingerprint.recordPropertyUpdate(1, value);
                 return this;
@@ -5105,6 +5121,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ExtensionLayoutElement}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.ExtensionLayoutElement.Builder mImpl =
                     LayoutElementProto.ExtensionLayoutElement.newBuilder();
@@ -6077,4 +6094,39 @@ public final class LayoutElementBuilders {
 
         private FontStyles() {}
     }
+
+  /** Checks whether a layout element has a transformation modifier. */
+  private static boolean hasTransformation(@NonNull LayoutElementProto.LayoutElement content) {
+    switch (content.getInnerCase()) {
+      case IMAGE:
+        return content.getImage().hasModifiers()
+            && content.getImage().getModifiers().hasTransformation();
+      case TEXT:
+        return content.getText().hasModifiers()
+            && content.getText().getModifiers().hasTransformation();
+      case SPACER:
+        return content.getSpacer().hasModifiers()
+            && content.getSpacer().getModifiers().hasTransformation();
+      case BOX:
+        return content.getBox().hasModifiers()
+            && content.getBox().getModifiers().hasTransformation();
+      case ROW:
+        return content.getRow().hasModifiers()
+            && content.getRow().getModifiers().hasTransformation();
+      case COLUMN:
+        return content.getColumn().hasModifiers()
+            && content.getColumn().getModifiers().hasTransformation();
+      case SPANNABLE:
+        return content.getSpannable().hasModifiers()
+            && content.getSpannable().getModifiers().hasTransformation();
+      case ARC:
+        return content.getArc().hasModifiers()
+            && content.getArc().getModifiers().hasTransformation();
+      case EXTENSION:
+        // fall through
+      case INNER_NOT_SET:
+        return false;
+    }
+    return false;
+  }
 }

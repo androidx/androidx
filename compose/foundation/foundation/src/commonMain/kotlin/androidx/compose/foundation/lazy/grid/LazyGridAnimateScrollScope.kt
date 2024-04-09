@@ -21,7 +21,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
-import kotlin.math.abs
 import kotlin.math.max
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -38,39 +37,32 @@ internal class LazyGridAnimateScrollScope(
 
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
-    override val visibleItemsAverageSize: Int
+    private val visibleItemsAverageSize: Int
         get() = calculateLineAverageMainAxisSize(state.layoutInfo)
 
-    override fun getVisibleItemScrollOffset(index: Int): Int {
-        val layoutInfo = state.layoutInfo
-        return layoutInfo.visibleItemsInfo
-            .fastFirstOrNull {
-                it.index == index
-            }?.let { item ->
-                if (layoutInfo.orientation == Orientation.Vertical) {
-                    item.offset.y
-                } else {
-                    item.offset.x
-                }
-            } ?: 0
-    }
-
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
-        state.snapToItemIndexInternal(index, scrollOffset)
+        state.snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
     }
 
-    override fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float {
-        val slotsPerLine = state.slotsPerLine
-        val averageLineMainAxisSize = visibleItemsAverageSize
-        val before = targetIndex < firstVisibleItemIndex
-        val linesDiff =
-            (targetIndex - firstVisibleItemIndex + (slotsPerLine - 1) * if (before) -1 else 1) /
-                slotsPerLine
+    override fun calculateDistanceTo(targetIndex: Int): Float {
+        val visibleItem =
+            state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
 
-        var coercedOffset = minOf(abs(targetItemOffset), averageLineMainAxisSize)
-        if (targetItemOffset < 0) coercedOffset *= -1
-        return (averageLineMainAxisSize * linesDiff).toFloat() +
-            coercedOffset - firstVisibleItemScrollOffset
+        return if (visibleItem == null) {
+            val slotsPerLine = state.slotsPerLine
+            val averageLineMainAxisSize = visibleItemsAverageSize
+            val before = targetIndex < firstVisibleItemIndex
+            val linesDiff =
+                (targetIndex - firstVisibleItemIndex + (slotsPerLine - 1) * if (before) -1 else 1) /
+                    slotsPerLine
+            (averageLineMainAxisSize * linesDiff).toFloat() - firstVisibleItemScrollOffset
+        } else {
+            if (state.layoutInfo.orientation == Orientation.Vertical) {
+                visibleItem.offset.y
+            } else {
+                visibleItem.offset.x
+            }.toFloat()
+        }
     }
 
     private fun calculateLineAverageMainAxisSize(

@@ -32,6 +32,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
+    api(project(':camera:camera-viewfinder-core'))
     implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
@@ -42,7 +43,6 @@ dependencies {
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
-    implementation project(':camera:camera-viewfinder-core')
 
     annotationProcessor(libs.autoValue)
 

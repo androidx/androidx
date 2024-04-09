@@ -930,6 +930,37 @@ class SuspendingPointerInputFilterTest {
             .assertHeightIsEqualTo(10.dp)
     }
 
+    @Test
+    fun pointerInput_badStartingSinglePointer_composeIgnores() {
+        val events = mutableListOf<PointerEventType>()
+        val tag = "input rect"
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize()
+                    .testTag(tag)
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                events += event.type
+                            }
+                        }
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            // Starts gestures with bad data. Because the bad x/y are part of the
+            // MotionEvent, Compose won't process the entire event or any following events
+            // until the bad data is removed.
+            down(Offset(Float.NaN, Float.NaN)) // Compose ignores
+            moveBy(0, Offset(10f, 10f)) // Compose ignores because first was invalid
+            up() // Compose ignores because first was invalid
+        }
+        assertThat(events).hasSize(0)
+        assertThat(events).containsExactly()
+    }
+
     // Tests pointerInput with bad pointer data
     @Test
     fun pointerInput_badSinglePointer_composeIgnores() {

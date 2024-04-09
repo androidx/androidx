@@ -677,4 +677,66 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
             fun foo(block: (Int) -> Int) = block(0)
         """,
     )
+
+    @Test
+    fun testCrossinlineCapture() = verifyGoldenComposeIrTransform(
+        extra = """
+            import androidx.compose.runtime.Composable
+
+            @Composable fun Lazy(content: () -> Unit) {}
+            @Composable inline fun Box(content: () -> Unit) {}
+        """,
+        source = """
+            import androidx.compose.runtime.Composable
+
+            @Composable inline fun Test(crossinline content: () -> Unit) {
+                Box {
+                    Lazy {
+                        val items = @Composable { content() }
+                    }
+                }
+            }
+
+            @Composable inline fun TestComposable(crossinline content: @Composable () -> Unit) {
+                Box {
+                    Lazy {
+                        val items = @Composable { content() }
+                    }
+                }
+            }
+
+            @Composable inline fun TestSuspend(crossinline content: suspend () -> Unit) {
+                Box {
+                    Lazy {
+                        val items = suspend { content() }
+                    }
+                }
+            }
+        """
+    )
+
+    @Test
+    fun memoizeFunctionReferenceFromLocalClass() =
+        verifyGoldenComposeIrTransform(
+            extra = """
+                  interface Test {
+                    fun go()
+                  }
+            """,
+            source = """
+                import androidx.compose.runtime.Composable
+
+                class MainActivity {
+                  private val test = object : Test {
+                    override fun go() {
+                      this@MainActivity
+                    }
+                  }
+
+                  @Composable fun Test() {
+                    test::go
+                  }
+                }
+            """
+        )
 }

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.semantics
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.simpleIdentityToString
 
 /**
@@ -69,11 +68,6 @@ class SemanticsConfiguration :
         } else {
             props[key] = value
         }
-    }
-
-    @ExperimentalComposeUiApi
-    override fun <T> unset(key: SemanticsPropertyKey<T>) {
-       props.remove(key)
     }
 
     operator fun <T> contains(key: SemanticsPropertyKey<T>): Boolean {

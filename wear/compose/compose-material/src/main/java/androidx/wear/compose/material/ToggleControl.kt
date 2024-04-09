@@ -177,7 +177,7 @@ public fun Switch(
  * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is
  * passive and relies entirely on a higher-level component to control the state
  * (such as [ToggleChip] or [SplitToggleChip]).
- * @param interactionSource When also providing [onCheckedChange], an optional hoisted
+ * @param interactionSource When also providing [onClick], an optional hoisted
  * [MutableInteractionSource] for observing and emitting [Interaction]s for this radio button.
  * You can use this to change the radio button's appearance or preview the radio button in
  * different states. Note that if `null` is provided, interactions will still happen internally.

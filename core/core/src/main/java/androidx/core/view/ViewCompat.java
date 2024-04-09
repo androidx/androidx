@@ -595,6 +595,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#canScrollHorizontally(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.canScrollHorizontally(direction)")
     @Deprecated
     public static boolean canScrollHorizontally(View view, int direction) {
         return view.canScrollHorizontally(direction);
@@ -608,6 +609,7 @@ public class ViewCompat {
      * @return true if this view can be scrolled in the specified direction, false otherwise.
      * @deprecated Use {@link View#canScrollVertically(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.canScrollVertically(direction)")
     @Deprecated
     public static boolean canScrollVertically(View view, int direction) {
         return view.canScrollVertically(direction);
@@ -624,6 +626,7 @@ public class ViewCompat {
      * @deprecated Call {@link View#getOverScrollMode()} directly. This method will be
      * removed in a future release.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getOverScrollMode()")
     @Deprecated
     @OverScroll
     public static int getOverScrollMode(View view) {
@@ -645,6 +648,7 @@ public class ViewCompat {
      * @deprecated Call {@link View#setOverScrollMode(int)} directly. This method will be
      * removed in a future release.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setOverScrollMode(overScrollMode)")
     @Deprecated
     public static void setOverScrollMode(View view, @OverScroll int overScrollMode) {
         view.setOverScrollMode(overScrollMode);
@@ -688,6 +692,7 @@ public class ViewCompat {
      * @deprecated Call {@link View#onPopulateAccessibilityEvent(AccessibilityEvent)} directly.
      * This method will be removed in a future release.
      */
+    @androidx.annotation.ReplaceWith(expression = "v.onPopulateAccessibilityEvent(event)")
     @Deprecated
     public static void onPopulateAccessibilityEvent(View v, AccessibilityEvent event) {
         v.onPopulateAccessibilityEvent(event);
@@ -720,6 +725,7 @@ public class ViewCompat {
      * @deprecated Call {@link View#onInitializeAccessibilityEvent(AccessibilityEvent)} directly.
      * This method will be removed in a future release.
      */
+    @androidx.annotation.ReplaceWith(expression = "v.onInitializeAccessibilityEvent(event)")
     @Deprecated
     public static void onInitializeAccessibilityEvent(View v, AccessibilityEvent event) {
         v.onInitializeAccessibilityEvent(event);
@@ -754,6 +760,7 @@ public class ViewCompat {
      * @deprecated Call {@link View#onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)}
      * directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "v.onInitializeAccessibilityNodeInfo(info.unwrap())")
     @Deprecated
     public static void onInitializeAccessibilityNodeInfo(@NonNull View v,
             @NonNull AccessibilityNodeInfoCompat info) {
@@ -1290,6 +1297,7 @@ public class ViewCompat {
      * @return true if the view has transient state
      * @deprecated Call {@link View#hasTransientState()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.hasTransientState()")
     @Deprecated
     public static boolean hasTransientState(@NonNull View view) {
         return view.hasTransientState();
@@ -1303,6 +1311,7 @@ public class ViewCompat {
      * @param hasTransientState true if this view has transient state
      * @deprecated Call {@link View#setHasTransientState(boolean)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setHasTransientState(hasTransientState)")
     @Deprecated
     public static void setHasTransientState(@NonNull View view, boolean hasTransientState) {
         view.setHasTransientState(hasTransientState);
@@ -1318,6 +1327,7 @@ public class ViewCompat {
      * @param view View to invalidate
      * @deprecated Call {@link View#postInvalidateOnAnimation()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.postInvalidateOnAnimation()")
     @Deprecated
     public static void postInvalidateOnAnimation(@NonNull View view) {
         view.postInvalidateOnAnimation();
@@ -1337,6 +1347,7 @@ public class ViewCompat {
      * @param bottom The bottom coordinate of the rectangle to invalidate.
      * @deprecated Call {@link View#postInvalidateOnAnimation(int, int, int, int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.postInvalidateOnAnimation(left, top, right, bottom)")
     @Deprecated
     public static void postInvalidateOnAnimation(@NonNull View view, int left, int top,
             int right, int bottom) {
@@ -1354,6 +1365,7 @@ public class ViewCompat {
      * @param action The Runnable that will be executed.
      * @deprecated Call {@link View#postOnAnimation(Runnable)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.postOnAnimation(action)")
     @Deprecated
     public static void postOnAnimation(@NonNull View view, @NonNull Runnable action) {
         view.postOnAnimation(action);
@@ -1373,6 +1385,7 @@ public class ViewCompat {
      *        will be executed.
      * @deprecated Call {@link View#postOnAnimationDelayed(Runnable, long)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.postOnAnimationDelayed(action, delayMillis)")
     @Deprecated
     @SuppressLint("LambdaLast")
     public static void postOnAnimationDelayed(@NonNull View view, @NonNull Runnable action,
@@ -1394,6 +1407,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      * @deprecated Call {@link View#getImportantForAccessibility()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getImportantForAccessibility()")
     @Deprecated
     @ImportantForAccessibility
     public static int getImportantForAccessibility(@NonNull View view) {
@@ -1420,6 +1434,7 @@ public class ViewCompat {
      * @see #IMPORTANT_FOR_ACCESSIBILITY_AUTO
      * @deprecated Call {@link View#setImportantForAccessibility(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setImportantForAccessibility(mode)")
     @Deprecated
     @UiThread
     public static void setImportantForAccessibility(@NonNull View view,
@@ -1492,6 +1507,7 @@ public class ViewCompat {
      * @return Whether the action was performed.
      * @deprecated Call {@link View#performAccessibilityAction(int, Bundle)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.performAccessibilityAction(action, arguments)")
     @Deprecated
     public static boolean performAccessibilityAction(@NonNull View view, int action,
             @Nullable Bundle arguments) {
@@ -1828,6 +1844,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getAlpha()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getAlpha()")
     @Deprecated
     public static float getAlpha(View view) {
         return view.getAlpha();
@@ -1867,6 +1884,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setLayerType(int, Paint)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setLayerType(layerType, paint)")
     @Deprecated
     public static void setLayerType(View view, @LayerType int layerType, Paint paint) {
         view.setLayerType(layerType, paint);
@@ -1890,6 +1908,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getLayerType()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getLayerType()")
     @Deprecated
     @LayerType
     public static int getLayerType(View view) {
@@ -1905,6 +1924,7 @@ public class ViewCompat {
      * @return The labeled view id.
      * @deprecated Call {@link View#getLabelFor()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getLabelFor()")
     @Deprecated
     public static int getLabelFor(@NonNull View view) {
         return view.getLabelFor();
@@ -1918,6 +1938,7 @@ public class ViewCompat {
      * @param labeledId The labeled view id.
      * @deprecated Call {@link View#setLabelFor(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setLabelFor(labeledId)")
     @Deprecated
     public static void setLabelFor(@NonNull View view, @IdRes int labeledId) {
         view.setLabelFor(labeledId);
@@ -1954,6 +1975,7 @@ public class ViewCompat {
      * @see #setLayerType(View, int, android.graphics.Paint)
      * @deprecated Call {@link View#setLayerPaint(Paint)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setLayerPaint(paint)")
     @Deprecated
     public static void setLayerPaint(@NonNull View view, @Nullable Paint paint) {
         view.setLayerPaint(paint);
@@ -1971,6 +1993,7 @@ public class ViewCompat {
      *
      * @deprecated Call {@link View#getLayoutDirection()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getLayoutDirection()")
     @Deprecated
     @ResolvedLayoutDirectionMode
     public static int getLayoutDirection(@NonNull View view) {
@@ -1995,6 +2018,7 @@ public class ViewCompat {
      *
      * @deprecated Call {@link View#setLayoutDirection(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setLayoutDirection(layoutDirection)")
     @Deprecated
     public static void setLayoutDirection(@NonNull View view,
             @LayoutDirectionMode int layoutDirection) {
@@ -2010,6 +2034,7 @@ public class ViewCompat {
      * @return The parent for use in accessibility inspection
      * @deprecated Call {@link View#getParentForAccessibility()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getParentForAccessibility()")
     @Deprecated
     @Nullable
     public static ViewParent getParentForAccessibility(@NonNull View view) {
@@ -2054,6 +2079,7 @@ public class ViewCompat {
      * @deprecated Use {@link View#isOpaque()} directly. This method will be
      * removed in a future release.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.isOpaque()")
     @Deprecated
     public static boolean isOpaque(View view) {
         return view.isOpaque();
@@ -2092,6 +2118,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getMeasuredWidth()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getMeasuredWidthAndState()")
     @Deprecated
     public static int getMeasuredWidthAndState(View view) {
         return view.getMeasuredWidthAndState();
@@ -2109,6 +2136,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getMeasuredHeightAndState()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getMeasuredHeightAndState()")
     @Deprecated
     public static int getMeasuredHeightAndState(View view) {
         return view.getMeasuredHeightAndState();
@@ -2123,6 +2151,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getMeasuredState()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getMeasuredState()")
     @Deprecated
     public static int getMeasuredState(View view) {
         return view.getMeasuredState();
@@ -2152,6 +2181,7 @@ public class ViewCompat {
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
      * @deprecated Call {@link View#getAccessibilityLiveRegion()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getAccessibilityLiveRegion()")
     @Deprecated
     @AccessibilityLiveRegion
     public static int getAccessibilityLiveRegion(@NonNull View view) {
@@ -2199,6 +2229,7 @@ public class ViewCompat {
      *        </ul>
      * @deprecated Call {@link View#setAccessibilityLiveRegion(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setAccessibilityLiveRegion(mode)")
     @Deprecated
     public static void setAccessibilityLiveRegion(@NonNull View view,
             @AccessibilityLiveRegion int mode) {
@@ -2214,6 +2245,7 @@ public class ViewCompat {
      * @return the start padding in pixels
      * @deprecated Call {@link View#getPaddingStart()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getPaddingStart()")
     @Deprecated
     @Px
     public static int getPaddingStart(@NonNull View view) {
@@ -2229,6 +2261,7 @@ public class ViewCompat {
      * @return the end padding in pixels
      * @deprecated Call {@link View#getPaddingEnd()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getPaddingEnd()")
     @Deprecated
     @Px
     public static int getPaddingEnd(@NonNull View view) {
@@ -2249,6 +2282,7 @@ public class ViewCompat {
      * @param bottom the bottom padding in pixels
      * @deprecated Call {@link View#setPaddingRelative(int, int, int, int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setPaddingRelative(start, top, end, bottom)")
     @Deprecated
     public static void setPaddingRelative(@NonNull View view, @Px int start, @Px int top,
             @Px int end, @Px int bottom) {
@@ -2322,6 +2356,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getTranslationX()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getTranslationX()")
     @Deprecated
     public static float getTranslationX(View view) {
         return view.getTranslationX();
@@ -2336,6 +2371,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getTranslationY()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getTranslationY()")
     @Deprecated
     public static float getTranslationY(View view) {
         return view.getTranslationY();
@@ -2357,6 +2393,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getMatrix()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getMatrix()")
     @Deprecated
     @Nullable
     public static Matrix getMatrix(View view) {
@@ -2371,6 +2408,7 @@ public class ViewCompat {
      * @return the minimum width the view will try to be.
      * @deprecated Call {@link View#getMinimumWidth()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getMinimumWidth()")
     @Deprecated
     @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     // Reflective access to private field, unboxing result of reflective get()
@@ -2386,6 +2424,7 @@ public class ViewCompat {
      * @return the minimum height the view will try to be.
      * @deprecated Call {@link View#getMinimumHeight()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getMinimumHeight()")
     @Deprecated
     @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     // Reflective access to private field, unboxing result of reflective get()
@@ -2425,6 +2464,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setTranslationX(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setTranslationX(value)")
     @Deprecated
     public static void setTranslationX(View view, float value) {
         view.setTranslationX(value);
@@ -2443,6 +2483,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setTranslationY(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setTranslationY(value)")
     @Deprecated
     public static void setTranslationY(View view, float value) {
         view.setTranslationY(value);
@@ -2461,6 +2502,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setAlpha(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setAlpha(value)")
     @Deprecated
     public static void setAlpha(View view, @FloatRange(from = 0.0, to = 1.0) float value) {
         view.setAlpha(value);
@@ -2477,6 +2519,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setX(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setX(value)")
     @Deprecated
     public static void setX(View view, float value) {
         view.setX(value);
@@ -2493,6 +2536,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setY(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setY(value)")
     @Deprecated
     public static void setY(View view, float value) {
         view.setY(value);
@@ -2507,6 +2551,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setRotation(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setRotation(value)")
     @Deprecated
     public static void setRotation(View view, float value) {
         view.setRotation(value);
@@ -2522,6 +2567,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setRotationX(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setRotationX(value)")
     @Deprecated
     public static void setRotationX(View view, float value) {
         view.setRotationX(value);
@@ -2537,6 +2583,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setRotationY(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setRotationY(value)")
     @Deprecated
     public static void setRotationY(View view, float value) {
         view.setRotationY(value);
@@ -2551,6 +2598,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setScaleX(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setScaleX(value)")
     @Deprecated
     public static void setScaleX(View view, float value) {
         view.setScaleX(value);
@@ -2565,6 +2613,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setScaleY(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setScaleY(value)")
     @Deprecated
     public static void setScaleY(View view, float value) {
         view.setScaleY(value);
@@ -2577,6 +2626,7 @@ public class ViewCompat {
      * @param view view for which to get the pivot.
      * @deprecated Use {@link View#getPivotX()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getPivotX()")
     @Deprecated
     public static float getPivotX(View view) {
         return view.getPivotX();
@@ -2594,6 +2644,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setPivotX(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setPivotX(value)")
     @Deprecated
     public static void setPivotX(View view, float value) {
         view.setPivotX(value);
@@ -2608,6 +2659,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#getPivotY()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getPivotY()")
     @Deprecated
     public static float getPivotY(View view) {
         return view.getPivotY();
@@ -2625,6 +2677,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setPivotX(float)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setPivotY(value)")
     @Deprecated
     public static void setPivotY(View view, float value) {
         view.setPivotY(value);
@@ -2634,6 +2687,7 @@ public class ViewCompat {
      * @param view view for which to get the rotation.
      * @deprecated Use {@link View#getRotation()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getRotation()")
     @Deprecated
     public static float getRotation(View view) {
         return view.getRotation();
@@ -2643,6 +2697,7 @@ public class ViewCompat {
      * @param view view for which to get the rotation.
      * @deprecated Use {@link View#getRotationX()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getRotationX()")
     @Deprecated
     public static float getRotationX(View view) {
         return view.getRotationX();
@@ -2652,6 +2707,7 @@ public class ViewCompat {
      * @param view view for which to get the rotation.
      * @deprecated Use {@link View#getRotationY()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getRotationY()")
     @Deprecated
     public static float getRotationY(View view) {
         return view.getRotationY();
@@ -2661,6 +2717,7 @@ public class ViewCompat {
      * @param view view for which to get the scale.
      * @deprecated Use {@link View#getScaleX()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getScaleX()")
     @Deprecated
     public static float getScaleX(View view) {
         return view.getScaleX();
@@ -2670,6 +2727,7 @@ public class ViewCompat {
      * @param view view for which to get the scale.
      * @deprecated Use {@link View#getScaleY()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getScaleY()")
     @Deprecated
     public static float getScaleY(View view) {
         return view.getScaleY();
@@ -2679,6 +2737,7 @@ public class ViewCompat {
      * @param view view for which to get the X.
      * @deprecated Use {@link View#getX()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getX()")
     @Deprecated
     public static float getX(View view) {
         return view.getX();
@@ -2688,6 +2747,7 @@ public class ViewCompat {
      * @param view view for which to get the Y.
      * @deprecated Use {@link View#getY()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getY()")
     @Deprecated
     public static float getY(View view) {
         return view.getY();
@@ -2788,6 +2848,7 @@ public class ViewCompat {
      * @deprecated SystemUiVisibility flags are deprecated. Use
      * {@link WindowInsetsController} instead.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getWindowSystemUiVisibility()")
     @Deprecated
     public static int getWindowSystemUiVisibility(@NonNull View view) {
         return view.getWindowSystemUiVisibility();
@@ -2849,6 +2910,7 @@ public class ViewCompat {
      * @param view view for which to get the state.
      * @deprecated Call {@link View#getFitsSystemWindows()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getFitsSystemWindows()")
     @Deprecated
     public static boolean getFitsSystemWindows(@NonNull View view) {
         return view.getFitsSystemWindows();
@@ -2866,6 +2928,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setFitsSystemWindows(boolean)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setFitsSystemWindows(fitSystemWindows)")
     @Deprecated
     public static void setFitsSystemWindows(View view, boolean fitSystemWindows) {
         view.setFitsSystemWindows(fitSystemWindows);
@@ -2881,6 +2944,7 @@ public class ViewCompat {
      * @param view view for which to jump the drawable state.
      * @deprecated Use {@link View#jumpDrawablesToCurrentState()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.jumpDrawablesToCurrentState()")
     @Deprecated
     public static void jumpDrawablesToCurrentState(View view) {
         view.jumpDrawablesToCurrentState();
@@ -3300,6 +3364,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setSaveFromParentEnabled(boolean)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setSaveFromParentEnabled(enabled)")
     @Deprecated
     public static void setSaveFromParentEnabled(View view, boolean enabled) {
         view.setSaveFromParentEnabled(enabled);
@@ -3317,6 +3382,7 @@ public class ViewCompat {
      *
      * @deprecated Use {@link View#setActivated(boolean)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setActivated(activated)")
     @Deprecated
     public static void setActivated(View view, boolean activated) {
         view.setActivated(activated);
@@ -3338,6 +3404,7 @@ public class ViewCompat {
      * @return true if the content in this view might overlap, false otherwise.
      * @deprecated Call {@link View#hasOverlappingRendering()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.hasOverlappingRendering()")
     @Deprecated
     public static boolean hasOverlappingRendering(@NonNull View view) {
         return view.hasOverlappingRendering();
@@ -3351,6 +3418,7 @@ public class ViewCompat {
      * @return true if the padding is relative or false if it is not.
      * @deprecated Call {@link View#isPaddingRelative()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.isPaddingRelative()")
     @Deprecated
     public static boolean isPaddingRelative(@NonNull View view) {
         return view.isPaddingRelative();
@@ -3365,6 +3433,7 @@ public class ViewCompat {
      * @param background the drawable to use as view background.
      * @deprecated Call {@link View#setBackground(Drawable)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setBackground(background)")
     @Deprecated
     public static void setBackground(@NonNull View view, @Nullable Drawable background) {
         view.setBackground(background);
@@ -3926,6 +3995,7 @@ public class ViewCompat {
      * @return whether the view hierarchy is currently undergoing a layout pass
      * @deprecated Call {@link View#isInLayout()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.isInLayout()")
     @Deprecated
     public static boolean isInLayout(@NonNull View view) {
         return view.isInLayout();
@@ -3936,6 +4006,7 @@ public class ViewCompat {
      * was last attached to or detached from a window.
      * @deprecated Call {@link View#isLaidOut()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.isLaidOut()")
     @Deprecated
     public static boolean isLaidOut(@NonNull View view) {
         return view.isLaidOut();
@@ -3952,6 +4023,7 @@ public class ViewCompat {
      * @return true if layout direction has been resolved.
      * @deprecated Call {@link View#isLayoutDirectionResolved()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.isLayoutDirectionResolved()")
     @Deprecated
     public static boolean isLayoutDirectionResolved(@NonNull View view) {
         return view.isLayoutDirectionResolved();
@@ -4108,6 +4180,7 @@ public class ViewCompat {
      * this view, to which future drawing operations will be clipped.
      * @deprecated Call {@link View#setClipBounds(Rect)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.setClipBounds(clipBounds)")
     @Deprecated
     public static void setClipBounds(@NonNull View view, @Nullable Rect clipBounds) {
         view.setClipBounds(clipBounds);
@@ -4122,6 +4195,7 @@ public class ViewCompat {
      * otherwise null.
      * @deprecated Call {@link View#getClipBounds()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getClipBounds()")
     @Deprecated
     @Nullable
     public static Rect getClipBounds(@NonNull View view) {
@@ -4132,6 +4206,7 @@ public class ViewCompat {
      * Returns true if the provided view is currently attached to a window.
      * @deprecated Call {@link View#isAttachedToWindow()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.isAttachedToWindow()")
     @Deprecated
     public static boolean isAttachedToWindow(@NonNull View view) {
         return view.isAttachedToWindow();
@@ -4143,6 +4218,7 @@ public class ViewCompat {
      * @return true if there is a listener, false if there is none.
      * @deprecated Call {@link View#hasOnClickListeners()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.hasOnClickListeners()")
     @Deprecated
     public static boolean hasOnClickListeners(@NonNull View view) {
         return view.hasOnClickListeners();
@@ -4246,6 +4322,7 @@ public class ViewCompat {
      * @return The logical display, or null if the view is not currently attached to a window.
      * @deprecated Call {@link View#getDisplay()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "view.getDisplay()")
     @Deprecated
     @Nullable
     public static Display getDisplay(@NonNull View view) {

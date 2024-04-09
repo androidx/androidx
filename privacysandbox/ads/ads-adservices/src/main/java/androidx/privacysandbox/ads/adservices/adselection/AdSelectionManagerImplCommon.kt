@@ -64,7 +64,8 @@ open class AdSelectionManagerImplCommon(
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun selectAds(adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig):
         AdSelectionOutcome {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.selectAds(
                 mAdSelectionManager,
                 adSelectionFromOutcomesConfig
@@ -88,7 +89,7 @@ open class AdSelectionManagerImplCommon(
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun reportEvent(reportEventRequest: ReportEventRequest) {
-        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersion() >= 9) {
+        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersionS() >= 9) {
             return Ext8Impl.reportEvent(
                 mAdSelectionManager,
                 reportEventRequest
@@ -103,7 +104,7 @@ open class AdSelectionManagerImplCommon(
     override suspend fun updateAdCounterHistogram(
         updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
     ) {
-        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersion() >= 9) {
+        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersionS() >= 9) {
             return Ext8Impl.updateAdCounterHistogram(
                 mAdSelectionManager,
                 updateAdCounterHistogramRequest
@@ -118,7 +119,8 @@ open class AdSelectionManagerImplCommon(
     override suspend fun getAdSelectionData(
         getAdSelectionDataRequest: GetAdSelectionDataRequest
     ): GetAdSelectionDataOutcome {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.getAdSelectionData(
                 mAdSelectionManager,
                 getAdSelectionDataRequest
@@ -132,7 +134,8 @@ open class AdSelectionManagerImplCommon(
     override suspend fun persistAdSelectionResult(
         persistAdSelectionResultRequest: PersistAdSelectionResultRequest
     ): AdSelectionOutcome {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.persistAdSelectionResult(
                 mAdSelectionManager,
                 persistAdSelectionResultRequest

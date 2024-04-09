@@ -1,5 +1,6 @@
 package com.sdkwithvalues
 
+import android.os.Bundle
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
@@ -13,6 +14,8 @@ interface SdkInterface {
     suspend fun processNullableValues(request: SdkRequest?): SdkResponse?
 
     suspend fun processValueList(x: List<SdkRequest>): List<SdkResponse>
+
+    suspend fun processEnum(requestFlag: RequestFlag): RequestFlag
 }
 
 @PrivacySandboxValue
@@ -27,9 +30,17 @@ data class InnerSdkValue(
     val myInterface: MyInterface,
     val myUiInterface: MyUiInterface,
     val numbers: List<Int>,
+    val bundle: Bundle,
     val maybeNumber: Int?,
     val maybeInterface: MyInterface?,
+    val maybeBundle: Bundle?,
 )
+
+@PrivacySandboxValue
+enum class RequestFlag {
+    UP,
+    DOWN,
+}
 
 @PrivacySandboxValue
 data class SdkRequest(
@@ -38,6 +49,7 @@ data class SdkRequest(
     val maybeInnerValue: InnerSdkValue?,
     val moreValues: List<InnerSdkValue>,
     val activityLauncher: SdkActivityLauncher,
+    val requestFlag: RequestFlag,
 )
 
 @PrivacySandboxValue

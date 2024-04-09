@@ -30,7 +30,9 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -260,6 +262,7 @@ class PointerInputEventProcessorTest {
         assertThat(result.dispatchedToAPointerInputModifier).isTrue()
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun process_downMoveUp_convertedCorrectlyAndTraversesAllPassesInCorrectOrder() {
 
@@ -3307,6 +3310,8 @@ private class TestOwner : Owner {
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val dragAndDropManager: DragAndDropManager
         get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
@@ -3417,7 +3422,8 @@ private class TestOwner : Owner {
 
     override fun createLayer(
         drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         TODO("Not yet implemented")
     }

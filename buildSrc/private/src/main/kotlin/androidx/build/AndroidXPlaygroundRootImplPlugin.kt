@@ -102,6 +102,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             metadataCacheFile.readText(Charsets.UTF_8)
         } else {
             val metadataUrl = "${repos.snapshots.url}/$groupPath/$modulePath/maven-metadata.xml"
+            @Suppress("deprecation")
             URL(metadataUrl).openStream().use {
                 val parsedMetadata = DOMBuilder.parse(it.reader())
                 val versionNodes = parsedMetadata.getElementsByTagName("latest")

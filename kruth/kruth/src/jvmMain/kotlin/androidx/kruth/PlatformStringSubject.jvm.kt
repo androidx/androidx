@@ -36,7 +36,7 @@ internal actual interface PlatformStringSubject {
 internal actual class PlatformStringSubjectImpl actual constructor(
     actual: String?,
     metadata: FailureMetadata,
-) : Subject<String>(actual, metadata), PlatformStringSubject {
+) : Subject<String>(actual, metadata, typeDescriptionOverride = null), PlatformStringSubject {
 
     override fun matches(regex: Pattern) {
         matchesImpl(regex.toRegex()) {

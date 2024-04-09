@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
@@ -58,6 +59,8 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 @RequiresApi(21)
 object FakeCameraInfoAdapterCreator {
     private val CAMERA_ID_0 = CameraId("0")
+    private val PHYSICAL_CAMERA_ID_5 = CameraId("5")
+    private val PHYSICAL_CAMERA_ID_6 = CameraId("6")
 
     val useCaseThreads by lazy {
         val executor = MoreExecutors.directExecutor()
@@ -85,6 +88,9 @@ object FakeCameraInfoAdapterCreator {
             Range(24, 24),
             Range(30, 30),
             Range(60, 60)
+        ),
+        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to intArrayOf(
+            CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
         )
     )
 
@@ -95,7 +101,10 @@ object FakeCameraInfoAdapterCreator {
         cameraProperties: CameraProperties = FakeCameraProperties(
             FakeCameraMetadata(
                 cameraId = cameraId,
-                characteristics = cameraCharacteristics
+                characteristics = cameraCharacteristics,
+                physicalMetadata = mapOf(
+                    PHYSICAL_CAMERA_ID_5 to FakeCameraMetadata(),
+                    PHYSICAL_CAMERA_ID_6 to FakeCameraMetadata())
             ),
             cameraId
         ),
@@ -121,7 +130,7 @@ object FakeCameraInfoAdapterCreator {
         val state3AControl = State3AControl(
             cameraProperties,
             NoOpAutoFlashAEModeDisabler,
-            AeFpsRange(fakeCameraQuirks)
+            AeFpsRange(fakeCameraQuirks),
         ).apply {
             useCaseCamera = fakeUseCaseCamera
         }

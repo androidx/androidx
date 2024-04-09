@@ -16,14 +16,13 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class PagerMeasureResult(
     override val visiblePagesInfo: List<MeasuredPage>,
     override val pageSize: Int,
@@ -33,7 +32,7 @@ internal class PagerMeasureResult(
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val reverseLayout: Boolean,
-    override val outOfBoundsPageCount: Int,
+    override val beyondViewportPageCount: Int,
     val firstVisiblePage: MeasuredPage?,
     val currentPage: MeasuredPage?,
     var currentPageOffsetFraction: Float,
@@ -44,7 +43,8 @@ internal class PagerMeasureResult(
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
     val extraPagesBefore: List<MeasuredPage> = emptyList(),
-    val extraPagesAfter: List<MeasuredPage> = emptyList()
+    val extraPagesAfter: List<MeasuredPage> = emptyList(),
+    val coroutineScope: CoroutineScope
 ) : PagerLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)
@@ -88,10 +88,8 @@ internal class PagerMeasureResult(
             return false
         }
 
-        val first =
-            if (extraPagesBefore.isEmpty()) visiblePagesInfo.first() else extraPagesBefore.first()
-        val last =
-            if (extraPagesAfter.isEmpty()) visiblePagesInfo.last() else extraPagesAfter.last()
+        val first = visiblePagesInfo.first()
+        val last = visiblePagesInfo.last()
 
         val canApply = if (delta < 0) {
             // scrolling forward

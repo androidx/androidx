@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.ui.text.Paragraph#getLineBaseline(int):
+    Added method androidx.compose.ui.text.Paragraph.getLineBaseline(int)
+AddedAbstractMethod: androidx.compose.ui.text.Paragraph#getRangeForRect(androidx.compose.ui.geometry.Rect, int, androidx.compose.ui.text.TextInclusionStrategy):
+    Added method androidx.compose.ui.text.Paragraph.getRangeForRect(androidx.compose.ui.geometry.Rect,int,androidx.compose.ui.text.TextInclusionStrategy)
+
+
 ChangedClass: androidx.compose.ui.text.input.PlatformImeOptions:
     Class androidx.compose.ui.text.input.PlatformImeOptions changed class/interface declaration
 

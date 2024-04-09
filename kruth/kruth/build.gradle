@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
+
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -31,12 +31,10 @@ plugins {
     id("AndroidXPlugin")
 }
 
-def macEnabled = KmpPlatformsKt.enableMac(project)
-def linuxEnabled = KmpPlatformsKt.enableLinux(project)
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
-
 androidXMultiplatform {
-    jvm {}
+    jvm {
+        withJava()
+    }
     mac()
     linux()
     ios()
@@ -64,17 +62,22 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
                 implementation(libs.guavaAndroid)
+                implementation(libs.junit)
             }
         }
 
-        if (macEnabled || linuxEnabled || nativeEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
+        jvmTest {
+            dependencies {
+                api(libs.kotlinCoroutinesTest)
             }
+        }
 
-            nativeTest {
-                dependsOn(commonTest)
-            }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+
+        nativeTest {
+            dependsOn(commonTest)
         }
 
         targets.all { target ->
@@ -101,4 +104,5 @@ androidx {
     publish = Publish.SNAPSHOT_ONLY
     runApiTasks = new RunApiTasks.Yes() // Used to diff against Google Truth
     type = LibraryType.INTERNAL_TEST_LIBRARY
+    doNotDocumentReason = "Not shipped externally"
 }

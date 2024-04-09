@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
@@ -130,6 +131,7 @@ internal class GraphProcessorImpl
 @Inject
 constructor(
     private val threads: Threads,
+    private val cameraGraphId: CameraGraphId,
     private val cameraGraphConfig: CameraGraph.Config,
     private val graphState3A: GraphState3A,
     @ForCameraGraph private val graphScope: CoroutineScope,
@@ -225,9 +227,10 @@ constructor(
         _graphState.value = GraphStateStopping
     }
 
-    override fun onGraphStopped(requestProcessor: GraphRequestProcessor) {
+    override fun onGraphStopped(requestProcessor: GraphRequestProcessor?) {
         debug { "$this onGraphStopped" }
         _graphState.value = GraphStateStopped
+        if (requestProcessor == null) return
         var old: GraphRequestProcessor? = null
         synchronized(lock) {
             if (closed) {
@@ -311,6 +314,15 @@ constructor(
     }
 
     override fun submit(requests: List<Request>) {
+        requests.firstOrNull { it.inputRequest != null }?.let {
+            check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                "Reprocessing not supported on Android ${Build.VERSION.SDK_INT} devices"
+            }
+            checkNotNull(cameraGraphConfig.input) {
+                "Cannot submit request $it with input request ${it.inputRequest} " +
+                    "to $this because CameraGraph was not configured to support reprocessing"
+            }
+        }
         synchronized(lock) {
             if (closed) {
                 graphScope.launch(threads.lightweightDispatcher) { abortBurst(requests) }
@@ -637,4 +649,6 @@ constructor(
             }
         }
     }
+
+    override fun toString(): String = "GraphProcessor(cameraGraph: $cameraGraphId)"
 }

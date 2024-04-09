@@ -139,6 +139,7 @@ internal class DepthSortedSetsForDifferentPasses(extraAssertions: Boolean) {
     fun add(node: LayoutNode, affectsLookahead: Boolean) {
         if (affectsLookahead) {
             lookaheadSet.add(node)
+            set.add(node)
         } else {
             if (!lookaheadSet.contains(node)) {
                 // Only add the node to set if it's not already in the lookahead set. Nodes in

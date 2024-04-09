@@ -73,7 +73,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Before
     public void setUp() {
         mConverter = new SystemJobInfoConverter(
-                ApplicationProvider.getApplicationContext(), new SystemClock());
+                ApplicationProvider.getApplicationContext(), new SystemClock(), true);
     }
 
     @Test
@@ -236,6 +236,18 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isImportantWhileForeground(), is(true));
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 29)
+    public void testConvert_setImportantWhileForeground_respectFlag() {
+        mConverter = new SystemJobInfoConverter(
+                ApplicationProvider.getApplicationContext(), new SystemClock(), false);
+        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder().build());
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isImportantWhileForeground(), is(false));
     }
 
     @Test

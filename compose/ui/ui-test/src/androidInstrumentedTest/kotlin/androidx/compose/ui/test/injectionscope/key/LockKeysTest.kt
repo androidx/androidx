@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.test.injectionscope.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.injectionscope.key.Common.assertTyped
 import androidx.compose.ui.test.injectionscope.key.Common.performKeyInput
@@ -41,7 +39,6 @@ import org.junit.Test
  * Tests if the lock key methods in [KeyInjectionScope] like [KeyInjectionScope.isCapsLockOn] work.
  */
 @MediumTest
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class LockKeysTest {
 
     @get:Rule

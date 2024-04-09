@@ -16,7 +16,11 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -29,7 +33,7 @@ import androidx.compose.ui.util.fastForEach
 internal class LazyGridMeasuredItem(
     override val index: Int,
     override val key: Any,
-    val isVertical: Boolean,
+    override val isVertical: Boolean,
     /**
      * Cross axis size is the same for all [placeables]. Take it as parameter for the case when
      * [placeables] is empty.
@@ -47,8 +51,11 @@ internal class LazyGridMeasuredItem(
      */
     private val visualOffset: IntOffset,
     override val contentType: Any?,
-    private val animator: LazyGridItemPlacementAnimator
-) : LazyGridItemInfo {
+    private val animator: LazyLayoutItemAnimator<LazyGridMeasuredItem>,
+    override val constraints: Constraints,
+    override val lane: Int,
+    override val span: Int
+) : LazyGridItemInfo, LazyLayoutMeasuredItem {
     /**
      * Main axis size of the item - the max main axis size of the placeables.
      */
@@ -57,15 +64,15 @@ internal class LazyGridMeasuredItem(
     /**
      * The max main axis size of the placeables plus mainAxisSpacing.
      */
-    val mainAxisSizeWithSpacings: Int
+    override val mainAxisSizeWithSpacings: Int
 
-    val placeablesCount: Int get() = placeables.size
+    override val placeablesCount: Int get() = placeables.size
 
     private var mainAxisLayoutSize: Int = Unset
     private var minMainAxisOffset: Int = 0
     private var maxMainAxisOffset: Int = 0
 
-    fun getParentData(index: Int) = placeables[index].parentData
+    override fun getParentData(index: Int) = placeables[index].parentData
 
     init {
         var maxMainAxis = 0
@@ -83,17 +90,34 @@ internal class LazyGridMeasuredItem(
     }
     override var offset: IntOffset = IntOffset.Zero
         private set
-    val crossAxisOffset get() = if (isVertical) offset.x else offset.y
     override var row: Int = LazyGridItemInfo.UnknownRow
         private set
     override var column: Int = LazyGridItemInfo.UnknownColumn
         private set
 
+    override fun getOffset(index: Int): IntOffset = offset
+
     /**
      * True when this item is not supposed to react on scroll delta. for example items being
      * animated away out of the bounds are non scrollable.
      */
-    var nonScrollableItem: Boolean = false
+    override var nonScrollableItem: Boolean = false
+
+    override fun position(
+        mainAxisOffset: Int,
+        crossAxisOffset: Int,
+        layoutWidth: Int,
+        layoutHeight: Int
+    ) {
+        position(
+            mainAxisOffset,
+            crossAxisOffset,
+            layoutWidth,
+            layoutHeight,
+            LazyGridItemInfo.UnknownRow,
+            LazyGridItemInfo.UnknownColumn
+        )
+    }
 
     /**
      * Calculates positions for the inner placeables at [mainAxisOffset], [crossAxisOffset].
@@ -107,8 +131,8 @@ internal class LazyGridMeasuredItem(
         crossAxisOffset: Int,
         layoutWidth: Int,
         layoutHeight: Int,
-        row: Int = LazyGridItemInfo.UnknownRow,
-        column: Int = LazyGridItemInfo.UnknownColumn
+        row: Int,
+        column: Int
     ) {
         mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
         val crossAxisLayoutSize = if (isVertical) layoutWidth else layoutHeight
@@ -126,6 +150,15 @@ internal class LazyGridMeasuredItem(
         this.row = row
         this.column = column
         minMainAxisOffset = -beforeContentPadding
+        maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
+    }
+
+    /**
+     * Update a [mainAxisLayoutSize] when the size did change after last [position] call.
+     * Knowing the final size is important for calculating the final position in reverse layout.
+     */
+    fun updateMainAxisLayoutSize(mainAxisLayoutSize: Int) {
+        this.mainAxisLayoutSize = mainAxisLayoutSize
         maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
     }
 
@@ -153,6 +186,7 @@ internal class LazyGridMeasuredItem(
 
             var offset = offset
             val animation = animator.getAnimation(key, index)
+            val layer: GraphicsLayer?
             if (animation != null) {
                 val animatedOffset = offset + animation.placementDelta
                 // cancel the animation if current and target offsets are both out of the bounds.
@@ -162,6 +196,9 @@ internal class LazyGridMeasuredItem(
                     animation.cancelPlacementAnimation()
                 }
                 offset = animatedOffset
+                layer = animation.layer
+            } else {
+                layer = null
             }
             if (reverseLayout) {
                 offset = offset.copy { mainAxisOffset ->
@@ -169,10 +206,19 @@ internal class LazyGridMeasuredItem(
                 }
             }
             offset += visualOffset
+            animation?.finalOffset = offset
             if (isVertical) {
-                placeable.placeWithLayer(offset)
+                if (layer != null) {
+                    placeable.placeWithLayer(offset, layer)
+                } else {
+                    placeable.placeWithLayer(offset)
+                }
             } else {
-                placeable.placeRelativeWithLayer(offset)
+                if (layer != null) {
+                    placeable.placeRelativeWithLayer(offset, layer)
+                } else {
+                    placeable.placeRelativeWithLayer(offset)
+                }
             }
         }
     }

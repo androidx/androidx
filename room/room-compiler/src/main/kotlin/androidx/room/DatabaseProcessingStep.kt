@@ -52,6 +52,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 "configuration: ${env.config}"
         }
         val context = Context(env)
+        validateLanguageAndTarget(context)
 
         val rejectedElements = mutableSetOf<XTypeElement>()
         val databases = elementsByAnnotation[Database::class.qualifiedName]
@@ -140,6 +141,14 @@ class DatabaseProcessingStep : XProcessingStep {
         }
 
         return rejectedElements
+    }
+
+    private fun validateLanguageAndTarget(context: Context) {
+        val onlyAndroidInTargets = context.isAndroidOnlyTarget()
+        if (context.codeLanguage == CodeLanguage.JAVA && !onlyAndroidInTargets) {
+            // The list of target platforms should only contain Android if we're generating Java.
+            context.logger.e(ProcessorErrors.JAVA_CODEGEN_ON_NON_ANDROID_TARGET)
+        }
     }
 
     /**

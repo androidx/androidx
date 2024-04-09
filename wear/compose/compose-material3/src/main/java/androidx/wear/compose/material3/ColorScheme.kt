@@ -214,6 +214,18 @@ public class ColorScheme(
     internal var defaultFilledTextButtonColorsCached: TextButtonColors? = null
     internal var defaultFilledTonalTextButtonColorsCached: TextButtonColors? = null
     internal var defaultOutlinedTextButtonColorsCached: TextButtonColors? = null
+
+    // Card
+    internal var defaultCardColorsCached: CardColors? = null
+    internal var defaultOutlinedCardColorsCached: CardColors? = null
+
+    // Toggle Button
+    internal var defaultToggleButtonColorsCached: ToggleButtonColors? = null
+    internal var defaultSplitToggleButtonColorsCached: SplitToggleButtonColors? = null
+
+    // Radio Button
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
+    internal var defaultSplitRadioButtonColorsCached: SplitRadioButtonColors? = null
 }
 
 /**

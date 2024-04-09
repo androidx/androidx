@@ -21,19 +21,17 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KmpPlatformsKt
+
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 
-def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 configurations {
     // Configuration for resolving shared archive file of androidx's SQLite compilation
@@ -44,11 +42,18 @@ configurations {
             attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
         }
     }
+    // Configuration for resolving SQLite sources from sqlite-bundled.
+    sqliteSources {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, "sqlite-amalgamation"))
+        }
+    }
 }
 
 androidXMultiplatform {
     android()
-    androidNative()
     ios() {
         // Link to sqlite3 available in iOS
         binaries.all {
@@ -85,13 +90,11 @@ androidXMultiplatform {
                 implementation(libs.testCore)
             }
         }
-        if (nativeEnabled) {
-            nativeMain {
-                dependsOn(commonMain)
-            }
-            nativeTest {
-                dependsOn(commonTest)
-            }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        nativeTest {
+            dependsOn(commonTest)
         }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
@@ -103,12 +106,12 @@ androidXMultiplatform {
                 // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
                 main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
-                    sqlite3 {
-                        def externalSQLiteDir = new File(
-                            SdkHelperKt.getCheckoutRoot(project),
-                            "/external/sqlite/dist/orig/"
-                        )
-                        includeDirs(externalSQLiteDir)
+                    sqlite3 { cInteropSettings ->
+                        includeDirs(configurations.sqliteSources.incoming.files)
+                        // TODO KT-62795 We shouldn't need this dependency once that issue is fixed.
+                        tasks.named(cInteropSettings.interopProcessingTaskName).configure {
+                            it.dependsOn(configurations.sqliteSources)
+                        }
                     }
                 }
 
@@ -116,14 +119,11 @@ androidXMultiplatform {
                 test.defaultSourceSet {
                     dependsOn(nativeTest)
                 }
-                if (target.konanTarget == KonanTarget.LINUX_X64.INSTANCE) {
+                if (target.konanTarget.family == Family.LINUX) {
                     // For tests in Linux host, statically include androidx's compiled SQLite
                     // via a generated C interop definition
                     createCinteropFromArchiveConfiguration(test, configurations["sqliteSharedArchive"])
-                } else if (
-                    target.konanTarget == KonanTarget.MACOS_X64.INSTANCE ||
-                        target.konanTarget == KonanTarget.MACOS_ARM64.INSTANCE
-                ) {
+                } else if (target.konanTarget.family == Family.OSX) {
                     // For tests in Mac host, link to shared SQLite library included in MacOS
                     test.kotlinOptions.freeCompilerArgs += [
                         "-linker-options", "-lsqlite3"
@@ -136,6 +136,7 @@ androidXMultiplatform {
 
 dependencies {
     sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
+    sqliteSources(project(":sqlite:sqlite-bundled"))
 }
 
 androidx {

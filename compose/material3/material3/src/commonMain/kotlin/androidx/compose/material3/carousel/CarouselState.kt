@@ -16,33 +16,35 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
 
 /**
- * The state that can be used to control [VerticalCarousel] and [HorizontalCarousel].
+ * The state that can be used to control all types of carousels.
  *
  * @param currentItem the current item to be scrolled to.
- * @param currentItemOffsetFraction the current item offset as a fraction of the item size.
+ * @param currentItemOffsetFraction the offset of the current item as a fraction of the item's size.
+ * This should vary between -0.5 and 0.5 and indicates how to offset the current item from the
+ * snapped position.
  * @param itemCount the number of items this Carousel will have.
  */
-// TODO: b/321997456 - Remove lint suppression once version checks are added in lint or library
-// moves to beta
-@Suppress("IllegalExperimentalApiUsage")
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
-internal class CarouselState(
+class CarouselState(
     currentItem: Int = 0,
-    currentItemOffsetFraction: Float = 0F,
+    @FloatRange(from = -0.5, to = 0.5) currentItemOffsetFraction: Float = 0f,
     itemCount: () -> Int
 ) : ScrollableState {
     var itemCountState = mutableStateOf(itemCount)
@@ -64,6 +66,7 @@ internal class CarouselState(
         pagerState.scroll(scrollPriority, block)
     }
 
+    @ExperimentalMaterial3Api
     companion object {
         /**
          * To keep current item and item offset saved
@@ -95,7 +98,7 @@ internal class CarouselState(
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun rememberCarouselState(
+fun rememberCarouselState(
     initialItem: Int = 0,
     itemCount: () -> Int,
 ): CarouselState {
@@ -108,4 +111,53 @@ internal fun rememberCarouselState(
     }.apply {
         itemCountState.value = itemCount
     }
+}
+
+/**
+ * Interface to hold information about a Carousel item and its size.
+ *
+ * Example of CarouselItemInfo usage:
+ * @sample androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
+ */
+@ExperimentalMaterial3Api
+sealed interface CarouselItemInfo {
+
+    /** The size of the carousel item in the main axis */
+    val size: Float
+
+    /**
+     * The minimum size in the main axis of the carousel item, eg. the size of the item when it
+     * scrolls off the sides of the carousel
+     */
+    val minSize: Float
+
+    /**
+     * The maximum size in the main axis of the carousel item, eg. the size of the item when it is
+     * at a focal position
+     */
+    val maxSize: Float
+
+    /** The rect by which the carousel item is being clipped. */
+    val maskRect: Rect
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+internal class CarouselItemInfoImpl : CarouselItemInfo {
+
+    var sizeState by mutableFloatStateOf(0f)
+    var minSizeState by mutableFloatStateOf(0f)
+    var maxSizeState by mutableFloatStateOf(0f)
+    var maskRectState by mutableStateOf(Rect.Zero)
+
+    override val size: Float
+        get() = sizeState
+
+    override val minSize: Float
+        get() = minSizeState
+
+    override val maxSize: Float
+        get() = maxSizeState
+
+    override val maskRect: Rect
+        get() = maskRectState
 }

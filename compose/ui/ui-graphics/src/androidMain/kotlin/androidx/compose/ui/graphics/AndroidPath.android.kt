@@ -149,7 +149,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun addRect(rect: Rect, direction: Path.Direction) {
-        check(_rectIsValid(rect)) { "invalid rect" }
+        validateRectangle(rect)
         if (rectF == null) rectF = PlatformRectF()
         rectF!!.set(rect.left, rect.top, rect.right, rect.bottom)
         internalPath.addRect(rectF!!, direction.toPlatformPathDirection())
@@ -195,7 +195,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-        check(_rectIsValid(oval)) { "invalid rect" }
+        validateRectangle(oval)
         if (rectF == null) rectF = PlatformRectF()
         rectF!!.set(oval.left, oval.top, oval.right, oval.bottom)
         internalPath.addArc(rectF!!, startAngleDegrees, sweepAngleDegrees)
@@ -263,21 +263,20 @@ inline fun Path.asAndroidPath(): PlatformPath =
 
     override val isEmpty: Boolean get() = internalPath.isEmpty
 
-    private fun _rectIsValid(rect: Rect): Boolean {
-        check(!rect.left.isNaN()) {
-            "Rect.left is NaN"
+    private fun validateRectangle(rect: Rect) {
+        if (
+            rect.left.isNaN() ||
+            rect.top.isNaN() ||
+            rect.right.isNaN() ||
+            rect.bottom.isNaN()
+        ) {
+            throwIllegalStateException("Invalid rectangle, make sure no value is NaN")
         }
-        check(!rect.top.isNaN()) {
-            "Rect.top is NaN"
-        }
-        check(!rect.right.isNaN()) {
-            "Rect.right is NaN"
-        }
-        check(!rect.bottom.isNaN()) {
-            "Rect.bottom is NaN"
-        }
-        return true
     }
+}
+
+internal fun throwIllegalStateException(message: String) {
+    throw IllegalStateException(message)
 }
 
 private fun Path.Direction.toPlatformPathDirection() = when (this) {

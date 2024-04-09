@@ -1,0 +1,61 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" xmlns:tools="http://schemas.android.com/tools" tools:ignore="VectorPath" android:width="128dp" android:height="128dp" android:viewportWidth="128" android:viewportHeight="128">
+    <path android:pathData="M105.56 74.61v48.08h-5.65l-7.87-38.21c-0.04-0.24-0.24-0.41-0.46-0.41s-0.41 0.17-0.46 0.41l-7.87 38.21H77.6V74.61h27.95z" android:fillColor="#7C7C7C"/>
+    <path android:pathData="M102.61 124h4.45c0.82-0.02 1.41-0.96 1.17-1.77-0.74-2.49-2.99-4.32-5.62-4.32-2.68 0-4.96 1.9-5.66 4.46-0.22 0.82 0.39 1.63 1.21 1.63h4.45zm-22.05 0h-4.45c-0.82-0.02-1.41-0.96-1.17-1.77 0.74-2.49 2.99-4.32 5.62-4.32 2.68 0 4.96 1.9 5.66 4.46 0.22 0.82-0.39 1.63-1.21 1.63h-4.45z" android:fillColor="#424242"/>
+    <path android:pathData="M71.96 53s-3.53 11.93-5 15.33l-4.39 11.02c-0.7 1.55-0.08 3.58 1.39 4.43 1.69 0.97 4.14 0.24 4.95-1.53l12.54-26.41-1.01-3.46-8.49 0.63zm28.14 1.1l9.7-0.6 6 13.33s4.24 6.32 6.17 9.17c1.88 1.92 2.36 2.62 3.04 5.19 0.75 2.83 0.4 4.38 0.04 5.06-0.35 0.69-2.25 2.46-3.42 1.38-1.24-1.15-1.15-5.22-2.31-4.94-0.6 0.15 0.16 1.36 0.23 2.56s-0.85 1.41-1.5 1.08c-0.33-0.17-1.85-2.71-1.85-2.71l-0.65-4.21-15.13-21.24-0.32-4.08z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:startX="76.98" android:startY="55.4"
+                android:endX="63.98" android:endY="79.77" android:type="linear">
+                <item android:offset="0" android:color="?attr/emoji_variant_selector_color_11"/>
+                <item android:offset="0.41" android:color="?attr/emoji_variant_selector_color_12"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M91.79 4.01c-18.18 0-18.03 16.81-18.03 17.08 0 10.89 0.83 26.27 5.19 32.32 1.73 2.4 5.07 2.53 5.07 2.53l7.52-0.01 7.52 0.01s3.34-0.13 5.07-2.53c4.36-6.05 5.19-21.43 5.19-32.32 0-0.27 0.65-17.08-17.53-17.08z" android:fillColor="?attr/emoji_variant_selector_color_7"/>
+    <path android:pathData="M91.79 4.01c-18.18 0-18.03 16.81-18.03 17.08 0 10.89 0.83 26.27 5.19 32.32 1.73 2.4 5.07 2.53 5.07 2.53l7.52-0.01 7.52 0.01s3.34-0.13 5.07-2.53c4.36-6.05 5.19-21.43 5.19-32.32 0-0.27 0.65-17.08-17.53-17.08z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:centerX="91.54" android:centerY="28.64"
+                android:gradientRadius="21.07" android:type="radial">
+                <item android:offset="0.79" android:color="?attr/emoji_variant_selector_color_8"/>
+                <item android:offset="1" android:color="?attr/emoji_variant_selector_color_9"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M80.94 44.87c2.42-0.64 6.66-1.07 10.65-1.06 4-0.01 8.19 0.42 10.61 1.06 7.55 2.01 9.42 5.56 11.67 11.65l-8.28 3.2V78h-28V59.72l-8.37-3.2c2.25-6.09 4.17-9.64 11.71-11.65z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:startX="91.55" android:startY="43.81"
+                android:endX="91.55" android:endY="78" android:type="linear">
+                <item android:offset="0" android:color="#FFAA00FF"/>
+                <item android:offset="0.42" android:color="#FFA100F2"/>
+                <item android:offset="1" android:color="#FF9000D9"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M91.54 40.72h-5v5.3c0 2.39 2.04 4.34 4.55 4.34H92c2.51 0 4.55-1.94 4.55-4.34v-5.3h-5z" android:fillColor="?attr/emoji_variant_selector_color_1"/>
+    <path android:pathData="M91.57 8.39c7.63 0 14.69 5.67 14.69 17.7 0 9.66-5.98 15.38-11.19 17.22-1.24 0.44-2.44 0.66-3.5 0.66s-2.25-0.22-3.48-0.65c-5.21-1.84-11.21-7.55-11.21-17.23 0-12.03 7.06-17.7 14.69-17.7z" android:fillColor="?attr/emoji_variant_selector_color_2"/>
+    <path android:pathData="M87.85 35.99c1.4 0.83 5.97 0.83 7.37 0 0.8-0.48 1.62 0.25 1.29 0.98-0.33 0.72-2.82 2.38-4.98 2.38-2.16 0-4.62-1.66-4.95-2.38-0.33-0.73 0.47-1.46 1.28-0.98z" android:fillColor="?attr/emoji_variant_selector_color_6"/>
+    <path android:pathData="M89.85 32.4a0.55 0.55 0 0 1 0.14-0.04h3.1a0.55 0.55 0 0 1 0.14 0.04c0.28 0.11 0.44 0.41 0.3 0.71-0.13 0.31-0.75 1.18-1.99 1.18s-1.86-0.87-1.99-1.18c-0.13-0.31 0.02-0.6 0.3-0.71z" android:fillColor="?attr/emoji_variant_selector_color_5"/>
+    <path android:pathData="M96.59 28.33a2.16 2.24 0 1 0 4.32 0 2.16 2.24 0 1 0-4.32 0zm-14.41 0a2.16 2.24 0 1 0 4.32 0 2.16 2.24 0 1 0-4.32 0z" android:fillColor="?attr/emoji_variant_selector_color_4"/>
+    <path android:pathData="M95.54 24.32c0.41-0.54 1.36-1.34 3.21-1.34s2.8 0.79 3.21 1.34a0.57 0.57 0 0 1 0.01 0.69c-0.12 0.16-0.46 0.3-0.84 0.17-0.38-0.13-1.13-0.51-2.37-0.52-1.25 0.01-1.99 0.39-2.37 0.52s-0.73-0.01-0.84-0.17a0.57 0.57 0 0 1 0.01-0.69zm-14.41 0c0.41-0.54 1.36-1.34 3.21-1.34s2.8 0.79 3.21 1.34a0.57 0.57 0 0 1 0.01 0.69c-0.12 0.16-0.46 0.3-0.84 0.17-0.38-0.13-1.13-0.51-2.37-0.52-1.25 0.01-1.99 0.39-2.37 0.52s-0.73-0.01-0.84-0.17a0.57 0.57 0 0 1 0.01-0.69z" android:fillColor="?attr/emoji_variant_selector_color_3"/>
+    <path android:pathData="M66.37 69.83l-1.78 4.47 1.44 2.76 3.91 3.07 3.67-7.74z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:startX="66.86" android:startY="77.08"
+                android:endX="70.29" android:endY="71.48" android:type="linear">
+                <item android:offset="0" android:color="?attr/emoji_variant_selector_color_11"/>
+                <item android:offset="1" android:color="?attr/emoji_variant_selector_color_12"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M91.79 4.01c-18.18 0-18.03 16.81-18.03 17.08 0 3.44 0.08 7.33 0.33 11.23l2.98-0.01c-0.03-1.29 0.88-9.3 3.58-9.9 9.91-2.23 15.52-7.49 15.52-7.49 1.46 3.18 6.02 6.29 7.66 7.47 1.35 0.97 1.76 8.22 1.73 9.92h3.42c0-0.02 0.01-0.05 0.01-0.07 0.25-3.88 0.33-7.74 0.33-11.16 0-0.27 0.65-17.08-17.53-17.08z" android:fillColor="?attr/emoji_variant_selector_color_7"/>
+    <path android:pathData="M91.79 4.01c-18.18 0-18.03 16.81-18.03 17.08 0 3.44 0.08 7.33 0.33 11.23l2.98-0.01c-0.03-1.29 0.88-9.3 3.58-9.9 9.91-2.23 15.52-7.49 15.52-7.49 1.46 3.18 6.02 6.29 7.66 7.47 1.35 0.97 1.76 8.22 1.73 9.92h3.42c0-0.02 0.01-0.05 0.01-0.07 0.25-3.88 0.33-7.74 0.33-11.16 0-0.27 0.65-17.08-17.53-17.08z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:centerX="91.69" android:centerY="30.43"
+                android:gradientRadius="22.07" android:type="radial">
+                <item android:offset="0.79" android:color="?attr/emoji_variant_selector_color_8"/>
+                <item android:offset="1" android:color="?attr/emoji_variant_selector_color_9"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M66.17 77.23c-1.68-3-4.67-9.8-4.67-9.8l-3.68-10.54 0.97-0.37c-1.68-4.55-3.18-7.68-6.97-9.81 1.3-4.95 2.77-17.8 2.38-25.62-0.01-0.17 0.25-6.85-4.05-11.8a14 14 0 0 0-4.05-3.21c-0.34-0.18-0.69-0.35-1.06-0.51a17.79 17.79 0 0 0-3.74-1.14c-1.39-0.27-2.93-0.42-4.63-0.42-18.18 0-18.03 16.81-18.03 17.08-0.33 10.71 1.29 21.48 2.39 25.66-3.74 2.13-5.21 5.25-6.88 9.78l2.38 0.92-4.23 9.39S8.06 73.15 6.13 76c-1.88 1.92-2.36 2.62-3.04 5.19-0.75 2.83-0.4 4.38-0.04 5.06s2.25 2.46 3.42 1.38c1.24-1.15 1.15-5.22 2.31-4.94 0.6 0.15-0.16 1.36-0.23 2.56s0.85 1.41 1.5 1.08c0.33-0.17 1.85-2.71 1.85-2.71l0.65-4.21 9.88-13.86 0.11 53.21a6.11 6.11 0 0 0-2.66 3.47c-0.24 0.81 0.35 1.75 1.17 1.77h8.9c0.82 0 1.43-0.81 1.21-1.63a6.14 6.14 0 0 0-2.22-3.28l7.13-34.61a0.48 0.48 0 0 1 0.46-0.41c0.22 0 0.41 0.17 0.46 0.41l7.13 34.6a6.14 6.14 0 0 0-2.22 3.29c-0.22 0.82 0.39 1.63 1.21 1.63h8.9c0.82-0.02 1.41-0.96 1.17-1.77a6.11 6.11 0 0 0-2.66-3.47l-0.06-55.47L61.12 81s-1.53 2.62-0.39 4.91c1.6 1.15 2.32-2.27 2.94-2.37 1.19-0.18 3.08 4.56 4.34 4.56 2.41 1.04 3.53-2.18 3.57-4.08 0.91-3.31-5.37-6.79-5.37-6.79z" android:fillColor="#BDBDBD"/>
+    <path android:pathData="M67.34 86.4a1.13 1.13 0 0 0-0.5-0.11c-0.04 0-0.07 0.01-0.1 0.02l0.05-0.1c0.28-0.62 0.04-1.36-0.55-1.66a1.11 1.11 0 0 0-0.51-0.12c-0.07 0-0.14 0.02-0.21 0.03 0.25-0.6 0.03-1.3-0.53-1.61a1.14 1.14 0 0 0-0.54-0.14 1.13 1.13 0 0 0-0.7 0.26 1.29 1.29 0 0 0-0.66-0.91 1.16 1.16 0 0 0-0.54-0.13 1.19 1.19 0 0 0-1.07 0.7l-0.92 1.96a1.31 1.31 0 0 0 0.58 1.71c0.17 0.09 0.35 0.13 0.54 0.13 0.19 0 0.36-0.06 0.52-0.14 0.01 0.1 0 0.2 0.03 0.29 0.1 0.32 0.3 0.58 0.58 0.73 0.17 0.09 0.35 0.14 0.54 0.14 0.2 0 0.4-0.06 0.57-0.16 0.06 0.39 0.27 0.76 0.63 0.94 0.16 0.08 0.34 0.13 0.51 0.12 0.16 0 0.31-0.05 0.44-0.11 0.08 0.38 0.3 0.72 0.65 0.89 0.16 0.08 0.32 0.11 0.5 0.11a1.2 1.2 0 0 0 1.09-0.74l0.18-0.42c0.27-0.63 0.01-1.38-0.6-1.67z" android:fillColor="?attr/emoji_variant_selector_color_2"/>
+    <path android:pathData="M67.56 86.32c0.54-1.78-1.46-2.21-1.46-2.21 0.28-1.01-1.32-2.17-2.31-1.59-1.48-1.48-2.52-0.13-2.66 0.81 0 0 0.74-1.13 1.51-0.77 0.52 0.24 0.51 0.74 0.35 1.22-0.25 0.75-0.46 1.51-0.46 1.51s0.56-0.95 1.04-1.56c0.16-0.21 0.67-0.63 1.21-0.33 0.54 0.29 0.55 0.96 0.47 1.2-0.26 0.81-0.93 1.92-0.93 1.92s0.5-0.51 0.92-0.99c0.33-0.38 0.61-0.62 1.11-0.38 0.54 0.25 0.51 0.86 0.35 1.17-0.33 0.66-0.76 1.45-0.76 1.45s0.78-1.19 1.59-0.52c0.51 0.43 0.06 1.48 0.12 1.42 1.42-1.46-0.11-2.34-0.11-2.34z" android:fillColor="?attr/emoji_variant_selector_color_13"/>
+</vector>

@@ -1967,7 +1967,7 @@ class CombinedClickableTest {
                 "onDoubleClick",
                 "onLongClick",
                 "onLongClickLabel",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource"
             )
         }

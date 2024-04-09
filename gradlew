@@ -15,7 +15,8 @@ if [ -n "$OUT_DIR" ] ; then
     mkdir -p "$OUT_DIR"
     OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-    export TMPDIR=$OUT_DIR
+    export TMPDIR="$OUT_DIR/tmp"
+    mkdir -p "$TMPDIR"
 else
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
@@ -113,7 +114,9 @@ fi
 # setup from each lint module.
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk17/$plat-$platform_suffix"
+export ANDROIDX_JDK17="$APP_HOME/../../prebuilts/jdk/jdk17/$plat-$platform_suffix"
+export ANDROIDX_JDK21="$APP_HOME/../../prebuilts/jdk/jdk21/$plat-$platform_suffix"
+export JAVA_HOME=$ANDROIDX_JDK21
 export STUDIO_GRADLE_JDK=$JAVA_HOME
 
 # Warn developers if they try to build top level project without the full checkout
@@ -243,11 +246,6 @@ else
   disableCi=false
 fi
 
-# workaround for https://github.com/gradle/gradle/issues/18386
-if [[ " ${@} " =~ " --profile " ]]; then
-  mkdir -p reports
-fi
-
 # Expand some arguments
 for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   expanded=""
@@ -259,13 +257,13 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        -Pandroidx.enableAffectedModuleDetection\
        -Pandroidx.printTimestamps\
        --no-watch-fs\
-       -Pandroidx.highMemory"
+       -Pandroidx.highMemory\
+       --profile"
     fi
   fi
   if [ "$compact" == "--strict" ]; then
     expanded="-Pandroidx.validateNoUnrecognizedMessages\
-     -Pandroidx.verifyUpToDate\
-     --no-watch-fs"
+     -Pandroidx.verifyUpToDate"
     if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
       expanded="$expanded --offline"
     fi
@@ -303,14 +301,31 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   fi
 done
 
-if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
-    #Set the initial heap size to match the max heap size,
-    #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-    MAX_MEM=32g
-    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+# workaround for https://github.com/gradle/gradle/issues/18386
+if [[ " ${@} " =~ " --profile " ]]; then
+  mkdir -p reports
+fi
 
-    # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
-    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
+raiseMemory=false
+if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
+    raiseMemory=true
+fi
+if [[ " ${@} " =~ " -Pandroidx.lowMemory " ]]; then
+  if [ "$raiseMemory" == "true" ]; then
+    echo "androidx.lowMemory overriding androidx.highMemory"
+    echo
+  fi
+  raiseMemory=false
+fi
+
+if [ "$raiseMemory" == "true" ]; then
+  # Set the initial heap size to match the max heap size,
+  # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
+  MAX_MEM=32g
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEM -Xmx$MAX_MEM/")"
+
+  # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
 fi
 
 # check whether the user has requested profiling via yourkit
@@ -410,6 +425,9 @@ function runGradle() {
 
   RETURN_VALUE=0
   set -- "$@" -Dorg.gradle.projectcachedir="$OUT_DIR/gradle-project-cache"
+  KOTLIN_PROJECT_PERSISTENT_DIR="$OUT_DIR/kotlin-project-persistent-dir"
+  mkdir -p "$KOTLIN_PROJECT_PERSISTENT_DIR"
+  set -- "$@" -Pkotlin.project.persistent.dir="$KOTLIN_PROJECT_PERSISTENT_DIR"
   # Disabled in Studio until these errors become shown (b/268380971) or computed more quickly (https://github.com/gradle/gradle/issues/23272)
   if [[ " ${@} " =~ " --dependency-verification=" ]]; then
     VERIFICATION_ARGUMENT="" # already specified by caller

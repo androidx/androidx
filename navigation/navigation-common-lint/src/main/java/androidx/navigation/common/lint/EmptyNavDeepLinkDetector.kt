@@ -27,9 +27,9 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
-import org.jetbrains.uast.kotlin.KotlinUBlockExpression
-import org.jetbrains.uast.kotlin.KotlinULambdaExpression
+import org.jetbrains.uast.ULambdaExpression
 
 /**
  * Lint for checking for empty construction of NavDeepLink in the Kotlin DSL,
@@ -57,8 +57,8 @@ class EmptyNavDeepLinkDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // valueArgumentCount should be 1 when navDeepLink is called
         if (node.valueArgumentCount > 0) {
-            val lam = node.valueArguments[0] as KotlinULambdaExpression
-            val body = lam.body as KotlinUBlockExpression
+            val lam = node.valueArguments[0] as ULambdaExpression
+            val body = lam.body as UBlockExpression
             if (body.expressions.isEmpty()) {
                 context.report(
                     EmptyNavDeepLink,

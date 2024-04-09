@@ -221,8 +221,8 @@ public class WebSettingsCompatTest {
         WebSettingsCompat.setWebViewMediaIntegrityApiStatus(settings, config);
         Assert.assertEquals(
                 WEBVIEW_MEDIA_INTEGRITY_API_DISABLED,
-                        WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
-                                .getDefaultStatus());
+                WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
+                        .getDefaultStatus());
         Assert.assertTrue(
                 WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
                         .getOverrideRules().isEmpty());
@@ -287,5 +287,28 @@ public class WebSettingsCompatTest {
         Assert.assertTrue(
                 WebSettingsCompat.getWebViewMediaIntegrityApiStatus(settings)
                         .getOverrideRules().isEmpty());
+    }
+
+    @Test
+    public void testWebauthnSupport() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.WEB_AUTHENTICATION);
+        WebSettings settings = mWebViewOnUiThread.getSettings();
+        mWebViewOnUiThread.setCleanupTask(
+                () -> WebSettingsCompat.setWebAuthenticationSupport(settings,
+                        WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_NONE));
+
+        Assert.assertEquals("NONE is the expected default",
+                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_NONE,
+                WebSettingsCompat.getWebAuthenticationSupport(settings));
+
+        WebSettingsCompat.setWebAuthenticationSupport(settings,
+                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP);
+        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP,
+                WebSettingsCompat.getWebAuthenticationSupport(settings));
+
+        WebSettingsCompat.setWebAuthenticationSupport(settings,
+                WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER);
+        Assert.assertEquals(WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER,
+                WebSettingsCompat.getWebAuthenticationSupport(settings));
     }
 }

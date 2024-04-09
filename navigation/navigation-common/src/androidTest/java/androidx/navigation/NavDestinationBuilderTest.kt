@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalSafeArgsApi::class)
+
 package androidx.navigation
 
 import androidx.annotation.IdRes
@@ -21,7 +23,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -60,6 +67,45 @@ class NavDestinationTest {
     }
 
     @Test
+    fun navDestinationKClass() {
+        @Serializable
+        class TestClass
+
+        val destination = provider.navDestination(route = TestClass::class) { }
+        assertWithMessage("NavDestination should have route set")
+            .that(destination.route)
+            .isEqualTo(
+                "androidx.navigation.NavDestinationTest.navDestinationKClass.TestClass"
+            )
+        assertWithMessage("NavDestination should have id set")
+            .that(destination.id)
+            .isEqualTo(serializer<TestClass>().hashCode())
+    }
+
+    @Test
+    fun navDestinationKClassArguments() {
+        @Serializable
+        @SerialName(DESTINATION_ROUTE)
+        class TestClass(val arg: Int, val arg2: String = "123")
+
+        val destination = provider.navDestination(route = TestClass::class) { }
+        assertWithMessage("NavDestination should have route set")
+            .that(destination.route)
+            .isEqualTo(
+                "$DESTINATION_ROUTE/{arg}?arg2={arg2}"
+            )
+        assertWithMessage("NavDestination should have id set")
+            .that(destination.id)
+            .isEqualTo(serializer<TestClass>().hashCode())
+        assertWithMessage("NavDestination should have argument added")
+            .that(destination.arguments["arg"])
+            .isNotNull()
+        assertWithMessage("NavArgument should have default value added")
+            .that(destination.arguments["arg2"]?.isDefaultValuePresent)
+            .isTrue()
+    }
+
+    @Test
     fun navDestinationDefaultArguments() {
         val destination = provider.navDestination(DESTINATION_ID) {
             argument("testArg") {
@@ -69,6 +115,7 @@ class NavDestinationTest {
             argument("testArg2") {
                 type = NavType.StringType
             }
+            argument("testArg3", NavArgument.Builder().setDefaultValue("123").build())
         }
         assertWithMessage("NavDestination should have default arguments set")
             .that(destination.arguments.get("testArg")?.defaultValue)
@@ -76,6 +123,9 @@ class NavDestinationTest {
         assertWithMessage("NavArgument shouldn't have a default value")
             .that(destination.arguments.get("testArg2")?.isDefaultValuePresent)
             .isFalse()
+        assertWithMessage("NavDestination should have implicit default arguments set")
+            .that(destination.arguments.get("testArg3")?.defaultValue)
+            .isEqualTo("123")
     }
 
     @Test
@@ -140,6 +190,25 @@ class NavDestinationTest {
             }
         }
     }
+
+    @Test
+    fun navDestinationDefaultValuePresent() {
+        val destination = provider.navDestination(DESTINATION_ID) {
+            argument("arg1") {
+                type = NavType.StringType
+                unknownDefaultValuePresent = true
+            }
+            argument("arg2") {
+                type = NavType.StringType
+                unknownDefaultValuePresent = false
+            }
+        }
+        val arg1 = destination.arguments["arg1"]
+        assertThat(arg1?.isDefaultValuePresent).isTrue()
+
+        val arg2 = destination.arguments["arg2"]
+        assertThat(arg2?.isDefaultValuePresent).isFalse()
+    }
 }
 
 private const val DESTINATION_ID = 1
@@ -170,3 +239,15 @@ fun NavigatorProvider.navDestination(
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
 ): NavDestination =
     NavDestinationBuilder(this[NoOpNavigator::class], route = route).apply(builder).build()
+
+/**
+ * Instead of constructing a NavGraph from the NavigatorProvider, construct
+ * a NavDestination directly to allow for testing NavDestinationBuilder in
+ * isolation.
+ */
+fun NavigatorProvider.navDestination(
+    route: KClass<*>,
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+): NavDestination =
+    NavDestinationBuilder(this[NoOpNavigator::class], route, typeMap).apply(builder).build()

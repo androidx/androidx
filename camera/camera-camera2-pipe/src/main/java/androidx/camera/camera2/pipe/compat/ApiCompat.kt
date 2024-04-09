@@ -334,6 +334,18 @@ internal object Api30Compat {
     fun getConcurrentCameraIds(cameraManager: CameraManager): Set<Set<String>> {
         return cameraManager.concurrentCameraIds
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getCameraAudioRestriction(cameraDevice: CameraDevice): Int {
+        return cameraDevice.cameraAudioRestriction
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun setCameraAudioRestriction(cameraDevice: CameraDevice, mode: Int) {
+        cameraDevice.cameraAudioRestriction = mode
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -344,6 +356,14 @@ internal object Api31Compat {
         inputConfigData: List<InputConfigData>,
         cameraId: String
     ): InputConfiguration {
+        check(inputConfigData.isNotEmpty()) {
+            "Call to create InputConfiguration but list of InputConfigData is empty."
+        }
+
+        if (inputConfigData.size == 1) {
+            val inputData = inputConfigData.first();
+            return InputConfiguration(inputData.width, inputData.height, inputData.format)
+        }
         val multiResolutionInput = inputConfigData.map { input ->
             MultiResolutionStreamInfo(input.width, input.height, cameraId)
         }
@@ -362,6 +382,14 @@ internal object Api31Compat {
             streamHeight,
             physicalCameraId
         )
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun getPhysicalCameraTotalResults(
+        totalCaptureResult: TotalCaptureResult
+    ): Map<String, CaptureResult>? {
+        return totalCaptureResult.physicalCameraTotalResults
     }
 
     @JvmStatic

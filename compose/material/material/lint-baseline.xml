@@ -119,6 +119,24 @@
     </issue>
 
     <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun Url("
+        errorLine2="        ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun Clickable("
+        errorLine2="        ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material/Text.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInCollection"
         message="variable crossAxisSizes with type List&lt;Integer>: replace with IntList"
         errorLine1="        val crossAxisSizes = mutableListOf&lt;Int>()"

@@ -27,6 +27,7 @@ import androidx.core.graphics.component2
 import androidx.core.graphics.component3
 import androidx.core.graphics.component4
 import androidx.core.graphics.createBitmap
+import androidx.core.graphics.withTranslation
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlin.math.abs
@@ -36,6 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 const val BitmapSize = 128
+const val Margin = 16
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -57,10 +59,11 @@ class EasingTest {
         // - Compare the two bitmaps to validate that our cubic Bézier evaluation matches that
         //   of Skia/Canvas
         for (cubic in listOf(
-            floatArrayOf(0.4f, 0.0f, 0.2f, 1.0f), // FastOutSlowInEasing
-            floatArrayOf(0.0f, 0.0f, 0.2f, 1.0f), // LinearOutSlowInEasing
-            floatArrayOf(0.4f, 0.0f, 1.0f, 1.0f), // FastOutLinearInEasing
-            floatArrayOf(0.0f, 1.0f, 0.0f, 1.0f),
+            floatArrayOf(0.40f, 0.00f, 0.20f, 1.0f), // FastOutSlowInEasing
+            floatArrayOf(0.00f, 0.00f, 0.20f, 1.0f), // LinearOutSlowInEasing
+            floatArrayOf(0.40f, 0.00f, 1.00f, 1.0f), // FastOutLinearInEasing
+            floatArrayOf(0.34f, 1.56f, 0.64f, 1.0f), // EaseOutBack (overshoot)
+            floatArrayOf(0.00f, 1.00f, 0.00f, 1.0f),
         )) {
             val path = Path().apply {
                 cubicTo(
@@ -73,22 +76,30 @@ class EasingTest {
                 )
             }
 
-            val reference = createBitmap(BitmapSize, BitmapSize).applyCanvas {
-                drawPath(path.asAndroidPath(), paint)
+            val reference = createBitmap(
+                BitmapSize + 2 * Margin,
+                BitmapSize + 2 * Margin
+            ).applyCanvas {
+                withTranslation(Margin.toFloat(), Margin.toFloat()) {
+                    drawPath(path.asAndroidPath(), paint)
+                }
             }
 
             val easing = CubicBezierEasing(cubic[0], cubic[1], cubic[2], cubic[3])
-            val subject = createBitmap(BitmapSize, BitmapSize).applyCanvas {
+            val subject = createBitmap(
+                BitmapSize + 2 * Margin,
+                BitmapSize + 2 * Margin
+            ).applyCanvas {
                 var x0 = 0.0f
                 var y0 = 0.0f
                 for (x in 1 until BitmapSize) {
                     val x1 = x / BitmapSize.toFloat()
                     val y1 = easing.transform(x1)
                     drawLine(
-                        x0 * BitmapSize,
-                        y0 * BitmapSize,
-                        x1 * BitmapSize,
-                        y1 * BitmapSize,
+                        Margin.toFloat() + x0 * BitmapSize,
+                        Margin.toFloat() + y0 * BitmapSize,
+                        Margin.toFloat() + x1 * BitmapSize,
+                        Margin.toFloat() + y1 * BitmapSize,
                         paint
                     )
                     x0 = x1
@@ -122,8 +133,8 @@ fun compareBitmaps(bitmap1: Bitmap, bitmap2: Bitmap, errorCount: Int, threshold:
     bitmap2.getPixels(p2, 0, bitmap2.width, 0, 0, bitmap2.width, bitmap2.height)
 
     var count = 0
-    for (x in 0 until bitmap1.width) {
-        for (y in 0 until bitmap2.width) {
+    for (y in 0 until bitmap1.height) {
+        for (x in 0 until bitmap1.width) {
             val index = y * bitmap1.width + x
 
             val (r1, g1, b1, _) = p1[index]

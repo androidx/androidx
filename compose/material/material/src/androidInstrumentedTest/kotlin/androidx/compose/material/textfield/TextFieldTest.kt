@@ -80,20 +80,18 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.PlatformTextInputMethodRequest
-import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -124,7 +122,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -134,7 +131,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldTest {
@@ -146,7 +142,7 @@ class TextFieldTest {
     private val ExpectedBaselineOffset = 20.dp
     private val TopPaddingFilledTextfield = 2.dp
     private val IconColorAlpha = 0.54f
-    private val TextfieldTag = "textField"
+    private val TextFieldTag = "textField"
 
     @get:Rule
     val rule = createComposeRule()
@@ -255,7 +251,7 @@ class TextFieldTest {
         rule.setMaterialContent {
             scope = rememberCoroutineScope()
             TextField(
-                modifier = Modifier.testTag(TextfieldTag),
+                modifier = Modifier.testTag(TextFieldTag),
                 value = "input",
                 onValueChange = {},
                 interactionSource = interactionSource
@@ -273,7 +269,7 @@ class TextFieldTest {
         }
 
         // Click on (2, 2) which is Surface area and outside input area
-        rule.onNodeWithTag(TextfieldTag).performTouchInput {
+        rule.onNodeWithTag(TextFieldTag).performTouchInput {
             click(Offset(2f, 2f))
         }
 
@@ -283,7 +279,6 @@ class TextFieldTest {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun testTextField_showHideKeyboardBasedOnFocus() {
         val (focusRequester, parentFocusRequester) = FocusRequester.createRefs()
@@ -296,7 +291,7 @@ class TextFieldTest {
                         .focusRequester(parentFocusRequester)
                         .focusTarget()
                         .focusRequester(focusRequester)
-                        .testTag(TextfieldTag),
+                        .testTag(TextFieldTag),
                     value = "input",
                     onValueChange = {}
                 )
@@ -327,7 +322,7 @@ class TextFieldTest {
                         .focusRequester(parentFocusRequester)
                         .focusTarget()
                         .focusRequester(focusRequester)
-                        .testTag(TextfieldTag),
+                        .testTag(TextFieldTag),
                     value = "input",
                     onValueChange = {}
                 )
@@ -342,7 +337,7 @@ class TextFieldTest {
         rule.runOnIdle { softwareKeyboardController?.hide() }
 
         // Clicking on the text field shows the keyboard.
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
         rule.runOnIdle { assertThat(hostView.isSoftwareKeyboardShown).isTrue() }
     }
 
@@ -473,7 +468,7 @@ class TextFieldTest {
         rule.setMaterialContent {
             Box {
                 TextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier.testTag(TextFieldTag),
                     value = "",
                     onValueChange = {},
                     label = {
@@ -492,7 +487,7 @@ class TextFieldTest {
         }
 
         // click to focus
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
             // size
@@ -558,7 +553,7 @@ class TextFieldTest {
                 TextField(
                     modifier = Modifier
                         .height(60.dp)
-                        .testTag(TextfieldTag),
+                        .testTag(TextFieldTag),
                     value = "",
                     onValueChange = {},
                     label = { Text("label") },
@@ -575,7 +570,7 @@ class TextFieldTest {
             }
         }
         // click to focus
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
             // size
@@ -602,13 +597,16 @@ class TextFieldTest {
         rule.setMaterialContent {
             Box {
                 TextField(
-                    modifier = Modifier.height(height).testTag(TextfieldTag),
+                    modifier = Modifier
+                        .height(height)
+                        .testTag(TextFieldTag),
                     value = "",
                     onValueChange = {},
                     placeholder = {
                         Text(
                             text = "placeholder",
-                            modifier = Modifier.requiredHeight(20.dp)
+                            modifier = Modifier
+                                .requiredHeight(20.dp)
                                 .onGloballyPositioned {
                                     placeholderPosition.value = it.positionInRoot()
                                     placeholderSize.value = it.size
@@ -619,7 +617,7 @@ class TextFieldTest {
             }
         }
         // click to focus
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
             // size
@@ -643,7 +641,7 @@ class TextFieldTest {
         rule.setMaterialContent {
             Column {
                 TextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier.testTag(TextFieldTag),
                     value = "input",
                     onValueChange = {},
 
@@ -661,7 +659,7 @@ class TextFieldTest {
         }
 
         // click to focus
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdleWithDensity {
             assertThat(placeholderSize.value).isNull()
@@ -673,7 +671,7 @@ class TextFieldTest {
     fun testTextField_placeholderColorAndTextStyle() {
         rule.setMaterialContent {
             TextField(
-                modifier = Modifier.testTag(TextfieldTag),
+                modifier = Modifier.testTag(TextFieldTag),
                 value = "",
                 onValueChange = {},
                 placeholder = {
@@ -695,7 +693,7 @@ class TextFieldTest {
         }
 
         // click to focus
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
     }
 
     @Test
@@ -860,18 +858,22 @@ class TextFieldTest {
                     modifier = Modifier.size(textFieldWidth, textFieldHeight),
                     leadingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                leadingPosition = it.positionInRoot()
-                                leadingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    leadingPosition = it.positionInRoot()
+                                    leadingSize = it.size
+                                }
                         )
                     },
                     trailingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                trailingPosition = it.positionInRoot()
-                                trailingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    trailingPosition = it.positionInRoot()
+                                    trailingSize = it.size
+                                }
                         )
                     }
                 )
@@ -1016,27 +1018,22 @@ class TextFieldTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testTextField_imeActionAndKeyboardTypePropagatedDownstream() {
         var editorInfo: EditorInfo? = null
-        val sessionHandler = object : PlatformTextInputSession {
-            override val view: View = View(getInstrumentation().targetContext)
-
-            override suspend fun startInputMethod(
-                request: PlatformTextInputMethodRequest
-            ): Nothing {
-                EditorInfo().also {
-                    request.createInputConnection(it)
-                    editorInfo = it
-                }
-                awaitCancellation()
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            EditorInfo().also {
+                request.createInputConnection(it)
+                editorInfo = it
             }
+            awaitCancellation()
         }
         rule.setContent {
-            PlatformTextInputMethodTestOverride(sessionHandler) {
-                val text = remember { mutableStateOf("") }
+            val text = remember { mutableStateOf("") }
+            InterceptPlatformTextInput(interceptor) {
                 TextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier.testTag(TextFieldTag),
                     value = text.value,
                     onValueChange = { text.value = it },
                     keyboardOptions = KeyboardOptions(
@@ -1047,7 +1044,7 @@ class TextFieldTest {
             }
         }
 
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
 
         rule.runOnIdle {
             @Suppress("NAME_SHADOWING")
@@ -1065,7 +1062,7 @@ class TextFieldTest {
     fun testTextField_visualTransformationPropagated() {
         rule.setMaterialContent {
             TextField(
-                modifier = Modifier.testTag(TextfieldTag),
+                modifier = Modifier.testTag(TextFieldTag),
                 value = "qwerty",
                 onValueChange = {},
                 visualTransformation = PasswordVisualTransformation('\u0020'),
@@ -1074,7 +1071,7 @@ class TextFieldTest {
             )
         }
 
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1094,7 +1091,7 @@ class TextFieldTest {
         rule.setMaterialContent {
             Box(Modifier.background(color = Color.White)) {
                 TextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier.testTag(TextFieldTag),
                     value = "test",
                     onValueChange = {},
                     label = { Text("label") },
@@ -1118,7 +1115,7 @@ class TextFieldTest {
             }
         }
 
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1129,9 +1126,9 @@ class TextFieldTest {
                 shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
             )
 
-        rule.onNodeWithTag(TextfieldTag).performClick()
+        rule.onNodeWithTag(TextFieldTag).performClick()
 
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1171,7 +1168,9 @@ class TextFieldTest {
                     Text(
                         text = "label",
                         color = Color.Red,
-                        modifier = Modifier.testTag("Label").background(Color.Red)
+                        modifier = Modifier
+                            .testTag("Label")
+                            .background(Color.Red)
                     )
                 },
                 textStyle = TextStyle(color = Color.Blue),
@@ -1206,7 +1205,7 @@ class TextFieldTest {
         }
         rule.setMaterialContent {
             TextField(
-                modifier = Modifier.testTag(TextfieldTag),
+                modifier = Modifier.testTag(TextFieldTag),
                 value = "",
                 onValueChange = {},
                 visualTransformation = prefixTransformation,
@@ -1224,7 +1223,7 @@ class TextFieldTest {
                 )
             )
         }
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertPixels {
                 Color.White
@@ -1258,19 +1257,19 @@ class TextFieldTest {
                 value = "test",
                 onValueChange = {},
                 modifier = Modifier
-                    .testTag(TextfieldTag)
+                    .testTag(TextFieldTag)
                     .semantics { if (isError.value) error(errorMessage) },
                 isError = isError.value
             )
             defaultErrorMessage = getString(DefaultErrorMessage)
         }
 
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, errorMessage))
 
         // Check that default error message is overwritten and not lingering in a child node
-        rule.onNodeWithTag(TextfieldTag, useUnmergedTree = true)
+        rule.onNodeWithTag(TextFieldTag, useUnmergedTree = true)
             .onChildren()
             .fetchSemanticsNodes()
             .forEach { node ->
@@ -1343,11 +1342,15 @@ class TextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTextField_label_notUsingErrorColor_notFocused_withoutInput() {
         rule.setMaterialContent {
-            Box(Modifier.background(Color.White).padding(10.dp)) {
+            Box(
+                Modifier
+                    .background(Color.White)
+                    .padding(10.dp)
+            ) {
                 TextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier.testTag(TextFieldTag),
                     label = { Text("Label") },
                     isError = true,
                     colors = TextFieldDefaults.textFieldColors(
@@ -1360,7 +1363,7 @@ class TextFieldTest {
             }
         }
 
-        rule.onNodeWithTag(TextfieldTag).captureToImage().assertPixels {
+        rule.onNodeWithTag(TextFieldTag).captureToImage().assertPixels {
             Color.White
         }
     }
@@ -1592,7 +1595,11 @@ class TextFieldTest {
         val text = "Long text input. ".repeat(20)
         rule.setMaterialContent {
             Row {
-                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
+                Box(
+                    Modifier
+                        .width(150.dp)
+                        .height(IntrinsicSize.Min)
+                ) {
                     TextField(
                         value = text,
                         onValueChange = {},
@@ -1640,15 +1647,15 @@ class TextFieldTest {
                     // causes TextFieldValue's composition clearing
                     focusManager.clearFocus(true)
                 },
-                modifier = Modifier.testTag(TextfieldTag)
+                modifier = Modifier.testTag(TextFieldTag)
             )
         }
 
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .performClick()
         rule.waitForIdle()
 
-        rule.onNodeWithTag(TextfieldTag)
+        rule.onNodeWithTag(TextFieldTag)
             .performTextClearance()
 
         rule.runOnIdle {
@@ -1659,9 +1666,13 @@ class TextFieldTest {
     fun testTextFields_noCrashConstraintsInfinity() {
 
         rule.setMaterialContent {
-            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
-                rememberScrollState()
-            )) {
+            Column(
+                modifier = Modifier
+                    .height(IntrinsicSize.Min)
+                    .horizontalScroll(
+                        rememberScrollState()
+                    )
+            ) {
                 TextField(
                     value = "Cat",
                     onValueChange = {},

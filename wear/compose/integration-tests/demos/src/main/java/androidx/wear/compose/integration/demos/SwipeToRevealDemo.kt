@@ -87,6 +87,7 @@ fun SwipeToRevealChips(swipeToDismissBoxState: SwipeToDismissBoxState) {
             expandableItem(
                 state = currentState
             ) { expanded ->
+                var undoActionEnabled by remember { mutableStateOf(true) }
                 val revealState = rememberRevealState()
                 val coroutineScope = rememberCoroutineScope()
                 val deleteItem = {
@@ -96,6 +97,8 @@ fun SwipeToRevealChips(swipeToDismissBoxState: SwipeToDismissBoxState) {
                         // hide the content after some time if the state is still revealed
                         delay(1500)
                         if (revealState.currentValue == RevealValue.Revealed) {
+                            // Undo should no longer be triggered
+                            undoActionEnabled = false
                             currentState.expanded = false
                         }
                     }
@@ -158,10 +161,12 @@ fun SwipeToRevealChips(swipeToDismissBoxState: SwipeToDismissBoxState) {
                                 revealState = revealState,
                                 label = { Text("Undo Primary Action") },
                                 onClick = {
-                                    coroutineScope.launch {
-                                        // reset the state when undo is clicked
-                                        revealState.animateTo(RevealValue.Covered)
-                                        revealState.lastActionType = RevealActionType.None
+                                    if (undoActionEnabled) {
+                                        coroutineScope.launch {
+                                            // reset the state when undo is clicked
+                                            revealState.animateTo(RevealValue.Covered)
+                                            revealState.lastActionType = RevealActionType.None
+                                        }
                                     }
                                 }
                             )

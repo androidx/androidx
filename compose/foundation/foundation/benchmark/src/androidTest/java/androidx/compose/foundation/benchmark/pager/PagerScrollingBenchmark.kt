@@ -315,7 +315,7 @@ val VerticalPagerContent: @Composable PagerRemeasureTestCase.(
                 null
             },
             pageSize = PageSize.Fixed(30.dp),
-            outOfBoundsPageCount = beyondBoundsPageCount,
+            beyondViewportPageCount = beyondBoundsPageCount,
             flingBehavior = flingBehavior
         ) {
             Box(Modifier.fillMaxSize())
@@ -342,7 +342,7 @@ val HorizontalPagerContent: @Composable PagerRemeasureTestCase.(
                 null
             },
             pageSize = PageSize.Fixed(30.dp),
-            outOfBoundsPageCount = beyondBoundsPageCount,
+            beyondViewportPageCount = beyondBoundsPageCount,
             flingBehavior = flingBehavior
         ) {
             Box(Modifier.fillMaxSize())

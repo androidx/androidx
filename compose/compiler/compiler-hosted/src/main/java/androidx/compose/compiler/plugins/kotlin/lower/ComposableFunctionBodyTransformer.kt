@@ -63,6 +63,7 @@ import org.jetbrains.kotlin.ir.declarations.IrLocalDelegatedProperty
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrPackageFragment
 import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.declarations.IrScript
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrTypeAlias
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
@@ -312,7 +313,7 @@ interface IrChangedBitMaskVariable : IrChangedBitMaskValue {
  *
  * There are 3 types of groups in Compose:
  *
- * 1. Replaceable Groups
+ * 1. Replace Groups
  * 2. Movable Groups
  * 3. Restart Groups
  *
@@ -322,7 +323,7 @@ interface IrChangedBitMaskVariable : IrChangedBitMaskValue {
  *
  * 1. If a block executes exactly 1 time always, no groups are needed
  * 2. If a set of blocks are such that exactly one of them is executed exactly once (for example,
- * the result blocks of a when clause), then we insert a replaceable group around each block.
+ * the result blocks of a when clause), then we insert a replace group around each block.
  * 3. A movable group is only needed if the immediate composable call in the group has a Pivotal
  * property.
  *
@@ -788,12 +789,12 @@ class ComposableFunctionBodyTransformer(
 
     // At a high level, without useNonSkippingGroupOptimization, a non-restartable composable
     // function
-    // 1. gets a replaceable group placed around the body
+    // 1. gets a replace group placed around the body
     // 2. never calls `$composer.changed(...)` with its parameters
     // 3. can have default parameters, so needs to add the defaults preamble if defaults present
     // 4. proper groups around control flow structures in the body
     // If supported by the runtime and useNonSkippingGroupOptimization is enabled then the
-    // replaceable group is not necessary so the above list is changed to,
+    // replace group is not necessary so the above list is changed to,
     // 1. never calls `$composer.changed(...)` with its parameters
     // 2. can have default parameters, so needs to add the defaults preamble if defaults present
     // 3. never elides groups around control flow structures in the body
@@ -860,7 +861,7 @@ class ComposableFunctionBodyTransformer(
             scope.realizeGroup {
                 irComposite(statements = listOfNotNull(
                     if (emitTraceMarkers) irTraceEventEnd() else null,
-                    irEndReplaceableGroup(scope = scope)
+                    irEndReplaceGroup(scope = scope)
                 ))
             }
         } else if (useNonSkippingGroupOptimization) {
@@ -874,7 +875,7 @@ class ComposableFunctionBodyTransformer(
             listOfNotNull(
                 when {
                     outerGroupRequired ->
-                        irStartReplaceableGroup(
+                        irStartReplaceGroup(
                             body,
                             scope,
                             irFunctionSourceKey()
@@ -891,7 +892,7 @@ class ComposableFunctionBodyTransformer(
                 *bodyPreamble.statements.toTypedArray(),
                 *transformed.statements.toTypedArray(),
                 when {
-                    outerGroupRequired -> irEndReplaceableGroup(scope = scope)
+                    outerGroupRequired -> irEndReplaceGroup(scope = scope)
                     collectSourceInformation && !hasExplicitGroups ->
                         irSourceInformationMarkerEnd(body, scope)
                     else -> null
@@ -1947,7 +1948,8 @@ class ComposableFunctionBodyTransformer(
             is IrAnonymousInitializer,
             is IrTypeParameter,
             is IrLocalDelegatedProperty,
-            is IrValueDeclaration -> {
+            is IrValueDeclaration,
+            is IrScript -> {
                 // these declarations do not create new "scopes", so we do nothing
                 return super.visitDeclaration(declaration)
             }
@@ -2020,7 +2022,7 @@ class ComposableFunctionBodyTransformer(
             functionSourceKey()
         )
 
-    private fun irStartReplaceableGroup(
+    private fun irStartReplaceGroup(
         element: IrElement,
         scope: Scope.BlockScope,
         key: IrExpression = element.irSourceKey(),
@@ -2028,7 +2030,7 @@ class ComposableFunctionBodyTransformer(
         endOffset: Int = UNDEFINED_OFFSET
     ): IrExpression {
         return irWithSourceInformation(
-            irStartReplaceableGroup(
+            irStartReplaceGroup(
                 scope.irCurrentComposer(startOffset, endOffset),
                 key,
                 startOffset,
@@ -2199,12 +2201,12 @@ class ComposableFunctionBodyTransformer(
         )
     }
 
-    private fun irEndReplaceableGroup(
+    private fun irEndReplaceGroup(
         startOffset: Int = UNDEFINED_OFFSET,
         endOffset: Int = UNDEFINED_OFFSET,
         scope: Scope.BlockScope
     ): IrExpression {
-        return irEndReplaceableGroup(
+        return irEndReplaceGroup(
             scope.irCurrentComposer(startOffset, endOffset),
             startOffset,
             endOffset
@@ -2299,13 +2301,13 @@ class ComposableFunctionBodyTransformer(
         }
     }
 
-    private fun IrBlock.withReplaceableGroupStatements(
+    private fun IrBlock.withReplaceGroupStatements(
         scope: Scope.BlockScope,
         insertAt: Int = 0
     ): IrExpression {
         currentFunctionScope.metrics.recordGroup()
         scope.realizeGroup {
-            irEndReplaceableGroup(scope = scope)
+            irEndReplaceGroup(scope = scope)
         }
 
         val prefix = statements.subList(0, insertAt)
@@ -2319,7 +2321,7 @@ class ComposableFunctionBodyTransformer(
                 endOffset,
                 type,
                 origin,
-                prefix + listOf(irStartReplaceableGroup(this, scope)) + suffix
+                prefix + listOf(irStartReplaceGroup(this, scope)) + suffix
             )
             // otherwise, we want to push an end call for any early returns/jumps, but also add
             // an end call to the end of the group
@@ -2329,18 +2331,18 @@ class ComposableFunctionBodyTransformer(
                 type,
                 origin,
                 prefix + listOf(
-                    irStartReplaceableGroup(
+                    irStartReplaceGroup(
                         this,
                         scope,
                         startOffset = startOffset,
                         endOffset = endOffset
                     )
-                ) + suffix + listOf(irEndReplaceableGroup(startOffset, endOffset, scope))
+                ) + suffix + listOf(irEndReplaceGroup(startOffset, endOffset, scope))
             )
         }
     }
 
-    private fun IrExpression.asReplaceableGroup(scope: Scope.BlockScope): IrExpression {
+    private fun IrExpression.asReplaceGroup(scope: Scope.BlockScope): IrExpression {
         currentFunctionScope.metrics.recordGroup()
         // if the scope has no composable calls, then the only important thing is that a
         // start/end call gets executed. as a result, we can just put them both at the top of
@@ -2349,39 +2351,39 @@ class ComposableFunctionBodyTransformer(
         if (!scope.hasComposableCalls && !scope.hasReturn && !scope.hasJump) {
             return wrap(
                 before = listOf(
-                    irStartReplaceableGroup(
+                    irStartReplaceGroup(
                         this,
                         scope,
                         startOffset = startOffset,
                         endOffset = endOffset,
                     ),
-                    irEndReplaceableGroup(startOffset, endOffset, scope)
+                    irEndReplaceGroup(startOffset, endOffset, scope)
                 )
             )
         }
         scope.realizeGroup {
-            irEndReplaceableGroup(scope = scope)
+            irEndReplaceGroup(scope = scope)
         }
         return when {
             // if the scope ends with a return call, then it will get properly ended if we
             // just push the end call on the scope because of the way returns get transformed in
             // this class. As a result, here we can safely just "prepend" the start call
             endsWithReturnOrJump() -> {
-                wrap(before = listOf(irStartReplaceableGroup(this, scope)))
+                wrap(before = listOf(irStartReplaceGroup(this, scope)))
             }
             // otherwise, we want to push an end call for any early returns/jumps, but also add
             // an end call to the end of the group
             else -> {
                 wrap(
                     before = listOf(
-                        irStartReplaceableGroup(
+                        irStartReplaceGroup(
                             this,
                             scope,
                             startOffset = startOffset,
                             endOffset = endOffset
                         )
                     ),
-                    after = listOf(irEndReplaceableGroup(startOffset, endOffset, scope))
+                    after = listOf(irEndReplaceGroup(startOffset, endOffset, scope))
                 )
             }
         }
@@ -2427,12 +2429,12 @@ class ComposableFunctionBodyTransformer(
             realizeGroup = {
                 if (before.statements.isEmpty()) {
                     metrics.recordGroup()
-                    before.statements.add(irStartReplaceableGroup(this, scope))
-                    after.statements.add(irEndReplaceableGroup(scope = scope))
+                    before.statements.add(irStartReplaceGroup(this, scope))
+                    after.statements.add(irEndReplaceGroup(scope = scope))
                 }
             },
             makeEnd = {
-                irEndReplaceableGroup(scope = scope)
+                irEndReplaceGroup(scope = scope)
             }
         )
         return wrap(
@@ -2444,7 +2446,8 @@ class ComposableFunctionBodyTransformer(
     private fun IrContainerExpression.asSourceOrEarlyExitGroup(
         scope: Scope.FunctionScope
     ): IrContainerExpression {
-        if (scope.hasInlineEarlyReturn) {
+        val needsGroup = scope.hasInlineEarlyReturn || scope.isCrossinlineLambda
+        if (needsGroup) {
             currentFunctionScope.metrics.recordGroup()
         } else if (!collectSourceInformation) {
             // If we are not generating source information and the lambda does not contain an
@@ -2456,7 +2459,7 @@ class ComposableFunctionBodyTransformer(
         // the group, and we don't have to deal with any of the complicated jump logic that
         // could be inside of the block
         val makeStart = {
-            if (scope.hasInlineEarlyReturn) irStartReplaceableGroup(
+            if (needsGroup) irStartReplaceGroup(
                 this,
                 scope,
                 startOffset = startOffset,
@@ -2465,7 +2468,7 @@ class ComposableFunctionBodyTransformer(
             else irSourceInformationMarkerStart(this, scope)
         }
         val makeEnd = {
-            if (scope.hasInlineEarlyReturn) irEndReplaceableGroup(scope = scope)
+            if (needsGroup) irEndReplaceGroup(scope = scope)
             else irSourceInformationMarkerEnd(this, scope)
         }
         if (!scope.hasComposableCalls && !scope.hasReturn && !scope.hasJump) {
@@ -3237,9 +3240,9 @@ class ComposableFunctionBodyTransformer(
             else
                 cacheCall.wrap(
                     before = inputVals.filterNotNull() + listOf(
-                        irStartReplaceableGroup(expression, blockScope)
+                        irStartReplaceGroup(expression, blockScope)
                     ),
-                    after = listOf(irEndReplaceableGroup(scope = blockScope))
+                    after = listOf(irEndReplaceGroup(scope = blockScope))
                 )
         }.also { block ->
             if (
@@ -3701,7 +3704,7 @@ class ComposableFunctionBodyTransformer(
         withScope(loopScope) {
             loop.condition = loop.condition.transform(this, null)
             if (loopScope.needsGroupPerIteration && loopScope.hasComposableCalls) {
-                loop.condition = loop.condition.asReplaceableGroup(loopScope)
+                loop.condition = loop.condition.asReplaceGroup(loopScope)
             }
 
             loop.body = loop.body?.transform(this, null)
@@ -3725,12 +3728,12 @@ class ComposableFunctionBodyTransformer(
                     val forLoopVariableIndex = current.statements.indexOfFirst {
                         (it as? IrVariable)?.origin == IrDeclarationOrigin.FOR_LOOP_VARIABLE
                     }
-                    loop.body = current.withReplaceableGroupStatements(
+                    loop.body = current.withReplaceGroupStatements(
                         loopScope,
                         insertAt = forLoopVariableIndex + 1
                     )
                 } else {
-                    loop.body = current?.asReplaceableGroup(loopScope)
+                    loop.body = current?.asReplaceGroup(loopScope)
                 }
             }
         }
@@ -3759,7 +3762,7 @@ class ComposableFunctionBodyTransformer(
         // result branches of the when clause. This is because if we have N branches of a when
         // clause, we will always execute exactly 1 result branch, but we will execute 0-N of the
         // conditions. This means that if only the results have composable calls, we can use
-        // replaceable groups to represent the entire expression. If a condition has a composable
+        // replace groups to represent the entire expression. If a condition has a composable
         // call in it, we need to place the whole expression in a Container group, since a variable
         // number of them will be created. The exception here is the first branch's condition,
         // since it will *always* be executed. As a result, if only the first conditional has a
@@ -3863,7 +3866,7 @@ class ComposableFunctionBodyTransformer(
             // to generate a group around it because we will be generating one around the entire
             // if statement
             if (needsWrappingGroup && condScope.hasComposableCalls) {
-                it.condition = it.condition.asReplaceableGroup(condScope)
+                it.condition = it.condition.asReplaceGroup(condScope)
             }
             if (
                 // if no wrapping group but more than one result have calls, we have to have every
@@ -3873,7 +3876,7 @@ class ComposableFunctionBodyTransformer(
                 // the block has composable calls
                 (needsWrappingGroup && resultScope.hasComposableCalls)
             ) {
-                it.result = it.result.asReplaceableGroup(resultScope)
+                it.result = it.result.asReplaceGroup(resultScope)
             }
 
             if (resultsWithCalls == 1 && resultScope.hasComposableCalls) {
@@ -3916,6 +3919,8 @@ class ComposableFunctionBodyTransformer(
         ) : BlockScope("fun ${function.name.asString()}") {
             val isInlinedLambda: Boolean
                 get() = transformer.inlineLambdaInfo.isInlineLambda(function)
+            val isCrossinlineLambda: Boolean
+                get() = transformer.inlineLambdaInfo.isCrossinlineLambda(function)
 
             val inComposableCall: Boolean
                 get() = (parent as? Scope.CallScope)?.expression?.let { call ->
@@ -4081,14 +4086,18 @@ class ComposableFunctionBodyTransformer(
                 if (
                     isComposable &&
                     (
-                        // We are interested in any object which has @Composable function body and
+                        // We are interested in any object which has skippable function body and
                         // is being able to capture values from outside scope. Technically, that
                         // means we almost never skip in capture-less objects, but it is still more
                         // correct /not/ to skip when its dispatcher receiver changes. In most
                         // cases, we memoize these objects too (e.g fun interface) so the receiver
                         // should === with the previous instances most of time.
                         function.origin == IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA ||
-                            function.parentClassOrNull?.isLocal == true
+                            function.dispatchReceiverParameter
+                                ?.type
+                                ?.classOrNull
+                                ?.owner
+                                ?.isLocal == true
                     )
                 ) {
                     // in the case of a composable lambda/anonymous object, we want to make sure
@@ -4390,21 +4399,6 @@ class ComposableFunctionBodyTransformer(
                 when (val parent = parent) {
                     is BlockScope -> parent.sourceLocationOf(call)
                     else -> super.sourceLocationOf(call)
-                }
-        }
-
-        class ComposableLambdaScope : BlockScope("composableLambda") {
-            override fun calculateHasSourceInformation(sourceInformationEnabled: Boolean): Boolean {
-                return sourceInformationEnabled
-            }
-
-            override fun calculateSourceInfo(sourceInformationEnabled: Boolean): String? =
-                if (sourceInformationEnabled) {
-                    "C${
-                    super.calculateSourceInfo(sourceInformationEnabled) ?: ""
-                    }:${functionScope?.function?.sourceFileInformation() ?: ""}"
-                } else {
-                    null
                 }
         }
     }
