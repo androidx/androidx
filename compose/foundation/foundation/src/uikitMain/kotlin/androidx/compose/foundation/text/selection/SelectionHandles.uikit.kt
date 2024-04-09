@@ -160,7 +160,7 @@ internal fun HandlePopup(
     content: @Composable () -> Unit
 ) {
     val popupPositionProvider = remember(handleReferencePoint, positionProvider, offset) {
-        HandlePositionProvider(handleReferencePoint, positionProvider, offset)
+        OffsetHandlePositionProvider(handleReferencePoint, positionProvider, offset)
     }
     Popup(
         popupPositionProvider = popupPositionProvider,
@@ -187,13 +187,14 @@ internal enum class HandleReferencePoint {
     BottomMiddle,
 }
 
+// TODO reuse the common HandlePositionProvider
 /**
  * This [PopupPositionProvider] for [HandlePopup]. It will position the selection handle
  * to the result of [positionProvider] in its anchor layout.
  *
  * @see HandleReferencePoint
  */
-internal class HandlePositionProvider(
+private class OffsetHandlePositionProvider(
     private val handleReferencePoint: HandleReferencePoint,
     private val positionProvider: OffsetProvider,
     private val offset: Offset,
@@ -249,23 +250,4 @@ private fun isLeft(
     } else {
         !isHandleLtrDirection(direction, handlesCrossed)
     }
-}
-
-/**
- * This method is to check if the selection handles should use the natural Ltr pointing
- * direction.
- * If the context is Ltr and the handles are not crossed, or if the context is Rtl and the handles
- * are crossed, return true.
- *
- * In Ltr context, the start handle should point to the left, and the end handle should point to
- * the right. However, in Rtl context or when handles are crossed, the start handle should point to
- * the right, and the end handle should point to left.
- */
-/*@VisibleForTesting*/
-private fun isHandleLtrDirection(
-    direction: ResolvedTextDirection,
-    areHandlesCrossed: Boolean
-): Boolean {
-    return direction == ResolvedTextDirection.Ltr && !areHandlesCrossed ||
-        direction == ResolvedTextDirection.Rtl && areHandlesCrossed
 }
