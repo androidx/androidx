@@ -22,7 +22,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.layout.SubcomposeLayoutState
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.trace
-import kotlin.system.measureNanoTime
+import kotlin.time.measureTime
 
 /**
  * State for lazy items prefetching, used by lazy layouts to instruct the prefetcher.
@@ -86,17 +86,17 @@ internal class PrefetchMetrics {
      * average.
      */
     internal inline fun recordCompositionTiming(doComposition: () -> Unit) {
-        val executionTime = measureNanoTime(doComposition)
+        val executionTime = measureTime(doComposition)
         averageCompositionTimeNanos =
-            calculateAverageTime(executionTime, averageCompositionTimeNanos)
+            calculateAverageTime(executionTime.inWholeNanoseconds, averageCompositionTimeNanos)
     }
 
     /**
      * Executes the [doMeasure] block and updates [averageMeasureTimeNanos] with the new average.
      */
     internal inline fun recordMeasureTiming(doMeasure: () -> Unit) {
-        val executionTime = measureNanoTime(doMeasure)
-        averageMeasureTimeNanos = calculateAverageTime(executionTime, averageMeasureTimeNanos)
+        val executionTime = measureTime(doMeasure)
+        averageMeasureTimeNanos = calculateAverageTime(executionTime.inWholeNanoseconds, averageMeasureTimeNanos)
     }
 
     private fun calculateAverageTime(new: Long, current: Long): Long {
