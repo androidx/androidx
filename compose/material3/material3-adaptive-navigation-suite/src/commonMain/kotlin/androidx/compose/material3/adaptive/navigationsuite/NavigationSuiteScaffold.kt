@@ -76,11 +76,10 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * @param navigationSuiteColors [NavigationSuiteColors] that will be used to determine the container
  * (background) color of the navigation component and the preferred color for content inside the
  * navigation component
- * @param containerColor the color used for the background of the navigation suite scaffold. Use
- * [Color.Transparent] to have no color
- * @param contentColor the preferred color for content inside the navigation suite scaffold.
- * Defaults to either the matching content color for [containerColor], or to the current
- * [LocalContentColor] if [containerColor] is not a color from the theme
+ * @param containerColor the color used for the background of the navigation suite scaffold,
+ * including the passed [content] composable. Use [Color.Transparent] to have no color
+ * @param contentColor the preferred color to be used for typography and iconography within the
+ * passed in [content] lambda inside the navigation suite scaffold.
  * @param content the content of your screen
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -92,8 +91,8 @@ fun NavigationSuiteScaffold(
     layoutType: NavigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
     navigationSuiteColors: NavigationSuiteColors = NavigationSuiteDefaults.colors(),
-    containerColor: Color = MaterialTheme.colorScheme.background,
-    contentColor: Color = contentColorFor(containerColor),
+    containerColor: Color = NavigationSuiteScaffoldDefaults.containerColor,
+    contentColor: Color = NavigationSuiteScaffoldDefaults.contentColor,
     content: @Composable () -> Unit = {},
 ) {
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
@@ -403,6 +402,12 @@ object NavigationSuiteScaffoldDefaults {
             }
         }
     }
+
+    /** Default container color for a navigation suite scaffold. */
+    val containerColor: Color @Composable get() = MaterialTheme.colorScheme.background
+
+    /** Default content color for a navigation suite scaffold. */
+    val contentColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground
 }
 
 /** Contains the default values used by the [NavigationSuite]. */
