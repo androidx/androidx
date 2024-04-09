@@ -138,7 +138,7 @@ internal class FocusInvalidationManager(
                 preInvalidationState != it.focusState ||
                     it in focusTargetsWithInvalidatedFocusEvents
             ) {
-                it.refreshFocusEventNodes()
+                it.dispatchFocusCallbacks()
             }
         }
         focusTargetNodes.clear()

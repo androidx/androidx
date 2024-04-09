@@ -1,13 +1,7 @@
 // Baseline format: 1.0
-AddedMethod: androidx.compose.ui.layout.LayoutCoordinates#localPositionOf(androidx.compose.ui.layout.LayoutCoordinates, long, boolean):
-    Added method androidx.compose.ui.layout.LayoutCoordinates.localPositionOf(androidx.compose.ui.layout.LayoutCoordinates,long,boolean)
-AddedMethod: androidx.compose.ui.layout.LookaheadScope#localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long, boolean):
-    Added method androidx.compose.ui.layout.LookaheadScope.localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long,boolean)
-
-
-RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#positionInMotionFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates, long):
-    Removed method androidx.compose.ui.layout.LayoutCoordinates.positionInMotionFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates,long)
-RemovedMethod: androidx.compose.ui.layout.LookaheadScope#localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long):
-    Removed method androidx.compose.ui.layout.LookaheadScope.localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long)
-RemovedMethod: androidx.compose.ui.layout.LookaheadScope#positionInMotionLookaheadFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long):
-    Removed method androidx.compose.ui.layout.LookaheadScope.positionInMotionLookaheadFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long)
+AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#getFocusability():
+    Added method androidx.compose.ui.focus.FocusTargetModifierNode.getFocusability()
+AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#requestFocus():
+    Added method androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus()
+AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#setFocusability(int):
+    Added method androidx.compose.ui.focus.FocusTargetModifierNode.setFocusability(int)

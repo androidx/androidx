@@ -22,17 +22,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.scrollIntoView
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusEventModifierNode
-import androidx.compose.ui.focus.FocusProperties
-import androidx.compose.ui.focus.FocusPropertiesModifierNode
-import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.FocusTargetModifierNode
+import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.focus.requestFocus
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
@@ -47,7 +41,6 @@ import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
@@ -107,18 +100,6 @@ fun Modifier.focusGroup(): Modifier {
 private val focusGroupInspectorInfo =
     InspectableModifier(debugInspectorInfo { name = "focusGroup" })
 
-internal class FocusableInNonTouchMode :
-    Modifier.Node(), CompositionLocalConsumerModifierNode, FocusPropertiesModifierNode {
-    override val shouldAutoInvalidate: Boolean = false
-
-    private val inputModeManager: InputModeManager
-        get() = currentValueOf(LocalInputModeManager)
-
-    override fun applyFocusProperties(focusProperties: FocusProperties) {
-        focusProperties.apply { canFocus = inputModeManager.inputMode != InputMode.Touch }
-    }
-}
-
 private class FocusableElement(private val interactionSource: MutableInteractionSource?) :
     ModifierNodeElement<FocusableNode>() {
 
@@ -147,24 +128,27 @@ private class FocusableElement(private val interactionSource: MutableInteraction
     }
 }
 
-internal class FocusableNode(interactionSource: MutableInteractionSource?) :
-    DelegatingNode(),
-    FocusEventModifierNode,
-    SemanticsModifierNode,
-    GlobalPositionAwareModifierNode,
-    FocusRequesterModifierNode {
+internal class FocusableNode(
+    interactionSource: MutableInteractionSource?,
+    focusability: Focusability = Focusability.Always,
+    private val onFocus: (() -> Unit)? = null
+) : DelegatingNode(), SemanticsModifierNode, GlobalPositionAwareModifierNode {
     override val shouldAutoInvalidate: Boolean = false
-
-    private var focusState: FocusState? = null
 
     // (lpf) could we remove this if interactionsource is null?
     private val focusableInteractionNode = delegate(FocusableInteractionNode(interactionSource))
     private val focusablePinnableContainer = delegate(FocusablePinnableContainerNode())
     private val focusedBoundsNode = delegate(FocusedBoundsNode())
 
-    init {
-        delegate(FocusTargetModifierNode())
-    }
+    private val focusTargetNode =
+        delegate(
+            FocusTargetModifierNode(
+                focusability = focusability,
+                onFocusChange = ::onFocusStateChange
+            )
+        )
+
+    private var requestFocus: (() -> Boolean)? = null
 
     // Focusables have a few different cases where they need to make sure they stay visible:
     //
@@ -180,24 +164,29 @@ internal class FocusableNode(interactionSource: MutableInteractionSource?) :
     fun update(interactionSource: MutableInteractionSource?) =
         focusableInteractionNode.update(interactionSource)
 
-    // TODO(levima) Update this once delegation can propagate this events on its own
-    override fun onFocusEvent(focusState: FocusState) {
-        if (this.focusState != focusState) { // focus state changed
-            val isFocused = focusState.isFocused
-            if (isFocused) {
-                coroutineScope.launch { scrollIntoView() }
-            }
-            if (isAttached) invalidateSemantics()
-            focusableInteractionNode.setFocus(isFocused)
-            focusedBoundsNode.setFocus(isFocused)
-            focusablePinnableContainer.setFocus(isFocused)
-            this.focusState = focusState
+    private fun onFocusStateChange(previousState: FocusState, currentState: FocusState) {
+        if (!isAttached) return
+        val isFocused = currentState.isFocused
+        val wasFocused = previousState.isFocused
+        // Ignore cases where we are initialized as unfocused, or moving between different unfocused
+        // states, such as Inactive -> ActiveParent.
+        if (isFocused == wasFocused) return
+        if (isFocused) {
+            onFocus?.invoke()
+            coroutineScope.launch { scrollIntoView() }
         }
+        invalidateSemantics()
+        focusableInteractionNode.setFocus(isFocused)
+        focusedBoundsNode.setFocus(isFocused)
+        focusablePinnableContainer.setFocus(isFocused)
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        focused = focusState?.isFocused == true
-        requestFocus { this@FocusableNode.requestFocus() }
+        focused = focusTargetNode.focusState.isFocused
+        if (requestFocus == null) {
+            requestFocus = { focusTargetNode.requestFocus() }
+        }
+        requestFocus(action = requestFocus)
     }
 
     // TODO(levima) Remove this once delegation can propagate this events on its own
@@ -212,11 +201,6 @@ private class FocusableInteractionNode(private var interactionSource: MutableInt
 
     override val shouldAutoInvalidate: Boolean = false
 
-    /**
-     * Interaction source events will be controlled entirely by changes in focus events. The
-     * FocusEventNode will be the source of truth for this and will emit an event in case it is
-     * detached.
-     */
     fun setFocus(isFocused: Boolean) {
         interactionSource?.let { interactionSource ->
             if (isFocused) {
