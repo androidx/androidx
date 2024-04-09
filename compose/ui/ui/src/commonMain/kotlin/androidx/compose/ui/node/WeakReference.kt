@@ -16,7 +16,7 @@
 package androidx.compose.ui.node
 
 // TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
-expect class WeakReference<T>(referent: T) {
+expect class WeakReference<T : Any>(referent: T) {
     fun clear()
 
     fun get(): T?
