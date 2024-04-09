@@ -55,6 +55,7 @@ internal class GraphicsLayerV29(
     private var size: IntSize = IntSize.Zero
     private var layerPaint: android.graphics.Paint? = null
     private var matrix: Matrix? = null
+    private var outlineIsProvided = false
 
     init {
         renderNode.clipToBounds = false
@@ -150,8 +151,14 @@ internal class GraphicsLayerV29(
     override var clip: Boolean = false
         set(value) {
             field = value
-            renderNode.clipToBounds = value
+            applyClip()
         }
+
+    private fun applyClip() {
+        renderNode.setClipToBounds(clip && !outlineIsProvided)
+        renderNode.setClipToOutline(clip && outlineIsProvided)
+    }
+
     override var renderEffect: RenderEffect? = null
         set(value) {
             field = value
@@ -201,9 +208,10 @@ internal class GraphicsLayerV29(
         this.size = size
     }
 
-    override fun setOutline(outline: Outline, clip: Boolean) {
+    override fun setOutline(outline: Outline?) {
         renderNode.setOutline(outline)
-        renderNode.clipToOutline = clip
+        outlineIsProvided = outline != null
+        applyClip()
     }
 
     override var isInvalidated: Boolean = true
