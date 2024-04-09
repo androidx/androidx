@@ -16,12 +16,12 @@
 
 package androidx.compose.foundation.text
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import kotlin.math.min
-import org.jetbrains.annotations.VisibleForTesting
 
 internal val ValidatingEmptyOffsetMappingIdentity: OffsetMapping = ValidatingOffsetMapping(
     delegate = OffsetMapping.Identity,
