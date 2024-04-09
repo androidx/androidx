@@ -245,6 +245,8 @@ expect class GraphicsLayer {
      */
     fun setPathOutline(path: Path)
 
+    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1293/Wasm.-UnsetOffset.-Neither-the-module-itself-nor-its-dependencies-contain-such-declaration
+
     /**
      * Configures a rounded rect outline for this [GraphicsLayer]. By default, both [topLeft] and
      * [size] are set to [UnsetOffset] and [UnsetSize] indicating that the outline should match the
@@ -259,8 +261,8 @@ expect class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
     fun setRoundRectOutline(
-        topLeft: IntOffset = UnsetOffset,
-        size: IntSize = UnsetSize,
+        topLeft: IntOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE),
+        size: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE),
         cornerRadius: Float = 0f,
     )
 
@@ -277,8 +279,8 @@ expect class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
     fun setRectOutline(
-        topLeft: IntOffset = UnsetOffset,
-        size: IntSize = UnsetSize
+        topLeft: IntOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE),
+        size: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
     )
 
     /**
