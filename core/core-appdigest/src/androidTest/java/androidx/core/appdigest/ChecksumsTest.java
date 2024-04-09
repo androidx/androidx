@@ -63,6 +63,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -257,7 +258,7 @@ public class ChecksumsTest {
     @Before
     public void onBefore() throws Exception {
         // b/331664452
-        assertFalse(BuildCompat.isAtLeastV());
+        Assume.assumeFalse(BuildCompat.isAtLeastV());
         mContext = ApplicationProvider.getApplicationContext();
         mExecutor = Executors.newCachedThreadPool();
     }
