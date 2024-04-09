@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.LinkAnnotation
@@ -249,6 +250,21 @@ fun Hyperlinks() {
                 mutableStateOf(text)
             }
             Text(saveableText.value)
+        }
+        Sample("Link with listener - accessibility") {
+            val localUriHandler = LocalUriHandler.current
+            val listener = LinkInteractionListener { localUriHandler.openUri(WebLink) }
+            val text = buildAnnotatedString {
+                append("Click ")
+                withLink(TextDefaults.Clickable("tag", linkInteractionListener = listener)) {
+                    append("the first link")
+                }
+                append(" or ")
+                withLink(TextDefaults.Url(WebLink, linkInteractionListener = listener)) {
+                    append("the second link")
+                }
+            }
+            Text(text)
         }
     }
 }
