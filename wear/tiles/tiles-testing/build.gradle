@@ -54,6 +54,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(files("../../wear_sdk/wear-sdk.jar"))
 }
 
 android {

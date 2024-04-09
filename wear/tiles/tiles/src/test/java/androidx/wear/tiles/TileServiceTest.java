@@ -15,6 +15,8 @@
  */
 package androidx.wear.tiles;
 
+import static androidx.wear.tiles.TileService.setUseWearSdkImpl;
+
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
@@ -155,17 +157,18 @@ public class TileServiceTest {
                 mTestContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         assertThat(mSharedPreferences.getAll()).isEmpty();
         sFakeTimeSourceClock.setCurrentTimestampMs(TIMESTAMP_MS);
+        TileService.setUseWearSdkImpl(false);
     }
 
     @Test
-    public void getActiveTilesAsync_noActions_readEmptySharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_noActions_readEmptySharedPref() throws Exception {
         assertThat(mSharedPreferences.getAll()).isEmpty();
 
         assertActiveTilesSnapshotIsEmpty();
     }
 
     @Test
-    public void getActiveTilesAsync_onTileAdded_addTileToSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileAdded_addTileToSharedPref() throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
 
         mTileProviderServiceStub.onTileAddEvent(
@@ -181,7 +184,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_onTileEnter_addTileToSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileEnter_addTileToSharedPref() throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
 
         mTileProviderServiceStub.onTileEnterEvent(
@@ -197,7 +200,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_onTileLeave_addTileToSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileLeave_addTileToSharedPref() throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
 
         mTileProviderServiceStub.onTileLeaveEvent(
@@ -213,7 +216,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_onTileRequest_addTileToSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileRequest_addTileToSharedPref() throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
 
         mTileProviderServiceStub.onTileRequest(
@@ -228,7 +231,8 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_onTileResourcesRequest_addTileToSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileResourcesRequest_addTileToSharedPref()
+            throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
 
         ResourcesRequestData resourcesRequestData =
@@ -246,7 +250,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_addToSharedPref_doNothingIfAlreadyAddedRecently()
+    public void getActiveTilesAsyncLegacy_addToSharedPref_doNothingIfAlreadyAddedRecently()
             throws Exception {
         mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS_NO_UPDATE).commit();
         assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
@@ -264,7 +268,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_addToSharedPref_alreadyAddedTimestampNeedsUpdate()
+    public void getActiveTilesAsyncLegacy_addToSharedPref_alreadyAddedTimestampNeedsUpdate()
             throws Exception {
         mSharedPreferences
                 .edit()
@@ -285,7 +289,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_onTileRemoved_removeFromSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileRemoved_removeFromSharedPref() throws Exception {
         mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
         assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
 
@@ -302,7 +306,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_removeFromSharedPref_doNothingIfNotInSharedPref()
+    public void getActiveTilesAsyncLegacy_removeFromSharedPref_doNothingIfNotInSharedPref()
             throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
 
@@ -319,7 +323,8 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_onTileAddedFromMultipleServicesFromSameApp() throws Exception {
+    public void getActiveTilesAsyncLegacy_onTileAddedFromMultipleServicesFromSameApp()
+            throws Exception {
         assertFalse(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
         assertFalse(mSharedPreferences.contains(FAKE_COMPAT_TILE_IDENTIFIER_2));
 
@@ -342,7 +347,7 @@ public class TileServiceTest {
                         TileAddEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
         List<ActiveTileIdentifier> result =
-                TileService.getActiveTilesAsync(
+                TileService.getActiveTilesAsyncLegacy(
                                 mTestContext, directExecutor(), sFakeTimeSourceClock)
                         .get();
 
@@ -357,7 +362,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_afterEvent_readAllDataFromSharedPref() throws Exception {
+    public void getActiveTilesAsyncLegacy_afterEvent_readAllDataFromSharedPref() throws Exception {
         mSharedPreferences
                 .edit()
                 .putLong(FAKE_COMPAT_TILE_IDENTIFIER_2, TIMESTAMP_MS_NO_UPDATE)
@@ -373,7 +378,7 @@ public class TileServiceTest {
                         TileAddEventData.VERSION_PROTOBUF));
         shadowOf(Looper.getMainLooper()).idle();
         List<ActiveTileIdentifier> result =
-                TileService.getActiveTilesAsync(
+                TileService.getActiveTilesAsyncLegacy(
                                 mTestContext, directExecutor(), sFakeTimeSourceClock)
                         .get();
 
@@ -388,7 +393,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_addToSharedPref_cleanupOldDataFromSharedPref()
+    public void getActiveTilesAsyncLegacy_addToSharedPref_cleanupOldDataFromSharedPref()
             throws Exception {
         mSharedPreferences
                 .edit()
@@ -409,7 +414,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_readFromSharedPref_cleanupOldDataFromSharedPref()
+    public void getActiveTilesAsyncLegacy_readFromSharedPref_cleanupOldDataFromSharedPref()
             throws Exception {
         mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
         mSharedPreferences
@@ -423,14 +428,14 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_overriddenSharedPreferences_throwsException() {
+    public void getActiveTilesAsyncLegacy_overriddenSharedPreferences_throwsException() {
         FakeContext fakeContext =
                 new FakeContext(mTestContext, mTestContext.getPackageName(), null);
         ExecutionException thrownException =
                 assertThrows(
                         ExecutionException.class,
                         () ->
-                                TileService.getActiveTilesAsync(
+                                TileService.getActiveTilesAsyncLegacy(
                                                 fakeContext, directExecutor(), sFakeTimeSourceClock)
                                         .get());
 
@@ -438,7 +443,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_overriddenPackageName_throwsException() {
+    public void getActiveTilesAsyncLegacy_overriddenPackageName_throwsException() {
         mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
         assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
         FakeContext fakeContext =
@@ -451,7 +456,7 @@ public class TileServiceTest {
                 assertThrows(
                         ExecutionException.class,
                         () ->
-                                TileService.getActiveTilesAsync(
+                                TileService.getActiveTilesAsyncLegacy(
                                                 fakeContext, directExecutor(), sFakeTimeSourceClock)
                                         .get());
 
@@ -461,7 +466,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void getActiveTilesAsync_notAllPackageNamesMatching_throwsException() {
+    public void getActiveTilesAsyncLegacy_notAllPackageNamesMatching_throwsException() {
         String fakeTileIdentifierWrongPackage =
                 new ActiveTileIdentifier(
                                 new ComponentName(
@@ -477,7 +482,7 @@ public class TileServiceTest {
                 assertThrows(
                         ExecutionException.class,
                         () ->
-                                TileService.getActiveTilesAsync(
+                                TileService.getActiveTilesAsyncLegacy(
                                                 mTestContext,
                                                 directExecutor(),
                                                 sFakeTimeSourceClock)
@@ -490,6 +495,43 @@ public class TileServiceTest {
                         TIMESTAMP_MS,
                         fakeTileIdentifierWrongPackage,
                         TIMESTAMP_MS);
+    }
+
+    @Test
+    public void getActiveTilesAsync_useWearSdkImplTrue_doNotAddTileToSharedPref()
+            throws Exception {
+        setUseWearSdkImpl(true);
+        assertTrue(mSharedPreferences.getAll().isEmpty());
+
+        mTileProviderServiceStub.onTileRemoveEvent(
+                new TileRemoveEventData(
+                        EventProto.TileRemoveEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileRemoveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertTrue(mSharedPreferences.getAll().isEmpty());
+    }
+
+    @Test
+    public void getActiveTilesAsync_useWearSdkImplTrue_doNotChangeSharedPref()
+            throws Exception {
+        setUseWearSdkImpl(true);
+        mSharedPreferences.edit().putLong(FAKE_TILE_IDENTIFIER_1, TIMESTAMP_MS).commit();
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
+
+        mTileProviderServiceStub.onTileRemoveEvent(
+                new TileRemoveEventData(
+                        EventProto.TileRemoveEvent.newBuilder()
+                                .setTileId(TILE_ID_1)
+                                .build()
+                                .toByteArray(),
+                        TileRemoveEventData.VERSION_PROTOBUF));
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertTrue(mSharedPreferences.contains(FAKE_TILE_IDENTIFIER_1));
     }
 
     @Test
@@ -809,7 +851,7 @@ public class TileServiceTest {
     private void assertActiveTilesSnapshot(@NonNull String tileIdentifier, long timestampMs)
             throws Exception {
         List<ActiveTileIdentifier> result =
-                TileService.getActiveTilesAsync(
+                TileService.getActiveTilesAsyncLegacy(
                                 mTestContext, directExecutor(), sFakeTimeSourceClock)
                         .get();
 
@@ -819,7 +861,7 @@ public class TileServiceTest {
 
     private void assertActiveTilesSnapshotIsEmpty() throws Exception {
         List<ActiveTileIdentifier> result =
-                TileService.getActiveTilesAsync(
+                TileService.getActiveTilesAsyncLegacy(
                                 mTestContext, directExecutor(), sFakeTimeSourceClock)
                         .get();
 
