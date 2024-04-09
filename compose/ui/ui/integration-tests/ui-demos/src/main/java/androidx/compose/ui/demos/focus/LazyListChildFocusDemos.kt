@@ -34,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
@@ -91,7 +90,6 @@ fun LazyListChildFocusDemos() {
             LazyRow(
                 Modifier
                     .focusProperties {
-                        @OptIn(ExperimentalComposeUiApi::class)
                         enter = { previouslyFocusedItem ?: Default }
                     }
             ) {

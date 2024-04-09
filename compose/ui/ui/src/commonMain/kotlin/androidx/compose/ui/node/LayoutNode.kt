@@ -1110,7 +1110,7 @@ internal class LayoutNode(
                     force = true,
                     refreshFocusEvents = false,
                     clearOwnerFocus = true,
-                    @OptIn(ExperimentalComposeUiApi::class) Exit
+                    focusDirection = Exit
                 )
                 it.scheduleInvalidationForFocusEvents()
             }
