@@ -302,7 +302,13 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     var description: String? = null
     var inceptionYear: String? = null
 
-    private var licenses: MutableCollection<License> = ArrayList()
+    /* The main license to add when publishing. Default is Apache 2. */
+    var license: License = License().apply {
+        name = "The Apache Software License, Version 2.0"
+        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    }
+
+    private var extraLicenses: MutableCollection<License> = ArrayList()
 
     // Should only be used to override LibraryType.publish, if a library isn't ready to publish yet
     var publish: Publish = Publish.UNSET
@@ -377,14 +383,14 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         return !legacyDisableKotlinStrictApiMode && shouldConfigureApiTasks()
     }
 
-    fun license(closure: Closure<Any>): License {
+    fun extraLicense(closure: Closure<Any>): License {
         val license = project.configure(License(), closure) as License
-        licenses.add(license)
+        extraLicenses.add(license)
         return license
     }
 
-    fun getLicenses(): Collection<License> {
-        return licenses
+    fun getExtraLicenses(): Collection<License> {
+        return extraLicenses
     }
 
     fun configureAarAsJarForConfiguration(name: String) {
