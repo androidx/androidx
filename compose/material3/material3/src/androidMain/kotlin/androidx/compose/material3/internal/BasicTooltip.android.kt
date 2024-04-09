@@ -16,7 +16,7 @@
 
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.R
@@ -24,6 +24,8 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,7 +76,7 @@ import kotlinx.coroutines.launch
 internal actual fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
-    state: BasicTooltipState,
+    state: TooltipState,
     modifier: Modifier,
     focusable: Boolean,
     enableUserInput: Boolean,
@@ -108,7 +110,7 @@ internal actual fun BasicTooltipBox(
 @Composable
 private fun WrappedAnchor(
     enableUserInput: Boolean,
-    state: BasicTooltipState,
+    state: TooltipState,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -123,7 +125,7 @@ private fun WrappedAnchor(
 @Composable
 private fun TooltipPopup(
     positionProvider: PopupPositionProvider,
-    state: BasicTooltipState,
+    state: TooltipState,
     scope: CoroutineScope,
     focusable: Boolean,
     content: @Composable () -> Unit
@@ -149,7 +151,7 @@ private fun TooltipPopup(
 
 private fun Modifier.handleGestures(
     enabled: Boolean,
-    state: BasicTooltipState
+    state: TooltipState
 ): Modifier =
     if (enabled) {
         this.pointerInput(state) {
@@ -208,7 +210,7 @@ private fun Modifier.handleGestures(
 private fun Modifier.anchorSemantics(
     label: String,
     enabled: Boolean,
-    state: BasicTooltipState,
+    state: TooltipState,
     scope: CoroutineScope
 ): Modifier =
     if (enabled) {
