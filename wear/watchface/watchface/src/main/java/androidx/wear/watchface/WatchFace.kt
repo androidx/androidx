@@ -305,10 +305,17 @@ public class WatchFace(
         /** Signals that the activity is going away and resources should be released. */
         public fun onDestroy()
 
-        /** Sets a callback to observe an y changes to [ComplicationSlot.configExtras]. */
+        /** Sets a callback to observe any changes to [ComplicationSlot.configExtras]. */
         public fun setComplicationSlotConfigExtrasChangeCallback(
             callback: ComplicationSlotConfigExtrasChangeCallback?
         )
+
+        /**
+         * Overrides the complications to be used until [onDestroy] is called. Note if any
+         * complications are received via the InteractiveClient while this override is in place,
+         * they should be buffered until [onDestroy] is called.
+         */
+        public fun setOverrideComplications(slotIdToComplicationData: Map<Int, ComplicationData>)
     }
 
     /** Used to inform EditorSession about changes to [ComplicationSlot.configExtras]. */
@@ -930,11 +937,21 @@ constructor(
             complicationSlotsManager.configExtrasChangeCallback = callback
         }
 
+        override fun setOverrideComplications(
+            slotIdToComplicationData: Map<Int, ComplicationData>
+        ) {
+            InteractiveInstanceManager
+                .getCurrentInteractiveInstance()
+                ?.engine
+                ?.overrideComplications(slotIdToComplicationData)
+        }
+
         @SuppressLint("NewApi") // release
         override fun onDestroy(): Unit =
             TraceEvent("WFEditorDelegate.onDestroy").use {
                 InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
                     it.editorObscuresWatchFace = false
+                    it.removeAnyComplicationOverrides()
                 }
                 if (watchState.isHeadless) {
                     headlessWatchFaceImpl!!.release()

@@ -582,6 +582,8 @@ public class EditorSessionTest {
             )
             .build()
 
+    private var lastOverrideComplications: Map<Int, ComplicationData>? = null
+
     @SuppressLint("NewApi") // EditorRequest
     private fun createOnWatchFaceEditingTestActivity(
         userStyleSettings: List<UserStyleSetting>,
@@ -666,6 +668,12 @@ public class EditorSessionTest {
                     callback: WatchFace.ComplicationSlotConfigExtrasChangeCallback?
                 ) {
                     complicationSlotsManager.configExtrasChangeCallback = callback
+                }
+
+                override fun setOverrideComplications(
+                    slotIdToComplicationData: Map<Int, ComplicationData>
+                ) {
+                    lastOverrideComplications = slotIdToComplicationData
                 }
             }
         if (!shouldTimeout) {
@@ -1643,6 +1651,35 @@ public class EditorSessionTest {
                     )
                 )
                 .isEqualTo(fakeBitmap)
+        }
+    }
+
+    @Test
+    public fun setOverrideComplications() {
+        val scenario = createOnWatchFaceEditingTestActivity(
+            emptyList(),
+            listOf(leftComplication, rightComplication)
+        )
+        val leftComplicationData = ShortTextComplicationData.Builder(
+            PlainComplicationText.Builder("Left").build(),
+            ComplicationText.EMPTY
+        )
+            .build()
+        val rightComplicationData = ShortTextComplicationData.Builder(
+            PlainComplicationText.Builder("Right").build(),
+            ComplicationText.EMPTY
+        )
+            .build()
+
+        val complicationsMap = mapOf(
+            leftComplication.id to leftComplicationData,
+            rightComplication.id to rightComplicationData
+        )
+
+        scenario.onActivity {
+            it.editorSession.setOverrideComplications(complicationsMap)
+
+            assertThat(lastOverrideComplications).isEqualTo(complicationsMap)
         }
     }
 

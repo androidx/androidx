@@ -51,6 +51,7 @@ package androidx.wear.watchface.editor {
     method @UiThread public suspend Object? openComplicationDataSourceChooser(int complicationSlotId, kotlin.coroutines.Continuation<? super androidx.wear.watchface.editor.ChosenComplicationDataSource?>);
     method @UiThread public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData);
     method @UiThread public void setCommitChangesOnClose(boolean);
+    method public default void setOverrideComplications(java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData> slotIdToComplicationData);
     property public abstract Integer? backgroundComplicationSlotId;
     property @UiThread public abstract boolean commitChangesOnClose;
     property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationSlotState>> complicationSlotsState;
