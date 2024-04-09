@@ -70,6 +70,7 @@ import java.nio.charset.Charset;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -876,27 +877,39 @@ public class ExifInterface {
 
     // G. Tags related to picture-taking condition
     /**
-     *  <p>Exposure time, given in seconds.</p>
+     * Exposure time, given in seconds.
      *
-     *  <ul>
-     *      <li>Tag = 33434</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
+     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
+     * Double#parseDouble(String)}, e.g. "0.125").
+     *
+     * <ul>
+     *   <li>Tag = 33434
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_EXPOSURE_TIME = "ExposureTime";
+
     /**
-     *  <p>The F number.</p>
+     * The F number.
      *
-     *  <ul>
-     *      <li>Tag = 33437</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
+     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
+     * Double#parseDouble(String)}, e.g. "0.125").
+     *
+     * <ul>
+     *   <li>Tag = 33437
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_F_NUMBER = "FNumber";
+
     /**
      *  <p>The class of the program used by the camera to set exposure when the picture is taken.
      *  The tag values are as follows.</p>
@@ -1110,19 +1123,27 @@ public class ExifInterface {
      *  </ul>
      */
     public static final String TAG_MAX_APERTURE_VALUE = "MaxApertureValue";
+
     /**
-     *  <p>The distance to the subject, given in meters. Note that if the numerator of the recorded
-     *  value is 0xFFFFFFFF, Infinity shall be indicated; and if the numerator is 0, Distance
-     *  unknown shall be indicated.</p>
+     * The distance to the subject, given in meters.
      *
-     *  <ul>
-     *      <li>Tag = 37382</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note that if the numerator of the recorded value is 0xFFFFFFFF, Infinity shall be
+     * indicated; and if the numerator is 0, Distance unknown shall be indicated.
+     *
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
+     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
+     * Double#parseDouble(String)}, e.g. "0.125").
+     *
+     * <ul>
+     *   <li>Tag = 37382
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_SUBJECT_DISTANCE = "SubjectDistance";
+
     /**
      *  <p>The metering mode.</p>
      *
@@ -1444,18 +1465,25 @@ public class ExifInterface {
      *  @see #WHITEBALANCE_MANUAL
      */
     public static final String TAG_WHITE_BALANCE = "WhiteBalance";
+
     /**
-     *  <p>This tag indicates the digital zoom ratio when the image was shot. If the numerator of
-     *  the recorded value is 0, this indicates that digital zoom was not used.</p>
+     * This tag indicates the digital zoom ratio when the image was shot. If the numerator of the
+     * recorded value is 0, this indicates that digital zoom was not used.
      *
-     *  <ul>
-     *      <li>Tag = 41988</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} and accepted into {@link #setAttribute(String, String)} in decimal
+     * form (i.e. the format produced by {@link Double#toString(double)} and accepted by {@link
+     * Double#parseDouble(String)}, e.g. "0.125").
+     *
+     * <ul>
+     *   <li>Tag = 41988
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_DIGITAL_ZOOM_RATIO = "DigitalZoomRatio";
+
     /**
      *  <p>This tag indicates the equivalent focal length assuming a 35mm film camera, in mm.
      *  A value of 0 means the focal length is unknown. Note that this tag differs from
@@ -1785,18 +1813,24 @@ public class ExifInterface {
      *  </ul>
      */
     public static final String TAG_GPS_ALTITUDE = "GPSAltitude";
+
     /**
-     *  <p>Indicates the time as UTC (Coordinated Universal Time). TimeStamp is expressed as three
-     *  unsigned rational values giving the hour, minute, and second.</p>
+     * Indicates the time as UTC (Coordinated Universal Time). TimeStamp is expressed as three
+     * unsigned rational values giving the hour, minute, and second.
      *
-     *  <ul>
-     *      <li>Tag = 7</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 3</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: This attribute is returned from {@link #getAttribute(String)} and accepted into
+     * {@link #setAttribute(String, String)} as 3 colon-separated integers, e.g. {@code "11:05:32"}.
+     * Decimal or rational hours, minutes or seconds parts are not supported.
+     *
+     * <ul>
+     *   <li>Tag = 7
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 3
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_GPS_TIMESTAMP = "GPSTimeStamp";
+
     /**
      *  <p>Indicates the GPS satellites used for measurements. This tag may be used to describe
      *  the number of satellites, their ID number, angle of elevation, azimuth, SNR and other
@@ -3828,9 +3862,31 @@ public class ExifInterface {
     @SuppressWarnings("unchecked")
     private static final HashMap<String, ExifTag>[] sExifTagMapsForWriting =
             new HashMap[EXIF_TAGS.length];
-    private static final HashSet<String> sTagSetForCompatibility = new HashSet<>(Arrays.asList(
-            TAG_F_NUMBER, TAG_DIGITAL_ZOOM_RATIO, TAG_EXPOSURE_TIME, TAG_SUBJECT_DISTANCE,
-            TAG_GPS_TIMESTAMP));
+
+    /**
+     * These are tags of type 'Unsigned rational' but which are handled in decimal form.
+     *
+     * <p>This means they are output from {@link #getAttribute(String)}, and accepted into {@link
+     * #setAttribute(String, String)}, as strings in decimal form (e.g. {@code "0.125"}, {@code
+     * "6.25E-4"}).
+     *
+     * <p>This is to maintain backwards compatibility with a previous implementation of the {@link
+     * android.media.ExifInterface} (the platform variant of this class).
+     *
+     * <p>See <a
+     * href="http://ag/c/platform/frameworks/base/+/909922/2..9/api/current.txt#b20093">this
+     * internal code review comment from 2016</a> for more details.
+     */
+    private static final Set<String> RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY =
+            Collections.unmodifiableSet(
+                    new HashSet<>(
+                            Arrays.asList(
+                                    TAG_F_NUMBER,
+                                    TAG_DIGITAL_ZOOM_RATIO,
+                                    TAG_EXPOSURE_TIME,
+                                    TAG_SUBJECT_DISTANCE,
+                                    TAG_GPS_TIMESTAMP)));
+
     // Mappings from tag number to IFD type for pointer tags.
     private static final HashMap<Integer, Integer> sExifPointerTagMap = new HashMap<>();
 
@@ -4152,7 +4208,7 @@ public class ExifInterface {
         }
         ExifAttribute attribute = getExifAttribute(tag);
         if (attribute != null) {
-            if (!sTagSetForCompatibility.contains(tag)) {
+            if (!RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
                 return attribute.getStringValue(mExifByteOrder);
             }
             if (tag.equals(TAG_GPS_TIMESTAMP)) {
@@ -4271,7 +4327,7 @@ public class ExifInterface {
             tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
         }
         // Convert the given value to rational values for backwards compatibility.
-        if (value != null && sTagSetForCompatibility.contains(tag)) {
+        if (value != null && RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
             if (tag.equals(TAG_GPS_TIMESTAMP)) {
                 Matcher m = GPS_TIMESTAMP_PATTERN.matcher(value);
                 if (!m.find()) {

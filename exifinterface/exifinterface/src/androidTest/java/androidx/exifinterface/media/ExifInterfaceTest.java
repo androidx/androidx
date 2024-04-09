@@ -642,6 +642,110 @@ public class ExifInterfaceTest {
         assertThat(exif.getDateTime()).isEqualTo(newDateTimeLongValue);
     }
 
+    @Test
+    @SmallTest
+    public void testSetFNumber_decimalString() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        String value = "1.4";
+        exifInterface.setAttribute(ExifInterface.TAG_F_NUMBER, value);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo(value);
+        double result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(1.4);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo(value);
+        result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(1.4);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetFNumber_rationalString_failsSilently() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_F_NUMBER, "7/5");
+
+        double expectedAperture = ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II.aperture;
+        String expectedApertureString = String.valueOf(expectedAperture);
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER))
+                .isEqualTo(expectedApertureString);
+        double result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(expectedAperture);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER))
+                .isEqualTo(expectedApertureString);
+        result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(expectedAperture);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetDigitalZoomRatio_decimalString() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        String value = "0.8";
+        exifInterface.setAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, value);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO))
+                .isEqualTo("0.8");
+        double result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(0.8);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO))
+                .isEqualTo("0.8");
+        result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(0.8);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetDigitalZoomRatio_rationalString_failsSilently() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, "12/5");
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO)).isNull();
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO)).isNull();
+    }
+
     // https://issuetracker.google.com/312680558
     @Test
     @SmallTest
@@ -669,6 +773,145 @@ public class ExifInterfaceTest {
                 exifInterface.getAttributeDouble(
                         ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
         assertThat(result).isEqualTo(0.000625);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetExposureTime_rationalString_failsSilently() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_EXPOSURE_TIME, "1/1600");
+
+        double expectedExposureTime = ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II.exposureTime;
+        String expectedExposureTimeString = String.valueOf(expectedExposureTime);
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME))
+                .isEqualTo(expectedExposureTimeString);
+        double result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(expectedExposureTime);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME))
+                .isEqualTo(expectedExposureTimeString);
+        result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(expectedExposureTime);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetSubjectDistance_decimalString() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        String value = "3.5";
+        exifInterface.setAttribute(ExifInterface.TAG_SUBJECT_DISTANCE, value);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isEqualTo(value);
+        double result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_SUBJECT_DISTANCE, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(3.5);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isEqualTo(value);
+        result =
+                exifInterface.getAttributeDouble(
+                        ExifInterface.TAG_SUBJECT_DISTANCE, /* defaultValue= */ -1);
+        assertThat(result).isEqualTo(3.5);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetSubjectDistance_rationalString_failsSilently() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_SUBJECT_DISTANCE, "7/2");
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isNull();
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isNull();
+    }
+
+    @Test
+    @SmallTest
+    public void testSetGpsTimestamp_integers() throws Exception {
+        // Deliberately use an image with an existing GPS timestamp value to overwrite.
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        String timestamp = "11:06:52";
+        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, timestamp);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
+                .isEqualTo(timestamp);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
+                .isEqualTo(timestamp);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetGpsTimestamp_rationals_failsSilently() throws Exception {
+        // Deliberately use an image with an existing GPS timestamp value to overwrite.
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, "11/2:06/5:52/8");
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
+                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
+                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
+    }
+
+    @Test
+    @SmallTest
+    public void testSetGpsTimestamp_decimals_failsSilently() throws Exception {
+        // Deliberately use an image with an existing GPS timestamp value to overwrite.
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, "11.5:06.3:52.8");
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
+                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
+
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile);
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
+                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
     }
 
     @Test
