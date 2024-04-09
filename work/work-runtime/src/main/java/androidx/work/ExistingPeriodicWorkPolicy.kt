@@ -65,9 +65,9 @@ enum class ExistingPeriodicWorkPolicy {
      * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
      * it. Then, insert the newly-specified work.
      *
-     * It is identical for `REPLACE`. But for readability reasons it is better to use
-     * `CANCEL_AND_REENQUEUE`, because for a reader the difference between `REPLACE` vs `UPDATED`
-     * is unclear.
+     * It is identical to `REPLACE`, but for readability reasons it is better to use
+     * `CANCEL_AND_REENQUEUE`, because the difference between `REPLACE` and `UPDATE`
+     * is unclear to the reader.
      */
     CANCEL_AND_REENQUEUE,
 }
