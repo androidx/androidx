@@ -53,9 +53,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    kspAndroidTest(
-            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-    )
+    kspAndroidTest(project(":room:room-compiler"))
     androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))

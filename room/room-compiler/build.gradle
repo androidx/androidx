@@ -48,10 +48,6 @@ configurations {
     // compiler tests run w/o shadowed classes so we should add those dependencies into test
     // configuration
     testCompile.extendsFrom(shadowed)
-    // for downstream tests, provide a configuration that includes the shadow output + other
-    // dependencies that are not shadowed
-    shadowAndImplementation.extendsFrom(shadow)
-    shadowAndImplementation.extendsFrom(implementation)
 }
 
 shadowJar {
