@@ -34,6 +34,7 @@ import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -79,7 +80,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
     private static final boolean VERBOSE = false;  // lots of logging
-    private static final double DIFFERENCE_TOLERANCE = .001;
     private static final boolean ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO = true;
 
     /** Test XMP value that is different to all the XMP values embedded in the test images. */
@@ -151,7 +151,7 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
         readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_byte_order_mm, "jpeg_with_exif_byte_order_mm.jpg");
         readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_MM);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_MM);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_MM);
     }
 
     @Test
@@ -171,7 +171,7 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
         readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
     }
 
     // https://issuetracker.google.com/309843390
@@ -230,7 +230,7 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.jpeg_with_exif_invalid_offset, "jpeg_with_exif_invalid_offset.jpg");
         readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_INVALID_OFFSET);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_INVALID_OFFSET);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_INVALID_OFFSET);
     }
 
     // https://issuetracker.google.com/263747161
@@ -273,15 +273,15 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.png_with_exif_byte_order_ii, "png_with_exif_byte_order_ii.png");
         readFromFilesWithExif(imageFile, ExpectedAttributes.PNG_WITH_EXIF_BYTE_ORDER_II);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.PNG_WITH_EXIF_BYTE_ORDER_II);
+        testWritingExif(imageFile, ExpectedAttributes.PNG_WITH_EXIF_BYTE_ORDER_II);
     }
 
     @Test
     @LargeTest
     public void testPngWithoutExif() throws Throwable {
         File imageFile =
-                copyFromResourceToFile(R.raw.png_with_exif_byte_order_ii, "png_without_exif.png");
-        writeToFilesWithoutExif(imageFile);
+                copyFromResourceToFile(R.raw.png_without_exif, "png_without_exif.png");
+        testWritingExif(imageFile, /* expectedAttributes= */ null);
     }
 
     @Test
@@ -309,7 +309,7 @@ public class ExifInterfaceTest {
     public void testWebpWithExif() throws Throwable {
         File imageFile = copyFromResourceToFile(R.raw.webp_with_exif, "webp_with_exif.jpg");
         readFromFilesWithExif(imageFile, ExpectedAttributes.WEBP_WITH_EXIF);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.WEBP_WITH_EXIF);
+        testWritingExif(imageFile, ExpectedAttributes.WEBP_WITH_EXIF);
     }
 
     // https://issuetracker.google.com/281638358
@@ -321,14 +321,14 @@ public class ExifInterfaceTest {
                         R.raw.invalid_webp_with_jpeg_app1_marker,
                         "invalid_webp_with_jpeg_app1_marker.webp");
         readFromFilesWithExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
-        writeToFilesWithExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
+        testWritingExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExif() throws Throwable {
         File imageFile = copyFromResourceToFile(R.raw.webp_without_exif, "webp_without_exif.webp");
-        writeToFilesWithoutExif(imageFile);
+        testWritingExif(imageFile, /* expectedAttributes= */ null);
     }
 
     @Test
@@ -337,7 +337,7 @@ public class ExifInterfaceTest {
         File imageFile =
                 copyFromResourceToFile(
                         R.raw.webp_with_anim_without_exif, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
-        writeToFilesWithoutExif(imageFile);
+        testWritingExif(imageFile, /* expectedAttributes= */ null);
     }
     @Test
     @LargeTest
@@ -345,7 +345,7 @@ public class ExifInterfaceTest {
         File imageFile =
                 copyFromResourceToFile(
                         R.raw.webp_lossless_without_exif, "webp_lossless_without_exif.webp");
-        writeToFilesWithoutExif(imageFile);
+        testWritingExif(imageFile, /* expectedAttributes= */ null);
     }
 
     @Test
@@ -355,7 +355,7 @@ public class ExifInterfaceTest {
                 copyFromResourceToFile(
                         R.raw.webp_lossless_alpha_without_exif,
                         "webp_lossless_alpha_without_exif.webp");
-        writeToFilesWithoutExif(imageFile);
+        testWritingExif(imageFile, /* expectedAttributes= */ null);
     }
 
     /**
@@ -1214,7 +1214,7 @@ public class ExifInterfaceTest {
         double[] latLong = exifInterface.getLatLong();
         if (expectedAttributes.hasLatLong) {
             expect.that(latLong)
-                    .usingTolerance(DIFFERENCE_TOLERANCE)
+                    .usingExactEquality()
                     .containsExactly(expectedAttributes.latitude, expectedAttributes.longitude)
                     .inOrder();
             expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)).isTrue();
@@ -1224,23 +1224,19 @@ public class ExifInterfaceTest {
             expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)).isFalse();
             expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE)).isFalse();
         }
-        expect.that(exifInterface.getAltitude(.0))
-                .isWithin(DIFFERENCE_TOLERANCE)
-                .of(expectedAttributes.altitude);
+        expect.that(exifInterface.getAltitude(.0)).isEqualTo(expectedAttributes.altitude);
 
         // Checks values.
         expectStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedAttributes.make);
         expectStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedAttributes.model);
         expect.that(exifInterface.getAttributeDouble(ExifInterface.TAG_F_NUMBER, 0.0))
-                .isWithin(DIFFERENCE_TOLERANCE)
-                .of(expectedAttributes.aperture);
+                .isEqualTo(expectedAttributes.aperture);
         expectStringTag(
                 exifInterface,
                 ExifInterface.TAG_DATETIME_ORIGINAL,
                 expectedAttributes.dateTimeOriginal);
         expect.that(exifInterface.getAttributeDouble(ExifInterface.TAG_EXPOSURE_TIME, 0.0))
-                .isWithin(DIFFERENCE_TOLERANCE)
-                .of(expectedAttributes.exposureTime);
+                .isEqualTo(expectedAttributes.exposureTime);
         expectStringTag(
                 exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedAttributes.focalLength);
         expectStringTag(
@@ -1436,7 +1432,15 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void writeToFilesWithExif(File srcFile, ExpectedAttributes expectedAttributes)
+    /**
+     * Copies {@code srcFile} to a new location, modifies the Exif data, and asserts the resulting
+     * file has the expected modifications.
+     *
+     * @param srcFile The file to copy and make changes to.
+     * @param expectedAttributes The expected Exif values already present in {@code srcFile}, or
+     *     {@code null} if none are present.
+     */
+    private void testWritingExif(File srcFile, @Nullable ExpectedAttributes expectedAttributes)
             throws IOException {
         expectSavingWithNoModificationsLeavesImageIntact(srcFile, expectedAttributes);
 
@@ -1468,7 +1472,7 @@ public class ExifInterfaceTest {
     }
 
     private void expectSavingWithNoModificationsLeavesImageIntact(
-            File srcFile, ExpectedAttributes expectedAttributes) throws IOException {
+            File srcFile, @Nullable ExpectedAttributes expectedAttributes) throws IOException {
         File imageFile = clone(srcFile);
         String verboseTag = imageFile.getName();
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
@@ -1476,7 +1480,9 @@ public class ExifInterfaceTest {
         exifInterface.saveAttributes();
 
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        if (expectedAttributes != null) {
+            compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        }
         expectBitmapsEquivalent(srcFile, imageFile);
         expectSecondSaveProducesSameSizeFile(imageFile);
     }
@@ -1484,7 +1490,7 @@ public class ExifInterfaceTest {
     private void expectSavingPersistsModifications(
             ExifInterfaceFactory exifInterfaceFactory,
             File srcFile,
-            ExpectedAttributes expectedAttributes)
+            @Nullable ExpectedAttributes expectedAttributes)
             throws IOException {
         File imageFile = clone(srcFile);
         String verboseTag = imageFile.getName();
@@ -1494,8 +1500,12 @@ public class ExifInterfaceTest {
         exifInterface.setAttribute(ExifInterface.TAG_XMP, TEST_XMP);
         exifInterface.saveAttributes();
 
+        ExpectedAttributes.Builder expectedAttributesBuilder =
+                expectedAttributes != null
+                        ? expectedAttributes.buildUpon()
+                        : new ExpectedAttributes.Builder();
         expectedAttributes =
-                expectedAttributes.buildUpon().setMake("abc").clearXmp().setXmp(TEST_XMP).build();
+                expectedAttributesBuilder.setMake("abc").clearXmp().setXmp(TEST_XMP).build();
 
         // Check expected modifications are visible without re-parsing the file.
         compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
@@ -1526,21 +1536,6 @@ public class ExifInterfaceTest {
 
         // Test for checking expected range by retrieving raw data with given offset and length.
         testExifInterfaceRange(imageFile, expectedAttributes);
-    }
-
-    private void writeToFilesWithoutExif(File srcFile) throws IOException {
-        File imageFile = clone(srcFile);
-
-        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
-        exifInterface.saveAttributes();
-
-        expectBitmapsEquivalent(srcFile, imageFile);
-        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
-        expect.that(make).isEqualTo("abc");
-
-        expectSecondSaveProducesSameSizeFile(imageFile);
     }
 
     /**
