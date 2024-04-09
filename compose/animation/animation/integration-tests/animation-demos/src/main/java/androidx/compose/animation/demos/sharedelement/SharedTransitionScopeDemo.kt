@@ -64,7 +64,7 @@ fun SharedElementDemos() {
         "FABInOverlay" to { SharedElementWithFABInOverlaySample() },
         "AnimatedContent" to { SharedElementInAnimatedContentSample() },
         "Text transform" to { TextSharedBoundsExperiments() },
-        "Shared Tool Bar" to { SharedToolBarDemo() },
+        "Nav Shared Tool Bar" to { NavigationWithSharedToolBarDemo() },
     )
 
     Column {

@@ -45,7 +45,7 @@ import androidx.navigation.compose.rememberNavController
 
 @Preview
 @Composable
-fun SharedToolBarDemo() {
+fun NavigationWithSharedToolBarDemo() {
     val navController = rememberNavController()
     SharedTransitionLayout {
         NavHost(navController, startDestination = "first") {
