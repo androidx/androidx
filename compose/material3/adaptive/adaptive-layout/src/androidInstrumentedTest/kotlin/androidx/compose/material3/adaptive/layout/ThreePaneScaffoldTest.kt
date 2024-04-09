@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Rule
@@ -168,14 +167,7 @@ class ThreePaneScaffoldTest {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockScaffoldDirective = PaneScaffoldDirective(
-    maxHorizontalPartitions = 1,
-    horizontalPartitionSpacerSize = 0.dp,
-    maxVerticalPartitions = 1,
-    verticalPartitionSpacerSize = 0.dp,
-    defaultPanePreferredWidth = 360.dp,
-    excludedBounds = emptyList()
-)
+private val MockScaffoldDirective = PaneScaffoldDirective.Default
 
 internal const val ThreePaneScaffoldTestTag = "SampleThreePaneScaffold"
 
