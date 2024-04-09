@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.ui.text.input
 
 import androidx.compose.runtime.saveable.SaverScope

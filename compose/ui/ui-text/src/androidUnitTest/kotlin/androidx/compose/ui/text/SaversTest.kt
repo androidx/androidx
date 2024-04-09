@@ -40,6 +40,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
+@Suppress("Deprecation")
 class SaversTest {
     private val defaultSaverScope = SaverScope { true }
 
