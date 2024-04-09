@@ -255,7 +255,9 @@ private fun rememberLazyGridMeasurePolicy(
                 crossAxisSize: Int,
                 mainAxisSpacing: Int,
                 placeables: List<Placeable>,
-                constraints: Constraints
+                constraints: Constraints,
+                lane: Int,
+                span: Int
             ) = LazyGridMeasuredItem(
                 index = index,
                 key = key,
@@ -270,8 +272,9 @@ private fun rememberLazyGridMeasurePolicy(
                 placeables = placeables,
                 contentType = contentType,
                 animator = state.itemAnimator,
-                spanLayoutProvider = spanLayoutProvider,
-                constraints = constraints
+                constraints = constraints,
+                lane = lane,
+                span = span
             )
         }
         val measuredLineProvider = object : LazyGridMeasuredLineProvider(

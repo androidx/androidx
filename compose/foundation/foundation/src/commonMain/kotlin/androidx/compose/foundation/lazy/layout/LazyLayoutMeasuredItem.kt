@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 
 internal interface LazyLayoutMeasuredItem {
-    val line: Int
     val index: Int
     val key: Any
     val isVertical: Boolean
@@ -28,11 +27,13 @@ internal interface LazyLayoutMeasuredItem {
     val placeablesCount: Int
     var nonScrollableItem: Boolean
     val constraints: Constraints
+    val lane: Int
+    val span: Int
     fun getOffset(index: Int): IntOffset
     fun position(mainAxisOffset: Int, crossAxisOffset: Int, layoutWidth: Int, layoutHeight: Int)
     fun getParentData(index: Int): Any?
 }
 
 internal interface LazyLayoutMeasuredItemProvider<T : LazyLayoutMeasuredItem> {
-    fun getAndMeasure(index: Int, constraints: Constraints): T
+    fun getAndMeasure(index: Int, lane: Int, span: Int, constraints: Constraints): T
 }

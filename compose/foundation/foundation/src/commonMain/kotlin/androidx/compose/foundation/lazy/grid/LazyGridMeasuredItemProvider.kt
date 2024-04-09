@@ -32,8 +32,19 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
     private val measureScope: LazyLayoutMeasureScope,
     private val defaultMainAxisSpacing: Int
 ) : LazyLayoutMeasuredItemProvider<LazyGridMeasuredItem> {
-    override fun getAndMeasure(index: Int, constraints: Constraints): LazyGridMeasuredItem =
-        getAndMeasure(index, constraints, defaultMainAxisSpacing)
+    override fun getAndMeasure(
+        index: Int,
+        lane: Int,
+        span: Int,
+        constraints: Constraints
+    ): LazyGridMeasuredItem =
+        getAndMeasure(
+            index = index,
+            constraints = constraints,
+            lane = lane,
+            span = span,
+            mainAxisSpacing = defaultMainAxisSpacing
+        )
 
     /**
      * Used to subcompose individual items of lazy grids. Composed placeables will be measured
@@ -42,6 +53,8 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
     fun getAndMeasure(
         index: Int,
         constraints: Constraints,
+        lane: Int,
+        span: Int,
         mainAxisSpacing: Int
     ): LazyGridMeasuredItem {
         val key = itemProvider.getKey(index)
@@ -60,7 +73,9 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
             crossAxisSize,
             mainAxisSpacing,
             placeables,
-            constraints
+            constraints,
+            lane,
+            span
         )
     }
 
@@ -77,6 +92,8 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
         crossAxisSize: Int,
         mainAxisSpacing: Int,
         placeables: List<Placeable>,
-        constraints: Constraints
+        constraints: Constraints,
+        lane: Int,
+        span: Int
     ): LazyGridMeasuredItem
 }

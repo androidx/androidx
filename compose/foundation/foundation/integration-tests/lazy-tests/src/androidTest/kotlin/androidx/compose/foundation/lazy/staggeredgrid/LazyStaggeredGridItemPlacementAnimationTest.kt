@@ -21,7 +21,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,10 +63,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
+class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
 
     private val isVertical: Boolean get() = config.isVertical
     private val reverseLayout: Boolean get() = config.reverseLayout
@@ -688,15 +686,16 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         }
 
         onAnimationFrame { fraction ->
-            // item 8 moves to and item 1 moves from `-itemSize`, right before the start edge
+            // item 8 moves to and item 1 moves from `-itemSizePlusSpacing`,
+            // right before the start edge
             val item1Offset = AxisOffset(
                 0f,
-                -itemSize + (itemSize + itemSizePlusSpacing * 2) * fraction
+                -itemSizePlusSpacing + (itemSizePlusSpacing * 3) * fraction
             )
             val item8Offset = AxisOffset(
                 0f,
                 itemSizePlusSpacing * 2 -
-                    (itemSize + itemSizePlusSpacing * 2) * fraction
+                    (itemSizePlusSpacing * 3) * fraction
             )
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 if (item1Offset.mainAxis > -itemSize) {
@@ -1376,6 +1375,7 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         onAnimationFrame { fraction ->
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 add(0 to AxisOffset(0f, 0f))
+                // item 4 starts at gridSize
                 val item4MainAxis = gridSize - gridSize * fraction
                 if (item4MainAxis < gridSize) {
                     add(
@@ -1384,7 +1384,8 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
                 } else {
                     rule.onNodeWithTag("4").assertIsNotDisplayed()
                 }
-                val item6MainAxis = gridSize - (gridSize - itemSize) * fraction
+                // item 6 starts below item 4 (gridSize + itemSize for the size of 4th item)
+                val item6MainAxis = gridSize + itemSize - gridSize * fraction
                 if (item6MainAxis < gridSize) {
                     add(
                         6 to AxisOffset(0f, item6MainAxis)
@@ -1575,7 +1576,7 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
         }
 
         onAnimationFrame { fraction ->
-            // items 0 and 2 moves from and items 4 and 5 moves to `-itemSize`,
+            // items 0 and 1 moves from and items 4 and 5 moves to `-itemSize`,
             // right before the start edge
             val items0and1Offset = -itemSize + itemSize * 2 * fraction
             val items4and5Offset = itemSize - itemSize * 2 * fraction
@@ -2269,7 +2270,11 @@ class LazyStaggeredGridAnimateItemPlacementTest(private val config: Config) {
     ) {
         Box(
             if (animSpec != null) {
-                Modifier.animateItemPlacement(animSpec)
+                Modifier.animateItem(
+                    fadeInSpec = null,
+                    fadeOutSpec = null,
+                    placementSpec = animSpec
+                )
             } else {
                 Modifier
             }
