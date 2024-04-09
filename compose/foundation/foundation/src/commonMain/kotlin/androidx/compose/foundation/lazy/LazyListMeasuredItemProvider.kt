@@ -39,13 +39,17 @@ internal abstract class LazyListMeasuredItemProvider @ExperimentalFoundationApi 
         maxHeight = if (!isVertical) constraints.maxHeight else Constraints.Infinity
     )
 
-    fun getAndMeasure(index: Int): LazyListMeasuredItem = getAndMeasure(index, childConstraints)
+    override fun getAndMeasure(index: Int, lane: Int, span: Int, constraints: Constraints) =
+        getAndMeasure(index, constraints)
 
     /**
      * Used to subcompose items of lazy lists. Composed placeables will be measured with the
      * correct constraints and wrapped into [LazyListMeasuredItem].
      */
-    override fun getAndMeasure(index: Int, constraints: Constraints): LazyListMeasuredItem {
+    fun getAndMeasure(
+        index: Int,
+        constraints: Constraints = childConstraints
+    ): LazyListMeasuredItem {
         val key = itemProvider.getKey(index)
         val contentType = itemProvider.getContentType(index)
         val placeables = measureScope.measure(index, constraints)

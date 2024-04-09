@@ -28,6 +28,7 @@ import androidx.compose.foundation.scrollingContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -60,6 +61,7 @@ internal fun LazyStaggeredGrid(
 ) {
     val itemProviderLambda = rememberStaggeredGridItemProviderLambda(state, content)
     val coroutineScope = rememberCoroutineScope()
+    val graphicsContext = LocalGraphicsContext.current
     val measurePolicy = rememberStaggeredGridMeasurePolicy(
         state,
         itemProviderLambda,
@@ -70,6 +72,7 @@ internal fun LazyStaggeredGrid(
         crossAxisSpacing,
         coroutineScope,
         slots,
+        graphicsContext
     )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
@@ -92,6 +95,7 @@ internal fun LazyStaggeredGrid(
                 orientation = orientation,
                 enabled = userScrollEnabled
             )
+            .then(state.itemAnimator.modifier)
             .scrollingContainer(
                 state = state,
                 orientation = orientation,
