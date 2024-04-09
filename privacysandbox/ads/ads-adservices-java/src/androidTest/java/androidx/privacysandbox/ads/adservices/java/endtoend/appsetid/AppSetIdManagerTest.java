@@ -31,6 +31,7 @@ import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -75,6 +76,7 @@ public class AppSetIdManagerTest {
         mTestUtil.overrideAllowlists(false);
     }
 
+    @Ignore("Flaky test. b/316167204")
     @Test
     public void testAppSetId() throws Exception {
         // Skip the test if the right SDK extension is not present.
