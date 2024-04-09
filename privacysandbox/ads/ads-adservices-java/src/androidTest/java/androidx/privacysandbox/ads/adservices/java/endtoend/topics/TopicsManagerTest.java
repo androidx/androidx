@@ -89,7 +89,7 @@ public class TopicsManagerTest {
         mTestUtil.enableVerboseLogging();
 
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            mTestUtil.enableBackCompat();
+            mTestUtil.enableBackCompatOnS();
         }
     }
 
@@ -104,7 +104,7 @@ public class TopicsManagerTest {
         mTestUtil.enableEnrollmentCheck(false);
         mTestUtil.shouldForceUseBundledFiles(false);
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            mTestUtil.disableBackCompat();
+            mTestUtil.disableBackCompatOnS();
         }
     }
 

@@ -95,7 +95,9 @@ public class MeasurementManagerTest {
         mMeasurementManager =
                 MeasurementManagerFutures.from(ApplicationProvider.getApplicationContext());
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            mTestUtil.enableBackCompat();
+            mTestUtil.enableBackCompatOnS();
+        } else if (VersionCompatUtil.INSTANCE.isRWithMinExtServicesVersion(11)) {
+            mTestUtil.enableBackCompatOnR();
         }
 
         // Put in a short sleep to make sure the updated config propagates
@@ -112,7 +114,9 @@ public class MeasurementManagerTest {
         mTestUtil.overrideAdIdKillSwitch(false);
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("0");
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            mTestUtil.disableBackCompat();
+            mTestUtil.disableBackCompatOnS();
+        } else if (VersionCompatUtil.INSTANCE.isRWithMinExtServicesVersion(11)) {
+            mTestUtil.disableBackCompatOnR();
         }
 
         // Cool-off rate limiter
@@ -124,7 +128,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         assertThat(
                         mMeasurementManager
@@ -139,8 +145,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
-        // Skip the test if SDK extension 5 is not present.
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         SourceRegistrationRequest request =
                 new SourceRegistrationRequest.Builder(
@@ -154,7 +161,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         assertThat(mMeasurementManager.registerTriggerAsync(TRIGGER_REGISTRATION_URI).get())
                 .isNotNull();
@@ -165,7 +174,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         WebSourceParams webSourceParams = new WebSourceParams(SOURCE_REGISTRATION_URI, false);
 
@@ -187,7 +198,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         WebTriggerParams webTriggerParams = new WebTriggerParams(TRIGGER_REGISTRATION_URI, false);
         WebTriggerRegistrationRequest webTriggerRegistrationRequest =
@@ -222,7 +235,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -242,7 +257,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -265,7 +282,9 @@ public class MeasurementManagerTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion= */ 5, /* minExtServicesVersion= */ 9));
+                        /* minAdServicesVersion= */ 5,
+                        /* minExtServicesVersionS= */ 9,
+                        /* minExtServicesVersionR= */ 11));
 
         int result = mMeasurementManager.getMeasurementApiStatusAsync().get();
         assertThat(result).isEqualTo(1);

@@ -174,7 +174,7 @@ public class FledgeCtsDebuggableTest {
         testUtil.enforceFledgeJsIsolateMaxHeapSize(false);
 
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            testUtil.enableBackCompat();
+            testUtil.enableBackCompatOnS();
         }
     }
 
@@ -199,7 +199,7 @@ public class FledgeCtsDebuggableTest {
         testUtil.enforceFledgeJsIsolateMaxHeapSize(true);
 
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            testUtil.disableBackCompat();
+            testUtil.disableBackCompatOnS();
         }
     }
 
