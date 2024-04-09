@@ -166,7 +166,7 @@ public fun Switch(
  * [ToggleChip] or [SplitToggleChip].
  *
  * Example of a [ToggleChip] with [RadioButton] toggle control:
- * @sample androidx.wear.compose.material.samples.ToggleChipWithRadioButton
+ * @sample androidx.wear.compose.material.samples.SelectableChipWithRadioButton
  *
  * @param selected Boolean flag indicating whether this radio button is currently toggled on.
  * @param modifier Modifier to be applied to the radio button. This can be used to provide a
