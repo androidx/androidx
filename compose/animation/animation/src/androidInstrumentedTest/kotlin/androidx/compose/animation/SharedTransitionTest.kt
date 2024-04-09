@@ -37,11 +37,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
@@ -50,10 +52,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -2373,6 +2377,197 @@ class SharedTransitionTest {
                 rule.mainClock.advanceTimeByFrame()
             }
         }
+    }
+
+    @Test
+    fun testScaleTransitionInterruption() {
+        var showList by mutableStateOf(false)
+        var selected by mutableIntStateOf(1)
+        val scaleX = FloatArray(5) { 0f }
+        val scaleY = FloatArray(5) { 0f }
+        var detailScaleX: Float = 0f
+        var detailScaleY: Float = 0f
+        val boundsTransform = BoundsTransform { _, _ -> tween(160, easing = LinearEasing) }
+        rule.setContent {
+            SharedTransitionLayout {
+                AnimatedContent(targetState = showList,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() using null }
+                ) {
+                    if (it) {
+                        LazyColumn {
+                            repeat(5) { id ->
+                                item {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth()
+                                    ) {
+                                        Box(
+                                            Modifier
+                                                .sharedBounds(
+                                                    rememberSharedContentState(key = id),
+                                                    this@AnimatedContent,
+                                                    boundsTransform = boundsTransform
+                                                )
+                                                .size(200.dp, 50.dp)
+                                                .background(
+                                                    if (selected == id) Color.Red else Color.White
+                                                )
+                                                .onPlaced {
+                                                    val matrix = Matrix()
+                                                    it.transformFrom(
+                                                        it.parentLayoutCoordinates!!,
+                                                        matrix
+                                                    )
+                                                    scaleX[id] = matrix.values[Matrix.ScaleX]
+                                                    scaleY[id] = matrix.values[Matrix.ScaleY]
+                                                }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Box(Modifier.fillMaxSize()) {
+                            Box(
+                                Modifier
+                                    .sharedBounds(
+                                        rememberSharedContentState(key = selected),
+                                        this@AnimatedContent,
+                                        boundsTransform = boundsTransform
+                                    )
+                                    .size(100.dp)
+                                    .onPlaced {
+                                        val matrix = Matrix()
+                                        it.transformFrom(
+                                            it.parentLayoutCoordinates!!,
+                                            matrix
+                                        )
+                                        detailScaleX = matrix.values[Matrix.ScaleX]
+                                        detailScaleY = matrix.values[Matrix.ScaleY]
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(1f, detailScaleX)
+            assertEquals(1f, detailScaleY)
+        }
+        rule.mainClock.autoAdvance = false
+        // detail -> list -> detail interruption
+        showList = true
+        while (detailScaleX == 1f) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+        var lastDetailScaleX = detailScaleX
+        var lastListScaleX = scaleX[selected]
+
+        // Move forward 3 frames
+        repeat(6) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+            println("LTD, scaleX: ${scaleX[selected]}, detailX: $detailScaleX")
+            assertEquals(scaleX[selected], scaleY[selected])
+            assertEquals(detailScaleX, detailScaleY)
+
+            // Gradually decreasing with limited change
+            assertTrue(lastListScaleX - scaleX[selected] > 0.05f)
+            assertTrue(lastListScaleX - scaleX[selected] < 0.2f)
+            lastListScaleX = scaleX[selected]
+
+            // Gradually increasing with limited change
+            assertTrue(detailScaleX - lastDetailScaleX > 0.05f)
+            assertTrue(detailScaleX - lastDetailScaleX < 0.2f)
+            lastDetailScaleX = detailScaleX
+        }
+
+        // Interruption
+        selected = 3
+        showList = false
+
+        while (scaleX[selected] == 1f) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+        lastListScaleX = scaleX[selected]
+        lastDetailScaleX = detailScaleX
+
+        repeat(6) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(scaleX[selected], scaleY[selected])
+            assertEquals(detailScaleX, detailScaleY)
+
+            // Gradually increasing with limited change
+            assertTrue(scaleX[selected] - lastListScaleX > 0.05f)
+            assertTrue(scaleX[selected] - lastListScaleX < 0.2f)
+            lastListScaleX = scaleX[selected]
+
+            // Gradually decreasing with limited change
+            assertTrue(lastDetailScaleX - detailScaleX > 0.05f)
+            assertTrue(lastDetailScaleX - detailScaleX < 0.2f)
+            lastDetailScaleX = detailScaleX
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertEquals(1f, detailScaleX)
+        assertEquals(1f, detailScaleY)
+    }
+
+    @Test
+    fun testFoundMatchBeforeSharedContentComposed() {
+        var isSquare by mutableStateOf(true)
+        var box2Composed: Boolean = false
+        rule.setContent {
+            SharedTransitionLayout(
+                Modifier
+                    .testTag("scope")
+                    .background(Color.White)
+                    .padding(20.dp)
+            ) {
+                AnimatedContent(isSquare,
+                    transitionSpec =
+                    { EnterTransition.None togetherWith ExitTransition.None using null }
+                ) { isSquare ->
+                    if (isSquare) {
+                        Box(
+                            Modifier
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "test").also {
+                                        if (transition.currentState == transition.targetState) {
+                                            assertFalse(it.isMatchFound)
+                                        } else {
+                                            assertEquals(box2Composed, it.isMatchFound)
+                                        }
+                                    },
+                                    this,
+                                )
+                                .size(80.dp)
+                                .background(Color.Red)
+                        )
+                    } else {
+                        val key = rememberSharedContentState(key = "test")
+                        if (transition.currentState != transition.targetState) {
+                            // isMatchFound returns false when created, and next frame return true
+                            assertEquals(box2Composed, key.isMatchFound)
+                        }
+                        box2Composed = true
+                        Box(
+                            Modifier
+                                .sharedBounds(key, this)
+                                .size(40.dp, 160.dp)
+                                .background(Color.Gray)
+                        )
+                    }
+                }
+            }
+        }
+        isSquare = !isSquare
+        rule.waitForIdle()
     }
 }
 

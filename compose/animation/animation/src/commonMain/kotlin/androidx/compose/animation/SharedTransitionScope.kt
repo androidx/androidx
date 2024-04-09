@@ -538,30 +538,38 @@ class SharedTransitionScope internal constructor(
                 renderOnlyWhenVisible = false
             )
             .composed {
-                enter[ContentScaleTransitionEffect]?.isEnabled = {
-                    // Since we don't know if a match is found when this is composed,
-                    // we have to defer the decision to enable or disable content
-                    // scaling until later in the frame. This later time could be
-                    // later in the composition, or during measurement/placement from
-                    // subcomposition.
-                    sharedContentState.isMatchFound
-                }
-                exit[ContentScaleTransitionEffect]?.isEnabled = {
-                    sharedContentState.isMatchFound
-                }
+                // Track the active content scale. Only reset it when the animation is finished
+                // to avoid sudden change of content scale.
+                val activeContentScaleEffect: ContentScaleTransitionEffect? =
+                    animatedVisibilityScope.transition.trackActiveContentScaleEffect(
+                        enter = enter,
+                        exit = exit
+                    )
                 animatedVisibilityScope.transition
                     .createModifier(
                         enter = enter,
                         exit = exit,
-                        isEnabled = {
-                            // Since we don't know if a match is found when this is composed,
-                            // we have to defer the decision to enable or disable content
-                            // scaling until later in the frame. This later time could be
-                            // later in the composition, or during measurement/placement from
-                            // subcomposition.
-                            sharedContentState.isMatchFound
-                        },
+                        // Since we don't know if a match is found when this is composed,
+                        // we have to defer the decision to enable or disable content
+                        // scaling until later in the frame. This later time could be
+                        // later in the composition, or during measurement/placement from
+                        // subcomposition.
+                        isEnabled = { sharedContentState.isMatchFound },
                         label = "enter/exit for ${sharedContentState.key}"
+                    )
+                    .then(
+                        if (activeContentScaleEffect != null) {
+                            Modifier.createContentScaleModifier(activeContentScaleEffect) {
+                                // Since we don't know if a match is found when this is composed,
+                                // we have to defer the decision to enable or disable content
+                                // scaling until later in the frame. This later time could be
+                                // later in the composition, or during measurement/placement from
+                                // subcomposition.
+                                sharedContentState.isMatchFound
+                            }
+                        } else {
+                            Modifier
+                        }
                     )
             }
 
@@ -777,7 +785,7 @@ class SharedTransitionScope internal constructor(
          * the measure/layout pass, that's when [isMatchFound] will become true.
          */
         val isMatchFound: Boolean
-            get() = nonNullInternalState.sharedElement.foundMatch
+            get() = internalState?.sharedElement?.foundMatch ?: false
 
         /**
          * The resolved clip path in overlay based on the [OverlayClip] defined for the shared
@@ -1011,7 +1019,7 @@ class SharedTransitionScope internal constructor(
 
 private val DefaultEnabled: () -> Boolean = { true }
 
-internal fun Modifier.createContentScaleModifier(
+private fun Modifier.createContentScaleModifier(
     contentScaleTransitionEffect: ContentScaleTransitionEffect,
     isEnabled: () -> Boolean
 ): Modifier =
