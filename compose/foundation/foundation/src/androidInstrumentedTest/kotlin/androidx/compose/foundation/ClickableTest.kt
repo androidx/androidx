@@ -29,6 +29,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -106,6 +107,8 @@ import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
@@ -1343,12 +1346,16 @@ class ClickableTest {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
-                    if (event.type == PointerEventType.Press) {
-                        onPress()
-                    } else if (event.type == PointerEventType.Move) {
-                        onMove()
-                    } else if (event.type == PointerEventType.Release) {
-                        onRelease()
+                    when (event.type) {
+                        PointerEventType.Press -> {
+                            onPress()
+                        }
+                        PointerEventType.Move -> {
+                            onMove()
+                        }
+                        PointerEventType.Release -> {
+                            onRelease()
+                        }
                     }
                 }
             }
@@ -2015,6 +2022,438 @@ class ClickableTest {
         rule.runOnIdle {
             assertEquals(2, clickableClickCounter)
             assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    /* Tests dynamically adding a pointer input AFTER an existing pointer input DURING an
+     * event stream (specifically, Hover).
+     * Hover is the only scenario where you can add a new pointer input modifier during the event
+     * stream AND receive events in the same active stream from that new pointer input modifier.
+     * It isn't possible in the down/up scenario because you add the new modifier during the down
+     * but you don't get another down until the next event stream.
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierHoverMouse_addsBelowPointerInputWithUnitKey_triggersBothModifiers() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    },
+                    onRelease = {
+                        dynamicReleaseCounter++
+                    }
+                )
+            )
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            press()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            assertTrue(activateDynamicPointerInput)
+            release()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(4, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* This is the same as the test above, but
+     *   1. Using pointer input
+     *   2. It enables the dynamic pointer input and starts the hover event stream with
+     *      performMouseInput { click() }
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierIncompleteMouse_addsBelowPointerInputUnitKey_triggersBothModifiers() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    },
+                    onRelease = {
+                        dynamicReleaseCounter++
+                    }
+                )
+            )
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // click() as of today triggers only two MotionEvents (Press and Release) where hardware
+            // would trigger enter with Press and exit with Release. Either way, Compose recognizes
+            // this is a mouse input, so it creates an Enter before the press. (It won't create
+            // an exit until the mouse hovers outside the area OR a press happens outside the area.)
+            assertEquals(3, originalPointerInputEventCounter) // Enter, Press, Release
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // Because the mouse is still within the box area, Compose doesn't need to trigger an
+            // Exit. Instead, it just triggers two events (Press and Release) which is why the
+            // total is only 5.
+            assertEquals(5, originalPointerInputEventCounter) // Press, Release
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* This is the same as the test above, but with nested boxes:
+     *   1. Using pointer input
+     *   2. It enables the dynamic pointer input and starts the hover event stream with
+     *      performMouseInput { click() }
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBoxIncompleteMouse_addsBelowPointerInputUnitKey_triggersBothModifiers() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                awaitPointerEvent()
+                                originalPointerInputEventCounter++
+                                activateDynamicPointerInput = true
+                            }
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onPress = {
+                            dynamicPressCounter++
+                        },
+                        onRelease = {
+                            dynamicReleaseCounter++
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // click() as of today triggers only two MotionEvents (Press and Release) where hardware
+            // would trigger enter with Press and exit with Release. Either way, Compose recognizes
+            // this is a mouse input, so it creates an Enter before the press. (It won't create
+            // an exit until the mouse hovers outside the area OR a press happens outside the area.)
+            assertEquals(3, originalPointerInputEventCounter) // Enter, Press, Release
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // Because the mouse is still within the box area (at first), Compose doesn't need to
+            // trigger Exit. However, because after the release event is done, the event is passed
+            // on to a separate box (new dynamic one), Compose triggers exit. Thus, the total is 6.
+            assertEquals(6, originalPointerInputEventCounter) // Press, Release, Exit
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* This is the same as the test above, but with nested boxes and toggles pointer input on/off:
+     *   1. Using pointer input
+     *   2. It enables the dynamic pointer input and starts the hover event stream with
+     *      performMouseInput { click() }
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputToggleNestedBoxIncompleteMouse_addsBelowPointerInputUnitKey_triggersProperly() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                originalPointerInputEventCounter++
+
+                                // Note: We only set the activateDynamicPointerInput to true on
+                                // Release because we do not want it set on just any event.
+                                // Specifically, we do not want it set on Exit, because, in the
+                                // case of this event, the exit will be triggered around the same
+                                // time as the other dynamic pointer input receives a press (when
+                                // it is enabled) because, as soon as that gets that event, Compose
+                                // sees this box no longer the hit target (the box with the dynamic
+                                // pointer input is now), so it triggers an exit on this original
+                                // non-dynamic pointer input. If we allowed
+                                // activateDynamicPointerInput to be set during any event, it would
+                                // undo us setting activateDynamicPointerInput to false in the other
+                                // pointer input handler.
+                                if (event.type == PointerEventType.Release) {
+                                    activateDynamicPointerInput = true
+                                }
+                            }
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onPress = {
+                            dynamicPressCounter++
+                        },
+                        onRelease = {
+                            dynamicReleaseCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // click() as of today triggers only two MotionEvents (Press and Release) where hardware
+            // would trigger enter with Press and exit with Release. Either way, Compose recognizes
+            // this is a mouse input, so it creates an Enter before the press. (It won't create
+            // an exit until the mouse hovers outside the area OR a press happens outside the area.)
+            assertEquals(3, originalPointerInputEventCounter) // Enter, Press, Release
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // Because the mouse is still within the box area (at first), Compose doesn't need to
+            // trigger Exit. However, because after the release event is done, the event is passed
+            // on to a separate box (new dynamic one), Compose triggers exit. Thus, the total is 6.
+            assertEquals(6, originalPointerInputEventCounter) // Press, Release, Exit
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* This is the same as the test above, but it uses Foundation's detectTapGestures{} for the
+     * the first pointer input and lower level pointer input commands for the second.
+     *   1. Using pointer input
+     *   2. It enables the dynamic pointer input and starts the hover event stream with
+     *      performMouseInput { click() }
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputToggleNestedBoxFoundationWithMouse_addsBelowWithUnitKey_triggersProperly() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        detectTapGestures {
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onPress = {
+                            dynamicPressCounter++
+                        },
+                        onRelease = {
+                            dynamicReleaseCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
         }
     }
 
