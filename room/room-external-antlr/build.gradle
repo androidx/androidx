@@ -31,21 +31,30 @@ plugins {
 
 repackage {
     addRelocation {
-        sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.wear.protolayout.protobuf"
+        sourcePackage = "org.antlr"
+        targetPackage = "androidx.room.jarjarred.org.antlr"
     }
-    artifactId = "protolayout-external-protobuf"
+    addRelocation {
+        sourcePackage = "org.stringtemplate"
+        targetPackage =  "androidx.room.jarjarred.org.stringtemplate"
+    }
+    artifactId = "room-external-antlr"
 }
 
 dependencies {
-    repackage(libs.protobufLite)
+    repackage(libs.antlr4) {
+        // antlr has dependencies on unrelated projects for its gui stuff, do not include them
+        exclude group: "org.abego.treelayout"
+        exclude group: "com.ibm.icu"
+        exclude group: "org.glassfish"
+    }
 }
 
 androidx {
-    name = "androidx.wear.protolayout:protolayout-external-protobuf"
     type = LibraryType.PUBLISHED_LIBRARY
+    name = "Room External Antlr"
     inceptionYear = "2024"
-    description =  "Repackaged proto-lite dependency for use by wear"
+    description =  "Repackaged antlr dependency for use by Room"
     doNotDocumentReason = "Repackaging only"
     license.name = "BSD-3-Clause"
     license.url = "https://opensource.org/licenses/BSD-3-Clause"

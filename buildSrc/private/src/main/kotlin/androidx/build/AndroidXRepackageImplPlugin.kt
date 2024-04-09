@@ -17,15 +17,15 @@
 package androidx.build
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import groovy.lang.Closure
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaLibraryPlugin
-import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.create
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 
 /**
  * Plugin responsible for repackaging libraries. The plugin repackages what is set in the
@@ -37,18 +37,19 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val relocationExtension =
-            project.extensions.create<RelocationExtension>(EXTENSION_NAME)
+            project.extensions.create<RelocationExtension>(EXTENSION_NAME, project)
         project.plugins.configureEach { plugin ->
             when (plugin) {
-                is JavaLibraryPlugin -> project.configureJavaLibrary(relocationExtension)
+                is JavaLibraryPlugin, is KotlinBasePlugin ->
+                    project.configureJavaOrKotlinLibrary(relocationExtension)
             }
         }
     }
 
-    private fun Project.configureJavaLibrary(relocationExtension: RelocationExtension) {
+    private fun Project.configureJavaOrKotlinLibrary(relocationExtension: RelocationExtension) {
         createConfigurations()
 
-        val javaExtension = extensions.findByType(JavaPluginExtension::class.java)
+        val sourceSets = extensions.getByType(SourceSetContainer::class.java)
         val libraryShadowJar = tasks.register(
             "shadowLibraryJar", ShadowJar::class.java
         ) { task ->
@@ -57,14 +58,16 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
                     dropResourcesWithSuffix = ".proto"
                 }
             )
-            task.from(javaExtension?.sourceSets?.findByName("main")?.output)
+            task.from(sourceSets.findByName("main")?.output)
         }
 
         afterEvaluate {
-            val relocateFrom = relocationExtension.sourcePackage
-            val relocateTo = relocationExtension.targetPackage
             val artifactIdForPublish = relocationExtension.artifactId
-            libraryShadowJar.configure { it.relocate(relocateFrom, relocateTo) }
+            libraryShadowJar.configure { task ->
+                relocationExtension.getRelocations().forEach {
+                    task.relocate(it.sourcePackage, it.targetPackage)
+                }
+            }
 
             artifactIdForPublish?.let {
                 libraryShadowJar.configure {
@@ -109,10 +112,8 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
      * that creates the shadowed library as that would result in a circular dependency.
      */
     private fun Project.forceJarUsageForAndroid() =
-        configurations.getByName("runtimeElements").outgoing.apply {
-            variants.getByName("classes").attributes {
-                it.attribute(ARTIFACT_TYPE_ATTRIBUTE, "doNotUse")
-            }
+        configurations.getByName("runtimeElements").outgoing.variants.removeIf {
+            it.name == "classes"
         }
 
     private fun Project.addArchiveToVariants(task: TaskProvider<ShadowJar>) =
@@ -129,12 +130,27 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
     }
 }
 
-abstract class RelocationExtension : ExtensionAware {
+class Relocation {
     /* The package name and any import statements for a class that are to be relocated. */
     var sourcePackage: String? = null
 
     /* The package name and any import statements for a class to which they should be relocated. */
     var targetPackage: String? = null
+}
+
+abstract class RelocationExtension(val project: Project) {
+
+    private var relocations: MutableCollection<Relocation> = ArrayList()
+
+    fun addRelocation(closure: Closure<Any>): Relocation {
+        val relocation = project.configure(Relocation(), closure) as Relocation
+        relocations.add(relocation)
+        return relocation
+    }
+
+    fun getRelocations(): Collection<Relocation> {
+        return relocations
+    }
 
     /* Optional artifact id if the user wants to publish the dependency in the shadowed config. */
     var artifactId: String? = null

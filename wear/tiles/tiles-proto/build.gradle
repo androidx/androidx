@@ -24,10 +24,12 @@ plugins {
     id("com.google.protobuf")
 }
 
-// Must match what is in wear/protolayout/protolayout-external-protobuf/build.gradle
 repackage {
-    sourcePackage = "com.google.protobuf"
-    targetPackage = "androidx.wear.protolayout.protobuf"
+    // Must match what is in wear/protolayout/protolayout-external-protobuf/build.gradle
+    addRelocation {
+        sourcePackage = "com.google.protobuf"
+        targetPackage =  "androidx.wear.protolayout.protobuf"
+    }
 }
 
 dependencies {
