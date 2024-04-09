@@ -17,6 +17,8 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.contextmenu.ContextMenuColors
+import androidx.compose.foundation.contextmenu.LocalContextMenuColors
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
@@ -57,6 +59,7 @@ fun MaterialTheme(
 ) {
     val rippleIndication = rippleOrFallbackImplementation()
     val selectionColors = rememberTextSelectionColors(colorScheme)
+    val contextMenuColors = rememberContextMenuColors(colorScheme)
     @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColorScheme provides colorScheme,
@@ -66,6 +69,7 @@ fun MaterialTheme(
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
+        LocalContextMenuColors provides contextMenuColors,
     ) {
         ProvideTextStyle(value = typography.bodyLarge, content = content)
     }
@@ -115,3 +119,33 @@ internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectio
 
 /*@VisibleForTesting*/
 internal const val TextSelectionBackgroundOpacity = 0.4f
+
+/** See [the spec](https://m3.material.io/components/menus/specs). */
+/*@VisibleForTesting*/
+internal const val DisabledContextMenuContentOpacity = 0.38f
+
+/**
+ * Remembers a [ContextMenuColors] based on [colorScheme].
+ *
+ * The background color will be [ColorScheme.surfaceContainer], the text color will be
+ * [ColorScheme.onSurface], the icon color will be [ColorScheme.onSurfaceVariant],
+ * and the disabled text/icon colors will be the same as the text color with the
+ * opacity of [DisabledContextMenuContentOpacity] applied.
+ * This matches [DropdownMenuContent] and [DropdownMenuItemContent].
+ */
+@Composable
+private fun rememberContextMenuColors(colorScheme: ColorScheme): ContextMenuColors {
+    val backgroundColor = colorScheme.surfaceContainer
+    val textColor = colorScheme.onSurface
+    val iconColor = colorScheme.onSurfaceVariant
+    return remember(backgroundColor, textColor, iconColor) {
+        val disabledColor = textColor.copy(alpha = DisabledContextMenuContentOpacity)
+        ContextMenuColors(
+            backgroundColor = backgroundColor,
+            textColor = textColor,
+            iconColor = iconColor,
+            disabledTextColor = disabledColor,
+            disabledIconColor = disabledColor,
+        )
+    }
+}
