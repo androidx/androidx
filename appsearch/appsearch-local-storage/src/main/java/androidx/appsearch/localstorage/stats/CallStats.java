@@ -45,6 +45,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CallStats {
+    /** Call types. */
     @IntDef(value = {
             CALL_TYPE_UNKNOWN,
             CALL_TYPE_INITIALIZE,

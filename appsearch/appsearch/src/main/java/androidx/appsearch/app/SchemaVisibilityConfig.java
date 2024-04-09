@@ -132,8 +132,12 @@ public final class SchemaVisibilityConfig extends AbstractSafeParcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SchemaVisibilityConfig)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SchemaVisibilityConfig)) {
+            return false;
+        }
         SchemaVisibilityConfig that = (SchemaVisibilityConfig) o;
         return Objects.equals(mAllowedPackages, that.mAllowedPackages)
                 && Objects.equals(mRequiredPermissions, that.mRequiredPermissions)

@@ -75,8 +75,12 @@ public class ObserverManager {
 
         @Override
         public boolean equals(@Nullable Object o) {
-            if (this == o) return true;
-            if (!(o instanceof DocumentChangeGroupKey)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DocumentChangeGroupKey)) {
+                return false;
+            }
             DocumentChangeGroupKey that = (DocumentChangeGroupKey) o;
             return mPackageName.equals(that.mPackageName)
                     && mDatabaseName.equals(that.mDatabaseName)

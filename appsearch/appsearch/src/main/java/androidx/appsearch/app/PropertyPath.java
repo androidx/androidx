@@ -211,9 +211,15 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
 
     @Override
     public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        if (!(o instanceof PropertyPath)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof PropertyPath)) {
+            return false;
+        }
         PropertyPath that = (PropertyPath) o;
         return ObjectsCompat.equals(mPathList, that.mPathList);
     }
@@ -320,9 +326,15 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
 
         @Override
         public boolean equals(@Nullable Object o) {
-            if (this == o) return true;
-            if (o == null) return false;
-            if (!(o instanceof PathSegment)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null) {
+                return false;
+            }
+            if (!(o instanceof PathSegment)) {
+                return false;
+            }
             PathSegment that = (PathSegment) o;
             return mPropertyIndex == that.mPropertyIndex
                     && mPropertyName.equals(that.mPropertyName);

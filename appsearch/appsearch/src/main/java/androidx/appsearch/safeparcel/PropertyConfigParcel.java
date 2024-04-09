@@ -636,7 +636,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
     @SafeParcelable.Class(creator = "EmbeddingIndexingConfigParcelCreator")
     public static class EmbeddingIndexingConfigParcel extends AbstractSafeParcelable {
         @NonNull
-        public static final EmbeddingIndexingConfigParcelCreator CREATOR =
+        public static final Parcelable.Creator<EmbeddingIndexingConfigParcel> CREATOR =
                 new EmbeddingIndexingConfigParcelCreator();
 
         @AppSearchSchema.EmbeddingPropertyConfig.IndexingType
