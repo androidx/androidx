@@ -162,9 +162,16 @@ internal class TextFieldCoreModifierNode(
      * visible area. The following member variables keep track of the latest selection and cursor
      * positions that we have adjusted for. When we detect a change to both of them during the
      * layout phase, ScrollState gets adjusted.
+     * The same is also true when text layout size changes. For example when a new line is entered
+     * that makes the decoration box bigger, this first triggers a cursor change without updating
+     * the layout values. In this case we cannot scroll to the new line because we don't know the
+     * new size. Immediately after, the new layout size is reported but as far as we know, we
+     * already reacted to the cursor change so we shouldn't scroll. Thus, it also makes sense to
+     * check whether layout size is changed between calls to bring cursor into view.
      */
     private var previousSelection: TextRange? = null
     private var previousCursorRect: Rect = Rect(-1f, -1f, -1f, -1f)
+    private var previousTextLayoutSize: Int = 0
 
     private val textFieldMagnifierNode = delegate(
         textFieldMagnifierNode(
@@ -281,20 +288,12 @@ internal class TextFieldCoreModifierNode(
         return layout(placeable.width, height) {
             // we may need to update the scroll state to bring the cursor back into view after
             // layout is completed.
-            val currSelection = textFieldState.visualText.selection
-            val offsetToFollow = calculateOffsetToFollow(currSelection)
-
             updateScrollState(
-                offsetToFollow = offsetToFollow,
                 containerSize = height,
-                textFieldSize = placeable.height,
+                textLayoutSize = placeable.height,
+                currSelection = textFieldState.visualText.selection,
                 layoutDirection = layoutDirection
             )
-
-            // only update the previous selection if this node is focused.
-            if (isFocused) {
-                previousSelection = currSelection
-            }
 
             placeable.placeRelative(0, -scrollState.value)
         }
@@ -311,29 +310,28 @@ internal class TextFieldCoreModifierNode(
         return layout(width, placeable.height) {
             // we may need to update the scroll state to bring the cursor back into view before
             // layout is updated.
-            val currSelection = textFieldState.visualText.selection
-            val offsetToFollow = calculateOffsetToFollow(currSelection)
-
             updateScrollState(
-                offsetToFollow = offsetToFollow,
                 containerSize = width,
-                textFieldSize = placeable.width,
+                textLayoutSize = placeable.width,
+                currSelection = textFieldState.visualText.selection,
                 layoutDirection = layoutDirection
             )
-
-            // only update the previous selection if this node is focused.
-            if (isFocused) {
-                previousSelection = currSelection
-            }
 
             placeable.placeRelative(-scrollState.value, 0)
         }
     }
 
-    private fun calculateOffsetToFollow(currSelection: TextRange): Int {
+    /**
+     * Returns which offset to follow to bring into view.
+     */
+    private fun calculateOffsetToFollow(
+        currSelection: TextRange,
+        currTextLayoutSize: Int
+    ): Int {
         return when {
             currSelection.end != previousSelection?.end -> currSelection.end
             currSelection.start != previousSelection?.start -> currSelection.start
+            currTextLayoutSize != previousTextLayoutSize -> currSelection.start
             else -> -1
         }
     }
@@ -342,45 +340,44 @@ internal class TextFieldCoreModifierNode(
      * Updates the scroll state to make sure cursor is visible after text content, selection, or
      * layout changes. Only scroll changes won't trigger this.
      *
-     * @param offsetToFollow The index of the character that needs to be followed and scrolled into
-     * view.
      * @param containerSize Either height or width of scrollable host, depending on scroll
      * orientation.
-     * @param textFieldSize Either height or width of scrollable text field content, depending on
+     * @param textLayoutSize Either height or width of scrollable text field content, depending on
      * scroll orientation.
+     * @param currSelection The current selection to cache if this function ends up scrolling to
+     * bring the cursor or selection into view.
      */
     private fun Density.updateScrollState(
-        offsetToFollow: Int,
         containerSize: Int,
-        textFieldSize: Int,
+        textLayoutSize: Int,
+        currSelection: TextRange,
         layoutDirection: LayoutDirection
     ) {
+        // update the maximum scroll value
+        val difference = textLayoutSize - containerSize
+        scrollState.maxValue = difference
+
+        // figure out if and which offset is going to be scrolled into view
+        val offsetToFollow = calculateOffsetToFollow(currSelection, textLayoutSize)
+
+        // if the cursor is not showing or there's no offset to be followed, we can return early.
+        if (offsetToFollow < 0 || !showCursor) return
+
         val layoutResult = textLayoutState.layoutResult ?: return
+
         val rawCursorRect = layoutResult.getCursorRect(
             offsetToFollow.coerceIn(0..layoutResult.layoutInput.text.length)
         )
+        val cursorRect = getCursorRectInScroller(
+            cursorRect = rawCursorRect,
+            rtl = layoutDirection == LayoutDirection.Rtl,
+            textLayoutSize = textLayoutSize
+        )
 
-        val cursorRect = if (offsetToFollow >= 0) {
-            getCursorRectInScroller(
-                cursorRect = rawCursorRect,
-                rtl = layoutDirection == LayoutDirection.Rtl,
-                textFieldWidth = textFieldSize
-            )
-        } else {
-            null
-        }
-
-        // update the maximum scroll value
-        val difference = textFieldSize - containerSize
-        scrollState.maxValue = difference
-
-        // if the cursor is not showing, we don't have to update the scroll state for the cursor
-        // if there is no rect area to bring into view, we can early return.
-        if (!showCursor || cursorRect == null) return
-
-        // Check if cursor has actually changed its location
+        // Check if cursor's location or text layout size was changed compared to the previous run.
         if (cursorRect.left != previousCursorRect.left ||
-            cursorRect.top != previousCursorRect.top) {
+            cursorRect.top != previousCursorRect.top ||
+            textLayoutSize != previousTextLayoutSize) {
             val vertical = orientation == Orientation.Vertical
             val cursorStart = if (vertical) cursorRect.top else cursorRect.left
             val cursorEnd = if (vertical) cursorRect.bottom else cursorRect.right
@@ -432,8 +429,12 @@ internal class TextFieldCoreModifierNode(
                 // otherwise keep current offset
                 else -> 0f
             }
+
+            previousSelection = currSelection
             previousCursorRect = cursorRect
-            // this call will respect the earlier set maxValue
+            previousTextLayoutSize = textLayoutSize
+
+            // this call will respect the earlier set [scrollState.maxValue]
             // no need to coerce again.
             // prefer to use immediate dispatch instead of suspending scroll calls
             coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -551,23 +552,23 @@ private val Brush.isSpecified: Boolean
  *
  * @param cursorRect Reported cursor rect by the text layout.
  * @param rtl True if layout direction is RightToLeft
- * @param textFieldWidth Total width of TextField composable
+ * @param textLayoutSize Total width of TextField composable
  */
 private fun Density.getCursorRectInScroller(
     cursorRect: Rect,
     rtl: Boolean,
-    textFieldWidth: Int
+    textLayoutSize: Int
 ): Rect {
     val thickness = DefaultCursorThickness.roundToPx()
 
     val cursorLeft = if (rtl) {
-        textFieldWidth - cursorRect.right
+        textLayoutSize - cursorRect.right
     } else {
         cursorRect.left
     }
 
     val cursorRight = if (rtl) {
-        textFieldWidth - cursorRect.right + thickness
+        textLayoutSize - cursorRect.right + thickness
     } else {
         cursorRect.left + thickness
     }

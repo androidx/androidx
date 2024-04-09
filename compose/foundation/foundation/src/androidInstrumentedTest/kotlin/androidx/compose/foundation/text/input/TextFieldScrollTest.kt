@@ -17,13 +17,13 @@
 package androidx.compose.foundation.text.input
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
@@ -86,7 +86,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class TextFieldScrollTest : FocusedWindowTest {
 
     private val TextfieldTag = "textField"
@@ -743,6 +742,47 @@ class TextFieldScrollTest : FocusedWindowTest {
         // Enter a newline, which will move the cursor to line 2 and grow the field to be 2 lines
         // tall. The second line will initially be hidden by the container, but should be scrolled
         // back into view.
+        rule.onNodeWithTag("field").performTextInput("\n")
+
+        rule.waitUntil(
+            "maxValue (${scrollState.maxValue} > 0 && " +
+                "scrollState.value (${scrollState.value}) == maxValue",
+            timeoutMillis = 10_000
+        ) {
+            val maxValue = scrollState.maxValue
+            maxValue > 0 && scrollState.value == maxValue
+        }
+    }
+
+    @Test
+    fun cursorScrolledIntoViewWhenTyping_inDecoration_withMaxLineLimit_whenFieldExpands() {
+        val state = TextFieldState()
+        val scrollState = ScrollState(0)
+        rule.setContent {
+            BasicTextField(
+                state,
+                lineLimits = MultiLine(maxHeightInLines = 3),
+                modifier = Modifier
+                    .testTag("field")
+                    .border(1.dp, Color.Blue),
+                scrollState = scrollState,
+                decorator = {
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        it()
+                    }
+                }
+            )
+        }
+        // Enter 3 lines which will grow the TextField to its maximum allowed height in lines.
+        // Then we will enter a new line character and expect the field to auto-scroll its maximum
+        // value.
+        rule.onNodeWithTag("field").performTextInput("a\na\na")
+
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(0)
+            assertThat(scrollState.maxValue).isEqualTo(0)
+        }
+
         rule.onNodeWithTag("field").performTextInput("\n")
 
         rule.waitUntil(
