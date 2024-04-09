@@ -89,7 +89,7 @@ object ProcessorErrors {
     }
 
     fun primaryKeyColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
-        return "$columnName referenced in the primary key does not exists in the Entity." +
+        return "$columnName referenced in the primary key does not exist in the Entity." +
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
@@ -389,7 +389,7 @@ object ProcessorErrors {
     val INDEX_COLUMNS_CANNOT_BE_EMPTY = "List of columns in an index cannot be empty"
 
     fun indexColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
-        return "$columnName referenced in the index does not exists in the Entity." +
+        return "$columnName referenced in the index does not exist in the Entity." +
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
@@ -554,7 +554,7 @@ object ProcessorErrors {
     val FOREIGN_KEY_CANNOT_FIND_PARENT = "Cannot find parent entity class."
 
     fun foreignKeyChildColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
-        return "($columnName) referenced in the foreign key does not exists in the Entity." +
+        return "($columnName) referenced in the foreign key does not exist in the Entity." +
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
