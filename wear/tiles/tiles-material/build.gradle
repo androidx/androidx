@@ -44,8 +44,6 @@ dependencies {
     androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:tiles:tiles-renderer"))
-    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
-    androidTestImplementation(libs.protobuf)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

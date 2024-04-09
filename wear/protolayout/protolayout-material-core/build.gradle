@@ -44,7 +44,7 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
     api(project(":wear:protolayout:protolayout"))
-    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

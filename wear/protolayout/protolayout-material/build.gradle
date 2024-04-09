@@ -35,7 +35,7 @@ dependencies {
     api(project(":wear:protolayout:protolayout"))
 
     implementation(project(":wear:protolayout:protolayout-material-core"))
-    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
     implementation("androidx.annotation:annotation-experimental:1.4.0")
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))
@@ -50,8 +50,6 @@ dependencies {
     androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
-    androidTestRuntimeOnly(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
-    androidTestImplementation(libs.protobuf)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

@@ -500,11 +500,12 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
     pom.inceptionYear.set(provider { extension.inceptionYear })
     pom.licenses { licenses ->
         licenses.license { license ->
-            license.name.set("The Apache Software License, Version 2.0")
-            license.url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            license.name.set(extension.license.name)
+            license.url.set(extension.license.url)
             license.distribution.set("repo")
         }
-        for (extraLicense in extension.getLicenses()) {
+
+        for (extraLicense in extension.getExtraLicenses()) {
             licenses.license { license ->
                 license.name.set(provider { extraLicense.name })
                 license.url.set(provider { extraLicense.url })

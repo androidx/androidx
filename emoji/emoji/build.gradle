@@ -68,12 +68,12 @@ androidx {
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
     metalavaK2UastEnabled = true
 
-    license {
+    extraLicense {
         name = "SIL Open Font License, Version 1.1"
         url = "https://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
-    license {
+    extraLicense {
         name = "Unicode, Inc. License"
         url = "https://www.unicode.org/license.html"
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,36 +22,29 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
-    id("com.android.library")
+    id("AndroidXRepackagePlugin")
+    id("java-library")
+}
+
+repackage {
+    sourcePackage = "com.google.protobuf"
+    targetPackage = "androidx.wear.protolayout.protobuf"
+    artifactId = "protolayout-external-protobuf"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-
-    api(project(":wear:protolayout:protolayout-expression"))
-    api(project(":wear:tiles:tiles"))
-    api("androidx.wear:wear-tooling-preview:1.0.0")
-    api("androidx.annotation:annotation:1.6.0")
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 26
-    }
-    namespace "androidx.wear.tiles.tooling.preview"
+    repackage(libs.protobufLite)
 }
 
 androidx {
-    name = "Android Wear Tiles Tooling"
+    name = "androidx.wear.protolayout:protolayout-external-protobuf"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    inceptionYear = "2023"
-    description = "Wear Tile tooling library. This library provides the API required to declare" +
-            " @Preview on previewable methods in the IDE."
-    metalavaK2UastEnabled = true
+    inceptionYear = "2024"
+    description =  "Repackaged proto-lite dependency for use by wear"
+    doNotDocumentReason = "Repackaging only"
+    license.name = "BSD-3-Clause"
+    license.url = "https://opensource.org/licenses/BSD-3-Clause"
 }

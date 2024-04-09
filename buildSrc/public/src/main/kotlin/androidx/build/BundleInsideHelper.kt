@@ -260,7 +260,7 @@ object BundleInsideHelper {
         return bundle
     }
 
-    internal class DontIncludeResourceTransformer : Transformer {
+    class DontIncludeResourceTransformer : Transformer {
         @Optional @Input var dropResourcesWithSuffix: String? = null
 
         override fun getName(): String {

@@ -34,7 +34,7 @@ dependencies {
     api(project(":wear:protolayout:protolayout-expression"))
 
     implementation("androidx.annotation:annotation-experimental:1.4.0")
-    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    implementation(project(":wear:protolayout:protolayout-proto"))
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))
     lintPublish(project(":wear:protolayout:protolayout-lint"))
