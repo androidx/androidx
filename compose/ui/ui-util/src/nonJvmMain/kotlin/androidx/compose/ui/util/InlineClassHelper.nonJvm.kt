@@ -16,10 +16,14 @@
 
 @file:Suppress("NOTHING_TO_INLINE")
 
-package androidx.compose.ui.graphics.vector
+package androidx.compose.ui.util
 
-// See explanation in FastFloatParser.kt
-internal actual inline fun floatFromBits(bits: Int): Float = Float.fromBits(bits)
+import kotlin.math.roundToInt
 
-internal actual inline fun doubleFromBits(bits: Long): Double =
-    Double.fromBits(bits)
+actual inline fun floatFromBits(bits: Int): Float = Float.fromBits(bits)
+
+actual inline fun doubleFromBits(bits: Long): Double = Double.fromBits(bits)
+
+actual inline fun Float.fastRoundToInt(): Int = roundToInt()
+
+actual inline fun Double.fastRoundToInt(): Int = roundToInt()
