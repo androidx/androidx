@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:compose/ui/ui-graphics/src/nativeMain/kotlin/androidx/compose/ui/ui-graphics/NativeImageAsset.native.kt
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Image
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.addressOf
 import platform.posix.memcpy
@@ -32,23 +29,3 @@ internal actual fun ByteArray.putBytesInto(array: IntArray, offset: Int, length:
     }
 }
 
-========
-// see ../playground-common/README.md for details on how this works
-pluginManagement {
-    apply from: "../../../playground-common/configure-plugin-management.gradle", to: it
-}
-plugins {
-    id "playground"
-}
-
-rootProject.name = "compose-runtime"
-
-playground {
-    setupPlayground("../../..")
-    selectProjectsFromAndroidX({ name ->
-        if (name == ":compose:runtime:runtime-tracing") return false
-        if (name.startsWith(":compose:runtime")) return true
-        return false
-    })
-}
->>>>>>>> 0937d2ba982eb98dce27aa3de5198c530e10d548:playground-projects/compose/runtime-playground/settings.gradle
