@@ -205,6 +205,7 @@ tasks.register("testComposeModules") { // used in https://github.com/JetBrains/a
 
 val mavenCentral = MavenCentralProperties(project)
 val mavenCentralGroup = project.providers.gradleProperty("maven.central.group")
+val mavenCentralStage = project.providers.gradleProperty("maven.central.stage")
 if (mavenCentral.signArtifacts) {
     signing.useInMemoryPgpKeys(
         mavenCentral.signArtifactsKey.get(),
@@ -255,7 +256,7 @@ val reuploadArtifactsToMavenCentral by tasks.registering(UploadToSonatypeTask::c
     user.set(mavenCentral.user)
     password.set(mavenCentral.password)
     autoCommitOnSuccess.set(mavenCentral.autoCommitOnSuccess)
-    stagingProfileName.set(mavenCentralGroup)
+    stagingProfileName.set(mavenCentralStage)
 }
 
 fun readComposeModules(
