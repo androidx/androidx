@@ -257,10 +257,6 @@ internal data class ContentScaleTransitionEffect(
     val contentScale: ContentScale,
     val alignment: Alignment,
 ) : TransitionEffect() {
-    var isEnabled: Transition<*>.() -> Boolean = {
-        currentState != targetState
-    }
-
     companion object Key :
         TransitionEffectKey<ContentScaleTransitionEffect>
 
@@ -872,13 +868,6 @@ internal fun Transition<EnterExitState>.createModifier(
     isEnabled: () -> Boolean = { true },
     label: String
 ): Modifier {
-
-    // Track the active content scale. Only reset it when the animation is finished
-    // to avoid sudden change of content scale.
-    val activeContentScaleEffect: ContentScaleTransitionEffect? = trackActiveContentScaleEffect(
-        enter = enter,
-        exit = exit
-    )
     val activeEnter = trackActiveEnter(enter = enter)
     val activeExit = trackActiveExit(exit = exit)
 
@@ -915,15 +904,6 @@ internal fun Transition<EnterExitState>.createModifier(
                 this, sizeAnimation, offsetAnimation, slideAnimation,
                 activeEnter, activeExit, isEnabled, graphicsLayerBlock
             )
-        )
-        .then(
-            if (activeContentScaleEffect != null) {
-                Modifier.createContentScaleModifier(activeContentScaleEffect) {
-                    activeContentScaleEffect.isEnabled(this)
-                }
-            } else {
-                Modifier
-            }
         )
 }
 
