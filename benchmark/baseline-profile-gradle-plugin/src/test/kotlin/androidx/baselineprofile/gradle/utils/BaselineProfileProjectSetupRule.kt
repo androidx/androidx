@@ -16,7 +16,7 @@
 
 package androidx.baselineprofile.gradle.utils
 
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_1
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.testing.platform.proto.api.core.LabelProto
 import com.google.testing.platform.proto.api.core.PathProto
@@ -227,7 +227,7 @@ class BaselineProfileProjectSetupRule(
         return if (
             consumer.isLibraryModule == false ||
             (consumer.isLibraryModule == true &&
-                forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_0))
+                forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_1))
         ) {
             File(
                 consumer.rootDir,
@@ -261,7 +261,7 @@ class BaselineProfileProjectSetupRule(
         // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
         // Before that, the folder was omitted in path.
         val taskNameFolder =
-            if (forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_0)) {
+            if (forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_1)) {
                 camelCase("merge", variantName, "artProfile")
             } else {
                 ""
