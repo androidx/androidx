@@ -48,36 +48,19 @@ import kotlin.jvm.JvmStatic
  * In these cases developers may wish to specify their own custom break points and match using
  * a `when` statement.
  *
- * @constructor the primary constructor taking the bounds of the size class.
- * @property widthDp the width in DP for the size class.
- * @property heightDp the height in DP for the size class.
- *
- * @throws IllegalArgumentException if [widthDp] or [heightDp] is negative.
- *
  * @see WindowWidthSizeClass
  * @see WindowHeightSizeClass
  */
-class WindowSizeClass(
-    val widthDp: Int,
-    val heightDp: Int
-) {
-
-    init {
-        require(widthDp >= 0) { "Must have non-negative widthDp: $widthDp." }
-        require(heightDp >= 0) { "Must have non-negative heightDp: $heightDp." }
-    }
-
+class WindowSizeClass private constructor(
     /**
-     * Returns the [WindowWidthSizeClass] that corresponds to the [widthDp].
+     * Returns the [WindowWidthSizeClass] that corresponds to the widthDp of the window.
      */
-    val windowWidthSizeClass: WindowWidthSizeClass
-        get() = WindowWidthSizeClass.compute(widthDp.toFloat())
-
+    val windowWidthSizeClass: WindowWidthSizeClass,
     /**
-     * Returns the [WindowHeightSizeClass] that corresponds to the [heightDp].
+     * Returns the [WindowHeightSizeClass] that corresponds to the heightDp of the window.
      */
     val windowHeightSizeClass: WindowHeightSizeClass
-        get() = WindowHeightSizeClass.compute(heightDp.toFloat())
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -85,21 +68,22 @@ class WindowSizeClass(
 
         other as WindowSizeClass
 
-        if (widthDp != other.widthDp) return false
-        if (heightDp != other.heightDp) return false
+        if (windowWidthSizeClass != other.windowWidthSizeClass) return false
+        if (windowHeightSizeClass != other.windowHeightSizeClass) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = widthDp.hashCode()
-        result = 31 * result + heightDp.hashCode()
+        var result = windowWidthSizeClass.hashCode()
+        result = 31 * result + windowHeightSizeClass.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "SizeClass { widthDp: $widthDp," +
-            " heightDp: $heightDp }"
+        return "WindowSizeClass {" +
+            "windowWidthSizeClass=$windowWidthSizeClass, " +
+            "windowHeightSizeClass=$windowHeightSizeClass }"
     }
 
     companion object {
@@ -109,23 +93,15 @@ class WindowSizeClass(
          * @param dpWidth width of a window in DP.
          * @param dpHeight height of a window in DP.
          * @return [WindowSizeClass] that is recommended for the given dimensions.
-         * @see [widestOrEqualWidthDp] for selecting from a custom set of [WindowSizeClass].
          * @throws IllegalArgumentException if [dpWidth] or [dpHeight] is
          * negative.
          */
         @JvmStatic
         fun compute(dpWidth: Float, dpHeight: Float): WindowSizeClass {
-            val widthDp = when {
-                dpWidth < 600 -> 0
-                dpWidth < 840 -> 600
-                else -> 840
-            }
-            val heightDp = when {
-                dpHeight < 480 -> 0
-                dpHeight < 900 -> 480
-                else -> 900
-            }
-            return WindowSizeClass(widthDp, heightDp)
+            return WindowSizeClass(
+                WindowWidthSizeClass.compute(dpWidth),
+                WindowHeightSizeClass.compute(dpHeight)
+            )
         }
 
         /**
