@@ -45,6 +45,7 @@ import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
 import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
+import androidx.health.services.client.impl.request.DebouncedGoalRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
@@ -438,6 +439,20 @@ class ServiceBackedExerciseClientTest {
 
         override fun removeGoalFromActiveExercise(
             request: ExerciseGoalRequest?,
+            statusCallback: IStatusCallback?
+        ) {
+            throw NotImplementedError()
+        }
+
+        override fun addDebouncedGoalToActiveExercise(
+            request: DebouncedGoalRequest?,
+            statusCallback: IStatusCallback?
+        ) {
+            throw NotImplementedError()
+        }
+
+        override fun removeDebouncedGoalFromActiveExercise(
+            request: DebouncedGoalRequest?,
             statusCallback: IStatusCallback?
         ) {
             throw NotImplementedError()
