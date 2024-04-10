@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.intl.Locale
 
 /**
- * It depends on the state of accessibility services to determine the current state of touch
- * exploration services.
+ * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
+ * the input format, and more.
+ */
+actual typealias CalendarLocale = Locale
+
+/**
+ * Returns the default [CalendarLocale].
  */
 @Composable
-internal actual fun touchExplorationState(): State<Boolean> {
-    return remember { derivedStateOf { false } }
-}
+@ReadOnlyComposable
+internal actual fun defaultLocale(): CalendarLocale = Locale.current

@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-import java.util.Locale
-import java.util.TimeZone
-
-actual fun calendarLocale(language : String, country : String) : CalendarLocale{
-    return Locale(language, country)
-}
-
-actual val supportsDateSkeleton: Boolean
-    get() = false
-
-actual fun setTimeZone(id: String) {
-    TimeZone.setDefault(TimeZone.getTimeZone(id))
-}
-
-actual fun getTimeZone(): String {
-    return TimeZone.getDefault().id
-}
+expect fun calendarLocale(language : String, country : String) : CalendarLocale

@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.text.intl.Locale
+import platform.Foundation.NSLocale
+import platform.Foundation.currentLocale
 
-/**
- * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
- * the input format, and more.
- */
-actual typealias CalendarLocale = Locale
 
-/**
- * Returns the default [CalendarLocale].
- */
+actual typealias CalendarLocale = NSLocale
+
 @Composable
 @ReadOnlyComposable
-internal actual fun defaultLocale(): CalendarLocale = Locale.current
+internal actual fun defaultLocale(): CalendarLocale = NSLocale.currentLocale()

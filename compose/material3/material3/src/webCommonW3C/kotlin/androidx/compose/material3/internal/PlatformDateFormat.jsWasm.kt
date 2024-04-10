@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 import androidx.compose.ui.text.intl.Locale
 import kotlinx.datetime.Instant

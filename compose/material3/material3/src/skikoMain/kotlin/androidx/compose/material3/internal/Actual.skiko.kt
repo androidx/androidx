@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
-import platform.Foundation.NSLocale
-import platform.Foundation.currentLocale
-
-
-actual typealias CalendarLocale = NSLocale
-
-@Composable
-@ReadOnlyComposable
-internal actual fun defaultLocale(): CalendarLocale = NSLocale.currentLocale()
+/**
+ * Returns a string representation of an integer for the current Locale.
+ */
+internal actual fun Int.toLocalString(
+    minDigits: Int,
+): String = toString().padStart(minDigits, '0')

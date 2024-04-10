@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-/**
- * Returns a string representation of an integer for the current Locale.
- */
-internal actual fun Int.toLocalString(
-    minDigits: Int,
-): String = toString().padStart(minDigits, '0')
+import androidx.compose.ui.text.PlatformTextStyle
+
+internal actual fun defaultPlatformTextStyle(): PlatformTextStyle? = null

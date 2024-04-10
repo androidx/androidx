@@ -226,7 +226,7 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
     ]
     targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/material3/l10n")
     targetPackageName = "androidx.compose.material3.l10n"
-    kotlinStringsPackageName = "androidx.compose.material3"
+    kotlinStringsPackageName = "androidx.compose.material3.internal"
     stringByResourceName = [
             // These come are from the ui module resources
             "navigation_menu": "NavigationMenu",

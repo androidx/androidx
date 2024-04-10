@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-import kotlinx.atomicfu.atomic
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 
-internal actual class AtomicReference<V> actual constructor(value: V) {
-    private val delegate = atomic(value)
-    actual fun get() = delegate.value
-    actual fun set(value: V) {
-        delegate.value = value
-    }
-    actual fun getAndSet(value: V) = delegate.getAndSet(value)
-    actual fun compareAndSet(expect: V, newValue: V) = delegate.compareAndSet(expect, newValue)
+/**
+ * It depends on the state of accessibility services to determine the current state of touch
+ * exploration services.
+ */
+@Composable
+internal actual fun touchExplorationState(): State<Boolean> {
+    return remember { derivedStateOf { false } }
 }
