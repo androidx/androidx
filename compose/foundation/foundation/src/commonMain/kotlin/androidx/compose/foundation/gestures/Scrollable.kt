@@ -668,11 +668,10 @@ private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) 
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class ScrollingLogic(
-    private var scrollableState: ScrollableState,
+    var scrollableState: ScrollableState,
     private var orientation: Orientation,
     private var overscrollEffect: OverscrollEffect?,
     private var flingBehavior: FlingBehavior,
-    private var orientation: Orientation,
     private var reverseDirection: Boolean,
     private var nestedScrollDispatcher: NestedScrollDispatcher,
 ) {
@@ -737,7 +736,7 @@ internal class ScrollingLogic(
     /**
      * @return the amount of scroll that was consumed
      */
-    private fun ScrollScope.dispatchScroll(
+    internal fun ScrollScope.dispatchScroll(
         initialAvailableDelta: Offset,
         source: NestedScrollSource
     ): Offset {
