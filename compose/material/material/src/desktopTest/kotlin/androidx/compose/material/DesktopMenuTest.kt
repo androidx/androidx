@@ -34,11 +34,11 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.rightClick
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
@@ -48,18 +48,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
+@OptIn(ExperimentalTestApi::class)
 class DesktopMenuTest {
 
-    @get:Rule
-    val rule = createComposeRule()
 
     private val windowSize = IntSize(200, 200)
 
@@ -163,8 +158,8 @@ class DesktopMenuTest {
 
     // (RTL) Anchor right is beyond the right of the window, so align popup to the window right
     @Test
-    fun menu_positioning_rtl_windowRight_belowAnchor() {
-        rule.setContent {
+    fun menu_positioning_rtl_windowRight_belowAnchor() = runComposeUiTest {
+        setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Box(Modifier.fillMaxSize().testTag("background")) {
                     Box(Modifier.offset(x = (-10).dp).size(50.dp)) {
@@ -175,15 +170,15 @@ class DesktopMenuTest {
                 }
             }
         }
-        val windowSize = rule.onNodeWithTag("background").getBoundsInRoot().size
-        rule.onNodeWithTag("box")
+        val windowSize = onNodeWithTag("background").getBoundsInRoot().size
+        onNodeWithTag("box")
             .assertLeftPositionInRootIsEqualTo(windowSize.width - 50.dp)
     }
 
     @Test
-    fun `pressing ESC button invokes onDismissRequest`() {
+    fun `pressing ESC button invokes onDismissRequest`() = runComposeUiTest {
         var dismissCount = 0
-        rule.setContent {
+        setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 DropdownMenu(true, onDismissRequest = {
                     dismissCount++
@@ -193,28 +188,24 @@ class DesktopMenuTest {
             }
         }
 
-        rule.onNodeWithTag("dropDownMenu")
+        onNodeWithTag("dropDownMenu")
             .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
 
-        rule.runOnIdle {
-            Assert.assertEquals(1, dismissCount)
-        }
+        assertEquals(1, dismissCount)
 
-        rule.onNodeWithTag("dropDownMenu")
+        onNodeWithTag("dropDownMenu")
             .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
 
-        rule.runOnIdle {
-            Assert.assertEquals(1, dismissCount)
-        }
+        assertEquals(1, dismissCount)
     }
 
     @Test
-    fun `navigate DropDownMenu using arrows`() {
+    fun `navigate DropDownMenu using arrows`() = runComposeUiTest {
         var item1Clicked = 0
         var item2Clicked = 0
         var item3Clicked = 0
 
-        rule.setContent {
+        setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 DropdownMenu(true, onDismissRequest = {},
                     modifier = Modifier.testTag("dropDownMenu")) {
@@ -232,14 +223,14 @@ class DesktopMenuTest {
         }
 
         fun performKeyDownAndUp(key: Key) {
-            rule.onNodeWithTag("dropDownMenu").apply {
+            onNodeWithTag("dropDownMenu").apply {
                 performKeyPress(keyEvent(key, KeyEventType.KeyDown))
                 performKeyPress(keyEvent(key, KeyEventType.KeyUp))
             }
         }
 
         fun assertClicksCount(i1: Int, i2: Int, i3: Int) {
-            rule.runOnIdle {
+            runOnIdle {
                 assertThat(item1Clicked).isEqualTo(i1)
                 assertThat(item2Clicked).isEqualTo(i2)
                 assertThat(item3Clicked).isEqualTo(i3)
@@ -271,11 +262,11 @@ class DesktopMenuTest {
         assertClicksCount(2, 2, 2)
     }
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalMaterialApi::class)
     @Test
-    fun `right click opens DropdownMenuState`() {
+    fun `right click opens DropdownMenuState`() = runComposeUiTest {
         val state = DropdownMenuState(DropdownMenuState.Status.Closed)
-        rule.setContent {
+        setContent {
             Box(
                 modifier = Modifier
                     .testTag("box")
@@ -286,18 +277,18 @@ class DesktopMenuTest {
             )
         }
 
-        rule.onNodeWithTag("box").performMouseInput {
+        onNodeWithTag("box").performMouseInput {
             rightClick(Offset(10f, 10f))
         }
 
         assertThat(state.status == DropdownMenuState.Status.Open(Offset(10f, 10f)))
     }
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalMaterialApi::class)
     @Test
-    fun `right doesn't open DropdownMenuState when disabled`() {
+    fun `right doesn't open DropdownMenuState when disabled`() = runComposeUiTest {
         val state = DropdownMenuState(DropdownMenuState.Status.Closed)
-        rule.setContent {
+        setContent {
             Box(
                 modifier = Modifier
                     .testTag("box")
@@ -309,18 +300,17 @@ class DesktopMenuTest {
             )
         }
 
-        rule.onNodeWithTag("box").performMouseInput {
+        onNodeWithTag("box").performMouseInput {
             rightClick(Offset(10f, 10f))
         }
 
         assertThat(state.status == DropdownMenuState.Status.Closed)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun `pass scroll state`() {
+    fun `pass scroll state`() = runComposeUiTest {
         val scrollState = ScrollState(0)
-        rule.setContent {
+        setContent {
             DropdownMenu(
                 true,
                 onDismissRequest = {},
@@ -332,7 +322,7 @@ class DesktopMenuTest {
             }
         }
 
-        val initialPosition = rule.onNodeWithTag("box").getUnclippedBoundsInRoot().top
+        val initialPosition = onNodeWithTag("box").getUnclippedBoundsInRoot().top
 
         runBlocking {
             scrollState.scroll {
@@ -340,15 +330,15 @@ class DesktopMenuTest {
             }
         }
         assertThat(
-            rule.onNodeWithTag("box").getUnclippedBoundsInRoot().top
+            onNodeWithTag("box").getUnclippedBoundsInRoot().top
         ).isLessThan(initialPosition)
 
-        rule.onNodeWithTag("menu").performMouseInput {
+        onNodeWithTag("menu").performMouseInput {
             enter(center)
             scroll(-10000f)
         }
         assertThat(
-            rule.onNodeWithTag("box").getUnclippedBoundsInRoot().top
+            onNodeWithTag("box").getUnclippedBoundsInRoot().top
         ).isEqualTo(initialPosition)
     }
 }

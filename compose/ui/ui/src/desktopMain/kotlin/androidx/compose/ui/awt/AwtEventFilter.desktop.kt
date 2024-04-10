@@ -58,6 +58,14 @@ internal class AwtEventListeners(
     }
 }
 
+internal open class AwtEventFilter : AwtEventListener {
+    final override fun onMouseEvent(event: MouseEvent): Boolean = !shouldSendMouseEvent(event)
+    final override fun onKeyEvent(event: KeyEvent): Boolean = !shouldSendKeyEvent(event)
+
+    open fun shouldSendMouseEvent(event: MouseEvent): Boolean = true
+    open fun shouldSendKeyEvent(event: KeyEvent): Boolean = true
+}
+
 /**
  * Filter out mouse events that report the primary button has changed state to pressed,
  * but aren't themselves a mouse press event. This is needed because on macOS, AWT sends
@@ -65,10 +73,10 @@ internal class AwtEventListeners(
  * the window by its corner/edge. This causes false-positives in detectTapGestures.
  * See https://github.com/JetBrains/compose-multiplatform/issues/2850 for more details.
 */
-internal object OnlyValidPrimaryMouseButtonFilter : AwtEventListener {
+internal object OnlyValidPrimaryMouseButtonFilter : AwtEventFilter() {
     private var isPrimaryButtonPressed = false
 
-    override fun onMouseEvent(event: MouseEvent): Boolean {
+    override fun shouldSendMouseEvent(event: MouseEvent): Boolean {
         val eventReportsPrimaryButtonPressed =
             (event.modifiersEx and MouseEvent.BUTTON1_DOWN_MASK) != 0
         if ((event.button == MouseEvent.BUTTON1) &&
@@ -77,9 +85,9 @@ internal object OnlyValidPrimaryMouseButtonFilter : AwtEventListener {
             isPrimaryButtonPressed = eventReportsPrimaryButtonPressed  // Update state
         }
         if (eventReportsPrimaryButtonPressed && !isPrimaryButtonPressed) {
-            return true  // Ignore such events
+            return false  // Ignore such events
         }
 
-        return false
+        return true
     }
 }

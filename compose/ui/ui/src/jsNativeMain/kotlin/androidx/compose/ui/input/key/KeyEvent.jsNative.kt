@@ -16,48 +16,43 @@
 
 package androidx.compose.ui.input.key
 
-import org.jetbrains.skiko.*
-
-actual typealias NativeKeyEvent = SkikoKeyboardEvent
+import androidx.compose.ui.input.pointer.isAltPressed
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isMetaPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
 
 /**
  * The key that was pressed.
  */
 actual val KeyEvent.key: Key
-    get() = Key(nativeKeyEvent.key.platformKeyCode.toLong())
+    get() = nativeKeyEvent.key
 
 /**
  * The [type][KeyEventType] of key event.
  */
 actual val KeyEvent.type: KeyEventType
-    get() =
-        when (nativeKeyEvent.kind) {
-            SkikoKeyboardEventKind.UP -> KeyEventType.KeyUp
-            SkikoKeyboardEventKind.DOWN -> KeyEventType.KeyDown
-            SkikoKeyboardEventKind.TYPE -> KeyEventType.Unknown
-            SkikoKeyboardEventKind.UNKNOWN -> KeyEventType.Unknown
-        }
+    get() = nativeKeyEvent.kind
 
 /**
  * Indicates whether the Alt key is pressed.
  */
 actual val KeyEvent.isAltPressed: Boolean
-    get() = this.nativeKeyEvent.modifiers.has(SkikoInputModifiers.ALT)
+    get() = this.nativeKeyEvent.modifiers.isAltPressed
 
 /**
  * Indicates whether the Ctrl key is pressed.
  */
 actual val KeyEvent.isCtrlPressed: Boolean
-    get() = this.nativeKeyEvent.modifiers.has(SkikoInputModifiers.CONTROL)
+    get() = this.nativeKeyEvent.modifiers.isCtrlPressed
 
 /**
  * Indicates whether the Meta key is pressed.
  */
 actual val KeyEvent.isMetaPressed: Boolean
-    get() = this.nativeKeyEvent.modifiers.has(SkikoInputModifiers.META)
+    get() = this.nativeKeyEvent.modifiers.isMetaPressed
 
 /**
  * Indicates whether the Shift key is pressed.
  */
 actual val KeyEvent.isShiftPressed: Boolean
-    get() = this.nativeKeyEvent.modifiers.has(SkikoInputModifiers.SHIFT)
+    get() = this.nativeKeyEvent.modifiers.isShiftPressed

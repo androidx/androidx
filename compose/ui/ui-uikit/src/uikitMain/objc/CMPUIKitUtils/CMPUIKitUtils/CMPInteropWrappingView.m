@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle
+#import "CMPInteropWrappingView.h"
 
-import androidx.savedstate.SavedStateRegistry
+@implementation CMPInteropWrappingView
 
-internal actual fun tryToAddRecreator(registry: SavedStateRegistry, lifecycle: Lifecycle) {
-    // No-op
+- (__nullable id)accessibilityContainer {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
 }
+
+@end

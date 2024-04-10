@@ -18,6 +18,7 @@
 		EA70A7EC2B27106100300068 /* CMPAccessibilityContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = EA70A7E92B27106100300068 /* CMPAccessibilityContainer.m */; };
 		EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = EA82F4F82B86144E00465418 /* CMPOSLogger.m */; };
 		EA82F4FC2B86184F00465418 /* CMPOSLoggerInterval.m in Sources */ = {isa = PBXBuildFile; fileRef = EA82F4FB2B86184F00465418 /* CMPOSLoggerInterval.m */; };
+		EABD912B2BC02B5F00455279 /* CMPInteropWrappingView.m in Sources */ = {isa = PBXBuildFile; fileRef = EABD912A2BC02B5F00455279 /* CMPInteropWrappingView.m */; };
 		EAC703E32B8C826E001ECDA6 /* CMPAccessibilityElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EA70A7E82B27106100300068 /* CMPAccessibilityElement.m */; };
 		EAC703E42B8C826E001ECDA6 /* CMPViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCDD2B18D135000B56B5 /* CMPViewController.m */; };
 		EAC703E52B8C826E001ECDA6 /* CMPOSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = EA82F4F82B86144E00465418 /* CMPOSLogger.m */; };
@@ -75,6 +76,8 @@
 		EA82F4F82B86144E00465418 /* CMPOSLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPOSLogger.m; sourceTree = "<group>"; };
 		EA82F4FA2B86184F00465418 /* CMPOSLoggerInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPOSLoggerInterval.h; sourceTree = "<group>"; };
 		EA82F4FB2B86184F00465418 /* CMPOSLoggerInterval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPOSLoggerInterval.m; sourceTree = "<group>"; };
+		EABD91292BC02B5F00455279 /* CMPInteropWrappingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPInteropWrappingView.h; sourceTree = "<group>"; };
+		EABD912A2BC02B5F00455279 /* CMPInteropWrappingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPInteropWrappingView.m; sourceTree = "<group>"; };
 		EAC703DF2B8C8154001ECDA6 /* CMPUIKitUtilsTestApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CMPUIKitUtilsTestApp-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -119,6 +122,8 @@
 				EA82F4F82B86144E00465418 /* CMPOSLogger.m */,
 				EA82F4FA2B86184F00465418 /* CMPOSLoggerInterval.h */,
 				EA82F4FB2B86184F00465418 /* CMPOSLoggerInterval.m */,
+				EABD91292BC02B5F00455279 /* CMPInteropWrappingView.h */,
+				EABD912A2BC02B5F00455279 /* CMPInteropWrappingView.m */,
 			);
 			path = CMPUIKitUtils;
 			sourceTree = "<group>";
@@ -293,6 +298,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				997DFCDE2B18D135000B56B5 /* CMPViewController.m in Sources */,
+				EABD912B2BC02B5F00455279 /* CMPInteropWrappingView.m in Sources */,
 				EA70A7EC2B27106100300068 /* CMPAccessibilityContainer.m in Sources */,
 				EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */,
 				EA70A7EB2B27106100300068 /* CMPAccessibilityElement.m in Sources */,

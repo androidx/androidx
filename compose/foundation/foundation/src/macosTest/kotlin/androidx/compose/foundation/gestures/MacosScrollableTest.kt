@@ -19,6 +19,7 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -29,14 +30,14 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.jetbrains.skiko.SkikoPointerEvent
-import org.jetbrains.skiko.SkikoPointerEventKind
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.AppKit.NSEvent
 import platform.CoreGraphics.CGEventCreateScrollWheelEvent2
 import platform.CoreGraphics.CGScrollEventUnit
 import platform.CoreGraphics.kCGScrollEventUnitLine
 import platform.CoreGraphics.kCGScrollEventUnitPixel
 
+@OptIn(InternalComposeUiApi::class)
 @ExperimentalTestApi
 class MacosScrollableTest {
     private val density = Density(2f)
@@ -138,27 +139,21 @@ class MacosScrollableTest {
         )
     }
 
+    @OptIn(ExperimentalForeignApi::class)
     private fun scrollingEvent(
         deltaX: Int,
         deltaY: Int,
         unit: CGScrollEventUnit,
-    ) = SkikoPointerEvent(
-            x = deltaX.toDouble(),
-            y = deltaY.toDouble(),
-            deltaX = deltaX.toDouble(),
-            deltaY = deltaY.toDouble(),
-            kind = SkikoPointerEventKind.SCROLL,
-            platform = NSEvent.eventWithCGEvent(
-                CGEventCreateScrollWheelEvent2(
-                    source = null,
-                    units = unit,
-                    wheelCount = 2,
-                    wheel1 = deltaY,
-                    wheel2 = deltaX,
-                    wheel3 = 0,
-                )
-            ),
+    ) = NSEvent.eventWithCGEvent(
+        CGEventCreateScrollWheelEvent2(
+            source = null,
+            units = unit,
+            wheelCount = 2U,
+            wheel1 = deltaY,
+            wheel2 = deltaX,
+            wheel3 = 0,
         )
+    )
 
     private class TestColumn {
         var offset = 0f

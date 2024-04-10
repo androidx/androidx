@@ -16,15 +16,12 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
-import kotlinx.cinterop.useContents
-import org.jetbrains.skiko.SkikoInputModifiers
-import org.jetbrains.skiko.SkikoKey
-import org.jetbrains.skiko.SkikoKeyboardEvent
-import org.jetbrains.skiko.SkikoKeyboardEventKind
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIEvent
@@ -136,7 +133,7 @@ internal class InteractionUIView(
         updateTouchesCount = {}
         inBounds = { false }
         keyboardEventHandler = object: KeyboardEventHandler {
-            override fun onKeyboardEvent(event: SkikoKeyboardEvent) {}
+            override fun onKeyboardEvent(event: NativeKeyEvent) {}
         }
     }
 }
@@ -150,7 +147,7 @@ internal fun handleUIViewPressesBegan(
         for (press in withEvent.allPresses) {
             if (press is UIPress) {
                 keyboardEventHandler.onKeyboardEvent(
-                    toSkikoKeyboardEvent(press, SkikoKeyboardEventKind.DOWN)
+                    press.toNativeKeyEvent(KeyEventType.KeyDown)
                 )
             }
         }
@@ -166,41 +163,35 @@ internal fun handleUIViewPressesEnded(
         for (press in withEvent.allPresses) {
             if (press is UIPress) {
                 keyboardEventHandler.onKeyboardEvent(
-                    toSkikoKeyboardEvent(press, SkikoKeyboardEventKind.UP)
+                    press.toNativeKeyEvent(KeyEventType.KeyUp)
                 )
             }
         }
     }
 }
 
-private fun toSkikoKeyboardEvent(
-    event: UIPress,
-    kind: SkikoKeyboardEventKind
-): SkikoKeyboardEvent {
-    val timestamp = (event.timestamp * 1_000).toLong()
-    return SkikoKeyboardEvent(
-        SkikoKey.valueOf(event.key!!.keyCode),
-        toSkikoModifiers(event),
-        kind,
-        timestamp,
-        event
-    )
-}
+private fun UIPress.toNativeKeyEvent(kind: KeyEventType): NativeKeyEvent {
+    val timestamp = (timestamp * 1_000).toLong()
 
-private fun toSkikoModifiers(event: UIPress): SkikoInputModifiers {
-    var result = 0
-    val modifiers = event.key!!.modifierFlags
-    if (modifiers and UIKeyModifierAlternate != 0L) {
-        result = result.or(SkikoInputModifiers.ALT.value)
+    // TODO: https://developer.apple.com/documentation/uikit/uipress/3526315-key
+    //  can be potentially nil on TVOS, this will cause a crash
+    val key = requireNotNull(key) {
+        "UIPress with null key is not supported"
     }
-    if (modifiers and UIKeyModifierShift != 0L) {
-        result = result.or(SkikoInputModifiers.SHIFT.value)
-    }
-    if (modifiers and UIKeyModifierControl != 0L) {
-        result = result.or(SkikoInputModifiers.CONTROL.value)
-    }
-    if (modifiers and UIKeyModifierCommand != 0L) {
-        result = result.or(SkikoInputModifiers.META.value)
-    }
-    return SkikoInputModifiers(result)
+
+    val modifiers = key.modifierFlags
+    val inputModifiers = PointerKeyboardModifiers(
+        isAltPressed = modifiers and UIKeyModifierAlternate != 0L,
+        isShiftPressed = modifiers and UIKeyModifierShift != 0L,
+        isCtrlPressed = modifiers and UIKeyModifierControl != 0L,
+        isMetaPressed = modifiers and UIKeyModifierCommand != 0L,
+    )
+
+    return NativeKeyEvent(
+        Key(key.keyCode),
+        key()?.characters(),
+        inputModifiers,
+        kind,
+        timestamp
+    )
 }

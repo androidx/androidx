@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.awt.AwtEventListener
+import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.SwingInteropContainer
 import androidx.compose.ui.focus.FocusDirection
@@ -82,7 +83,7 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
@@ -99,7 +100,7 @@ internal class ComposeSceneMediator(
     private val container: Container,
     private val windowContext: PlatformWindowContext,
     private var exceptionHandler: WindowExceptionHandler?,
-    private val eventListener: AwtEventListener = OnlyValidPrimaryMouseButtonFilter,
+    eventListener: AwtEventListener? = null,
 
     /**
      * @see PlatformContext.measureDrawLayerBounds
@@ -110,7 +111,7 @@ internal class ComposeSceneMediator(
 
     skiaLayerComponentFactory: (ComposeSceneMediator) -> SkiaLayerComponent,
     composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
-) : SkikoView {
+) : SkikoRenderDelegate {
     private var isDisposed = false
     private val invisibleComponent = InvisibleComponent()
 
@@ -238,6 +239,12 @@ internal class ComposeSceneMediator(
         override fun keyPressed(event: KeyEvent) = onKeyEvent(event)
         override fun keyReleased(event: KeyEvent) = onKeyEvent(event)
         override fun keyTyped(event: KeyEvent) = onKeyEvent(event)
+    }
+
+    private val eventListener = if (eventListener != null) {
+        AwtEventListeners(OnlyValidPrimaryMouseButtonFilter, eventListener)
+    } else {
+        OnlyValidPrimaryMouseButtonFilter
     }
 
     var currentInputMethodRequests: InputMethodRequests? = null

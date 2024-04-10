@@ -19,10 +19,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import org.jetbrains.skiko.SkikoInputModifiers
-import org.jetbrains.skiko.SkikoKey
-import org.jetbrains.skiko.SkikoKeyboardEvent
-import org.jetbrains.skiko.SkikoKeyboardEventKind
+import androidx.compose.ui.input.key.NativeKeyEvent
 
 /**
  * The [KeyEvent] is usually created by the system. This function creates an instance of
@@ -34,35 +31,14 @@ internal actual fun keyEvent(
     modifiers: Int
 ): KeyEvent {
     return KeyEvent(
-        SkikoKeyboardEvent(
-            key = SkikoKey.values().firstOrNull {
-                it.platformKeyCode.toLong() == key.keyCode
-            } ?: error("SkikoKey not found for key=$key"),
-            modifiers = SkikoInputModifiers(modifiers),
-            kind = when (keyEventType) {
-                KeyEventType.KeyUp -> SkikoKeyboardEventKind.UP
-                KeyEventType.KeyDown -> SkikoKeyboardEventKind.DOWN
-                else -> error("Unknown key event type: $keyEventType")
-
-            },
-            timestamp = 0L,
-            platform = null
+        NativeKeyEvent(
+            key = key,
+            value = null,
+            modifiers = modifiers,
+            kind = keyEventType,
+            timestamp = 0L
         )
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-internal actual fun Int.updatedKeyboardModifiers(key: Key, down: Boolean): Int {
-    val mask = when (key) {
-        Key.ShiftLeft, Key.ShiftRight -> SkikoInputModifiers.SHIFT
-        Key.CtrlLeft, Key.CtrlRight -> SkikoInputModifiers.CONTROL
-        Key.AltLeft, Key.AltRight -> SkikoInputModifiers.ALT
-        Key.MetaLeft, Key.MetaRight -> SkikoInputModifiers.META
-        else -> null
-    }
-    return if (mask != null) {
-        if (down) this or mask.value else this xor mask.value
-    } else {
-        this
-    }
-}
+internal actual fun Int.updatedKeyboardModifiers(key: Key, down: Boolean): Int = this // TODO: implement updatedKeyboardModifiers

@@ -158,7 +158,7 @@ actual value class Key(val keyCode: Long) {
         actual val S = Key(83)
 
         /** 'T' key. */
-        actual val T = Key(54)
+        actual val T = Key(84)
 
         /** 'U' key. */
         actual val U = Key(85)

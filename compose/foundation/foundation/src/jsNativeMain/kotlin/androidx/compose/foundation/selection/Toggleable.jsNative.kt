@@ -16,13 +16,13 @@
 
 package androidx.compose.foundation.selection
 
+import androidx.compose.ui.input.key.Key.Companion.Spacebar
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import org.jetbrains.skiko.SkikoKey
 
-private val SPACE_KEY_CODE = SkikoKey.KEY_SPACE.platformKeyCode.toLong()
+private val SPACE_KEY_CODE = Spacebar.keyCode
 /**
  * Whether the specified [KeyEvent] represents a user intent to perform a toggle.
  * (eg. When you press Space on a focused checkbox, it should perform a toggle).

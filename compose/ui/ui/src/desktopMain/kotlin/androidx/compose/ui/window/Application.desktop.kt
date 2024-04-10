@@ -71,7 +71,7 @@ import kotlin.system.exitProcess
  *
  * ```
  * fun main() = application {
- *     val isSplashScreenShowing by remember { mutableStateOf(true) }
+ *     var isSplashScreenShowing by remember { mutableStateOf(true) }
  *
  *     LaunchedEffect(Unit) {
  *         delay(2000)
@@ -79,9 +79,9 @@ import kotlin.system.exitProcess
  *     }
  *
  *     if (isSplashScreenShowing) {
- *         Window(title = "Splash") {}
+ *         Window(::exitApplication, title = "Splash") {}
  *     } else {
- *         Window(title = "App") {}
+ *         Window(::exitApplication, title = "App") {}
  *     }
  * }
  * ```
@@ -163,7 +163,7 @@ fun CoroutineScope.launchApplication(
  * ```
  * fun main() = runBlocking {
  *     awaitApplication {
- *         val isSplashScreenShowing by remember { mutableStateOf(true) }
+ *         var isSplashScreenShowing by remember { mutableStateOf(true) }
  *
  *         LaunchedEffect(Unit) {
  *             delay(2000)
@@ -171,9 +171,9 @@ fun CoroutineScope.launchApplication(
  *         }
  *
  *         if (isSplashScreenShowing) {
- *             Window(title = "Splash") {}
+ *             Window(::exitApplication, title = "Splash") {}
  *         } else {
- *             Window(title = "App") {}
+ *             Window(::exitApplication, title = "App") {}
  *         }
  *     }
  * }

@@ -18,29 +18,29 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import org.jetbrains.skiko.SkikoPointerEvent
+import platform.AppKit.NSEvent
 
-internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = MacOsConfig
+internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig =
+    MacOsScrollConfig
 
-private object MacOsConfig : ScrollConfig {
+private object MacOsScrollConfig : ScrollConfig {
     // See https://developer.apple.com/documentation/appkit/nsevent/1535387-scrollingdeltay
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
-        val ev = (event.nativeEvent as? SkikoPointerEvent)?.platform ?: return Offset.Zero
+        // TODO: Replace with event.nsEventOrNull
+        val e: NSEvent = event.nativeEvent as? NSEvent? ?: return Offset.Zero
 
         // The multiplier value was derived from desktop MacOSCocoaConfig
-        val multiplier = if (ev.hasPreciseScrollingDeltas) 1.0F else 10.dp.toPx()
+        val multiplier = if (e.hasPreciseScrollingDeltas) 1.0F else 10.dp.toPx()
 
         return Offset(
-            x = ev.scrollingDeltaX.toFloat() * multiplier,
-            y = ev.scrollingDeltaY.toFloat() * multiplier,
+            x = e.scrollingDeltaX.toFloat() * multiplier,
+            y = e.scrollingDeltaY.toFloat() * multiplier,
         )
     }
 }

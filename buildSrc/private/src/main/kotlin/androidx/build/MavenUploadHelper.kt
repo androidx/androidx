@@ -120,12 +120,16 @@ private fun Project.configureComponentPublishing(
     )
     group = androidxGroup.group
 
-    val groupToRedirecting: Provider<Map<String, ArtifactRedirecting>> = provider {
+    val mavenCoordsToRedirecting: Provider<Map<String, ArtifactRedirecting>> = provider {
         project
             .getProjectsMap()
             .values
             .mapNotNull { project.findProject(it) }
-            .associateBy { it.group.toString() }
+            .associateBy {
+                val group = it.group
+                val name = it.name
+                "$group:$name"
+            }
             .mapValuesNotNull { it.value.artifactRedirecting() }
     }
 
@@ -203,7 +207,7 @@ private fun Project.configureComponentPublishing(
         task.doLast {
             val pomFile = task.destination
             val pom = pomFile.readText()
-            val modifiedPom = modifyPomDependencies(pom, groupToRedirecting.get())
+            val modifiedPom = modifyPomDependencies(pom, mavenCoordsToRedirecting.get())
 
             if (pom != modifiedPom) {
                 pomFile.writeText(modifiedPom)
@@ -231,8 +235,9 @@ private fun Project.configureComponentPublishing(
  */
 internal fun modifyPomDependencies(
     pom: String,
-    groupToRedirecting: Map<String, ArtifactRedirecting>
+    mavenCoordsToRedirecting: Map<String, ArtifactRedirecting>
 ): String {
+    println(mavenCoordsToRedirecting.toList().joinToString("\n"))
     // Workaround for using the default namespace in dom4j.
     val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
     val docFactory = DocumentFactory()
@@ -248,7 +253,7 @@ internal fun modifyPomDependencies(
         .forEach { element ->
             val deps = element.elements()
             val modifiedDeps = deps
-                .map { modifyPomDependency(it, groupToRedirecting) }
+                .map { modifyPomDependency(it, mavenCoordsToRedirecting) }
                 .toSortedSet(compareBy { it.stringValue }).toList()
 
             // Content contains formatting nodes, so to avoid modifying those we replace
@@ -279,14 +284,16 @@ internal fun modifyPomDependencies(
 
 internal fun modifyPomDependency(
     dependency: Element,
-    groupToRedirecting: Map<String, ArtifactRedirecting>
+    mavenCoordsToRedirecting: Map<String, ArtifactRedirecting>
 ): Element {
     val groupId = dependency.selectSingleNode("ns:groupId")
     val artifactId = dependency.selectSingleNode("ns:artifactId")
     val version = dependency.selectSingleNode("ns:version")
-
-    val redirecting = groupToRedirecting[groupId.stringValue] ?: return dependency
+    val name = artifactId.stringValue.substringBeforeLast("-")
     val target = artifactId.stringValue.substringAfterLast("-")
+
+    val coords = "${groupId.stringValue}:$name"
+    val redirecting = mavenCoordsToRedirecting[coords] ?: return dependency
     val shouldReplace = redirecting.targetNames.contains(target)
     if (shouldReplace) {
         groupId.text = redirecting.groupId

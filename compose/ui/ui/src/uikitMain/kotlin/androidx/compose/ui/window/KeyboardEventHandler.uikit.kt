@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.window
 
-import org.jetbrains.skiko.SkikoKeyboardEvent
+import androidx.compose.ui.input.key.NativeKeyEvent
 
 internal interface KeyboardEventHandler {
-    fun onKeyboardEvent(event: SkikoKeyboardEvent)
+    fun onKeyboardEvent(event: NativeKeyEvent)
 }

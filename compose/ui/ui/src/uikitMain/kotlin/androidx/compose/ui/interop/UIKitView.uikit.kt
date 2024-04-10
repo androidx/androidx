@@ -34,6 +34,9 @@ import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.AccessibilityKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.uikit.toUIColor
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -54,10 +57,32 @@ import platform.UIKit.addChildViewController
 import platform.UIKit.didMoveToParentViewController
 import platform.UIKit.removeFromParentViewController
 import platform.UIKit.willMoveToParentViewController
+import androidx.compose.ui.uikit.utils.CMPInteropWrappingView
+import kotlinx.cinterop.readValue
+import platform.CoreGraphics.CGRectZero
 
 private val STUB_CALLBACK_WITH_RECEIVER: Any.() -> Unit = {}
 private val DefaultViewResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.setFrame(rect) }
 private val DefaultViewControllerResize: UIViewController.(CValue<CGRect>) -> Unit = { rect -> this.view.setFrame(rect) }
+
+internal class InteropWrappingView: CMPInteropWrappingView(frame = CGRectZero.readValue()) {
+    var actualAccessibilityContainer: Any? = null
+
+    override fun accessibilityContainer(): Any? {
+        return actualAccessibilityContainer
+    }
+}
+
+internal val NativeViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
+    name = "InteropView",
+    mergePolicy = { _, _ ->
+        throw IllegalStateException(
+            "Can't merge NativeView semantics property."
+        )
+    }
+)
+
+private var SemanticsPropertyReceiver.nativeView by NativeViewSemanticsKey
 
 /**
  * @param factory The block creating the [UIView] to be composed.
@@ -103,7 +128,7 @@ fun <T : UIView> UIKitView(
                 val rect = newRectInPixels.toRect().toDpRect(density)
 
                 interopContext.deferAction {
-                    embeddedInteropComponent.container.setFrame(rect.asCGRect())
+                    embeddedInteropComponent.wrappingView.setFrame(rect.asCGRect())
                 }
 
                 if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
@@ -119,12 +144,14 @@ fun <T : UIView> UIKitView(
         }.drawBehind {
             // Clear interop area to make visible the component under our canvas.
             drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackUIKitInterop(embeddedInteropComponent.container).let {
+        }.trackUIKitInterop(embeddedInteropComponent.wrappingView).let {
             if (interactive) {
                 it.then(InteropViewCatchPointerModifier())
             } else {
                 it
             }
+        }.semantics {
+            nativeView = embeddedInteropComponent.wrappingView
         }
     )
 
@@ -203,7 +230,7 @@ fun <T : UIViewController> UIKitViewController(
                 val rect = newRectInPixels.toRect().toDpRect(density)
 
                 interopContext.deferAction {
-                    embeddedInteropComponent.container.setFrame(rect.asCGRect())
+                    embeddedInteropComponent.wrappingView.setFrame(rect.asCGRect())
                 }
 
                 if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
@@ -219,12 +246,14 @@ fun <T : UIViewController> UIKitViewController(
         }.drawBehind {
             // Clear interop area to make visible the component under our canvas.
             drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackUIKitInterop(embeddedInteropComponent.container).let {
+        }.trackUIKitInterop(embeddedInteropComponent.wrappingView).let {
             if (interactive) {
                 it.then(InteropViewCatchPointerModifier())
             } else {
                 it
             }
+        }.semantics {
+            nativeView = embeddedInteropComponent.wrappingView
         }
     )
 
@@ -260,15 +289,15 @@ private abstract class EmbeddedInteropComponent<T : Any>(
     val interopContainer: UIKitInteropContainer,
     val onRelease: (T) -> Unit
 ) {
-    var container = UIView()
+    val wrappingView = InteropWrappingView()
     lateinit var component: T
     lateinit var updater: Updater<T>
 
     fun setBackgroundColor(color: Color) {
         if (color == Color.Unspecified) {
-            container.backgroundColor = interopContainer.containerView.backgroundColor
+            wrappingView.backgroundColor = interopContainer.containerView.backgroundColor
         } else {
-            container.backgroundColor = color.toUIColor()
+            wrappingView.backgroundColor = color.toUIColor()
         }
     }
 
@@ -276,13 +305,13 @@ private abstract class EmbeddedInteropComponent<T : Any>(
     abstract fun removeFromHierarchy()
 
     protected fun addViewToHierarchy(view: UIView) {
-        container.addSubview(view)
-        interopContainer.addInteropView(container)
+        wrappingView.addSubview(view)
+        interopContainer.addInteropView(wrappingView)
     }
 
     protected fun removeViewFromHierarchy(view: UIView) {
         view.removeFromSuperview()
-        interopContainer.removeInteropView(container)
+        interopContainer.removeInteropView(wrappingView)
         updater.dispose()
         onRelease(component)
     }

@@ -19,12 +19,12 @@ package androidx.compose.ui.scene
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
-import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.skiko.RecordDrawRectSkikoViewDecorator
+import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -36,9 +36,8 @@ import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import javax.swing.SwingUtilities
 import kotlin.math.max
-import kotlin.math.min
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkikoView
+import org.jetbrains.skiko.SkikoRenderDelegate
 
 /**
  * Represents an abstract class for a desktop Compose scene layer.
@@ -54,7 +53,6 @@ internal abstract class DesktopComposeSceneLayer(
     protected val windowContainer get() = composeContainer.windowContainer
     protected val layersAbove get() = composeContainer.layersAbove(this)
     protected val eventListener get() = AwtEventListeners(
-        OnlyValidPrimaryMouseButtonFilter,
         DetectEventOutsideLayer(),
         boundsEventFilter,
         FocusableLayerEventFilter()
@@ -129,8 +127,8 @@ internal abstract class DesktopComposeSceneLayer(
     override fun calculateLocalPosition(positionInWindow: IntOffset) =
         positionInWindow // [ComposeScene] is equal to [windowContainer] for the layer.
 
-    protected fun recordDrawBounds(skikoView: SkikoView) =
-        RecordDrawRectSkikoViewDecorator(skikoView) { canvasBoundsInPx ->
+    protected fun recordDrawBounds(renderDelegate: SkikoRenderDelegate) =
+        RecordDrawRectRenderDecorator(renderDelegate) { canvasBoundsInPx ->
             val currentCanvasOffset = drawBounds.topLeft
             val drawBoundsInWindow = canvasBoundsInPx.roundToIntRect().translate(currentCanvasOffset)
             maxDrawInflate = maxInflate(boundsInWindow, drawBoundsInWindow, maxDrawInflate)
@@ -226,17 +224,17 @@ internal abstract class DesktopComposeSceneLayer(
         }
     }
 
-    private inner class FocusableLayerEventFilter : AwtEventListener {
+    private inner class FocusableLayerEventFilter : AwtEventFilter() {
         private val noFocusableLayersAbove: Boolean
             get() = layersAbove.all { !it.focusable }
 
-        override fun onMouseEvent(event: MouseEvent): Boolean = !noFocusableLayersAbove
-        override fun onKeyEvent(event: KeyEvent): Boolean = !focusable || !noFocusableLayersAbove
+        override fun shouldSendMouseEvent(event: MouseEvent): Boolean = noFocusableLayersAbove
+        override fun shouldSendKeyEvent(event: KeyEvent): Boolean = focusable && noFocusableLayersAbove
     }
 
     private inner class BoundsEventFilter(
         var bounds: Rectangle,
-    ) : AwtEventListener {
+    ) : AwtEventFilter() {
         private val MouseEvent.isInBounds: Boolean
             get() {
                 val localPoint = if (component != windowContainer) {
@@ -247,19 +245,19 @@ internal abstract class DesktopComposeSceneLayer(
                 return bounds.contains(localPoint)
             }
 
-        override fun onMouseEvent(event: MouseEvent): Boolean {
+        override fun shouldSendMouseEvent(event: MouseEvent): Boolean {
             when (event.id) {
                 // Do not filter motion events
                 MouseEvent.MOUSE_MOVED,
                 MouseEvent.MOUSE_ENTERED,
                 MouseEvent.MOUSE_EXITED,
-                MouseEvent.MOUSE_DRAGGED -> return false
+                MouseEvent.MOUSE_DRAGGED -> return true
             }
             return if (event.isInBounds) {
-                false
+                true
             } else {
                 onMouseEventOutside(event)
-                true
+                false
             }
         }
     }

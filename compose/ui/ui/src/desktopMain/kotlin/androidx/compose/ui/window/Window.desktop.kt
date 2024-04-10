@@ -63,16 +63,16 @@ import javax.swing.JMenuBar
  * windows and stop all effects defined in [application]):
  * ```
  * fun main() = application {
- *     Window(onCloseRequest = ::exitApplication)
+ *     Window(onCloseRequest = ::exitApplication) {}
  * }
  * ```
  *
  * or if it only needed to close the main window without closing all other opened windows:
  * ```
  * fun main() = application {
- *     val isOpen by remember { mutableStateOf(true) }
+ *     var isOpen by remember { mutableStateOf(true) }
  *     if (isOpen) {
- *         Window(onCloseRequest = { isOpen = false })
+ *         Window(onCloseRequest = { isOpen = false }) {}
  *     }
  * }
  * ```

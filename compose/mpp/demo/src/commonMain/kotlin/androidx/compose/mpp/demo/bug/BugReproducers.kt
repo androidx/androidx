@@ -27,5 +27,5 @@ val BugReproducers = Screen.Selection(
     IOSDynamicKeyboardType,
     NoPressInteractionInOutlinedTextField,
     WebBaselineAlways0,
-    ResizePopupCrashOnJS
+    ResizePopupCrashOnJS,
 )

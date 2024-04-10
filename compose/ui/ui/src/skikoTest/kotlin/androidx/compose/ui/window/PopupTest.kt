@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -58,6 +59,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.Density
@@ -123,6 +125,41 @@ class PopupTest {
         }
 
         assertThat(actualLocalValue).isEqualTo(3)
+    }
+
+    // https://github.com/JetBrains/compose-multiplatform/issues/4558
+    @Test
+    fun changeInStaticCompositionLocalVisibleImmediatelyInPopup() = runComposeUiTest {
+        // Test that when the provided value of a staticCompositionLocalOf changes, the change is
+        // seen correctly in the content of a popup.
+        // The `text` variable is needed in order to cause a recomposition of the popup content in
+        // the same frame as CompositionLocalProvider is recomposed. Without this the bug doesn't
+        // reproduce because first CompositionLocalProvider is recomposed and that triggers
+        // recomposition of the popup content, which happens afterward.
+
+        val compositionLocal = staticCompositionLocalOf<Int> {
+            error("not set")
+        }
+        var providedValue by mutableStateOf(1)
+        var text by mutableStateOf("1")
+        var actualLocalValue = 0
+
+        setContent {
+            CompositionLocalProvider(compositionLocal provides providedValue) {
+                Popup {
+                    actualLocalValue = compositionLocal.current.also {
+                        println(it)
+                    }
+                    Text(text)
+                }
+            }
+        }
+
+        assertThat(actualLocalValue).isEqualTo(providedValue)
+        text = "2"
+        providedValue = 2
+        waitForIdle()
+        assertThat(actualLocalValue).isEqualTo(providedValue)
     }
 
     // https://github.com/JetBrains/compose-multiplatform/issues/3142

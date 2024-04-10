@@ -51,7 +51,7 @@ internal fun Modifier.cupertinoTextFieldPointer(
 ): Modifier = if (enabled) {
     // TODO switch to ".updateSelectionTouchMode { state.isInTouchMode = it }" as in defaultTextFieldPointer
     if (isInTouchMode) {
-        val longPressHandlerModifier = getLongPressHandlerModifier(state, offsetMapping)
+        val longPressHandlerModifier = getLongPressHandlerModifier(state, offsetMapping, manager)
         val tapHandlerModifier = getTapHandlerModifier(
             interactionSource,
             state,
@@ -110,7 +110,7 @@ private fun getTapHandlerModifier(
                     if (currentState.handleState != HandleState.Selection) {
                         currentState.layoutResult?.let { layoutResult ->
                             // TODO: Research native behavior with any text transformations (which adds symbols like with using NSNumberFormatter)
-                            if (manager.visualTransformation != VisualTransformation.None) {
+                            if (currentManager.visualTransformation != VisualTransformation.None) {
                                 TextFieldDelegate.setCursorOffset(
                                     touchPointOffset,
                                     layoutResult,
@@ -126,7 +126,7 @@ private fun getTapHandlerModifier(
                                     offsetMapping = currentOffsetMapping,
                                     showContextMenu = {
                                         // it shouldn't be selection, but this is a way to call context menu in BasicTextField
-                                        manager.enterSelectionMode(true)
+                                        currentManager.enterSelectionMode(true)
                                     },
                                     onValueChange = currentState.onValueChange
                                 )
@@ -175,10 +175,12 @@ private fun getTapHandlerModifier(
 @Composable
 private fun getLongPressHandlerModifier(
     state: TextFieldState,
-    offsetMapping: OffsetMapping
+    offsetMapping: OffsetMapping,
+    manager: TextFieldSelectionManager,
 ): Modifier {
     val currentState by rememberUpdatedState(state)
     val currentOffsetMapping by rememberUpdatedState(offsetMapping)
+    val currentManager by rememberUpdatedState(manager)
 
     return Modifier.pointerInput(Unit) {
         val longTapActionsObserver =
@@ -187,6 +189,9 @@ private fun getLongPressHandlerModifier(
                 var dragBeginOffset = Offset.Zero
 
                 override fun onStart(startPoint: Offset) {
+                    currentManager.draggingHandle = Handle.SelectionEnd
+                    currentManager.currentDragPosition = startPoint
+
                     currentState.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.setCursorOffset(
                             startPoint,
@@ -204,6 +209,7 @@ private fun getLongPressHandlerModifier(
                     dragTotalDistance += delta
                     currentState.layoutResult?.let { layoutResult ->
                         val currentDragPosition = dragBeginOffset + dragTotalDistance
+                        currentManager.currentDragPosition = currentDragPosition
                         TextFieldDelegate.setCursorOffset(
                             currentDragPosition,
                             layoutResult,
@@ -219,9 +225,15 @@ private fun getLongPressHandlerModifier(
 
                 override fun onUp() {}
 
-                override fun onStop() {}
+                override fun onStop() {
+                    currentManager.draggingHandle = null
+                    currentManager.currentDragPosition = null
+                }
 
-                override fun onCancel() {}
+                override fun onCancel() {
+                    currentManager.draggingHandle = null
+                    currentManager.currentDragPosition = null
+                }
             }
 
         detectDragGesturesAfterLongPress(

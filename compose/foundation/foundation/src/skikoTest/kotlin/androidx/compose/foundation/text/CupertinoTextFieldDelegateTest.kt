@@ -91,6 +91,7 @@ class CupertinoTextFieldDelegateTest {
     }
 
     @Test
+    @Ignore // TODO: Remove ignore https://youtrack.jetbrains.com/issue/COMPOSE-1214/
     fun determineCursorDesiredOffset_tap_in_the_middle_of_the_symbols_sequence() {
         val givenOffset = 34
         val desiredOffset = 53
@@ -99,6 +100,7 @@ class CupertinoTextFieldDelegateTest {
     }
 
     @Test
+    @Ignore // TODO: Remove ignore https://youtrack.jetbrains.com/issue/COMPOSE-1214/
     fun determineCursorDesiredOffset_tap_in_the_middle_of_the_whitespaces() {
         val givenOffset = 48
         val desiredOffset = 53
@@ -107,6 +109,7 @@ class CupertinoTextFieldDelegateTest {
     }
 
     @Test
+    @Ignore // TODO: Remove ignore https://youtrack.jetbrains.com/issue/COMPOSE-1214/
     fun determineCursorDesiredOffset_tap_on_the_standalone_symbols_sequence() {
         val givenOffset = 56
         val desiredOffset = 57

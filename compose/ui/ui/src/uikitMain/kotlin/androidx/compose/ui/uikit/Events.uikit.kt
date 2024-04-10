@@ -17,7 +17,6 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.ui.input.pointer.PointerEvent
-import org.jetbrains.skiko.SkikoPointerEvent
 import platform.UIKit.UIEvent
 
 /**
@@ -30,5 +29,5 @@ import platform.UIKit.UIEvent
  * Always check for null, when you want to handle the native event
  */
 val PointerEvent.uikitEventOrNull: UIEvent? get() {
-    return (nativeEvent as? SkikoPointerEvent?)?.platform
+    return nativeEvent as? UIEvent?
 }
