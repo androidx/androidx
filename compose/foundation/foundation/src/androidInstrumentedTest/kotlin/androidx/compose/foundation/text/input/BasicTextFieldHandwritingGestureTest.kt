@@ -23,6 +23,7 @@ import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InsertGesture
 import android.view.inputmethod.JoinOrSplitGesture
+import android.view.inputmethod.RemoveSpaceGesture
 import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
 import androidx.annotation.RequiresApi
@@ -1001,6 +1002,273 @@ internal class BasicTextFieldHandwritingGestureTest {
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
             assertThat(textFieldState.text.toString()).isEqualTo(text)
+            assertThat(textFieldState.selection).isEqualTo(TextRange(text.length))
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture() {
+        val text = "ab cd ef gh"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // The given gestures should remove spaces within the range of "cd ef".
+                val startPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                    localToScreen(it).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("f").centerRight.let {
+                    localToScreen(it).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "ab cdef gh"
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+            // The cursor should be placed before 'e', the offset where the space is removed.
+            val expectedSelection = TextRange(expectedText.indexOf('e'))
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_selectFirstLine() {
+        val text = "ab cd ef\ngh ij kl"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // This gestures only works for single line. When the given points touches multiple
+                // lines, it should only remove spaces at the first line. In this case, it'll be
+                // remove spaces within the range of "b cd e" ('e' is at the top of 'k').
+                val startPoint = textLayoutResult.boundingBoxOf("b").centerLeft.let {
+                    localToScreen(it).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("k").centerRight.let {
+                    localToScreen(it).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "abcdef\ngh ij kl"
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+            // The cursor should be placed before 'e', the offset where the last space is removed.
+            val expectedSelection = TextRange(expectedText.indexOf('e'))
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_spaceOnly() {
+        val text = "ab    cd ef"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // The gesture covers spaces only, between 'b' and 'c'.
+                val startPoint = textLayoutResult.boundingBoxOf("b").centerRight.let {
+                    localToScreen(it).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                    localToScreen(it).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "abcd ef"
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+            // The cursor should be placed before 'c'.
+            val expectedSelection = TextRange(expectedText.indexOf('c'))
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_noSpaceRemoved_fallback() {
+        val text = "ab cdef gi"
+        val initialCursor = 3
+        val fallback = "fallback"
+        testTextFieldHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                // The gesture covers "cdef" which contains no spaces.
+                val startPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                    localToScreen(it).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("f").centerRight.let {
+                    localToScreen(it).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_noSpaceRemoved_fail() {
+        val text = "ab cdef gi"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // The gesture covers "cdef" which contains no spaces.
+                val startPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                    localToScreen(it).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("f").centerRight.let {
+                    localToScreen(it).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
+            assertThat(textFieldState.text).isEqualTo(text)
+            // Selection didn't move.
+            assertThat(textFieldState.selection).isEqualTo(TextRange(text.length))
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_startPointOutOfLineMargin() {
+        val text = "ab cd ef\ngh ij kl"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // The start point is out of line margin. and endPoint is now used to select
+                // the target line (the 2nd line).
+                // It'll remove the spaces between "h ij k".('h' is under 'b')
+                val startPoint = textLayoutResult.boundingBoxOf("b").topLeft.let {
+                    val offset = it.copy(y = it.y - lineMargin - 1)
+                    localToScreen(offset).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("k").centerRight.let {
+                    localToScreen(it).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "ab cd ef\nghijkl"
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+            // The cursor should be placed before 'k', the offset where the last space is removed.
+            val expectedSelection = TextRange(expectedText.indexOf('k'))
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_endPointOutOfLineMargin() {
+        val text = "ab cd ef\ngh ij kl"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // The end point is out of line margin. and startPoint is now used to select
+                // the target line (the 2nd line).
+                // It'll remove the spaces between "h ij k". ('k' is under 'e')
+                val startPoint = textLayoutResult.boundingBoxOf("h").centerLeft.let {
+                    localToScreen(it).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("e").topRight.let {
+                    val offset = it.copy(y = it.y - lineMargin - 1)
+                    localToScreen(offset).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "ab cd ef\nghijkl"
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+            // The cursor should be placed before 'k', the offset where the last space is removed.
+            val expectedSelection = TextRange(expectedText.indexOf('k'))
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_bothStartAndEndPointOutOfLineMargin_fallback() {
+        val text = "ab cdef gi"
+        val initialCursor = 3
+        val fallback = "fallback"
+        testTextFieldHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                // The gesture covers "cdef" which contains no spaces.
+                val startPoint = textLayoutResult.boundingBoxOf("c").topLeft.let {
+                    val offset = it.copy(y = it.y - lineMargin - 1f)
+                    localToScreen(offset).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("f").bottomRight.let {
+                    val offset = it.copy(y = it.y + lineMargin + 1f)
+                    localToScreen(offset).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldState.text).isEqualTo(expectedText)
+
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+        }
+    }
+
+    @Test
+    fun textField_removeSpaceGesture_bothStartAndEndPointOutOfLineMargin_fail() {
+        val text = "ab cd ef gi"
+        testTextFieldHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // The gesture covers "cdef" which contains no spaces.
+                val startPoint = textLayoutResult.boundingBoxOf("c").topLeft.let {
+                    val offset = it.copy(y = it.y - lineMargin - 1f)
+                    localToScreen(offset).toPointF()
+                }
+                val endPoint = textLayoutResult.boundingBoxOf("f").bottomRight.let {
+                    val offset = it.copy(y = it.y + lineMargin + 1f)
+                    localToScreen(offset).toPointF()
+                }
+
+                RemoveSpaceGesture.Builder()
+                    .setPoints(startPoint, endPoint)
+                    .build()
+            }
+        ) { textFieldState, resultCode ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
+            assertThat(textFieldState.text).isEqualTo(text)
             assertThat(textFieldState.selection).isEqualTo(TextRange(text.length))
         }
     }
