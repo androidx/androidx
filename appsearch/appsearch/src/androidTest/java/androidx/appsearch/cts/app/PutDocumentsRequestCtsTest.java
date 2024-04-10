@@ -29,7 +29,7 @@ import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.TakenAction;
+import androidx.appsearch.app.usagereporting.ClickAction;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.test.core.app.ApplicationProvider;
@@ -60,7 +60,7 @@ public class PutDocumentsRequestCtsTest {
         GenericDocument normalDocument = new GenericDocument.Builder<>(
                 "namespace", "id", "builtin:Thing").build();
         GenericDocument takenActionGenericDocument = new GenericDocument.Builder<>(
-                "namespace", "id", "builtin:TakenAction").build();
+                "namespace", "id", "builtin:ClickAction").build();
 
         PutDocumentsRequest.Builder builder = new PutDocumentsRequest.Builder()
                 .addGenericDocuments(normalDocument)
@@ -74,9 +74,9 @@ public class PutDocumentsRequestCtsTest {
     @Test
     public void addTakenActionGenericDocuments() throws Exception {
         GenericDocument takenActionGenericDocument1 = new GenericDocument.Builder<>(
-                "namespace", "id1", "builtin:TakenAction").build();
+                "namespace", "id1", "builtin:ClickAction").build();
         GenericDocument takenActionGenericDocument2 = new GenericDocument.Builder<>(
-                "namespace", "id2", "builtin:TakenAction").build();
+                "namespace", "id2", "builtin:ClickAction").build();
 
         PutDocumentsRequest request = new PutDocumentsRequest.Builder()
                 .addTakenActionGenericDocuments(
@@ -95,8 +95,8 @@ public class PutDocumentsRequestCtsTest {
     @Test
     public void addTakenActionGenericDocuments_byCollection() throws Exception {
         Set<GenericDocument> takenActionGenericDocuments = ImmutableSet.of(
-                new GenericDocument.Builder<>("namespace", "id1", "builtin:TakenAction").build(),
-                new GenericDocument.Builder<>("namespace", "id2", "builtin:TakenAction").build());
+                new GenericDocument.Builder<>("namespace", "id1", "builtin:ClickAction").build(),
+                new GenericDocument.Builder<>("namespace", "id2", "builtin:ClickAction").build());
 
         PutDocumentsRequest request = new PutDocumentsRequest.Builder()
                 .addTakenActionGenericDocuments(takenActionGenericDocuments)
@@ -111,7 +111,7 @@ public class PutDocumentsRequestCtsTest {
         assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
     }
 
-// @exportToFramework:startStrip()
+    // @exportToFramework:startStrip()
     @Document
     static class Card {
         @Document.Namespace
@@ -151,11 +151,11 @@ public class PutDocumentsRequestCtsTest {
 
     @Test
     public void addTakenActions() throws Exception {
-        TakenAction takenAction1 = new TakenAction.Builder("namespace", "id1").build();
-        TakenAction takenAction2 = new TakenAction.Builder("namespace", "id2").build();
+        ClickAction clickAction1 = new ClickAction.Builder("namespace", "id1").build();
+        ClickAction clickAction2 = new ClickAction.Builder("namespace", "id2").build();
 
         PutDocumentsRequest request = new PutDocumentsRequest.Builder()
-                .addTakenActions(takenAction1, takenAction2)
+                .addTakenActions(clickAction1, clickAction2)
                 .build();
 
         // Generic documents should contain nothing.
@@ -169,12 +169,12 @@ public class PutDocumentsRequestCtsTest {
 
     @Test
     public void addTakenActions_byCollection() throws Exception {
-        Set<TakenAction> takenActions = ImmutableSet.of(
-                new TakenAction.Builder("namespace", "id1").build(),
-                new TakenAction.Builder("namespace", "id2").build());
+        Set<ClickAction> clickActions = ImmutableSet.of(
+                new ClickAction.Builder("namespace", "id1").build(),
+                new ClickAction.Builder("namespace", "id2").build());
 
         PutDocumentsRequest request = new PutDocumentsRequest.Builder()
-                .addTakenActions(takenActions)
+                .addTakenActions(clickActions)
                 .build();
 
         // Generic documents should contain nothing.
