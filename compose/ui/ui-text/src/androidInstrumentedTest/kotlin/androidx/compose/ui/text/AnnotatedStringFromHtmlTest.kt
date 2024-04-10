@@ -401,6 +401,7 @@ class AnnotatedStringFromHtmlTest {
             linkStyle = SpanStyle(color = Color.Red),
             linkFocusedStyle = SpanStyle(color = Color.Green),
             linkHoveredStyle = SpanStyle(color = Color.Blue),
+            linkPressedStyle = SpanStyle(color = Color.Gray),
             linkInteractionListener = {}
         )
 
@@ -409,6 +410,7 @@ class AnnotatedStringFromHtmlTest {
         assertThat(link.style).isEqualTo(SpanStyle(color = Color.Red))
         assertThat(link.focusedStyle).isEqualTo(SpanStyle(color = Color.Green))
         assertThat(link.hoveredStyle).isEqualTo(SpanStyle(color = Color.Blue))
+        assertThat(link.pressedStyle).isEqualTo(SpanStyle(color = Color.Gray))
         assertThat(link.linkInteractionListener).isNotNull()
     }
 

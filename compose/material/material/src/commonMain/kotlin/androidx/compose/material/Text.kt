@@ -433,7 +433,7 @@ object TextDefaults {
         linkInteractionListener: LinkInteractionListener? = null
     ): AnnotatedString {
         return AnnotatedString.fromHtml(
-            htmlString, linkStyle, linkFocusedStyle, linkHoveredStyle, linkInteractionListener
+            htmlString, linkStyle, linkFocusedStyle, linkHoveredStyle, null, linkInteractionListener
         )
     }
 
@@ -452,7 +452,7 @@ object TextDefaults {
         linkInteractionListener: LinkInteractionListener? = null
     ): LinkAnnotation.Url {
         return LinkAnnotation.Url(
-            url, linkStyle, linkFocusedStyle, linkHoveredStyle, linkInteractionListener
+            url, linkStyle, linkFocusedStyle, linkHoveredStyle, null, linkInteractionListener
         )
     }
 
@@ -469,7 +469,7 @@ object TextDefaults {
         linkInteractionListener: LinkInteractionListener?
     ): LinkAnnotation.Clickable {
         return LinkAnnotation.Clickable(
-            tag, linkStyle, linkFocusedStyle, linkHoveredStyle, linkInteractionListener
+            tag, linkStyle, linkFocusedStyle, linkHoveredStyle, null, linkInteractionListener
         )
     }
 }
