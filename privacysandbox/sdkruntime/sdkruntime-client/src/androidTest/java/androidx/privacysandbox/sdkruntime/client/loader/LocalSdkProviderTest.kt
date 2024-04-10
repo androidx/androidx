@@ -31,10 +31,11 @@ import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
-import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientApiVersion
+import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -53,8 +54,10 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 internal class LocalSdkProviderTest(
+    @Suppress("unused") private val label: String, // Added to test names by JUnit
     private val sdkName: String,
-    private val sdkVersion: Int
+    private val originalSdkVersion: Int,
+    private val forcedSdkVersion: Int,
 ) {
 
     private lateinit var controller: TestStubController
@@ -65,9 +68,15 @@ internal class LocalSdkProviderTest(
         val sdkConfig = TestSdkConfigs.forSdkName(sdkName)
 
         controller = TestStubController()
-        loadedSdk = loadTestSdkFromAssets(sdkConfig, controller)
+
+        val overrideVersionHandshake = if (originalSdkVersion != forcedSdkVersion) {
+            VersionHandshake(forcedSdkVersion)
+        } else {
+            null
+        }
+        loadedSdk = loadTestSdkFromAssets(sdkConfig, controller, overrideVersionHandshake)
         assertThat(loadedSdk.extractApiVersion())
-            .isEqualTo(sdkVersion)
+            .isEqualTo(originalSdkVersion)
     }
 
     @Test
@@ -119,10 +128,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun getSandboxedSdks_delegateToSdkController() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 2",
-            sdkVersion >= 2
-        )
+        assumeFeatureAvailable(ClientFeature.SDK_SANDBOX_CONTROLLER)
 
         val expectedResult = SandboxedSdkCompat(
             sdkInterface = Binder(),
@@ -147,10 +153,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun getAppOwnedSdkSandboxInterfaces_delegateToSdkController() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 4",
-            sdkVersion >= 4
-        )
+        assumeFeatureAvailable(ClientFeature.APP_OWNED_INTERFACES)
 
         val expectedResult = AppOwnedSdkSandboxInterfaceCompat(
             name = "TestAppOwnedSdk",
@@ -173,10 +176,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun registerSdkSandboxActivityHandler_delegateToSdkController() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 3",
-            sdkVersion >= 3
-        )
+        assumeFeatureAvailable(ClientFeature.SDK_ACTIVITY_HANDLER)
 
         val catchingHandler = CatchingSdkActivityHandler()
 
@@ -198,10 +198,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun sdkSandboxActivityHandler_ReceivesLifecycleEventsFromOriginalActivityHolder() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 3",
-            sdkVersion >= 3
-        )
+        assumeFeatureAvailable(ClientFeature.SDK_ACTIVITY_HANDLER)
 
         val catchingHandler = CatchingSdkActivityHandler()
 
@@ -226,10 +223,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun unregisterSdkSandboxActivityHandler_delegateToSdkController() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 3",
-            sdkVersion >= 3
-        )
+        assumeFeatureAvailable(ClientFeature.SDK_ACTIVITY_HANDLER)
 
         val handler = CatchingSdkActivityHandler()
 
@@ -242,10 +236,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun loadSdk_returnsResultFromSdkController() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 5",
-            sdkVersion >= 5
-        )
+        assumeFeatureAvailable(ClientFeature.LOAD_SDK)
 
         val sdkName = "SDK"
         val sdkParams = Bundle()
@@ -265,10 +256,7 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun loadSdk_rethrowsExceptionFromSdkController() {
-        assumeTrue(
-            "Requires Versions.API_VERSION >= 5",
-            sdkVersion >= 5
-        )
+        assumeFeatureAvailable(ClientFeature.LOAD_SDK)
 
         val expectedError = LoadSdkCompatException(
             LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
@@ -311,40 +299,61 @@ internal class LocalSdkProviderTest(
         }
     }
 
+    private fun assumeFeatureAvailable(clientFeature: ClientFeature) {
+        assumeTrue(
+            "Requires $clientFeature available (API >= ${clientFeature.availableFrom})",
+            clientFeature.isAvailable(forcedSdkVersion)
+        )
+    }
+
     companion object {
 
         /**
-         * Create test params for each previously released [Versions.API_VERSION] + current one.
+         * Create test params for each supported [ClientApiVersion] + current and future.
          * Each released version must have test-sdk named as "vX" (where X is version to test).
          * These TestSDKs should be registered in RuntimeEnabledSdkTable.xml and be compatible with
          * [TestSdkWrapper].
          */
-        @Parameterized.Parameters(name = "sdk: {0}, version: {1}")
+        @Parameterized.Parameters(name = "{0}")
         @JvmStatic
         fun params(): List<Array<Any>> = buildList {
-            for (apiVersion in 1..Versions.API_VERSION) {
-                if (apiVersion == 3) {
-                    continue // V3 was released as V4 (original release postponed)
-                }
-                add(
-                    arrayOf(
-                        "v$apiVersion",
-                        apiVersion,
+            ClientApiVersion.values().forEach { version ->
+                // FUTURE_VERSION tested separately
+                if (version != ClientApiVersion.FUTURE_VERSION) {
+                    add(
+                        arrayOf(
+                            "v${version.apiLevel}",
+                            "v${version.apiLevel}",
+                            version.apiLevel,
+                            version.apiLevel,
+                        )
                     )
-                )
+                }
             }
 
             add(
                 arrayOf(
+                    "current_version",
                     "current",
-                    Versions.API_VERSION
+                    ClientApiVersion.CURRENT_VERSION.apiLevel,
+                    ClientApiVersion.CURRENT_VERSION.apiLevel
+                )
+            )
+
+            add(
+                arrayOf(
+                    "future_version",
+                    "current",
+                    ClientApiVersion.CURRENT_VERSION.apiLevel,
+                    ClientApiVersion.FUTURE_VERSION.apiLevel
                 )
             )
         }
 
         private fun loadTestSdkFromAssets(
             sdkConfig: LocalSdkConfig,
-            controller: TestStubController
+            controller: TestStubController,
+            overrideVersionHandshake: VersionHandshake?
         ): LocalSdkProvider {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val testStorage = TestLocalSdkStorage(
@@ -358,7 +367,7 @@ internal class LocalSdkProviderTest(
                     override fun createControllerFor(sdkConfig: LocalSdkConfig) = controller
                 }
             )
-            return sdkLoader.loadSdk(sdkConfig)
+            return sdkLoader.loadSdk(sdkConfig, overrideVersionHandshake)
         }
     }
 
@@ -419,6 +428,10 @@ internal class LocalSdkProviderTest(
             handlerCompat: SdkSandboxActivityHandlerCompat
         ) {
             sdkActivityHandlers.values.remove(handlerCompat)
+        }
+
+        override fun getClientPackageName(): String {
+            throw UnsupportedOperationException("Not supported yet")
         }
     }
 }

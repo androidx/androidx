@@ -53,13 +53,3 @@ internal fun SQLiteStatement.columnIndexOf(name: String): Int {
     }
     return -1
 }
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun getColumnNames(statement: SQLiteStatement): Array<String> {
-    val columnCount = statement.getColumnCount()
-    val columnNames = mutableListOf<String>()
-    for (index in 0 until columnCount) {
-        columnNames.add(index, statement.getColumnName(index))
-    }
-    return columnNames.toTypedArray()
-}

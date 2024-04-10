@@ -1,6 +1,5 @@
 import androidx.room.AmbiguousColumnResolver
 import androidx.room.RoomDatabase
-import androidx.room.util.getColumnNames
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
 import java.nio.ByteBuffer
@@ -19,7 +18,7 @@ import kotlin.collections.MutableMap
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
@@ -34,9 +33,9 @@ public class MyDao_Impl(
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _cursorIndices: Array<IntArray> = AmbiguousColumnResolver.resolve(getColumnNames(_stmt),
-            arrayOf(arrayOf("id", "name"), arrayOf("userId", "url", "data"), arrayOf("id", "userId",
-            "text")))
+        val _cursorIndices: Array<IntArray> =
+            AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"),
+            arrayOf("userId", "url", "data"), arrayOf("id", "userId", "text")))
         val _result: MutableMap<User, MutableMap<Avatar, MutableList<Comment>>> =
             LinkedHashMap<User, MutableMap<Avatar, MutableList<Comment>>>()
         while (_stmt.step()) {

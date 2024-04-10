@@ -28,7 +28,13 @@ import androidx.collection.size
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
+import androidx.navigation.serialization.generateRouteWithArgs
 import java.lang.StringBuilder
+import kotlin.reflect.KClass
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 /**
  * NavGraph is a collection of [NavDestination] nodes fetchable by ID.
@@ -180,6 +186,33 @@ public actual open class NavGraph actual constructor(
      */
     public actual fun findNode(route: String?): NavDestination? {
         return if (!route.isNullOrBlank()) findNode(route, true) else null
+    }
+
+    /**
+     * Finds a destination in the collection by route from [KClass]. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param T Route from a [KClass] to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    @OptIn(InternalSerializationApi::class)
+    @ExperimentalSafeArgsApi
+    public inline fun <reified T> findNode(): NavDestination? {
+        return findNode(serializer<T>().hashCode())
+    }
+
+    /**
+     * Finds a destination in the collection by route from Object. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param route Route to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    @OptIn(InternalSerializationApi::class)
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    @ExperimentalSafeArgsApi
+    public fun <T> findNode(route: T?): NavDestination? {
+        return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -438,11 +471,44 @@ public actual inline operator fun NavGraph.get(route: String): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
+/**
+ * Returns the destination with `route` from [KClass].
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+@ExperimentalSafeArgsApi
+
+public inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): NavDestination =
+    findNode<T>()
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
+/**
+ * Returns the destination with `route` from an Object.
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+@ExperimentalSafeArgsApi
+public inline operator fun <T> NavGraph.get(route: T): NavDestination =
+    findNode(route)
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
 /** Returns `true` if a destination with `id` is found in this navigation graph. */
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 public actual operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+@Suppress("UNUSED_PARAMETER")
+@ExperimentalSafeArgsApi
+public inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
+    findNode<T>() != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+@ExperimentalSafeArgsApi
+public operator fun <T> NavGraph.contains(route: T): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an

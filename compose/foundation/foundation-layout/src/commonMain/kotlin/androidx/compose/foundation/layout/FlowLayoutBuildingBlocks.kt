@@ -17,6 +17,7 @@ package androidx.compose.foundation.layout
 
 import androidx.collection.IntIntPair
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import kotlin.math.max
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -35,8 +36,9 @@ internal class FlowLayoutBuildingBlocks(
 
     class WrapEllipsisInfo(
         val ellipsis: Measurable,
+        val placeable: Placeable?,
         val ellipsisSize: IntIntPair,
-        val placeEllipsisOnLastContentLine: Boolean,
+        var placeEllipsisOnLastContentLine: Boolean = true,
     )
 
     fun getWrapEllipsisInfo(
@@ -49,29 +51,18 @@ internal class FlowLayoutBuildingBlocks(
     ): WrapEllipsisInfo? {
         if (!wrapInfo.isLastItemInContainer) return null
 
-        val ellipsis = overflow.ellipsis(
+        val ellipsisInfo = overflow.ellipsisInfo(
             hasNext,
             lastContentLineIndex,
-            getFinalMeasurable = true,
             totalCrossAxisSize
         ) ?: return null
 
-        val ellipsisSize = ellipsis.let {
-            overflow.ellipsisSize(
-                hasNext,
-                lastContentLineIndex,
-                totalCrossAxisSize
-            )
-        } ?: return null
-
         val canFitLine = lastContentLineIndex >= 0 && (nextIndexInLine == 0 ||
-            !(leftOverMainAxis - ellipsisSize.first < 0 || nextIndexInLine >= maxItemsInMainAxis))
+            !(leftOverMainAxis - ellipsisInfo.ellipsisSize.first < 0 ||
+                nextIndexInLine >= maxItemsInMainAxis))
 
-        return WrapEllipsisInfo(
-            ellipsis,
-            ellipsisSize,
-            canFitLine
-        )
+        ellipsisInfo.placeEllipsisOnLastContentLine = canFitLine
+        return ellipsisInfo
     }
 
     fun getWrapInfo(

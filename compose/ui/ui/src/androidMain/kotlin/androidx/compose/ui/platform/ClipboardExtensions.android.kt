@@ -23,9 +23,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 /**
  * Returns the first non-null [Uri] from the list of [ClipData.Item]s in this [ClipEntry].
  *
- * Do not forget that each [ClipEntry] can contain multiple [ClipData.Item]s in its [ClipData],
- * therefore it can have multiple [Uri]s. Always check whether you are processing all the items in
- * a given [ClipEntry].
+ * ClipEntry can contain single or multiple [ClipData.Item]s. This function is useful when you are
+ * only interested in processing just a single [Uri] item inside the [ClipEntry].
+ *
+ * It's advised that you consider checking all the items inside [ClipEntry.clipData] to thoroughly
+ * process a given [ClipEntry].
  */
 @ExperimentalComposeUiApi
 fun ClipEntry.firstUriOrNull(): Uri? {

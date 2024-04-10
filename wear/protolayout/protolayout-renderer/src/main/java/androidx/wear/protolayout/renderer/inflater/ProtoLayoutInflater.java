@@ -118,6 +118,7 @@ import androidx.wear.protolayout.proto.DimensionProto.ExpandedAngularDimensionPr
 import androidx.wear.protolayout.proto.DimensionProto.ExpandedDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.ExtensionDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ImageDimension;
+import androidx.wear.protolayout.proto.DimensionProto.PivotDimension;
 import androidx.wear.protolayout.proto.DimensionProto.ProportionalDimensionProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpProp;
 import androidx.wear.protolayout.proto.DimensionProto.SpacerDimension;
@@ -167,11 +168,13 @@ import androidx.wear.protolayout.proto.ModifiersProto.SlideInTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideOutTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption;
 import androidx.wear.protolayout.proto.ModifiersProto.SpanModifiers;
+import androidx.wear.protolayout.proto.ModifiersProto.Transformation;
 import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.protolayout.proto.TriggerProto.OnConditionMetTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.OnLoadTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.proto.TypesProto.BoolProp;
+import androidx.wear.protolayout.proto.TypesProto.FloatProp;
 import androidx.wear.protolayout.proto.TypesProto.StringProp;
 import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
@@ -875,8 +878,12 @@ public final class ProtoLayoutInflater {
         this.mApplyFontVariantBodyAsDefault = config.getApplyFontVariantBodyAsDefault();
     }
 
+    private int dpToPx(float dp) {
+        return round(dp * mUiContext.getResources().getDisplayMetrics().density);
+    }
+
     private int safeDpToPx(float dp) {
-        return round(max(0, dp) * mUiContext.getResources().getDisplayMetrics().density);
+        return max(0, dpToPx(dp));
     }
 
     private int safeDpToPx(DpProp dpProp) {
@@ -1545,6 +1552,120 @@ public final class ProtoLayoutInflater {
         return drawable;
     }
 
+
+    private void applyTransformation(
+            @NonNull View view,
+            @NonNull Transformation transformation,
+            @NonNull String posId,
+            @NonNull Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        // In a composite transformation, the order of applying the individual transformations
+        // does not affect the result, as Android view does the transformation in fixed order by
+        // first scale, then rotate then translate.
+
+        if (transformation.hasTranslationX()) {
+            handleProp(
+                    transformation.getTranslationX(),
+                    translationX -> view.setTranslationX(dpToPx(translationX)),
+                    posId,
+                    pipelineMaker);
+        }
+
+        if (transformation.hasTranslationY()) {
+            handleProp(
+                    transformation.getTranslationY(),
+                    translationY -> view.setTranslationY(dpToPx(translationY)),
+                    posId,
+                    pipelineMaker);
+        }
+
+        if (transformation.hasScaleX()) {
+            handleProp(transformation.getScaleX(), view::setScaleX, posId, pipelineMaker);
+        }
+
+        if (transformation.hasScaleY()) {
+            handleProp(transformation.getScaleY(), view::setScaleY, posId, pipelineMaker);
+        }
+
+        if (transformation.hasRotation()) {
+            handleProp(transformation.getRotation(), view::setRotation, posId, pipelineMaker);
+        }
+
+        if (transformation.hasPivotX()) {
+            applyTransformationPivot(
+                    view,
+                    transformation.getPivotX(),
+                    offsetDp -> setPivotInOffsetDp(view, offsetDp, PivotType.X),
+                    locationRatio -> setPivotInLocationRatio(view, locationRatio, PivotType.X),
+                    posId,
+                    pipelineMaker);
+        }
+
+        if (transformation.hasPivotY()) {
+            applyTransformationPivot(
+                    view,
+                    transformation.getPivotY(),
+                    offsetDp -> setPivotInOffsetDp(view, offsetDp, PivotType.Y),
+                    locationRatio -> setPivotInLocationRatio(view, locationRatio, PivotType.Y),
+                    posId,
+                    pipelineMaker);
+        }
+    }
+
+    private enum PivotType {
+        X,
+        Y;
+    }
+
+    private void setPivotInOffsetDp(View view, float pivot, PivotType type) {
+        if (type == PivotType.X) {
+            view.setPivotX(dpToPx(pivot) + view.getWidth() * 0.5f);
+        } else {
+            view.setPivotY(dpToPx(pivot) + view.getHeight() * 0.5f);
+        }
+    }
+
+    private void setPivotInLocationRatio(View view, float pivot, PivotType type) {
+        if (type == PivotType.X) {
+            view.setPivotX(pivot * view.getWidth());
+        } else {
+            view.setPivotY(pivot * view.getHeight());
+        }
+    }
+
+    private void applyTransformationPivot(
+            View view,
+            PivotDimension pivotDimension,
+            Consumer<Float> consumerOffsetDp,
+            Consumer<Float> consumerLocationRatio,
+            @NonNull String posId,
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        switch (pivotDimension.getInnerCase()) {
+            case OFFSET_DP:
+                DpProp offset = pivotDimension.getOffsetDp();
+                handleProp(
+                        offset,
+                        value -> view.post(() -> consumerOffsetDp.accept(value)),
+                        consumerOffsetDp,
+                        posId,
+                        pipelineMaker);
+                break;
+            case LOCATION_RATIO:
+                FloatProp ratio = pivotDimension.getLocationRatio().getRatio();
+                handleProp(
+                        ratio,
+                        value -> view.post(() -> consumerLocationRatio.accept(value)),
+                        consumerLocationRatio,
+                        posId,
+                        pipelineMaker);
+                break;
+            case INNER_NOT_SET:
+                Log.w(
+                        TAG,
+                        "PivotDimension has an unknown dimension type: "
+                                + pivotDimension.getInnerCase().name());
+        }
+    }
+
     private View applyModifiers(
             @NonNull View view,
             @Nullable View wrapper, // The wrapper view for layout sizing, if any
@@ -1606,6 +1727,16 @@ public final class ProtoLayoutInflater {
                     p ->
                             p.storeAnimatedVisibilityFor(
                                     posId, modifiers.getContentUpdateAnimation()));
+        }
+
+        if (modifiers.hasTransformation()) {
+            applyTransformation(
+                    wrapper == null ? view : wrapper, modifiers.getTransformation(), posId,
+                    pipelineMaker);
+        }
+
+        if (modifiers.hasOpacity()) {
+            handleProp(modifiers.getOpacity(), view::setAlpha, posId, pipelineMaker);
         }
 
         return view;
@@ -1869,6 +2000,10 @@ public final class ProtoLayoutInflater {
 
         if (modifiers.hasSemantics()) {
             applySemantics(view, modifiers.getSemantics(), posId, pipelineMaker);
+        }
+
+        if (modifiers.hasOpacity()) {
+            handleProp(modifiers.getOpacity(), view::setAlpha, posId, pipelineMaker);
         }
 
         return view;
@@ -3708,15 +3843,26 @@ public final class ProtoLayoutInflater {
 
         switch (element.getInnerCase()) {
             case ADAPTER:
-                // Fall back to the normal inflater.
-                inflatedView =
-                        inflateLayoutElement(
-                                parentViewWrapper,
-                                element.getAdapter().getContent(),
-                                nodePosId,
-                                /* includeChildren= */ true,
-                                layoutInfoBuilder,
-                                pipelineMaker);
+                if (hasTransformation(element.getAdapter().getContent())) {
+                    Log.e(
+                            TAG,
+                            "Error inflating "
+                                    + element.getAdapter().getContent().getInnerCase().name()
+                                    + " in the arc. Transformation modifier is not supported for "
+                                    + "the layout element"
+                                    + "  inside an ArcAdapter.");
+                    inflatedView = null;
+                } else {
+                    // Fall back to the normal inflater.
+                    inflatedView =
+                            inflateLayoutElement(
+                                    parentViewWrapper,
+                                    element.getAdapter().getContent(),
+                                    nodePosId,
+                                    /* includeChildren= */ true,
+                                    layoutInfoBuilder,
+                                    pipelineMaker);
+                }
                 break;
 
             case SPACER:
@@ -3763,6 +3909,41 @@ public final class ProtoLayoutInflater {
             pipelineMaker.ifPresent(pipe -> pipe.rememberNode(nodePosId));
         }
         return inflatedView;
+    }
+
+    /** Checks whether a layout element has a transformation modifier. */
+    private static boolean hasTransformation(@NonNull LayoutElement content) {
+        switch (content.getInnerCase()) {
+            case IMAGE:
+                return content.getImage().hasModifiers()
+                        && content.getImage().getModifiers().hasTransformation();
+            case TEXT:
+                return content.getText().hasModifiers()
+                        && content.getText().getModifiers().hasTransformation();
+            case SPACER:
+                return content.getSpacer().hasModifiers()
+                        && content.getSpacer().getModifiers().hasTransformation();
+            case BOX:
+                return content.getBox().hasModifiers()
+                        && content.getBox().getModifiers().hasTransformation();
+            case ROW:
+                return content.getRow().hasModifiers()
+                        && content.getRow().getModifiers().hasTransformation();
+            case COLUMN:
+                return content.getColumn().hasModifiers()
+                        && content.getColumn().getModifiers().hasTransformation();
+            case SPANNABLE:
+                return content.getSpannable().hasModifiers()
+                        && content.getSpannable().getModifiers().hasTransformation();
+            case ARC:
+                return content.getArc().hasModifiers()
+                        && content.getArc().getModifiers().hasTransformation();
+            case EXTENSION:
+                // fall through
+            case INNER_NOT_SET:
+                return false;
+        }
+        return false;
     }
 
     @Nullable
@@ -3978,15 +4159,25 @@ public final class ProtoLayoutInflater {
             Consumer<Float> consumer,
             String posId,
             Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        handleProp(dpProp, consumer, consumer, posId, pipelineMaker);
+    }
+
+    private void handleProp(
+            DpProp dpProp,
+            Consumer<Float> staticValueConsumer,
+            Consumer<Float> dynamicValueConsumer,
+            String posId,
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
         if (dpProp.hasDynamicValue() && pipelineMaker.isPresent()) {
             try {
-                pipelineMaker.get().addPipelineFor(dpProp, dpProp.getValue(), posId, consumer);
+                pipelineMaker.get().addPipelineFor(dpProp, dpProp.getValue(), posId,
+                        dynamicValueConsumer);
             } catch (RuntimeException ex) {
                 Log.e(TAG, "Error building pipeline", ex);
-                consumer.accept(dpProp.getValue());
+                staticValueConsumer.accept(dpProp.getValue());
             }
         } else {
-            consumer.accept(dpProp.getValue());
+            staticValueConsumer.accept(dpProp.getValue());
         }
     }
 
@@ -4021,6 +4212,36 @@ public final class ProtoLayoutInflater {
             }
         } else {
             consumer.accept(boolProp.getValue());
+        }
+    }
+
+    private void handleProp(
+            FloatProp floatProp,
+            Consumer<Float> consumer,
+            String posId,
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        handleProp(floatProp, consumer, consumer, posId, pipelineMaker);
+    }
+
+    private void handleProp(
+            FloatProp floatProp,
+            Consumer<Float> staticValueConsumer,
+            Consumer<Float> dynamicValueconsumer,
+            String posId,
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        if (floatProp.hasDynamicValue() && pipelineMaker.isPresent()) {
+            try {
+                pipelineMaker
+                        .get()
+                        .addPipelineFor(
+                                floatProp.getDynamicValue(), floatProp.getValue(), posId,
+                                dynamicValueconsumer);
+            } catch (RuntimeException ex) {
+                Log.e(TAG, "Error building pipeline", ex);
+                staticValueConsumer.accept(floatProp.getValue());
+            }
+        } else {
+            staticValueConsumer.accept(floatProp.getValue());
         }
     }
 

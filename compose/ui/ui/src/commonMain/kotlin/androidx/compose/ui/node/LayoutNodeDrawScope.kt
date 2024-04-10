@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.toSize
  */
 @OptIn(ExperimentalComposeUiApi::class)
 internal class LayoutNodeDrawScope(
-    private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
+    val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
 ) : DrawScope by canvasDrawScope, ContentDrawScope {
 
     // NOTE, currently a single ComponentDrawScope is shared across composables

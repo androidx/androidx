@@ -42,6 +42,7 @@ import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ancestors
 import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.nearestAncestor
+import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitLocalDescendants
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.LayoutDirection
@@ -267,10 +268,10 @@ internal class FocusOwnerImpl(
 
         val activeFocusTarget = rootFocusNode.findActiveFocusNode()
         val focusedKeyInputNode = activeFocusTarget?.lastLocalKeyInputNode()
-            ?: activeFocusTarget?.nearestAncestor(Nodes.KeyInput)?.node
+            ?: activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.KeyInput)?.node
             ?: rootFocusNode.nearestAncestor(Nodes.KeyInput)?.node
 
-        focusedKeyInputNode?.traverseAncestors(
+        focusedKeyInputNode?.traverseAncestorsIncludingSelf(
             type = Nodes.KeyInput,
             onPreVisit = { if (it.onPreKeyEvent(keyEvent)) return true },
             onVisit = { if (onFocusedItem.invoke()) return true },
@@ -286,9 +287,9 @@ internal class FocusOwnerImpl(
         }
 
         val focusedSoftKeyboardInterceptionNode = rootFocusNode.findActiveFocusNode()
-            ?.nearestAncestor(Nodes.SoftKeyboardKeyInput)
+            ?.nearestAncestorIncludingSelf(Nodes.SoftKeyboardKeyInput)
 
-        focusedSoftKeyboardInterceptionNode?.traverseAncestors(
+        focusedSoftKeyboardInterceptionNode?.traverseAncestorsIncludingSelf(
             type = Nodes.SoftKeyboardKeyInput,
             onPreVisit = { if (it.onPreInterceptKeyBeforeSoftKeyboard(keyEvent)) return true },
             onVisit = { /* TODO(b/320510084): dispatch soft keyboard events to embedded views. */ },
@@ -306,9 +307,9 @@ internal class FocusOwnerImpl(
         }
 
         val focusedRotaryInputNode = rootFocusNode.findActiveFocusNode()
-            ?.nearestAncestor(Nodes.RotaryInput)
+            ?.nearestAncestorIncludingSelf(Nodes.RotaryInput)
 
-        focusedRotaryInputNode?.traverseAncestors(
+        focusedRotaryInputNode?.traverseAncestorsIncludingSelf(
             type = Nodes.RotaryInput,
             onPreVisit = { if (it.onPreRotaryScrollEvent(event)) return true },
             onVisit = { /* TODO(b/320510084): dispatch rotary events to embedded views. */ },
@@ -342,7 +343,7 @@ internal class FocusOwnerImpl(
         }
     }
 
-    private inline fun <reified T : DelegatableNode> DelegatableNode.traverseAncestors(
+    private inline fun <reified T : DelegatableNode> DelegatableNode.traverseAncestorsIncludingSelf(
         type: NodeKind<T>,
         onPreVisit: (T) -> Unit,
         onVisit: () -> Unit,
@@ -354,6 +355,15 @@ internal class FocusOwnerImpl(
         onVisit.invoke()
         node.dispatchForKind(type, onPostVisit)
         ancestors?.fastForEach(onPostVisit)
+    }
+
+    private inline fun <reified T : Any> DelegatableNode.nearestAncestorIncludingSelf(
+        type: NodeKind<T>
+    ): T? {
+        visitAncestors(type, includeSelf = true) {
+            return it
+        }
+        return null
     }
 
     /**

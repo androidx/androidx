@@ -179,7 +179,7 @@ value class CameraId(val value: String) {
      * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
      */
     inline fun toCamera1Id(): Int? = value.toIntOrNull()
-    override fun toString(): String = "Camera $value"
+    override fun toString(): String = "CameraId-$value"
 }
 
 /**

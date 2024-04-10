@@ -160,6 +160,7 @@ internal class Camera2CaptureSequenceProcessor(
 
             if (request.inputRequest != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 checkNotNull(imageWriter) {
+                    request.inputRequest.image.close()
                     "Failed to create ImageWriter for capture session: $session"
                 }
 
@@ -310,6 +311,9 @@ internal class Camera2CaptureSequenceProcessor(
     }
 
     override fun close() = synchronized(lock) {
+        if (closed) {
+            return@synchronized
+        }
         // Close should not shut down
         Debug.trace("$this#close") {
             if (shouldWaitForRepeatingRequest) {
@@ -329,10 +333,11 @@ internal class Camera2CaptureSequenceProcessor(
             }
             closed = true
         }
+        imageWriter?.close()
     }
 
     override fun toString(): String {
-        return "Camera2RequestProcessor-$debugId"
+        return "Camera2CaptureSequenceProcessor-$debugId"
     }
 
     /** The [ImageWriterWrapper] is created once per capture session when the capture
@@ -460,15 +465,13 @@ internal class Camera2CaptureSequenceProcessor(
 
                 val surface = surfaceMap[stream]
                 if (surface != null) {
-                    Log.debug { "  Binding $stream to $surface" }
-
                     // TODO(codelogic) There should be a more efficient way to do these lookups than
                     // having two maps.
                     surfaceToStreamMap[surface] = stream
                     streamToSurfaceMap[stream] = surface
                     hasSurface = true
                 } else if (REQUIRE_SURFACE_FOR_ALL_STREAMS) {
-                    Log.info { "  Failed to bind surface to $stream" }
+                    Log.info { "  Failed to bind surface for $stream" }
 
                     // If requireStreams is set we are required to map every stream to a valid
                     // Surface object for this request. If this condition is violated, then we

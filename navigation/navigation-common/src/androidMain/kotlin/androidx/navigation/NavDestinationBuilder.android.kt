@@ -19,7 +19,6 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
-import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.navigation.serialization.generateNavArguments
 import androidx.navigation.serialization.generateRoutePattern
@@ -88,12 +87,12 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      *
      * @return the newly constructed [NavDestination]
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalSafeArgsApi
     @OptIn(InternalSerializationApi::class)
     public constructor(
         navigator: Navigator<out D>,
-        route: KClass<*>? = null,
-        typeMap: Map<KType, NavType<*>>? = null,
+        @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : this(
         navigator,
         route?.serializer()?.hashCode() ?: -1,

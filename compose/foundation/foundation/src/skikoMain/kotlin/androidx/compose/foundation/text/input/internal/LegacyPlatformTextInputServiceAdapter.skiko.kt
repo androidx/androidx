@@ -35,9 +35,6 @@ internal actual fun legacyPlatformTextInputServiceAdapter(): LegacyPlatformTextI
     return remember(service) {
         object : LegacyPlatformTextInputServiceAdapter() {
             private var session: TextInputSession? = null
-
-
-            // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1298/Implement-isStylusHandwritingSupported
             override fun startStylusHandwriting() {}
 
             override fun startInput(

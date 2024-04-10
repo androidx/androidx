@@ -60,6 +60,8 @@ internal class EmojiPickerPopupBidirectionalDesign(
             updateTemplate()
             popupView.removeViews( /* start= */1, getActualNumberOfRows())
             addRowsToPopupView()
+            imageView.announceForAccessibility(
+                context.getString(R.string.emoji_bidirectional_switcher_clicked_desc))
         }
     }
 

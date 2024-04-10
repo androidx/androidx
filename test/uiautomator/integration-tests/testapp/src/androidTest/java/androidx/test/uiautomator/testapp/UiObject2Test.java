@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -41,6 +42,7 @@ import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.EventCondition;
+import androidx.test.uiautomator.StaleObjectException;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
@@ -389,8 +391,7 @@ public class UiObject2Test extends BaseTest {
     public void testHashCode() {
         launchTestActivity(MainActivity.class);
 
-        // Get the same textView object via different methods.
-        // The same object should have the same hash code.
+        // Same object (found w/ different selectors) should have the same hash code.
         UiObject2 textView1 = mDevice.findObject(By.res(TEST_APP, "example_id"));
         UiObject2 textView2 = mDevice.findObject(By.text("TextView with an id"));
         assertEquals(textView1.hashCode(), textView2.hashCode());
@@ -398,6 +399,15 @@ public class UiObject2Test extends BaseTest {
         // Different objects should have different hash codes.
         UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         assertNotEquals(textView1.hashCode(), linearLayout.hashCode());
+
+        // Use cached hash code for stale objects to avoid unnecessary SOEs.
+        int hashCode = textView1.hashCode();
+        mDevice.pressHome();
+        try {
+            assertEquals(hashCode, textView1.hashCode());
+        } catch (StaleObjectException e) {
+            fail("Unexpected StaleObjectException while calculating hash code");
+        }
     }
 
     @Test

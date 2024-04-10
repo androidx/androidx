@@ -18,8 +18,6 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.PathVerb
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1296/Review-PathIterator-implementation
-
 actual fun PathIterator(
     path: Path,
     conicEvaluation: PathIterator.ConicEvaluation,

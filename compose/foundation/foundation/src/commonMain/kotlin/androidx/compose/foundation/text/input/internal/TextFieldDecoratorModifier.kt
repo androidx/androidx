@@ -28,11 +28,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActionScope
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.handwriting.detectStylusHandwriting
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState
 import androidx.compose.ui.focus.FocusDirection
@@ -87,8 +87,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -120,7 +118,7 @@ internal data class TextFieldDecoratorModifier(
     private val enabled: Boolean,
     private val readOnly: Boolean,
     private val keyboardOptions: KeyboardOptions,
-    private val keyboardActions: KeyboardActions,
+    private val keyboardActionHandler: KeyboardActionHandler?,
     private val singleLine: Boolean,
     private val interactionSource: MutableInteractionSource
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
@@ -132,7 +130,7 @@ internal data class TextFieldDecoratorModifier(
         enabled = enabled,
         readOnly = readOnly,
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
+        keyboardActionHandler = keyboardActionHandler,
         singleLine = singleLine,
         interactionSource = interactionSource,
     )
@@ -146,7 +144,7 @@ internal data class TextFieldDecoratorModifier(
             enabled = enabled,
             readOnly = readOnly,
             keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
+            keyboardActionHandler = keyboardActionHandler,
             singleLine = singleLine,
             interactionSource = interactionSource,
         )
@@ -167,7 +165,7 @@ internal class TextFieldDecoratorModifierNode(
     var enabled: Boolean,
     var readOnly: Boolean,
     keyboardOptions: KeyboardOptions,
-    var keyboardActions: KeyboardActions,
+    var keyboardActionHandler: KeyboardActionHandler?,
     var singleLine: Boolean,
     var interactionSource: MutableInteractionSource
 ) : DelegatingNode(),
@@ -275,8 +273,8 @@ internal class TextFieldDecoratorModifierNode(
         textFieldDragAndDropNode(
             hintMediaTypes = {
                 val receiveContentConfiguration = getReceiveContentConfiguration()
-                // if receiveContent configuration is set, all drag operations should be
-                // accepted. ReceiveContent handler should evaluate the incoming content.
+                // if ReceiveContentConfiguration is set, all drag events should be accepted.
+                // ContentReceiver handler should evaluate the incoming content.
                 if (receiveContentConfiguration != null) {
                     MediaTypesAll
                 } else {
@@ -339,7 +337,8 @@ internal class TextFieldDecoratorModifierNode(
             })
     )
 
-    var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
+    var keyboardOptions: KeyboardOptions =
+        keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
         private set
 
     /**
@@ -376,25 +375,9 @@ internal class TextFieldDecoratorModifierNode(
                 ImeAction.Done -> {
                     requireKeyboardController().hide()
                 }
-                ImeAction.Go, ImeAction.Search, ImeAction.Send,
-                ImeAction.Default, ImeAction.None -> Unit
+                else -> Unit
             }
         }
-    }
-
-    private val onImeActionPerformed: (ImeAction) -> Unit = { imeAction ->
-        val keyboardAction = when (imeAction) {
-            ImeAction.Done -> keyboardActions.onDone
-            ImeAction.Go -> keyboardActions.onGo
-            ImeAction.Next -> keyboardActions.onNext
-            ImeAction.Previous -> keyboardActions.onPrevious
-            ImeAction.Search -> keyboardActions.onSearch
-            ImeAction.Send -> keyboardActions.onSend
-            ImeAction.Default, ImeAction.None -> null
-            else -> error("invalid ImeAction")
-        }
-        keyboardAction?.invoke(keyboardActionScope)
-            ?: keyboardActionScope.defaultKeyboardAction(imeAction)
     }
 
     /**
@@ -418,7 +401,7 @@ internal class TextFieldDecoratorModifierNode(
         enabled: Boolean,
         readOnly: Boolean,
         keyboardOptions: KeyboardOptions,
-        keyboardActions: KeyboardActions,
+        keyboardActionHandler: KeyboardActionHandler?,
         singleLine: Boolean,
         interactionSource: MutableInteractionSource
     ) {
@@ -440,8 +423,8 @@ internal class TextFieldDecoratorModifierNode(
         this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
-        this.keyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
-        this.keyboardActions = keyboardActions
+        this.keyboardOptions = keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
+        this.keyboardActionHandler = keyboardActionHandler
         this.singleLine = singleLine
         this.interactionSource = interactionSource
 
@@ -548,8 +531,10 @@ internal class TextFieldDecoratorModifierNode(
             textFieldState.replaceSelectedText(newText, clearComposition = true)
             true
         }
-        onImeAction(keyboardOptions.imeAction) {
-            onImeActionPerformed(keyboardOptions.imeAction)
+
+        val effectiveImeAction = keyboardOptions.imeActionOrDefault
+        onImeAction(effectiveImeAction) {
+            onImeActionPerformed(effectiveImeAction)
             true
         }
         onClick {
@@ -675,7 +660,7 @@ internal class TextFieldDecoratorModifierNode(
             textFieldSelectionState = textFieldSelectionState,
             editable = enabled && !readOnly,
             singleLine = singleLine,
-            onSubmit = { onImeActionPerformed(keyboardOptions.imeAction) }
+            onSubmit = { onImeActionPerformed(keyboardOptions.imeActionOrDefault) }
         )
     }
 
@@ -688,7 +673,7 @@ internal class TextFieldDecoratorModifierNode(
     }
 
     private fun startInputSession(fromTap: Boolean) {
-        if (!fromTap && !keyboardOptions.shouldShowKeyboardOnFocus) return
+        if (!fromTap && !keyboardOptions.showKeyboardOnFocusOrDefault) return
 
         val receiveContentConfiguration = getReceiveContentConfiguration()
 
@@ -706,7 +691,7 @@ internal class TextFieldDecoratorModifierNode(
                     layoutState = textLayoutState,
                     imeOptions = keyboardOptions.toImeOptions(singleLine),
                     receiveContentConfiguration = receiveContentConfiguration,
-                    onImeAction = onImeActionPerformed,
+                    onImeAction = ::onImeActionPerformed,
                     stylusHandwritingTrigger = stylusHandwritingTrigger,
                 )
             }
@@ -739,6 +724,22 @@ internal class TextFieldDecoratorModifierNode(
             dragEnterEvent = null
         }
     }
+
+    private fun onImeActionPerformed(imeAction: ImeAction) {
+        if (imeAction == ImeAction.None ||
+            imeAction == ImeAction.Default ||
+            keyboardActionHandler == null) {
+            // this should never happen but better be safe
+            keyboardActionScope.defaultKeyboardAction(imeAction)
+            return
+        }
+
+        keyboardActionHandler?.onKeyboardAction(
+            performDefaultAction = {
+                keyboardActionScope.defaultKeyboardAction(imeAction)
+            }
+        )
+    }
 }
 
 /**
@@ -752,33 +753,3 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     onImeAction: ((ImeAction) -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
 ): Nothing
-
-/**
- * Returns a [KeyboardOptions] that is merged with [defaults], with this object's values taking
- * precedence.
- */
-// TODO(b/295951492) KeyboardOptions can't actually be merged correctly in all cases, because its
-//  properties don't all have proper "unspecified" values. I think we can fix that in a
-//  backwards-compatible way, but it will require adding new API outside of the text2 package so we
-//  should hold off on making them until after the study.
-internal fun KeyboardOptions.withDefaultsFrom(defaults: KeyboardOptions?): KeyboardOptions {
-    if (defaults == null) return this
-    return KeyboardOptions(
-        capitalization = if (this.capitalization != KeyboardCapitalization.None) {
-            this.capitalization
-        } else {
-            defaults.capitalization
-        },
-        autoCorrect = this.autoCorrect && defaults.autoCorrect,
-        keyboardType = if (this.keyboardType != KeyboardType.Text) {
-            this.keyboardType
-        } else {
-            defaults.keyboardType
-        },
-        imeAction = if (this.imeAction != ImeAction.Default) {
-            this.imeAction
-        } else {
-            defaults.imeAction
-        }
-    )
-}

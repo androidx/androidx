@@ -40,11 +40,13 @@ import java.util.concurrent.Executor
  */
 @RequiresApi(34)
 internal class PlatformUDCImpl(
-    private val controller: SdkSandboxController
+    private val controller: SdkSandboxController,
+    sdkContext: Context
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
     private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
     private val sdkLoader = PlatformSdkLoader.create(controller)
+    private val clientPackageNameProvider = ClientPackageNameProvider(controller, sdkContext)
 
     private val compatToPlatformMap =
         hashMapOf<SdkSandboxActivityHandlerCompat, SdkSandboxActivityHandler>()
@@ -92,6 +94,9 @@ internal class PlatformUDCImpl(
             compatToPlatformMap.remove(handlerCompat)
         }
     }
+
+    override fun getClientPackageName(): String =
+        clientPackageNameProvider.getClientPackageName()
 
     internal class ActivityHolderImpl(
         private val platformActivity: Activity
@@ -167,7 +172,7 @@ internal class PlatformUDCImpl(
     companion object {
         fun from(context: Context): PlatformUDCImpl {
             val sdkSandboxController = context.getSystemService(SdkSandboxController::class.java)
-            return PlatformUDCImpl(sdkSandboxController)
+            return PlatformUDCImpl(sdkSandboxController, context)
         }
     }
 }

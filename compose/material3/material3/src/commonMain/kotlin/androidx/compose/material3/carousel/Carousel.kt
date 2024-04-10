@@ -18,12 +18,24 @@ package androidx.compose.material3.carousel
 
 import androidx.annotation.VisibleForTesting
 import androidx.collection.IntIntMap
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,35 +69,50 @@ import kotlin.math.roundToInt
  * A horizontal carousel meant to display many items at once for quick browsing of smaller content
  * like album art or photo thumbnails.
  *
- * Note that this carousel may adjust the size of large items. In order to ensure a mix of large,
+ * Note that this carousel may adjust the size of items in order to ensure a mix of large,
  * medium, and small items fit perfectly into the available space and are arranged in a
- * visually pleasing way, this carousel finds the nearest number of large items that
- * will fit the container and adjusts their size to fit, if necessary.
+ * visually pleasing way. Carousel then lays out items using the large item size and clips
+ * (or masks) items depending on their scroll offset to create items which smoothly expand
+ * and collapse between the large, medium, and small sizes.
  *
  * For more information, see <a href="https://material.io/components/carousel/overview">design
  * guidelines</a>.
  *
+ * Example of a multi-browse carousel:
+ * @sample androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
+ *
  * @param state The state object to be used to control the carousel's state
- * @param preferredItemSize The size fully visible items would like to be in the main axis. This
- * size is a target and will likely be adjusted by carousel in order to fit a whole number of
- * items within the container
+ * @param preferredItemWidth The width that large, fully visible items would like to be in the
+ * horizontal axis. This width is a target and will likely be adjusted by carousel in order to fit
+ * a whole number of items within the container. Carousel adjusts small items first (between the
+ * [minSmallItemWidth] and [maxSmallItemWidth]) then medium items when present, and finally large
+ * items if necessary.
  * @param modifier A modifier instance to be applied to this carousel container
  * @param itemSpacing The amount of space used to separate items in the carousel
- * @param minSmallSize The minimum allowable size of small masked items
- * @param maxSmallSize The maximum allowable size of small masked items
+ * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
+ * @param minSmallItemWidth The minimum allowable width of small items in dp. Depending on the
+ * [preferredItemWidth] and the width of the carousel, the small item width will be chosen from a
+ * range of [minSmallItemWidth] and [maxSmallItemWidth]
+ * @param maxSmallItemWidth The maximum allowable width of small items in dp. Depending on the
+ * [preferredItemWidth] and the width of the carousel, the small item width will be chosen from a
+ * range of [minSmallItemWidth] and [maxSmallItemWidth]
+ * @param contentPadding a padding around the whole content. This will add padding for the
+ * content after it has been clipped. You can use it to add a padding before the first item or
+ * after the last one. Use [itemSpacing] to add spacing between the items.
  * @param content The carousel's content Composable
- *
- * TODO: Add sample link
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun HorizontalMultiBrowseCarousel(
+fun HorizontalMultiBrowseCarousel(
     state: CarouselState,
-    preferredItemSize: Dp,
+    preferredItemWidth: Dp,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
-    minSmallSize: Dp = StrategyDefaults.MinSmallSize,
-    maxSmallSize: Dp = StrategyDefaults.MaxSmallSize,
+    flingBehavior: TargetedFlingBehavior =
+        CarouselDefaults.singleAdvanceFlingBehavior(state = state),
+    minSmallItemWidth: Dp = CarouselDefaults.MinSmallItemSize,
+    maxSmallItemWidth: Dp = CarouselDefaults.MaxSmallItemSize,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable CarouselScope.(itemIndex: Int) -> Unit
 ) {
     val density = LocalDensity.current
@@ -97,16 +124,18 @@ internal fun HorizontalMultiBrowseCarousel(
                 multiBrowseKeylineList(
                     density = this,
                     carouselMainAxisSize = availableSpace,
-                    preferredItemSize = preferredItemSize.toPx(),
+                    preferredItemSize = preferredItemWidth.toPx(),
                     itemCount = state.itemCountState.value.invoke(),
                     itemSpacing = itemSpacingPx,
-                    minSmallSize = minSmallSize.toPx(),
-                    maxSmallSize = maxSmallSize.toPx(),
+                    minSmallItemSize = minSmallItemWidth.toPx(),
+                    maxSmallItemSize = maxSmallItemWidth.toPx(),
                 )
             }
         },
+        contentPadding = contentPadding,
         modifier = modifier,
         itemSpacing = itemSpacing,
+        flingBehavior = flingBehavior,
         content = content
     )
 }
@@ -124,21 +153,28 @@ internal fun HorizontalMultiBrowseCarousel(
  * For more information, see <a href="https://material.io/components/carousel/overview">design
  * guidelines</a>.
  *
+ * Example of an uncontained carousel:
+ * @sample androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
+ *
  * @param state The state object to be used to control the carousel's state
- * @param itemSize The size of items in the carousel
+ * @param itemWidth The width of items in the carousel
  * @param modifier A modifier instance to be applied to this carousel container
  * @param itemSpacing The amount of space used to separate items in the carousel
+ * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
+ * @param contentPadding a padding around the whole content. This will add padding for the
+ * content after it has been clipped. You can use it to add a padding before the first item or
+ * after the last one. Use [itemSpacing] to add spacing between the items.
  * @param content The carousel's content Composable
- *
- * TODO: Add sample link
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun HorizontalUncontainedCarousel(
+fun HorizontalUncontainedCarousel(
     state: CarouselState,
-    itemSize: Dp,
+    itemWidth: Dp,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
+    flingBehavior: TargetedFlingBehavior = CarouselDefaults.noSnapFlingBehavior(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable CarouselScope.(itemIndex: Int) -> Unit
 ) {
     val density = LocalDensity.current
@@ -150,14 +186,15 @@ internal fun HorizontalUncontainedCarousel(
                 uncontainedKeylineList(
                     density = this,
                     carouselMainAxisSize = availableSpace,
-                    itemSize = itemSize.toPx(),
+                    itemSize = itemWidth.toPx(),
                     itemSpacing = itemSpacingPx,
                 )
             }
         },
+        contentPadding = contentPadding,
         modifier = modifier,
         itemSpacing = itemSpacing,
-        flingBehavior = rememberDecaySnapFlingBehavior(),
+        flingBehavior = flingBehavior,
         content = content
     )
 }
@@ -169,31 +206,40 @@ internal fun HorizontalUncontainedCarousel(
  * chosen strategy.
  *
  * @param state The state object to be used to control the carousel's state.
- * @param modifier A modifier instance to be applied to this carousel outer layout
+ * @param orientation The layout orientation of the carousel
  * @param keylineList The list of keylines that are fixed positions along the scrolling axis which
  * define the state an item should be in when its center is co-located with the keyline's position.
+ * @param contentPadding a padding around the whole content. This will add padding for the
+ * @param modifier A modifier instance to be applied to this carousel outer layout
+ * content after it has been clipped. You can use it to add a padding before the first item or
+ * after the last one. Use [itemSpacing] to add spacing between the items.
  * @param itemSpacing The amount of space used to separate items in the carousel
- * @param orientation The layout orientation of the carousel
+ * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
  * @param content The carousel's content Composable where each call is passed the index, from the
  * total item count, of the item being composed
- * TODO: Add sample link
  */
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun Carousel(
     state: CarouselState,
     orientation: Orientation,
     keylineList: (availableSpace: Float, itemSpacing: Float) -> KeylineList?,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 0.dp,
-    flingBehavior: TargetedFlingBehavior = PagerDefaults.flingBehavior(state = state.pagerState),
+    flingBehavior: TargetedFlingBehavior =
+        CarouselDefaults.singleAdvanceFlingBehavior(state = state),
     content: @Composable CarouselScope.(itemIndex: Int) -> Unit
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val pageSize = remember(keylineList) { CarouselPageSize(keylineList) }
+    val beforeContentPadding = contentPadding.calculateBeforeContentPadding(orientation)
+    val afterContentPadding = contentPadding.calculateAfterContentPadding(orientation)
+    val pageSize = remember(keylineList) {
+        CarouselPageSize(keylineList, beforeContentPadding, afterContentPadding)
+    }
 
-    val outOfBoundsPageCount = remember(pageSize.strategy.itemMainAxisSize) {
-        calculateOutOfBounds(pageSize.strategy)
+    val beyondViewportPageCount = remember(pageSize.strategy.itemMainAxisSize) {
+        calculateBeyondViewportPageCount(pageSize.strategy)
     }
     val carouselScope = CarouselScopeImpl
 
@@ -208,9 +254,14 @@ internal fun Carousel(
     if (orientation == Orientation.Horizontal) {
         HorizontalPager(
             state = state.pagerState,
+            // Only pass cross axis padding as main axis padding will be handled by the strategy
+            contentPadding = PaddingValues(
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding()
+            ),
             pageSize = pageSize,
             pageSpacing = itemSpacing,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             snapPosition = snapPosition,
             flingBehavior = flingBehavior,
             modifier = modifier
@@ -230,9 +281,14 @@ internal fun Carousel(
     } else if (orientation == Orientation.Vertical) {
         VerticalPager(
             state = state.pagerState,
+            // Only pass cross axis padding as main axis padding will be handled by the strategy
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateStartPadding(LocalLayoutDirection.current),
+                end = contentPadding.calculateEndPadding(LocalLayoutDirection.current)
+            ),
             pageSize = pageSize,
             pageSpacing = itemSpacing,
-            outOfBoundsPageCount = outOfBoundsPageCount,
+            beyondViewportPageCount = beyondViewportPageCount,
             snapPosition = snapPosition,
             flingBehavior = flingBehavior,
             modifier = modifier
@@ -252,9 +308,31 @@ internal fun Carousel(
     }
 }
 
-internal fun calculateOutOfBounds(strategy: Strategy): Int {
+@Composable
+private fun PaddingValues.calculateBeforeContentPadding(orientation: Orientation): Float {
+    val dpValue = if (orientation == Orientation.Vertical) {
+        calculateTopPadding()
+    } else {
+        calculateStartPadding(LocalLayoutDirection.current)
+    }
+
+    return with(LocalDensity.current) { dpValue.toPx() }
+}
+
+@Composable
+private fun PaddingValues.calculateAfterContentPadding(orientation: Orientation): Float {
+    val dpValue = if (orientation == Orientation.Vertical) {
+        calculateBottomPadding()
+    } else {
+        calculateEndPadding(LocalLayoutDirection.current)
+    }
+
+    return with(LocalDensity.current) { dpValue.toPx() }
+}
+
+internal fun calculateBeyondViewportPageCount(strategy: Strategy): Int {
     if (!strategy.isValid()) {
-        return PagerDefaults.OutOfBoundsPageCount
+        return PagerDefaults.BeyondViewportPageCount
     }
     var totalKeylineSpace = 0f
     var totalNonAnchorKeylines = 0
@@ -277,11 +355,18 @@ internal fun calculateOutOfBounds(strategy: Strategy): Int {
  * define the state an item should be in when its center is co-located with the keyline's position.
  */
 private class CarouselPageSize(
-    keylineList: (availableSpace: Float, itemSpacing: Float) -> KeylineList?
+    keylineList: (availableSpace: Float, itemSpacing: Float) -> KeylineList?,
+    private val beforeContentPadding: Float,
+    private val afterContentPadding: Float
 ) : PageSize {
     val strategy = Strategy(keylineList)
     override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
-        strategy.apply(availableSpace.toFloat(), pageSpacing.toFloat())
+        strategy.apply(
+            availableSpace.toFloat(),
+            pageSpacing.toFloat(),
+            beforeContentPadding,
+            afterContentPadding
+        )
         return if (strategy.isValid()) {
             strategy.itemMainAxisSize.roundToInt()
         } else {
@@ -317,7 +402,7 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param state the carousel state
  * @param strategy the strategy used to mask and translate items in the carousel
  * @param itemPositionMap the position of each index when it is the current item
- * @param isRtl whether or not the carousel is rtl
+ * @param isRtl true if the layout direction is right-to-left
  */
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun Modifier.carouselItem(
@@ -477,4 +562,112 @@ private fun getProgress(before: Keyline, after: Keyline, unadjustedOffset: Float
 
     val total = after.unadjustedOffset - before.unadjustedOffset
     return (unadjustedOffset - before.unadjustedOffset) / total
+}
+
+/**
+ * Contains the default values used by [Carousel].
+ */
+@ExperimentalMaterial3Api
+object CarouselDefaults {
+
+    /**
+     * A [TargetedFlingBehavior] that limits a fling to one item at a time. [snapAnimationSpec] can
+     * be used to control the snap animation.
+     *
+     * @param state The [CarouselState] that controls which Carousel this TargetedFlingBehavior will
+     * be applied to.
+     * @param snapAnimationSpec The animation spec used to finally snap to the position.
+     * @return An instance of [TargetedFlingBehavior] that performs snapping to the next item.
+     * The animation will be governed by the post scroll velocity and the Carousel will use
+     * [snapAnimationSpec] to approach the snapped position
+     */
+    @Composable
+    fun singleAdvanceFlingBehavior(
+        state: CarouselState,
+        snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+    ): TargetedFlingBehavior {
+        return PagerDefaults.flingBehavior(
+            state = state.pagerState,
+            pagerSnapDistance = PagerSnapDistance.atMost(1),
+            snapAnimationSpec = snapAnimationSpec,
+        )
+    }
+
+    /**
+     * A [TargetedFlingBehavior] that flings and snaps according to the gesture velocity.
+     * [snapAnimationSpec] and [decayAnimationSpec] can be used to control the animation specs.
+     *
+     * The Carousel may use [decayAnimationSpec] or [snapAnimationSpec] to approach the target item
+     * post-scroll, depending on the gesture velocity.
+     * If the gesture has a high enough velocity to approach the target item, the Carousel will use
+     * [decayAnimationSpec] followed by [snapAnimationSpec] for the final step of the animation.
+     * If the gesture doesn't have enough velocity, it will use [snapAnimationSpec] +
+     * [snapAnimationSpec] in a similar fashion.
+     *
+     * @param state The [CarouselState] that controls which Carousel this TargetedFlingBehavior will
+     * be applied to.
+     * @param decayAnimationSpec The animation spec used to approach the target offset when the
+     * the fling velocity is large enough to naturally decay.
+     * @param snapAnimationSpec The animation spec used to finally snap to the position.
+     * @return An instance of [TargetedFlingBehavior] that performs flinging based on the gesture
+     * velocity and then snapping to the closest item post-fling.
+     * The animation will be governed by the post scroll velocity and the Carousel will use
+     * [snapAnimationSpec] to approach the snapped position
+     */
+    @Composable
+    fun multiBrowseFlingBehavior(
+        state: CarouselState,
+        decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
+        snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+    ): TargetedFlingBehavior {
+        val pagerSnapDistance = object : PagerSnapDistance {
+            override fun calculateTargetPage(
+                startPage: Int,
+                suggestedTargetPage: Int,
+                velocity: Float,
+                pageSize: Int,
+                pageSpacing: Int
+            ): Int {
+                return suggestedTargetPage
+            }
+        }
+        return PagerDefaults.flingBehavior(
+            state = state.pagerState,
+            pagerSnapDistance = pagerSnapDistance,
+            decayAnimationSpec = decayAnimationSpec,
+            snapAnimationSpec = snapAnimationSpec,
+        )
+    }
+
+    /**
+     * A [TargetedFlingBehavior] that flings according to the gesture velocity and does not snap
+     * post-fling.
+     *
+     * @return An instance of [TargetedFlingBehavior] that performs flinging based on the gesture
+     * velocity and does not snap to anything post-fling.
+     */
+    @Composable
+    fun noSnapFlingBehavior(): TargetedFlingBehavior {
+        val splineDecay = rememberSplineBasedDecay<Float>()
+        val decayLayoutInfoProvider = remember {
+            object : SnapLayoutInfoProvider {
+                override fun calculateApproachOffset(initialVelocity: Float): Float {
+                    return splineDecay.calculateTargetValue(0f, initialVelocity)
+                }
+
+                override fun calculateSnappingOffset(currentVelocity: Float): Float = 0f
+            }
+        }
+
+        return rememberSnapFlingBehavior(snapLayoutInfoProvider = decayLayoutInfoProvider)
+    }
+
+    /** The minimum size that a carousel strategy can choose its small items to be. **/
+    internal val MinSmallItemSize = 40.dp
+
+    /** The maximum size that a carousel strategy can choose its small items to be. **/
+    internal val MaxSmallItemSize = 56.dp
+
+    internal val AnchorSize = 10.dp
+    internal const val MediumLargeItemDiffThreshold = 0.85f
 }

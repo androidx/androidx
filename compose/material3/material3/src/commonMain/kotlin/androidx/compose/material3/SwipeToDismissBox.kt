@@ -22,6 +22,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.SwipeToDismissBoxState.Companion.Saver
+import androidx.compose.material3.internal.AnchoredDraggableDefaults
+import androidx.compose.material3.internal.AnchoredDraggableState
+import androidx.compose.material3.internal.DraggableAnchors
+import androidx.compose.material3.internal.anchoredDraggable
+import androidx.compose.material3.internal.animateTo
+import androidx.compose.material3.internal.draggableAnchors
+import androidx.compose.material3.internal.snapTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -37,7 +44,6 @@ import kotlinx.coroutines.CancellationException
 /**
  * The directions in which a [SwipeToDismissBox] can be dismissed.
  */
-@ExperimentalMaterial3Api
 enum class SwipeToDismissBoxValue {
     /**
      * Can be dismissed by swiping in the reading direction.
@@ -66,7 +72,6 @@ enum class SwipeToDismissBoxValue {
  * the start of a transition. It will be, depending on the direction of the interaction, added or
  * subtracted from/to the origin offset. It should always be a positive value.
  */
-@ExperimentalMaterial3Api
 class SwipeToDismissBoxState(
     initialValue: SwipeToDismissBoxValue,
     internal val density: Density,
@@ -120,25 +125,6 @@ class SwipeToDismissBoxState(
             offset > 0f -> SwipeToDismissBoxValue.StartToEnd
             else -> SwipeToDismissBoxValue.EndToStart
         }
-
-    /**
-     * Whether the component has been dismissed in the given [direction].
-     *
-     * @param direction The dismiss direction.
-     */
-    @Deprecated(
-        message = "DismissDirection is no longer used by SwipeToDismissBoxState. Please compare " +
-            "currentValue against SwipeToDismissValue instead.",
-        level = DeprecationLevel.HIDDEN
-    )
-    @Suppress("DEPRECATION")
-    fun isDismissed(direction: DismissDirection): Boolean {
-        val directionalDismissValue = when (direction) {
-            DismissDirection.StartToEnd -> SwipeToDismissBoxValue.StartToEnd
-            DismissDirection.EndToStart -> SwipeToDismissBoxValue.EndToStart
-        }
-        return currentValue == directionalDismissValue
-    }
 
     /**
      * Set the state without any animation and suspend until it's set
@@ -201,7 +187,6 @@ class SwipeToDismissBoxState(
  * subtracted from/to the origin offset. It should always be a positive value.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun rememberSwipeToDismissBoxState(
     initialValue: SwipeToDismissBoxValue = SwipeToDismissBoxValue.Settled,
     confirmValueChange: (SwipeToDismissBoxValue) -> Boolean = { true },
@@ -226,47 +211,6 @@ fun rememberSwipeToDismissBoxState(
  * @sample androidx.compose.material3.samples.SwipeToDismissListItems
  *
  * @param state The state of this component.
- * @param background A composable that is stacked behind the content and is exposed when the
- * content is swiped. You can/should use the [state] to have different backgrounds on each side.
- * @param dismissContent The content that can be dismissed.
- * @param modifier Optional [Modifier] for this component.
- * @param directions The set of directions in which the component can be dismissed.
- */
-@Composable
-@Deprecated(
-    level = DeprecationLevel.WARNING,
-    message = "Use SwipeToDismissBox instead",
-    replaceWith =
-    ReplaceWith(
-        "SwipeToDismissBox(state, background, modifier, " +
-            "enableDismissFromStartToEnd, enableDismissFromEndToStart, dismissContent)"
-    )
-)
-@ExperimentalMaterial3Api
-fun SwipeToDismiss(
-    state: SwipeToDismissBoxState,
-    background: @Composable RowScope.() -> Unit,
-    dismissContent: @Composable RowScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    directions: Set<SwipeToDismissBoxValue> = setOf(
-        SwipeToDismissBoxValue.EndToStart,
-        SwipeToDismissBoxValue.StartToEnd
-    ),
-) = SwipeToDismissBox(
-    state = state,
-    backgroundContent = background,
-    modifier = modifier,
-    enableDismissFromStartToEnd = SwipeToDismissBoxValue.StartToEnd in directions,
-    enableDismissFromEndToStart = SwipeToDismissBoxValue.EndToStart in directions,
-    content = dismissContent
-)
-
-/**
- * A composable that can be dismissed by swiping left or right.
- *
- * @sample androidx.compose.material3.samples.SwipeToDismissListItems
- *
- * @param state The state of this component.
  * @param backgroundContent A composable that is stacked behind the [content] and is exposed when
  * the content is swiped. You can/should use the [state] to have different backgrounds on each side.
  * @param modifier Optional [Modifier] for this component.
@@ -276,7 +220,6 @@ fun SwipeToDismiss(
  * @param content The content that can be dismissed.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun SwipeToDismissBox(
     state: SwipeToDismissBoxState,
     backgroundContent: @Composable RowScope.() -> Unit,
@@ -323,60 +266,12 @@ fun SwipeToDismissBox(
 }
 
 /** Contains default values for [SwipeToDismissBox] and [SwipeToDismissBoxState]. */
-@ExperimentalMaterial3Api
 object SwipeToDismissBoxDefaults {
     /** Default positional threshold of 56.dp for [SwipeToDismissBoxState]. */
     val positionalThreshold: (totalDistance: Float) -> Float
         @Composable get() = with(LocalDensity.current) {
             { 56.dp.toPx() }
         }
-}
-
-/**
- * The directions in which a [SwipeToDismissBox] can be dismissed.
- */
-@ExperimentalMaterial3Api
-@Deprecated(
-    message = "Dismiss direction is no longer used by SwipeToDismissBoxState. Please use " +
-        "SwipeToDismissBoxValue instead.",
-    level = DeprecationLevel.WARNING
-)
-enum class DismissDirection {
-    /**
-     * Can be dismissed by swiping in the reading direction.
-     */
-    StartToEnd,
-
-    /**
-     * Can be dismissed by swiping in the reverse of the reading direction.
-     */
-    EndToStart,
-}
-
-/**
- * Possible values of [SwipeToDismissBoxState].
- */
-@ExperimentalMaterial3Api
-@Deprecated(
-    message = "DismissValue is no longer used by SwipeToDismissBoxState. Please use " +
-        "SwipeToDismissBoxValue instead.",
-    level = DeprecationLevel.WARNING
-)
-enum class DismissValue {
-    /**
-     * Indicates the component has not been dismissed yet.
-     */
-    Default,
-
-    /**
-     * Indicates the component has been dismissed in the reading direction.
-     */
-    DismissedToEnd,
-
-    /**
-     * Indicates the component has been dismissed in the reverse of the reading direction.
-     */
-    DismissedToStart
 }
 
 private val DismissVelocityThreshold = 125.dp

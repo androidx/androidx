@@ -212,7 +212,13 @@ internal class FocusTargetNode :
             mask = Nodes.FocusEvent or Nodes.FocusTarget,
             includeSelf = true
         ) {
-            if (it.isKind(Nodes.FocusTarget)) return@visitAncestors
+            // We want invalidation to propagate until the next focus target in the hierarchy, but
+            // if the current node is both a FocusEvent and FocusTarget node, we still want to
+            // visit this node and invalidate the focus event nodes. This case is not recommended,
+            // using the state from the FocusTarget node directly is preferred to the indirection of
+            // listening to events from the state you already own, but we should support this case
+            // anyway to be safe.
+            if (it !== this.node && it.isKind(Nodes.FocusTarget)) return@visitAncestors
 
             if (it.isAttached) {
                 it.dispatchForKind(Nodes.FocusEvent) { eventNode ->

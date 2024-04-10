@@ -97,7 +97,12 @@ class KeylineSnapPositionTest {
             add(xSmallSize, isAnchor = true)
         }
 
-        return Strategy { _, _ -> keylineList }.apply(availableSpace = 1000f, itemSpacing = 0f)
+        return Strategy { _, _ -> keylineList }.apply(
+            availableSpace = 1000f,
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
     }
 
     // Test strategy that is start aligned:
@@ -127,7 +132,12 @@ class KeylineSnapPositionTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        return Strategy { _, _ -> keylineList }.apply(availableSpace = 1000f, itemSpacing = 0f)
+        return Strategy { _, _ -> keylineList }.apply(
+            availableSpace = 1000f,
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
     }
 
     // Test strategy that is start aligned:
@@ -150,6 +160,11 @@ class KeylineSnapPositionTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        return Strategy { _, _ -> keylineList }.apply(1000f, 0f)
+        return Strategy { _, _ -> keylineList }.apply(
+            availableSpace = 1000f,
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
     }
 }

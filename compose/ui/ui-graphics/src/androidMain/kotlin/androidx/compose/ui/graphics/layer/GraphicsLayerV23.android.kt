@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.layer
 
+import android.graphics.Matrix
 import android.graphics.Outline
 import android.graphics.PorterDuffXfermode
 import android.os.Build
@@ -54,6 +55,7 @@ internal class GraphicsLayerV23(
     private val renderNode = RenderNode.create("Compose", ownerView)
     private var size: IntSize = IntSize.Zero
     private var layerPaint: android.graphics.Paint? = null
+    private var matrix: android.graphics.Matrix? = null
 
     private fun obtainLayerPaint(): android.graphics.Paint =
         layerPaint ?: android.graphics.Paint().also { layerPaint = it }
@@ -193,7 +195,7 @@ internal class GraphicsLayerV23(
             renderNode.setTranslationX(value)
         }
 
-    override var translationY: Float = 1f
+    override var translationY: Float = 0f
         set(value) {
             field = value
             renderNode.setTranslationY(value)
@@ -289,6 +291,12 @@ internal class GraphicsLayerV23(
 
     override fun draw(canvas: androidx.compose.ui.graphics.Canvas) {
         (canvas.nativeCanvas as DisplayListCanvas).drawRenderNode(renderNode)
+    }
+
+    override fun calculateMatrix(): Matrix {
+        val m = matrix ?: android.graphics.Matrix().also { matrix = it }
+        renderNode.getMatrix(m)
+        return m
     }
 
     override fun discardDisplayList() {

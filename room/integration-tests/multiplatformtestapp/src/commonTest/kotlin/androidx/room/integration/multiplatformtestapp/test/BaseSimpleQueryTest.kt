@@ -18,11 +18,24 @@ package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room.execSQL
+import androidx.room.immediateTransaction
+import androidx.room.useReaderConnection
+import androidx.room.useWriterConnection
+import androidx.sqlite.SQLiteException
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.produceIn
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 
 abstract class BaseSimpleQueryTest {
 
@@ -171,7 +184,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleInsertMap() = runTest {
+    fun insertMap() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
         val dao = getRoomDatabase().dao()
@@ -185,7 +198,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleMapWithDupeColumns() = runTest {
+    fun mapWithDupeColumns() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntityCopy(1, 2)
         val dao = getRoomDatabase().dao()
@@ -199,7 +212,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleInsertNestedMap() = runTest {
+    fun insertNestedMap() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
         val sampleEntity3 = SampleEntity3(1, 2)
@@ -215,7 +228,7 @@ abstract class BaseSimpleQueryTest {
     }
 
     @Test
-    fun simpleInsertNestedMapColumnMap() = runTest {
+    fun insertNestedMapColumnMap() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
         val sampleEntity3 = SampleEntity3(1, 2)
@@ -228,5 +241,140 @@ abstract class BaseSimpleQueryTest {
 
         val map = dao.getSimpleNestedMapColumnMap()
         assertThat(map[sampleEntity1]).isEqualTo(mapOf(Pair(sampleEntity2, sampleEntity3.data3)))
+    }
+
+    @Test
+    fun combineInsertAndManualWrite() = runTest {
+        val db = getRoomDatabase()
+        db.useWriterConnection { connection ->
+            db.dao().insertItem(1)
+            connection.execSQL("INSERT INTO SampleEntity (pk) VALUES (2)")
+        }
+        db.useReaderConnection { connection ->
+            val count = connection.usePrepared("SELECT count(*) FROM SampleEntity") {
+                it.step()
+                it.getLong(0)
+            }
+            assertThat(count).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun combineQueryAndManualRead() = runTest {
+        val db = getRoomDatabase()
+        val entity = SampleEntity(1, 10)
+        db.dao().insert(entity)
+        db.useReaderConnection { connection ->
+            assertThat(
+                db.dao().getItemList()
+            ).containsExactly(entity)
+            assertThat(
+                connection.usePrepared("SELECT * FROM SampleEntity") {
+                    buildList {
+                        while (it.step()) {
+                            add(SampleEntity(it.getLong(0), it.getLong(1)))
+                        }
+                    }
+                }
+            ).containsExactly(entity)
+        }
+    }
+
+    @Test
+    fun queriesAreIsolated() = runTest {
+        val db = getRoomDatabase()
+        db.dao().insertItem(22)
+
+        // Validates that Room's coroutine scope provides isolation, if one query fails
+        // it doesn't affect others.
+        val failureQueryScope = CoroutineScope(Job())
+        val successQueryScope = CoroutineScope(Job())
+        val failureDeferred = failureQueryScope.async {
+            db.useReaderConnection { connection ->
+                connection.usePrepared("SELECT * FROM WrongTableName") {
+                    assertThat(it.step()).isFalse()
+                }
+            }
+        }
+        val successDeferred = successQueryScope.async {
+            db.useReaderConnection { connection ->
+                connection.usePrepared("SELECT * FROM SampleEntity") {
+                    assertThat(it.step()).isTrue()
+                    it.getLong(0)
+                }
+            }
+        }
+        assertThrows<SQLiteException> { failureDeferred.await() }
+            .hasMessageThat().contains("no such table: WrongTableName")
+        assertThat(successDeferred.await()).isEqualTo(22)
+    }
+
+    @Test
+    fun queriesAreIsolatedWhenCancelled() = runTest {
+        val db = getRoomDatabase()
+
+        // Validates that Room's coroutine scope provides isolation, if scope doing a query is
+        // cancelled it doesn't affect others.
+        val toBeCancelledScope = CoroutineScope(Job())
+        val notCancelledScope = CoroutineScope(Job())
+        val latch = Mutex(locked = true)
+        val cancelledDeferred = toBeCancelledScope.async {
+            db.useReaderConnection { latch.withLock { } }
+            1
+        }
+        val notCancelledDeferred = notCancelledScope.async {
+            db.useReaderConnection { latch.withLock { } }
+            1
+        }
+
+        yield()
+        toBeCancelledScope.cancel()
+        latch.unlock()
+
+        assertThrows<CancellationException> {
+            cancelledDeferred.await()
+        }
+        assertThat(
+            notCancelledDeferred.await()
+        ).isEqualTo(1)
+    }
+
+    @Test
+    fun queryFlowFromManualWrite() = runTest {
+        val db = getRoomDatabase()
+
+        val channel = db.dao().getItemListFlow().produceIn(this)
+
+        assertThat(channel.receive()).isEmpty()
+
+        // Validates that a write using the connection directly will cause invalidation when
+        // a refresh is requested.
+        db.useWriterConnection { connection ->
+            connection.execSQL("INSERT INTO SampleEntity (pk) VALUES (13)")
+        }
+        db.invalidationTracker.refreshAsync()
+        assertThat(channel.receive()).containsExactly(
+            SampleEntity(13),
+        )
+
+        channel.cancel()
+    }
+
+    @Test
+    fun rollbackDaoQuery() = runTest {
+        val db = getRoomDatabase()
+        db.dao().insertItem(1)
+        db.useWriterConnection { transactor ->
+            transactor.immediateTransaction {
+                db.dao().insertItem(2)
+                rollback(Unit)
+            }
+            val count = transactor.usePrepared("SELECT count(*) FROM SampleEntity") {
+                it.step()
+                it.getLong(0)
+            }
+            assertThat(count).isEqualTo(1)
+        }
+        assertThat(db.dao().getItemList()).containsExactly(SampleEntity(1))
     }
 }

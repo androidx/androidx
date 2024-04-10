@@ -21,7 +21,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.SwipeToDismissBox
@@ -38,7 +37,6 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Sampled
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun SwipeToDismissListItems() {
     val dismissState = rememberSwipeToDismissBoxState()
     SwipeToDismissBox(

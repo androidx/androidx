@@ -251,6 +251,29 @@ class OpenHelperRecoveryTest {
         assertThat(openAttempts).isEqualTo(3)
     }
 
+    @Test
+    fun allowDataLossOnRecovery_onOpenRecursive() {
+        var openHelper: FrameworkSQLiteOpenHelper? = null
+        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
+            override fun onCreate(db: SupportSQLiteDatabase) {}
+            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                openHelper!!.writableDatabase
+            }
+        }
+        // Use an open helper with a bad callback that will recursively try to open the database
+        // again, this is a user error and it is expected for the exception with the recursive
+        // stacktrace to be thrown and not swallowed.
+        openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
+        try {
+            openHelper.writableDatabase
+            fail("Database should have failed to open.")
+        } catch (ex: RuntimeException) {
+            // Expected
+            assertThat(ex.message).contains("getDatabase called recursively")
+        }
+    }
+
     class EmptyCallback(version: Int = 1) : SupportSQLiteOpenHelper.Callback(version) {
         override fun onCreate(db: SupportSQLiteDatabase) {
         }

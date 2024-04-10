@@ -56,7 +56,8 @@ public class PrimaryLayoutTest {
             new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
     private static final LayoutElement CONTENT = new Box.Builder().build();
     private static final CompactChip PRIMARY_CHIP =
-            new CompactChip.Builder(CONTEXT, "Compact", CLICKABLE, DEVICE_PARAMETERS).build();
+            new CompactChip.Builder(CONTEXT, "Compact", CLICKABLE, DEVICE_PARAMETERS)
+                    .build();
     private static final Text PRIMARY_LABEL = new Text.Builder(CONTEXT, "Primary label").build();
     private static final Text SECONDARY_LABEL =
             new Text.Builder(CONTEXT, "Secondary label").build();

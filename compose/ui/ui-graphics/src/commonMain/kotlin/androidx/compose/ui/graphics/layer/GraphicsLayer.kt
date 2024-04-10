@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
@@ -245,7 +246,7 @@ expect class GraphicsLayer {
      */
     fun setPathOutline(path: Path)
 
-    // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1293/Wasm.-UnsetOffset.-Neither-the-module-itself-nor-its-dependencies-contain-such-declaration
+    // TODO Fix default values on Wasm
 
     /**
      * Configures a rounded rect outline for this [GraphicsLayer]. By default, both [topLeft] and
@@ -382,6 +383,15 @@ expect class GraphicsLayer {
     ): GraphicsLayer
 
     /**
+     * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that
+     * [GraphicsLayer.buildLayer] must be invoked first to record drawing operations before invoking
+     * this method.
+     *
+     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap
+     */
+    suspend fun toImageBitmap(): ImageBitmap
+
+    /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
      */
     internal fun draw(canvas: Canvas, parentLayer: GraphicsLayer?)
@@ -414,7 +424,7 @@ expect class GraphicsLayer {
 fun GraphicsLayer.setOutline(outline: Outline) {
     when (outline) {
         is Outline.Rectangle -> setRectOutline(
-            IntOffset(outline.rect.top.fastRoundToInt(), outline.rect.left.fastRoundToInt()),
+            IntOffset(outline.rect.left.fastRoundToInt(), outline.rect.top.fastRoundToInt()),
             IntSize(outline.rect.width.fastRoundToInt(), outline.rect.height.fastRoundToInt())
         )
         is Outline.Generic -> setPathOutline(outline.path)
@@ -428,7 +438,7 @@ fun GraphicsLayer.setOutline(outline: Outline) {
             } else {
                 val rr = outline.roundRect
                 setRoundRectOutline(
-                    IntOffset(rr.top.fastRoundToInt(), rr.left.fastRoundToInt()),
+                    IntOffset(rr.left.fastRoundToInt(), rr.top.fastRoundToInt()),
                     IntSize(rr.width.fastRoundToInt(), rr.height.fastRoundToInt()),
                     rr.bottomLeftCornerRadius.x
                 )

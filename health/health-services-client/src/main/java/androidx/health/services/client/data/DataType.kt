@@ -597,6 +597,90 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             createCumulativeDataType("Rep Count")
 
         /**
+         * The amount of time during a single step that the runner's foot was in contact with the
+         * ground in milliseconds in `long` format.
+         */
+        @JvmField
+        val GROUND_CONTACT_TIME: DeltaDataType<Long, SampleDataPoint<Long>> =
+            createSampleDataType("Ground Contact Time")
+
+        /**
+         * Statistics on the amount of time during a single step that the runner's foot was in
+         * contact with the ground in milliseconds in `long` format.
+         */
+        @JvmField
+        val GROUND_CONTACT_TIME_STATS: AggregateDataType<Long, StatisticalDataPoint<Long>> =
+            createStatsDataType("Ground Contact Time")
+
+        /**
+         * Percentage of time the right foot is on the ground in percentage in `double` format.
+         *
+         * Percentage value is from 0 to 100.0. For instance, 52.0 means the right foot is on the
+         * ground 52% of the time.
+         */
+        @JvmField
+        val GROUND_CONTACT_BALANCE: DeltaDataType<Double, SampleDataPoint<Double>> =
+            createSampleDataType("Ground Contact Balance")
+
+        /**
+         * Statistics on percentage of time the right foot is on the ground in percentage in
+         * `double` format.
+         *
+         * Percentage value is from 0 to 100.0. For instance, 52.0 means the right foot is on the
+         * round 52% of the time.
+         */
+        @JvmField
+        val GROUND_CONTACT_BALANCE_STATS:
+        AggregateDataType<Double, StatisticalDataPoint<Double>> =
+            createStatsDataType("Ground Contact Balance")
+
+        /**
+         * Distance the center of mass moves up-and-down with each step in centimeters in `double`
+         * format.
+         */
+        @JvmField
+        val VERTICAL_OSCILLATION: DeltaDataType<Double, SampleDataPoint<Double>> =
+            createSampleDataType("Vertical Oscillation")
+
+        /**
+         * Statistic on distance the center of mass moves up-and-down with each step in centimeters
+         * in `double` format.
+         */
+        @JvmField
+        val VERTICAL_OSCILLATION_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+            createStatsDataType("Vertical Oscillation")
+
+        /**
+         * Vertical oscillation / stride length.
+         *
+         * For example, a vertical oscillation of 5.0cm and stride length .8m (80 cm) would have a
+         * vertical ratio of 0.625.
+         */
+        @JvmField
+        val VERTICAL_RATIO: DeltaDataType<Double, SampleDataPoint<Double>> =
+            createSampleDataType("Vertical Ratio")
+
+        /**
+         * Statistics on vertical oscillation / stride length.
+         *
+         * For example, a vertical oscillation of 5.0cm and stride length .8m (80 cm) would have a
+         * vertical ratio of 0.625.
+         */
+        @JvmField
+        val VERTICAL_RATIO_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+            createStatsDataType("Vertical Ratio")
+
+        /** Distance covered by a single step in meters in `double` format. */
+        @JvmField
+        val STRIDE_LENGTH: DeltaDataType<Double, SampleDataPoint<Double>> =
+            createSampleDataType("Stride Length")
+
+        /** Statistics on distance covered by a single step in meters in `double` format. */
+        @JvmField
+        val STRIDE_LENGTH_STATS: AggregateDataType<Double, StatisticalDataPoint<Double>> =
+            createStatsDataType("Stride Length")
+
+        /**
          * The total step count over a day, where the previous day ends and a new day begins at
          * 12:00 AM local time. Each [DataPoint] of this type will cover the interval from the start
          * of day to now. In the event of time-zone shifts, the interval may be greater than 24hrs.
@@ -662,6 +746,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             FLAT_GROUND_DURATION,
             FLOORS,
             GOLF_SHOT_COUNT,
+            GROUND_CONTACT_BALANCE,
+            GROUND_CONTACT_TIME,
             HEART_RATE_BPM,
             INCLINE_DISTANCE,
             INCLINE_DURATION,
@@ -673,8 +759,11 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             SPEED,
             STEPS,
             STEPS_PER_MINUTE,
+            STRIDE_LENGTH,
             SWIMMING_LAP_COUNT,
             SWIMMING_STROKES,
+            VERTICAL_OSCILLATION,
+            VERTICAL_RATIO,
             VO2_MAX,
             WALKING_STEPS,
         )
@@ -692,6 +781,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             FLAT_GROUND_DURATION_TOTAL,
             FLOORS_TOTAL,
             GOLF_SHOT_COUNT_TOTAL,
+            GROUND_CONTACT_BALANCE_STATS,
+            GROUND_CONTACT_TIME_STATS,
             HEART_RATE_BPM_STATS,
             INCLINE_DISTANCE_TOTAL,
             INCLINE_DURATION_TOTAL,
@@ -702,8 +793,11 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             SPEED_STATS,
             STEPS_PER_MINUTE_STATS,
             STEPS_TOTAL,
+            STRIDE_LENGTH_STATS,
             SWIMMING_LAP_COUNT_TOTAL,
             SWIMMING_STROKES_TOTAL,
+            VERTICAL_OSCILLATION_STATS,
+            VERTICAL_RATIO_STATS,
             VO2_MAX_STATS,
             WALKING_STEPS_TOTAL,
         )

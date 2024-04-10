@@ -32,7 +32,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.maxLength
@@ -168,12 +167,9 @@ private class PinState(val maxDigits: Int) {
     private object OnlyDigitsTransformation : InputTransformation {
         override val keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
 
-        override fun transformInput(
-            originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBuffer
-        ) {
-            if (!valueWithChanges.asCharSequence().isDigitsOnly()) {
-                valueWithChanges.revertAllChanges()
+        override fun TextFieldBuffer.transformInput() {
+            if (!asCharSequence().isDigitsOnly()) {
+                revertAllChanges()
             }
         }
     }

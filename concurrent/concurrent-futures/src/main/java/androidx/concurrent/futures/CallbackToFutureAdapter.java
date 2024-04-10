@@ -327,7 +327,7 @@ public final class CallbackToFutureAdapter {
         // toString intentionally left omitted, so that if the tag object (which holds this object
         // as a field) includes it in its toString, we won't infinitely recurse.
 
-        @SuppressWarnings("deprecation")
+        @SuppressWarnings({"deprecation", "removal"}) // b/316642623
         @Override
         protected void finalize() {
             SafeFuture<T> localFuture = future;

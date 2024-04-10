@@ -44,7 +44,7 @@ class AllCapsTransformationTest {
             append("hello")
         }
 
-        transformation.transformInput(originalValue, buffer)
+        with(transformation) { buffer.transformInput() }
 
         assertThat(buffer.toString()).isEqualTo("HELLO")
     }
@@ -58,7 +58,7 @@ class AllCapsTransformationTest {
             append(" world")
         }
 
-        transformation.transformInput(originalValue, buffer)
+        with(transformation) { buffer.transformInput() }
 
         assertThat(buffer.toString()).isEqualTo("hello WORLD")
     }
@@ -72,7 +72,7 @@ class AllCapsTransformationTest {
             append("i")
         }
 
-        transformation.transformInput(originalValue, buffer)
+        with(transformation) { buffer.transformInput() }
 
         assertThat(buffer.toString()).isEqualTo("\u0130") // Turkish dotted capital i
     }
@@ -89,7 +89,7 @@ class AllCapsTransformationTest {
             replace(1, 1, "abc") // lABCo
         }
 
-        transformation.transformInput(originalValue, buffer)
+        with(transformation) { buffer.transformInput() }
 
         originalValue = buffer.toTextFieldCharSequence()
         buffer = TextFieldBuffer(originalValue)
@@ -99,7 +99,7 @@ class AllCapsTransformationTest {
             append("xyz") // lACoXYZ
         }
 
-        transformation.transformInput(originalValue, buffer)
+        with(transformation) { buffer.transformInput() }
 
         assertThat(buffer.toString()).isEqualTo("lACoXYZ")
     }

@@ -29,7 +29,7 @@ import javax.annotation.processing.Generated;
 import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked", "deprecation", "removal"})
 public final class DeletionDao_Impl implements DeletionDao {
     private final RoomDatabase __db;
 

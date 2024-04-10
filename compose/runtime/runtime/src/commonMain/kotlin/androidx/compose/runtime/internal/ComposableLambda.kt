@@ -619,7 +619,7 @@ fun composableLambdaInstance(
 ): ComposableLambda =
     ComposableLambdaImpl(key, tracked, block)
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1294/Avoid-Wasm-illegal-cast-in-runtime
+// TODO fix wasm
 
 //@Suppress("unused")
 //@Composable

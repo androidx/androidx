@@ -94,6 +94,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
         override fun sendKeyEvent(event: KeyEvent) {}
         override fun startStylusHandwriting() {}
+        override fun prepareStylusHandwritingDelegation() {}
+        override fun acceptStylusHandwritingDelegation() {}
     }
 
     private lateinit var inputConnection: InputConnection
@@ -125,8 +127,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Immediate update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selection,
-            composition = textFieldState.text.composition,
+            selection = textFieldState.selection,
+            composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(windowOffset),
             innerTextFieldBounds = Rect.Zero,
@@ -186,8 +188,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Monitoring update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selection,
-            composition = textFieldState.text.composition,
+            selection = textFieldState.selection,
+            composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(Offset(67f, 89f)),
             innerTextFieldBounds = Rect.Zero,
@@ -208,8 +210,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Immediate update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selection,
-            composition = textFieldState.text.composition,
+            selection = textFieldState.selection,
+            composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(windowOffset),
             innerTextFieldBounds = Rect.Zero,
@@ -225,8 +227,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Monitoring update.
         val expectedInfo2 = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selection,
-            composition = textFieldState.text.composition,
+            selection = textFieldState.selection,
+            composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(Offset(67f, 89f)),
             innerTextFieldBounds = Rect.Zero,
@@ -247,8 +249,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         // Immediate update.
         val expectedInfo = builder.build(
             text = textFieldState.text,
-            selection = textFieldState.text.selection,
-            composition = textFieldState.text.composition,
+            selection = textFieldState.selection,
+            composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
             matrix = getAndroidMatrix(windowOffset),
             innerTextFieldBounds = Rect.Zero,

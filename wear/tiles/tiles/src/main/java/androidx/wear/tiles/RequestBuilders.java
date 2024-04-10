@@ -35,8 +35,6 @@ public final class RequestBuilders {
     /**
      * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} Service when the
      * renderer is requesting a new version of the tile.
-     *
-     * @since 1.0
      */
     public static final class TileRequest {
         private final RequestProto.TileRequest mImpl;
@@ -49,8 +47,6 @@ public final class RequestBuilders {
          * Gets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
          * object describing the device requesting the tile update. If not set, a default empty
          * instance is used.
-         *
-         * @since 1.0
          */
         @NonNull
         public DeviceParameters getDeviceConfiguration() {
@@ -65,8 +61,6 @@ public final class RequestBuilders {
         /**
          * Gets the {@link androidx.wear.protolayout.StateBuilders.State} that should be used when
          * building the tile.
-         *
-         * @since 1.0
          */
         @NonNull
         public State getCurrentState() {
@@ -81,8 +75,6 @@ public final class RequestBuilders {
          * Gets the instance ID of the tile being requested, allocated when the tile instance is
          * added to the carousel. This ID will remain the same for this tile instance as long it is
          * not removed from the carousel.
-         *
-         * @since 1.0
          */
         public int getTileId() {
             return mImpl.getTileId();
@@ -92,7 +84,6 @@ public final class RequestBuilders {
          * Gets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters} object
          * describing the device requesting the tile update.
          *
-         * @since 1.0
          * @deprecated Use {@link #getDeviceConfiguration()} instead.
          */
         @Deprecated
@@ -111,7 +102,6 @@ public final class RequestBuilders {
          * Gets the {@link androidx.wear.tiles.StateBuilders.State} that should be used when
          * building the tile.
          *
-         * @since 1.0
          * @deprecated Use {@link #getCurrentState()} instead.
          */
         @Deprecated
@@ -163,8 +153,6 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
              * object describing the device requesting the tile update. If not set, a default empty
              * instance is used.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setDeviceConfiguration(@NonNull DeviceParameters deviceConfiguration) {
@@ -175,8 +163,6 @@ public final class RequestBuilders {
             /**
              * Sets the {@link androidx.wear.protolayout.StateBuilders.State} that should be used
              * when building the tile.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setCurrentState(@NonNull State currentState) {
@@ -186,8 +172,6 @@ public final class RequestBuilders {
 
             /**
              * Sets the ID of the tile being requested.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -199,7 +183,6 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters}
              * describing the device requesting the tile update.
              *
-             * @since 1.0
              * @deprecated Use {@link setDeviceConfiguration(DeviceParameters)} instead.
              */
             @Deprecated
@@ -216,7 +199,6 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.tiles.StateBuilders.State} that should be used when
              * building the tile.
              *
-             * @since 1.0
              * @deprecated Use {@link setCurrentState(State)} instead.
              */
             @Deprecated
@@ -237,8 +219,6 @@ public final class RequestBuilders {
     /**
      * Parameters passed to a {@link androidx.wear.tiles.TileBuilders.Tile} Service when the
      * renderer is requesting a specific resource version.
-     *
-     * @since 1.0
      */
     public static final class ResourcesRequest {
         private final RequestProto.ResourcesRequest mImpl;
@@ -250,8 +230,6 @@ public final class RequestBuilders {
         /**
          * Gets the version of the resources being fetched. This is the same as the requested
          * resource version, passed in {@link androidx.wear.tiles.TileBuilders.Tile}.
-         *
-         * @since 1.0
          */
         @NonNull
         public String getVersion() {
@@ -266,8 +244,6 @@ public final class RequestBuilders {
          * <p>Note that resource IDs here correspond to tile resources (i.e. keys that would be used
          * in {@link androidx.wear.protolayout.ResourceBuilders.Resources}.idToImage), not Android
          * resource names or similar.
-         *
-         * @since 1.0
          */
         @NonNull
         public List<String> getResourceIds() {
@@ -277,8 +253,6 @@ public final class RequestBuilders {
         /**
          * Gets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
          * object describing the device requesting the resources.
-         *
-         * @since 1.0
          */
         @NonNull
         public DeviceParameters getDeviceConfiguration() {
@@ -294,8 +268,6 @@ public final class RequestBuilders {
          * Gets the instance ID of the tile for which resources are being requested, allocated when
          * the tile instance is added to the carousel. This ID will remain the same for this tile
          * instance as long it is not removed from the carousel.
-         *
-         * @since 1.0
          */
         public int getTileId() {
             return mImpl.getTileId();
@@ -305,7 +277,6 @@ public final class RequestBuilders {
          * Gets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters} object
          * describing the device requesting the resources.
          *
-         * @since 1.0
          * @deprecated Use {@link #getDeviceConfiguration()} instead.
          */
         @Deprecated
@@ -360,7 +331,6 @@ public final class RequestBuilders {
              * Sets the version of the resources being fetched. This is the same as the requested
              * resource version, passed in {@link androidx.wear.tiles.TileBuilders.Tile}.
              *
-             * @since 1.0
              */
             @NonNull
             public Builder setVersion(@NonNull String version) {
@@ -377,8 +347,6 @@ public final class RequestBuilders {
              * <p>Note that resource IDs here correspond to tile resources (i.e. keys that would be
              * used in {@link androidx.wear.protolayout.ResourceBuilders.Resources}.idToImage), not
              * Android resource names or similar.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder addResourceId(@NonNull String resourceId) {
@@ -389,8 +357,6 @@ public final class RequestBuilders {
             /**
              * Sets the {@link androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters}
              * object describing the device requesting the resources.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setDeviceConfiguration(@NonNull DeviceParameters deviceConfiguration) {
@@ -400,8 +366,6 @@ public final class RequestBuilders {
 
             /**
              * Sets the ID of the tile for which resources are being requested.
-             *
-             * @since 1.0
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -413,7 +377,6 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters}
              * describing the device requesting the resources.
              *
-             * @since 1.0
              * @deprecated Use {@link setDeviceConfiguration(DeviceParameters)} instead.
              */
             @Deprecated

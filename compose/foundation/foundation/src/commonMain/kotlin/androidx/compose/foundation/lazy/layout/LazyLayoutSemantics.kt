@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateSemantics
@@ -33,6 +34,7 @@ import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.scrollBy
+import androidx.compose.ui.semantics.scrollByOffset
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import kotlinx.coroutines.launch
@@ -135,6 +137,7 @@ private class LazyLayoutSemanticsModifierNode(
 
     private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
     private var scrollToIndexAction: ((Int) -> Boolean)? = null
+    private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
     init {
         updateCachedSemanticsValues()
@@ -188,6 +191,10 @@ private class LazyLayoutSemanticsModifierNode(
             scrollToIndex(action = it)
         }
 
+        scrollByOffsetAction?.let {
+            scrollByOffset(action = it)
+        }
+
         getScrollViewportLength {
             it.add((state.viewport - state.contentPadding).toFloat())
             true
@@ -212,6 +219,20 @@ private class LazyLayoutSemanticsModifierNode(
                 // TODO(aelias): is it important to return false if we know in advance we cannot
                 //  scroll?
                 true
+            }
+        } else {
+            null
+        }
+
+        scrollByOffsetAction = if (userScrollEnabled) {
+            { offset ->
+                if (isVertical) {
+                    val consumed = state.animateScrollBy(offset.y)
+                    Offset(0f, consumed)
+                } else {
+                    val consumed = state.animateScrollBy(offset.x)
+                    Offset(consumed, 0f)
+                }
             }
         } else {
             null
@@ -242,7 +263,7 @@ internal interface LazyLayoutSemanticState {
     val maxScrollOffset: Float
 
     fun collectionInfo(): CollectionInfo
-    suspend fun animateScrollBy(delta: Float)
+    suspend fun animateScrollBy(delta: Float): Float
     suspend fun scrollToItem(index: Int)
 }
 

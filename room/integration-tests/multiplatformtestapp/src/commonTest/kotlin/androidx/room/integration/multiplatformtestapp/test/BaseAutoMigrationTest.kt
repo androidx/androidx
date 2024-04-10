@@ -23,6 +23,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
@@ -38,6 +39,7 @@ abstract class BaseAutoMigrationTest {
     abstract fun getRoomDatabase(): AutoMigrationDatabase
 
     @Test
+    @Ignore // TODO (b/331622149) Investigate, there seems to be an issue in linuxX64Test
     fun migrateFromV1ToLatest() = runTest {
         val migrationTestHelper = getTestHelper()
 

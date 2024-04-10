@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("ViewModelKt")
+@file:JvmMultifileClass
 
 @file:JvmName("ViewModelKt")
 
@@ -26,35 +28,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-
-/**
- * Returns an existing [ViewModel] or creates a new one in the given owner (usually, a fragment or
- * an activity), defaulting to the owner provided by [LocalViewModelStoreOwner].
- *
- * The created [ViewModel] is associated with the given [viewModelStoreOwner] and will be retained
- * as long as the owner is alive (e.g. if it is an activity, until it is
- * finished or process is killed).
- *
- * @param viewModelStoreOwner The owner of the [ViewModel] that controls the scope and lifetime
- * of the returned [ViewModel]. Defaults to using [LocalViewModelStoreOwner].
- * @param key The key to use to identify the [ViewModel].
- * @param factory The [ViewModelProvider.Factory] that should be used to create the [ViewModel]
- * or null if you would like to use the default factory from the [LocalViewModelStoreOwner]
- * @return A [ViewModel] that is an instance of the given [VM] type.
- */
-@Deprecated(
-    "Superseded by viewModel that takes CreationExtras",
-    level = DeprecationLevel.HIDDEN
-)
-@Suppress("MissingJvmstatic")
-@Composable
-public inline fun <reified VM : ViewModel> viewModel(
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-    factory: ViewModelProvider.Factory? = null
-): VM = viewModel(VM::class.java, viewModelStoreOwner, key, factory)
+import kotlin.reflect.KClass
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the given owner (usually, a fragment or
@@ -90,36 +64,7 @@ public inline fun <reified VM : ViewModel> viewModel(
     } else {
         CreationExtras.Empty
     }
-): VM = viewModel(VM::class.java, viewModelStoreOwner, key, factory, extras)
-
-/**
- * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or
- * an activity)
- *
- * The created [ViewModel] is associated with the given [viewModelStoreOwner] and will be retained
- * as long as the scope is alive (e.g. if it is an activity, until it is
- * finished or process is killed).
- *
- * @param modelClass The class of the [ViewModel] to create an instance of it if it is not
- * present.
- * @param viewModelStoreOwner The scope that the created [ViewModel] should be associated with.
- * @param key The key to use to identify the [ViewModel].
- * @return A [ViewModel] that is an instance of the given [VM] type.
- */
-@Deprecated(
-    "Superseded by viewModel that takes CreationExtras",
-    level = DeprecationLevel.HIDDEN
-)
-@Suppress("MissingJvmstatic")
-@Composable
-public fun <VM : ViewModel> viewModel(
-    modelClass: Class<VM>,
-    viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    },
-    key: String? = null,
-    factory: ViewModelProvider.Factory? = null
-): VM = viewModelStoreOwner.get(modelClass, key, factory)
+): VM = viewModel(VM::class, viewModelStoreOwner, key, factory, extras)
 
 /**
  * Returns an existing [ViewModel] or creates a new one in the scope (usually, a fragment or
@@ -136,6 +81,8 @@ public fun <VM : ViewModel> viewModel(
  * present.
  * @param viewModelStoreOwner The scope that the created [ViewModel] should be associated with.
  * @param key The key to use to identify the [ViewModel].
+ * @param factory The [ViewModelProvider.Factory] that should be used to create the [ViewModel]
+ * or null if you would like to use the default factory from the [LocalViewModelStoreOwner]
  * @param extras The default extras used to create the [ViewModel].
  * @return A [ViewModel] that is an instance of the given [VM] type.
  *
@@ -144,7 +91,7 @@ public fun <VM : ViewModel> viewModel(
 @Suppress("MissingJvmstatic")
 @Composable
 public fun <VM : ViewModel> viewModel(
-    modelClass: Class<VM>,
+    modelClass: KClass<VM>,
     viewModelStoreOwner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     },
@@ -183,7 +130,7 @@ public inline fun <reified VM : ViewModel> viewModel(
     key: String? = null,
     noinline initializer: CreationExtras.() -> VM
 ): VM = viewModel(
-    VM::class.java,
+    VM::class,
     viewModelStoreOwner,
     key,
     viewModelFactory { initializer(initializer) },
@@ -194,8 +141,8 @@ public inline fun <reified VM : ViewModel> viewModel(
     }
 )
 
-private fun <VM : ViewModel> ViewModelStoreOwner.get(
-    javaClass: Class<VM>,
+internal fun <VM : ViewModel> ViewModelStoreOwner.get(
+    modelClass: KClass<VM>,
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
     extras: CreationExtras = if (this is HasDefaultViewModelProviderFactory) {
@@ -205,15 +152,15 @@ private fun <VM : ViewModel> ViewModelStoreOwner.get(
     }
 ): VM {
     val provider = if (factory != null) {
-        ViewModelProvider(this.viewModelStore, factory, extras)
+        ViewModelProvider.create(this.viewModelStore, factory, extras)
     } else if (this is HasDefaultViewModelProviderFactory) {
-        ViewModelProvider(this.viewModelStore, this.defaultViewModelProviderFactory, extras)
+        ViewModelProvider.create(this.viewModelStore, this.defaultViewModelProviderFactory, extras)
     } else {
-        ViewModelProvider(this)
+        ViewModelProvider.create(this)
     }
     return if (key != null) {
-        provider[key, javaClass]
+        provider[key, modelClass]
     } else {
-        provider[javaClass]
+        provider[modelClass]
     }
 }

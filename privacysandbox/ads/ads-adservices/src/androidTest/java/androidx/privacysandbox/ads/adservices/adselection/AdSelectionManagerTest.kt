@@ -86,7 +86,17 @@ class AdSelectionManagerTest {
     fun testAdSelectionOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33/34 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(obtain(mContext)).isEqualTo(null)
+        assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testAdSelectionManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+
+        `when`(android.adservices.adselection.AdSelectionManager.get(any())).thenThrow(
+            NoClassDefFoundError()
+        )
+        assertThat(obtain(mContext)).isNull()
     }
 
     @Test

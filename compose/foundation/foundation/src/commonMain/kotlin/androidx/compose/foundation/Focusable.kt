@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.requestFocus
@@ -72,9 +73,7 @@ fun Modifier.focusable(
     interactionSource: MutableInteractionSource? = null,
 ) = this.then(
     if (enabled) {
-        FocusableElement(
-            interactionSource
-        ).focusTarget()
+        FocusableElement(interactionSource)
     } else {
         Modifier
     }
@@ -200,6 +199,10 @@ internal class FocusableNode(
     private val focusableInteractionNode = delegate(FocusableInteractionNode(interactionSource))
     private val focusablePinnableContainer = delegate(FocusablePinnableContainerNode())
     private val focusedBoundsNode = delegate(FocusedBoundsNode())
+
+    init {
+        delegate(FocusTargetModifierNode())
+    }
 
     // Focusables have a few different cases where they need to make sure they stay visible:
     //

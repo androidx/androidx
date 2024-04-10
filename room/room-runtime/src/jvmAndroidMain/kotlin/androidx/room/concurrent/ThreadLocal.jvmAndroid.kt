@@ -34,4 +34,5 @@ internal actual fun <T> ThreadLocal<T>.asContextElement(value: T): CoroutineCont
 /**
  * Gets the current thread id.
  */
+@Suppress("deprecation") // b/323594292
 internal actual fun currentThreadId(): Long = Thread.currentThread().id

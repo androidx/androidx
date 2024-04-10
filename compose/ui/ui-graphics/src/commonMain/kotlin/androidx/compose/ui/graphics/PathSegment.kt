@@ -21,7 +21,7 @@ package androidx.compose.ui.graphics
  * a fully formed [Path] object.
  *
  * A segment is identified by a [type][PathSegment.Type] which in turns defines how many
- * [points] are available (from 0 to 3 points, each point is represented by 2 floats) and
+ * [points] are available (from 0 to 4 points, each point is represented by 2 floats) and
  * whether the [weight] is meaningful. Please refer to the documentation of each
  * [type][PathSegment.Type] for more information.
  *

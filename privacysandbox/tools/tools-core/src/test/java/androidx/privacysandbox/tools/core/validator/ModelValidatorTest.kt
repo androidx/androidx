@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.core.validator
 
 import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
+import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
@@ -293,10 +294,10 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data classes annotated " +
-                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
-                "and SdkActivityLaunchers are supported as return types.",
-            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data classes " +
+            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data/enum classes " +
+                "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as return types.",
+            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data/enum classes " +
                 "annotated with @PrivacySandboxValue, interfaces annotated with " +
                 "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
                 "are supported as parameter types."
@@ -379,9 +380,9 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.bar: only primitives, lists, data classes annotated with " +
-                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
-                "SdkActivityLaunchers are supported as properties."
+            "Error in com.mysdk.Foo.bar: only primitives, lists, data/enum classes annotated " +
+                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
+                "and SdkActivityLaunchers are supported as properties."
         )
     }
 
@@ -410,10 +411,78 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data classes " +
+            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data/enum classes " +
                 "annotated with @PrivacySandboxValue, interfaces annotated with " +
                 "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as callback " +
                 "parameter types."
+        )
+    }
+
+    @Test
+    fun propertyWithKeywordName_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
+            ),
+            values = setOf(
+                AnnotatedDataClass(
+                    type = Type(packageName = "com.mysdk", simpleName = "Foo"),
+                    properties = listOf(
+                        ValueProperty("import", Types.int)
+                    )
+                )
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.Foo.import: property name must not be a Java keyword."
+        )
+    }
+
+    @Test
+    fun enumConstantWithKeywordName_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
+            ),
+            values = setOf(
+                AnnotatedEnumClass(
+                    type = Type(packageName = "com.mysdk", simpleName = "Foo"),
+                    variants = listOf(
+                        "boolean"
+                    )
+                )
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.Foo.boolean: enum constant name must not be a Java keyword."
+        )
+    }
+
+    @Test
+    fun methodWithKeywordName_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                    methods = listOf(
+                        Method(
+                            name = "char",
+                            parameters = listOf(),
+                            returnType = Types.unit,
+                            isSuspend = false,
+                        )
+                    )
+                ),
+            ),
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.MySdk.char: method name must not be a Java keyword."
         )
     }
 }

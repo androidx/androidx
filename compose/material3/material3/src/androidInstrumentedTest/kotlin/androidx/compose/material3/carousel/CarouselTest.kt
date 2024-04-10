@@ -19,7 +19,9 @@ package androidx.compose.material3.carousel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -131,7 +133,54 @@ class CarouselTest {
     }
 
     @Test
-    fun carousel_calculateOutOfBoundsPageCount() {
+    fun carouselSingleAdvanceFling_capsScroll() {
+        // Arrange
+        createCarousel()
+        assertThat(carouselState.pagerState.currentPage).isEqualTo(0)
+
+        // Act
+        rule.onNodeWithTag(CarouselTestTag)
+            .performTouchInput {
+                swipeWithVelocity(
+                    centerRight,
+                    centerLeft,
+                    10000f
+                )
+            }
+
+        // Assert
+        rule.runOnIdle {
+            // A swipe from the very right to very left should be capped at
+            // the item right after the visible pages onscreen regardless of velocity
+            assertThat(carouselState.pagerState.currentPage).isLessThan(
+                carouselState.pagerState.layoutInfo.visiblePagesInfo.size + 1)
+        }
+    }
+
+    @Test
+    fun carouselMultibrowseFling_ScrollsToEnd() {
+        // Arrange
+        createCarousel(
+            flingBehavior =
+            { state: CarouselState -> CarouselDefaults.multiBrowseFlingBehavior(state) },
+        )
+        assertThat(carouselState.pagerState.currentPage).isEqualTo(0)
+
+        // Act
+        rule.onNodeWithTag(CarouselTestTag)
+            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 10000f) }
+
+        // Assert
+        rule.runOnIdle {
+            // A swipe from the very right to very left at a high velocity should go beyond
+            // first item after the visible pages as it's not capped
+            assertThat(carouselState.pagerState.currentPage).isGreaterThan(
+                carouselState.pagerState.layoutInfo.visiblePagesInfo.size)
+        }
+    }
+
+    @Test
+    fun carousel_calculateBeyondViewportPageCount() {
         val xSmallSize = 5f
         val smallSize = 100f
         val mediumSize = 200f
@@ -145,10 +194,13 @@ class CarouselTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        val strategy = Strategy { _, _ ->
-            keylineList
-        }.apply(availableSpace = 1000f, itemSpacing = 0f)
-        val outOfBoundsNum = calculateOutOfBounds(strategy)
+        val strategy = Strategy { _, _ -> keylineList }.apply(
+            availableSpace = 1000f,
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
+        )
+        val outOfBoundsNum = calculateBeyondViewportPageCount(strategy)
         // With this strategy, we expect 3 loaded items
         val loadedItems = 3
 
@@ -171,7 +223,12 @@ class CarouselTest {
                     add(56f)
                     add(10f, isAnchor = true)
                 }
-            }.apply(availableSpace = 380f, itemSpacing = 8f)
+            }.apply(
+                availableSpace = 380f,
+                itemSpacing = 8f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
             // Max offset should only add item spacing between each item
             val expectedMaxScrollOffset = (186f * 10) + (8f * 9) - 380f
@@ -203,6 +260,11 @@ class CarouselTest {
             .width(412.dp)
             .height(221.dp),
         orientation: Orientation = Orientation.Horizontal,
+        flingBehavior: @Composable (CarouselState) -> TargetedFlingBehavior = @Composable {
+            CarouselDefaults.singleAdvanceFlingBehavior(
+                state = it,
+            )
+        },
         content: @Composable CarouselScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
         rule.setMaterialContent(lightColorScheme()) {
@@ -222,8 +284,10 @@ class CarouselTest {
                         itemCount = itemCount.invoke(),
                     )
                 },
+                flingBehavior = flingBehavior(state),
                 modifier = modifier.testTag(CarouselTestTag),
                 itemSpacing = 0.dp,
+                contentPadding = PaddingValues(0.dp),
                 content = content,
             )
         }
@@ -243,7 +307,7 @@ class CarouselTest {
             }
             HorizontalUncontainedCarousel(
                 state = state,
-                itemSize = 150.dp,
+                itemWidth = 150.dp,
                 modifier = modifier.testTag(CarouselTestTag),
                 itemSpacing = 0.dp,
                 content = content,

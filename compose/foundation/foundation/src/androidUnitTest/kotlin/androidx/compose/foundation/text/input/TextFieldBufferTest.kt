@@ -158,7 +158,7 @@ class TextFieldBufferTest {
         val expectedValue = TextFieldCharSequence("world", TextRange(5))
         val state = TextFieldBuffer(
             initialValue = TextFieldCharSequence("hello", TextRange(2)),
-            sourceValue = expectedValue
+            originalValue = expectedValue
         )
         state.revertAllChanges()
         assertThat(state.toTextFieldCharSequence()).isEqualTo(expectedValue)
@@ -565,6 +565,16 @@ class TextFieldBufferTest {
         val buffer = TextFieldBuffer(TextFieldCharSequence(""))
         buffer.replace(0, 0, "abcd", 0, 4)
         assertThat(buffer.toString()).isEqualTo("abcd")
+    }
+
+    @Test
+    fun changeList_alwaysReturnsTheLatestChanges() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence())
+        val changeList = buffer.changes
+        buffer.insert(0, "hello")
+        assertThat(changeList.changeCount).isEqualTo(1)
+        assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(0))
+        assertThat(changeList.getRange(0)).isEqualTo(TextRange(0, 5))
     }
 
     @Test

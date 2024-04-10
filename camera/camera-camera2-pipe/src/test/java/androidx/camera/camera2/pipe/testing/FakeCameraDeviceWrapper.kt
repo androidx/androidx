@@ -23,10 +23,10 @@ import android.hardware.camera2.params.InputConfiguration
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.AudioRestrictionMode
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.compat.Api23Compat
-import androidx.camera.camera2.pipe.compat.AudioRestrictionMode
 import androidx.camera.camera2.pipe.compat.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.CameraExtensionSessionWrapper

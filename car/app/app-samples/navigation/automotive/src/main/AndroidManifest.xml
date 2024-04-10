@@ -21,7 +21,7 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
   <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES"/>
   <uses-permission android:name="androidx.car.app.ACCESS_SURFACE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -70,6 +70,7 @@
     <service
         android:name="androidx.car.app.sample.navigation.common.nav.NavigationService"
         android:enabled="true"
+        android:foregroundServiceType="location"
         android:exported="true">
     </service>
 

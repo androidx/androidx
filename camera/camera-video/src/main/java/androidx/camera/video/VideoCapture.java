@@ -516,8 +516,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         CameraInternal cameraInternal = getCamera();
         SurfaceEdge cameraEdge = mCameraEdge;
         if (cameraInternal != null && cameraEdge != null) {
-            mRotationDegrees = adjustRotationWithInProgressTransformation(
-                    getRelativeRotation(cameraInternal, isMirroringRequired(cameraInternal)));
+            mRotationDegrees = getCompensatedRotation(cameraInternal);
             cameraEdge.updateTransformation(mRotationDegrees, getAppTargetRotation());
         }
     }
@@ -535,15 +534,27 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return adjustedCropRect;
     }
 
-    private int adjustRotationWithInProgressTransformation(int rotationDegrees) {
-        int adjustedRotationDegrees = rotationDegrees;
+    /**
+     * Gets the rotation that is compensated by the in-progress transformation.
+     *
+     * <p>If there's no in-progress recording, the returned rotation degrees will be the same as
+     * {@link #getRelativeRotation(CameraInternal)}.
+     */
+    private int getCompensatedRotation(@NonNull CameraInternal cameraInternal) {
+        boolean isMirroringRequired = isMirroringRequired(cameraInternal);
+        int rotationDegrees = getRelativeRotation(cameraInternal, isMirroringRequired);
         if (shouldCompensateTransformation()) {
             TransformationInfo transformationInfo =
                     requireNonNull(mStreamInfo.getInProgressTransformationInfo());
-            adjustedRotationDegrees = within360(
-                    rotationDegrees - transformationInfo.getRotationDegrees());
+            int inProgressDegrees = transformationInfo.getRotationDegrees();
+            if (isMirroringRequired != transformationInfo.isMirroring()) {
+                // If the mirroring states of the current stream and the existing stream are
+                // different, the existing rotation degrees should be inverted.
+                inProgressDegrees = -inProgressDegrees;
+            }
+            rotationDegrees = within360(rotationDegrees - inProgressDegrees);
         }
-        return adjustedRotationDegrees;
+        return rotationDegrees;
     }
 
     @NonNull
@@ -615,8 +626,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(
                 config.getVideoEncoderInfoFinder(), encoderProfiles, mediaSpec,  resolution,
                 dynamicRange, expectedFrameRate);
-        mRotationDegrees = adjustRotationWithInProgressTransformation(getRelativeRotation(camera,
-                isMirroringRequired(camera)));
+        mRotationDegrees = getCompensatedRotation(camera);
         Rect originalCropRect = calculateCropRect(resolution, videoEncoderInfo);
         mCropRect = adjustCropRectWithInProgressTransformation(originalCropRect, mRotationDegrees);
         Size nodeResolution = adjustResolutionWithInProgressTransformation(resolution,
@@ -884,7 +894,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
         if (!isStreamError && mDeferrableSurface != null) {
             if (isStreamActive) {
-                sessionConfigBuilder.addSurface(mDeferrableSurface, dynamicRange);
+                sessionConfigBuilder.addSurface(mDeferrableSurface, dynamicRange, null);
             } else {
                 sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface, dynamicRange);
             }

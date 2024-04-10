@@ -62,20 +62,23 @@ fun interface InputTransformation {
     /**
      * The transform operation. For more information see the documentation on [InputTransformation].
      *
-     * To reject all changes in [valueWithChanges], call
-     * `valueWithChanges.`[revertAllChanges][TextFieldBuffer.revertAllChanges].
+     * This function is scoped to [TextFieldBuffer], a buffer that can be changed in-place to alter
+     * or reject the changes or set the selection.
      *
-     * @param originalValue The value of the field before the change was performed.
-     * @param valueWithChanges The value of the field after the change. This value can be changed
-     * in-place to alter or reject the changes or set the selection.
+     * To reject all changes in the scoped [TextFieldBuffer], call
+     * [revertAllChanges][TextFieldBuffer.revertAllChanges].
+     *
+     * When multiple [InputTransformation]s are linked together, the [transformInput] function of
+     * the first transformation is invoked before the second one. Once the changes are made to
+     * [TextFieldBuffer] by the initial [InputTransformation] in the chain, the same instance of
+     * [TextFieldBuffer] is forwarded to the subsequent transformation in the chain. Note that
+     * [TextFieldBuffer.originalValue] never changes while the buffer is passed along the chain.
+     * This sequence persists until the chain reaches its conclusion.
      */
-    fun transformInput(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer)
+    fun TextFieldBuffer.transformInput()
 
     companion object : InputTransformation {
-        override fun transformInput(
-            originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBuffer
-        ) {
+        override fun TextFieldBuffer.transformInput() {
             // Noop.
         }
     }
@@ -179,12 +182,9 @@ private class FilterChain(
         with(second) { applySemantics() }
     }
 
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
-        first.transformInput(originalValue, valueWithChanges)
-        second.transformInput(originalValue, valueWithChanges)
+    override fun TextFieldBuffer.transformInput() {
+        with(first) { transformInput() }
+        with(second) { transformInput() }
     }
 
     override fun toString(): String = "$first.then($second)"
@@ -218,18 +218,15 @@ private data class InputTransformationByValue(
         proposed: CharSequence
     ) -> CharSequence
 ) : InputTransformation {
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
-        val proposed = valueWithChanges.toTextFieldCharSequence()
+    override fun TextFieldBuffer.transformInput() {
+        val proposed = toTextFieldCharSequence()
         val accepted = transformation(originalValue, proposed)
         when {
             // These are reference comparisons – text comparison will be done by setTextIfChanged.
             accepted === proposed -> return
-            accepted === originalValue -> valueWithChanges.revertAllChanges()
+            accepted === originalValue -> revertAllChanges()
             else -> {
-                valueWithChanges.setTextIfChanged(accepted)
+                setTextIfChanged(accepted)
             }
         }
     }
@@ -244,17 +241,14 @@ private data class AllCapsTransformation(private val locale: Locale) : InputTran
         capitalization = KeyboardCapitalization.Characters
     )
 
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
+    override fun TextFieldBuffer.transformInput() {
         // only update inserted content
-        valueWithChanges.changes.forEachChange { range, _ ->
+        changes.forEachChange { range, _ ->
             if (!range.collapsed) {
-                valueWithChanges.replace(
+                replace(
                     range.min,
                     range.max,
-                    valueWithChanges.asCharSequence().substring(range).toUpperCase(locale)
+                    asCharSequence().substring(range).toUpperCase(locale)
                 )
             }
         }
@@ -277,12 +271,9 @@ private data class MaxLengthFilter(
         maxTextLength = maxLength
     }
 
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
-        if (valueWithChanges.length > maxLength) {
-            valueWithChanges.revertAllChanges()
+    override fun TextFieldBuffer.transformInput() {
+        if (length > maxLength) {
+            revertAllChanges()
         }
     }
 

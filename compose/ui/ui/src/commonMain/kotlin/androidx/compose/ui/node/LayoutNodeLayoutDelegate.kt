@@ -18,6 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
@@ -319,6 +320,7 @@ internal class LayoutNodeLayoutDelegate(
 
         private var lastPosition: IntOffset = IntOffset.Zero
         private var lastLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
+        private var lastExplicitLayer: GraphicsLayer? = null
         private var lastZIndex: Float = 0f
 
         private var parentDataDirty: Boolean = true
@@ -480,6 +482,7 @@ internal class LayoutNodeLayoutDelegate(
 
         // Used by placeOuterBlock to avoid allocating the lambda on every call
         private var placeOuterCoordinatorLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
+        private var placeOuterCoordinatorLayer: GraphicsLayer? = null
         private var placeOuterCoordinatorPosition = IntOffset.Zero
         private var placeOuterCoordinatorZIndex = 0f
 
@@ -488,7 +491,14 @@ internal class LayoutNodeLayoutDelegate(
                 ?: layoutNode.requireOwner().placementScope
             with(scope) {
                 val layerBlock = placeOuterCoordinatorLayerBlock
-                if (layerBlock == null) {
+                val layer = placeOuterCoordinatorLayer
+                if (layer != null) {
+                    outerCoordinator.placeWithLayer(
+                        placeOuterCoordinatorPosition,
+                        layer,
+                        placeOuterCoordinatorZIndex
+                    )
+                } else if (layerBlock == null) {
                     outerCoordinator.place(
                         placeOuterCoordinatorPosition,
                         placeOuterCoordinatorZIndex
@@ -689,6 +699,23 @@ internal class LayoutNodeLayoutDelegate(
             zIndex: Float,
             layerBlock: (GraphicsLayerScope.() -> Unit)?
         ) {
+            placeSelf(position, zIndex, layerBlock, null)
+        }
+
+        override fun placeAt(
+            position: IntOffset,
+            zIndex: Float,
+            layer: GraphicsLayer
+        ) {
+            placeSelf(position, zIndex, null, layer)
+        }
+
+        private fun placeSelf(
+            position: IntOffset,
+            zIndex: Float,
+            layerBlock: (GraphicsLayerScope.() -> Unit)?,
+            layer: GraphicsLayer?
+        ) {
             isPlacedByParent = true
             if (position != lastPosition) {
                 if (coordinatesAccessedDuringModifierPlacement ||
@@ -724,13 +751,14 @@ internal class LayoutNodeLayoutDelegate(
             }
 
             // Post-lookahead (if any) placement
-            placeOuterCoordinator(position, zIndex, layerBlock)
+            placeOuterCoordinator(position, zIndex, layerBlock, layer)
         }
 
         private fun placeOuterCoordinator(
             position: IntOffset,
             zIndex: Float,
-            layerBlock: (GraphicsLayerScope.() -> Unit)?
+            layerBlock: (GraphicsLayerScope.() -> Unit)?,
+            layer: GraphicsLayer?
         ) {
             requirePrecondition(!layoutNode.isDeactivated) {
                 "place is called on a deactivated node"
@@ -740,12 +768,13 @@ internal class LayoutNodeLayoutDelegate(
             lastPosition = position
             lastZIndex = zIndex
             lastLayerBlock = layerBlock
+            lastExplicitLayer = layer
             placedOnce = true
             onNodePlacedCalled = false
 
             val owner = layoutNode.requireOwner()
             if (!layoutPending && isPlaced) {
-                outerCoordinator.placeSelfApparentToRealOffset(position, zIndex, layerBlock)
+                outerCoordinator.placeSelfApparentToRealOffset(position, zIndex, layerBlock, layer)
                 onNodePlaced()
             } else {
                 alignmentLines.usedByModifierLayout = false
@@ -753,10 +782,10 @@ internal class LayoutNodeLayoutDelegate(
                 placeOuterCoordinatorLayerBlock = layerBlock
                 placeOuterCoordinatorPosition = position
                 placeOuterCoordinatorZIndex = zIndex
+                placeOuterCoordinatorLayer = layer
                 owner.snapshotObserver.observeLayoutModifierSnapshotReads(
                     layoutNode, affectsLookahead = false, block = placeOuterCoordinatorBlock
                 )
-                placeOuterCoordinatorLayerBlock = null
             }
 
             layoutState = LayoutState.Idle
@@ -772,7 +801,7 @@ internal class LayoutNodeLayoutDelegate(
                 relayoutWithoutParentInProgress = true
                 checkPrecondition(placedOnce) { "replace called on unplaced item" }
                 val wasPlacedBefore = isPlaced
-                placeOuterCoordinator(lastPosition, lastZIndex, lastLayerBlock)
+                placeOuterCoordinator(lastPosition, lastZIndex, lastLayerBlock, lastExplicitLayer)
                 if (wasPlacedBefore && !onNodePlacedCalled) {
                     // parent should be notified that this node is not placed anymore so the
                     // children `placeOrder`s are updated.
@@ -1000,10 +1029,11 @@ internal class LayoutNodeLayoutDelegate(
             val lookaheadDelegate = checkPreconditionNotNull(lookaheadPassDelegate) {
                 "invalid lookaheadDelegate"
             }
-            placeAt(
+            placeSelf(
                 lookaheadDelegate.lastPosition,
                 lookaheadDelegate.lastZIndex,
-                lookaheadDelegate.lastLayerBlock
+                lookaheadDelegate.lastLayerBlock,
+                lookaheadDelegate.lastExplicitLayer
             )
         }
     }
@@ -1053,6 +1083,9 @@ internal class LayoutNodeLayoutDelegate(
             private set
 
         internal var lastLayerBlock: (GraphicsLayerScope.() -> Unit)? = null
+            private set
+
+        internal var lastExplicitLayer: GraphicsLayer? = null
             private set
 
         override var isPlaced: Boolean = false
@@ -1326,6 +1359,23 @@ internal class LayoutNodeLayoutDelegate(
             zIndex: Float,
             layerBlock: (GraphicsLayerScope.() -> Unit)?
         ) {
+            placeSelf(position, zIndex, layerBlock, null)
+        }
+
+        override fun placeAt(
+            position: IntOffset,
+            zIndex: Float,
+            layer: GraphicsLayer
+        ) {
+            placeSelf(position, zIndex, null, layer)
+        }
+
+        private fun placeSelf(
+            position: IntOffset,
+            zIndex: Float,
+            layerBlock: (GraphicsLayerScope.() -> Unit)?,
+            layer: GraphicsLayer?
+        ) {
             requirePrecondition(!layoutNode.isDeactivated) {
                 "place is called on a deactivated node"
             }
@@ -1362,6 +1412,7 @@ internal class LayoutNodeLayoutDelegate(
             lastPosition = position
             lastZIndex = zIndex
             lastLayerBlock = layerBlock
+            lastExplicitLayer = layer
             layoutState = LayoutState.Idle
         }
 
@@ -1590,7 +1641,7 @@ internal class LayoutNodeLayoutDelegate(
 
                 onNodePlacedCalled = false
                 val wasPlacedBefore = isPlaced
-                placeAt(lastPosition, 0f, null)
+                placeSelf(lastPosition, 0f, lastLayerBlock, lastExplicitLayer)
                 if (wasPlacedBefore && !onNodePlacedCalled) {
                     // parent should be notified that this node is not placed anymore so the
                     // children `placeOrder`s are updated.

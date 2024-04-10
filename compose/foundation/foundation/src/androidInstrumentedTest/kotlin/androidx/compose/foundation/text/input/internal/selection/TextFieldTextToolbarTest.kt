@@ -17,9 +17,8 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.createClipData
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +47,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.ClipMetadata
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextToolbar
@@ -56,7 +54,6 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.toClipEntry
-import androidx.compose.ui.platform.toClipMetadata
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -193,7 +190,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(5, 2))
+            assertThat(state.selection).isEqualTo(TextRange(5, 2))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
 
@@ -206,7 +203,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
@@ -226,7 +223,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
@@ -243,7 +240,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
@@ -262,7 +259,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
         }
     }
@@ -494,7 +491,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         selectAllOption?.invoke()
 
-        assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+        assertThat(state.selection).isEqualTo(TextRange(0, 5))
         rule.runOnIdle {
             assertThat(selectAllOption).isNull()
         }
@@ -582,7 +579,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             toolbar = textToolbar,
             singleLine = true,
             clipboardManager = clipboardManager,
-            modifier = Modifier.receiveContent(setOf(MediaType.Image)) { null }
+            modifier = Modifier.contentReceiver { null }
         )
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }
@@ -615,7 +612,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Heworldllo")
-            assertThat(state.text.selection).isEqualTo(TextRange(7))
+            assertThat(state.selection).isEqualTo(TextRange(7))
         }
     }
 
@@ -688,7 +685,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
         }
     }
 
@@ -715,7 +712,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
             assertThat(state.text.toString()).isEqualTo("H World!")
-            assertThat(state.text.selection).isEqualTo(TextRange(1))
+            assertThat(state.selection).isEqualTo(TextRange(1))
         }
     }
 
@@ -730,11 +727,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         )
         val clipboardManager = FakeClipboardManager()
         val state = TextFieldState("Hello World!")
-        setupContent(state, textToolbar, true, clipboardManager) { original, changes ->
+        setupContent(state, textToolbar, true, clipboardManager) {
             // only reject text changes, accept selection
-            val selection = changes.selection
-            changes.replace(0, changes.length, original.toString())
-            changes.selection = selection
+            val initialSelection = selection
+            replace(0, length, originalValue.toString())
+            selection = initialSelection
         }
 
         rule.onNodeWithTag(TAG).requestFocus()
@@ -747,7 +744,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
             assertThat(state.text.toString()).isEqualTo("Hello World!")
-            assertThat(state.text.selection).isEqualTo(TextRange(1))
+            assertThat(state.selection).isEqualTo(TextRange(1))
         }
     }
 
@@ -965,22 +962,6 @@ internal fun FakeClipboardManager(
     override fun getClip(): ClipEntry? {
         if (supportsClipEntry) {
             return currentClipEntry
-        } else {
-            throw NotImplementedError("This clipboard does not support clip entries")
-        }
-    }
-
-    override fun getClipMetadata(): ClipMetadata? {
-        if (supportsClipEntry) {
-            return currentClipEntry?.clipData?.description?.toClipMetadata()
-        } else {
-            throw NotImplementedError("This clipboard does not support clip entries")
-        }
-    }
-
-    override fun hasClip(): Boolean {
-        if (supportsClipEntry) {
-            return currentClipEntry != null
         } else {
             throw NotImplementedError("This clipboard does not support clip entries")
         }

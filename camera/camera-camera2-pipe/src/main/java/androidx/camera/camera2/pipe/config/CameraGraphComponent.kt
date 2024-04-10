@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.core.Threads
+import androidx.camera.camera2.pipe.graph.CameraGraphId
 import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
@@ -102,6 +103,12 @@ internal abstract class SharedCameraGraphModules {
     abstract fun bindStreamGraph(streamGraph: StreamGraphImpl): StreamGraph
 
     companion object {
+        @CameraGraphScope
+        @Provides
+        fun provideCameraGraphId(): CameraGraphId {
+            return CameraGraphId.nextId()
+        }
+
         @CameraGraphScope
         @Provides
         @ForCameraGraph

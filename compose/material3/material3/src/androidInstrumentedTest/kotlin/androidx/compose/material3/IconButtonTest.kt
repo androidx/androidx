@@ -22,7 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.tokens.FilledIconButtonTokens
+import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
 import androidx.compose.material3.tokens.IconButtonTokens
+import androidx.compose.material3.tokens.OutlinedIconButtonTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,9 +57,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,7 +96,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -104,6 +109,27 @@ class IconButtonTest {
             .assertTouchHeightIsEqualTo(IconButtonSize)
     }
 
+    @Test
+    fun iconButton_sizeWithCustomMinInteractiveComponentSize() {
+        val customTouchTargetSize = 44.dp
+        rule
+            .setMaterialContentForSizeAssertions {
+                CompositionLocalProvider(
+                    LocalMinimumInteractiveComponentSize provides customTouchTargetSize
+                ) {
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(
+                            Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                }
+            }
+            .assertWidthIsEqualTo(customTouchTargetSize)
+            .assertHeightIsEqualTo(customTouchTargetSize)
+            .assertTouchWidthIsEqualTo(customTouchTargetSize)
+            .assertTouchHeightIsEqualTo(customTouchTargetSize)
+    }
     @Test
     fun iconButton_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -136,7 +162,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(IconSize)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -157,7 +184,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(width, height)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -166,6 +194,25 @@ class IconButtonTest {
         rule.onNodeWithTag(IconTestTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((IconButtonAccessibilitySize - width) / 2)
             .assertTopPositionInRootIsEqualTo((IconButtonAccessibilitySize - height) / 2)
+    }
+
+    @Test
+    fun iconButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalContentColor provides Color.Blue) {
+                Truth.assertThat(
+                    IconButtonDefaults.iconButtonColors()
+                ).isEqualTo(
+                    IconButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = LocalContentColor.current,
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor =
+                        Color.Blue.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+                    )
+                )
+            }
+        }
     }
 
     @Test
@@ -192,8 +239,10 @@ class IconButtonTest {
             CompositionLocalProvider(LocalContentColor provides Color.Blue) {
                 val colors = IconButtonDefaults.iconButtonColors()
                 assert(colors.contentColor == Color.Blue)
-                assert(colors.disabledContentColor
-                    == Color.Blue.copy(IconButtonTokens.DisabledIconOpacity))
+                assert(
+                    colors.disabledContentColor
+                        == Color.Blue.copy(IconButtonTokens.DisabledIconOpacity)
+                )
             }
 
             CompositionLocalProvider(LocalContentColor provides Color.Red) {
@@ -203,8 +252,10 @@ class IconButtonTest {
                 )
                 assert(colors.containerColor == Color.Blue)
                 assert(colors.contentColor == Color.Green)
-                assert(colors.disabledContentColor
-                    == Color.Green.copy(IconButtonTokens.DisabledIconOpacity))
+                assert(
+                    colors.disabledContentColor
+                        == Color.Green.copy(IconButtonTokens.DisabledIconOpacity)
+                )
             }
         }
     }
@@ -236,7 +287,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -286,7 +337,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(IconSize)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -307,7 +359,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(width, height)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -349,6 +402,26 @@ class IconButtonTest {
     }
 
     @Test
+    fun iconToggleButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val localContentColor = LocalContentColor.current
+            Truth.assertThat(
+                IconButtonDefaults.iconToggleButtonColors()
+            ).isEqualTo(
+                IconToggleButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = localContentColor,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor =
+                    localContentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity),
+                    checkedContainerColor = Color.Transparent,
+                    checkedContentColor = IconButtonTokens.SelectedIconColor.value
+                )
+            )
+        }
+    }
+
+    @Test
     fun filledIconButton_size() {
         rule
             .setMaterialContentForSizeAssertions {
@@ -367,7 +440,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     FilledIconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
@@ -412,7 +485,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(IconSize)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -433,7 +507,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(width, height)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -442,6 +517,24 @@ class IconButtonTest {
         rule.onNodeWithTag(IconTestTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((IconButtonAccessibilitySize - width) / 2)
             .assertTopPositionInRootIsEqualTo((IconButtonAccessibilitySize - height) / 2)
+    }
+
+    @Test
+    fun filledIconButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Truth.assertThat(
+                IconButtonDefaults.filledIconButtonColors()
+            ).isEqualTo(
+                IconButtonColors(
+                    containerColor = FilledIconButtonTokens.ContainerColor.value,
+                    contentColor = contentColorFor(FilledIconButtonTokens.ContainerColor.value),
+                    disabledContainerColor = FilledIconButtonTokens.DisabledContainerColor.value
+                        .copy(alpha = FilledIconButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = FilledIconButtonTokens.DisabledColor.value
+                        .copy(alpha = FilledIconButtonTokens.DisabledOpacity)
+                )
+            )
+        }
     }
 
     @Test
@@ -471,6 +564,26 @@ class IconButtonTest {
     }
 
     @Test
+    fun filledTonalIconButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Truth.assertThat(
+                IconButtonDefaults.filledTonalIconButtonColors()
+            ).isEqualTo(
+                IconButtonColors(
+                    containerColor = FilledTonalIconButtonTokens.ContainerColor.value,
+                    contentColor =
+                    contentColorFor(FilledTonalIconButtonTokens.ContainerColor.value),
+                    disabledContainerColor =
+                    FilledTonalIconButtonTokens.DisabledContainerColor.value
+                        .copy(alpha = FilledTonalIconButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = FilledTonalIconButtonTokens.DisabledColor.value
+                        .copy(alpha = FilledTonalIconButtonTokens.DisabledOpacity)
+                )
+            )
+        }
+    }
+
+    @Test
     fun filledIconToggleButton_size() {
         rule
             .setMaterialContentForSizeAssertions {
@@ -489,7 +602,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     FilledIconToggleButton(
                         checked = true,
@@ -541,7 +654,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(IconSize)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -562,7 +676,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(width, height)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -571,6 +686,54 @@ class IconButtonTest {
         rule.onNodeWithTag(IconTestTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((IconButtonAccessibilitySize - width) / 2)
             .assertTopPositionInRootIsEqualTo((IconButtonAccessibilitySize - height) / 2)
+    }
+
+    @Test
+    fun filledIconToggleButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Truth.assertThat(
+                IconButtonDefaults.filledIconToggleButtonColors()
+            ).isEqualTo(
+                IconToggleButtonColors(
+                    containerColor = FilledIconButtonTokens.UnselectedContainerColor.value,
+                    // TODO(b/228455081): Using contentColorFor here will return OnSurfaceVariant,
+                    //  while the token value is Primary.
+                    contentColor = FilledIconButtonTokens.ToggleUnselectedColor.value,
+                    disabledContainerColor = FilledIconButtonTokens.DisabledContainerColor.value
+                        .copy(alpha = FilledIconButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = FilledIconButtonTokens.DisabledColor.value
+                        .copy(alpha = FilledIconButtonTokens.DisabledOpacity),
+                    checkedContainerColor = FilledIconButtonTokens.SelectedContainerColor.value,
+                    checkedContentColor =
+                    contentColorFor(FilledIconButtonTokens.SelectedContainerColor.value)
+                )
+            )
+        }
+    }
+
+    @Test
+    fun filledTonalIconToggleButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Truth.assertThat(
+                IconButtonDefaults.filledTonalIconToggleButtonColors()
+            ).isEqualTo(
+                IconToggleButtonColors(
+                    containerColor = FilledTonalIconButtonTokens.UnselectedContainerColor.value,
+                    contentColor =
+                    contentColorFor(
+                        FilledTonalIconButtonTokens.UnselectedContainerColor.value
+                    ),
+                    disabledContainerColor =
+                    FilledTonalIconButtonTokens.DisabledContainerColor.value
+                        .copy(alpha = FilledTonalIconButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = FilledTonalIconButtonTokens.DisabledColor.value
+                        .copy(alpha = FilledTonalIconButtonTokens.DisabledOpacity),
+                    checkedContainerColor =
+                    FilledTonalIconButtonTokens.SelectedContainerColor.value,
+                    checkedContentColor = FilledTonalIconButtonTokens.ToggleSelectedColor.value
+                )
+            )
+        }
     }
 
     @Test
@@ -595,7 +758,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     OutlinedIconButton(onClick = { /* doSomething() */ }) {
                         Icon(
@@ -643,7 +806,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(IconSize)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -664,7 +828,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(width, height)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -673,6 +838,24 @@ class IconButtonTest {
         rule.onNodeWithTag(IconTestTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((IconButtonAccessibilitySize - width) / 2)
             .assertTopPositionInRootIsEqualTo((IconButtonAccessibilitySize - height) / 2)
+    }
+
+    @Test
+    fun outlinedIconButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val localContentColor = LocalContentColor.current
+            Truth.assertThat(
+                IconButtonDefaults.outlinedIconButtonColors()
+            ).isEqualTo(
+                IconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = localContentColor,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor =
+                    localContentColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity)
+                )
+            )
+        }
     }
 
     @Test
@@ -699,7 +882,7 @@ class IconButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     OutlinedIconToggleButton(
                         checked = true,
@@ -754,7 +937,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(IconSize)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -775,7 +959,8 @@ class IconButtonTest {
                     Box(
                         Modifier
                             .size(width, height)
-                            .testTag(IconTestTag))
+                            .testTag(IconTestTag)
+                    )
                 }
             }
         }
@@ -784,6 +969,28 @@ class IconButtonTest {
         rule.onNodeWithTag(IconTestTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((IconButtonAccessibilitySize - width) / 2)
             .assertTopPositionInRootIsEqualTo((IconButtonAccessibilitySize - height) / 2)
+    }
+
+    @Test
+    fun outlinedIconToggleButton_defaualtColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val localContentColor = LocalContentColor.current
+            Truth.assertThat(
+                IconButtonDefaults.outlinedIconToggleButtonColors()
+            ).isEqualTo(
+                IconToggleButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = localContentColor,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor =
+                    localContentColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity),
+                    checkedContainerColor =
+                    OutlinedIconButtonTokens.SelectedContainerColor.value,
+                    checkedContentColor =
+                    contentColorFor(OutlinedIconButtonTokens.SelectedContainerColor.value)
+                )
+            )
+        }
     }
 
     private val IconButtonAccessibilitySize = 48.0.dp

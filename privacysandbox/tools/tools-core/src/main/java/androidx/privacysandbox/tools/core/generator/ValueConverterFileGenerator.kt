@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyNam
 import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
+import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -64,11 +65,15 @@ class ValueConverterFileGenerator(
                 )
                 addFunction(generateFromParcelable(value))
                 addFunction(generateToParcelable(value))
+                if (value is AnnotatedEnumClass)
+                    addProperty(generateEnumValuesProperty(value))
             }
         }
         return TypeSpec.objectBuilder(value.converterNameSpec()).build() {
             addFunction(generateFromParcelable(value))
             addFunction(generateToParcelable(value))
+            if (value is AnnotatedEnumClass)
+                addProperty(generateEnumValuesProperty(value))
         }
     }
 
@@ -120,7 +125,7 @@ class ValueConverterFileGenerator(
                     addParameter("parcelable", value.parcelableNameSpec())
                     returns(value.type.poetTypeName())
                     addStatement(
-                        "return %T.entries[parcelable.variant_ordinal]",
+                        "return enumValues[parcelable.variant_ordinal]",
                         value.type.poetTypeName()
                     )
                 }
@@ -135,4 +140,16 @@ class ValueConverterFileGenerator(
                 )
             )
         }
+
+    private fun generateEnumValuesProperty(value: AnnotatedEnumClass) =
+        PropertySpec.builder(
+            "enumValues",
+            Types.list(value.type).poetTypeName()
+        )
+            .addModifiers(KModifier.PRIVATE)
+            .initializer(
+                CodeBlock.of(
+                    "%T.values().toList()", value.type.poetClassName()
+                )
+        ).build()
 }

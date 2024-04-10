@@ -54,6 +54,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -124,12 +125,17 @@ class CheckboxTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             val (checked, _) = remember { mutableStateOf(false) }
-            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(parentTag)) {
+            Box(
+                Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(parentTag)) {
                 Checkbox(
                     checked,
                     {},
                     enabled = false,
-                    modifier = Modifier.testTag(defaultTag).semantics { focused = true }
+                    modifier = Modifier
+                        .testTag(defaultTag)
+                        .semantics { focused = true }
                 )
             }
         }
@@ -146,7 +152,10 @@ class CheckboxTest {
     fun checkBoxTest_untoggleableAndMergeable_whenNullLambda() {
         rule.setMaterialContent(lightColorScheme()) {
             val (checked, _) = remember { mutableStateOf(false) }
-            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(defaultTag)) {
+            Box(
+                Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(defaultTag)) {
                 Checkbox(
                     checked,
                     null,
@@ -277,7 +286,8 @@ class CheckboxTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides minimumTouchTarget
+                    LocalMinimumInteractiveComponentSize provides
+                        if (minimumTouchTarget) 48.dp else Dp.Unspecified
                 ) {
                     TriStateCheckbox(
                         state = checkboxValue,
@@ -307,7 +317,10 @@ class CheckboxTest {
                 TriStateCheckbox(
                     state = state,
                     onClick = { state = On },
-                    modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag)
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .requiredSize(2.dp)
+                        .testTag(tag)
                 )
             }
         }

@@ -100,7 +100,7 @@ constructor(
     }
 
     override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata {
-        return Debug.trace("Camera-${cameraId.value}#awaitMetadata") {
+        return Debug.trace("$cameraId#awaitMetadata") {
             synchronized(cache) {
                 val existing = cache[cameraId.value]
                 if (existing != null) {
@@ -120,7 +120,7 @@ constructor(
         extension: Int
     ): CameraExtensionMetadata {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return Debug.trace("Camera-${cameraId.value}#awaitExtensionMetadata") {
+            return Debug.trace("$cameraId#awaitExtensionMetadata") {
                 synchronized(extensionCache) {
                     val existing = extensionCache[cameraId.value]
                     if (existing != null) {
@@ -147,7 +147,7 @@ constructor(
     ): Camera2CameraMetadata {
         val start = Timestamps.now(timeSource)
 
-        return Debug.trace("Camera-${cameraId.value}#readCameraMetadata") {
+        return Debug.trace("$cameraId#readCameraMetadata") {
             try {
                 Log.debug { "Loading metadata for $cameraId" }
                 val cameraManager =
@@ -217,7 +217,7 @@ constructor(
     ): Camera2CameraExtensionMetadata {
         val start = Timestamps.now(timeSource)
 
-        return Debug.trace("Camera-${cameraId.value}#readCameraExtensionMetadata") {
+        return Debug.trace("$cameraId#readCameraExtensionMetadata") {
             try {
                 Log.debug { "Loading extension metadata for $cameraId" }
 

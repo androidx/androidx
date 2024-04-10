@@ -611,6 +611,10 @@ actual abstract class RoomDatabase {
 
     /**
      * Use a connection to perform database operations.
+     *
+     * This function is for internal access to the pool, it is an unconfined coroutine function to
+     * be used by Room generated code paths. For the public version see [useReaderConnection] and
+     * [useWriterConnection].
      */
     internal actual suspend fun <R> useConnection(
         isReadOnly: Boolean,
@@ -641,6 +645,8 @@ actual abstract class RoomDatabase {
      * @return A Cursor obtained by running the given query in the Room database.
      */
     open fun query(query: String, args: Array<out Any?>?): Cursor {
+        assertNotMainThread()
+        assertNotSuspendingTransaction()
         return openHelper.writableDatabase.query(SimpleSQLiteQuery(query, args))
     }
 

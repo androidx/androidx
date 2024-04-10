@@ -17,11 +17,6 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VisibilityThreshold
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
@@ -71,31 +66,20 @@ internal class LazyItemScopeImpl : LazyItemScope {
         )
     )
 
-    @ExperimentalFoundationApi
-    override fun Modifier.animateItemPlacement(
-        animationSpec: FiniteAnimationSpec<IntOffset>
-    ): Modifier = animateItem(
-        appearanceSpec = null,
-        placementSpec = animationSpec
-    )
-}
-
-@ExperimentalFoundationApi
-internal fun Modifier.animateItem(
-    appearanceSpec: FiniteAnimationSpec<Float>? = tween(220),
-    placementSpec: FiniteAnimationSpec<IntOffset>? = spring(
-        stiffness = Spring.StiffnessMediumLow,
-        visibilityThreshold = IntOffset.VisibilityThreshold
-    )
-): Modifier {
-    return if (appearanceSpec == null && placementSpec == null) {
-        this
-    } else {
-        this then AnimateItemElement(
-            appearanceSpec,
-            placementSpec
-        )
-    }
+    override fun Modifier.animateItem(
+        fadeInSpec: FiniteAnimationSpec<Float>?,
+        placementSpec: FiniteAnimationSpec<IntOffset>?,
+        fadeOutSpec: FiniteAnimationSpec<Float>?
+    ): Modifier =
+        if (fadeInSpec == null && placementSpec == null && fadeOutSpec == null) {
+            this
+        } else {
+            this then AnimateItemElement(
+                fadeInSpec,
+                placementSpec,
+                fadeOutSpec
+            )
+        }
 }
 
 private class ParentSizeElement(
@@ -178,21 +162,28 @@ private class ParentSizeNode(
 }
 
 private data class AnimateItemElement(
-    val appearanceSpec: FiniteAnimationSpec<Float>?,
-    val placementSpec: FiniteAnimationSpec<IntOffset>?
+    val fadeInSpec: FiniteAnimationSpec<Float>?,
+    val placementSpec: FiniteAnimationSpec<IntOffset>?,
+    val fadeOutSpec: FiniteAnimationSpec<Float>?
 ) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
     override fun create(): LazyLayoutAnimationSpecsNode =
-        LazyLayoutAnimationSpecsNode(appearanceSpec, placementSpec)
+        LazyLayoutAnimationSpecsNode(
+            fadeInSpec,
+            placementSpec,
+            fadeOutSpec
+        )
 
     override fun update(node: LazyLayoutAnimationSpecsNode) {
-        node.appearanceSpec = appearanceSpec
+        node.fadeInSpec = fadeInSpec
         node.placementSpec = placementSpec
+        node.fadeOutSpec = fadeOutSpec
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        // TODO update the name here once we expose a new public api
-        name = "animateItemPlacement"
-        value = placementSpec
+        name = "animateItem"
+        properties["fadeInSpec"] = fadeInSpec
+        properties["placementSpec"] = placementSpec
+        properties["fadeOutSpec"] = fadeOutSpec
     }
 }

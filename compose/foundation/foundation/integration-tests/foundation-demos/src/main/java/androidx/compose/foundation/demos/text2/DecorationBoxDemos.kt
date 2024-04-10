@@ -78,14 +78,14 @@ fun SimpleDecorationWithLabel() {
 }
 
 @Composable
-fun OutlinedBasicTextField() {
+fun OutlinedBasicTextField(modifier: Modifier = Modifier) {
     val state = remember { TextFieldState() }
     val cursorColor by TextFieldDefaults
         .outlinedTextFieldColors()
         .cursorColor(isError = false)
     BasicTextField(
         state = state,
-        modifier = Modifier,
+        modifier = modifier,
         textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
         cursorBrush = SolidColor(cursorColor),
         decorator = {

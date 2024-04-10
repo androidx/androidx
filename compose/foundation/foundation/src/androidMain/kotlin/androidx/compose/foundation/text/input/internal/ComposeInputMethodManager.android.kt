@@ -69,6 +69,10 @@ internal interface ComposeInputMethodManager {
      * Signal the IME to start stylus handwriting.
      */
     fun startStylusHandwriting()
+
+    fun prepareStylusHandwritingDelegation()
+
+    fun acceptStylusHandwritingDelegation()
 }
 
 /**
@@ -156,6 +160,14 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
         // stylus handwriting is only supported after Android U.
     }
 
+    override fun prepareStylusHandwritingDelegation() {
+        // stylus handwriting is only supported after Android U.
+    }
+
+    override fun acceptStylusHandwritingDelegation() {
+        // stylus handwriting is only supported after Android U.
+    }
+
     protected fun requireImm(): InputMethodManager = imm ?: createImm().also { imm = it }
 
     private fun createImm() =
@@ -192,5 +204,13 @@ private open class ComposeInputMethodManagerImplApi34(view: View) :
     ComposeInputMethodManagerImplApi24(view) {
     override fun startStylusHandwriting() {
         requireImm().startStylusHandwriting(view)
+    }
+
+    override fun prepareStylusHandwritingDelegation() {
+        requireImm().prepareStylusHandwritingDelegation(view)
+    }
+
+    override fun acceptStylusHandwritingDelegation() {
+        requireImm().acceptStylusHandwritingDelegation(view)
     }
 }

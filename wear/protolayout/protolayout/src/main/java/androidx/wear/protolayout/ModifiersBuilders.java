@@ -1335,7 +1335,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the horizontal offset of this element relative to the location where the element's
-         * layout placed it. If not set, defaults to zero.
+         * layout placed it.
          */
         @Nullable
         public DpProp getTranslationX() {
@@ -1348,7 +1348,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the vertical offset of this element in addition to the location where the element's
-         * layout placed it. If not set, defaults to zero.
+         * layout placed it.
          */
         @Nullable
         public DpProp getTranslationY() {
@@ -1362,7 +1362,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the scale of this element in the x direction around the pivot point, as a proportion
-         * of the element's unscaled width. If not set, defaults to one.
+         * of the element's unscaled width.
          */
         @Nullable
         public FloatProp getScaleX() {
@@ -1375,7 +1375,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the scale of this element in the y direction around the pivot point, as a proportion
-         * of the element's unscaled height. If not set, defaults to one.
+         * of the element's unscaled height.
          */
         @Nullable
         public FloatProp getScaleY() {
@@ -1387,8 +1387,7 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets the clockwise Degrees that the element is rotated around the pivot point. If not
-         * set, defaults to zero.
+         * Gets the clockwise Degrees that the element is rotated around the pivot point.
          */
         @Nullable
         public DegreesProp getRotation() {
@@ -1401,7 +1400,7 @@ public final class ModifiersBuilders {
 
         /**
          * Sets the x offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported. If not set, defaults to the element center.
+         * Dynamic value is supported.
          */
         @Nullable
         public PivotDimension getPivotX() {
@@ -1414,7 +1413,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets the y offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported. If not set, defaults to the element center.
+         * Dynamic value is supported.
          */
         @Nullable
         public PivotDimension getPivotY() {

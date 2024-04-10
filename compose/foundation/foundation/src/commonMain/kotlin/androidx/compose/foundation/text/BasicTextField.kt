@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -81,6 +82,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
+private object BasicTextFieldDefaults {
+    val CursorBrush = SolidColor(Color.Black)
+}
+
 /**
  * Basic text composable that provides an interactive box that accepts text input through software
  * or hardware keyboard, but provides no decorations like hint or placeholder.
@@ -90,13 +95,11 @@ import androidx.compose.ui.unit.dp
  * Similarly, all the programmatic updates made to [state] also reflect on this composable.
  *
  * If you want to add decorations to your text field, such as icon or similar, and increase the
- * hit target area, use the decorator:
- * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
+ * hit target area, use the decorator.
  *
  * In order to filter (e.g. only allow digits, limit the number of characters), or change (e.g.
  * convert every character to uppercase) the input received from the user, use an
  * [InputTransformation].
- * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  *
  * Limiting the height of the [BasicTextField] in terms of line count and choosing a scroll
  * direction can be achieved by using [TextFieldLineLimits].
@@ -108,7 +111,6 @@ import androidx.compose.ui.unit.dp
  * It's also possible to internally wrap around an existing TextFieldState and expose a more
  * lightweight state hoisting mechanism through a value that dictates the content of the TextField
  * and an onValueChange callback that communicates the changes to this value.
- * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  *
  * @param state [TextFieldState] object that holds the internal editing state of [BasicTextField].
  * @param modifier optional [Modifier] for this text field.
@@ -128,9 +130,11 @@ import androidx.compose.ui.unit.dp
  * in the editor.
  * @param keyboardOptions Software keyboard options that contain configurations such as
  * [KeyboardType] and [ImeAction].
- * @param keyboardActions When the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction].
+ * @param onKeyboardAction Called when the user presses the action button in the input method
+ * editor (IME), or by pressing the enter key on a hardware keyboard. By default this parameter
+ * is null, and would execute the default behavior for a received IME Action e.g., [ImeAction.Done]
+ * would close the keyboard, [ImeAction.Next] would switch the focus to the next focusable item on
+ * the screen.
  * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and
  * ignore newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all
  * newline characters ('\n') within the text will be replaced with regular whitespace (' '),
@@ -156,6 +160,12 @@ import androidx.compose.ui.unit.dp
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  * If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  * scroll behavior. In other cases the text field becomes vertically scrollable.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  */
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
@@ -168,11 +178,11 @@ fun BasicTextField(
     inputTransformation: InputTransformation? = null,
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
+    cursorBrush: Brush = BasicTextFieldDefaults.CursorBrush,
     outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
@@ -187,7 +197,7 @@ fun BasicTextField(
         inputTransformation = inputTransformation,
         textStyle = textStyle,
         keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
+        onKeyboardAction = onKeyboardAction,
         lineLimits = lineLimits,
         onTextLayout = onTextLayout,
         interactionSource = interactionSource,
@@ -217,11 +227,11 @@ internal fun BasicTextField(
     inputTransformation: InputTransformation? = null,
     textStyle: TextStyle = TextStyle.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-    cursorBrush: Brush = SolidColor(Color.Black),
+    cursorBrush: Brush = BasicTextFieldDefaults.CursorBrush,
     codepointTransformation: CodepointTransformation? = null,
     outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
@@ -307,7 +317,7 @@ internal fun BasicTextField(
                 enabled = enabled,
                 readOnly = readOnly,
                 keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
+                keyboardActionHandler = onKeyboardAction,
                 singleLine = singleLine,
                 interactionSource = interactionSource
             )
@@ -534,7 +544,7 @@ private val MinTouchTargetSizeForHandles = DpSize(40.dp, 40.dp)
  * for entering a credit card number:
  * @sample androidx.compose.foundation.samples.CreditCardSample
  *
- * Note: This overload does not support [KeyboardOptions.shouldShowKeyboardOnFocus].
+ * Note: This overload does not support [KeyboardOptions.showKeyboardOnFocus].
  *
  * @param value the input [String] text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
@@ -686,7 +696,7 @@ fun BasicTextField(
  * hit target area, use the decoration box:
  * @sample androidx.compose.foundation.samples.TextFieldWithIconSample
  *
- * Note: This overload does not support [KeyboardOptions.shouldShowKeyboardOnFocus].
+ * Note: This overload does not support [KeyboardOptions.showKeyboardOnFocus].
  *
  * @param value The [androidx.compose.ui.text.input.TextFieldValue] to be shown in the
  * [BasicTextField].

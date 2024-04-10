@@ -90,14 +90,14 @@ class TransferableContentTest {
     @Test
     fun consumeEach_returnsNull_ifEverythingIsConsumed() {
         val transferableContent = TransferableContent(createClipData())
-        val remaining = transferableContent.consumeEach { true }
+        val remaining = transferableContent.consume { true }
         assertThat(remaining).isNull()
     }
 
     @Test
     fun consumeEach_returnsSameObject_ifNothingIsConsumed() {
         val transferableContent = TransferableContent(createClipData())
-        val remaining = transferableContent.consumeEach { false }
+        val remaining = transferableContent.consume { false }
         assertThat(remaining).isSameInstanceAs(transferableContent)
     }
 
@@ -109,7 +109,7 @@ class TransferableContentTest {
             addUri(mimeType = "image/gif")
         })
         // only text would remain
-        val remaining = transferableContent.consumeEach { it.uri != null }
+        val remaining = transferableContent.consume { it.uri != null }
         assertThat(remaining?.clipEntry?.clipData?.itemCount).isEqualTo(1)
         assertThat(remaining?.clipEntry?.clipData?.getItemAt(0)?.uri).isNull()
         assertThat(remaining?.hasMediaType(MediaType("video/mp4"))).isTrue()

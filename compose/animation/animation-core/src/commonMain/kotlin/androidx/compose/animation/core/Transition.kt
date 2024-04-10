@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.runtime.withFrameNanos
@@ -55,6 +56,7 @@ import kotlin.math.max
 import kotlin.math.roundToLong
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -880,20 +882,27 @@ fun <T> updateTransition(
  */
 // TODO: Support creating Transition outside of composition and support imperative use of Transition
 @Stable
-class Transition<S> @PublishedApi internal constructor(
+class Transition<S> internal constructor(
     private val transitionState: TransitionState<S>,
+    private val parentTransition: Transition<*>?,
     val label: String? = null
 ) {
+    @PublishedApi
+    internal constructor(
+        transitionState: TransitionState<S>,
+        label: String? = null
+    ) : this(transitionState, null, label)
+
     internal constructor(
         initialState: S,
         label: String?
-    ) : this(MutableTransitionState(initialState), label)
+    ) : this(MutableTransitionState(initialState), null, label)
 
     @PublishedApi
     internal constructor(
         transitionState: MutableTransitionState<S>,
         label: String? = null
-    ) : this(transitionState as TransitionState<S>, label)
+    ) : this(transitionState as TransitionState<S>, null, label)
 
     /**
      * Current state of the transition. This will always be the initialState of the transition
@@ -923,19 +932,30 @@ class Transition<S> @PublishedApi internal constructor(
     val isRunning: Boolean
         get() = startTimeNanos != AnimationConstants.UnspecifiedTime
 
+    private var _playTimeNanos by mutableLongStateOf(0L)
+
     /**
      * Play time in nano-seconds. [playTimeNanos] is always non-negative. It starts from 0L at the
      * beginning of the transition and increment until all child animations have finished.
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
-    var playTimeNanos by mutableLongStateOf(0L)
+    var playTimeNanos: Long
+        get() {
+            return parentTransition?.playTimeNanos ?: _playTimeNanos
+        }
+        set(value) {
+            if (parentTransition == null) {
+                _playTimeNanos = value
+            }
+        }
+
     // startTimeNanos is in real frame time nanos for the root transition and
     // scaled frame time for child transitions (as offset from the root start)
     internal var startTimeNanos by mutableLongStateOf(AnimationConstants.UnspecifiedTime)
 
     // This gets calculated every time child is updated/added
-    internal var updateChildrenNeeded: Boolean by mutableStateOf(true)
+    private var updateChildrenNeeded: Boolean by mutableStateOf(false)
 
     private val _animations = mutableStateListOf<TransitionAnimationState<*, *>>()
     private val _transitions = mutableStateListOf<Transition<*>>()
@@ -1012,6 +1032,7 @@ class Transition<S> @PublishedApi internal constructor(
         } else {
             (deltaT / durationScale).roundToLong()
         }
+        playTimeNanos = scaledPlayTimeNanos
         onFrame(scaledPlayTimeNanos, durationScale == 0f)
     }
 
@@ -1023,8 +1044,6 @@ class Transition<S> @PublishedApi internal constructor(
         }
         updateChildrenNeeded = false
 
-        // Update play time
-        playTimeNanos = scaledPlayTimeNanos
         var allFinished = true
         // Pulse new playtime
         _animations.fastForEach {
@@ -1179,21 +1198,34 @@ class Transition<S> @PublishedApi internal constructor(
     internal fun animateTo(targetState: S) {
         if (!isSeeking) {
             updateTarget(targetState)
-            // target != currentState adds LaunchedEffect into the tree in the same frame as
+            // target != currentState adds the effect into the tree in the same frame as
             // target change.
             if (targetState != currentState || isRunning || updateChildrenNeeded) {
-                LaunchedEffect(this) {
-                    while (true) {
+                // We're using a composition-obtained scope + DisposableEffect here to give us
+                // control over coroutine dispatching
+                val coroutineScope = rememberCoroutineScope()
+                DisposableEffect(coroutineScope, this) {
+                    // Launch the coroutine undispatched so the block is executed in the current
+                    // frame. This is important as this initializes the state.
+                    coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                         val durationScale = coroutineContext.durationScale
                         withFrameNanos {
-                            // This check is very important, as isSeeking may be changed off-band
-                            // between the last check in composition and this callback which
-                            // happens in the animation callback the next frame.
                             if (!isSeeking) {
                                 onFrame(it / AnimationDebugDurationScale, durationScale)
                             }
                         }
+                        while (isRunning) {
+                            withFrameNanos {
+                                // This check is very important, as isSeeking may be changed
+                                // off-band between the last check in composition and this callback
+                                // which happens in the animation callback the next frame.
+                                if (!isSeeking) {
+                                    onFrame(it / AnimationDebugDurationScale, durationScale)
+                                }
+                            }
+                        }
                     }
+                    onDispose { }
                 }
             }
         }
@@ -1770,11 +1802,7 @@ internal fun <S, T> Transition<S>.createChildTransitionInternal(
     childLabel: String,
 ): Transition<T> {
     val transition = remember(this) {
-        Transition(MutableTransitionState(initialState), "${this.label} > $childLabel").also {
-            // By setting these now, we don't have to wait a frame for the animation to start.
-            it.startTimeNanos = playTimeNanos
-            it.playTimeNanos = playTimeNanos
-        }
+        Transition(MutableTransitionState(initialState), this, "${this.label} > $childLabel")
     }
 
     DisposableEffect(transition) {

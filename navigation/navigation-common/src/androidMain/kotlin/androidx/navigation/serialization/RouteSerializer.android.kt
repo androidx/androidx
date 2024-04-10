@@ -18,14 +18,17 @@
 
 package androidx.navigation.serialization
 
+import androidx.annotation.RestrictTo
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.capturedKClass
+import kotlinx.serialization.serializer
 
 /**
  * Generates a route pattern for use in Navigation functions such as [::navigate] from
@@ -39,7 +42,7 @@ import kotlinx.serialization.descriptors.capturedKClass
  * an argument of "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
  */
 internal fun <T> KSerializer<T>.generateRoutePattern(
-    typeMap: Map<KType, NavType<*>>? = null
+    typeMap: Map<KType, NavType<*>> = emptyMap()
 ): String {
     assertNotAbstractClass {
         throw IllegalArgumentException(
@@ -86,7 +89,7 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
  * implementation of NavType<Int>.
  */
 internal fun <T> KSerializer<T>.generateNavArguments(
-    typeMap: Map<KType, NavType<*>>? = null
+    typeMap: Map<KType, NavType<*>> = emptyMap()
 ): List<NamedNavArgument> {
     assertNotAbstractClass {
         throw IllegalArgumentException(
@@ -126,11 +129,15 @@ internal fun <T> KSerializer<T>.generateNavArguments(
  * The generated route pattern contains the path, path args, and query args.
  * See [RouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query)
  * is computed.
+ *
+ * [T] as receiver to allow secondary constructors for nav builders (i.e. NavGraphBuilder)
+ * to take object <T : Any> as parameter
  */
-internal fun <T : Any> KSerializer<T>.generateRouteWithArgs(
-    destination: T,
+@OptIn(InternalSerializationApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T : Any> T.generateRouteWithArgs(
     typeMap: Map<String, NavType<Any?>>
-): String = RouteEncoder(this, typeMap).encodeRouteWithArgs(destination)
+): String = RouteEncoder(this::class.serializer(), typeMap).encodeRouteWithArgs(this)
 
 private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     // abstract class
@@ -141,10 +148,10 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
 
 @Suppress("UNCHECKED_CAST")
 private fun SerialDescriptor.computeNavType(
-    typeMap: Map<KType, NavType<*>>? = null
+    typeMap: Map<KType, NavType<*>>
 ): NavType<Any?> {
-    val customType = typeMap?.keys
-        ?.find { kType -> matchKType(kType) }
+    val customType = typeMap.keys
+        .find { kType -> matchKType(kType) }
         ?.let { typeMap[it] } as? NavType<Any?>
     return customType ?: getNavType()
 }

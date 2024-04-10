@@ -121,23 +121,26 @@ class IndicationTest {
             Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
 
-        rule.runOnIdle {
-            assertThat(drawCalls).isEqualTo(1)
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 1 }
+
+        rule.runOnUiThread {
             runBlocking {
                 interactionSource.emit(press)
             }
         }
 
-        rule.runOnIdle {
-            assertThat(drawCalls).isEqualTo(2)
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 2 }
+
+        rule.runOnUiThread {
             runBlocking {
                 interactionSource.emit(release)
             }
         }
 
-        rule.runOnIdle {
-            assertThat(drawCalls).isEqualTo(3)
-        }
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 3 }
     }
 
     @Test
@@ -160,23 +163,26 @@ class IndicationTest {
             Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
 
-        rule.runOnIdle {
-            assertThat(drawCalls).isEqualTo(1)
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 1 }
+
+        rule.runOnUiThread {
             runBlocking {
                 interactionSource.emit(press)
             }
         }
 
-        rule.runOnIdle {
-            assertThat(drawCalls).isEqualTo(2)
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 2 }
+
+        rule.runOnUiThread {
             runBlocking {
                 interactionSource.emit(release)
             }
         }
 
-        rule.runOnIdle {
-            assertThat(drawCalls).isEqualTo(3)
-        }
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 3 }
     }
 
     @Test
@@ -229,12 +235,18 @@ class IndicationTest {
             )
         }
 
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 1 }
+
         rule.runOnIdle {
             assertThat(createCalls).isEqualTo(1)
             assertThat(drawCalls).isEqualTo(1)
             // Create a new interaction source
             interactionSource = MutableInteractionSource()
         }
+
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCalls == 2 }
 
         rule.runOnIdle {
             // New instance should be created

@@ -23,6 +23,7 @@ import android.os.LimitExceededException
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
 
 /**
  * This class provides APIs for app and ad-SDKs to join / leave custom audiences.
@@ -138,7 +139,9 @@ abstract class CustomAudienceManager internal constructor() {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 CustomAudienceManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                CustomAudienceManagerApi31Ext9Impl(context)
+                BackCompatManager.getManager(context, "CustomAudienceManager") {
+                    CustomAudienceManagerApi31Ext9Impl(context)
+                }
             } else {
                 null
             }

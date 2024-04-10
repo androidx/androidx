@@ -17,10 +17,9 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.DefaultLayerBlock
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimation.Companion.NotInitialized
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -138,6 +137,15 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
     }
 
+    /**
+     * Update a [mainAxisLayoutSize] when the size did change after last [position] call.
+     * Knowing the final size is important for calculating the final position in reverse layout.
+     */
+    fun updateMainAxisLayoutSize(mainAxisLayoutSize: Int) {
+        this.mainAxisLayoutSize = mainAxisLayoutSize
+        maxMainAxisOffset = mainAxisLayoutSize + afterContentPadding
+    }
+
     fun getOffset(index: Int) =
         IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
 
@@ -174,7 +182,7 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
             val maxOffset = maxMainAxisOffset
             var offset = getOffset(index)
             val animation = animator.getAnimation(key, index)
-            val layerBlock: GraphicsLayerScope.() -> Unit
+            val layer: GraphicsLayer?
             if (animation != null) {
                 if (isLookingAhead) {
                     // Skip animation in lookahead pass
@@ -196,9 +204,9 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
                     }
                     offset = animatedOffset
                 }
-                layerBlock = animation.layerBlock
+                layer = animation.layer
             } else {
-                layerBlock = DefaultLayerBlock
+                layer = null
             }
             if (reverseLayout) {
                 offset = offset.copy { mainAxisOffset ->
@@ -206,10 +214,21 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
                 }
             }
             offset += visualOffset
+            if (!isLookingAhead) {
+                animation?.finalOffset = offset
+            }
             if (isVertical) {
-                placeable.placeWithLayer(offset, layerBlock = layerBlock)
+                if (layer != null) {
+                    placeable.placeWithLayer(offset, layer)
+                } else {
+                    placeable.placeWithLayer(offset)
+                }
             } else {
-                placeable.placeRelativeWithLayer(offset, layerBlock = layerBlock)
+                if (layer != null) {
+                    placeable.placeRelativeWithLayer(offset, layer)
+                } else {
+                    placeable.placeRelativeWithLayer(offset)
+                }
             }
         }
     }

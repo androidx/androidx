@@ -341,7 +341,7 @@ private class ItemInfo(
 
     fun updateAnimation(positionedItem: LazyGridMeasuredItem, coroutineScope: CoroutineScope) {
         for (i in positionedItem.placeablesCount until animations.size) {
-            animations[i]?.stopAnimations()
+            animations[i]?.release()
         }
         if (animations.size != positionedItem.placeablesCount) {
             animations = animations.copyOf(positionedItem.placeablesCount)
@@ -349,13 +349,13 @@ private class ItemInfo(
         repeat(positionedItem.placeablesCount) { index ->
             val specs = positionedItem.getParentData(index).specs
             if (specs == null) {
-                animations[index]?.stopAnimations()
+                animations[index]?.release()
                 animations[index] = null
             } else {
                 val item = animations[index] ?: LazyLayoutAnimation(coroutineScope).also {
                     animations[index] = it
                 }
-                item.appearanceSpec = specs.appearanceSpec
+                item.fadeInSpec = specs.fadeInSpec
                 item.placementSpec = specs.placementSpec
             }
         }

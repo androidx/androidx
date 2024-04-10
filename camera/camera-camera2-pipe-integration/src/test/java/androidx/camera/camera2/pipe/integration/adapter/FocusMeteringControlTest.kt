@@ -382,11 +382,11 @@ class FocusMeteringControlTest {
 
         with(fakeRequestControl.focusMeteringCalls.last()) {
             assertWithMessage("Wrong lock behavior for AE")
-                .that(aeLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
+                .that(aeLockBehavior).isNull()
             assertWithMessage("Wrong lock behavior for AF")
                 .that(afLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
             assertWithMessage("Wrong lock behavior for AWB")
-                .that(awbLockBehavior).isEqualTo(Lock3ABehavior.IMMEDIATE)
+                .that(awbLockBehavior).isNull()
         }
     }
 
@@ -622,7 +622,7 @@ class FocusMeteringControlTest {
             FocusMeteringAction.Builder(point1).build()
         )
 
-        with(fakeRequestControl.focusMeteringCalls.last()) {
+        with(fakeRequestControl) {
             assertWithMessage("Wrong number of AF regions").that(afRegions?.size).isEqualTo(1)
             assertWithMessage("Wrong AF region")
                 .that(afRegions?.get(0)?.rect).isEqualTo(M_RECT_PVIEW_RATIO_4x3_SENSOR_1920x1080)
@@ -1306,16 +1306,35 @@ class FocusMeteringControlTest {
     }
 
     @Test
-    fun startFocusMetering_noAfPoint_afRegionsSetToDefault() = runTest {
+    fun startFocusMetering_noAfPoint_noFocusMeteringStart() = runTest {
         startFocusMeteringAndAwait(
             FocusMeteringAction.Builder(
                 point1, FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
             ).build()
         )
 
-        with(fakeRequestControl.focusMeteringCalls.last()) {
+        assertWithMessage("Focus metering started despite no AF point")
+            .that(fakeRequestControl.focusMeteringCalls)
+            .isEmpty()
+    }
+
+    @Test
+    fun startFocusMetering_noAfPoint_aeAwbRegionsUpdated() = runTest {
+        startFocusMeteringAndAwait(
+            FocusMeteringAction.Builder(
+                point1, FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
+            ).build()
+        )
+
+        with(fakeRequestControl) {
             assertWithMessage("Wrong AF regions").that(afRegions)
                 .isEqualTo(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT.toList())
+
+            // ensuring not default, exact value checked in other tests
+            assertWithMessage("Wrong AE regions").that(aeRegions)
+                .isNotEqualTo(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT.toList())
+            assertWithMessage("Wrong AWB regions").that(awbRegions)
+                .isNotEqualTo(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT.toList())
         }
     }
 

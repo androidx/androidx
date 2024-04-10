@@ -19,6 +19,7 @@ package androidx.room.integration.multiplatformtestapp.test
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.Dispatchers
 
 class SimpleQueryTest : BaseSimpleQueryTest() {
 
@@ -26,8 +27,9 @@ class SimpleQueryTest : BaseSimpleQueryTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
         return Room.inMemoryDatabaseBuilder<SampleDatabase>(
-            context = instrumentation.targetContext,
-        ).setDriver(BundledSQLiteDriver(":memory:"))
+            context = instrumentation.targetContext
+        ).setDriver(BundledSQLiteDriver())
+            .setQueryCoroutineContext(Dispatchers.IO)
             .build()
     }
 }

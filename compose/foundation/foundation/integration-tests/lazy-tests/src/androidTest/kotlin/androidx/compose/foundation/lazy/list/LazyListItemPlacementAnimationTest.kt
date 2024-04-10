@@ -1786,6 +1786,45 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         }
     }
 
+    @Test
+    fun animationWhenTryingToStayInTheStart() {
+        var list by mutableStateOf(listOf(1, 2, 3, 4))
+        val listSize = itemSize * 2.5
+        val listSizeDp = itemSizeDp * 3f
+        rule.setContent {
+            LazyList(maxSize = listSizeDp) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            list = listOf(0, 1, 2, 3)
+            runBlocking {
+                state.scrollToItem(0, 0)
+            }
+        }
+
+        onAnimationFrame { fraction ->
+            val expected = mutableListOf<Pair<Any, Float>>().apply {
+                add(0 to 0f)
+                add(1 to itemSize * fraction)
+                add(2 to itemSize + itemSize * fraction)
+                val item3Offset = itemSize * 2 + itemSize * fraction
+                if (item3Offset < listSize) {
+                    add(3 to item3Offset)
+                } else {
+                    rule.onNodeWithTag("4").assertIsNotDisplayed()
+                }
+            }
+            assertPositions(
+                expected = expected.toTypedArray(),
+                fraction = fraction
+            )
+        }
+    }
+
     private val interruptionSpec = spring<IntOffset>(stiffness = Spring.StiffnessMediumLow)
 
     @Test
@@ -2011,7 +2050,11 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     ) {
         Box(
             if (animSpec != null) {
-                Modifier.animateItemPlacement(animSpec)
+                Modifier.animateItem(
+                    fadeInSpec = null,
+                    fadeOutSpec = null,
+                    placementSpec = animSpec
+                )
             } else {
                 Modifier
             }

@@ -40,7 +40,7 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 @SQLiteMode(SQLiteMode.Mode.LEGACY) // b/285714232
-@Config(manifest = Config.NONE, maxSdk = 30) // Robolectric uses wrong maxSdk by default
+@Config(maxSdk = 30) // Robolectric uses wrong maxSdk by default
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class RobolectricSmokeTest {

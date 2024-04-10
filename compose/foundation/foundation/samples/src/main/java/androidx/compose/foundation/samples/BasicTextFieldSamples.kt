@@ -19,6 +19,7 @@
 
 package androidx.compose.foundation.samples
 
+import android.text.TextUtils
 import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -39,16 +40,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.byValue
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.forEachChangeReversed
-import androidx.compose.foundation.text.input.forEachTextValue
 import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text.input.textAsFlow
 import androidx.compose.foundation.text.input.then
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -57,12 +59,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -224,7 +228,7 @@ fun BasicTextFieldStateCompleteSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.forEachTextValue { queryText ->
+            snapshotFlow { searchFieldState.text }.collectLatest { queryText ->
                 // Start a new search every time the user types something valid. If the previous
                 // search is still being processed when the text is changed, it will be cancelled
                 // and this code will run again with the latest query text.
@@ -314,8 +318,9 @@ fun BasicTextFieldStateEditSample() {
 @Sampled
 @Composable
 fun BasicTextFieldCustomInputTransformationSample() {
+    // Demonstrates how to create a custom and relatively complex InputTransformation.
     val state = remember { TextFieldState() }
-    BasicTextField(state, inputTransformation = { _, new ->
+    BasicTextField(state, inputTransformation = {
         // A filter that always places newly-input text at the start of the string, after a
         // prompt character, like a shell.
         val promptChar = '>'
@@ -327,28 +332,66 @@ fun BasicTextFieldCustomInputTransformationSample() {
         }
 
         // Step one: Figure out the insertion point.
-        val newPromptChars = new.asCharSequence().countPrefix(promptChar)
+        val newPromptChars = asCharSequence().countPrefix(promptChar)
         val insertionPoint = if (newPromptChars == 0) 0 else 1
 
         // Step two: Ensure text is placed at the insertion point.
-        if (new.changes.changeCount == 1) {
-            val insertedRange = new.changes.getRange(0)
-            val replacedRange = new.changes.getOriginalRange(0)
+        if (changes.changeCount == 1) {
+            val insertedRange = changes.getRange(0)
+            val replacedRange = changes.getOriginalRange(0)
             if (!replacedRange.collapsed && insertedRange.collapsed) {
                 // Text was deleted, delete forwards from insertion point.
-                new.delete(insertionPoint, insertionPoint + replacedRange.length)
+                delete(insertionPoint, insertionPoint + replacedRange.length)
             }
         }
         // Else text was replaced or there were multiple changes - don't handle.
 
         // Step three: Ensure the prompt character is there.
         if (newPromptChars == 0) {
-            new.insert(0, ">")
+            insert(0, ">")
         }
 
         // Step four: Ensure the cursor is ready for the next input.
-        new.placeCursorAfterCharAt(0)
+        placeCursorAfterCharAt(0)
     })
+}
+
+@Sampled
+@Composable
+fun BasicTextFieldOutputTransformationSample() {
+    @Stable
+    data class PhoneNumberOutputTransformation(
+        private val pad: Boolean
+    ) : OutputTransformation {
+        override fun TextFieldBuffer.transformOutput() {
+            if (pad) {
+                // Pad the text with placeholder chars if too short.
+                // (___) ___-____
+                val padCount = 10 - length
+                repeat(padCount) {
+                    append('_')
+                }
+            }
+
+            // (123) 456-7890
+            if (length > 0) insert(0, "(")
+            if (length > 4) insert(4, ") ")
+            if (length > 9) insert(9, "-")
+        }
+    }
+
+    val state = rememberTextFieldState()
+    BasicTextField(
+        state,
+        inputTransformation = InputTransformation
+            .maxLength(10)
+            .then {
+                if (!TextUtils.isDigitsOnly(asCharSequence())) {
+                    revertAllChanges()
+                }
+            },
+        outputTransformation = PhoneNumberOutputTransformation(false)
+    )
 }
 
 @Sampled
@@ -379,14 +422,14 @@ fun BasicTextFieldInputTransformationByValueChooseSample() {
 
 @Sampled
 fun BasicTextFieldInputTransformationChainingSample() {
-    val removeFirstEFilter = InputTransformation { _, new ->
-        val index = new.asCharSequence().indexOf('e')
+    val removeFirstEFilter = InputTransformation {
+        val index = asCharSequence().indexOf('e')
         if (index != -1) {
-            new.replace(index, index + 1, "")
+            replace(index, index + 1, "")
         }
     }
-    val printECountFilter = InputTransformation { _, new ->
-        println("found ${new.asCharSequence().count { it == 'e' }} 'e's in the string")
+    val printECountFilter = InputTransformation {
+        println("found ${asCharSequence().count { it == 'e' }} 'e's in the string")
     }
 
     // Returns a filter that always prints 0 e's.
@@ -400,9 +443,9 @@ fun BasicTextFieldInputTransformationChainingSample() {
 @Composable
 fun BasicTextFieldChangeIterationSample() {
     // Print a log message every time the text is changed.
-    BasicTextField(state = rememberTextFieldState(), inputTransformation = { _, new ->
-        new.changes.forEachChange { sourceRange, replacedLength ->
-            val newString = new.asCharSequence().substring(sourceRange)
+    BasicTextField(state = rememberTextFieldState(), inputTransformation = {
+        changes.forEachChange { sourceRange, replacedLength ->
+            val newString = asCharSequence().substring(sourceRange)
             println("""$replacedLength characters were replaced with "$newString"""")
         }
     })
@@ -413,52 +456,17 @@ fun BasicTextFieldChangeIterationSample() {
 fun BasicTextFieldChangeReverseIterationSample() {
     // Make a text field behave in "insert mode" – inserted text overwrites the text ahead of it
     // instead of being inserted.
-    BasicTextField(state = rememberTextFieldState(), inputTransformation = { _, new ->
-        new.changes.forEachChangeReversed { range, originalRange ->
+    BasicTextField(state = rememberTextFieldState(), inputTransformation = {
+        changes.forEachChangeReversed { range, originalRange ->
             if (!range.collapsed && originalRange.collapsed) {
                 // New text was inserted, delete the text ahead of it.
-                new.delete(
-                    range.end.coerceAtMost(new.length),
-                    (range.end + range.length).coerceAtMost(new.length)
+                delete(
+                    range.end.coerceAtMost(length),
+                    (range.end + range.length).coerceAtMost(length)
                 )
             }
         }
     })
-}
-
-@Sampled
-fun BasicTextFieldForEachTextValueSample() {
-    class SearchViewModel {
-        val searchFieldState = TextFieldState()
-        var searchResults: List<String> by mutableStateOf(emptyList())
-            private set
-
-        /** Called while the view model is active, e.g. from a LaunchedEffect. */
-        suspend fun run() {
-            searchFieldState.forEachTextValue { queryText ->
-                // Start a new search every time the user types something. If the previous search
-                // is still being processed when the text is changed, it will be cancelled and this
-                // code will run again with the latest query text.
-                searchResults = performSearch(query = queryText)
-            }
-        }
-
-        private suspend fun performSearch(query: CharSequence): List<String> {
-            TODO()
-        }
-    }
-
-    @Composable
-    fun SearchScreen(viewModel: SearchViewModel) {
-        Column {
-            BasicTextField(viewModel.searchFieldState)
-            LazyColumn {
-                items(viewModel.searchResults) {
-                    TODO()
-                }
-            }
-        }
-    }
 }
 
 @OptIn(FlowPreview::class)
@@ -472,7 +480,7 @@ fun BasicTextFieldTextValuesSample() {
 
         /** Called while the view model is active, e.g. from a LaunchedEffect. */
         suspend fun run() {
-            searchFieldState.textAsFlow()
+            snapshotFlow { searchFieldState.text }
                 // Let fast typers get multiple keystrokes in before kicking off a search.
                 .debounce(500)
                 // collectLatest cancels the previous search if it's still running when there's a
@@ -542,8 +550,8 @@ fun BasicTextFieldUndoSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun BasicTextFieldDecoratorSample() {
+    // Demonstrates how to use the decorator API on BasicTextField
     val state = rememberTextFieldState("Hello, World!")
     BasicTextField(
         state = state,

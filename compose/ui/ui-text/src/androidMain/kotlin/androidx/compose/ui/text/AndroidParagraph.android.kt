@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toAndroidRectF
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_CENTER
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_LEFT
@@ -66,7 +67,6 @@ import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_WORD_STYLE_PHRAS
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_CHARACTER
 import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_WORD
 import androidx.compose.ui.text.android.TextLayout
-import androidx.compose.ui.text.android.selection.WordIterator
 import androidx.compose.ui.text.android.selection.getWordEnd
 import androidx.compose.ui.text.android.selection.getWordStart
 import androidx.compose.ui.text.android.style.IndentationFixSpan
@@ -324,7 +324,7 @@ internal class AndroidParagraph(
             rect = rect.toAndroidRectF(),
             granularity = granularity.toLayoutTextGranularity(),
             inclusionStrategy = { segmentBounds: RectF, area: RectF ->
-                inclusionStrategy.isInside(segmentBounds.toRect(), area.toRect())
+                inclusionStrategy.isInside(segmentBounds.toComposeRect(), area.toComposeRect())
             }
         ) ?: return null
         return TextRange(range[0], range[1])
@@ -401,8 +401,6 @@ internal class AndroidParagraph(
             layout.getLineBottom(line)
         )
     }
-
-    private val wordIterator: WordIterator = layout.wordIterator
 
     override fun getWordBoundary(offset: Int): TextRange {
         val wordIterator = layout.wordIterator
@@ -655,5 +653,3 @@ private fun TextGranularity.toLayoutTextGranularity(): Int {
         else -> TEXT_GRANULARITY_CHARACTER
     }
 }
-
-private fun RectF.toRect(): Rect = Rect(left, top, right, bottom)

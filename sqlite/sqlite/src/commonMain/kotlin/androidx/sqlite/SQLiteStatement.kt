@@ -43,12 +43,42 @@ interface SQLiteStatement {
     fun bindDouble(index: Int, value: Double)
 
     /**
+     * Binds a Float value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    fun bindFloat(index: Int, value: Float) {
+        bindDouble(index, value.toDouble())
+    }
+
+    /**
      * Binds a Long value to this statement at an index.
      *
      * @param index the 1-based index of the parameter to bind
      * @param value the value to bind
      */
     fun bindLong(index: Int, value: Long)
+
+    /**
+     * Binds a Int value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    fun bindInt(index: Int, value: Int) {
+        bindLong(index, value.toLong())
+    }
+
+    /**
+     * Binds a Boolean value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    fun bindBoolean(index: Int, value: Boolean) {
+        bindLong(index, if (value) 1L else 0L)
+    }
 
     /**
      * Binds a String value to this statement at an index.
@@ -82,12 +112,42 @@ interface SQLiteStatement {
     fun getDouble(index: Int): Double
 
     /**
+     * Returns the value of the column at [index] as a Float.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    fun getFloat(index: Int): Float {
+        return getDouble(index).toFloat()
+    }
+
+    /**
      * Returns the value of the column at [index] as a Long.
      *
      * @param index the 0-based index of the column
      * @return the value of the column
      */
     fun getLong(index: Int): Long
+
+    /**
+     * Returns the value of the column at [index] as a Int.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    fun getInt(index: Int): Int {
+        return getLong(index).toInt()
+    }
+
+    /**
+     * Returns the value of the column at [index] as a Boolean.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    fun getBoolean(index: Int): Boolean {
+        return getLong(index) != 0L
+    }
 
     /**
      * Returns the value of the column at [index] as a String.
@@ -106,7 +166,7 @@ interface SQLiteStatement {
     fun isNull(index: Int): Boolean
 
     /**
-     * Returns the numbers of columns in the result of the statement.
+     * Returns the number of columns in the result of the statement.
      *
      * @return the number of columns
      */
@@ -119,6 +179,15 @@ interface SQLiteStatement {
      * @return the name of the column
      */
     fun getColumnName(index: Int): String
+
+    /**
+     * Returns the name of the columns in the result of the statement ordered by their index.
+     *
+     * @return the names of the columns
+     */
+    fun getColumnNames(): List<String> {
+       return List(getColumnCount()) { i -> getColumnName(i) }
+    }
 
     /**
      * Executes the statement and evaluates the next result row if available.

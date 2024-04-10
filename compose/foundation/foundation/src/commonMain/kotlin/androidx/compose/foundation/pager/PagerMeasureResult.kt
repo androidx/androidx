@@ -31,7 +31,7 @@ internal class PagerMeasureResult(
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val reverseLayout: Boolean,
-    override val outOfBoundsPageCount: Int,
+    override val beyondViewportPageCount: Int,
     val firstVisiblePage: MeasuredPage?,
     val currentPage: MeasuredPage?,
     var currentPageOffsetFraction: Float,
@@ -86,10 +86,8 @@ internal class PagerMeasureResult(
             return false
         }
 
-        val first =
-            if (extraPagesBefore.isEmpty()) visiblePagesInfo.first() else extraPagesBefore.first()
-        val last =
-            if (extraPagesAfter.isEmpty()) visiblePagesInfo.last() else extraPagesAfter.last()
+        val first = visiblePagesInfo.first()
+        val last = visiblePagesInfo.last()
 
         val canApply = if (delta < 0) {
             // scrolling forward

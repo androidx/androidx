@@ -485,4 +485,4 @@ class LazyCustomKeysTest {
     private class MyClass(val id: Int)
 }
 
-val LazyListState.visibleKeys: List<Any> get() = layoutInfo.visibleItemsInfo.map { it.key }
+private val LazyListState.visibleKeys: List<Any> get() = layoutInfo.visibleItemsInfo.map { it.key }

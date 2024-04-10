@@ -21,12 +21,17 @@
         &lt;i>italic&lt;/i>
         &lt;big>big&lt;/big>
         &lt;small>small&lt;/small>
-        &lt;font face="monospace">monospace&lt;/font>
+        &lt;tt>monospace&lt;/tt>
         &lt;font face="serif">serif&lt;/font>
+        &lt;font face="serif-monospace">serif-monospace&lt;/font>
         &lt;font face="sans_serif">sans_serif&lt;/font>
         &lt;font face="cursive">cursive&lt;/font>
+        &lt;font face="casual">casual&lt;/font>
+        &lt;font face="sans-serif-smallcaps">sans-serif-smallcaps&lt;/font>
+        &lt;font face="sans-serif-condensed-light">sans-serif-condensed-light&lt;/font>
+        &lt;font face="sans-serif-condensed">sans-serif-condensed&lt;/font>
+        &lt;font face="sans-serif-condensed-medium">sans-serif-condensed-medium&lt;/font>
         &lt;font color="#00ff00">green&lt;/font>
-        &lt;tt>monospace&lt;/tt>
         &lt;sup>superscript&lt;/sup>
         &lt;strike>strikethrough&lt;/strike>
         &lt;sub>subscript&lt;/sub>

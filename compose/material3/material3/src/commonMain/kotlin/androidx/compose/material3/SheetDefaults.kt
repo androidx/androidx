@@ -29,6 +29,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
+import androidx.compose.material3.internal.AnchoredDraggableState
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.animateTo
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.snapTo
+import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable

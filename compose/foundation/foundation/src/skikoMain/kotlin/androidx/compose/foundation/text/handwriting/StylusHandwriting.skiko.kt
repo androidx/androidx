@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.text.handwriting
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1298/Implement-isStylusHandwritingSupported
-
 /**
  *  Whether the platform supports the stylus handwriting or not. This is for platform level support
  *  and NOT for checking whether the IME supports handwriting.

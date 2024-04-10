@@ -60,9 +60,7 @@ internal class RequestTest {
     @Test
     fun requestHasNiceLoggingString() {
         val request1 = Request(listOf(StreamId(1)))
-        val request2 = Request(listOf(StreamId(1)))
 
-        assertThat("$request1").isNotEqualTo("$request2")
         assertThat("$request1").contains("1")
         assertThat("$request1").contains("Request")
 

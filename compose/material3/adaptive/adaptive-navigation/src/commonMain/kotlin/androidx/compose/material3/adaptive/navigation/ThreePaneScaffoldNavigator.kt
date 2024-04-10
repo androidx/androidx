@@ -29,7 +29,7 @@ import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategi
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
-import androidx.compose.material3.adaptive.layout.calculateStandardPaneScaffoldDirective
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.calculateThreePaneScaffoldValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -148,7 +148,7 @@ interface ThreePaneScaffoldNavigator<T> {
  *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
  *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
  * @param scaffoldDirective the current layout directives to follow. The default value will be
- *   calculated with [calculateStandardPaneScaffoldDirective] using
+ *   calculated with [calculatePaneScaffoldDirective] using
  *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from
  *   the current context.
  * @param adaptStrategies adaptation strategies of each pane.
@@ -162,7 +162,7 @@ interface ThreePaneScaffoldNavigator<T> {
 @Composable
 fun <T> rememberListDetailPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
-        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
@@ -178,6 +178,36 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
 
 /**
  * Returns a remembered default implementation of [ThreePaneScaffoldNavigator] for
+ * [ListDetailPaneScaffold], which will be updated automatically when the input values change.
+ * The default navigator is supposed to be used independently from any navigation frameworks and
+ * handles the navigation purely inside the [ListDetailPaneScaffold].
+ *
+ * @param scaffoldDirective the current layout directives to follow. The default value will be
+ *   calculated with [calculatePaneScaffoldDirective] using
+ *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from
+ *   the current context.
+ * @param adaptStrategies adaptation strategies of each pane.
+ * @param isDestinationHistoryAware `true` if the scaffold value calculation should be aware of the
+ *   full destination history, instead of just the current destination. See
+ *   [calculateThreePaneScaffoldValue] for more relevant details.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun rememberListDetailPaneScaffoldNavigator(
+    scaffoldDirective: PaneScaffoldDirective =
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+        ListDetailPaneScaffoldDefaults.adaptStrategies(),
+    isDestinationHistoryAware: Boolean = true,
+): ThreePaneScaffoldNavigator<Nothing> =
+    rememberListDetailPaneScaffoldNavigator<Nothing>(
+        scaffoldDirective,
+        adaptStrategies,
+        isDestinationHistoryAware,
+    )
+
+/**
+ * Returns a remembered default implementation of [ThreePaneScaffoldNavigator] for
  * [SupportingPaneScaffold], which will be updated automatically when the input values change.
  * The default navigator is supposed to be used independently from any navigation frameworks and
  * handles the navigation purely inside the [SupportingPaneScaffold].
@@ -186,7 +216,7 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
  *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
  *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
  * @param scaffoldDirective the current layout directives to follow. The default value will be
- *   calculated with [calculateStandardPaneScaffoldDirective] using
+ *   calculated with [calculatePaneScaffoldDirective] using
  *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from
  *   the current context.
  * @param adaptStrategies adaptation strategies of each pane.
@@ -200,7 +230,7 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
 @Composable
 fun <T> rememberSupportingPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
-        calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
@@ -212,6 +242,36 @@ fun <T> rememberSupportingPaneScaffoldNavigator(
         adaptStrategies,
         isDestinationHistoryAware,
         initialDestinationHistory
+    )
+
+/**
+ * Returns a remembered default implementation of [ThreePaneScaffoldNavigator] for
+ * [SupportingPaneScaffold], which will be updated automatically when the input values change.
+ * The default navigator is supposed to be used independently from any navigation frameworks and
+ * handles the navigation purely inside the [SupportingPaneScaffold].
+ *
+ * @param scaffoldDirective the current layout directives to follow. The default value will be
+ *   calculated with [calculatePaneScaffoldDirective] using
+ *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from
+ *   the current context.
+ * @param adaptStrategies adaptation strategies of each pane.
+ * @param isDestinationHistoryAware `true` if the scaffold value calculation should be aware of the
+ *   full destination history, instead of just the current destination. See
+ *   [calculateThreePaneScaffoldValue] for more relevant details.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun rememberSupportingPaneScaffoldNavigator(
+    scaffoldDirective: PaneScaffoldDirective =
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+        SupportingPaneScaffoldDefaults.adaptStrategies(),
+    isDestinationHistoryAware: Boolean = true,
+): ThreePaneScaffoldNavigator<Nothing> =
+    rememberSupportingPaneScaffoldNavigator<Nothing>(
+        scaffoldDirective,
+        adaptStrategies,
+        isDestinationHistoryAware,
     )
 
 @ExperimentalMaterial3AdaptiveApi

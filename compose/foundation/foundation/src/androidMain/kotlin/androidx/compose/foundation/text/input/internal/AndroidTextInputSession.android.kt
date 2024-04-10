@@ -80,8 +80,8 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     composeImm.updateSelection(
                         selectionStart = newSelection.min,
                         selectionEnd = newSelection.max,
-                        compositionStart = oldComposition?.min ?: -1,
-                        compositionEnd = oldComposition?.max ?: -1
+                        compositionStart = newComposition?.min ?: -1,
+                        compositionEnd = newComposition?.max ?: -1
                     )
                 }
 
@@ -141,28 +141,19 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 }
             }
 
-            val hintMediaTypes = receiveContentConfiguration?.hintMediaTypes
-            val contentMimeTypes: Array<String>? =
-                if (!hintMediaTypes.isNullOrEmpty()) {
-                    val arr = Array(hintMediaTypes.size) { "" }
-                    hintMediaTypes.forEachIndexed { i, mediaType ->
-                        arr[i] = mediaType.representation
-                    }
-                    arr
-                } else {
-                    null
-                }
-
             outAttrs.update(
                 text = state.visualText,
                 selection = state.visualText.selection,
                 imeOptions = imeOptions,
-                contentMimeTypes = contentMimeTypes
+                // only pass AllMimeTypes if we have a ReceiveContentConfiguration.
+                contentMimeTypes = receiveContentConfiguration?.let { ALL_MIME_TYPES }
             )
             StatelessInputConnection(textInputSession, outAttrs)
         }
     }
 }
+
+private val ALL_MIME_TYPES = arrayOf("*/*")
 
 private fun logDebug(tag: String = TIA_TAG, content: () -> String) {
     if (TIA_DEBUG) {

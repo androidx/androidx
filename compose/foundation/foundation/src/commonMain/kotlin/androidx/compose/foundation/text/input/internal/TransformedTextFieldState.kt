@@ -116,7 +116,7 @@ internal class TransformedTextFieldState(
             derivedStateOf {
                 // text is a state read. transformation may also perform state reads when ran.
                 calculateTransformedText(
-                    untransformedText = textFieldState.text,
+                    untransformedValue = textFieldState.value,
                     outputTransformation = transformation,
                     wedgeAffinity = selectionWedgeAffinity
                 )
@@ -129,7 +129,7 @@ internal class TransformedTextFieldState(
                 calculateTransformedText(
                     // These are state reads. codepointTransformation may also perform state reads
                     // when ran.
-                    untransformedText = outputTransformedText?.value?.text ?: textFieldState.text,
+                    untransformedValue = outputTransformedText?.value?.text ?: textFieldState.value,
                     codepointTransformation = transformation,
                     wedgeAffinity = selectionWedgeAffinity
                 )
@@ -141,7 +141,7 @@ internal class TransformedTextFieldState(
      * [CodepointTransformation] applied.
      */
     val untransformedText: TextFieldCharSequence
-        get() = textFieldState.text
+        get() = textFieldState.value
 
     /**
      * The text that should be presented to the user in most cases. If an [OutputTransformation] is
@@ -433,22 +433,22 @@ internal class TransformedTextFieldState(
 
         /**
          * Applies an [OutputTransformation] to a [TextFieldCharSequence], returning the
-         * transformed text content, the selection/cursor from the [untransformedText] mapped to the
+         * transformed text content, the selection/cursor from the [untransformedValue] mapped to the
          * offsets in the transformed text, and an [OffsetMappingCalculator] that can be used to map
          * offsets in both directions between the transformed and untransformed text.
          *
-         * This function is relatively expensive, since it creates a copy of [untransformedText], so
+         * This function is relatively expensive, since it creates a copy of [untransformedValue], so
          * its result should be cached.
          */
         @kotlin.jvm.JvmStatic
         private fun calculateTransformedText(
-            untransformedText: TextFieldCharSequence,
+            untransformedValue: TextFieldCharSequence,
             outputTransformation: OutputTransformation,
             wedgeAffinity: SelectionWedgeAffinity
         ): TransformedText? {
             val offsetMappingCalculator = OffsetMappingCalculator()
             val buffer = TextFieldBuffer(
-                initialValue = untransformedText,
+                initialValue = untransformedValue,
                 offsetMappingCalculator = offsetMappingCalculator
             )
 
@@ -464,11 +464,11 @@ internal class TransformedTextFieldState(
                 // Pass the calculator explicitly since the one on transformedText won't be updated
                 // yet.
                 selection = mapToTransformed(
-                    range = untransformedText.selection,
+                    range = untransformedValue.selection,
                     mapping = offsetMappingCalculator,
                     wedgeAffinity = wedgeAffinity
                 ),
-                composition = untransformedText.composition?.let {
+                composition = untransformedValue.composition?.let {
                     mapToTransformed(
                         range = it,
                         mapping = offsetMappingCalculator,
@@ -481,16 +481,16 @@ internal class TransformedTextFieldState(
 
         /**
          * Applies a [CodepointTransformation] to a [TextFieldCharSequence], returning the
-         * transformed text content, the selection/cursor from the [untransformedText] mapped to the
+         * transformed text content, the selection/cursor from the [untransformedValue] mapped to the
          * offsets in the transformed text, and an [OffsetMappingCalculator] that can be used to map
          * offsets in both directions between the transformed and untransformed text.
          *
-         * This function is relatively expensive, since it creates a copy of [untransformedText], so
+         * This function is relatively expensive, since it creates a copy of [untransformedValue], so
          * its result should be cached.
          */
         @kotlin.jvm.JvmStatic
         private fun calculateTransformedText(
-            untransformedText: TextFieldCharSequence,
+            untransformedValue: TextFieldCharSequence,
             codepointTransformation: CodepointTransformation,
             wedgeAffinity: SelectionWedgeAffinity
         ): TransformedText? {
@@ -498,10 +498,10 @@ internal class TransformedTextFieldState(
 
             // This is the call to external code. Returns same instance if no codepoints change.
             val transformedText =
-                untransformedText.toVisualText(codepointTransformation, offsetMappingCalculator)
+                untransformedValue.toVisualText(codepointTransformation, offsetMappingCalculator)
 
             // Avoid allocations + mapping if there weren't actually any transformations.
-            if (transformedText === untransformedText) {
+            if (transformedText === untransformedValue) {
                 return null
             }
 
@@ -510,11 +510,11 @@ internal class TransformedTextFieldState(
                 // Pass the calculator explicitly since the one on transformedText won't be updated
                 // yet.
                 selection = mapToTransformed(
-                    untransformedText.selection,
+                    untransformedValue.selection,
                     offsetMappingCalculator,
                     wedgeAffinity
                 ),
-                composition = untransformedText.composition?.let {
+                composition = untransformedValue.composition?.let {
                     mapToTransformed(it, offsetMappingCalculator, wedgeAffinity)
                 }
             )

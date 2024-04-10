@@ -154,10 +154,22 @@ internal class InnerNodeCoordinator(
     override fun placeAt(
         position: IntOffset,
         zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
+        layer: GraphicsLayer
+    ) {
+        super.placeAt(position, zIndex, layer)
+        onAfterPlaceAt()
+    }
+
+    override fun placeAt(
+        position: IntOffset,
+        zIndex: Float,
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
     ) {
         super.placeAt(position, zIndex, layerBlock)
+        onAfterPlaceAt()
+    }
 
+    private fun onAfterPlaceAt() {
         // The coordinator only runs their placement block to obtain our position, which allows them
         // to calculate the offset of an alignment line we have already provided a position for.
         // No need to place our wrapped as well (we might have actually done this already in

@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.LimitExceededException
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
 
 /**
  * AdId Manager provides APIs for app and ad-SDKs to access advertising ID. The advertising ID is a
@@ -53,7 +54,9 @@ abstract class AdIdManager internal constructor() {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AdIdManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                AdIdManagerApi31Ext9Impl(context)
+                BackCompatManager.getManager(context, "AdIdManager") {
+                    AdIdManagerApi31Ext9Impl(context)
+                }
             } else {
                 null
             }

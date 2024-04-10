@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
 
 /**
  * AppSetIdManager provides APIs for app and ad-SDKs to access appSetId for non-monetizing purpose.
@@ -48,7 +49,9 @@ abstract class AppSetIdManager internal constructor() {
             return if (AdServicesInfo.adServicesVersion() >= 4) {
                 AppSetIdManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                AppSetIdManagerApi31Ext9Impl(context)
+                BackCompatManager.getManager(context, "AppSetIdManager") {
+                    AppSetIdManagerApi31Ext9Impl(context)
+                }
             } else {
                 null
             }

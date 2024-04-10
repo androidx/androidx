@@ -103,6 +103,7 @@ public class Chip implements LayoutElement {
         @NonNull private final Context mContext;
         @Nullable private LayoutElement mCustomContent;
         @Nullable private String mImageResourceId = null;
+        private boolean mIsIconOnly = false;
         @Nullable private String mPrimaryLabel = null;
         @Nullable private String mSecondaryLabel = null;
         @Nullable private StringProp mContentDescription = null;
@@ -201,6 +202,7 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setPrimaryLabelContent(@NonNull String primaryLabel) {
             this.mPrimaryLabel = primaryLabel;
+            this.mIsIconOnly = false;
             this.mCustomContent = null;
             return this;
         }
@@ -246,6 +248,7 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setSecondaryLabelContent(@NonNull String secondaryLabel) {
             this.mSecondaryLabel = secondaryLabel;
+            this.mIsIconOnly = false;
             this.mCustomContent = null;
             return this;
         }
@@ -259,6 +262,20 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setIconContent(@NonNull String imageResourceId) {
             this.mImageResourceId = imageResourceId;
+            this.mCustomContent = null;
+            return this;
+        }
+
+        /**
+         * Sets the content of the {@link Chip} to be *only* icon. Any previously added custom
+         * content will be overridden. Provided icon will be tinted to the given content color from
+         * {@link ChipColors}. This icon should be image with chosen alpha channel and not an actual
+         * image. Should be used only for creating a {@link CompactChip}.
+         */
+        @NonNull
+        Builder setIconOnlyContent(@NonNull String imageResourceId) {
+            this.mImageResourceId = imageResourceId;
+            this.mIsIconOnly = true;
             this.mCustomContent = null;
             return this;
         }
@@ -356,6 +373,24 @@ public class Chip implements LayoutElement {
         @OptIn(markerClass = ProtoLayoutExperimental.class)
         @SuppressWarnings("deprecation")
         private void setCorrectContent() {
+            if (mImageResourceId != null) {
+                Image icon =
+                        new Image.Builder()
+                                .setResourceId(mImageResourceId)
+                                .setWidth(mIconSize)
+                                .setHeight(mIconSize)
+                                .setColorFilter(
+                                        new ColorFilter.Builder()
+                                                .setTint(mChipColors.getIconColor())
+                                                .build())
+                                .build();
+                mCoreBuilder.setIconContent(icon);
+
+                if (mIsIconOnly) {
+                    return;
+                }
+            }
+
             Text mainTextElement =
                     new Text.Builder(mContext, checkNotNull(mPrimaryLabel))
                             .setTypography(mPrimaryLabelTypography)
@@ -378,20 +413,6 @@ public class Chip implements LayoutElement {
                                 .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                                 .build();
                 mCoreBuilder.setSecondaryLabelContent(labelTextElement);
-            }
-
-            if (mImageResourceId != null) {
-                Image icon =
-                        new Image.Builder()
-                                .setResourceId(mImageResourceId)
-                                .setWidth(mIconSize)
-                                .setHeight(mIconSize)
-                                .setColorFilter(
-                                        new ColorFilter.Builder()
-                                                .setTint(mChipColors.getIconColor())
-                                                .build())
-                                .build();
-                mCoreBuilder.setIconContent(icon);
             }
         }
 
@@ -435,10 +456,14 @@ public class Chip implements LayoutElement {
                 iconTintColor = checkNotNull(checkNotNull(icon.getColorFilter()).getTint());
             }
 
-            contentColor = checkNotNull(getPrimaryLabelContentObject()).getColor();
-            Text label = getSecondaryLabelContentObject();
-            if (label != null) {
-                secondaryContentColor = label.getColor();
+
+            Text maybePrimaryLabel = getPrimaryLabelContentObject();
+            if (maybePrimaryLabel != null) {
+                contentColor = checkNotNull(maybePrimaryLabel).getColor();
+                Text label = getSecondaryLabelContentObject();
+                if (label != null) {
+                    secondaryContentColor = label.getColor();
+                }
             }
         }
 

@@ -212,7 +212,7 @@ class ValueParserTest {
 
     @Test
     fun nonDataClassValue_fails() {
-        checkSourceFails(annotatedValue("private class MySdkRequest(val id: Int)"))
+        checkSourceFails(annotatedValue("class MySdkRequest(val id: Int)"))
             .containsExactlyErrors(
                 "Only data classes and enum classes can be annotated with" +
                     " @PrivacySandboxValue."
@@ -273,7 +273,7 @@ class ValueParserTest {
         )
         checkSourceFails(dataClass)
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdkRequest.foo: only primitives, lists, data classes " +
+                "Error in com.mysdk.MySdkRequest.foo: only primitives, lists, data/enum classes " +
                     "annotated with @PrivacySandboxValue, interfaces annotated with " +
                     "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                     "properties."

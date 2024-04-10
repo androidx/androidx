@@ -16,6 +16,10 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.internal.AnchorAlignmentOffsetPosition
+import androidx.compose.material3.internal.DropdownMenuPositionProvider
+import androidx.compose.material3.internal.MenuPosition
+import androidx.compose.material3.internal.WindowAlignmentMarginPosition
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset

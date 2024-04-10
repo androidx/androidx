@@ -43,15 +43,14 @@ internal interface ConnectionPool {
      * Using the connection after [block] completes is prohibited.
      *
      * The connection will be confined to the coroutine on which [block] executes, attempting to use
-     * from another coroutine is an error.
+     * the connection from a different coroutine will result in an error.
      *
      * If the current coroutine calling this function already has a confined connection, then that
-     * connection is used as long as the connection isn't required to be upgraded to a writer.
-     * If an upgrade is required then a [SQLiteException] is thrown.
+     * connection is used as long as it isn't required to be upgraded to a writer. If an upgrade is
+     * required then a [SQLiteException] is thrown.
      *
-     * A connection is a resource and shouldn't be held more than it needs to, therefore try not to
-     * do long-running computations within the [block]. If a caller has to wait too long to
-     * acquire a connection a [SQLiteException] will be thrown due to a timeout.
+     * If a caller has to wait too long to acquire a connection a [SQLiteException] will be thrown
+     * due to a timeout.
      *
      * @param isReadOnly Whether to use a reader or a writer connection.
      * @param block The code to use the connection.
@@ -74,10 +73,11 @@ internal interface ConnectionPool {
  * in-memory databases whose schema and data are isolated to a database connection.
  *
  * @param driver The driver from which to request the connection to be opened.
+ * @param fileName The database file name.
  * @return The newly created connection pool
  */
-internal fun newSingleConnectionPool(driver: SQLiteDriver): ConnectionPool =
-    ConnectionPoolImpl(driver)
+internal fun newSingleConnectionPool(driver: SQLiteDriver, fileName: String): ConnectionPool =
+    ConnectionPoolImpl(driver, fileName)
 
 /**
  * Creates a new [ConnectionPool] with multiple connections separated by readers and writers.
@@ -87,15 +87,17 @@ internal fun newSingleConnectionPool(driver: SQLiteDriver): ConnectionPool =
  * DELETE or PERSIST) then it is recommended to create a pool of one writer and one reader.
  *
  * @param driver The driver from which to request new connections to be opened.
+ * @param fileName The database file name.
  * @param maxNumOfReaders The maximum number of connections to be opened and used as readers.
  * @param maxNumOfWriters The maximum number of connections to be opened and used as writers.
  * @return The newly created connection pool
  */
 internal fun newConnectionPool(
     driver: SQLiteDriver,
+    fileName: String,
     maxNumOfReaders: Int,
     maxNumOfWriters: Int
-): ConnectionPool = ConnectionPoolImpl(driver, maxNumOfReaders, maxNumOfWriters)
+): ConnectionPool = ConnectionPoolImpl(driver, fileName, maxNumOfReaders, maxNumOfWriters)
 
 /**
  * Defines an object that provides 'raw' access to a connection.

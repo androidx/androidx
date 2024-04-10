@@ -22,6 +22,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.DynamicRange;
@@ -129,6 +130,11 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
         return mCameraInfoInternal.isPrivateReprocessingSupported();
     }
 
+    @Override
+    public boolean isLogicalMultiCameraSupported() {
+        return mCameraInfoInternal.isLogicalMultiCameraSupported();
+    }
+
     @NonNull
     @Override
     public String getCameraId() {
@@ -227,5 +233,11 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     @Override
     public Object getPhysicalCameraCharacteristics(@NonNull String physicalCameraId) {
         return mCameraInfoInternal.getPhysicalCameraCharacteristics(physicalCameraId);
+    }
+
+    @NonNull
+    @Override
+    public Set<CameraInfo> getPhysicalCameraInfos() {
+        return mCameraInfoInternal.getPhysicalCameraInfos();
     }
 }

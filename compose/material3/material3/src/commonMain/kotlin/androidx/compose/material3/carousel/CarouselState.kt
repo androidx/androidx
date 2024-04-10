@@ -16,7 +16,7 @@
 
 package androidx.compose.material3.carousel
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -32,14 +32,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
  * The state that can be used to control all types of carousels.
  *
  * @param currentItem the current item to be scrolled to.
- * @param currentItemOffsetFraction the current item offset as a fraction of the item size.
+ * @param currentItemOffsetFraction the offset of the current item as a fraction of the item's size.
+ * This should vary between -0.5 and 0.5 and indicates how to offset the current item from the
+ * snapped position.
  * @param itemCount the number of items this Carousel will have.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterial3Api
-internal class CarouselState(
+class CarouselState(
     currentItem: Int = 0,
-    currentItemOffsetFraction: Float = 0F,
+    @FloatRange(from = -0.5, to = 0.5) currentItemOffsetFraction: Float = 0f,
     itemCount: () -> Int
 ) : ScrollableState {
     var itemCountState = mutableStateOf(itemCount)
@@ -61,6 +62,7 @@ internal class CarouselState(
         pagerState.scroll(scrollPriority, block)
     }
 
+    @ExperimentalMaterial3Api
     companion object {
         /**
          * To keep current item and item offset saved
@@ -92,7 +94,7 @@ internal class CarouselState(
  */
 @ExperimentalMaterial3Api
 @Composable
-internal fun rememberCarouselState(
+fun rememberCarouselState(
     initialItem: Int = 0,
     itemCount: () -> Int,
 ): CarouselState {

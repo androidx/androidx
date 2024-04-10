@@ -16,11 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.union
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,7 +43,6 @@ import androidx.compose.ui.Modifier
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any supplementary info
  *        besides the list and the detail panes, for example, a task list or a mini-calendar view of
  *        a mail app. See [ListDetailPaneScaffoldRole.Extra].
- * @param windowInsets window insets that the scaffold will respect.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -58,14 +53,12 @@ fun ListDetailPaneScaffold(
     detailPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    windowInsets: WindowInsets = ListDetailPaneScaffoldDefaults.windowInsets,
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = directive,
         scaffoldValue = value,
         paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
-        windowInsets = windowInsets,
         secondaryPane = listPane,
         tertiaryPane = extraPane,
         primaryPane = detailPane
@@ -77,13 +70,6 @@ fun ListDetailPaneScaffold(
  */
 @ExperimentalMaterial3AdaptiveApi
 object ListDetailPaneScaffoldDefaults {
-    /**
-     * Default insets that will be used and consumed by [ListDetailPaneScaffold]. By default it will
-     * be the union of [WindowInsets.Companion.systemBars] and
-     * [WindowInsets.Companion.displayCutout].
-     */
-    val windowInsets @Composable get() = WindowInsets.systemBars.union(WindowInsets.displayCutout)
-
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies] for [ListDetailPaneScaffold].
      *

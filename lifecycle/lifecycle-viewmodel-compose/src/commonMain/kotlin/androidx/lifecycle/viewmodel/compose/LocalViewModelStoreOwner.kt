@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ public object LocalViewModelStoreOwner {
 
     /**
      * Returns current composition local value for the owner or `null` if one has not
-     * been provided nor is one available via [findViewModelStoreOwner].
+     * been provided nor is one available via [findViewTreeViewModelStoreOwner] on the
+     * current [androidx.compose.ui.platform.LocalView].
      */
     public val current: ViewModelStoreOwner?
         @Composable
-        get() = LocalViewModelStoreOwner.current
-            ?: findViewModelStoreOwner()
+        get() = LocalViewModelStoreOwner.current ?: findViewTreeViewModelStoreOwner()
 
     /**
      * Associates a [LocalViewModelStoreOwner] key to a value in a call to
@@ -44,10 +44,9 @@ public object LocalViewModelStoreOwner {
      */
     public infix fun provides(viewModelStoreOwner: ViewModelStoreOwner):
         ProvidedValue<ViewModelStoreOwner?> {
-            return LocalViewModelStoreOwner.provides(viewModelStoreOwner)
-        }
+        return LocalViewModelStoreOwner.provides(viewModelStoreOwner)
+    }
 }
 
-
 @Composable
-internal expect fun findViewModelStoreOwner(): ViewModelStoreOwner?
+internal expect fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner?

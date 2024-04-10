@@ -43,7 +43,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
-@SuppressWarnings("deprecation")
 public class EdgeContentLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
     private static final DeviceParameters DEVICE_PARAMETERS =
@@ -294,25 +293,43 @@ public class EdgeContentLayoutTest {
     }
 
     @Test
-    public void testResponsiveAndBehindContentSettersMixed() {
+    public void testResponsiveAndAboveContentSettersMixed() {
         EdgeContentLayout.Builder builder =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
                         .setResponsiveContentInsetEnabled(true);
 
         assertThrows(
                 IllegalStateException.class,
-                () -> builder.setEdgeContentBehindAllOtherContent(true));
+                () -> builder.setEdgeContentBehindAllOtherContent(false));
+    }
+
+    @Test
+    public void testResponsiveAndBehindContentSettersMixed() {
+        // This shouldn't throw.
+        new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
+                .setResponsiveContentInsetEnabled(true)
+                // This is fine as it's set to true.
+                .setEdgeContentBehindAllOtherContent(true)
+                .build();
     }
 
     @Test
     public void testBehindContentAndResponsiveSettersMixed() {
         EdgeContentLayout.Builder builder =
                 new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
-                        .setEdgeContentBehindAllOtherContent(true);
+                        .setEdgeContentBehindAllOtherContent(false);
 
         assertThrows(
                 IllegalStateException.class,
                 () -> builder.setResponsiveContentInsetEnabled(true));
+    }
+
+    @Test
+    public void testAboveContentAndResponsiveSettersMixed() {
+        // This shouldn't throw.
+        new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
+                .setEdgeContentBehindAllOtherContent(true)
+                .setResponsiveContentInsetEnabled(true);
     }
 
     private void assertLayout(

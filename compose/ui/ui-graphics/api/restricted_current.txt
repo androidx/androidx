@@ -804,11 +804,11 @@ package androidx.compose.ui.graphics {
   public final class PathHitTester {
     ctor public PathHitTester();
     method public operator boolean contains(long position);
-    method public void updatePath(androidx.compose.ui.graphics.Path path, optional float tolerance);
+    method public void updatePath(androidx.compose.ui.graphics.Path path, optional @FloatRange(from=0.0) float tolerance);
   }
 
   public final class PathHitTesterKt {
-    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional float tolerance);
+    method public static androidx.compose.ui.graphics.PathHitTester PathHitTester(androidx.compose.ui.graphics.Path path, optional @FloatRange(from=0.0) float tolerance);
   }
 
   public interface PathIterator extends java.util.Iterator<androidx.compose.ui.graphics.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
@@ -936,6 +936,7 @@ package androidx.compose.ui.graphics {
     method public static android.graphics.RectF toAndroidRectF(androidx.compose.ui.geometry.Rect);
     method public static androidx.compose.ui.unit.IntRect toComposeIntRect(android.graphics.Rect);
     method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.Rect);
+    method public static androidx.compose.ui.geometry.Rect toComposeRect(android.graphics.RectF);
   }
 
   public final class RectangleShapeKt {
@@ -1562,6 +1563,7 @@ package androidx.compose.ui.graphics.layer {
     method public void setTopLeft(long);
     method public void setTranslationX(float);
     method public void setTranslationY(float);
+    method public suspend Object? toImageBitmap(kotlin.coroutines.Continuation<? super androidx.compose.ui.graphics.ImageBitmap>);
     property public final float alpha;
     property public final long ambientShadowColor;
     property public final int blendMode;

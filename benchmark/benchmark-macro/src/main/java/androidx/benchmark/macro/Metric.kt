@@ -460,12 +460,22 @@ abstract class TraceMetric : Metric() {
  * Select how matching sections are resolved into a duration metric with [mode], and configure if
  * sections outside the target process are included with [targetPackageOnly].
  *
+ * The following TraceSectionMetric counts the number of JIT method compilations that occur within a
+ * trace:
+ *
+ * ```
+ * TraceSectionMetric(
+ *     sectionName = "JIT Compiling %",
+ *     mode = TraceSectionMetric.Mode.Sum
+ * )
+ * ```
+ *
  * @see androidx.tracing.Trace.beginSection
  * @see androidx.tracing.Trace.endSection
  * @see androidx.tracing.trace
  */
 @ExperimentalMetricApi
-class TraceSectionMetric(
+class TraceSectionMetric @JvmOverloads constructor(
     /**
      * Section name or pattern to match.
      *
@@ -475,14 +485,14 @@ class TraceSectionMetric(
      */
     private val sectionName: String,
     /**
-     * Metric label, defaults to [sectionName].
-     */
-    private val label: String = sectionName,
-    /**
      * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
      * [Mode.Sum] to count and sum durations of all matching trace sections.
      */
     private val mode: Mode = Mode.Sum,
+    /**
+     * Metric label, defaults to [sectionName].
+     */
+    private val label: String = sectionName,
     /**
      * Filter results to trace sections only from the target process, defaults to true.
      */
@@ -501,7 +511,7 @@ class TraceSectionMetric(
          * Captures the sum of all instances of `sectionName` in the trace.
          *
          * When this mode is used, a measurement of `0` will be reported if the named section
-         * does not appear in the trace
+         * does not appear in the trace.
          */
         Sum,
 
@@ -522,6 +532,23 @@ class TraceSectionMetric(
          * not appear in the trace.
          */
         Max,
+
+        /**
+         * Counts the number of observed instances of a trace section matching `sectionName` in the
+         * trace.
+         *
+         * When this mode is used, a measurement of `0` will be reported if the named section
+         * does not appear in the trace.
+         */
+        Count,
+
+        /**
+         * Average duration of trace sections matching `sectionName` in the trace.
+         *
+         * When this mode is used, a measurement of `0` will be reported if the named section
+         * does not appear in the trace.
+         */
+        Average,
     }
 
     override fun configure(packageName: String) {
@@ -584,6 +611,22 @@ class TraceSectionMetric(
                     Measurement(
                         name = label + "MaxMs",
                         data = slices.maxOf { it.dur } / 1_000_000.0
+                    )
+                )
+            }
+            Mode.Count -> {
+                listOf(
+                    Measurement(
+                        name = label + "Count",
+                        data = slices.size.toDouble()
+                    )
+                )
+            }
+            Mode.Average -> {
+                listOf(
+                    Measurement(
+                        name = label + "AverageMs",
+                        data = slices.sumOf { it.dur } / 1_000_000.0 / slices.size
                     )
                 )
             }

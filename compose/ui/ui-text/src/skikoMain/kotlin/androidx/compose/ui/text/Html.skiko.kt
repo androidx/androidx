@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.text
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1297/Implement-String.parseAsHtml
-
 /**
  * Converts a string with HTML tags into [AnnotatedString].
  *

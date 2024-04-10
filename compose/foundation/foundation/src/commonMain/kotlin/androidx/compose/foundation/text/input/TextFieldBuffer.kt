@@ -43,27 +43,29 @@ import kotlin.jvm.JvmName
  *
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
+ *
+ * @property originalValue The value reverted to when [revertAllChanges] is called. This is not
+ * necessarily `initialValue`.
  */
 @OptIn(ExperimentalFoundationApi::class)
 class TextFieldBuffer internal constructor(
     initialValue: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null,
-    /**
-     * The value reverted to when [revertAllChanges] is called. This is not necessarily
-     * [initialValue] since the initial value may have already have had some intermediate changes
-     * applied to it.
-     */
-    private val sourceValue: TextFieldCharSequence = initialValue,
+    val originalValue: TextFieldCharSequence = initialValue,
     private val offsetMappingCalculator: OffsetMappingCalculator? = null,
 ) : Appendable {
 
     private val buffer = PartialGapBuffer(initialValue)
 
+    private var backingChangeTracker: ChangeTracker? = initialChanges?.let {
+        ChangeTracker(initialChanges)
+    }
+
     /**
-     * Lazily-allocated [ChangeTracker], initialized on the first text change.
+     * Lazily-allocated [ChangeTracker], initialized on the first access.
      */
-    private var changeTracker: ChangeTracker? =
-        initialChanges?.let { ChangeTracker(initialChanges) }
+    private val changeTracker: ChangeTracker
+        get() = backingChangeTracker ?: ChangeTracker().also { backingChangeTracker = it }
 
     /**
      * The number of characters in the text field.
@@ -79,7 +81,7 @@ class TextFieldBuffer internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
     @ExperimentalFoundationApi
-    val changes: ChangeList get() = changeTracker ?: EmptyChangeList
+    val changes: ChangeList get() = changeTracker
 
     /**
      * True if the selection range has non-zero length. If this is false, then the selection
@@ -204,8 +206,7 @@ class TextFieldBuffer internal constructor(
      * @param newLength The length of the replacement.
      */
     private fun onTextWillChange(replaceStart: Int, replaceEnd: Int, newLength: Int) {
-        (changeTracker ?: ChangeTracker().also { changeTracker = it })
-            .trackChange(replaceStart, replaceEnd, newLength)
+        changeTracker.trackChange(replaceStart, replaceEnd, newLength)
         offsetMappingCalculator?.recordEditOperation(replaceStart, replaceEnd, newLength)
 
         // Adjust selection.
@@ -264,7 +265,7 @@ class TextFieldBuffer internal constructor(
     fun asCharSequence(): CharSequence = buffer
 
     private fun clearChangeList() {
-        changeTracker?.clearChanges()
+        changeTracker.clearChanges()
     }
 
     /**
@@ -275,8 +276,8 @@ class TextFieldBuffer internal constructor(
      */
     @ExperimentalFoundationApi
     fun revertAllChanges() {
-        replace(0, length, sourceValue.toString())
-        selection = sourceValue.selection
+        replace(0, length, originalValue.toString())
+        selection = originalValue.selection
         clearChangeList()
     }
 

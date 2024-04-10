@@ -80,7 +80,10 @@ fun LazyColumnDragAndDropDemo() {
             DraggableItem(dragDropState, index) { isDragging ->
                 val elevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
                 Card(elevation = elevation) {
-                    Text("Item $item", Modifier.fillMaxWidth().padding(20.dp))
+                    Text("Item $item",
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp))
                 }
             }
         }
@@ -179,22 +182,16 @@ class DragDropState internal constructor(
                 draggingItem.index != item.index
         }
         if (targetItem != null) {
-            val scrollToIndex = if (targetItem.index == state.firstVisibleItemIndex) {
-                draggingItem.index
-            } else if (draggingItem.index == state.firstVisibleItemIndex) {
-                targetItem.index
-            } else {
-                null
+            if (
+                draggingItem.index == state.firstVisibleItemIndex ||
+                targetItem.index == state.firstVisibleItemIndex
+            ) {
+                state.requestScrollToItem(
+                    state.firstVisibleItemIndex,
+                    state.firstVisibleItemScrollOffset
+                )
             }
-            if (scrollToIndex != null) {
-                scope.launch {
-                    // this is needed to neutralize automatic keeping the first item first.
-                    state.scrollToItem(scrollToIndex, state.firstVisibleItemScrollOffset)
-                    onMove.invoke(draggingItem.index, targetItem.index)
-                }
-            } else {
-                onMove.invoke(draggingItem.index, targetItem.index)
-            }
+            onMove.invoke(draggingItem.index, targetItem.index)
             draggingItemIndex = targetItem.index
         } else {
             val overscroll = when {
@@ -244,12 +241,13 @@ fun LazyItemScope.DraggableItem(
                 translationY = dragDropState.draggingItemOffset
             }
     } else if (index == dragDropState.previousIndexOfDraggedItem) {
-        Modifier.zIndex(1f)
+        Modifier
+            .zIndex(1f)
             .graphicsLayer {
                 translationY = dragDropState.previousItemOffset.value
             }
     } else {
-        Modifier.animateItemPlacement()
+        Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
     }
     Column(modifier = modifier.then(draggingModifier)) {
         content(dragging)

@@ -21,7 +21,6 @@ import androidx.compose.material3.adaptive.HingeInfo
 import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
 import com.google.common.truth.Truth.assertThat
@@ -34,7 +33,7 @@ import org.junit.runners.JUnit4
 class PaneScaffoldDirectiveTest {
     @Test
     fun test_calculateStandardPaneScaffoldDirective_compactWidth() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(400, 800),
                 Posture()
@@ -43,21 +42,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(16.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_mediumWidth() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(750, 900),
                 Posture()
@@ -66,21 +58,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_expandedWidth() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(1200, 800),
                 Posture()
@@ -89,21 +74,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_tabletop() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(isTabletop = true)
@@ -112,21 +90,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_compactWidth() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(400, 800),
                 Posture()
@@ -135,21 +106,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(1)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(16.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(0.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(16.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(16.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_mediumWidth() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(750, 900),
                 Posture()
@@ -158,21 +122,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_expandedWidth() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(1200, 800),
                 Posture()
@@ -181,21 +138,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(1)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(0.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_tabletop() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(isTabletop = true)
@@ -204,21 +154,14 @@ class PaneScaffoldDirectiveTest {
 
         assertThat(scaffoldDirective.maxHorizontalPartitions).isEqualTo(2)
         assertThat(scaffoldDirective.maxVerticalPartitions).isEqualTo(2)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
-        assertThat(
-            scaffoldDirective.contentPadding.calculateRightPadding(LayoutDirection.Ltr)
-        ).isEqualTo(24.dp)
         assertThat(scaffoldDirective.horizontalPartitionSpacerSize).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateTopPadding()).isEqualTo(24.dp)
-        assertThat(scaffoldDirective.contentPadding.calculateBottomPadding()).isEqualTo(24.dp)
         assertThat(scaffoldDirective.verticalPartitionSpacerSize).isEqualTo(24.dp)
+        assertThat(scaffoldDirective.defaultPanePreferredWidth).isEqualTo(360.dp)
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_alwaysAvoidHinge() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -231,7 +174,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_avoidOccludingHinge() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -244,7 +187,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_avoidSeparatingHinge() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -257,7 +200,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_neverAvoidHinge() {
-        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -270,7 +213,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_alwaysAvoidHinge() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -283,7 +226,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_avoidOccludingHinge() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -296,7 +239,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_avoidSeparatingHinge() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)
@@ -309,7 +252,7 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_neverAvoidHinge() {
-        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
                 WindowSizeClass(700, 800),
                 Posture(hingeList = hingeList)

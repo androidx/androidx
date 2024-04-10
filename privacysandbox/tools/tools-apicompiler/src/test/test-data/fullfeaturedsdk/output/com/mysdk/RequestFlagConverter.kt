@@ -5,8 +5,10 @@ import android.content.Context
 public class RequestFlagConverter(
     public val context: Context,
 ) {
+    private val enumValues: List<RequestFlag> = RequestFlag.values().toList()
+
     public fun fromParcelable(parcelable: ParcelableRequestFlag): RequestFlag =
-            RequestFlag.entries[parcelable.variant_ordinal]
+            enumValues[parcelable.variant_ordinal]
 
     public fun toParcelable(annotatedValue: RequestFlag): ParcelableRequestFlag {
         val parcelable = ParcelableRequestFlag()

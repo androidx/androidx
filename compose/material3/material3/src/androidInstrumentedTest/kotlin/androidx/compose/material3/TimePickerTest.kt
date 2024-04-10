@@ -21,6 +21,8 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.text.format.DateFormat
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration

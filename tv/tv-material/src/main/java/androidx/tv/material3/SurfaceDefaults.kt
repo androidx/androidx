@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
@@ -32,7 +33,7 @@ object NonInteractiveSurfaceDefaults {
     /**
      * Represents the default shape used by a non-interactive [Surface]
      */
-    val shape: Shape @ReadOnlyComposable @Composable get() = MaterialTheme.shapes.medium
+    val shape: Shape @ReadOnlyComposable @Composable get() = RectangleShape
 
     /**
      * Creates a [NonInteractiveSurfaceColors] that represents the default container & content

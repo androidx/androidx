@@ -372,7 +372,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
+                keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag)
@@ -395,7 +395,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
+                keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag)
@@ -715,13 +715,13 @@ internal class BasicTextFieldTest {
     @Test
     fun textField_changesAreTracked_whenInputConnectionCommits() {
         val state = TextFieldState()
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -732,22 +732,22 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.withInputConnection { commitText("hello") }
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 5))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0, 0))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(0, 0))
         }
     }
 
     @Test
     fun textField_changesAreTracked_whenInputConnectionComposes() {
         val state = TextFieldState()
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -758,22 +758,22 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.withInputConnection { setComposingText("hello", 1) }
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 5))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(0))
         }
     }
 
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletes() {
         val state = TextFieldState("hello")
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -790,22 +790,22 @@ internal class BasicTextFieldTest {
         }
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(4, 4))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(4, 4))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
         }
     }
 
     @Test
     fun textField_changesAreTracked_whenInputConnectionDeletesViaComposition() {
         val state = TextFieldState("hello")
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -821,22 +821,22 @@ internal class BasicTextFieldTest {
         }
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(1, 1))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(1, 5))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(1, 1))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(1, 5))
         }
     }
 
     @Test
     fun textField_changesAreTracked_whenKeyEventInserts() {
         val state = TextFieldState()
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -847,22 +847,22 @@ internal class BasicTextFieldTest {
         rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 1))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(0, 1))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(0))
         }
     }
 
     @Test
     fun textField_changesAreTracked_whenKeyEventDeletes() {
         val state = TextFieldState("hello")
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -873,22 +873,22 @@ internal class BasicTextFieldTest {
         rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.Backspace) }
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(4, 4))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(4, 4))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(4, 5))
         }
     }
 
     @Test
     fun textField_changesAreTracked_whenSemanticsActionInserts() {
         val state = TextFieldState()
-        lateinit var changes: ChangeList
+        lateinit var changeList: ChangeList
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 state = state,
-                inputTransformation = { _, new ->
-                    if (new.changes.changeCount > 0) {
-                        changes = new.changes
+                inputTransformation = {
+                    if (changes.changeCount > 0) {
+                        changeList = changes
                     }
                 },
                 modifier = Modifier.testTag(Tag),
@@ -898,9 +898,9 @@ internal class BasicTextFieldTest {
         rule.onNodeWithTag(Tag).performTextInput("hello")
 
         rule.runOnIdle {
-            assertThat(changes.changeCount).isEqualTo(1)
-            assertThat(changes.getRange(0)).isEqualTo(TextRange(0, 5))
-            assertThat(changes.getOriginalRange(0)).isEqualTo(TextRange(0))
+            assertThat(changeList.changeCount).isEqualTo(1)
+            assertThat(changeList.getRange(0)).isEqualTo(TextRange(0, 5))
+            assertThat(changeList.getOriginalRange(0)).isEqualTo(TextRange(0))
         }
     }
 
@@ -1134,7 +1134,7 @@ internal class BasicTextFieldTest {
         rule.waitForIdle()
 
         assertThat(tfs.text.toString()).isEqualTo(longText)
-        assertThat(tfs.text.selection).isEqualTo(TextRange(longText.length))
+        assertThat(tfs.selection).isEqualTo(TextRange(longText.length))
     }
 
     @Test
@@ -1155,7 +1155,7 @@ internal class BasicTextFieldTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.text.selection).isEqualTo(TextRange(0, 5))
+            assertThat(state.selection).isEqualTo(TextRange(0, 5))
             assertThat(imm.expectCall("updateSelection(0, 5, -1, -1)"))
         }
     }
@@ -1230,7 +1230,7 @@ internal class BasicTextFieldTest {
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Worldo")
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
         }
     }
 
@@ -1349,20 +1349,14 @@ internal class BasicTextFieldTest {
     }
 
     private object RejectAllTextFilter : InputTransformation {
-        override fun transformInput(
-            originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBuffer
-        ) {
-            valueWithChanges.revertAllChanges()
+        override fun TextFieldBuffer.transformInput() {
+            revertAllChanges()
         }
     }
 
     private class KeyboardOptionsFilter(override val keyboardOptions: KeyboardOptions) :
         InputTransformation {
-        override fun transformInput(
-            originalValue: TextFieldCharSequence,
-            valueWithChanges: TextFieldBuffer
-        ) {
+        override fun TextFieldBuffer.transformInput() {
             // Noop
         }
     }

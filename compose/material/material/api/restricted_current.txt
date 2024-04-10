@@ -374,10 +374,16 @@ package androidx.compose.material {
   }
 
   public final class DrawerDefaults {
+    method public androidx.compose.animation.core.TweenSpec<java.lang.Float> getAnimationSpec();
+    method @androidx.compose.runtime.Composable public long getBackgroundColor();
     method public float getElevation();
     method @androidx.compose.runtime.Composable public long getScrimColor();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    property public final androidx.compose.animation.core.TweenSpec<java.lang.Float> AnimationSpec;
     property public final float Elevation;
+    property @androidx.compose.runtime.Composable public final long backgroundColor;
     property @androidx.compose.runtime.Composable public final long scrimColor;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.compose.material.DrawerDefaults INSTANCE;
     field public static final float ScrimOpacity = 0.32f;
   }

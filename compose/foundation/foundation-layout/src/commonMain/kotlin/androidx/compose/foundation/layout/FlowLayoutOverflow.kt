@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -718,7 +719,9 @@ internal data class FlowLayoutOverflowState internal constructor(
     internal var itemShown: Int = -1
     internal var itemCount = 0
     private var seeMoreMeasurable: Measurable? = null
+    private var seeMorePlaceable: Placeable? = null
     private var collapseMeasurable: Measurable? = null
+    private var collapsePlaceable: Placeable? = null
     private var seeMoreSize: IntIntPair? = null
     private var collapseSize: IntIntPair? = null
     // for contextual flow row
@@ -750,42 +753,46 @@ internal data class FlowLayoutOverflowState internal constructor(
         }
     }
 
-    internal fun ellipsis(
+    internal fun ellipsisInfo(
         hasNext: Boolean,
         lineIndex: Int,
-        getFinalMeasurable: Boolean,
         totalCrossAxisSize: Int
-    ): Measurable? {
+    ): FlowLayoutBuildingBlocks.WrapEllipsisInfo? {
         return when (type) {
             FlowLayoutOverflow.OverflowType.Visible -> null
             FlowLayoutOverflow.OverflowType.Clip -> null
             FlowLayoutOverflow.OverflowType.ExpandIndicator,
             FlowLayoutOverflow.OverflowType.ExpandOrCollapseIndicator -> {
+                var measurable: Measurable? = null
+                var placeable: Placeable? = null
+                var ellipsisSize: IntIntPair?
                 if (hasNext) {
-                    if (getFinalMeasurable) {
-                        getOverflowMeasurable?.invoke(
-                            /* isExpandable */ true,
-                            noOfItemsShown
-                        ) ?: seeMoreMeasurable
-                    } else {
-                        seeMoreMeasurable
+                    measurable = getOverflowMeasurable?.invoke(
+                        /* isExpandable */ true, noOfItemsShown
+                    ) ?: seeMoreMeasurable
+                    ellipsisSize = seeMoreSize
+                    if (getOverflowMeasurable == null) {
+                        placeable = seeMorePlaceable
                     }
                 } else {
-                    if (lineIndex < (minLinesToShowCollapse - 1) ||
-                        totalCrossAxisSize < (minCrossAxisSizeToShowCollapse)
-                    ) {
-                        null
-                    } else {
-                        if (getFinalMeasurable) {
-                            getOverflowMeasurable?.invoke(
-                                /* isExpandable */ false,
-                                noOfItemsShown
-                            ) ?: collapseMeasurable
-                        } else {
-                            collapseMeasurable
-                        }
+                    if (lineIndex >= (minLinesToShowCollapse - 1) &&
+                        totalCrossAxisSize >= (minCrossAxisSizeToShowCollapse)
+                     ) {
+                        measurable = getOverflowMeasurable?.invoke(
+                            /* isExpandable */ false, noOfItemsShown
+                        ) ?: collapseMeasurable
+                    }
+                    ellipsisSize = collapseSize
+                    if (getOverflowMeasurable == null) {
+                        placeable = collapsePlaceable
                     }
                 }
+                measurable ?: return null
+                FlowLayoutBuildingBlocks.WrapEllipsisInfo(
+                    measurable,
+                    placeable,
+                    ellipsisSize!!
+                )
             }
         }
     }
@@ -793,35 +800,90 @@ internal data class FlowLayoutOverflowState internal constructor(
     internal fun setOverflowMeasurables(
         seeMoreMeasurable: IntrinsicMeasurable?,
         collapseMeasurable: IntrinsicMeasurable?,
-        orientation: LayoutOrientation,
+        isHorizontal: Boolean,
         constraints: Constraints,
     ) {
+        val orientation = if (isHorizontal)
+            LayoutOrientation.Horizontal else LayoutOrientation.Vertical
         val orientationIndependentConstraints =
             OrientationIndependentConstraints(constraints, orientation)
         seeMoreMeasurable?.let { item ->
             val mainAxisSize = item.mainAxisMin(
-                orientation,
+                isHorizontal,
                 orientationIndependentConstraints.crossAxisMax
             )
-            val crossAxisSize = item.crossAxisMin(orientation,
+            val crossAxisSize = item.crossAxisMin(isHorizontal,
                 mainAxisSize
             )
             this.seeMoreSize = IntIntPair(mainAxisSize, crossAxisSize)
             this.seeMoreMeasurable = item as? Measurable
+            this.seeMorePlaceable = null
         }
         collapseMeasurable?.let { item ->
             val mainAxisSize = item.mainAxisMin(
-                orientation,
+                isHorizontal,
                 orientationIndependentConstraints.crossAxisMax
             )
-            val crossAxisSize = item.crossAxisMin(orientation, mainAxisSize)
+            val crossAxisSize = item.crossAxisMin(isHorizontal, mainAxisSize)
             this.collapseSize = IntIntPair(mainAxisSize, crossAxisSize)
             this.collapseMeasurable = item as? Measurable
+            this.collapsePlaceable = null
         }
     }
 
     internal fun setOverflowMeasurables(
-        orientation: LayoutOrientation,
+        measurePolicy: FlowLineMeasurePolicy,
+        seeMoreMeasurable: Measurable?,
+        collapseMeasurable: Measurable?,
+        constraints: Constraints,
+    ) {
+        val isHorizontal = measurePolicy.isHorizontal
+        val orientation = if (isHorizontal)
+            LayoutOrientation.Horizontal else LayoutOrientation.Vertical
+        val orientationIndependentConstraints =
+            OrientationIndependentConstraints(constraints, orientation)
+                .copy(mainAxisMin = 0, crossAxisMin = 0)
+        val finalConstraints = orientationIndependentConstraints.toBoxConstraints(orientation)
+        seeMoreMeasurable?.let { item ->
+            item.measureAndCache(
+                measurePolicy,
+                finalConstraints
+            ) { placeable ->
+                var mainAxisSize = 0
+                var crossAxisSize = 0
+                placeable?.let {
+                    with(measurePolicy) {
+                        mainAxisSize = placeable.mainAxisSize()
+                        crossAxisSize = placeable.crossAxisSize()
+                    }
+                }
+                seeMoreSize = IntIntPair(mainAxisSize, crossAxisSize)
+                seeMorePlaceable = placeable
+            }
+            this.seeMoreMeasurable = item
+        }
+        collapseMeasurable?.let { item ->
+            item.measureAndCache(
+                measurePolicy,
+                finalConstraints
+            ) { placeable ->
+                var mainAxisSize = 0
+                var crossAxisSize = 0
+                placeable?.let {
+                    with(measurePolicy) {
+                        mainAxisSize = placeable.mainAxisSize()
+                        crossAxisSize = placeable.crossAxisSize()
+                    }
+                }
+                this.collapseSize = IntIntPair(mainAxisSize, crossAxisSize)
+                collapsePlaceable = placeable
+            }
+            this.collapseMeasurable = item
+        }
+    }
+
+    internal fun setOverflowMeasurables(
+        measurePolicy: FlowLineMeasurePolicy,
         constraints: Constraints,
         getOverflowMeasurable: ((isExpandable: Boolean, numberOfItemsShown: Int) -> Measurable?)
     ) {
@@ -834,9 +896,9 @@ internal data class FlowLayoutOverflowState internal constructor(
             /* isExpandable */ false, /* numberOfItemsShown */ 0
         )
         setOverflowMeasurables(
+            measurePolicy,
             seeMoreMeasurable,
             collapseMeasurable,
-            orientation,
             constraints
         )
     }

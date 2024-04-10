@@ -1387,7 +1387,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
         zoomRatio =
             (zoomRatio * scaleFactor).coerceIn(
-                1.0f,
+                ZoomUtil.minZoom(cameraManager.getCameraCharacteristics(currentCameraId)),
                 ZoomUtil.maxZoom(cameraManager.getCameraCharacteristics(currentCameraId))
             )
         Log.d(TAG, "onScale: $zoomRatio")
@@ -1428,8 +1428,11 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             return availableCaptureRequestKeys.contains(CaptureRequest.CONTROL_ZOOM_RATIO)
         }
 
+        fun minZoom(characteristics: CameraCharacteristics): Float =
+            characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)?.lower ?: 1.0f
+
         fun maxZoom(characteristics: CameraCharacteristics): Float =
-            characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1.0f
+            characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)?.upper ?: 1.0f
     }
 }
 

@@ -28,7 +28,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
-import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
@@ -79,7 +78,7 @@ fun BasicTextFieldOutputTransformationDemos() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InsertReplaceDeleteDemo() {
-    val text = remember { TextFieldState("abc def ghi") }
+    val state = remember { TextFieldState("abc def ghi") }
     var prefixEnabled by remember { mutableStateOf(true) }
     var suffixEnabled by remember { mutableStateOf(true) }
     var middleWedge by remember { mutableStateOf(true) }
@@ -136,7 +135,7 @@ private fun InsertReplaceDeleteDemo() {
         }
         var isFirstFieldFocused by remember { mutableStateOf(false) }
         BasicTextField(
-            state = text,
+            state = state,
             onTextLayout = { textLayoutResultProvider = it },
             modifier = Modifier
                 .alignByBaseline()
@@ -149,7 +148,7 @@ private fun InsertReplaceDeleteDemo() {
                     // Only draw selection outline when not focused.
                     if (isFirstFieldFocused) return@drawWithContent
                     val textLayoutResult = textLayoutResultProvider() ?: return@drawWithContent
-                    val selection = text.text.selection
+                    val selection = state.selection
                     if (selection.collapsed) {
                         val cursorRect = textLayoutResult.getCursorRect(selection.start)
                         drawLine(
@@ -175,7 +174,7 @@ private fun InsertReplaceDeleteDemo() {
             modifier = Modifier.alignBy { (it.measuredHeight * 0.75f).toInt() }
         )
         BasicTextField(
-            state = text,
+            state = state,
             modifier = Modifier
                 .alignByBaseline()
                 .weight(0.5f)
@@ -257,12 +256,9 @@ private data class PhoneNumberOutputTransformation(
 
 @OptIn(ExperimentalFoundationApi::class)
 private object OnlyDigitsFilter : InputTransformation {
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
-        if ("""\D""".toRegex().containsMatchIn(valueWithChanges.asCharSequence())) {
-            valueWithChanges.revertAllChanges()
+    override fun TextFieldBuffer.transformInput() {
+        if ("""\D""".toRegex().containsMatchIn(asCharSequence())) {
+            revertAllChanges()
         }
     }
 }

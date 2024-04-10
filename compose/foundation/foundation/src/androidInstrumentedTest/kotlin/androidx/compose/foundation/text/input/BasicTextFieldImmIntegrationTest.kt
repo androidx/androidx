@@ -220,11 +220,11 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { _, new ->
+                inputTransformation = {
                     // Force the selection not to change.
-                    val initialSelection = new.selection
-                    new.append("world")
-                    new.selection = initialSelection
+                    val initialSelection = selection
+                    append("world")
+                    selection = initialSelection
                 }
             )
         }
@@ -252,10 +252,10 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { _, new ->
-                    val initialSelection = new.selection
-                    new.append("world")
-                    new.selection = initialSelection
+                inputTransformation = {
+                    val initialSelection = selection
+                    append("world")
+                    selection = initialSelection
                 }
             )
         }
@@ -278,7 +278,7 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { _, new -> new.selectAll() }
+                inputTransformation = { selectAll() }
             )
         }
         requestFocus(Tag)
@@ -428,11 +428,8 @@ internal class BasicTextFieldImmIntegrationTest {
                     override val keyboardOptions: KeyboardOptions =
                         KeyboardOptions(keyboardType = KeyboardType.Password)
 
-                    override fun transformInput(
-                        originalValue: TextFieldCharSequence,
-                        valueWithChanges: TextFieldBuffer
-                    ) {
-                        valueWithChanges.append('A')
+                    override fun TextFieldBuffer.transformInput() {
+                        append('A')
                     }
                 }
             )

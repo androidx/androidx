@@ -38,13 +38,11 @@ import sqlite3.sqlite3_open_v2
 //    (b/307917398) more open flags
 //    (b/304295573) busy handler registering
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-class NativeSQLiteDriver(
-    private val filename: String
-) : SQLiteDriver {
-    override fun open(): SQLiteConnection = memScoped {
+class NativeSQLiteDriver : SQLiteDriver {
+    override fun open(fileName: String): SQLiteConnection = memScoped {
         val dbPointer = allocPointerTo<sqlite3>()
         val resultCode = sqlite3_open_v2(
-            filename = filename,
+            filename = fileName,
             ppDb = dbPointer.ptr,
             flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE,
             zVfs = null

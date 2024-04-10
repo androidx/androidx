@@ -19,7 +19,6 @@ package androidx.core.view
 import android.app.Dialog
 import android.os.Build
 import android.view.View
-import android.view.WindowInsetsController
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.EditText
 import android.widget.TextView
@@ -27,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.test.R
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
@@ -76,7 +76,7 @@ public class WindowInsetsControllerCompatActivityTest {
 
         scenario.withActivity {
             WindowCompat.getInsetsController(window, container).systemBarsBehavior =
-                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             // Needed on API 23 to report the nav bar insets
             this.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         }
@@ -234,6 +234,33 @@ public class WindowInsetsControllerCompatActivityTest {
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
+    public fun initial_statusBar_light() {
+        // Set the flag with the systemUiVisibility flags even on newer APIs to emulate this value
+        // being set in the theme
+        scenario.onActivity {
+            it.window.decorView.systemUiVisibility =
+                it.window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+        Espresso.onIdle()
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public fun initial_statusBar_dark() {
+        // Set the flag with the systemUiVisibility flags even on newer APIs to emulate this value
+        // being set in the theme
+        scenario.onActivity {
+            it.window.decorView.systemUiVisibility =
+                it.window.decorView.systemUiVisibility and
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+        }
+        Espresso.onIdle()
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(false))
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
     public fun statusBar_light() {
         scenario.onActivity { windowInsetsController.setAppearanceLightStatusBars(true) }
         if (Build.VERSION.SDK_INT < 31) {
@@ -265,6 +292,33 @@ public class WindowInsetsControllerCompatActivityTest {
             assertThat(systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR, equalTo(0))
         }
         assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(false))
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public fun initial_navigationBar_light() {
+        // Set the flag with the systemUiVisibility flags even on newer APIs to emulate this value
+        // being set in the theme
+        scenario.onActivity {
+            it.window.decorView.systemUiVisibility =
+                it.window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+        }
+        Espresso.onIdle()
+        assertThat(windowInsetsController.isAppearanceLightNavigationBars(), `is`(true))
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    public fun initial_navigationBar_dark() {
+        // Set the flag with the systemUiVisibility flags even on newer APIs to emulate this value
+        // being set in the theme
+        scenario.onActivity {
+            it.window.decorView.systemUiVisibility =
+                it.window.decorView.systemUiVisibility and
+                    View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+        }
+        Espresso.onIdle()
+        assertThat(windowInsetsController.isAppearanceLightNavigationBars(), `is`(false))
     }
 
     @SdkSuppress(minSdkVersion = 26)

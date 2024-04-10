@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
+<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
 
     <issue
         id="UnspecifiedRegisterReceiverFlag"
@@ -168,6 +168,96 @@
         message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
         errorLine1="            @NonNull ResourceProto.Resources resources,"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="        @Nullable private final LayoutElementProto.Layout mLayout;"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="        @Nullable private final ResourceProto.Resources mResources;"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                @Nullable LayoutElementProto.Layout layout,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="                @Nullable ResourceProto.Resources resources) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="        public LayoutElementProto.Layout getLayout() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="        public ResourceProto.Resources getResources() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="            @Nullable private LayoutElementProto.Layout mLayout;"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="            @Nullable private ResourceProto.Resources mResources;"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="            public Builder setLayout(@NonNull LayoutElementProto.Layout layout) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
+        errorLine1="            public Builder setResources(@NonNull ResourceProto.Resources resources) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>

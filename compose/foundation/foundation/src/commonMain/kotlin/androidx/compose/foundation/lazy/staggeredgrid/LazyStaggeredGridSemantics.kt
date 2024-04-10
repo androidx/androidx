@@ -46,9 +46,8 @@ internal fun rememberLazyStaggeredGridSemanticState(
                     state.canScrollForward
                 )
 
-            override suspend fun animateScrollBy(delta: Float) {
+            override suspend fun animateScrollBy(delta: Float): Float =
                 state.animateScrollBy(delta)
-            }
 
             override suspend fun scrollToItem(index: Int) {
                 state.scrollToItem(index)

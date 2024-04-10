@@ -94,10 +94,8 @@ actual constructor(
      *
      * This function should be called after any write operation is performed on the database,
      * such that tracked tables and its associated observers are notified if invalidated.
-     *
-     * @see sync
      */
-    internal actual fun refreshAsync() {
+    actual fun refreshAsync() {
         implementation.refreshInvalidationAsync()
     }
 

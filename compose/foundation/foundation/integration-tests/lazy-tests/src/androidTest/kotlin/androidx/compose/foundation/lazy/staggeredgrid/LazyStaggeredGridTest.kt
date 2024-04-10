@@ -23,6 +23,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
@@ -2271,5 +2272,28 @@ class LazyStaggeredGridTest(
         rule.onNodeWithTag("13")
             .assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp)
             .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun fixedCells_withSpacing_notEnoughSpace() {
+        state = LazyStaggeredGridState()
+        rule.setContent {
+            Box(Modifier.size(itemSizeDp)) {
+                LazyStaggeredGrid(
+                    modifier = Modifier.mainAxisSize(itemSizeDp * 5),
+                    state = state,
+                    lanes = 2,
+                    crossAxisArrangement = Arrangement.spacedBy(itemSizeDp * 2)
+                ) {
+                    items(20) {
+                        Spacer(
+                            Modifier
+                                .mainAxisSize(itemSizeDp)
+                                .testTag("$it")
+                        )
+                    }
+                }
+            }
+        }
     }
 }

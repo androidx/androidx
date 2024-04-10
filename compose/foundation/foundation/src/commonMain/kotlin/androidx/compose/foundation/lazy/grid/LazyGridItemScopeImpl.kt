@@ -36,7 +36,7 @@ private data class AnimateItemElement(
 ) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
     override fun create(): LazyLayoutAnimationSpecsNode =
-        LazyLayoutAnimationSpecsNode(null, placementSpec)
+        LazyLayoutAnimationSpecsNode(null, placementSpec, null)
 
     override fun update(node: LazyLayoutAnimationSpecsNode) {
         node.placementSpec = placementSpec

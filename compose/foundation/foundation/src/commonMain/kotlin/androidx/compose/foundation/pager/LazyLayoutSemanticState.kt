@@ -30,9 +30,7 @@ internal fun LazyLayoutSemanticState(
     override val maxScrollOffset: Float
         get() = state.layoutInfo.calculateNewMaxScrollOffset(state.pageCount).toFloat()
 
-    override suspend fun animateScrollBy(delta: Float) {
-        state.animateScrollBy(delta)
-    }
+    override suspend fun animateScrollBy(delta: Float): Float = state.animateScrollBy(delta)
 
     override suspend fun scrollToItem(index: Int) {
         state.scrollToPage(index)

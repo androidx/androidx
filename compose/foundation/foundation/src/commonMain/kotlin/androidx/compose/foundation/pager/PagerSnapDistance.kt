@@ -34,8 +34,8 @@ interface PagerSnapDistance {
      * will be the page that will be correctly positioned (snapped) after naturally decaying with
      * [velocity] using a [DecayAnimationSpec].
      * @param velocity The initial fling velocity.
-     * @param pageSize The page size for this [Pager].
-     * @param pageSpacing The spacing used between pages.
+     * @param pageSize The page size for this [Pager] in pixels.
+     * @param pageSpacing The spacing used between pages in pixels.
      *
      * @return An updated target page where to settle. Note that this value needs to be between 0
      * and the total count of pages in this pager. If an invalid value is passed, the pager will

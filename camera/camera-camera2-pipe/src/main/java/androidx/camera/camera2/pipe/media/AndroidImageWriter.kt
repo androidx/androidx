@@ -44,7 +44,12 @@ class AndroidImageWriter private constructor(
     override val format: Int = imageWriter.format
 
     override fun queueInputImage(image: ImageWrapper) {
-        imageWriter.queueInputImage(image.unwrapAs(Image::class))
+        try {
+            imageWriter.queueInputImage(image.unwrapAs(Image::class))
+        } catch (e: Exception) {
+            image.close()
+            Log.warn { "Reprocessing failed due to error: ${e.message}. Closing image.}" }
+        }
     }
 
     override fun dequeueInputImage(): ImageWrapper {
@@ -71,8 +76,7 @@ class AndroidImageWriter private constructor(
     }
 
     override fun toString(): String {
-        return "ImageWriter-${StreamFormat(imageWriter.format).name}-" +
-            "inputStreamId$inputStreamId"
+        return "ImageWriter-${StreamFormat(imageWriter.format).name}-$inputStreamId"
     }
 
     companion object {

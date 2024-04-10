@@ -21,12 +21,11 @@ import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestActivity
 import androidx.compose.foundation.content.DragAndDropScope
-import androidx.compose.foundation.content.MediaType
 import androidx.compose.foundation.content.ReceiveContentListener
 import androidx.compose.foundation.content.TransferableContent
-import androidx.compose.foundation.content.consumeEach
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.createClipData
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.content.testDragAndDrop
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -78,22 +77,9 @@ class TextFieldDragAndDropTest {
     @Test
     fun nonTextContent_isNotAccepted() {
         rule.setContentAndTestDragAndDrop {
-            val startSelection = state.text.selection
+            val startSelection = state.selection
             drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
-            assertThat(state.text.selection).isEqualTo(startSelection)
-        }
-    }
-
-    @Test
-    fun nonTextContent_isAcceptedIfReceiveContentDefined() {
-        rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
-                null
-            }
-        ) {
-            val accepted = drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
-            assertThat(accepted).isTrue()
-            assertThat(state.text.selection).isEqualTo(TextRange(2))
+            assertThat(state.selection).isEqualTo(startSelection)
         }
     }
 
@@ -101,7 +87,7 @@ class TextFieldDragAndDropTest {
     fun textContent_isAccepted() {
         rule.setContentAndTestDragAndDrop {
             drag(Offset(fontSize.toPx() * 2, 10f), "hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(2))
+            assertThat(state.selection).isEqualTo(TextRange(2))
         }
     }
 
@@ -109,27 +95,27 @@ class TextFieldDragAndDropTest {
     fun draggingText_updatesSelection() {
         rule.setContentAndTestDragAndDrop {
             drag(Offset(fontSize.toPx() * 1, 10f), "hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(1))
+            assertThat(state.selection).isEqualTo(TextRange(1))
             drag(Offset(fontSize.toPx() * 2, 10f), "hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(2))
+            assertThat(state.selection).isEqualTo(TextRange(2))
             drag(Offset(fontSize.toPx() * 3, 10f), "hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(3))
+            assertThat(state.selection).isEqualTo(TextRange(3))
         }
     }
 
     @Test
     fun draggingNonText_updatesSelection_withReceiveContent() {
         rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 null
             }
         ) {
             drag(Offset(fontSize.toPx() * 1, 10f), defaultUri)
-            assertThat(state.text.selection).isEqualTo(TextRange(1))
+            assertThat(state.selection).isEqualTo(TextRange(1))
             drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
-            assertThat(state.text.selection).isEqualTo(TextRange(2))
+            assertThat(state.selection).isEqualTo(TextRange(2))
             drag(Offset(fontSize.toPx() * 3, 10f), defaultUri)
-            assertThat(state.text.selection).isEqualTo(TextRange(3))
+            assertThat(state.selection).isEqualTo(TextRange(3))
         }
     }
 
@@ -140,9 +126,9 @@ class TextFieldDragAndDropTest {
             modifier = Modifier.width(300.dp)
         ) {
             drag(Offset.Zero, "hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(0))
+            assertThat(state.selection).isEqualTo(TextRange(0))
             drag(Offset(295.dp.toPx(), 10f), "hello")
-            assertThat(state.text.selection).isEqualTo(TextRange(4))
+            assertThat(state.selection).isEqualTo(TextRange(4))
         }
     }
 
@@ -225,7 +211,7 @@ class TextFieldDragAndDropTest {
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .receiveContent(emptySet(), object : ReceiveContentListener {
+                        .contentReceiver(object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start"
                             }
@@ -298,7 +284,7 @@ class TextFieldDragAndDropTest {
                 Box(
                     modifier = Modifier
                         .size(200.dp)
-                        .receiveContent(emptySet(), object : ReceiveContentListener {
+                        .contentReceiver(object : ReceiveContentListener {
                             override fun onDragStart() {
                                 calls += "start"
                             }
@@ -354,7 +340,7 @@ class TextFieldDragAndDropTest {
                 " Awesome"
             )
             drop()
-            assertThat(state.text.selection).isEqualTo(TextRange("Hello Awesome".length))
+            assertThat(state.selection).isEqualTo(TextRange("Hello Awesome".length))
             assertThat(state.text.toString()).isEqualTo("Hello Awesome World!")
         }
     }
@@ -364,9 +350,9 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 receivedContent = it
-                receivedContent.consumeEach {
+                receivedContent.consume {
                     // do not consume text
                     it.uri != null
                 }
@@ -378,7 +364,7 @@ class TextFieldDragAndDropTest {
             }
             drag(Offset(fontSize.toPx() * 5, 10f), clipData)
             drop()
-            assertThat(state.text.selection).isEqualTo(TextRange("Hello Awesome".length))
+            assertThat(state.selection).isEqualTo(TextRange("Hello Awesome".length))
             assertThat(state.text.toString()).isEqualTo("Hello Awesome World!")
             assertThat(receivedContent.clipEntry.clipData.itemCount).isEqualTo(2)
             assertThat(receivedContent.clipEntry.firstUriOrNull()).isEqualTo(defaultUri)
@@ -390,7 +376,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 receivedContent = it
                 // consume everything
                 null
@@ -402,7 +388,7 @@ class TextFieldDragAndDropTest {
             }
             drag(Offset(fontSize.toPx() * 5, 10f), clipData)
             drop()
-            assertThat(state.text.selection).isEqualTo(TextRange(5))
+            assertThat(state.selection).isEqualTo(TextRange(5))
             assertThat(state.text.toString()).isEqualTo("Hello World!")
             assertThat(receivedContent.clipEntry.clipData.itemCount).isEqualTo(2)
             assertThat(receivedContent.clipEntry.firstUriOrNull()).isEqualTo(defaultUri)
@@ -414,7 +400,7 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(setOf(MediaType("video/*"))) {
+            modifier = Modifier.contentReceiver {
                 receivedContent = it
                 val uri = receivedContent.clipEntry.firstUriOrNull()
                 // replace the content
@@ -436,7 +422,7 @@ class TextFieldDragAndDropTest {
     fun droppedItem_requestsPermission_ifReceiveContent() {
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.receiveContent(emptySet()) { null }
+            modifier = Modifier.contentReceiver { null }
         ) {
             drag(Offset(fontSize.toPx() * 5, 10f), defaultUri)
             drop()

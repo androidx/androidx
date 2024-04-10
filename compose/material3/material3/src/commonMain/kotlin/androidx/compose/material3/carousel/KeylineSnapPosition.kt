@@ -19,15 +19,7 @@ package androidx.compose.material3.carousel
 import androidx.collection.IntIntMap
 import androidx.collection.emptyIntIntMap
 import androidx.collection.mutableIntIntMapOf
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.gestures.TargetedFlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -52,21 +44,21 @@ internal fun calculateSnapPositions(strategy: Strategy?, itemCount: Int): IntInt
     val endStepsSize = endKeylineSteps.size + numOfFocalKeylines
 
     for (itemIndex in 0 until itemCount) {
-        map[itemIndex] = (defaultKeylines.firstFocal.offset -
-            defaultKeylines.firstFocal.size / 2F).roundToInt()
+        map[itemIndex] = (defaultKeylines.firstFocal.unadjustedOffset -
+            strategy.itemMainAxisSize / 2F).roundToInt()
         if (itemIndex < startStepsSize) {
             var startIndex = max(0, startStepsSize - 1 - itemIndex)
             startIndex = min(startKeylineSteps.size - 1, startIndex)
             val startKeylines = startKeylineSteps[startIndex]
-            map[itemIndex] = (startKeylines.firstFocal.offset -
-                startKeylines.firstFocal.size / 2f).roundToInt()
+            map[itemIndex] = (startKeylines.firstFocal.unadjustedOffset -
+                strategy.itemMainAxisSize / 2f).roundToInt()
         }
         if (itemCount > numOfFocalKeylines + 1 && itemIndex >= itemCount - endStepsSize) {
             var endIndex = max(0, itemIndex - itemCount + endStepsSize)
             endIndex = min(endKeylineSteps.size - 1, endIndex)
             val endKeylines = endKeylineSteps[endIndex]
-            map[itemIndex] = (endKeylines.firstFocal.offset -
-                endKeylines.firstFocal.size / 2f).roundToInt()
+            map[itemIndex] = (endKeylines.firstFocal.unadjustedOffset -
+                strategy.itemMainAxisSize / 2f).roundToInt()
         }
     }
     return map
@@ -85,20 +77,3 @@ internal fun KeylineSnapPosition(snapPositions: IntIntMap): SnapPosition =
             return if (snapPositions.size > 0) snapPositions[itemIndex] else 0
         }
     }
-
-@ExperimentalMaterial3Api
-@Composable
-internal fun rememberDecaySnapFlingBehavior(): TargetedFlingBehavior {
-    val splineDecay = rememberSplineBasedDecay<Float>()
-    val decayLayoutInfoProvider = remember {
-        object : SnapLayoutInfoProvider {
-            override fun calculateApproachOffset(initialVelocity: Float): Float {
-                return splineDecay.calculateTargetValue(0f, initialVelocity)
-            }
-
-            override fun calculateSnappingOffset(currentVelocity: Float): Float = 0f
-        }
-    }
-
-    return rememberSnapFlingBehavior(snapLayoutInfoProvider = decayLayoutInfoProvider)
-}

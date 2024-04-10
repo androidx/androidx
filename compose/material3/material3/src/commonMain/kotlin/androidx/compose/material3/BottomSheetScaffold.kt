@@ -27,6 +27,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
+import androidx.compose.material3.internal.DraggableAnchors
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.anchoredDraggable
+import androidx.compose.material3.internal.draggableAnchors
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember

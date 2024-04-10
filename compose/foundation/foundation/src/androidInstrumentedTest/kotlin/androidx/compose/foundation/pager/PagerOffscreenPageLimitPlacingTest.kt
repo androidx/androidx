@@ -47,7 +47,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
             ParameterizedPager(
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.fillMaxSize(),
-                outOfBoundsPageCount = 1,
+                beyondViewportPageCount = 1,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing,
                 contentPadding = it.mainAxisContentPadding
@@ -92,7 +92,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 initialPage = initialIndex,
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.fillMaxSize(),
-                outOfBoundsPageCount = 2,
+                beyondViewportPageCount = 2,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing,
                 contentPadding = it.mainAxisContentPadding
@@ -126,7 +126,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 initialPage = 5,
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.fillMaxSize(),
-                outOfBoundsPageCount = 0,
+                beyondViewportPageCount = 0,
                 orientation = it.orientation,
                 pageSpacing = it.pageSpacing,
                 contentPadding = it.mainAxisContentPadding
@@ -158,14 +158,25 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                 pageCount = { DefaultPageCount },
                 modifier = Modifier.size(pageSizeDp * 1.5f),
                 pageSize = PageSize.Fixed(pageSizeDp),
-                outOfBoundsPageCount = 2,
+                beyondViewportPageCount = it.beyondViewportPageCount,
                 orientation = it.orientation,
-                pageSpacing = it.pageSpacing,
-                contentPadding = it.mainAxisContentPadding
+                pageSpacing = it.pageSpacing
             )
         }
 
-        forEachParameter(ParamsToTest) { param ->
+        val Params = mutableListOf<SingleParamConfig>().apply {
+            for (orientation in TestOrientation) {
+                for (pageSpacing in TestPageSpacing) {
+                    add(SingleParamConfig(
+                        orientation = orientation,
+                        pageSpacing = pageSpacing,
+                        beyondViewportPageCount = 2
+                    ))
+                }
+            }
+        }
+
+        forEachParameter(Params) { param ->
             val lastVisible = pagerState.layoutInfo.visiblePagesInfo.last().index
             // Assert
             rule.runOnIdle {
@@ -184,6 +195,8 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     Truth.assertThat(pagerState.layoutWithMeasurement)
                         .isEqualTo(previousNumberOfRemeasurementPasses)
                 }
+
+                // verify that out of bounds pages are correctly placed
                 param.confirmPageIsInCorrectPosition(
                     pagerState.currentPage,
                     lastVisible + 1,

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 private class ItemFoundInScroll(
     val itemOffset: Int,
@@ -72,26 +73,17 @@ internal interface LazyLayoutAnimateScrollScope {
     val itemCount: Int
 
     /**
-     * The average size of visible items.
-     */
-    val visibleItemsAverageSize: Int
-
-    /**
-     * Retrieves the scroll offset for an item that is currently visible.
-     */
-    fun getVisibleItemScrollOffset(index: Int): Int
-
-    /**
      * Immediately scroll to [index] and settle in [scrollOffset].
      */
     fun ScrollScope.snapToItem(index: Int, scrollOffset: Int)
 
     /**
-     * The "expected" distance to [targetIndex]. This means, how far one needs to scroll to have
-     * [targetIndex] be the [firstVisibleItemIndex] and [firstVisibleItemScrollOffset] be
-     * [targetItemOffset]. In other words, how far one needs to scroll to reach [targetIndex].
+     * The "expected" distance to [targetIndex]. This means the "expected" offset of [targetIndex]
+     * in the layout. In a LazyLayout, non-visible items don't have an actual offset, so this
+     * method should return an approximation of the scroll offset to [targetIndex]. If [targetIndex]
+     * is visible, then an "exact" offset should be provided.
      */
-    fun calculateDistanceTo(targetIndex: Int, targetItemOffset: Int): Float
+    fun calculateDistanceTo(targetIndex: Int): Float
 
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
@@ -127,7 +119,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
             var anim = AnimationState(0f)
 
             if (isItemVisible(index)) {
-                val targetItemInitialOffset = getVisibleItemScrollOffset(index)
+                val targetItemInitialOffset = calculateDistanceTo(index).roundToInt()
                 // It's already visible, just animate directly
                 throw ItemFoundInScroll(targetItemInitialOffset, anim)
             }
@@ -163,7 +155,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
 
             var loops = 1
             while (loop && itemCount > 0) {
-                val expectedDistance = calculateDistanceTo(index, scrollOffset)
+                val expectedDistance = calculateDistanceTo(index) + scrollOffset
                 val target = if (abs(expectedDistance) < targetDistancePx) {
                     val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
                     if (forward) absTargetPx else -absTargetPx
@@ -260,7 +252,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                         cancelAnimation()
                         return@animateTo
                     } else if (isItemVisible(index)) {
-                        val targetItemOffset = getVisibleItemScrollOffset(index)
+                        val targetItemOffset = calculateDistanceTo(index).roundToInt()
                         debugLog { "Found item" }
                         throw ItemFoundInScroll(targetItemOffset, anim)
                     }

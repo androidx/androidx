@@ -18,7 +18,6 @@ package androidx.room.solver.query.result
 
 import androidx.room.AmbiguousColumnResolver
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.DoubleArrayLiteral
@@ -84,24 +83,13 @@ class AmbiguousColumnIndexAdapter(
                     typeName = XTypeName.getArrayName(
                         XTypeName.getArrayName(XTypeName.PRIMITIVE_INT)
                     ),
-                    assignExpr = if (scope.useDriverApi) {
-                        XCodeBlock.of(
-                            language,
-                            "%T.resolve(%M(%L), %L)",
-                            RoomTypeNames.AMBIGUOUS_COLUMN_RESOLVER,
-                            RoomTypeNames.STATEMENT_UTIL.packageMember("getColumnNames"),
-                            cursorVarName,
-                            rowMappings
-                        )
-                    } else {
-                        XCodeBlock.of(
-                            language,
-                            "%T.resolve(%L.getColumnNames(), %L)",
-                            RoomTypeNames.AMBIGUOUS_COLUMN_RESOLVER,
-                            cursorVarName,
-                            rowMappings
-                        )
-                    }
+                    assignExpr = XCodeBlock.of(
+                        language,
+                        "%T.resolve(%L.getColumnNames(), %L)",
+                        RoomTypeNames.AMBIGUOUS_COLUMN_RESOLVER,
+                        cursorVarName,
+                        rowMappings
+                    )
                 )
             }
         }

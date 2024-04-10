@@ -3148,7 +3148,7 @@ public class AppSearchCompilerTest {
                         + "  @Document.BuilderProducer int getBuilder;\n"
                         + "}\n");
         assertThat(compilation).hadErrorContaining(
-                "annotation type not applicable to this kind of declaration");
+                "annotation interface not applicable to this kind of declaration");
 
         // Missing a setter in the builder
         compilation = compile(

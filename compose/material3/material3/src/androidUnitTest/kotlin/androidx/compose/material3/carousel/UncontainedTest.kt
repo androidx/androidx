@@ -16,12 +16,14 @@
 
 package androidx.compose.material3.carousel
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.unit.Density
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RunWith(JUnit4::class)
 class UncontainedTest {
 
@@ -39,10 +41,12 @@ class UncontainedTest {
         )
         val strategy = Strategy { _, _ -> keylineList }.apply(
             availableSpace = carouselSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
         val keylines = strategy.defaultKeylines
-        val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
+        val anchorSize = with(Density) { CarouselDefaults.AnchorSize.toPx() }
 
         // A fullscreen layout should be [xSmall-large-xSmall] where the xSmall items are
         // outside the bounds of the carousel container and the large item takes up the
@@ -65,10 +69,12 @@ class UncontainedTest {
         )
         val strategy = Strategy { _, _ -> keylineList }.apply(
             availableSpace = carouselSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
         val keylines = strategy.defaultKeylines
-        val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
+        val anchorSize = with(Density) { CarouselDefaults.AnchorSize.toPx() }
 
         // The layout should be [xSmall-large-xSmall] where the xSmall items are
         // outside the bounds of the carousel container and the large item takes up the
@@ -94,10 +100,12 @@ class UncontainedTest {
         )
         val strategy = Strategy { _, _ -> keylineList }.apply(
             availableSpace = carouselSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
         val keylines = strategy.defaultKeylines
-        val rightAnchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
+        val rightAnchorSize = with(Density) { CarouselDefaults.AnchorSize.toPx() }
 
         // The layout should be [xSmall-large-large-large-medium-xSmall] where medium is a size
         // such that a third of it is cut off.
@@ -132,10 +140,12 @@ class UncontainedTest {
         )
         val strategy = Strategy { _, _ -> keylineList }.apply(
             availableSpace = carouselSize,
-            itemSpacing = 0f
+            itemSpacing = 0f,
+            beforeContentPadding = 0f,
+            afterContentPadding = 0f
         )
         val keylines = strategy.defaultKeylines
-        val rightAnchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
+        val rightAnchorSize = with(Density) { CarouselDefaults.AnchorSize.toPx() }
 
         // The layout should be [xSmall-large-large-large-medium-xSmall]
         assertThat(keylines.size).isEqualTo(6)

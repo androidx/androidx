@@ -141,6 +141,7 @@ package androidx.room {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void addWeakObserver(androidx.room.InvalidationTracker.Observer observer);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String[] tableNames, boolean inTransaction, java.util.concurrent.Callable<T?> computeFunction);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T> createLiveData(String[] tableNames, java.util.concurrent.Callable<T?> computeFunction);
+    method public final void refreshAsync();
     method public void refreshVersionsAsync();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
     method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer observer);
@@ -288,6 +289,8 @@ package androidx.room {
 
   public final class RoomDatabaseKt {
     method public static kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> invalidationTrackerFlow(androidx.room.RoomDatabase, String[] tables, optional boolean emitInitialState);
+    method public static suspend <R> Object? useReaderConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? useWriterConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
@@ -497,7 +500,6 @@ package androidx.room.util {
 
   public final class SQLiteStatementUtil {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndexOrThrow(androidx.sqlite.SQLiteStatement stmt, String name);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static String[] getColumnNames(androidx.sqlite.SQLiteStatement statement);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {
@@ -512,7 +514,7 @@ package androidx.room.util {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TableInfo {
     ctor @Deprecated public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys);
-    ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys, java.util.Set<androidx.room.util.TableInfo.Index>? indices);
+    ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column> columns, java.util.Set<androidx.room.util.TableInfo.ForeignKey> foreignKeys, optional java.util.Set<androidx.room.util.TableInfo.Index>? indices);
     method @Deprecated public static androidx.room.util.TableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
     method public static androidx.room.util.TableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
     field public static final int CREATED_FROM_DATABASE = 2; // 0x2

@@ -100,7 +100,7 @@ private fun ShowKeyboardOnFocus(showKeyboardOnFocus: Boolean) {
             modifier = demoTextFieldModifiers.focusRequester(focusRequester),
             state = state,
             keyboardOptions = KeyboardOptions(
-                shouldShowKeyboardOnFocus = showKeyboardOnFocus
+                showKeyboardOnFocus = showKeyboardOnFocus
             )
         )
         Button(onClick = { focusRequester.requestFocus() }) {

@@ -58,6 +58,14 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
     it.pluginClasspath.from(configurations.testPlugin)
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.javaLauncher = javaToolchains.launcherFor {
+        // Test on JDK 17 which supports lower versions of AGP. This can be removed
+        // once we move to AGP 8.2.1+
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 gradlePlugin {
     plugins {
         safeargsJava {
