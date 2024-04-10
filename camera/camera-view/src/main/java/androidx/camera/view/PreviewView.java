@@ -85,6 +85,7 @@ import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.OutputTransform;
 import androidx.camera.viewfinder.core.ZoomGestureDetector;
+import androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -326,10 +327,10 @@ public final class PreviewView extends FrameLayout {
         }
 
         mZoomGestureDetector = new ZoomGestureDetector(context,
-                (type, detector) -> {
-                    if (type == ZoomGestureDetector.ZOOM_GESTURE_MOVE
-                            && mCameraController != null) {
-                        mCameraController.onPinchToZoom(detector.getScaleFactor());
+                zoomEvent -> {
+                    if (zoomEvent instanceof ZoomEvent.Move && mCameraController != null) {
+                        mCameraController.onPinchToZoom(
+                                ((ZoomEvent.Move) zoomEvent).getScaleFactor());
                     }
                     return true;
                 });
