@@ -20,7 +20,10 @@ import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,7 +31,10 @@ import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +44,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var currentFragment: BaseFragment
+    private lateinit var webViewToggleButton: SwitchMaterial
+    private lateinit var contentFromAssetsToggleButton: SwitchMaterial
+    private lateinit var mediationDropDownMenu: Spinner
+    @AdType private var adType = AdType.NON_WEBVIEW
+    @MediationOption private var sdkType = MediationOption.NON_MEDIATED
 
     // TODO(b/257429573): Remove this line once fixed.
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
@@ -46,9 +57,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         drawerLayout = findViewById(R.id.drawer)
         navigationView = findViewById(R.id.navigation_view)
+        contentFromAssetsToggleButton = findViewById(R.id.content_from_assets_switch)
+        webViewToggleButton = findViewById(R.id.load_webview)
+        mediationDropDownMenu = findViewById(R.id.mediation_dropdown_menu)
 
         sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
-
         Log.i(TAG, "Loading SDK")
         CoroutineScope(Dispatchers.Default).launch {
             try {
@@ -65,7 +78,10 @@ class MainActivity : AppCompatActivity() {
                         )
                     )
                 }
-                switchContentFragment(MainFragment(), "Main CUJ")
+
+                // TODO(b/337793172): Replace with a default fragment
+                switchContentFragment(ResizeFragment(), "Resize CUJ")
+
                 initializeOptionsButton()
                 initializeDrawer()
             } catch (e: LoadSdkCompatException) {
@@ -78,6 +94,92 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+        initializeWebViewToggleSwitch()
+        initializeContentFromAssetsToggleButton()
+        initializeMediationDropDown()
+    }
+
+    private fun initializeWebViewToggleSwitch() {
+        contentFromAssetsToggleButton.isEnabled = false
+        webViewToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            contentFromAssetsToggleButton.isEnabled = isChecked
+            adType =
+                if (isChecked) {
+                    if (contentFromAssetsToggleButton.isChecked) {
+                        AdType.WEBVIEW_FROM_LOCAL_ASSETS
+                    } else {
+                        AdType.WEBVIEW
+                    }
+                } else {
+                    AdType.NON_WEBVIEW
+                }
+            currentFragment.handleLoadAdFromDrawer(adType, sdkType)
+        }
+    }
+
+    private fun initializeContentFromAssetsToggleButton() {
+        contentFromAssetsToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            adType =
+                if (isChecked) {
+                    AdType.WEBVIEW_FROM_LOCAL_ASSETS
+                } else {
+                    AdType.WEBVIEW
+                }
+            currentFragment.handleLoadAdFromDrawer(adType, sdkType)
+        }
+    }
+
+    private fun initializeMediationDropDown() {
+        // Supply the mediation_option array to the mediationDropDownMenu spinner.
+        ArrayAdapter.createFromResource(
+                applicationContext,
+                R.array.mediation_dropdown_menu_array,
+                android.R.layout.simple_spinner_item
+            )
+            .also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                mediationDropDownMenu.adapter = adapter
+            }
+
+        mediationDropDownMenu.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                var isCalledOnStartingApp = true
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    selectedMediationOptionId: Long
+                ) {
+                    if (isCalledOnStartingApp) {
+                        isCalledOnStartingApp = false
+                        return
+                    }
+                    // Mediation is enabled if Runtime-Runtime Mediation option or Runtime-App
+                    // Mediation
+                    // option is selected.
+                    val appOwnedMediationEnabled =
+                        selectedMediationOptionId == MediationOption.IN_APP_MEDIATEE.toLong()
+                    val mediationEnabled =
+                        (selectedMediationOptionId ==
+                            MediationOption.SDK_RUNTIME_MEDIATEE.toLong() ||
+                            appOwnedMediationEnabled)
+
+                    sdkType =
+                        if (mediationEnabled) {
+                            if (appOwnedMediationEnabled) {
+                                MediationOption.IN_APP_MEDIATEE
+                            } else {
+                                MediationOption.SDK_RUNTIME_MEDIATEE
+                            }
+                        } else {
+                            MediationOption.NON_MEDIATED
+                        }
+                    currentFragment.handleLoadAdFromDrawer(adType, sdkType)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
     }
 
     private fun initializeOptionsButton() {
@@ -111,10 +213,9 @@ class MainActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener {
             val itemId = it.itemId
             when (itemId) {
-                R.id.item_main -> switchContentFragment(MainFragment(), it.title)
+                R.id.item_resize -> switchContentFragment(ResizeFragment(), it.title)
                 R.id.item_pooling_container ->
                     switchContentFragment(PoolingContainerFragment(), it.title)
-                R.id.item_sandbox_death -> switchContentFragment(SandboxDeathFragment(), it.title)
                 else -> {
                     Log.e(TAG, "Invalid fragment option")
                     true
@@ -124,6 +225,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun switchContentFragment(fragment: BaseFragment, title: CharSequence?): Boolean {
+        webViewToggleButton.isEnabled = true
+        contentFromAssetsToggleButton.isEnabled = webViewToggleButton.isChecked
         drawerLayout.closeDrawers()
         supportFragmentManager
             .beginTransaction()
