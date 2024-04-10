@@ -21,6 +21,7 @@ import android.view.inputmethod.DeleteGesture
 import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InsertGesture
 import android.view.inputmethod.JoinOrSplitGesture
 import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
@@ -66,6 +67,8 @@ internal object HandwritingGestureApi34 {
                 performDeleteRangeGesture(handwritingGesture, layoutState)
             is JoinOrSplitGesture ->
                 performJoinOrSplitGesture(handwritingGesture, layoutState, viewConfiguration)
+            is InsertGesture ->
+                performInsertGesture(handwritingGesture, layoutState, viewConfiguration)
             else ->
                 InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
@@ -189,6 +192,26 @@ internal object HandwritingGestureApi34 {
     }
 
     @DoNotInline
+    private fun TransformedTextFieldState.performInsertGesture(
+        gesture: InsertGesture,
+        layoutState: TextLayoutState,
+        viewConfiguration: ViewConfiguration?
+    ): Int {
+        val offset = layoutState.getOffsetForHandwritingGesture(
+            pointInScreen = gesture.insertionPoint.toOffset(),
+            viewConfiguration = viewConfiguration
+        )
+
+        // TODO(332963121): support gesture at BiDi boundaries.
+        if (offset == -1) {
+            return fallback(gesture)
+        }
+
+        replaceText(gesture.textToInsert, TextRange(offset))
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
     private fun TransformedTextFieldState.performDeletion(
         rangeInTransformedText: TextRange,
         adjustRange: Boolean
@@ -236,6 +259,8 @@ internal object HandwritingGestureApi34 {
                 performDeleteRangeGesture(gesture, text, editCommandConsumer)
             is JoinOrSplitGesture ->
                 performJoinOrSplitGesture(gesture, text, viewConfiguration, editCommandConsumer)
+            is InsertGesture ->
+                performInsertGesture(gesture, viewConfiguration, editCommandConsumer)
             else ->
                 InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
@@ -355,12 +380,7 @@ internal object HandwritingGestureApi34 {
 
         val range = text.rangeOfWhitespaces(offset)
         if (range.collapsed) {
-            editCommandConsumer.invoke(
-                compoundEditCommand(
-                    SetSelectionCommand(offset, offset),
-                    CommitTextCommand(" ", 1)
-                )
-            )
+            performInsertionOnLegacyTextField(range.start, " ", editCommandConsumer)
         } else {
             performDeletionOnLegacyTextField(
                 range = range,
@@ -371,6 +391,43 @@ internal object HandwritingGestureApi34 {
         }
 
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.performInsertGesture(
+        gesture: InsertGesture,
+        viewConfiguration: ViewConfiguration?,
+        editCommandConsumer: (EditCommand) -> Unit
+    ): Int {
+        if (viewConfiguration == null) {
+            return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+        }
+
+        val offset = getOffsetForHandwritingGesture(
+            pointInScreen = gesture.insertionPoint.toOffset(),
+            viewConfiguration = viewConfiguration
+        )
+        // TODO(332963121): support gesture at BiDi boundaries.
+        if (offset == -1 || layoutResult?.value?.isBiDiBoundary(offset) == true) {
+            return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+        }
+
+        performInsertionOnLegacyTextField(offset, gesture.textToInsert, editCommandConsumer)
+        return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun performInsertionOnLegacyTextField(
+        offset: Int,
+        text: String,
+        editCommandConsumer: (EditCommand) -> Unit
+    ) {
+        editCommandConsumer.invoke(
+            compoundEditCommand(
+                SetSelectionCommand(offset, offset),
+                CommitTextCommand(text, 1)
+            )
+        )
     }
 
     @DoNotInline

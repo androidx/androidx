@@ -21,6 +21,7 @@ import android.text.InputType
 import android.view.inputmethod.DeleteGesture
 import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InsertGesture
 import android.view.inputmethod.JoinOrSplitGesture
 import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
@@ -198,6 +199,7 @@ private object EditorInfoApi34 {
             SelectRangeGesture::class.java,
             DeleteRangeGesture::class.java,
             JoinOrSplitGesture::class.java,
+            InsertGesture::class.java
         )
     }
 }
