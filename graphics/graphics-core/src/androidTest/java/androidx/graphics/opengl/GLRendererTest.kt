@@ -56,6 +56,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import java.nio.IntBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -131,6 +132,46 @@ class GLRendererTest {
         target.detach(true)
 
         glRenderer.stop(true)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testFrameBufferClose() {
+        val glRenderer = GLRenderer()
+        glRenderer.start()
+        try {
+            var currentFbo = -1
+            val executeLatch = CountDownLatch(1)
+            glRenderer.execute {
+                val buffer = FrameBuffer(
+                    EGLSpec.V14,
+                    HardwareBuffer.create(
+                        10,
+                        10,
+                        HardwareBuffer.RGBA_8888,
+                        1,
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                    )
+                )
+                buffer.makeCurrent()
+                buffer.close()
+
+                // After the buffer is closed, query which framebuffer is current.
+                // If the previously current FBO is deleted, the current framebuffer should be 0.
+                // As per OpenGL spec, an fbo binding with glBindFrameBuffer will remain active
+                // until a different framebuffer object is bound, or until the bound framebuffer
+                // is deleted with glDeleteFramebuffers
+                val tmp = IntBuffer.wrap(IntArray(1))
+                GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, tmp)
+                currentFbo = tmp.get(0)
+
+                executeLatch.countDown()
+            }
+            assertTrue(executeLatch.await(3000, TimeUnit.MILLISECONDS))
+            assertEquals(0, currentFbo)
+        } finally {
+            glRenderer.stop(true)
+        }
     }
 
     @Test
