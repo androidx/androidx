@@ -483,7 +483,6 @@ internal fun TextFieldSelectionHandles(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private val DefaultTextFieldDecorator = TextFieldDecorator { it() }
 
 /**

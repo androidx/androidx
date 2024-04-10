@@ -1066,6 +1066,7 @@ class AnnotatedStringBuilderTest {
 
     @OptIn(ExperimentalTextApi::class)
     @Test
+    @Suppress("Deprecation")
     fun getAnnotation_separates_urlAnnotation_and_stringAnnotation() {
         val annotation1 = UrlAnnotation("abc")
         val annotation2 = "annotation"
@@ -1099,6 +1100,7 @@ class AnnotatedStringBuilderTest {
 
     @OptIn(ExperimentalTextApi::class)
     @Test
+    @Suppress("Deprecation")
     fun getAnnotation_withTag_withUrlAnnotation_withStringAnnotation() {
         val annotation1 = UrlAnnotation("abc")
         val annotation2 = "annotation"

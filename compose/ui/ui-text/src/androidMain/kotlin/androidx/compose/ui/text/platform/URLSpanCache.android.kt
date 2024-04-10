@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.ui.text.platform
 
 import android.text.style.ClickableSpan
@@ -35,6 +37,8 @@ import java.util.WeakHashMap
  * these spans to parcelable ones, then look them up later using their ID. Since the ID is a hidden
  * property, the only way to satisfy this constraint is to actually use the same [URLSpan] instance
  * every time.
+ *
+ * The same works for [LinkAnnotation]s that are converted to [URLSpan]s or [ClickableSpan]s.
  *
  * See b/253292081.
  */
