@@ -14,11 +14,12 @@
   limitations under the License.
   -->
 
-<resources>
-    <dimen name="corner_radius">16dp</dimen>
-    <dimen name="external_padding">8dp</dimen>
-
-    <!-- Default drop size for widgets that display lists-->
-    <integer name="list_widget_target_cell_width">4</integer>
-    <integer name="list_widget_target_cell_height">2</integer>
-</resources>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="200dp"
+    android:minHeight="100dp"
+    android:targetCellWidth="@integer/list_widget_target_cell_width"
+    android:targetCellHeight="@integer/list_widget_target_cell_height"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewImage="@drawable/compose"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />
