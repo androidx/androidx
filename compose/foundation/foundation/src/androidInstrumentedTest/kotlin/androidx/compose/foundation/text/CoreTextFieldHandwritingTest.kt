@@ -26,11 +26,14 @@ import androidx.compose.foundation.text.input.internal.InputMethodManager
 import androidx.compose.foundation.text.input.internal.inputMethodManagerFactory
 import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -197,6 +200,42 @@ class CoreTextFieldHandwritingTest {
 
         // Toggle to true again, should be able to start handwriting
         readOnly = false
+        rule.waitForIdle()
+        performHandwritingAndExpect(stylusHandwritingStarted = true)
+    }
+
+    @Test
+    fun coreTextField_toggleWindowFocus_startStylusHandwriting() {
+        inputMethodManagerFactory = { fakeImm }
+
+        val focusWindow = mutableStateOf(true)
+        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focused
+        }
+
+        setContent {
+            CompositionLocalProvider(
+                LocalWindowInfo provides createWindowInfo(focusWindow.value)
+            ) {
+                val value = remember { TextFieldValue() }
+                CoreTextField(
+                    value = value,
+                    onValueChange = { },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(Tag),
+                )
+            }
+        }
+
+        performHandwritingAndExpect(stylusHandwritingStarted = true)
+
+        focusWindow.value = false
+        rule.waitForIdle()
+        performHandwritingAndExpect(stylusHandwritingStarted = false)
+
+        focusWindow.value = true
         rule.waitForIdle()
         performHandwritingAndExpect(stylusHandwritingStarted = true)
     }
