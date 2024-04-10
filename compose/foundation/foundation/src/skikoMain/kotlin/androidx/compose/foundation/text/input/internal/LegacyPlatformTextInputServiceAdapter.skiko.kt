@@ -36,6 +36,10 @@ internal actual fun legacyPlatformTextInputServiceAdapter(): LegacyPlatformTextI
         object : LegacyPlatformTextInputServiceAdapter() {
             private var session: TextInputSession? = null
 
+
+            // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1298/Implement-isStylusHandwritingSupported
+            override fun startStylusHandwriting() {}
+
             override fun startInput(
                 value: TextFieldValue,
                 imeOptions: ImeOptions,
