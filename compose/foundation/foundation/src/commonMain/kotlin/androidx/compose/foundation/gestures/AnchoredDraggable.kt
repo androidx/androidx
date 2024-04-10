@@ -49,6 +49,7 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
+import kotlin.js.JsName
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -371,6 +372,7 @@ private open class AnchoredDraggableNode<T>(
     enabled: Boolean,
     protected var reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
+    @JsName("_startDragImmediately")
     protected var startDragImmediately: Boolean
 ) : DragGestureNode(
     canDrag = AlwaysDrag,
