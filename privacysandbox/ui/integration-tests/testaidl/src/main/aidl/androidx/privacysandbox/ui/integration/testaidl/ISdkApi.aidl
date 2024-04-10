@@ -21,4 +21,5 @@ import android.os.Bundle;
 interface ISdkApi {
    Bundle loadBannerAd(int adType, int sdkType, boolean withSlowDraw);
    void requestResize(int width, int height);
+   oneway void triggerProcessDeath();
 }

@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.integration.testsdkprovider
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Process
 import android.view.View
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
@@ -60,6 +61,11 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                 }
             }
         }
+    }
+
+    /** Kill sandbox process */
+    override fun triggerProcessDeath() {
+        Process.killProcess(Process.myPid())
     }
 
     private fun loadWebViewBannerAd(): Bundle {
