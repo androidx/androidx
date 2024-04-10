@@ -93,7 +93,7 @@ internal class FocusTargetNode :
                     force = true,
                     refreshFocusEvents = true,
                     clearOwnerFocus = false,
-                    focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
+                    focusDirection = Exit
                 )
                 // We don't clear the owner's focus yet, because this could trigger an initial
                 // focus scenario after the focus is cleared. Instead, we schedule invalidation
@@ -140,7 +140,6 @@ internal class FocusTargetNode :
         if (!isProcessingCustomEnter) {
             isProcessingCustomEnter = true
             try {
-                @OptIn(ExperimentalComposeUiApi::class)
                 fetchFocusProperties().enter(focusDirection).also {
                     if (it !== Default) block(it)
                 }
@@ -167,7 +166,6 @@ internal class FocusTargetNode :
         if (!isProcessingCustomExit) {
             isProcessingCustomExit = true
             try {
-                @OptIn(ExperimentalComposeUiApi::class)
                 fetchFocusProperties().exit(focusDirection).also {
                     if (it !== Default) block(it)
                 }

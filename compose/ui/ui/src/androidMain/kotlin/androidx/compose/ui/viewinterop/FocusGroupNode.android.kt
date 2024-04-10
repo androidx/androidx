@@ -22,7 +22,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.FOCUS_DOWN
 import android.view.ViewTreeObserver
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -65,9 +64,7 @@ private class FocusGroupPropertiesNode : Modifier.Node(), FocusPropertiesModifie
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.canFocus = false
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.enter = ::onEnter
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.exit = ::onExit
     }
 
@@ -84,7 +81,7 @@ private class FocusGroupPropertiesNode : Modifier.Node(), FocusPropertiesModifie
             direction = focusDirection.toAndroidFocusDirection(),
             rect = getCurrentlyFocusedRect(focusOwner, hostView, embeddedView)
         )
-        return if (targetViewFocused) Default else @OptIn(ExperimentalComposeUiApi::class) Cancel
+        return if (targetViewFocused) Default else Cancel
     }
 
     fun onExit(focusDirection: FocusDirection): FocusRequester {
@@ -112,7 +109,6 @@ private class FocusGroupPropertiesNode : Modifier.Node(), FocusPropertiesModifie
         }
         if (nextView != null && embeddedView.containsDescendant(nextView)) {
             nextView.requestFocus(androidFocusDirection, focusedRect)
-            @OptIn(ExperimentalComposeUiApi::class)
             return Cancel
         } else {
             check(hostView.requestFocus()) { "host view did not take focus" }
@@ -160,7 +156,7 @@ private class FocusGroupPropertiesNode : Modifier.Node(), FocusPropertiesModifie
                         force = false,
                         refreshFocusEvents = true,
                         clearOwnerFocus = false,
-                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
+                        focusDirection = Exit
                     )
                 }
             }

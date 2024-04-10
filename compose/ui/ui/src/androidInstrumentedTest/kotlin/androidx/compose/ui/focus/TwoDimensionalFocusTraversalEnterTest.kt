@@ -19,7 +19,6 @@ package androidx.compose.ui.focus
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.platform.LocalFocusManager
@@ -32,7 +31,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TwoDimensionalFocusTraversalEnterTest {
