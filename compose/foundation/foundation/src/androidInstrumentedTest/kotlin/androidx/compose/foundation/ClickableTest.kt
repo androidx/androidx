@@ -28,6 +28,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -36,6 +37,8 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -69,9 +72,11 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -3527,6 +3532,44 @@ class ClickableTest {
         rule.onNodeWithTag(tag).requestFocus()
         rule.onNodeWithTag(tag).assertIsFocused()
     }
+
+    // Regression test for b/332814226
+    @Test
+    fun movableContentWithSubcomposition_updatingSemanticsShouldNotCrash() {
+        var moveContent by mutableStateOf(false)
+        rule.setContent {
+            val content = remember {
+                movableContentOf {
+                    BoxWithConstraints {
+                        BasicText("ClickableText",
+                            modifier = Modifier
+                                .testTag("clickable")
+                                .clickable(
+                                    role = if (moveContent) Role.Button else Role.Checkbox,
+                                    onClickLabel = moveContent.toString()
+                                ) {}
+                        )
+                    }
+                }
+            }
+
+            key(moveContent) {
+                content()
+            }
+        }
+
+        rule.onNodeWithTag("clickable")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
+            .assertOnClickLabelMatches("false")
+
+        rule.runOnIdle {
+            moveContent = true
+        }
+
+        rule.onNodeWithTag("clickable")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertOnClickLabelMatches("true")
+    }
 }
 
 /**
@@ -3585,3 +3628,10 @@ internal class TestIndicationNodeFactory(
         return onAttach.hashCode()
     }
 }
+
+internal fun SemanticsNodeInteraction.assertOnClickLabelMatches(expectedValue: String):
+    SemanticsNodeInteraction {
+        return assert(SemanticsMatcher("onClickLabel = '$expectedValue'") {
+            it.config.getOrElseNullable(SemanticsActions.OnClick) { null }?.label == expectedValue
+        })
+    }

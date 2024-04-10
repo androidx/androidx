@@ -175,6 +175,7 @@ import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.scrollcapture.ScrollCapture
 import androidx.compose.ui.semantics.EmptySemanticsElement
+import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.text.font.Font
@@ -248,7 +249,8 @@ internal class AndroidComposeView(
     override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
         private set
 
-    private val semanticsModifier = EmptySemanticsElement
+    private val rootSemanticsNode = EmptySemanticsModifier()
+    private val semanticsModifier = EmptySemanticsElement(rootSemanticsNode)
 
     override val focusOwner: FocusOwner = FocusOwnerImpl(
         onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
@@ -408,7 +410,7 @@ internal class AndroidComposeView(
 
     override val rootForTest: RootForTest = this
 
-    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
+    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root, rootSemanticsNode)
     private val composeAccessibilityDelegate =
         AndroidComposeViewAccessibilityDelegateCompat(this)
     internal var contentCaptureManager = AndroidContentCaptureManager(

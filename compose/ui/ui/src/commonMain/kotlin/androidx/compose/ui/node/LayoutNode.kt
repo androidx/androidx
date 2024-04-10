@@ -465,6 +465,10 @@ internal class LayoutNode(
 
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
+
+        pendingModifier?.let { applyModifier(it) }
+        pendingModifier = null
+
         if (nodes.has(Nodes.Semantics)) {
             invalidateSemantics()
         }
@@ -878,10 +882,15 @@ internal class LayoutNode(
         }
     }
 
+    private var _modifier: Modifier = Modifier
+    private var pendingModifier: Modifier? = null
+    internal val applyingModifierOnAttach get() = pendingModifier != null
+
     /**
      * The [Modifier] currently applied to this node.
      */
-    override var modifier: Modifier = Modifier
+    override var modifier: Modifier
+        get() = _modifier
         set(value) {
             requirePrecondition(!isVirtual || modifier === Modifier) {
                 "Modifiers are not supported on virtual LayoutNodes"
@@ -889,13 +898,21 @@ internal class LayoutNode(
             requirePrecondition(!isDeactivated) {
                 "modifier is updated when deactivated"
             }
-            field = value
-            nodes.updateFrom(value)
-            layoutDelegate.updateParentData()
-            if (lookaheadRoot == null && nodes.has(Nodes.ApproachMeasure)) {
-                lookaheadRoot = this
+            if (isAttached) {
+                applyModifier(value)
+            } else {
+                pendingModifier = value
             }
         }
+
+    private fun applyModifier(modifier: Modifier) {
+        _modifier = modifier
+        nodes.updateFrom(modifier)
+        layoutDelegate.updateParentData()
+        if (lookaheadRoot == null && nodes.has(Nodes.ApproachMeasure)) {
+            lookaheadRoot = this
+        }
+    }
 
     private fun resetModifierState() {
         nodes.resetState()
