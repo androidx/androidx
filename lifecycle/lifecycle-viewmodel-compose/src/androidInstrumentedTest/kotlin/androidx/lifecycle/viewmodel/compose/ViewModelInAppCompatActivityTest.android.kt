@@ -16,13 +16,12 @@
 
 package androidx.lifecycle.viewmodel.compose
 
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -35,12 +34,12 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-public class ViewModelInComponentActivityTest {
+public class ViewModelInAppCompatActivityTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    public val activityTestRule: androidx.test.rule.ActivityTestRule<ComponentActivity> =
-        androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
-    private lateinit var activity: ComponentActivity
+    public val activityTestRule: androidx.test.rule.ActivityTestRule<AppCompatActivity> =
+        androidx.test.rule.ActivityTestRule(AppCompatActivity::class.java)
+    private lateinit var activity: AppCompatActivity
 
     @Before
     public fun setup() {
@@ -63,7 +62,6 @@ public class ViewModelInComponentActivityTest {
         assertEquals(activity, owner)
     }
 
-    @FlakyTest(bugId = 190609144)
     @Test
     public fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
         val latch = CountDownLatch(1)

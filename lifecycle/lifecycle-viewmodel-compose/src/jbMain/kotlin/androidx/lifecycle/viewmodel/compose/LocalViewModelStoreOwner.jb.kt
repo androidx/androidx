@@ -20,4 +20,4 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelStoreOwner
 
 @Composable
-internal actual fun findViewModelStoreOwner(): ViewModelStoreOwner? = null
+internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? = null

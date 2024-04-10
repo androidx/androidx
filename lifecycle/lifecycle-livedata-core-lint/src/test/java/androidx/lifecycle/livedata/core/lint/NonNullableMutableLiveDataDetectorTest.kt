@@ -852,4 +852,166 @@ src/com/example/Foo.kt:10: Error: Expected non-nullable value [NullSafeMutableLi
 1 errors, 0 warnings
         """)
     }
+
+    @Test
+    fun dataClassFromBinary_nonNull() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+                import some.other.pkg.SomeData
+
+                fun foo() {
+                    val liveData = MutableLiveData<SomeData>()
+                    val x = SomeData()
+                    liveData.value = x
+                    liveData.postValue(bar(6))
+                }
+
+                fun bar(x: Int): SomeData {
+                    return SomeData(extras = x)
+                }
+            """
+            ).indented(),
+            DATA_LIB,
+        ).expectClean()
+    }
+
+    @Test
+    fun dataClassFromBinary_nullable() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+                import some.other.pkg.SomeData
+
+                fun foo() {
+                    val liveData = MutableLiveData<SomeData>()
+                    val bar: SomeData? = SomeData()
+                    liveData.value = bar
+                }
+            """
+            ).indented(),
+            DATA_LIB,
+        ).expect(
+            """
+src/com/example/test.kt:9: Error: Expected non-nullable value [NullSafeMutableLiveData]
+    liveData.value = bar
+                     ~~~
+1 errors, 0 warnings
+        """
+        ).expectFixDiffs(
+            """
+Fix for src/com/example/test.kt line 9: Change `LiveData` type to nullable:
+@@ -7 +7
+-     val liveData = MutableLiveData<SomeData>()
++     val liveData = MutableLiveData<SomeData?>()
+Fix for src/com/example/test.kt line 9: Add non-null asserted (!!) call:
+@@ -9 +9
+-     liveData.value = bar
++     liveData.value = bar!!
+        """
+        )
+    }
+
+    @Test
+    fun typeArgumentFromJava() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.LiveData
+                import some.other.pkg.SomeData
+
+                abstract class Test : LiveData<SomeData>() {
+                  abstract val remoteRefreshCounter: RemoteRefreshCounter
+
+                  fun foo() {
+                    val counterValue = remoteRefreshCounter.value
+                    // This will trigger the detector, but the receiver type is from Java.
+                    remoteRefreshCounter.value = (counterValue ?: 1) - 1
+                  }
+                }
+                """
+            ).indented(),
+            DATA_LIB,
+            java(
+                """
+                package com.example;
+
+                import androidx.lifecycle.MutableLiveData;
+
+                public final class RemoteRefreshCounter extends MutableLiveData<Integer> {
+                  public RemoteRefreshCounter() {}
+                }
+                """
+            ).indented(),
+        ).expectClean()
+    }
+
+    private companion object {
+        val DATA_LIB: TestFile =
+            bytecode(
+                "libs/data.jar",
+                kotlin(
+                    """
+                    package some.other.pkg
+
+                    data class SomeData
+                    @JvmOverloads
+                    constructor(val items: List<Boolean> = listOf(), val extras: Int = 42)
+                """
+                ).indented(),
+                0x9ae81803,
+                """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgEuXiTs7P1UutSMwtyEkVYgtJLS7x
+                LlFi0GIAAJY6UNwvAAAA
+                """,
+                """
+                some/other/pkg/SomeData.class:
+                H4sIAAAAAAAA/41X3VMTVxT/3c3XZgmwiSDIh6JoDQkaRFrbgl+g1mBQC4pa
+                bOsSVlhIdnF3Q/Wl45N/gjPtS2f60Cce6kwFp850qL71L+pDp9NzdpcACVJm
+                wr3n3j3nd8/H79w7/PXv738AGMIzgTbHKus5y13Q7dzy0nxuipZXNFeLQQio
+                i9qKlitp5nzu1uyiXnRjCAlERwzTcC8ItKQLnkLFNUq5guG4w/m+aYG+2u2R
+                whbOqGWVdM0cvuDrHiosWW7JMHOLK+Xc+Er51opulyxtzhkW6C1Y9nxuUXdn
+                bc0wnZxmmparuYZF8k3LvVkplUgrYrh62ZGhCBzehmWYrm6bWimXN12brI2i
+                E0NCoLW4oBeXAvPbmq2VdVIUOJku1AY7vG1nikHmh/umE2hCs4JGqAKhNK8j
+                SCkI4wClqzYdCShojUPCQcqa/tS1NUdA5BNoxyHe7hAIuwuGw3n4QB0owrH6
+                NOcLu4V6RX+sVUruGCXItStF17InNHtJt4c50z2BRdEqlSg4L4tjW/INqu0R
+                gbheXnaf8SECqXRffUBHcUxBD3o57qhCMZwQkOd1N89V4DTW2uxefDqJjK4G
+                KaFE5gWUolVetkzddM9sXwxSkorWMnG1fxe+7ZG3y/vl4R4YCT75+JyfWIH7
+                6Q/q7lKjOkJ9+KQETuE0p5OilV3Lpxt3WF89Calpa/dGK0ZpTrdj+ETBOaZi
+                8yZy2muP8zI+Iwpqy8u6OSdwKr0Lteu2AlDybRgjjHu+xrIa1V6WF9nyEtW7
+                v8fvAPJlVKArnd/b7grbXWXFsb0Vv2DF6wm6zj5maZwSuKA5C2PWnJ5AARlu
+                zgmB5BYGXQn6PGfrFlGL/Miz3pcKbmOSkmTrjlfrqP6kopWIna27xfyVwPG9
+                7ie6XbTZkk7FkjVbv8pQ/3vJVLETuI8HfMnQKRGPLdSN9YoCB+o6gls9vT/i
+                +5fXYWbdI4ET++zb5ObVM6G72pzfJVJ5JUQPiuAhzgPomlui/acGrwZImqOe
+                /nvjeY8itUuKpG48V+gnqbRWG3xRViQ5QXOT/O6F3L7xfFAaEKNH5ViqSZZU
+                qUNOhVPSQHgglJJpHemQBqLvfo5Kamy8WU1sfb3+/kVoPK428ndP7lWbSCa4
+                GpjBKgypifEDajPJ4UFZVTvC7WJAXH//koGSvsZLQXKK5AMsTyarDsjkfEdY
+                ltX4ZNt2+K1PitrA8VNjU1YaNvvy9BJRLD5lzJuaW7F1gc7JiukaZT1vrhiO
+                QdS5vEUnoinTmdq6YJj6zUp5VrfvML2YFlZRK01rtsHrYPN4LVb1odsB2jjl
+                asWlCW05MFOmrIpd1K8ZvDgUYEzXeYMzxJgw1VVCih84mpe91Sye0BylMOM0
+                p/iVo7mR1vRWkIVNq3ukx5xozaYa3iCZWUdLJvsabZmu1+h85cE4NDIpo6So
+                kKlL6x7fCF3oZnqRxAcLT+JjNl2IVV2Qaa4wH6XAH36xie60Yj8uEWCE5o7u
+                8Pc/IPaGurk7QlJUzZzPZLvW8ZHvzAqNYUiKXHULZMduJXESxwiF0XJMeP6S
+                +Q1tv1ajiPqbXgSJQPYj8L1N70hYEn3IBO5tB+xc3QdgEtmqN7213oh9e9Bf
+                9aC31oPdQJL8bAWVHaWZi6T6lX0L6YGXxy0H/CKq1SKq1SKqO4qY2+FUTRHj
+                GCAC+j6eDYrY7RVR5nD9KrLYyXVcw1n//KCODQrJ9FLQKQxwDZJ3fvotzj1Y
+                x6epz9dwgWHWcDk15suda7im9q0hv4YbtclMB7Fs91fwoxM4eJHwmTFtPubN
+                kU71yAJjvsHUo5FtaT1IajKacYfSwMBtAbDAXUwHzpaD1hnKZH9BJLya/RPS
+                j4iEVrMbkCb4hH76e4MZb5NPoXXnT7wIr1bJ3IBwTP4HLTFIierR/M/AZlWG
+                8BBf08Gc9xhz4J7nRwTfBIU+RzKbNActnA1FxDq0VzuCoc9VxOagzn51v61r
+                Ue+UeHBKKoj2JMmciXhGhKI78f3cx2tyL3vo33mjhac0z9NukWDmZhDKQ8/j
+                cZ72FkiEkccilmYgHJRQnkGLg24HdLcp3ki/dm+MOuhzkHFw0sExB1kH/Q5O
+                Objr4KGDgoMhUvsPdw4FK1ANAAA=
+                """
+            )
+    }
 }
