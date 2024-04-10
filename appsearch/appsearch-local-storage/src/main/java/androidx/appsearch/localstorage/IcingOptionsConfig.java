@@ -36,7 +36,7 @@ public interface IcingOptionsConfig {
 
     boolean DEFAULT_DOCUMENT_STORE_NAMESPACE_ID_FINGERPRINT = false;
 
-    float DEFAULT_OPTIMIZE_REBUILD_INDEX_THRESHOLD = 0.0f;
+    float DEFAULT_OPTIMIZE_REBUILD_INDEX_THRESHOLD = 0.9f;
 
     /**
      * The default compression level in IcingSearchEngineOptions proto matches the
