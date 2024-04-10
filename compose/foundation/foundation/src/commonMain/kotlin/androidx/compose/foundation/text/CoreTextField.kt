@@ -354,7 +354,7 @@ internal fun CoreTextField(
                             state,
                             manager.value,
                             imeOptions,
-                            offsetMapping
+                            manager.offsetMapping
                         )
                     } else {
                         endInputSession(state)
