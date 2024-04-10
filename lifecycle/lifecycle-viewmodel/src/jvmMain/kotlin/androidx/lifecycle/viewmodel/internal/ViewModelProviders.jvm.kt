@@ -1,9 +1,5 @@
 /*
-<<<<<<<< HEAD:compose/ui/ui/src/commonMain/kotlin/androidx/compose/ui/node/InvokeOnCanvas.kt
- * Copyright 2021 The Android Open Source Project
-========
  * Copyright 2024 The Android Open Source Project
->>>>>>>> 5d516369f99416bd39919bc73974c857cadede07:lifecycle/lifecycle-viewmodel/src/jvmMain/kotlin/androidx/lifecycle/viewmodel/internal/ViewModelProviders.jvm.kt
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
