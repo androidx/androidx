@@ -21,6 +21,7 @@ import android.view.inputmethod.DeleteGesture
 import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InsertGesture
 import android.view.inputmethod.JoinOrSplitGesture
 import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
@@ -902,6 +903,86 @@ class CoreTextFieldHandwritingGestureTest {
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
             assertThat(textFieldValue.text).isEqualTo(text)
             assertThat(textFieldValue.selection).isEqualTo(TextRange(text.length))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_insertGesture() {
+        val text = "abcdef"
+        val textToInsert = "xxx"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // Text is inserted before character 'b'
+                val point = textLayoutResult.boundingBoxOf("b").centerLeft
+                val screenPoint = localToScreen(point).toPointF()
+                InsertGesture.Builder()
+                    .setInsertionPoint(screenPoint)
+                    .setTextToInsert(textToInsert)
+                    .build()
+            }
+        ) { textFieldState, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
+            val expectedText = "axxxbcdef"
+            assertThat(textFieldState.text.toString()).isEqualTo(expectedText)
+            // Cursor is placed before 'b'
+            assertThat(textFieldState.selection).isEqualTo(TextRange(expectedText.indexOf('b')))
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_insertGesture_outOfLineMargin_insertFallbackText() {
+        val text = "abcdef"
+        val fallback = "fallbackText"
+        val initialCursor = 3
+        testHandwritingGesture(
+            text = text,
+            initialSelection = TextRange(initialCursor),
+            gestureFactory = { textLayoutResult ->
+                // Perform the gesture 20 pixels above the line.
+                val point = textLayoutResult.boundingBoxOf("d").topLeft.let {
+                    Offset(it.x, it.y - lineMargin - 1)
+                }
+                val screenPoint = localToScreen(point).toPointF()
+                InsertGesture.Builder()
+                    .setInsertionPoint(screenPoint)
+                    .setTextToInsert("")
+                    .setFallbackText(fallback)
+                    .build()
+            }
+        ) { textFieldState, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
+
+            val expectedText = text.insert(initialCursor, fallback)
+            assertThat(textFieldState.text.toString()).isEqualTo(expectedText)
+            val expectedSelection = TextRange(initialCursor + fallback.length)
+            assertThat(textFieldState.selection).isEqualTo(expectedSelection)
+            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        }
+    }
+
+    @Test
+    fun textField_insertGesture_outOfLineMargin_fail() {
+        val text = "abcdef"
+        testHandwritingGesture(
+            text = text,
+            gestureFactory = { textLayoutResult ->
+                // Perform the gesture 20 pixels above the line.
+                val point = textLayoutResult.boundingBoxOf("d").topLeft.let {
+                    Offset(it.x, it.y - lineMargin - 1)
+                }
+                val screenPoint = localToScreen(point).toPointF()
+                InsertGesture.Builder()
+                    .setInsertionPoint(screenPoint)
+                    .setTextToInsert("")
+                    .build()
+            }
+        ) { textFieldState, resultCode, textToolbar ->
+            assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
+            assertThat(textFieldState.text.toString()).isEqualTo(text)
+            assertThat(textFieldState.selection).isEqualTo(TextRange(text.length))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }
     }
