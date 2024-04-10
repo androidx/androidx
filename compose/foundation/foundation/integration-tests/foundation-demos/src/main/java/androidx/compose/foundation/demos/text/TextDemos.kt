@@ -208,13 +208,7 @@ val TextDemos = DemoCategory(
                 ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() }
             )
         ),
-        DemoCategory(
-            "Interactive text",
-            listOf(
-                ComposableDemo("ClickableText with hover") { InteractiveTextDemo() },
-                ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() }
-            )
-        ),
+        ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() },
         ComposableDemo("Text Pointer Icon") { TextPointerIconDemo() },
         ComposableDemo("Html") { AnnotatedStringFromHtml() }
     )
