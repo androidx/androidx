@@ -16,12 +16,9 @@
 
 package androidx.compose.ui.text
 
-import androidx.compose.runtime.Stable
-
 /**
  * An interface triggered when a user interacts with a link in the text
  */
-@Stable
 fun interface LinkInteractionListener {
 
     /** Triggered when a user clicks on the [link] */
