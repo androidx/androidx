@@ -188,6 +188,7 @@ fun ToggleButton(
     shape: Shape,
     toggleControlWidth: Dp,
     toggleControlHeight: Dp,
+    labelSpacerSize: Dp,
     ripple: Indication
 ) {
     // One and only one of toggleControl and selectionControl should be provided.
@@ -226,7 +227,8 @@ fun ToggleButton(
         ToggleButtonIcon(content = icon)
         Labels(
             label = label,
-            secondaryLabel = secondaryLabel
+            secondaryLabel = secondaryLabel,
+            spacerSize = labelSpacerSize
         )
         Spacer(
             modifier = Modifier.size(
@@ -311,6 +313,7 @@ fun SplitToggleButton(
     clickInteractionSource: MutableInteractionSource?,
     contentPadding: PaddingValues,
     shape: Shape,
+    labelSpacerSize: Dp,
     ripple: Indication
 ) {
     val (startPadding, endPadding) = contentPadding.splitHorizontally()
@@ -341,6 +344,7 @@ fun SplitToggleButton(
             Labels(
                 label = label,
                 secondaryLabel = secondaryLabel,
+                spacerSize = labelSpacerSize
             )
             Spacer(
                 modifier = Modifier
@@ -375,7 +379,7 @@ fun SplitToggleButton(
 
         Box(
             modifier =
-                boxModifier
+            boxModifier
                 .fillMaxHeight()
                 .drawWithCache {
                     onDrawWithContent {
@@ -409,11 +413,13 @@ private fun ToggleButtonIcon(
 @Composable
 private fun RowScope.Labels(
     label: @Composable RowScope.() -> Unit,
-    secondaryLabel: @Composable (RowScope.() -> Unit)?
+    secondaryLabel: @Composable (RowScope.() -> Unit)?,
+    spacerSize: Dp = 0.dp
 ) {
     Column(modifier = Modifier.weight(1.0f)) {
         Row(content = label)
         if (secondaryLabel != null) {
+            Spacer(modifier = Modifier.size(spacerSize))
             Row(content = secondaryLabel)
         }
     }

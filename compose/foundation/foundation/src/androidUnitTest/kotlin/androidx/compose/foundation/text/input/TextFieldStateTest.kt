@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -64,6 +65,47 @@ class TextFieldStateTest {
     }
 
     @Test
+    fun edit_doesNotAllow_reentrantBehavior() {
+        assertFailsWith<IllegalStateException>(
+            "TextFieldState does not support concurrent or nested editing."
+        ) {
+            state.edit {
+                replace(0, 0, "hello")
+                state.edit {
+                    replace(0, 0, "hello")
+                }
+            }
+        }
+        assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test
+    fun edit_doesNotAllow_concurrentAccess() {
+        assertFailsWith<IllegalStateException>(
+            "TextFieldState does not support concurrent or nested editing."
+        ) {
+            runTest {
+                var edit2Started = false
+                launch {
+                    state.edit {
+                        replace(0, 0, "hello")
+                        while (!edit2Started) delay(10)
+                    }
+                }
+                launch {
+                    state.edit {
+                        edit2Started = true
+                        replace(0, 0, "hello")
+                    }
+                }
+                advanceUntilIdle()
+                runCurrent()
+            }
+        }
+        assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test
     fun edit_doesNotChange_whenThrows() {
         class ExpectedException : RuntimeException()
 
@@ -75,6 +117,24 @@ class TextFieldStateTest {
         }
 
         assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test
+    fun edit_canEditAgain_ifFirstOneThrows() {
+        class ExpectedException : RuntimeException()
+
+        assertFailsWith<ExpectedException> {
+            state.edit {
+                replace(0, 0, "hello")
+                throw ExpectedException()
+            }
+        }
+        assertThat(state.text.toString()).isEmpty()
+
+        state.edit {
+            replace(0, 0, "hello")
+        }
+        assertThat(state.text.toString()).isEqualTo("hello")
     }
 
     @Test

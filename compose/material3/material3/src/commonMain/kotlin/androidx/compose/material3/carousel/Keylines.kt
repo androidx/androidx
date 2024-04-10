@@ -58,15 +58,12 @@ internal fun multiBrowseKeylineList(
     var smallCounts: IntArray = intArrayOf(1)
     val mediumCounts: IntArray = intArrayOf(1, 0)
 
-    val targetLargeSize: Float = min(preferredItemSize + itemSpacing, carouselMainAxisSize)
+    val targetLargeSize: Float = min(preferredItemSize, carouselMainAxisSize)
     // Ideally we would like to create a balanced arrangement where a small item is 1/3 the size
     // of the large item and medium items are sized between large and small items. Clamp the
     // small target size within our min-max range and as close to 1/3 of the target large item
     // size as possible.
-    val targetSmallSize: Float = (targetLargeSize / 3f + itemSpacing).coerceIn(
-        minSmallSize + itemSpacing,
-        maxSmallSize + itemSpacing
-    )
+    val targetSmallSize: Float = (targetLargeSize / 3f).coerceIn(minSmallSize, maxSmallSize)
     val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
 
     if (carouselMainAxisSize < minSmallSize * 2) {
@@ -89,6 +86,7 @@ internal fun multiBrowseKeylineList(
     val anchorSize = with(density) { StrategyDefaults.AnchorSize.toPx() }
     var arrangement = Arrangement.findLowestCostArrangement(
         availableSpace = carouselMainAxisSize,
+        itemSpacing = itemSpacing,
         targetSmallSize = targetSmallSize,
         minSmallSize = minSmallSize,
         maxSmallSize = maxSmallSize,
@@ -117,6 +115,7 @@ internal fun multiBrowseKeylineList(
         }
         arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = carouselMainAxisSize,
+            itemSpacing = itemSpacing,
             targetSmallSize = targetSmallSize,
             minSmallSize = minSmallSize,
             maxSmallSize = maxSmallSize,
@@ -134,6 +133,7 @@ internal fun multiBrowseKeylineList(
 
     return createLeftAlignedKeylineList(
         carouselMainAxisSize = carouselMainAxisSize,
+        itemSpacing = itemSpacing,
         rightAnchorSize = anchorSize,
         leftAnchorSize = anchorSize,
         arrangement = arrangement
@@ -142,11 +142,12 @@ internal fun multiBrowseKeylineList(
 
 internal fun createLeftAlignedKeylineList(
     carouselMainAxisSize: Float,
+    itemSpacing: Float,
     leftAnchorSize: Float,
     rightAnchorSize: Float,
     arrangement: Arrangement
 ): KeylineList {
-    return keylineListOf(carouselMainAxisSize, CarouselAlignment.Start) {
+    return keylineListOf(carouselMainAxisSize, itemSpacing, CarouselAlignment.Start) {
         add(leftAnchorSize, isAnchor = true)
 
         repeat(arrangement.largeCount) { add(arrangement.largeSize) }
@@ -209,9 +210,11 @@ internal fun uncontainedKeylineList(
     val leftAnchorSize: Float = max(xSmallSize, mediumItemSize * 0.5f)
     return createLeftAlignedKeylineList(
         carouselMainAxisSize = carouselMainAxisSize,
+        itemSpacing = itemSpacing,
         leftAnchorSize = leftAnchorSize,
         rightAnchorSize = defaultAnchorSize,
-        arrangement = arrangement)
+        arrangement = arrangement
+    )
 }
 
 /**

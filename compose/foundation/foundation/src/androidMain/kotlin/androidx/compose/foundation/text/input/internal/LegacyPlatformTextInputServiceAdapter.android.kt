@@ -23,6 +23,7 @@ import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -36,7 +37,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.emoji2.text.EmojiCompat
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 private const val DEBUG_CLASS = "AndroidLegacyPlatformTextInputServiceAdapter"
 
@@ -55,6 +63,21 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
 
     private var job: Job? = null
     private var currentRequest: LegacyTextInputMethodRequest? = null
+    private var backingStylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+    private var stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+        get() {
+            val finalStylusHandwritingTrigger = backingStylusHandwritingTrigger
+            if (finalStylusHandwritingTrigger != null) {
+                return finalStylusHandwritingTrigger
+            }
+            if (!isStylusHandwritingSupported) {
+                return null
+            }
+            return MutableSharedFlow<Unit>(
+                replay = 1,
+                onBufferOverflow = BufferOverflow.DROP_LATEST
+            ).also { backingStylusHandwritingTrigger = it }
+        }
 
     override fun startInput(
         value: TextFieldValue,
@@ -89,27 +112,40 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
         // No need to cancel any previous job, the text input system ensures the previous session
         // will be cancelled.
         job = node.launchTextInputSession {
-            val request = LegacyTextInputMethodRequest(
-                view = view,
-                localToScreen = ::localToScreen,
-                inputMethodManager = inputMethodManagerFactory(view)
-            )
-            initializeRequest?.invoke(request)
-            currentRequest = request
-            try {
-                startInputMethod(request)
-            } finally {
-                currentRequest = null
+            coroutineScope {
+                val inputMethodManager = inputMethodManagerFactory(view)
+                val request = LegacyTextInputMethodRequest(
+                    view = view,
+                    localToScreen = ::localToScreen,
+                    inputMethodManager = inputMethodManager
+                )
+
+                if (isStylusHandwritingSupported) {
+                    launch(start = CoroutineStart.UNDISPATCHED) {
+                        stylusHandwritingTrigger?.collect {
+                            inputMethodManager.startStylusHandwriting()
+                        }
+                    }
+                }
+                initializeRequest?.invoke(request)
+                currentRequest = request
+                try {
+                    startInputMethod(request)
+                } finally {
+                    currentRequest = null
+                }
             }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun stopInput() {
         if (DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.stopInput")
         }
         job?.cancel()
         job = null
+        stylusHandwritingTrigger?.resetReplayCache()
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
@@ -135,6 +171,14 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
             innerTextFieldBounds,
             decorationBoxBounds
         )
+    }
+
+    /**
+     * Signal the InputMethodManager to startStylusHandwriting. This method can be called
+     * after the editor calls startInput or just before the editor calls startInput.
+     */
+    override fun startStylusHandwriting() {
+        stylusHandwritingTrigger?.tryEmit(Unit)
     }
 }
 

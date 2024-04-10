@@ -16,12 +16,14 @@
 
 package androidx.room.integration.kotlintestapp.migration
 
+import androidx.kruth.assertThrows
 import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
 import androidx.room.util.TableInfo
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileNotFoundException
@@ -47,14 +49,12 @@ class MigrationKotlinTest {
         const val TEST_DB = "migration-test"
     }
 
-    abstract class EmptyDb : RoomDatabase()
-
     @Test
     @Throws(IOException::class)
     fun giveBadResource() {
         val helper = MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            EmptyDb::class.java
+            TestDatabase::class.java
         )
         try {
             helper.createDatabase(TEST_DB, 1)
@@ -295,6 +295,56 @@ class MigrationKotlinTest {
                 instanceOf(NotImplementedError::class.java)
             )
         }
+    }
+
+    @Test
+    fun compatModeUsingWrongApis() {
+        assertThrows<IllegalStateException> {
+            helper.createDatabase(version = 1)
+        }.hasMessageThat().contains(
+            "MigrationTestHelper functionality returning a SQLiteConnection is not possible " +
+                "because a SupportSQLiteOpenHelper was provided during configuration (i.e. no " +
+                "SQLiteDriver was provided)."
+        )
+
+        assertThrows<IllegalStateException> {
+            helper.runMigrationsAndValidate(
+                version = 1,
+                migrations = emptyList()
+            )
+        }.hasMessageThat().contains(
+            "MigrationTestHelper functionality returning a SQLiteConnection is not possible " +
+                "because a SupportSQLiteOpenHelper was provided during configuration (i.e. no " +
+                "SQLiteDriver was provided)."
+        )
+    }
+
+    @Test
+    fun noCompatModeUsingWrongApis() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val dbFile = instrumentation.targetContext.getDatabasePath("test.db")
+        val driverHelper = MigrationTestHelper(
+            instrumentation = instrumentation,
+            driver = AndroidSQLiteDriver(dbFile.path),
+            databaseClass = MigrationDbKotlin::class
+        )
+        assertThrows<IllegalStateException> {
+            driverHelper.createDatabase(name = "test.db", version = 1)
+        }.hasMessageThat().contains(
+            "MigrationTestHelper functionality returning a SupportSQLiteDatabase is not possible " +
+                "because a SQLiteDriver was provided during configuration."
+        )
+
+        assertThrows<IllegalStateException> {
+            driverHelper.runMigrationsAndValidate(
+                name = "test.db",
+                version = 1,
+                validateDroppedTables = false
+            )
+        }.hasMessageThat().contains(
+            "MigrationTestHelper functionality returning a SupportSQLiteDatabase is not possible " +
+                "because a SQLiteDriver was provided during configuration."
+        )
     }
 
     internal val MIGRATION_1_2: Migration = object : Migration(1, 2) {

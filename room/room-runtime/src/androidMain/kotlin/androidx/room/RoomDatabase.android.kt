@@ -43,7 +43,7 @@ import androidx.room.support.AutoClosingRoomOpenHelperFactory
 import androidx.room.support.PrePackagedCopyOpenHelper
 import androidx.room.support.PrePackagedCopyOpenHelperFactory
 import androidx.room.support.QueryInterceptorOpenHelperFactory
-import androidx.room.util.contains as containsExt
+import androidx.room.util.contains as containsCommon
 import androidx.room.util.findAndInstantiateDatabaseImpl
 import androidx.room.util.findMigrationPath as findMigrationPathExt
 import androidx.room.util.getCoroutineContext
@@ -1779,7 +1779,7 @@ actual abstract class RoomDatabase {
          *
          * @param migrations List of available migrations.
          */
-        open fun addMigrations(migrations: List<Migration>) {
+        actual open fun addMigrations(migrations: List<Migration>) {
             migrations.forEach(::addMigration)
         }
 
@@ -1789,7 +1789,8 @@ actual abstract class RoomDatabase {
          *
          * @param migration the migration to add.
          */
-        internal actual fun addMigration(migration: Migration) {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        actual fun addMigration(migration: Migration) {
             val start = migration.startVersion
             val end = migration.endVersion
             val targetMap = migrations.getOrPut(start) { TreeMap<Int, Migration>() }
@@ -1831,8 +1832,8 @@ actual abstract class RoomDatabase {
          * @param endVersion End version of the migration
          * @return True if it contains a migration with the same start-end version, false otherwise.
          */
-        fun contains(startVersion: Int, endVersion: Int): Boolean {
-            return this.containsExt(startVersion, endVersion)
+        actual fun contains(startVersion: Int, endVersion: Int): Boolean {
+            return this.containsCommon(startVersion, endVersion)
         }
 
         internal actual fun getSortedNodes(

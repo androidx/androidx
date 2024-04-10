@@ -61,7 +61,7 @@ package androidx.wear.protolayout.expression {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setReverseRepeatOverride(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
   }
 
-  public final class AppDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T> {
+  public final class AppDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T!> {
     ctor public AppDataKey(String);
   }
 
@@ -334,7 +334,7 @@ package androidx.wear.protolayout.expression {
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface ExperimentalProtoLayoutExtensionApi {
   }
 
-  public final class PlatformDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T> {
+  public final class PlatformDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T!> {
     ctor public PlatformDataKey(String, String);
   }
 
@@ -389,7 +389,7 @@ package androidx.wear.protolayout.expression {
   public final class VersionBuilders {
   }
 
-  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class VersionBuilders.VersionInfo implements java.lang.Comparable<androidx.wear.protolayout.expression.VersionBuilders.VersionInfo> {
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class VersionBuilders.VersionInfo implements java.lang.Comparable<androidx.wear.protolayout.expression.VersionBuilders.VersionInfo!> {
     method public int compareTo(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo);
     method public int getMajor();
     method public int getMinor();

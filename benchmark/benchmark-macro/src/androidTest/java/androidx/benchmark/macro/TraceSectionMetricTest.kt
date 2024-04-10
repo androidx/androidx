@@ -118,7 +118,7 @@ class TraceSectionMetricTest {
             metric.configure(packageName = packageName)
 
             val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                metric.getResult(
+                metric.getMeasurements(
                     // note that most args are incorrect here, but currently
                     // only targetPackageName matters in this context
                     captureInfo = Metric.CaptureInfo(

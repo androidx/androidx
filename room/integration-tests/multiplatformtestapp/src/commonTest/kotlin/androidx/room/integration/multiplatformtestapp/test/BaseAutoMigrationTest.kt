@@ -17,6 +17,7 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room.AutoMigration
 import androidx.room.ColumnInfo
 import androidx.room.Dao
@@ -27,37 +28,27 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.Update
-import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.execSQL
+import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.use
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseAutoMigrationTest {
-    abstract val driver: SQLiteDriver
+    abstract fun getTestHelper(): MigrationTestHelper
     abstract fun getRoomDatabase(): AutoMigrationDatabase
 
     @Test
-    fun migrateFromV1ToV2() = runTest {
-        val connection = driver.open()
-        // Create database in V1
-        connection.execSQL("CREATE TABLE IF NOT EXISTS " +
-            "`AutoMigrationEntity` (`pk` INTEGER NOT NULL, PRIMARY KEY(`pk`))"
-        )
-        connection.execSQL("CREATE TABLE IF NOT EXISTS " +
-            "room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)"
-        )
-        connection.execSQL("INSERT OR REPLACE INTO " +
-            "room_master_table (id,identity_hash) VALUES(42, 'a917f82d955ea88cc98a551d197529c3')"
-        )
-        connection.execSQL("PRAGMA user_version = 1")
+    fun migrateFromV1ToLatest() = runTest {
+        val migrationTestHelper = getTestHelper()
+
+        // Create database V1
+        val connection = migrationTestHelper.createDatabase(1)
+        // Insert some data, we'll validate it is present after migration
         connection.prepare("INSERT INTO AutoMigrationEntity (pk) VALUES (?)").use {
             it.bindLong(1, 1)
             assertThat(it.step()).isFalse() // SQLITE_DONE
         }
-        connection.prepare(
-            "SELECT * FROM AutoMigrationEntity"
-        ).use { stmt ->
+        connection.prepare("SELECT * FROM AutoMigrationEntity").use { stmt ->
             assertThat(stmt.step()).isTrue()
             // Make sure that there is only 1 column in V1
             assertThat(stmt.getColumnCount()).isEqualTo(1)
@@ -67,12 +58,60 @@ abstract class BaseAutoMigrationTest {
         }
         connection.close()
 
-        // Auto migrate to V2
+        // Auto migrate to latest
         val dbVersion2 = getRoomDatabase()
         assertThat(dbVersion2.dao().update(AutoMigrationEntity(1, 5))).isEqualTo(1)
         assertThat(dbVersion2.dao().getSingleItem().pk).isEqualTo(1)
         assertThat(dbVersion2.dao().getSingleItem().data).isEqualTo(5)
         dbVersion2.close()
+    }
+
+    @Test
+    fun migrateFromV1ToV2() = runTest {
+        val migrationTestHelper = getTestHelper()
+
+        // Create database V1
+        val connection = migrationTestHelper.createDatabase(1)
+        // Insert some data, we'll validate it is present after migration
+        connection.prepare("INSERT INTO AutoMigrationEntity (pk) VALUES (?)").use {
+            it.bindLong(1, 1)
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.close()
+
+        // Auto migrate to V2
+        migrationTestHelper.runMigrationsAndValidate(2)
+    }
+
+    @Test
+    fun misuseTestHelperAlreadyCreatedDatabase() {
+        val migrationTestHelper = getTestHelper()
+
+        // Create database V1
+        migrationTestHelper.createDatabase(1).close()
+
+        // When trying to create at V1 again, fail due to database file being already created.
+        assertThrows<IllegalStateException> {
+            migrationTestHelper.createDatabase(1)
+        }.hasMessageThat()
+            .contains("Creation of tables didn't occur while creating a new database.")
+
+        // If trying to create at V2, migration will try to run and fail.
+        assertThrows<IllegalStateException> {
+            migrationTestHelper.createDatabase(2)
+        }.hasMessageThat()
+            .contains("A migration from 1 to 2 was required but not found.")
+    }
+
+    @Test
+    fun misuseTestHelperMissingDatabaseForValidateMigrations() {
+        val migrationTestHelper = getTestHelper()
+
+        // Try to validate migrations, but fail due to no previous database created.
+        assertThrows<IllegalStateException> {
+            migrationTestHelper.runMigrationsAndValidate(2, emptyList())
+        }.hasMessageThat()
+            .contains("Creation of tables should never occur while validating migrations.")
     }
 
     @Entity

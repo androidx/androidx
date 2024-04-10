@@ -24,6 +24,11 @@ import androidx.room.util.findAndInstantiateDatabaseImpl
 actual object Room {
 
     /**
+     * The master table name where Room keeps its metadata information.
+     */
+    actual const val MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME
+
+    /**
      * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
      * database disappears when the process is killed. Once a database is built, you should keep a
      * reference to it and re-use it.

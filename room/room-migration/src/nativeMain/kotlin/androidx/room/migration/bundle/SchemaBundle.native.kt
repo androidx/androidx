@@ -17,8 +17,13 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.okio.decodeFromBufferedSource
+import kotlinx.serialization.json.okio.encodeToBufferedSink
+import okio.BufferedSink
+import okio.BufferedSource
 
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -32,5 +37,16 @@ actual class SchemaBundle actual constructor(
     actual override fun isSchemaEqual(other: SchemaBundle): Boolean {
         return formatVersion == other.formatVersion &&
             SchemaEqualityUtil.checkSchemaEquality(database, other.database)
+    }
+
+    companion object {
+        @OptIn(ExperimentalSerializationApi::class) // For decodeFromBufferedSource
+        fun deserialize(source: BufferedSource): SchemaBundle =
+            json.decodeFromBufferedSource(source)
+
+        @OptIn(ExperimentalSerializationApi::class) // For encodeToBufferedSink
+        fun serialize(bundle: SchemaBundle, sink: BufferedSink) {
+            json.encodeToBufferedSink(bundle, sink)
+        }
     }
 }

@@ -437,7 +437,7 @@ package androidx.navigation {
     property public String name;
   }
 
-  public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]> {
+  public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]?> {
     ctor public NavType.ParcelableArrayType(Class<D> type);
     method public D[]? get(android.os.Bundle bundle, String key);
     method public D[] parseValue(String value);
@@ -454,7 +454,7 @@ package androidx.navigation {
     property public String name;
   }
 
-  public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]> {
+  public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]?> {
     ctor public NavType.SerializableArrayType(Class<D> type);
     method public D[]? get(android.os.Bundle bundle, String key);
     method public D[] parseValue(String value);

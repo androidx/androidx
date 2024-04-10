@@ -83,7 +83,11 @@ class KeylineSnapPositionTest {
         val smallSize = 100f
         val mediumSize = 200f
         val largeSize = 400f
-        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, CarouselAlignment.Center) {
+        val keylineList = keylineListOf(
+            carouselMainAxisSize = 1000f,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Center
+        ) {
             add(xSmallSize, isAnchor = true)
             add(smallSize)
             add(mediumSize)
@@ -93,7 +97,7 @@ class KeylineSnapPositionTest {
             add(xSmallSize, isAnchor = true)
         }
 
-        return Strategy { keylineList }.apply(1000f)
+        return Strategy { _, _ -> keylineList }.apply(availableSpace = 1000f, itemSpacing = 0f)
     }
 
     // Test strategy that is start aligned:
@@ -110,7 +114,11 @@ class KeylineSnapPositionTest {
         val smallSize = 100f
         val mediumSize = 200f
         val largeSize = 400f
-        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, CarouselAlignment.Start) {
+        val keylineList = keylineListOf(
+            carouselMainAxisSize = 1000f,
+            itemSpacing = 0f,
+            carouselAlignment = CarouselAlignment.Start
+        ) {
             add(xSmallSize, isAnchor = true)
             add(largeSize)
             add(mediumSize)
@@ -119,7 +127,7 @@ class KeylineSnapPositionTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        return Strategy { keylineList }.apply(1000f)
+        return Strategy { _, _ -> keylineList }.apply(availableSpace = 1000f, itemSpacing = 0f)
     }
 
     // Test strategy that is start aligned:
@@ -134,7 +142,7 @@ class KeylineSnapPositionTest {
         val smallSize = 75f
         val mediumSize = 125f
         val largeSize = 400f
-        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, CarouselAlignment.Start) {
+        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, 0f, CarouselAlignment.Start) {
             add(xSmallSize, isAnchor = true)
             add(largeSize)
             add(largeSize)
@@ -142,6 +150,6 @@ class KeylineSnapPositionTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        return Strategy { keylineList }.apply(1000f)
+        return Strategy { _, _ -> keylineList }.apply(1000f, 0f)
     }
 }

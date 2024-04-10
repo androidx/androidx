@@ -158,6 +158,7 @@ public fun ToggleChip(
     shape = shape,
     toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
     toggleControlWidth = TOGGLE_CONTROL_WIDTH,
+    labelSpacerSize = 0.dp,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -276,6 +277,7 @@ public fun ToggleChip(
     shape = shape,
     toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
     toggleControlWidth = TOGGLE_CONTROL_WIDTH,
+    labelSpacerSize = 0.dp,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -402,6 +404,7 @@ public fun SplitToggleChip(
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
     shape = shape,
+    labelSpacerSize = 0.dp,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -525,6 +528,7 @@ public fun SplitToggleChip(
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
     shape = shape,
+    labelSpacerSize = 0.dp,
     ripple = rippleOrFallbackImplementation()
 )
 

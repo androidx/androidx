@@ -19,6 +19,10 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
+import androidx.annotation.RestrictTo
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
 
 /**
  * Construct a new [NavGraph]
@@ -60,6 +64,26 @@ public actual inline fun NavigatorProvider.navigation(
     .build()
 
 /**
+ * Construct a new [NavGraph]
+ *
+ * @param startDestination the starting destination's route as a [KClass] for this NavGraph. The
+ * respective NavDestination must be added as a [KClass] in order to match.
+ * @param route the graph's unique route as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
+ *
+ * @return the newly constructed NavGraph
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun NavigatorProvider.navigation(
+    startDestination: KClass<*>,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, NavType<*>>? = null,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder)
+    .build()
+
+/**
  * Construct a nested [NavGraph]
  *
  * @param id the destination's unique id
@@ -98,6 +122,25 @@ public actual inline fun NavGraphBuilder.navigation(
 ): Unit = destination(NavGraphBuilder(provider, startDestination, route).apply(builder))
 
 /**
+ * Construct a nested [NavGraph]
+ *
+ * @param startDestination the starting destination's route as a [KClass] for this NavGraph. The
+ * respective NavDestination must be added as a [KClass] in order to match.
+ * @param route the graph's unique route as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
+ *
+ * @return the newly constructed nested NavGraph
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun NavGraphBuilder.navigation(
+    startDestination: KClass<*>,
+    route: KClass<*>,
+    typeMap: Map<KType, NavType<*>>? = null,
+    builder: NavGraphBuilder.() -> Unit
+): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
+
+/**
  * DSL for constructing a new [NavGraph]
  */
 @NavDestinationDsl
@@ -108,6 +151,7 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     public actual val provider: NavigatorProvider
     @IdRes private var startDestinationId: Int = 0
     private var startDestinationRoute: String? = null
+    private var startDestinationClass: KClass<*>? = null
 
     /**
      * DSL for constructing a new [NavGraph]
@@ -153,6 +197,29 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         this.startDestinationRoute = startDestination
     }
 
+    /**
+     * DSL for constructing a new [NavGraph]
+     *
+     * @param provider navigator used to create the destination
+     * @param startDestination the starting destination's route as a [KClass] for this NavGraph. The
+     * respective NavDestination must be added as a [KClass] in order to match.
+     * @param route the graph's unique route as a [KClass]
+     * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+     * if [route] uses custom NavTypes.
+     *
+     * @return the newly created NavGraph
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        provider: NavigatorProvider,
+        startDestination: KClass<*>,
+        route: KClass<*>?,
+        typeMap: Map<KType, NavType<*>>?
+    ) : super(provider[NavGraphNavigator::class], route, typeMap) {
+        this.provider = provider
+        this.startDestinationClass = startDestination
+    }
+
     private val destinations = mutableListOf<NavDestination>()
 
     /**
@@ -176,17 +243,23 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         destinations += destination
     }
 
+    @OptIn(InternalSerializationApi::class)
     override fun build(): NavGraph = super.build().also { navGraph ->
         navGraph.addDestinations(destinations)
-        if (startDestinationId == 0 && startDestinationRoute == null) {
+        if (startDestinationId == 0 && startDestinationRoute == null &&
+            startDestinationClass == null) {
             if (route != null) {
                 throw IllegalStateException("You must set a start destination route")
-            } else {
+            } else if (startDestinationId == 0) {
                 throw IllegalStateException("You must set a start destination id")
+            } else {
+                throw IllegalStateException("You must set a start destination KClass")
             }
         }
         if (startDestinationRoute != null) {
             navGraph.setStartDestination(startDestinationRoute!!)
+        } else if (startDestinationClass != null) {
+            navGraph.setStartDestination(startDestinationClass!!)
         } else {
             navGraph.setStartDestination(startDestinationId)
         }

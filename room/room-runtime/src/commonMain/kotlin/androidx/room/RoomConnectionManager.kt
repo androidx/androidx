@@ -16,9 +16,9 @@
 
 package androidx.room
 
+import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase.JournalMode.TRUNCATE
 import androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
-import androidx.room.coroutines.ConnectionPool
 import androidx.room.util.findMigrationPath
 import androidx.room.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
@@ -35,10 +35,10 @@ internal expect class RoomConnectionManager : BaseRoomConnectionManager
  * Base class for Room's database connection manager, responsible for opening and managing such
  * connections, including performing migrations if necessary and validating schema.
  */
-internal abstract class BaseRoomConnectionManager {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+abstract class BaseRoomConnectionManager {
 
     protected abstract val configuration: DatabaseConfiguration
-    protected abstract val connectionPool: ConnectionPool
     protected abstract val openDelegate: RoomOpenDelegate
     protected abstract val callbacks: List<RoomDatabase.Callback>
 

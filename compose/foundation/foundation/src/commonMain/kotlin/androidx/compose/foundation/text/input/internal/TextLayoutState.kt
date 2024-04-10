@@ -250,14 +250,3 @@ internal fun TextLayoutState.fromWindowToDecoration(offset: Offset): Offset {
         }
     } ?: offset
 }
-
-/**
- * Asks [TextLayoutState.bringIntoViewRequester] to bring the bounds of the cursor at [cursorIndex]
- * into view.
- */
-@OptIn(ExperimentalFoundationApi::class)
-internal suspend fun TextLayoutState.bringCursorIntoView(cursorIndex: Int) {
-    val layoutResult = layoutResult ?: return
-    val rect = layoutResult.getCursorRect(cursorIndex)
-    bringIntoViewRequester.bringIntoView(rect)
-}

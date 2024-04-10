@@ -19,6 +19,8 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
+import androidx.compose.foundation.lazy.layout.estimatedLazyMaxScrollOffset
+import androidx.compose.foundation.lazy.layout.estimatedLazyScrollOffset
 import androidx.compose.ui.semantics.CollectionInfo
 
 internal fun LazyLayoutSemanticState(
@@ -26,12 +28,17 @@ internal fun LazyLayoutSemanticState(
     isVertical: Boolean
 ): LazyLayoutSemanticState = object : LazyLayoutSemanticState {
 
-    override val firstVisibleItemScrollOffset: Int
-        get() = state.firstVisibleItemScrollOffset
-    override val firstVisibleItemIndex: Int
-        get() = state.firstVisibleItemIndex
-    override val canScrollForward: Boolean
-        get() = state.canScrollForward
+    override val scrollOffset: Float
+        get() = estimatedLazyScrollOffset(
+            state.firstVisibleItemIndex,
+            state.firstVisibleItemScrollOffset
+        )
+    override val maxScrollOffset: Float
+        get() = estimatedLazyMaxScrollOffset(
+            state.firstVisibleItemIndex,
+            state.firstVisibleItemScrollOffset,
+            state.canScrollForward
+        )
 
     override suspend fun animateScrollBy(delta: Float) {
         state.animateScrollBy(delta)

@@ -261,6 +261,18 @@ object Arguments {
         runOnMainDeadlineSeconds =
             arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
         Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
+
+        if (arguments.getString("orchestratorService") != null) {
+            InstrumentationResults.scheduleIdeWarningOnNextReport(
+                """
+                    AndroidX Benchmark does not support running with the AndroidX Test Orchestrator.
+
+                    AndroidX benchmarks (micro and macro) produce one JSON file per test module,
+                    which together with Test Orchestrator restarting the process frequently causes
+                    benchmark output JSON files to be repeatedly overwritten during the test.
+                    """.trimIndent()
+            )
+        }
     }
 
     fun macrobenchMethodTracingEnabled(): Boolean {

@@ -471,6 +471,7 @@ class CoreTextFieldInputServiceIntegrationTest {
                 cursorAnchorInfos += cursorAnchorInfo
             }
 
+            override fun startStylusHandwriting() {}
             override fun isActive(): Boolean = true
             override fun restartInput() {}
             override fun showSoftInput() {}

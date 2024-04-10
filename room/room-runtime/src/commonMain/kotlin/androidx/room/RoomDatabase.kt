@@ -254,7 +254,7 @@ expect abstract class RoomDatabase {
      * A container to hold migrations. It also allows querying its contents to find migrations
      * between two versions.
      */
-    class MigrationContainer {
+    class MigrationContainer() {
         /**
          * Returns the map of available migrations where the key is the start version of the
          * migration, and the value is a map of (end version -> Migration).
@@ -264,12 +264,31 @@ expect abstract class RoomDatabase {
         fun getMigrations(): Map<Int, Map<Int, Migration>>
 
         /**
+         * Adds the given migrations to the list of available migrations. If 2 migrations have the
+         * same start-end versions, the latter migration overrides the previous one.
+         *
+         * @param migrations List of available migrations.
+         */
+        fun addMigrations(migrations: List<Migration>)
+
+        /**
          * Add a [Migration] to the container. If the container already has a migration with the
          * same start-end versions then it will be overwritten.
          *
          * @param migration the migration to add.
          */
-        internal fun addMigration(migration: Migration)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun addMigration(migration: Migration)
+
+        /**
+         * Indicates if the given migration is contained within the [MigrationContainer] based
+         * on its start-end versions.
+         *
+         * @param startVersion Start version of the migration.
+         * @param endVersion End version of the migration
+         * @return True if it contains a migration with the same start-end version, false otherwise.
+         */
+        fun contains(startVersion: Int, endVersion: Int): Boolean
 
         /**
          * Returns a pair corresponding to an entry in the map of available migrations whose key

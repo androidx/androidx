@@ -54,7 +54,6 @@ configurations {
 
 androidXMultiplatform {
     android()
-    androidNative()
     ios() {
         // Link to sqlite3 available in iOS
         binaries.all {

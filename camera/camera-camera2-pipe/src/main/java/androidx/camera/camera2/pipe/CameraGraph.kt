@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.compat.AudioRestrictionMode
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -152,6 +153,21 @@ interface CameraGraph : AutoCloseable {
      * Changing a surface may cause the camera to stall and/or reconfigure.
      */
     fun setSurface(stream: StreamId, surface: Surface?)
+
+    /**
+     * CameraPipe allows setting the global audio restriction through [CameraPipe] and audio
+     * restrictions on individual [CameraGraph]s. When multiple settings are present, the highest
+     * level of audio restriction across global and individual [CameraGraph]s is used as the
+     * device's audio restriction
+     *
+     * Returns the mode of audio restriction associated with the [CameraGraph].
+     */
+    fun getAudioRestriction(): AudioRestrictionMode?
+
+    /**
+     * Sets the audio restriction of CameraGraph.
+     */
+    fun setAudioRestriction(mode: AudioRestrictionMode)
 
     /**
      * This defines the configuration, flags, and pre-defined structure of a [CameraGraph] instance.

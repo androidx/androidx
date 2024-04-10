@@ -22,7 +22,6 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
@@ -287,7 +286,6 @@ object PagerDefaults {
      * position. If the velocity is high enough, the Pager will use the logic described in
      * [decayAnimationSpec] and [snapAnimationSpec].
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun flingBehavior(
         state: PagerState,
@@ -384,14 +382,6 @@ private class DefaultPagerNestedScrollConnection(
 ) : NestedScrollConnection {
 
     fun Velocity.consumeOnOrientation(orientation: Orientation): Velocity {
-        return if (orientation == Orientation.Vertical) {
-            copy(x = 0f)
-        } else {
-            copy(y = 0f)
-        }
-    }
-
-    fun Offset.consumeOnOrientation(orientation: Orientation): Offset {
         return if (orientation == Orientation.Vertical) {
             copy(x = 0f)
         } else {

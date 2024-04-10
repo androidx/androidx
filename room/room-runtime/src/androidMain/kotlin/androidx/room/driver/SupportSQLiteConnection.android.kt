@@ -16,10 +16,12 @@
 
 package androidx.room.driver
 
+import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-internal class SupportSQLiteConnection(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class SupportSQLiteConnection(
     val db: SupportSQLiteDatabase
 ) : SQLiteConnection {
     override fun prepare(sql: String): SupportSQLiteStatement {

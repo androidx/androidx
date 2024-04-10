@@ -17,15 +17,25 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.room.Room
+import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.io.path.Path
 import kotlin.io.path.createTempFile
+import org.junit.Rule
 
 class AutoMigrationTest : BaseAutoMigrationTest() {
-    private val tempFile = createTempFile(
-        "test.db"
-    ).also { it.toFile().deleteOnExit() }
-    override val driver: SQLiteDriver = BundledSQLiteDriver(tempFile.toString())
+    private val tempFile = createTempFile("test.db").also { it.toFile().deleteOnExit() }
+    private val driver: SQLiteDriver = BundledSQLiteDriver(tempFile.toString())
+
+    @get:Rule
+    val migrationTestHelper = MigrationTestHelper(
+        schemaDirectoryPath = Path("schemas-ksp"),
+        driver = driver,
+        databaseClass = AutoMigrationDatabase::class
+    )
+
+    override fun getTestHelper() = migrationTestHelper
 
     override fun getRoomDatabase(): AutoMigrationDatabase {
         return Room.databaseBuilder<AutoMigrationDatabase>(tempFile.toString())

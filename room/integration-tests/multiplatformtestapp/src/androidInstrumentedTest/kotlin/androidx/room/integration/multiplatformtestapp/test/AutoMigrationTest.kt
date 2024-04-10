@@ -20,19 +20,30 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room.Room
 import androidx.room.migration.Migration
+import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.sqlite.execSQL
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import org.junit.Rule
+
 class AutoMigrationTest : BaseAutoMigrationTest() {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val file = instrumentation.targetContext.getDatabasePath("test.db")
-    override val driver: SQLiteDriver = BundledSQLiteDriver(file.path)
+    private val driver: SQLiteDriver = BundledSQLiteDriver(file.path)
+
+    @get:Rule
+    val migrationTestHelper = MigrationTestHelper(
+        instrumentation = instrumentation,
+        driver = driver,
+        databaseClass = AutoMigrationDatabase::class
+    )
+
+    override fun getTestHelper() = migrationTestHelper
 
     override fun getRoomDatabase(): AutoMigrationDatabase {
         return Room.databaseBuilder<AutoMigrationDatabase>(
@@ -43,9 +54,8 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
 
     @Test
     fun migrationWithWrongOverride() = runTest {
-        val connection = driver.open()
         // Create database in V1
-        connection.execSQL("PRAGMA user_version = 1")
+        val connection = migrationTestHelper.createDatabase(1)
         connection.close()
 
         // Auto migrate to V2

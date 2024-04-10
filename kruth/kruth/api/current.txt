@@ -265,56 +265,56 @@ package androidx.kruth {
     method public void inOrder();
   }
 
-  public final class PrimitiveBooleanArraySubject extends androidx.kruth.Subject<boolean[]> {
+  public final class PrimitiveBooleanArraySubject extends androidx.kruth.Subject<boolean[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Boolean> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveByteArraySubject extends androidx.kruth.Subject<byte[]> {
+  public final class PrimitiveByteArraySubject extends androidx.kruth.Subject<byte[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Byte> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveCharArraySubject extends androidx.kruth.Subject<char[]> {
+  public final class PrimitiveCharArraySubject extends androidx.kruth.Subject<char[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Character> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveDoubleArraySubject extends androidx.kruth.Subject<double[]> {
+  public final class PrimitiveDoubleArraySubject extends androidx.kruth.Subject<double[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Double> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveFloatArraySubject extends androidx.kruth.Subject<float[]> {
+  public final class PrimitiveFloatArraySubject extends androidx.kruth.Subject<float[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Float> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveIntArraySubject extends androidx.kruth.Subject<int[]> {
+  public final class PrimitiveIntArraySubject extends androidx.kruth.Subject<int[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Integer> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveLongArraySubject extends androidx.kruth.Subject<long[]> {
+  public final class PrimitiveLongArraySubject extends androidx.kruth.Subject<long[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Long> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
   }
 
-  public final class PrimitiveShortArraySubject extends androidx.kruth.Subject<short[]> {
+  public final class PrimitiveShortArraySubject extends androidx.kruth.Subject<short[]?> {
     method public androidx.kruth.IterableSubject<java.lang.Short> asList();
     method public void hasLength(int length);
     method public void isEmpty();

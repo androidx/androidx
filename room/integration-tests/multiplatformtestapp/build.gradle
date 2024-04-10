@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import androidx.build.KmpPlatformsKt
+import org.apache.commons.io.FileUtils
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -37,6 +41,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(project(":room:room-runtime"))
+                implementation(project(":room:room-testing"))
                 implementation(project(":sqlite:sqlite-bundled"))
                 implementation(project(":kruth:kruth"))
                 implementation(libs.kotlinTest)
@@ -60,10 +65,25 @@ androidXMultiplatform {
         nativeTest {
             dependsOn(commonTest)
         }
+        nonIosNativeTest {
+            dependsOn(nativeTest)
+        }
+        if (KmpPlatformsKt.enableMac(project)) {
+            iosTest {
+                dependsOn(nativeTest)
+            }
+        }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
+                def test = target.compilations["test"]
+                if (target.konanTarget.family == Family.IOS) {
+                    test.defaultSourceSet {
+                        dependsOn(iosTest)
+                    }
+                } else {
+                    test.defaultSourceSet {
+                        dependsOn(nonIosNativeTest)
+                    }
                 }
             }
         }
@@ -86,6 +106,23 @@ dependencies {
 
 android {
     namespace "androidx.room.integration.multiplatformtestapp"
+    // TODO(b/317909626): Should be configured by Room Gradle Plugin
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
+    }
+}
+
+// Copy schema files to the iOS binary output test directory that will be part of the bundle's
+// resources and read with NSBundle. This needs to be replaced with a more proper mechanism.
+// TODO(b/317909626): Should be configured by Room Gradle Plugin
+tasks.withType(KotlinNativeLink).configureEach { task ->
+    if (name.contains("linkDebugTestIos")) {
+        def inputSchemaDir = layout.projectDirectory.dir("schemas-ksp").getAsFile()
+        def outputSchemaDir = new File(task.destinationDirectory.getAsFile().get(), "/schemas-ksp")
+        task.doLast {
+            FileUtils.copyDirectory(inputSchemaDir, outputSchemaDir)
+        }
+    }
 }
 
 room {

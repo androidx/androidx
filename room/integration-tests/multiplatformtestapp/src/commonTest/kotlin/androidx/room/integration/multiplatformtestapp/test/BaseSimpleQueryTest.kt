@@ -100,11 +100,17 @@ abstract class BaseSimpleQueryTest {
 
         val channel = dao.getItemListFlow().produceIn(this)
 
-        assertThat(channel.receive()).containsExactly(SampleEntity(1))
+        assertThat(channel.receive()).containsExactly(
+            SampleEntity(1)
+        )
 
         dao.insertItem(2)
-        dao.insertItem(3)
+        assertThat(channel.receive()).containsExactly(
+            SampleEntity(1),
+            SampleEntity(2),
+        )
 
+        dao.insertItem(3)
         assertThat(channel.receive()).containsExactly(
             SampleEntity(1),
             SampleEntity(2),

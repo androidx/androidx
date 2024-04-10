@@ -18,6 +18,7 @@ package androidx.room.driver
 
 import android.database.Cursor
 import android.database.DatabaseUtils
+import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteProgram
@@ -26,7 +27,8 @@ import androidx.sqlite.throwSQLiteException
 
 private typealias SupportStatement = androidx.sqlite.db.SupportSQLiteStatement
 
-internal sealed class SupportSQLiteStatement(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+sealed class SupportSQLiteStatement(
     protected val db: SupportSQLiteDatabase,
     protected val sql: String,
 ) : SQLiteStatement {

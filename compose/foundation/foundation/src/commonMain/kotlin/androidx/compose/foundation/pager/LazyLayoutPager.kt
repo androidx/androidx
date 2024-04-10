@@ -127,7 +127,6 @@ internal fun Pager(
 
     val semanticState = rememberPagerSemanticState(
         state,
-        reverseLayout,
         orientation == Orientation.Vertical
     )
 

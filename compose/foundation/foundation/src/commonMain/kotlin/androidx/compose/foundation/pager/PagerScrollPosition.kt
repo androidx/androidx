@@ -116,12 +116,6 @@ internal class PagerScrollPosition(
         currentPageOffsetFraction = offsetFraction
     }
 
-    fun currentAbsoluteScrollOffset(): Long {
-        val currentPageOffset = currentPage.toLong() * state.pageSizeWithSpacing
-        val offsetFraction = (currentPageOffsetFraction * state.pageSizeWithSpacing).roundToLong()
-        return currentPageOffset + offsetFraction
-    }
-
     fun applyScrollDelta(delta: Int) {
         debugLog { "Applying Delta=$delta" }
         val fractionUpdate = if (state.pageSizeWithSpacing == 0) {
@@ -148,4 +142,10 @@ private inline fun debugLog(generateMsg: () -> String) {
     if (PagerDebugConfig.ScrollPosition) {
         println("PagerScrollPosition: ${generateMsg()}")
     }
+}
+
+internal fun PagerState.currentAbsoluteScrollOffset(): Long {
+    val currentPageOffset = currentPage.toLong() * pageSizeWithSpacing
+    val offsetFraction = (currentPageOffsetFraction * pageSizeWithSpacing).roundToLong()
+    return currentPageOffset + offsetFraction
 }

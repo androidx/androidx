@@ -783,7 +783,8 @@ constructor(
         return isMigrationRequiredExt(fromVersion, toVersion)
     }
 
-    internal fun copy(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun copy(
         context: Context = this.context,
         name: String? = this.name,
         sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory? = this.sqliteOpenHelperFactory,

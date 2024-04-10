@@ -182,7 +182,7 @@ package androidx.constraintlayout.core {
     ctor public PriorityGoalRow(androidx.constraintlayout.core.Cache!);
   }
 
-  public class SolverVariable implements java.lang.Comparable<androidx.constraintlayout.core.SolverVariable> {
+  public class SolverVariable implements java.lang.Comparable<androidx.constraintlayout.core.SolverVariable!> {
     ctor public SolverVariable(androidx.constraintlayout.core.SolverVariable.Type!, String!);
     ctor public SolverVariable(String!, androidx.constraintlayout.core.SolverVariable.Type!);
     method public final void addToRow(androidx.constraintlayout.core.ArrayRow!);
@@ -954,7 +954,7 @@ package androidx.constraintlayout.core.motion {
     field public String! mId;
   }
 
-  public class MotionPaths implements java.lang.Comparable<androidx.constraintlayout.core.motion.MotionPaths> {
+  public class MotionPaths implements java.lang.Comparable<androidx.constraintlayout.core.motion.MotionPaths!> {
     ctor public MotionPaths();
     ctor public MotionPaths(int, int, androidx.constraintlayout.core.motion.key.MotionKeyPosition!, androidx.constraintlayout.core.motion.MotionPaths!, androidx.constraintlayout.core.motion.MotionPaths!);
     method public void applyParameters(androidx.constraintlayout.core.motion.MotionWidget!);
@@ -1953,7 +1953,7 @@ package androidx.constraintlayout.core.parser {
     method public void putValue(float);
   }
 
-  public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey> {
+  public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey!> {
     ctor public CLObject(char[]!);
     method public static androidx.constraintlayout.core.parser.CLObject! allocate(char[]!);
     method public androidx.constraintlayout.core.parser.CLObject clone();

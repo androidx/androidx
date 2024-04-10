@@ -755,6 +755,32 @@ class TextFieldScrollTest : FocusedWindowTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun textFieldDoesNotCrash_inVerticallyScrollableContainer_whenFieldShrinks() {
+        // Start as a single line, then enter '\n' to grow to 2 lines.
+        val state = TextFieldState("\n\n\n\n\n\n\n\n\n")
+        rule.setContent {
+            BasicTextField(
+                state,
+                // The field should never scroll internally.
+                lineLimits = MultiLine(maxHeightInLines = Int.MAX_VALUE),
+                modifier = Modifier
+                    .testTag("field")
+                    .border(1.dp, Color.Blue)
+            )
+        }
+        rule.onNodeWithTag("field").requestFocus()
+
+        // remove lines in quick succession and expect to not crash
+        repeat(state.text.length) {
+            rule.onNodeWithTag("field").performKeyInput { pressKey(Key.Backspace) }
+        }
+
+        rule.waitForIdle()
+        assertThat(state.text.toString()).isEmpty()
+    }
+
     private fun ComposeContentTestRule.setupHorizontallyScrollableContent(
         state: TextFieldState,
         scrollState: ScrollState,

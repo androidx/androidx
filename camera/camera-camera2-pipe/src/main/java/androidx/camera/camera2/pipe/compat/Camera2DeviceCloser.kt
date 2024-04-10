@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
@@ -37,6 +38,7 @@ internal interface Camera2DeviceCloser {
         cameraDevice: CameraDevice? = null,
         closeUnderError: Boolean = false,
         androidCameraState: AndroidCameraState,
+        audioRestriction: AudioRestrictionController?
     )
 }
 
@@ -51,6 +53,7 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
         cameraDevice: CameraDevice?,
         closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
+        audioRestriction: AudioRestrictionController?
     ) {
         Log.debug { "Closing $cameraDeviceWrapper and/or $cameraDevice" }
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
@@ -61,14 +64,32 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
                         "but the accompanied camera device has camera ID ${it.id}"
                 }
             }
-            closeCameraDevice(unwrappedCameraDevice, closeUnderError, androidCameraState)
+            closeCameraDevice(
+                unwrappedCameraDevice,
+                closeUnderError,
+                androidCameraState
+            )
             cameraDeviceWrapper.onDeviceClosed()
+            /**
+             * Only remove the audio restriction when CameraDeviceWrapper is present.
+             * When closeCamera is called without a CameraDeviceWrapper, that means a wrapper
+             * hadn't been created for the opened camera.
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                audioRestriction?.removeListener(cameraDeviceWrapper)
+            }
 
             // We only need to close the device once (don't want to create another capture session).
             // Return here.
             return
         }
-        cameraDevice?.let { closeCameraDevice(it, closeUnderError, androidCameraState) }
+        cameraDevice?.let {
+            closeCameraDevice(
+                it,
+                closeUnderError,
+                androidCameraState
+            )
+        }
     }
 
     private fun closeCameraDevice(

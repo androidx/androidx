@@ -35,9 +35,10 @@ import androidx.sqlite.use
 internal actual class RoomConnectionManager : BaseRoomConnectionManager {
 
     override val configuration: DatabaseConfiguration
-    override val connectionPool: ConnectionPool
     override val openDelegate: RoomOpenDelegate
     override val callbacks: List<RoomDatabase.Callback>
+
+    private val connectionPool: ConnectionPool
 
     internal val supportOpenHelper: SupportSQLiteOpenHelper?
         get() = (connectionPool as? SupportConnectionPool)?.supportDriver?.openHelper
@@ -49,6 +50,8 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         openDelegate: RoomOpenDelegate
     ) {
         this.configuration = config
+        this.openDelegate = openDelegate
+        this.callbacks = config.callbacks ?: emptyList()
         if (config.sqliteDriver == null) {
             // Compatibility mode due to no driver provided, instead a driver (SupportSQLiteDriver)
             // is created that wraps SupportSQLite* APIs. The underlying SupportSQLiteDatabase will
@@ -79,8 +82,6 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                 )
             }
         }
-        this.openDelegate = openDelegate
-        this.callbacks = config.callbacks ?: emptyList()
         init()
     }
 
@@ -90,6 +91,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     ) {
         this.configuration = config
         this.openDelegate = NoOpOpenDelegate()
+        this.callbacks = config.callbacks ?: emptyList()
         // Compatibility mode due to no driver provided, the SupportSQLiteDriver and
         // SupportConnectionPool are created. A Room onOpen callback is installed so that the
         // SupportSQLiteDatabase is extracted out of the RoomOpenHelper installed.
@@ -98,7 +100,6 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         this.connectionPool = SupportConnectionPool(
             SupportSQLiteDriver(supportOpenHelperFactory.invoke(configWithCompatibilityCallback))
         )
-        this.callbacks = config.callbacks ?: emptyList()
         init()
     }
 

@@ -63,6 +63,8 @@ internal abstract class LegacyPlatformTextInputServiceAdapter : PlatformTextInpu
         textInputModifierNode?.softwareKeyboardController?.hide()
     }
 
+    abstract fun startStylusHandwriting()
+
     interface LegacyPlatformTextInputNode {
         val softwareKeyboardController: SoftwareKeyboardController?
         val layoutCoordinates: LayoutCoordinates?

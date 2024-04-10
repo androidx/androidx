@@ -171,7 +171,7 @@ abstract class PagerState(
     internal var upDownDifference: Offset by mutableStateOf(Offset.Zero)
     private val animatedScrollScope = PagerLazyAnimateScrollScope(this)
 
-    internal val scrollPosition = PagerScrollPosition(currentPage, currentPageOffsetFraction, this)
+    private val scrollPosition = PagerScrollPosition(currentPage, currentPageOffsetFraction, this)
 
     internal var firstVisiblePage = currentPage
         private set
@@ -180,10 +180,8 @@ abstract class PagerState(
         private set
 
     private var maxScrollOffset: Long = Long.MAX_VALUE
-        private set
 
     private var minScrollOffset: Long = 0L
-        private set
 
     private var accumulator: Float = 0.0f
 
@@ -204,7 +202,7 @@ abstract class PagerState(
      * determine scroll deltas and max min scrolling.
      */
     private fun performScroll(delta: Float): Float {
-        val currentScrollPosition = scrollPosition.currentAbsoluteScrollOffset()
+        val currentScrollPosition = currentAbsoluteScrollOffset()
         debugLog {
             "\nDelta=$delta " +
                 "\ncurrentScrollPosition=$currentScrollPosition " +
@@ -276,8 +274,7 @@ abstract class PagerState(
     internal var layoutWithMeasurement: Int = 0
         private set
 
-    internal var layoutWithoutMeasurement: Int = 0
-        private set
+    private var layoutWithoutMeasurement: Int = 0
 
     /**
      * Only used for testing to disable prefetching when needed to test the main logic.
@@ -776,12 +773,10 @@ abstract class PagerState(
     ): Int = scrollPosition.matchPageWithKey(itemProvider, currentPage)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun PagerState.animateToNextPage() {
     if (currentPage + 1 < pageCount) animateScrollToPage(currentPage + 1)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun PagerState.animateToPreviousPage() {
     if (currentPage - 1 >= 0) animateScrollToPage(currentPage - 1)
 }
@@ -830,7 +825,7 @@ private inline fun debugLog(generateMsg: () -> String) {
     }
 }
 
-private fun PagerMeasureResult.calculateNewMaxScrollOffset(pageCount: Int): Long {
+internal fun PagerLayoutInfo.calculateNewMaxScrollOffset(pageCount: Int): Long {
     val pageSizeWithSpacing = pageSpacing + pageSize
     val maxScrollPossible =
         (pageCount.toLong()) * pageSizeWithSpacing + beforeContentPadding + afterContentPadding

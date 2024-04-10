@@ -85,12 +85,12 @@ package androidx.benchmark.macro {
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryCountersMetric extends androidx.benchmark.macro.TraceMetric {
     ctor public MemoryCountersMetric();
-    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getMeasurements(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryUsageMetric extends androidx.benchmark.macro.TraceMetric {
     ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode, optional java.util.List<? extends androidx.benchmark.macro.MemoryUsageMetric.SubMetric> subMetrics);
-    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+    method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getMeasurements(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
   }
 
   public enum MemoryUsageMetric.Mode {
@@ -214,7 +214,7 @@ package androidx.benchmark.macro {
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public abstract class TraceMetric extends androidx.benchmark.macro.Metric {
     ctor public TraceMetric();
-    method public abstract java.util.List<androidx.benchmark.macro.Metric.Measurement> getResult(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
+    method public abstract java.util.List<androidx.benchmark.macro.Metric.Measurement> getMeasurements(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.perfetto.PerfettoTraceProcessor.Session traceSession);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class TraceSectionMetric extends androidx.benchmark.macro.Metric {
@@ -256,7 +256,7 @@ package androidx.benchmark.perfetto {
     method public byte[] rawQuery(@org.intellij.lang.annotations.Language("sql") String query);
   }
 
-  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object> {
+  @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object?> {
     ctor public Row(java.util.Map<java.lang.String,?> map);
     method public byte[] bytes(String columnName);
     method public double double(String columnName);

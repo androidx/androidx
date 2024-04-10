@@ -30,6 +30,7 @@ import androidx.room.migration.bundle.IndexBundle
 import androidx.room.util.FtsTableInfo
 import androidx.room.util.TableInfo
 import androidx.room.util.ViewInfo
+import kotlin.jvm.JvmName
 
 internal fun EntityBundle.toTableInfo(): TableInfo {
     return TableInfo(

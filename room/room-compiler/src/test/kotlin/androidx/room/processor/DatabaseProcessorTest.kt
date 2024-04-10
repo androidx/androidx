@@ -1370,7 +1370,8 @@ class DatabaseProcessorTest {
             USER, AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorCount(1)
+                hasErrorCount(2)
+                hasErrorContaining("Unable to read schema file")
                 hasErrorContaining(
                     ProcessorErrors.invalidAutoMigrationSchema(
                         1,
@@ -1401,7 +1402,8 @@ class DatabaseProcessorTest {
             USER, AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorCount(1)
+                hasErrorCount(2)
+                hasErrorContaining("Unable to read schema file")
                 hasErrorContaining(
                     invalidAutoMigrationSchema(
                         1,

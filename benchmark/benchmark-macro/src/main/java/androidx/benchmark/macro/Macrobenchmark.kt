@@ -326,7 +326,7 @@ private fun macrobenchmark(
                         metrics
                             // capture list of Measurements
                             .map {
-                                it.getResult(
+                                it.getMeasurements(
                                     Metric.CaptureInfo(
                                         targetPackageName = packageName,
                                         testPackageName = macrobenchPackageName,

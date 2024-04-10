@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.compat.AudioRestrictionMode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -70,6 +71,14 @@ class FakeCameraGraph(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         setSurfaceResults[stream] = surface
+    }
+
+    override fun getAudioRestriction(): AudioRestrictionMode? {
+        throw NotImplementedError("Not used in testing")
+    }
+
+    override fun setAudioRestriction(mode: AudioRestrictionMode) {
+        throw NotImplementedError("Not used in testing")
     }
 
     override fun start() {

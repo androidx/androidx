@@ -20,6 +20,9 @@ import androidx.kruth.assertThrows
 import java.io.ByteArrayInputStream
 import java.io.FileInputStream
 import java.io.FileNotFoundException
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.inputStream
 import kotlin.test.Test
 import kotlinx.serialization.SerializationException
 
@@ -43,5 +46,53 @@ class SerializationTest {
         assertThrows<FileNotFoundException> {
             FileInputStream("/fake/file/path").use { SchemaBundle.deserialize(it) }
         }
+    }
+
+    /**
+     * Validates old schemas that didn't have [FieldBundle.isNonNull] ('notNull'),
+     * added in ag/2579620
+     */
+    @Test
+    fun missingFieldBundleNotNull() {
+        getSchemaPath("missing_field_notnull").inputStream().use {
+            SchemaBundle.deserialize(it)
+        }
+    }
+
+    /**
+     * Validates old schemas that didn't have [DatabaseBundle.views] ('views'),
+     * added in aosp/731045
+     */
+    @Test
+    fun missingDatabaseBundleViews() {
+        getSchemaPath("missing_database_views").inputStream().use {
+            SchemaBundle.deserialize(it)
+        }
+    }
+
+    /**
+     * Validates old schemas that didn't have [FieldBundle.defaultValue] ('defaultValue'),
+     * added in aosp/825803
+     */
+    @Test
+    fun missingFieldBundleDefaultValue() {
+        getSchemaPath("missing_field_defaultvalue").inputStream().use {
+            SchemaBundle.deserialize(it)
+        }
+    }
+
+    /**
+     * Validates old schemas that didn't have [IndexBundle.orders] ('orders'),
+     * added in aosp/1707963
+     */
+    @Test
+    fun missingIndexBundleOrders() {
+        getSchemaPath("missing_index_orders").inputStream().use {
+            SchemaBundle.deserialize(it)
+        }
+    }
+
+    private fun getSchemaPath(name: String): Path {
+        return Path("src/jvmTest/test-data/$name.json")
     }
 }

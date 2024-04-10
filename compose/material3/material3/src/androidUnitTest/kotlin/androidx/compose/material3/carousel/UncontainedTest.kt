@@ -37,7 +37,10 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { keylineList }.apply(carouselSize)
+        val strategy = Strategy { _, _ -> keylineList }.apply(
+            availableSpace = carouselSize,
+            itemSpacing = 0f
+        )
         val keylines = strategy.defaultKeylines
         val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
@@ -60,7 +63,10 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { keylineList }.apply(carouselSize)
+        val strategy = Strategy { _, _ -> keylineList }.apply(
+            availableSpace = carouselSize,
+            itemSpacing = 0f
+        )
         val keylines = strategy.defaultKeylines
         val anchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
@@ -86,7 +92,10 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { keylineList }.apply(carouselSize)
+        val strategy = Strategy { _, _ -> keylineList }.apply(
+            availableSpace = carouselSize,
+            itemSpacing = 0f
+        )
         val keylines = strategy.defaultKeylines
         val rightAnchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 
@@ -121,7 +130,10 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { keylineList }.apply(carouselSize)
+        val strategy = Strategy { _, _ -> keylineList }.apply(
+            availableSpace = carouselSize,
+            itemSpacing = 0f
+        )
         val keylines = strategy.defaultKeylines
         val rightAnchorSize = with(Density) { StrategyDefaults.AnchorSize.toPx() }
 

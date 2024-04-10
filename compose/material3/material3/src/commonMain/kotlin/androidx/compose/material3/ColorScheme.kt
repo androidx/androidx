@@ -452,6 +452,8 @@ class ColorScheme(
 
     internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
 
+    internal var defaultExpressiveNavigationBarItemColorsCached: NavigationItemColors? = null
+
     internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
 
     @OptIn(ExperimentalMaterial3Api::class)

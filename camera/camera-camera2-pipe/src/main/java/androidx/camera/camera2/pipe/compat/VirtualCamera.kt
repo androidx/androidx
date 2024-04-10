@@ -22,6 +22,7 @@ package androidx.camera.camera2.pipe.compat
 import android.hardware.camera2.CameraCaptureSession.StateCallback
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraExtensionSession
+import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
@@ -252,7 +253,8 @@ internal class AndroidCameraState(
     private val threads: Threads,
     private val interopDeviceStateCallback: CameraDevice.StateCallback? = null,
     private val interopSessionStateCallback: StateCallback? = null,
-    private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null
+    private val interopExtensionSessionStateCallback: CameraExtensionSession.StateCallback? = null,
+    private val audioRestriction: AudioRestrictionController? = null
 ) : CameraDevice.StateCallback() {
     private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
@@ -334,25 +336,28 @@ internal class AndroidCameraState(
             camera2DeviceCloser.closeCamera(
                 cameraDevice = cameraDevice,
                 closeUnderError = currentCloseInfo.errorCode != null,
-                androidCameraState = this
+                androidCameraState = this,
+                audioRestriction = audioRestriction
             )
             return
         }
 
         // Update _state.value _without_ holding the lock. This may block the calling thread for a
         // while if it synchronously calls createCaptureSession.
+        val androidCameraDevice = AndroidCameraDevice(
+            metadata,
+            cameraDevice,
+            cameraId,
+            cameraErrorListener,
+            interopSessionStateCallback,
+            interopExtensionSessionStateCallback,
+            threads
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            audioRestriction?.addListener(androidCameraDevice)
+        }
         _state.value =
-            CameraStateOpen(
-                AndroidCameraDevice(
-                    metadata,
-                    cameraDevice,
-                    cameraId,
-                    cameraErrorListener,
-                    interopSessionStateCallback,
-                    interopExtensionSessionStateCallback,
-                    threads
-                )
-            )
+            CameraStateOpen(androidCameraDevice)
 
         // Check to see if we received close() or other events in the meantime.
         val closeInfo =
@@ -365,7 +370,8 @@ internal class AndroidCameraState(
             camera2DeviceCloser.closeCamera(
                 cameraDevice = cameraDevice,
                 closeUnderError = closeInfo.errorCode != null,
-                androidCameraState = this
+                androidCameraState = this,
+                audioRestriction = audioRestriction
             )
             _state.value = computeClosedState(closeInfo)
         }
@@ -471,6 +477,7 @@ internal class AndroidCameraState(
                 cameraDevice,
                 closeUnderError = closeInfo.errorCode != null,
                 androidCameraState = this,
+                audioRestriction = audioRestriction
             )
             _state.value = computeClosedState(closeInfo)
         }

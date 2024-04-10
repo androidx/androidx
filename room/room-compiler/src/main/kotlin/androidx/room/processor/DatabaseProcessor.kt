@@ -240,8 +240,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             )
             null
         } catch (th: Throwable) {
-            // For debugging support include exception message in a WARN message.
-            context.logger.w("Unable to read schema file: ${th.message ?: ""}")
+            // For debugging support include exception message in an error too.
+            context.logger.e("Unable to read schema file: ${th.message ?: ""}")
             context.logger.e(
                 element,
                 invalidAutoMigrationSchema(

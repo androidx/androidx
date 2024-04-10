@@ -37,6 +37,7 @@ import androidx.compose.foundation.demos.text2.TextFieldReceiveContentDemo
 import androidx.compose.foundation.samples.BasicTextFieldUndoSample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.ui.text.samples.AnnotatedStringFromHtml
 
 val TextDemos = DemoCategory(
     "Text",
@@ -213,5 +214,6 @@ val TextDemos = DemoCategory(
             )
         ),
         ComposableDemo("Text Pointer Icon") { TextPointerIconDemo() },
+        ComposableDemo("Html") { AnnotatedStringFromHtml() }
     )
 )

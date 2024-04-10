@@ -1183,7 +1183,7 @@ package androidx.core.app {
     method public void onSharedElementsReady();
   }
 
-  public final class TaskStackBuilder implements java.lang.Iterable<android.content.Intent> {
+  public final class TaskStackBuilder implements java.lang.Iterable<android.content.Intent!> {
     method public androidx.core.app.TaskStackBuilder addNextIntent(android.content.Intent);
     method public androidx.core.app.TaskStackBuilder addNextIntentWithParentStack(android.content.Intent);
     method public androidx.core.app.TaskStackBuilder addParentStack(android.app.Activity);

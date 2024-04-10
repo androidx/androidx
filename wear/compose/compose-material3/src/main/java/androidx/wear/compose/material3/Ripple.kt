@@ -242,8 +242,8 @@ private class DelegatingThemeAwareRippleNode(
 }
 
 private val RippleAlpha: RippleAlpha = RippleAlpha(
-    pressedAlpha = 0.12f,
-    focusedAlpha = 0.12f,
+    pressedAlpha = 0.10f,
+    focusedAlpha = 0.10f,
     draggedAlpha = 0.16f,
     hoveredAlpha = 0.08f
 )

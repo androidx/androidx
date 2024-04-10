@@ -54,6 +54,11 @@ class DurationNodes {
 
         @Override
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic duration node that gets the duration between two time instants. */

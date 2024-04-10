@@ -31,7 +31,6 @@ plugins {
 
 androidXMultiplatform {
     android()
-    androidNative()
     ios()
     jvm()
     linux()

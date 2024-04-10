@@ -15,12 +15,10 @@
  */
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberPagerBeyondBoundsState(
     state: PagerState,
@@ -31,7 +29,6 @@ internal fun rememberPagerBeyondBoundsState(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class PagerBeyondBoundsState(
     private val state: PagerState,
     private val outOfBoundsPageCount: Int

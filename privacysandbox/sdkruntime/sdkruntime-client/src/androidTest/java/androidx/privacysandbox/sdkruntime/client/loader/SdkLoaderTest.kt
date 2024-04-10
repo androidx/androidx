@@ -17,16 +17,10 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
-import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
-import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
-import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -35,7 +29,7 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.io.File
-import java.util.concurrent.Executor
+import java.lang.reflect.Proxy
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -157,45 +151,18 @@ class SdkLoaderTest {
     }
 
     private object NoOpFactory : SdkLoader.ControllerFactory {
-        override fun createControllerFor(sdkConfig: LocalSdkConfig) = NoOpImpl()
-    }
 
-    private class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
+        val controllerImplClass = SdkSandboxControllerCompat.SandboxControllerImpl::class.java
 
-        override fun loadSdk(
-            sdkName: String,
-            params: Bundle,
-            executor: Executor,
-            callback: LoadSdkCallback
-        ) {
-            executor.execute {
-                callback.onError(
-                    LoadSdkCompatException(
-                        LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
-                        "NoOp"
-                    )
-                )
-            }
-        }
+        val noOpProxy = Proxy.newProxyInstance(
+            controllerImplClass.classLoader,
+            arrayOf(controllerImplClass)
+        ) { proxy, method, args ->
+            throw UnsupportedOperationException(
+                "Unexpected method call (NoOp) object:$proxy, method: $method, args: $args"
+            )
+        } as SdkSandboxControllerCompat.SandboxControllerImpl
 
-        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
-            throw UnsupportedOperationException("NoOp")
-        }
-
-        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-            throw UnsupportedOperationException("NoOp")
-        }
-
-        override fun registerSdkSandboxActivityHandler(
-            handlerCompat: SdkSandboxActivityHandlerCompat
-        ): IBinder {
-            throw UnsupportedOperationException("NoOp")
-        }
-
-        override fun unregisterSdkSandboxActivityHandler(
-            handlerCompat: SdkSandboxActivityHandlerCompat
-        ) {
-            throw UnsupportedOperationException("NoOp")
-        }
+        override fun createControllerFor(sdkConfig: LocalSdkConfig) = noOpProxy
     }
 }

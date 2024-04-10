@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="html" translatable="false">
+        &lt;a href="https://example.com">a&lt;/a>
+        &lt;b>a&lt;/b>
+        &lt;big>a&lt;/big>
+        &lt;div>a&lt;/div>
+        &lt;font face="serif">a&lt;/font>
+        &lt;font color="#00ff00">a&lt;/font>
+        &lt;i>a&lt;/i>
+        &lt;p>a&lt;/p>
+        &lt;s>a&lt;/s>
+        &lt;small>a&lt;/small>
+        &lt;span style="background-color:red">a&lt;/span>
+        &lt;sub>a&lt;/sub>
+        &lt;sup>a&lt;/sup>
+        &lt;tt>a&lt;/tt>
+        &lt;u>a&lt;/u>
+    </string>
+    <string name="formatting">Hello, &lt;b>%s&lt;/b>!</string>
+</resources>

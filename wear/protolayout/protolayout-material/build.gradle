@@ -38,6 +38,9 @@ dependencies {
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     implementation("androidx.annotation:annotation-experimental:1.4.0")
 
+    lintChecks(project(":wear:protolayout:protolayout-lint"))
+    lintPublish(project(":wear:protolayout:protolayout-lint"))
+
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)

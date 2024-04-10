@@ -436,6 +436,7 @@ class RecomposerTests {
         assertContentEquals(listOf(setOf(countFromEffect)), applications)
     }
 
+    @Ignore // b/329682091
     @OptIn(DelicateCoroutinesApi::class)
     @Test // b/329011032
     fun validatePotentialDeadlock() = compositionTest {

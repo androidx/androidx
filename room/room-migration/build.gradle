@@ -66,6 +66,10 @@ androidXMultiplatform {
         }
         nativeMain {
             dependsOn(commonMain)
+            dependencies {
+                api(libs.okio)
+                implementation(libs.kotlinSerializationJsonOkio)
+            }
         }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {

@@ -50,7 +50,7 @@ import kotlinx.atomicfu.atomic
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-internal interface CameraDeviceWrapper : UnsafeWrapper {
+internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionController.Listener {
     /** @see [CameraDevice.getId] */
     val cameraId: CameraId
 
@@ -110,11 +110,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper {
 
     /** @see CameraDevice.getCameraAudioRestriction */
     @RequiresApi(Build.VERSION_CODES.R)
-    fun getCameraAudioRestriction(): AudioRestrictionMode
-
-    /** @see CameraDevice.setCameraAudioRestriction */
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun setCameraAudioRestriction(mode: AudioRestrictionMode)
+    fun getCameraAudioRestriction(): AudioRestrictionMode?
 }
 
 internal fun CameraDevice?.closeWithTrace() {
@@ -466,7 +462,7 @@ internal class AndroidCameraDevice(
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    override fun setCameraAudioRestriction(mode: AudioRestrictionMode) {
+    override fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode) {
         Api30Compat.setCameraAudioRestriction(cameraDevice, mode.value)
     }
 
@@ -647,11 +643,14 @@ internal class VirtualAndroidCameraDevice(
     }
 
     @RequiresApi(30)
-    override fun setCameraAudioRestriction(mode: AudioRestrictionMode) {
-        androidCameraDevice.setCameraAudioRestriction(mode)
+    override fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode) {
+        androidCameraDevice.onCameraAudioRestrictionUpdated(mode)
     }
 }
 
+/**
+ * @see [CameraDevice.AUDIO_RESTRICTION_NONE] and other constants.
+ */
 @JvmInline
 value class AudioRestrictionMode(val value: Int) {
     companion object {

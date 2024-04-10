@@ -17,10 +17,13 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.core.view.SoftwareKeyboardControllerCompat
 
 internal interface InputMethodManager {
@@ -45,6 +48,8 @@ internal interface InputMethodManager {
     )
 
     fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo)
+
+    fun startStylusHandwriting()
 }
 
 /**
@@ -97,5 +102,19 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
 
     override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
         imm.updateCursorAnchorInfo(view, cursorAnchorInfo)
+    }
+
+    override fun startStylusHandwriting() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Api34StartStylusHandwriting.startStylusHandwriting(imm, view)
+        }
+    }
+}
+
+@RequiresApi(34)
+internal object Api34StartStylusHandwriting {
+    @DoNotInline
+    fun startStylusHandwriting(imm: android.view.inputmethod.InputMethodManager, view: View) {
+        imm.startStylusHandwriting(view)
     }
 }

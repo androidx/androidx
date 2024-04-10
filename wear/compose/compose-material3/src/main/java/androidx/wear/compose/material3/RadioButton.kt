@@ -500,6 +500,7 @@ object RadioButtonDefaults {
             disabledUnselectedSplitContainerColor = disabledUnselectedSplitContainerColor
         )
 
+    internal val LabelSpacerSize = 2.dp
     private val HorizontalPadding = 14.dp
     private val VerticalPadding = 6.dp
 
@@ -1084,6 +1085,7 @@ private fun RowScope.Labels(
     Column(modifier = Modifier.weight(1.0f)) {
         Row(content = label)
         if (secondaryLabel != null) {
+            Spacer(modifier = Modifier.size(RadioButtonDefaults.LabelSpacerSize))
             Row(content = secondaryLabel)
         }
     }

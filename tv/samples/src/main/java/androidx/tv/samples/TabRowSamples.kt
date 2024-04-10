@@ -19,10 +19,8 @@ package androidx.tv.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,7 +55,6 @@ fun PillIndicatorTabRow() {
 
   TabRow(
     selectedTabIndex = selectedTabIndex,
-    separator = { Spacer(modifier = Modifier.width(12.dp)) },
     modifier = Modifier.focusRestorer()
   ) {
     tabs.forEachIndexed { index, tab ->
@@ -89,7 +86,6 @@ fun UnderlinedIndicatorTabRow() {
 
   TabRow(
     selectedTabIndex = selectedTabIndex,
-    separator = { Spacer(modifier = Modifier.width(12.dp)) },
     indicator = { tabPositions, doesTabRowHaveFocus ->
       TabRowDefaults.UnderlinedIndicator(
         currentTabPosition = tabPositions[selectedTabIndex],
@@ -108,7 +104,7 @@ fun UnderlinedIndicatorTabRow() {
           Text(
             text = tab,
             fontSize = 12.sp,
-            modifier = Modifier.padding(bottom = 4.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
           )
         }
       }
@@ -137,7 +133,6 @@ fun TabRowWithDebounce() {
 
   TabRow(
     selectedTabIndex = selectedTabIndex,
-    separator = { Spacer(modifier = Modifier.width(12.dp)) },
     modifier = Modifier.focusRestorer()
   ) {
     tabs.forEachIndexed { index, tab ->

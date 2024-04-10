@@ -72,7 +72,6 @@ import androidx.tv.material3.tokens.Elevation
  * still happen internally.
  * @param content the content of the button
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun Button(
@@ -146,7 +145,6 @@ fun Button(
  * still happen internally.
  * @param content the content of the button
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun OutlinedButton(
@@ -181,7 +179,6 @@ fun OutlinedButton(
     )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ButtonImpl(
     onClick: () -> Unit,

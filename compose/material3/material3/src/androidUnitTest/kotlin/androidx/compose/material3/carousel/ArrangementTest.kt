@@ -33,6 +33,7 @@ class ArrangementTest {
 
         val arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = targetLargeSize + targetMediumSize + targetSmallSize,
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -54,6 +55,7 @@ class ArrangementTest {
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = targetLargeSize + targetMediumSize + targetSmallSize - 10f,
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -75,6 +77,7 @@ class ArrangementTest {
         val targetMediumSize = (targetLargeSize + targetSmallSize) / 2f
         val arrangement = Arrangement.findLowestCostArrangement(
             availableSpace = targetLargeSize + targetMediumSize + targetSmallSize + 10f,
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -99,6 +102,7 @@ class ArrangementTest {
             availableSpace = targetLargeSize +
                 targetMediumSize +
                 targetSmallSize - mediumAdjustment,
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -124,6 +128,7 @@ class ArrangementTest {
             availableSpace = targetLargeSize +
                 targetMediumSize +
                 targetSmallSize + mediumAdjustment,
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -150,6 +155,7 @@ class ArrangementTest {
                 targetMediumSize +
                 (targetSmallSize * 2) +
                 (smallAdjustment * 2),
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -175,6 +181,7 @@ class ArrangementTest {
             availableSpace = targetLargeSize +
                 targetMediumSize +
                 (targetSmallSize * 2) - (smallAdjustment * 2),
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -200,6 +207,7 @@ class ArrangementTest {
                 (targetMediumSize * 2) +
                 (targetSmallSize * 2) +
                 (mediumAdjustment * 2),
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,
@@ -225,6 +233,7 @@ class ArrangementTest {
             availableSpace = (targetLargeSize * 2) +
                 (targetMediumSize * 2) +
                 (targetSmallSize * 2) - (mediumAdjustment * 2),
+            itemSpacing = 0f,
             targetSmallSize = targetSmallSize,
             minSmallSize = 40f,
             maxSmallSize = 56f,

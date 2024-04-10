@@ -18,11 +18,15 @@ package androidx.compose.foundation.text
 
 import android.os.Build
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.input.InputMethodInterceptor
+import androidx.compose.foundation.text.input.TestSoftwareKeyboardController
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -51,6 +55,8 @@ class DefaultKeyboardActionsTest(param: Param) {
     @get:Rule
     val rule = createComposeRule()
 
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
+
     // We need to wrap the inline class parameter in another class because Java can't instantiate
     // the inline class.
     class Param(val imeAction: ImeAction) {
@@ -76,42 +82,45 @@ class DefaultKeyboardActionsTest(param: Param) {
         val (value1, value2, value3) = List(3) { TextFieldValue("Placeholder Text") }
         val (textField1, textField2, textField3) = FocusRequester.createRefs()
         var (focusState1, focusState2, focusState3) = List(3) { false }
-        val keyboardHelper = KeyboardHelper(rule)
+        val keyboardController = TestSoftwareKeyboardController(rule)
 
-        rule.setContent {
-            keyboardHelper.initialize()
-            Column {
-                CoreTextField(
-                    value = value1,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(textField1)
-                        .onFocusChanged { focusState1 = it.isFocused }
-                )
-                CoreTextField(
-                    value = value2,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .testTag(initialTextField)
-                        .focusRequester(textField2)
-                        .focusProperties { previous = textField1; next = textField3 }
-                        .onFocusChanged { focusState2 = it.isFocused },
-                    imeOptions = ImeOptions(imeAction = imeAction)
-                )
-                CoreTextField(
-                    value = value3,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(textField3)
-                        .onFocusChanged { focusState3 = it.isFocused }
-                )
+        inputMethodInterceptor.setContent {
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides keyboardController
+            ) {
+                Column {
+                    CoreTextField(
+                        value = value1,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .focusRequester(textField1)
+                            .onFocusChanged { focusState1 = it.isFocused }
+                    )
+                    CoreTextField(
+                        value = value2,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .testTag(initialTextField)
+                            .focusRequester(textField2)
+                            .focusProperties { previous = textField1; next = textField3 }
+                            .onFocusChanged { focusState2 = it.isFocused },
+                        imeOptions = ImeOptions(imeAction = imeAction)
+                    )
+                    CoreTextField(
+                        value = value3,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .focusRequester(textField3)
+                            .onFocusChanged { focusState3 = it.isFocused }
+                    )
+                }
             }
         }
 
         // Show keyboard.
         rule.onNodeWithTag(initialTextField).performClick()
-        keyboardHelper.waitForKeyboardVisibility(visible = true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+        inputMethodInterceptor.assertSessionActive()
+        keyboardController.show()
 
         // Act.
         rule.onNodeWithTag(initialTextField).performImeAction()
@@ -137,8 +146,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                 assertThat(focusState3).isFalse()
 
                 // Software keyboard is hidden.
-                keyboardHelper.waitForKeyboardVisibility(false)
-                assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
+                keyboardController.assertHidden()
             }
             else -> {
                 // No change to focus state.
@@ -157,51 +165,53 @@ class DefaultKeyboardActionsTest(param: Param) {
         val (value1, value2, value3) = List(3) { TextFieldValue("Placeholder Text") }
         val (textField1, textField2, textField3) = FocusRequester.createRefs()
         var (focusState1, focusState2, focusState3) = List(3) { false }
-        val keyboardHelper = KeyboardHelper(rule)
+        val keyboardController = TestSoftwareKeyboardController(rule)
 
-        rule.setContent {
-            keyboardHelper.initialize()
-            Column {
-                CoreTextField(
-                    value = value1,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(textField1)
-                        .onFocusChanged { focusState1 = it.isFocused }
-                )
-                CoreTextField(
-                    value = value2,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .testTag(initialTextField)
-                        .focusRequester(textField2)
-                        .focusProperties { previous = textField1; next = textField3 }
-                        .onFocusChanged { focusState2 = it.isFocused },
-                    imeOptions = ImeOptions(imeAction = imeAction),
-                    keyboardActions = KeyboardActions(
-                        onDone = { defaultKeyboardAction(Done) },
-                        onGo = { defaultKeyboardAction(Go) },
-                        onNext = { defaultKeyboardAction(Next) },
-                        onPrevious = { defaultKeyboardAction(Previous) },
-                        onSearch = { defaultKeyboardAction(Search) },
-                        onSend = { defaultKeyboardAction(Send) },
+        inputMethodInterceptor.setContent {
+            CompositionLocalProvider(
+                LocalSoftwareKeyboardController provides keyboardController
+            ) {
+                Column {
+                    CoreTextField(
+                        value = value1,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .focusRequester(textField1)
+                            .onFocusChanged { focusState1 = it.isFocused }
                     )
-                )
-                CoreTextField(
-                    value = value3,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(textField3)
-                        .onFocusChanged { focusState3 = it.isFocused }
-                )
+                    CoreTextField(
+                        value = value2,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .testTag(initialTextField)
+                            .focusRequester(textField2)
+                            .focusProperties { previous = textField1; next = textField3 }
+                            .onFocusChanged { focusState2 = it.isFocused },
+                        imeOptions = ImeOptions(imeAction = imeAction),
+                        keyboardActions = KeyboardActions(
+                            onDone = { defaultKeyboardAction(Done) },
+                            onGo = { defaultKeyboardAction(Go) },
+                            onNext = { defaultKeyboardAction(Next) },
+                            onPrevious = { defaultKeyboardAction(Previous) },
+                            onSearch = { defaultKeyboardAction(Search) },
+                            onSend = { defaultKeyboardAction(Send) },
+                        )
+                    )
+                    CoreTextField(
+                        value = value3,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .focusRequester(textField3)
+                            .onFocusChanged { focusState3 = it.isFocused }
+                    )
+                }
             }
         }
 
         // Show keyboard.
         rule.onNodeWithTag(initialTextField).performClick()
-
-        keyboardHelper.waitForKeyboardVisibility(visible = true)
-        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+        inputMethodInterceptor.assertSessionActive()
+        keyboardController.show()
 
         // Act.
         rule.onNodeWithTag(initialTextField).performImeAction()
@@ -227,8 +237,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                 assertThat(focusState3).isFalse()
 
                 // Software keyboard is hidden.
-                keyboardHelper.waitForKeyboardVisibility(false)
-                assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
+                keyboardController.assertHidden()
             }
             else -> {
                 // No change to focus state.

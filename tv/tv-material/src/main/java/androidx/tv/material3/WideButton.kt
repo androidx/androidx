@@ -71,7 +71,6 @@ import androidx.tv.material3.tokens.Elevation
  * content
  * @param content the content of the button
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun WideButton(
@@ -144,7 +143,6 @@ fun WideButton(
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun WideButton(
@@ -222,7 +220,6 @@ fun WideButton(
     }
 }
 
-@ExperimentalTvMaterial3Api
 @Composable
 private fun WideButtonImpl(
     onClick: () -> Unit,
