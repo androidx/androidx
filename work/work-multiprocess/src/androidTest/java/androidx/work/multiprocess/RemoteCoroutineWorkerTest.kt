@@ -23,6 +23,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.Configuration
 import androidx.work.Data
+import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
@@ -110,6 +111,21 @@ public class RemoteCoroutineWorkerTest {
 
     @Test
     @MediumTest
+    public fun testSuccessWorker() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        val request = buildRequest<TestWorker>()
+        val wrapper = buildWrapper(request)
+        wrapper.launch().get()
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+        assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
+    }
+
+    @Test
+    @MediumTest
     public fun testRemoteFailureWorker() {
         if (Build.VERSION.SDK_INT <= 27) {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
@@ -138,7 +154,7 @@ public class RemoteCoroutineWorkerTest {
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
 
-    private inline fun <reified T : RemoteCoroutineWorker> buildRequest(): OneTimeWorkRequest {
+    private inline fun <reified T : ListenableWorker> buildRequest(): OneTimeWorkRequest {
         val inputData = Data.Builder()
             .putString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME, mContext.packageName)
             .putString(
