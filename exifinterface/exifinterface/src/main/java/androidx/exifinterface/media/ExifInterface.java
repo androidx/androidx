@@ -3884,8 +3884,7 @@ public class ExifInterface {
                                     TAG_F_NUMBER,
                                     TAG_DIGITAL_ZOOM_RATIO,
                                     TAG_EXPOSURE_TIME,
-                                    TAG_SUBJECT_DISTANCE,
-                                    TAG_GPS_TIMESTAMP)));
+                                    TAG_SUBJECT_DISTANCE)));
 
     // Mappings from tag number to IFD type for pointer tags.
     private static final HashMap<Integer, Integer> sExifPointerTagMap = new HashMap<>();
@@ -4207,34 +4206,35 @@ public class ExifInterface {
             throw new NullPointerException("tag shouldn't be null");
         }
         ExifAttribute attribute = getExifAttribute(tag);
-        if (attribute != null) {
-            if (!RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
-                return attribute.getStringValue(mExifByteOrder);
+        if (attribute == null) {
+            return null;
+        }
+        if (tag.equals(TAG_GPS_TIMESTAMP)) {
+            // Convert GPS timestamp value to a custom format for backwards compatibility.
+            if (attribute.format != IFD_FORMAT_URATIONAL
+                    && attribute.format != IFD_FORMAT_SRATIONAL) {
+                Log.w(TAG, "GPS Timestamp format is not rational. format=" + attribute.format);
+                return null;
             }
-            if (tag.equals(TAG_GPS_TIMESTAMP)) {
-                // Convert the rational values to the custom formats for backwards compatibility.
-                if (attribute.format != IFD_FORMAT_URATIONAL
-                        && attribute.format != IFD_FORMAT_SRATIONAL) {
-                    Log.w(TAG, "GPS Timestamp format is not rational. format=" + attribute.format);
-                    return null;
-                }
-                Rational[] array = (Rational[]) attribute.getValue(mExifByteOrder);
-                if (array == null || array.length != 3) {
-                    Log.w(TAG, "Invalid GPS Timestamp array. array=" + Arrays.toString(array));
-                    return null;
-                }
-                return String.format("%02d:%02d:%02d",
-                        (int) ((float) array[0].numerator / array[0].denominator),
-                        (int) ((float) array[1].numerator / array[1].denominator),
-                        (int) ((float) array[2].numerator / array[2].denominator));
+            Rational[] array = (Rational[]) attribute.getValue(mExifByteOrder);
+            if (array == null || array.length != 3) {
+                Log.w(TAG, "Invalid GPS Timestamp array. array=" + Arrays.toString(array));
+                return null;
             }
+            return String.format("%02d:%02d:%02d",
+                    (int) ((float) array[0].numerator / array[0].denominator),
+                    (int) ((float) array[1].numerator / array[1].denominator),
+                    (int) ((float) array[2].numerator / array[2].denominator));
+        } else if (RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
+            // Convert the rational values to the custom formats for backwards compatibility.
             try {
                 return Double.toString(attribute.getDoubleValue(mExifByteOrder));
             } catch (NumberFormatException e) {
                 return null;
             }
+        } else {
+            return attribute.getStringValue(mExifByteOrder);
         }
-        return null;
     }
 
     /**
@@ -4296,10 +4296,44 @@ public class ExifInterface {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
-        // Validate and convert if necessary.
-        if (TAG_DATETIME.equals(tag) || TAG_DATETIME_ORIGINAL.equals(tag)
-                || TAG_DATETIME_DIGITIZED.equals(tag)) {
-            if (value != null) {
+
+        // Maintain compatibility.
+        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
+            if (DEBUG) {
+                Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
+                        + "TAG_PHOTOGRAPHIC_SENSITIVITY.");
+            }
+            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
+        }
+        // Maybe convert the given value for backwards compatibility.
+        if (value != null) {
+            if (RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
+                // Convert floating point values to rational for rational tags that are emitted and
+                // consumed as floating point values for backwards compatibility.
+                try {
+                    double doubleValue = Double.parseDouble(value);
+                    value = Rational.createFromDouble(doubleValue).toString();
+                } catch (NumberFormatException e) {
+                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
+                    return;
+                }
+            } else if (tag.equals(TAG_GPS_TIMESTAMP)) {
+                Matcher m = GPS_TIMESTAMP_PATTERN.matcher(value);
+                if (!m.find()) {
+                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
+                    return;
+                }
+                value =
+                        Integer.parseInt(m.group(1))
+                                + "/1,"
+                                + Integer.parseInt(m.group(2))
+                                + "/1,"
+                                + Integer.parseInt(m.group(3))
+                                + "/1";
+            } else if (TAG_DATETIME.equals(tag)
+                    || TAG_DATETIME_ORIGINAL.equals(tag)
+                    || TAG_DATETIME_DIGITIZED.equals(tag)) {
+                // Validate and convert datetime values if necessary.
                 boolean isPrimaryFormat = DATETIME_PRIMARY_FORMAT_PATTERN.matcher(value).find();
                 boolean isSecondaryFormat = DATETIME_SECONDARY_FORMAT_PATTERN.matcher(value).find();
                 // Validate
@@ -4309,40 +4343,12 @@ public class ExifInterface {
                     return;
                 }
                 // If datetime value has secondary format (e.g. 2020-01-01 00:00:00), convert it to
-                // primary format (e.g. 2020:01:01 00:00:00) since it is the format in the
-                // official documentation.
+                // primary format (e.g. 2020:01:01 00:00:00) since it is the format in the official
+                // documentation.
                 // See JEITA CP-3451C Section 4.6.4. D. Other Tags, DateTime
                 if (isSecondaryFormat) {
                     // Replace "-" with ":" to match the primary format.
                     value = value.replaceAll("-", ":");
-                }
-            }
-        }
-        // Maintain compatibility.
-        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
-            if (DEBUG) {
-                Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
-                        + "TAG_PHOTOGRAPHIC_SENSITIVITY.");
-            }
-            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
-        }
-        // Convert the given value to rational values for backwards compatibility.
-        if (value != null && RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
-            if (tag.equals(TAG_GPS_TIMESTAMP)) {
-                Matcher m = GPS_TIMESTAMP_PATTERN.matcher(value);
-                if (!m.find()) {
-                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
-                    return;
-                }
-                value = Integer.parseInt(m.group(1)) + "/1," + Integer.parseInt(m.group(2)) + "/1,"
-                        + Integer.parseInt(m.group(3)) + "/1";
-            } else {
-                try {
-                    double doubleValue = Double.parseDouble(value);
-                    value = Rational.createFromDouble(doubleValue).toString();
-                } catch (NumberFormatException e) {
-                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
-                    return;
                 }
             }
         }
