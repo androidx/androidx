@@ -23,7 +23,6 @@ import android.content.Context
 import android.os.Bundle
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Sets the target launching [ActivityStack] to the given [Bundle].
@@ -49,7 +48,6 @@ import androidx.window.core.ExperimentalWindowApi
  * @param activityStack The target [ActivityStack] for launching.
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
  */
-@ExperimentalWindowApi
 @RequiresWindowSdkExtension(5)
 fun Bundle.setLaunchingActivityStack(
     context: Context,

@@ -142,7 +142,7 @@ package androidx.window.embedding {
   }
 
   public final class ActivityEmbeddingOptions {
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public static android.os.Bundle setLaunchingActivityStack(android.os.Bundle, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public static android.os.Bundle setLaunchingActivityStack(android.os.Bundle, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
     method @androidx.window.RequiresWindowSdkExtension(version=6) public static android.os.Bundle setOverlayCreateParams(android.os.Bundle, android.app.Activity activity, androidx.window.embedding.OverlayCreateParams overlayCreateParams);
   }
 
