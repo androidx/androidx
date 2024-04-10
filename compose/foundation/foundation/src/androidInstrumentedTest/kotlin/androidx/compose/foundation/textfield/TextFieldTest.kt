@@ -1690,6 +1690,40 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(value.text).isEqualTo(tfvAfterBackspace.text)
         assertThat(value.selection).isEqualTo(tfvAfterBackspace.selection)
     }
+
+    // Regression test for b/322835187
+    @Test
+    fun whenToggleReadOnly_onTypedTextField_noChangeNorCrash() {
+        val tag = "tag"
+
+        var value by mutableStateOf(TextFieldValue())
+        var readOnly by mutableStateOf(false)
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                value = value,
+                onValueChange = { value = it },
+                readOnly = readOnly,
+                modifier = Modifier.testTag(tag),
+            )
+        }
+        rule.onNodeWithTag(tag)
+            .requestFocus()
+            .performTextInput("Hello")
+
+        rule.runOnIdle {
+            assertThat(value.text).isEqualTo("Hello")
+            assertThat(value.selection).isEqualTo(TextRange(5))
+        }
+
+        rule.runOnUiThread { readOnly = true }
+        rule.waitForIdle()
+        rule.runOnUiThread { readOnly = false }
+
+        rule.runOnIdle {
+            assertThat(value.text).isEqualTo("Hello")
+            assertThat(value.selection).isEqualTo(TextRange(5))
+        }
+    }
 }
 
 private fun SemanticsNodeInteraction.assertEditableTextEquals(

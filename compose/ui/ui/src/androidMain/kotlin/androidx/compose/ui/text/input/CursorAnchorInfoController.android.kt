@@ -27,6 +27,8 @@ internal class CursorAnchorInfoController(
     private val rootPositionCalculator: PositionCalculator,
     private val inputMethodManager: InputMethodManager
 ) {
+    private val lock = Any()
+
     private var monitorEnabled = false
     private var hasPendingImmediateRequest = false
 
@@ -70,7 +72,7 @@ internal class CursorAnchorInfoController(
         includeCharacterBounds: Boolean,
         includeEditorBounds: Boolean,
         includeLineBounds: Boolean
-    ) {
+    ) = synchronized(lock) {
         this.includeInsertionMarker = includeInsertionMarker
         this.includeCharacterBounds = includeCharacterBounds
         this.includeEditorBounds = includeEditorBounds
@@ -105,7 +107,7 @@ internal class CursorAnchorInfoController(
         textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
-    ) {
+    ) = synchronized(lock) {
         this.textFieldValue = textFieldValue
         this.offsetMapping = offsetMapping
         this.textLayoutResult = textLayoutResult
@@ -125,7 +127,7 @@ internal class CursorAnchorInfoController(
      * position data is no longer valid. [CursorAnchorInfo] updates will not be sent until new
      * layout and position data is received.
      */
-    fun invalidate() {
+    fun invalidate() = synchronized(lock) {
         textFieldValue = null
         offsetMapping = null
         textLayoutResult = null
