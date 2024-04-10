@@ -49,6 +49,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.format
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.toLocalString
 import androidx.compose.material3.internal.touchExplorationState

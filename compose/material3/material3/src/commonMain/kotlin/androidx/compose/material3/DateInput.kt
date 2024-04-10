@@ -26,6 +26,7 @@ import androidx.compose.material3.internal.CalendarModel
 import androidx.compose.material3.internal.DateInputFormat
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.defaultLocale
+import androidx.compose.material3.internal.format
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.toLocalString
 import androidx.compose.runtime.Composable

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("NullAnnotationGroup")
+@file:Suppress("NullAnnotationGroup")
 
 package androidx.navigation
 

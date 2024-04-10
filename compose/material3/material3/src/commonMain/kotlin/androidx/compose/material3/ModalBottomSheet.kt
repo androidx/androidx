@@ -32,13 +32,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.internal.DraggableAnchors
-import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString

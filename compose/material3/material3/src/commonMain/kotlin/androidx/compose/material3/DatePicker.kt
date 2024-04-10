@@ -74,6 +74,7 @@ import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.defaultLocale
+import androidx.compose.material3.internal.format
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.toLocalString
