@@ -34,6 +34,7 @@ import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME
 import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -144,9 +145,10 @@ public class RemoteCoroutineWorkerTest {
                 RemoteListenableWorker.ARGUMENT_CLASS_NAME,
                 RemoteWorkerService::class.java.name
             )
+            .putString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME, T::class.java.name)
             .build()
 
-        val request = OneTimeWorkRequest.Builder(T::class.java)
+        val request = OneTimeWorkRequest.Builder(RemoteListenableDelegatingWorker::class.java)
             .setInputData(inputData)
             .build()
 
