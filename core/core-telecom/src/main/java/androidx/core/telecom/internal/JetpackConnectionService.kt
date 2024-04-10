@@ -261,8 +261,15 @@ internal class JetpackConnectionService : ConnectionService() {
         }
 
         // set the call capabilities
+        // allow video state changes so there are no issues on the platform side. The platform only
+        // tracks video state changes and should not deny any video state changes.
+        jetpackConnection.setConnectionCapabilities(
+            Connection.CAPABILITY_SUPPORTS_VT_REMOTE_BIDIRECTIONAL or
+            Connection.CAPABILITY_SUPPORTS_VT_LOCAL_BIDIRECTIONAL or
+            Connection.CAPABILITY_CAN_PAUSE_VIDEO)
+
         if (targetRequest.callAttributes.hasSupportsSetInactiveCapability()) {
-            jetpackConnection.setConnectionCapabilities(
+            jetpackConnection.setConnectionCapabilities(jetpackConnection.connectionCapabilities or
                 Connection.CAPABILITY_HOLD or Connection.CAPABILITY_SUPPORT_HOLD
             )
         }

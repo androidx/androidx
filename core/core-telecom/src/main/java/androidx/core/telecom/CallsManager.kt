@@ -32,19 +32,23 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
-import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
 import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withTimeout
 
@@ -198,6 +202,7 @@ class CallsManager constructor(context: Context) {
         internal const val CALL_CREATION_FAILURE_MSG =
             "The call failed to be added."
         internal const val ADD_CALL_TIMEOUT = 5000L
+        internal const val SWITCH_TO_SPEAKER_TIMEOUT = 1000L
         private val TAG: String = CallsManager::class.java.simpleName.toString()
     }
 
@@ -216,19 +221,15 @@ class CallsManager constructor(context: Context) {
     fun registerAppWithTelecom(@Capability capabilities: Int) {
         // verify the build version supports this API and throw an exception if not
         Utils.verifyBuildVersion()
-        // start to build the PhoneAccount that will be registered via the platform API
-        var platformCapabilities: Int = PhoneAccount.CAPABILITY_SELF_MANAGED
+
         val phoneAccountBuilder = PhoneAccount.builder(
             getPhoneAccountHandleForPackage(),
             PACKAGE_LABEL
         )
-        // append additional capabilities if the device is on a U build or above
-        if (Utils.hasPlatformV2Apis()) {
-            platformCapabilities = PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS or
-                Utils.remapJetpackCapabilitiesToPlatformCapabilities(capabilities)
-        }
+
         // remap and set capabilities
-        phoneAccountBuilder.setCapabilities(platformCapabilities)
+        phoneAccountBuilder.setCapabilities(remapJetpackCapsToPlatformCaps(capabilities))
+
         // build and register the PhoneAccount via the Platform API
         mPhoneAccount = phoneAccountBuilder.build()
         mTelecomManager.registerPhoneAccount(mPhoneAccount)
@@ -383,6 +384,8 @@ class CallsManager constructor(context: Context) {
             voipExtensionManager.initializeSession(scope)
             voipExtensionManager.initializeExtensions()
 
+            maybeSwitchToSpeakerPhone(callAttributes, callChannels, scope)
+
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
             scope.block()
@@ -428,6 +431,43 @@ class CallsManager constructor(context: Context) {
         blockingSessionExecution.await()
         voipExtensionManager.tearDownExtensions()
         mCapabilities.clear()
+    }
+
+    /**
+     * If the user starts a video call and the earpiece is the current endpoint, this method will
+     * attempt to switch the call endpoint to speaker.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private suspend fun maybeSwitchToSpeakerPhone(
+        attributes: CallAttributesCompat,
+        callChannels: CallChannels,
+        scope: CallControlScope
+    ) {
+        if (attributes.isVideoCall()) {
+            try {
+                withTimeout(SWITCH_TO_SPEAKER_TIMEOUT) {
+                    // Channel.receive will wait indefinitely until an item is emitted which is why
+                    // this task is wrapped in a withTimeout block.
+                    val currentEndpoint = async {
+                        callChannels.currentEndpointChannel.receive()
+                    }
+                    val availableEndpoints = async {
+                        callChannels.availableEndpointChannel.receive()
+                    }
+
+                    awaitAll(currentEndpoint, availableEndpoints)
+
+                    val speakerEndpoint = getSpeakerEndpoint(availableEndpoints.getCompleted())
+                    // Bluetooth, Wired, and Unknown endpoints should not be defaulted to speaker.
+                    if (isEarpieceEndpoint(currentEndpoint.getCompleted()) &&
+                        speakerEndpoint != null) {
+                        scope.requestEndpointChange(speakerEndpoint)
+                    }
+                }
+            } catch (e: TimeoutCancellationException) {
+                Log.i(TAG, "maybeSwitchToSpeakerPhone: hit timeout!")
+            }
+        }
     }
 
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(
