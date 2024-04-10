@@ -26,7 +26,6 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import androidx.compose.ui.platform.InspectorInfo
 
-@Suppress("ConstPropertyName")
 private const val PrevFocusedChild = "previouslyFocusedChildHash"
 
 @ExperimentalComposeUiApi
@@ -90,7 +89,6 @@ internal class FocusRestorerNode(
         FocusRequester.Default
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private val onEnter: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
         if (restoreFocusedChild()) {
@@ -101,9 +99,7 @@ internal class FocusRestorerNode(
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.enter = onEnter
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.exit = onExit
     }
 }

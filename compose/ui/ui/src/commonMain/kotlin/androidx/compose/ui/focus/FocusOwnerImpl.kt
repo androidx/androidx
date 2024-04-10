@@ -166,7 +166,7 @@ internal class FocusOwnerImpl(
             force,
             refreshFocusEvents = true,
             clearOwnerFocus = true,
-            focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
+            focusDirection = Exit
         )
     }
 
@@ -239,7 +239,6 @@ internal class FocusOwnerImpl(
         val source = rootFocusNode.findActiveFocusNode()?.also {
             // Check if a custom focus traversal order is specified.
             when (val customDest = it.customFocusSearch(focusDirection, onLayoutDirection())) {
-                @OptIn(ExperimentalComposeUiApi::class)
                 Cancel -> return null
                 Default -> { /* Do Nothing */ }
                 else -> return customDest.findFocusTargetNode(onFound)
