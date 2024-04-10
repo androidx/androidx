@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package bugs
+package androidx.compose.mpp.demo.bugs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
