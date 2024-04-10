@@ -163,7 +163,7 @@ package androidx.compose.ui.text {
     property public final String url;
   }
 
-  @androidx.compose.runtime.Stable public fun interface LinkInteractionListener {
+  public fun interface LinkInteractionListener {
     method public void onClicked(androidx.compose.ui.text.LinkAnnotation link);
   }
 
