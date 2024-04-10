@@ -50,7 +50,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class CardLayoutScreenshotTest {
+class CardContainerScreenshotTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -58,21 +58,21 @@ class CardLayoutScreenshotTest {
     val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
     private val boxSizeModifier = Modifier.size(220.dp, 180.dp)
-    private val standardCardLayoutSizeModifier = Modifier.size(150.dp, 120.dp)
-    private val wideCardLayoutSizeModifier = Modifier.size(180.dp, 100.dp)
+    private val standardCardContainerSizeModifier = Modifier.size(150.dp, 120.dp)
+    private val wideCardContainerSizeModifier = Modifier.size(180.dp, 100.dp)
 
     @Test
-    fun standardCardLayout_lightTheme() {
+    fun standardCardContainer_lightTheme() {
         rule.setContent {
             LightMaterialTheme {
                 Box(
-                    modifier = boxSizeModifier.testTag(CardLayoutWrapperTag),
+                    modifier = boxSizeModifier.testTag(CardContainerWrapperTag),
                     contentAlignment = Alignment.Center
                 ) {
-                    StandardCardLayout(
-                        modifier = standardCardLayoutSizeModifier,
+                    StandardCardContainer(
+                        modifier = standardCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardLayoutDefaults.ImageCard(
+                            CardContainerDefaults.ImageCard(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -89,21 +89,21 @@ class CardLayoutScreenshotTest {
             }
         }
 
-        assertAgainstGolden("standardCardLayout_lightTheme")
+        assertAgainstGolden("standardCardContainer_lightTheme")
     }
 
     @Test
-    fun standardCardLayout_darkTheme() {
+    fun standardCardContainer_darkTheme() {
         rule.setContent {
             DarkMaterialTheme {
                 Box(
-                    modifier = boxSizeModifier.testTag(CardLayoutWrapperTag),
+                    modifier = boxSizeModifier.testTag(CardContainerWrapperTag),
                     contentAlignment = Alignment.Center
                 ) {
-                    StandardCardLayout(
-                        modifier = standardCardLayoutSizeModifier,
+                    StandardCardContainer(
+                        modifier = standardCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardLayoutDefaults.ImageCard(
+                            CardContainerDefaults.ImageCard(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -120,22 +120,22 @@ class CardLayoutScreenshotTest {
             }
         }
 
-        assertAgainstGolden("standardCardLayout_darkTheme")
+        assertAgainstGolden("standardCardContainer_darkTheme")
     }
 
     @Test
-    fun standardCardLayout_focused() {
+    fun standardCardContainer_focused() {
         rule.setContent {
             Box(
                 modifier = boxSizeModifier
-                    .testTag(CardLayoutWrapperTag)
+                    .testTag(CardContainerWrapperTag)
                     .semantics(mergeDescendants = true) {},
                 contentAlignment = Alignment.Center
             ) {
-                StandardCardLayout(
-                    modifier = standardCardLayoutSizeModifier,
+                StandardCardContainer(
+                    modifier = standardCardContainerSizeModifier,
                     imageCard = { interactionSource ->
-                        CardLayoutDefaults.ImageCard(
+                        CardContainerDefaults.ImageCard(
                             onClick = { },
                             interactionSource = interactionSource
                         ) {
@@ -151,26 +151,26 @@ class CardLayoutScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag(CardLayoutWrapperTag)
+        rule.onNodeWithTag(CardContainerWrapperTag)
             .onChild()
             .requestFocus()
         rule.waitForIdle()
 
-        assertAgainstGolden("standardCardLayout_focused")
+        assertAgainstGolden("standardCardContainer_focused")
     }
 
     @Test
-    fun wideCardLayout_lightTheme() {
+    fun wideCardContainer_lightTheme() {
         rule.setContent {
             LightMaterialTheme {
                 Box(
-                    modifier = boxSizeModifier.testTag(CardLayoutWrapperTag),
+                    modifier = boxSizeModifier.testTag(CardContainerWrapperTag),
                     contentAlignment = Alignment.Center
                 ) {
-                    WideCardLayout(
-                        modifier = wideCardLayoutSizeModifier,
+                    WideCardContainer(
+                        modifier = wideCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardLayoutDefaults.ImageCard(
+                            CardContainerDefaults.ImageCard(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -187,21 +187,21 @@ class CardLayoutScreenshotTest {
             }
         }
 
-        assertAgainstGolden("wideCardLayout_lightTheme")
+        assertAgainstGolden("wideCardContainer_lightTheme")
     }
 
     @Test
-    fun wideCardLayout_darkTheme() {
+    fun wideCardContainer_darkTheme() {
         rule.setContent {
             DarkMaterialTheme {
                 Box(
-                    modifier = boxSizeModifier.testTag(CardLayoutWrapperTag),
+                    modifier = boxSizeModifier.testTag(CardContainerWrapperTag),
                     contentAlignment = Alignment.Center
                 ) {
-                    WideCardLayout(
-                        modifier = wideCardLayoutSizeModifier,
+                    WideCardContainer(
+                        modifier = wideCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardLayoutDefaults.ImageCard(
+                            CardContainerDefaults.ImageCard(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -218,22 +218,22 @@ class CardLayoutScreenshotTest {
             }
         }
 
-        assertAgainstGolden("wideCardLayout_darkTheme")
+        assertAgainstGolden("wideCardContainer_darkTheme")
     }
 
     @Test
-    fun wideCardLayout_focused() {
+    fun wideCardContainer_focused() {
         rule.setContent {
             Box(
                 modifier = boxSizeModifier
-                    .testTag(CardLayoutWrapperTag)
+                    .testTag(CardContainerWrapperTag)
                     .semantics(mergeDescendants = true) {},
                 contentAlignment = Alignment.Center
             ) {
-                WideCardLayout(
-                    modifier = wideCardLayoutSizeModifier,
+                WideCardContainer(
+                    modifier = wideCardContainerSizeModifier,
                     imageCard = { interactionSource ->
-                        CardLayoutDefaults.ImageCard(
+                        CardContainerDefaults.ImageCard(
                             onClick = { },
                             interactionSource = interactionSource
                         ) {
@@ -249,12 +249,12 @@ class CardLayoutScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag(CardLayoutWrapperTag)
+        rule.onNodeWithTag(CardContainerWrapperTag)
             .onChild()
             .requestFocus()
         rule.waitForIdle()
 
-        assertAgainstGolden("wideCardLayout_focused")
+        assertAgainstGolden("wideCardContainer_focused")
     }
 
     @Composable
@@ -266,10 +266,10 @@ class CardLayoutScreenshotTest {
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(CardLayoutWrapperTag)
+        rule.onNodeWithTag(CardContainerWrapperTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
 }
 
-private const val CardLayoutWrapperTag = "card_layout_wrapper"
+private const val CardContainerWrapperTag = "card_layout_wrapper"

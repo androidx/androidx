@@ -34,35 +34,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 /**
- * [StandardCardLayout] is an opinionated TV Material Card layout with an image and text content
+ * [StandardCardContainer] is an opinionated TV Material Card layout with an image and text content
  * to show information about a subject.
  *
  * It provides a vertical layout with an image card slot at the top. And below that, there are
  * slots for the title, subtitle and description.
  *
- * @sample androidx.tv.samples.StandardCardLayoutSample
+ * ![Standard Card](https://developer.android.com/static/design/ui/tv/guides/components/images/cards/standard-card.webp)
+ *
+ * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#standard-card" class="external" target="_blank">Material Standard Card</a>.
+ *
+ * @sample androidx.tv.samples.StandardCardContainerSample
  *
  * @param imageCard defines the [Composable] to be used for the image card. See
- * [CardLayoutDefaults.ImageCard] to create an image card. The `interactionSource` param provided
+ * [CardContainerDefaults.ImageCard] to create an image card. The `interactionSource` param provided
  * in the lambda function should be forwarded and used with the image card composable.
- * @param title defines the [Composable] title placed below the image card in the CardLayout.
- * @param modifier the [Modifier] to be applied to this CardLayout.
- * @param subtitle defines the [Composable] supporting text placed below the title in CardLayout.
- * @param description defines the [Composable] description placed below the subtitle in CardLayout.
- * @param contentColor [CardLayoutColors] defines the content color used in the CardLayout
- * for different interaction states. See [CardLayoutDefaults.contentColor].
+ * @param title defines the [Composable] title placed below the image card in the CardContainer.
+ * @param modifier the [Modifier] to be applied to this CardContainer.
+ * @param subtitle defines the [Composable] supporting text placed below the title in CardContainer.
+ * @param description defines the [Composable] description placed below the subtitle in CardContainer.
+ * @param contentColor [CardContainerColors] defines the content color used in the CardContainer
+ * for different interaction states. See [CardContainerDefaults.contentColor].
  * @param interactionSource a hoisted [MutableInteractionSource] for observing and emitting
- * [Interaction]s for this CardLayout.
+ * [Interaction]s for this CardContainer.
  * This interaction source param would also be forwarded to be used with the `imageCard` composable.
  */
 @Composable
-fun StandardCardLayout(
+fun StandardCardContainer(
     imageCard: @Composable (interactionSource: MutableInteractionSource) -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {},
-    contentColor: CardLayoutColors = CardLayoutDefaults.contentColor(),
+    contentColor: CardContainerColors = CardContainerDefaults.contentColor(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val focused by interactionSource.collectIsFocusedAsState()
@@ -81,7 +85,7 @@ fun StandardCardLayout(
                 .align(Alignment.CenterHorizontally),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CardLayoutContent(
+            CardContainerContent(
                 title = title,
                 subtitle = subtitle,
                 description = description,
@@ -95,35 +99,39 @@ fun StandardCardLayout(
 }
 
 /**
- * [WideCardLayout] is an opinionated TV Material Card layout with an image and text content
+ * [WideCardContainer] is an opinionated TV Material Card layout with an image and text content
  * to show information about a subject.
  *
  * It provides a horizontal layout with an image card slot at the start, followed by the title,
  * subtitle and description at the end.
  *
- * @sample androidx.tv.samples.WideCardLayoutSample
+ * ![Wide Card Container](https://developer.android.com/static/design/ui/tv/guides/components/images/cards/wide-card.webp)
+ *
+ * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#wide-standard-card" class="external" target="_blank">Material Wide Standard Card</a>.
+ *
+ * @sample androidx.tv.samples.WideCardContainerSample
  *
  * @param imageCard defines the [Composable] to be used for the image card. See
- * [CardLayoutDefaults.ImageCard] to create an image card. The `interactionSource` param provided
+ * [CardContainerDefaults.ImageCard] to create an image card. The `interactionSource` param provided
  * in the lambda function should to be forwarded and used with the image card composable.
- * @param title defines the [Composable] title placed below the image card in the CardLayout.
- * @param modifier the [Modifier] to be applied to this CardLayout.
- * @param subtitle defines the [Composable] supporting text placed below the title in CardLayout.
- * @param description defines the [Composable] description placed below the subtitle in CardLayout.
- * @param contentColor [CardLayoutColors] defines the content color used in the CardLayout
- * for different interaction states. See [CardLayoutDefaults.contentColor].
+ * @param title defines the [Composable] title placed below the image card in the CardContainer.
+ * @param modifier the [Modifier] to be applied to this CardContainer.
+ * @param subtitle defines the [Composable] supporting text placed below the title in CardContainer.
+ * @param description defines the [Composable] description placed below the subtitle in CardContainer.
+ * @param contentColor [CardContainerColors] defines the content color used in the CardContainer
+ * for different interaction states. See [CardContainerDefaults.contentColor].
  * @param interactionSource a hoisted [MutableInteractionSource] for observing and emitting
- * [Interaction]s for this CardLayout.
+ * [Interaction]s for this CardContainer.
  * This interaction source param would also be forwarded to be used with the `imageCard` composable.
  */
 @Composable
-fun WideCardLayout(
+fun WideCardContainer(
     imageCard: @Composable (interactionSource: MutableInteractionSource) -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {},
-    contentColor: CardLayoutColors = CardLayoutDefaults.contentColor(),
+    contentColor: CardContainerColors = CardContainerDefaults.contentColor(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
     val focused by interactionSource.collectIsFocusedAsState()
@@ -138,7 +146,7 @@ fun WideCardLayout(
             imageCard(interactionSource)
         }
         Column {
-            CardLayoutContent(
+            CardContainerContent(
                 title = title,
                 subtitle = subtitle,
                 description = description,
@@ -152,7 +160,7 @@ fun WideCardLayout(
 }
 
 @Composable
-internal fun CardLayoutContent(
+internal fun CardContainerContent(
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {},
@@ -163,14 +171,14 @@ internal fun CardLayoutContent(
     }
 }
 
-object CardLayoutDefaults {
+object CardContainerDefaults {
     /**
-     * Creates [CardLayoutColors] that represents the default content colors used in a
-     * CardLayout.
+     * Creates [CardContainerColors] that represents the default content colors used in a
+     * CardContainer.
      *
-     * @param contentColor the default content color of this CardLayout.
-     * @param focusedContentColor the content color of this CardLayout when focused.
-     * @param pressedContentColor the content color of this CardLayout when pressed.
+     * @param contentColor the default content color of this CardContainer.
+     * @param focusedContentColor the content color of this CardContainer when focused.
+     * @param pressedContentColor the content color of this CardContainer when pressed.
      */
     @ReadOnlyComposable
     @Composable
@@ -178,7 +186,7 @@ object CardLayoutDefaults {
         contentColor: Color = MaterialTheme.colorScheme.onSurface,
         focusedContentColor: Color = contentColor,
         pressedContentColor: Color = focusedContentColor
-    ) = CardLayoutColors(
+    ) = CardContainerColors(
         contentColor = contentColor,
         focusedContentColor = focusedContentColor,
         pressedContentColor = pressedContentColor
@@ -186,13 +194,13 @@ object CardLayoutDefaults {
 
     /**
      * [ImageCard] is basically a [Card] composable with an image as the content. It is recommended
-     * to be used with the different CardLayout(s).
+     * to be used with the different CardContainer(s).
      *
      * This Card handles click events, calling its [onClick] lambda.
      *
      * @param onClick called when this card is clicked.
      * @param interactionSource a hoisted [MutableInteractionSource] for observing and
-     * emitting [Interaction]s for this card. When using with the CardLayout(s), it is recommended
+     * emitting [Interaction]s for this card. When using with the CardContainer(s), it is recommended
      * to pass in the interaction state obtained from the parent lambda.
      * @param modifier the [Modifier] to be applied to this card.
      * @param onLongClick called when this card is long clicked (long-pressed).
@@ -238,10 +246,10 @@ object CardLayoutDefaults {
 }
 
 /**
- * Represents the [Color] of content in a CardLayout for different interaction states.
+ * Represents the [Color] of content in a CardContainer for different interaction states.
  */
 @Immutable
-class CardLayoutColors internal constructor(
+class CardContainerColors internal constructor(
     internal val contentColor: Color,
     internal val focusedContentColor: Color,
     internal val pressedContentColor: Color,
@@ -264,7 +272,7 @@ class CardLayoutColors internal constructor(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as CardLayoutColors
+        other as CardContainerColors
 
         if (contentColor != other.contentColor) return false
         if (focusedContentColor != other.focusedContentColor) return false
@@ -281,7 +289,7 @@ class CardLayoutColors internal constructor(
     }
 
     override fun toString(): String {
-        return "CardLayoutContentColor(" +
+        return "CardContainerContentColor(" +
             "contentColor=$contentColor, " +
             "focusedContentColor=$focusedContentColor, " +
             "pressedContentColor=$pressedContentColor)"

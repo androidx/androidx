@@ -53,20 +53,20 @@ import org.junit.runner.RunWith
 )
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class CardLayoutTest {
+class CardContainerTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun standardCardLayout_semantics() {
+    fun standardCardContainer_semantics() {
         val count = mutableStateOf(0)
         rule.setContent {
-            StandardCardLayout(
+            StandardCardContainer(
                 modifier = Modifier
                     .semantics(mergeDescendants = true) {}
-                    .testTag(StandardCardLayoutTag),
+                    .testTag(StandardCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardLayoutDefaults.ImageCard(
+                    CardContainerDefaults.ImageCard(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -75,29 +75,29 @@ class CardLayoutTest {
             )
         }
 
-        rule.onNodeWithTag(StandardCardLayoutTag)
+        rule.onNodeWithTag(StandardCardContainerTag)
             .onChild()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .requestFocus()
             .assertIsEnabled()
 
-        rule.onNodeWithTag(StandardCardLayoutTag)
+        rule.onNodeWithTag(StandardCardContainerTag)
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .assertTextEquals("1")
     }
 
     @Test
-    fun standardCardLayout_clickAction() {
+    fun standardCardContainer_clickAction() {
         val count = mutableStateOf(0f)
         rule.setContent {
-            StandardCardLayout(
+            StandardCardContainer(
                 modifier = Modifier
                     .semantics(mergeDescendants = true) {}
-                    .testTag(StandardCardLayoutTag),
+                    .testTag(StandardCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardLayoutDefaults.ImageCard(
+                    CardContainerDefaults.ImageCard(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -106,13 +106,13 @@ class CardLayoutTest {
             )
         }
 
-        rule.onNodeWithTag(StandardCardLayoutTag)
+        rule.onNodeWithTag(StandardCardContainerTag)
             .onChild()
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
-        rule.onNodeWithTag(StandardCardLayoutTag)
+        rule.onNodeWithTag(StandardCardContainerTag)
             .onChild()
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -121,15 +121,15 @@ class CardLayoutTest {
     }
 
     @Test
-    fun wideCardLayout_semantics() {
+    fun wideCardContainer_semantics() {
         val count = mutableStateOf(0)
         rule.setContent {
-            WideCardLayout(
+            WideCardContainer(
                 modifier = Modifier
                     .semantics(mergeDescendants = true) {}
-                    .testTag(WideCardLayoutTag),
+                    .testTag(WideCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardLayoutDefaults.ImageCard(
+                    CardContainerDefaults.ImageCard(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -138,29 +138,29 @@ class CardLayoutTest {
             )
         }
 
-        rule.onNodeWithTag(WideCardLayoutTag)
+        rule.onNodeWithTag(WideCardContainerTag)
             .onChild()
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .requestFocus()
             .assertIsEnabled()
 
-        rule.onNodeWithTag(WideCardLayoutTag)
+        rule.onNodeWithTag(WideCardContainerTag)
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .assertTextEquals("1")
     }
 
     @Test
-    fun wideCardLayout_clickAction() {
+    fun wideCardContainer_clickAction() {
         val count = mutableStateOf(0f)
         rule.setContent {
-            WideCardLayout(
+            WideCardContainer(
                 modifier = Modifier
                     .semantics(mergeDescendants = true) {}
-                    .testTag(WideCardLayoutTag),
+                    .testTag(WideCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardLayoutDefaults.ImageCard(
+                    CardContainerDefaults.ImageCard(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -169,13 +169,13 @@ class CardLayoutTest {
             )
         }
 
-        rule.onNodeWithTag(WideCardLayoutTag)
+        rule.onNodeWithTag(WideCardContainerTag)
             .onChild()
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
-        rule.onNodeWithTag(WideCardLayoutTag)
+        rule.onNodeWithTag(WideCardContainerTag)
             .onChild()
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
@@ -193,7 +193,7 @@ class CardLayoutTest {
     }
 }
 
-private const val StandardCardLayoutTag = "standard-card-layout"
-private const val WideCardLayoutTag = "wide-card-layout"
+private const val StandardCardContainerTag = "standard-card-container"
+private const val WideCardContainerTag = "wide-card-container"
 
 private const val SampleImageTag = "sample-image"

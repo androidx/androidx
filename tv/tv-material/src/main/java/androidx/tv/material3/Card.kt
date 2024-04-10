@@ -101,6 +101,10 @@ fun Card(
  * This card has a vertical layout with the interactive surface [Surface], which provides the image
  * slot at the top, followed by the title, subtitle, and description slots.
  *
+ * ![Classic Card](https://developer.android.com/static/design/ui/tv/guides/components/images/cards/classic-card.webp)
+ *
+ * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#classic-card" class="external" target="_blank">Material Classic Card</a>.
+ *
  * This Card handles click events, calling its [onClick] lambda.
  *
  * @sample androidx.tv.samples.ClassicCardSample
@@ -181,6 +185,10 @@ fun ClassicCard(
  * This card provides the interactive surface [Surface] with the image slot as the background
  * (with an overlay scrim gradient). Other slots for the title, subtitle, and description are
  * placed over it.
+ *
+ * ![Compact Card](https://developer.android.com/static/design/ui/tv/guides/components/images/cards/compact-card.webp)
+ *
+ * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#compact-card" class="external" target="_blank">Material Compact Card</a>.
  *
  * This Card handles click events, calling its [onClick] lambda.
  *
@@ -269,6 +277,10 @@ fun CompactCard(
  * image slot at the start, followed by the title, subtitle, and description slots at the end.
  *
  * This Card handles click events, calling its [onClick] lambda.
+ *
+ * ![Wide classic card](https://developer.android.com/static/design/ui/tv/guides/components/images/cards/wide-classic.webp)
+ *
+ * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#wide-classic-card" class="external" target="_blank">Material Wide Classic Card</a>.
  *
  * @sample androidx.tv.samples.WideClassicCardSample
  *
