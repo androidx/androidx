@@ -39,8 +39,6 @@ import androidx.wear.compose.material.Checkbox
 import androidx.wear.compose.material.CheckboxDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.RadioButton
-import androidx.wear.compose.material.RadioButtonDefaults
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.SwitchDefaults
@@ -61,11 +59,8 @@ fun ToggleChips(
     var checkBoxIconCustomColorChecked by remember { mutableStateOf(true) }
     var switchIconChecked by remember { mutableStateOf(true) }
     var switchIconCustomColorChecked by remember { mutableStateOf(true) }
-    var radioIconSelected by remember { mutableStateOf(true) }
-    var radioIconWithSecondarySelected by remember { mutableStateOf(true) }
     var splitWithCheckboxIconChecked by remember { mutableStateOf(true) }
     var splitWithSwitchIconChecked by remember { mutableStateOf(true) }
-    var splitWithRadioIconSelected by remember { mutableStateOf(true) }
 
     var switchIconWithSecondaryChecked by remember { mutableStateOf(true) }
     var switchIconWithIconChecked by remember { mutableStateOf(true) }
@@ -161,54 +156,6 @@ fun ToggleChips(
                     },
                     onCheckedChange = { switchIconCustomColorChecked = it },
                     enabled = enabled,
-                )
-            }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                // Call the selectionControl variation, with default selectionControl = RadioButton
-                ToggleChip(
-                    label = {
-                        Text("Radio", maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    },
-                    selected = radioIconSelected,
-                    onSelect = { radioIconSelected = it },
-                    enabled = enabled,
-                )
-            }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                ToggleChip(
-                    label = {
-                        Text(
-                            "RadioIcon",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    secondaryLabel = {
-                        Text("CustomColor", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    },
-                    selected = radioIconWithSecondarySelected,
-                    selectionControl = {
-                        RadioButton(
-                            selected = radioIconWithSecondarySelected,
-                            enabled = enabled,
-                            colors = RadioButtonDefaults.colors(
-                                selectedRingColor = MaterialTheme.colors.primary,
-                                selectedDotColor = Color.Green,
-                                unselectedRingColor = Color.Magenta,
-                                unselectedDotColor = Color.Red,
-                            ),
-                        )
-                    },
-                    onSelect = { radioIconWithSecondarySelected = it },
-                    enabled = enabled,
-                    colors = ToggleChipDefaults.toggleChipColors(
-                        checkedToggleControlColor = AlternatePrimaryColor3,
-                        checkedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
-                    )
                 )
             }
         }
@@ -358,23 +305,6 @@ fun ToggleChips(
                         )
                     },
                     onCheckedChange = { splitWithSwitchIconChecked = it },
-                    onClick = {
-                        Toast.makeText(
-                            applicationContext, "Text was clicked",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    enabled = enabled,
-                )
-            }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                // Call the selectionControl variation, with default selectionControl = RadioButton
-                SplitToggleChip(
-                    label = { Text("Split with Radio") },
-                    selected = splitWithRadioIconSelected,
-                    onSelect = { splitWithRadioIconSelected = it },
                     onClick = {
                         Toast.makeText(
                             applicationContext, "Text was clicked",
