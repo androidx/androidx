@@ -72,20 +72,8 @@ internal abstract class KspType(
      */
     private val xTypeName: XTypeName by lazy {
         val jvmWildcardType = env.resolveWildcards(typeAlias ?: ksType, scope).let {
-            if (ksType == it) {
-                if (ksType.arguments != it.arguments) {
-                    // Replacing the type arguments to retain the variances resolved in
-                    // `resolveWildcards`. See https://github.com/google/ksp/issues/1778.
-                    copy(
-                        env = env,
-                        ksType = ksType.replace(it.arguments),
-                        originalKSAnnotations = originalKSAnnotations,
-                        scope = scope,
-                        typeAlias = typeAlias
-                    )
-                } else {
-                    this
-                }
+            if (it == ksType) {
+                this
             } else {
                 env.wrap(
                     ksType = it,
