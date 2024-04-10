@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.internal
+package androidx.compose.ui.appkit
 
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.pointer.PointerEvent
+import platform.AppKit.NSEvent
 
 /**
- * The [KeyEvent] is usually created by the system. This function creates an instance of
- * [KeyEvent] that can be used in tests.
+ * The original raw native event from AppKit framework.
+ *
+ * Null if:
+ * - the native event is sent by another framework (when Compose UI is embed into it)
+ * - there is no native event (in tests, for example, or when Compose sends a synthetic event)
+ *
+ * Always check for null, when you want to handle the native event
  */
-internal expect fun keyEvent(
-    key: Key,
-    keyEventType: KeyEventType,
-    modifiers: Int = 0
-): androidx.compose.ui.input.key.KeyEvent
+val PointerEvent.appkitEventOrNull: NSEvent?
+    get() = nativeEvent as? NSEvent?

@@ -18,8 +18,13 @@ package androidx.compose.ui.scene
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.copy
+import androidx.compose.ui.input.key.internal
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -29,7 +34,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.SyntheticEventSender
 import androidx.compose.ui.input.pointer.areAnyPressed
-import androidx.compose.ui.input.pointer.copyFor
+import androidx.compose.ui.input.pointer.copy
 import androidx.compose.ui.node.RootNodeOwner
 import androidx.compose.ui.util.trace
 import org.jetbrains.skiko.currentNanoTime
@@ -122,7 +127,7 @@ internal class ComposeSceneInputHandler(
 
     fun onKeyEvent(keyEvent: KeyEvent): Boolean {
         defaultPointerStateTracker.onKeyEvent(keyEvent)
-        return processKeyEvent(keyEvent)
+        return processKeyEvent(keyEvent.withTrackedModifiers())
     }
 
     fun updatePointerPosition() = trace("ComposeSceneInputHandler:updatePointerPosition") {
@@ -159,18 +164,33 @@ internal class ComposeSceneInputHandler(
             }
         }
     }
+
+    /**
+     * Make sure that the current [KeyEvent] contains tracked modifiers.
+     */
+    private fun KeyEvent.withTrackedModifiers() = if (
+        internal.nativeEvent == null && // It's not system initiated event and
+        internal.modifiers.packedValue == 0 // modifiers aren't explicitly specified
+    ) {
+        this.copy(modifiers = defaultPointerStateTracker.keyboardModifiers)
+    } else {
+        this
+    }
 }
 
 private class DefaultPointerStateTracker {
     fun onPointerEvent(button: PointerButton?, eventType: PointerEventType) {
-        when (eventType) {
-            PointerEventType.Press -> buttons = buttons.copyFor(button ?: PointerButton.Primary, pressed = true)
-            PointerEventType.Release -> buttons = buttons.copyFor(button ?: PointerButton.Primary, pressed = false)
-        }
+        buttons = buttons.update(
+            button = button ?: PointerButton.Primary,
+            eventType = eventType
+        )
     }
 
     fun onKeyEvent(keyEvent: KeyEvent) {
-        keyboardModifiers = keyEvent.nativeKeyEvent.toPointerKeyboardModifiers()
+        keyboardModifiers = keyboardModifiers.update(
+            key = keyEvent.key,
+            eventType = keyEvent.type
+        )
     }
 
     var buttons = PointerButtons()
@@ -180,4 +200,45 @@ private class DefaultPointerStateTracker {
         private set
 }
 
-internal expect fun NativeKeyEvent.toPointerKeyboardModifiers(): PointerKeyboardModifiers
+private fun PointerKeyboardModifiers.update(
+    key: Key,
+    eventType: KeyEventType,
+): PointerKeyboardModifiers {
+    val pressed = when (eventType) {
+        KeyEventType.KeyDown -> true
+        KeyEventType.KeyUp -> false
+        else -> return this
+    }
+    return when (key) {
+        Key.CtrlLeft, Key.CtrlRight -> copy(isCtrlPressed = pressed)
+        Key.MetaLeft, Key.MetaRight -> copy(isMetaPressed = pressed)
+        Key.AltLeft, Key.AltRight -> copy(isAltPressed = pressed)
+        Key.ShiftLeft, Key.ShiftRight -> copy(isShiftPressed = pressed)
+        // There is no binding in common for AltGraph
+        Key.Symbol -> copy(isSymPressed = pressed)
+        Key.Function -> copy(isFunctionPressed = pressed)
+        Key.CapsLock -> copy(isCapsLockOn = pressed)
+        Key.ScrollLock -> copy(isScrollLockOn = pressed)
+        Key.NumLock -> copy(isNumLockOn = pressed)
+        else -> this
+    }
+}
+
+private fun PointerButtons.update(
+    button: PointerButton,
+    eventType: PointerEventType,
+): PointerButtons {
+    val pressed = when (eventType) {
+        PointerEventType.Press -> true
+        PointerEventType.Release -> false
+        else -> return this
+    }
+    return when (button) {
+        PointerButton.Primary -> copy(isPrimaryPressed = pressed)
+        PointerButton.Secondary -> copy(isSecondaryPressed = pressed)
+        PointerButton.Tertiary -> copy(isTertiaryPressed = pressed)
+        PointerButton.Forward -> copy(isForwardPressed = pressed)
+        PointerButton.Back -> copy(isBackPressed = pressed)
+        else -> this
+    }
+}

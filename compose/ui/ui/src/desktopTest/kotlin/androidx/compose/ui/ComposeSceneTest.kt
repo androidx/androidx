@@ -63,8 +63,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.keyEvent
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
@@ -87,7 +87,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
-import java.awt.event.KeyEvent
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
@@ -689,7 +688,7 @@ class ComposeSceneTest {
             assertThat(field2FocusState!!.isFocused).isFalse()
         }
 
-        composeRule.onRoot().performKeyPress(keyEvent(Key.Tab, KeyEventType.KeyDown))
+        composeRule.onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
 
         composeRule.runOnIdle {
             assertThat(field1FocusState!!.isFocused).isFalse()
@@ -697,7 +696,7 @@ class ComposeSceneTest {
         }
 
         composeRule.onRoot().performKeyPress(
-            keyEvent(Key.Tab, KeyEventType.KeyDown, KeyEvent.SHIFT_DOWN_MASK)
+            KeyEvent(Key.Tab, KeyEventType.KeyDown, isShiftPressed = true)
         )
 
         composeRule.runOnIdle {

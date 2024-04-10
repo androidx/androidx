@@ -18,8 +18,8 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.input.key.MouseButtons
-import androidx.compose.ui.input.key.NativePointerEvent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -117,54 +117,41 @@ private class ComposeWindow(
         }
 
         override fun mouseDown(event: NSEvent) {
-            composeLayer.view.onPointerEvent(
-                event.toNativePointerEvent(MouseButtons.LEFT, PointerEventType.Press, this)
-            )
+            composeLayer.onMouseEvent(event, PointerEventType.Press, PointerButton.Primary)
         }
         override fun mouseUp(event: NSEvent) {
-            composeLayer.view.onPointerEvent(
-                event.toNativePointerEvent(MouseButtons.LEFT, PointerEventType.Release, this)
-            )
+            composeLayer.onMouseEvent(event, PointerEventType.Release, PointerButton.Primary)
         }
         override fun rightMouseDown(event: NSEvent) {
-            composeLayer.view.onPointerEvent(
-                event.toNativePointerEvent(MouseButtons.RIGHT, PointerEventType.Press, this)
-            )
+            composeLayer.onMouseEvent(event, PointerEventType.Press, PointerButton.Secondary)
         }
         override fun rightMouseUp(event: NSEvent) {
-            composeLayer.view.onPointerEvent(
-                event.toNativePointerEvent(MouseButtons.RIGHT, PointerEventType.Press, this)
-            )
+            composeLayer.onMouseEvent(event, PointerEventType.Release, PointerButton.Secondary)
         }
-//        override fun otherMouseDown(event: NSEvent) {
-//            composeLayer.view.onPointerEvent(toSkikoEvent(event, SkikoPointerEventKind.DOWN, nsView))
-//        }
-//        override fun otherMouseUp(event: NSEvent) {
-//            composeLayer.view.onPointerEvent(toSkikoEvent(event, SkikoPointerEventKind.UP, nsView))
-//        }
+        override fun otherMouseDown(event: NSEvent) {
+            composeLayer.onMouseEvent(event, PointerEventType.Release, PointerButton(event.buttonNumber.toInt()))
+        }
+        override fun otherMouseUp(event: NSEvent) {
+            composeLayer.onMouseEvent(event, PointerEventType.Press, PointerButton(event.buttonNumber.toInt()))
+        }
         override fun mouseMoved(event: NSEvent) {
-            composeLayer.view.onPointerEvent(
-                event.toNativePointerEvent(PointerEventType.Move, this)
-            )
+            composeLayer.onMouseEvent(event, PointerEventType.Move)
         }
         override fun mouseDragged(event: NSEvent) {
-            composeLayer.view.onPointerEvent(
-                event.toNativePointerEvent(PointerEventType.Move, this)
-            )
+            composeLayer.onMouseEvent(event, PointerEventType.Move)
         }
-//        override fun scrollWheel(event: NSEvent) {
-//            // FIXME: MacOsScrollConfig expect NSEvent instead of NativePointerEvent
-//            composeLayer.view.onPointerEvent(toSkikoScrollEvent(event, nsView))
-//        }
+        override fun scrollWheel(event: NSEvent) {
+            composeLayer.onMouseEvent(event, PointerEventType.Scroll)
+        }
 //        override fun keyDown(event: NSEvent) {
-//            composeLayer.view.onKeyboardEvent(toSkikoEvent(event, SkikoKeyboardEventKind.DOWN))
+//            composeLayer.onKeyboardEvent(toSkikoEvent(event, SkikoKeyboardEventKind.DOWN))
 //            interpretKeyEvents(listOf(event))
 //        }
 //        override fun flagsChanged(event: NSEvent) {
-//            composeLayer.view.onKeyboardEvent(toSkikoEvent(event))
+//            composeLayer.onKeyboardEvent(toSkikoEvent(event))
 //        }
 //        override fun keyUp(event: NSEvent) {
-//            composeLayer.view.onKeyboardEvent(toSkikoEvent(event, SkikoKeyboardEventKind.UP))
+//            composeLayer.onKeyboardEvent(toSkikoEvent(event, SkikoKeyboardEventKind.UP))
 //        }
     }
 
@@ -198,77 +185,29 @@ private class ComposeWindow(
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         composeLayer.dispose()
     }
-}
 
-private fun NSEvent.toNativePointerEvent(
-    kind: PointerEventType,
-    view: NSView
-): NativePointerEvent {
-    var (xpos, ypos) = this.locationInWindow.useContents {
-        x to y
+    private fun ComposeLayer.onMouseEvent(
+        event: NSEvent,
+        eventType: PointerEventType,
+        button: PointerButton? = null,
+    ) {
+        onMouseEvent(
+            eventType = eventType,
+            position = event.offset,
+            scrollDelta = Offset(x = event.deltaX.toFloat(), y = event.deltaY.toFloat()),
+            nativeEvent = event,
+            button = button,
+        )
     }
-    view.frame.useContents {
-        ypos = size.height - ypos
-    }
-    val timestamp = (this.timestamp * 1_000).toLong()
-    return NativePointerEvent(
-        x = xpos,
-        y = ypos,
-        kind = kind,
-        pressedButtons = toPressedMouseButtons(this, kind),
-        timestamp = timestamp,
-    )
-}
 
-private fun NSEvent.toNativePointerEvent(
-    button: MouseButtons,
-    kind: PointerEventType,
-    view: NSView
-): NativePointerEvent {
-    var (xpos, ypos) = this.locationInWindow.useContents {
-        x to y
-    }
-    view.frame.useContents {
-        ypos = size.height - ypos
-    }
-    val timestamp = (this.timestamp * 1_000).toLong()
-    if (kind == PointerEventType.Press) {
-        buttonsFlags = buttonsFlags.or(button.value)
-    } else {
-        buttonsFlags = buttonsFlags.xor(button.value)
-    }
-    val buttons = MouseButtons(buttonsFlags)
-    return NativePointerEvent(
-        x = xpos,
-        y = ypos,
-        kind = kind,
-        pressedButtons = buttons,
-        timestamp = timestamp,
-    )
-}
-
-private var buttonsFlags = 0
-private fun toPressedMouseButtons(
-    event: NSEvent,
-    kind: PointerEventType
-): MouseButtons {
-    val button = event.buttonNumber.toInt()
-    if (kind == PointerEventType.Press) {
-        buttonsFlags = buttonsFlags.or(getButtonValue(button))
-        return MouseButtons(buttonsFlags)
-    }
-    buttonsFlags = buttonsFlags.xor(getButtonValue(button))
-    return MouseButtons(buttonsFlags)
-}
-
-private fun getButtonValue(button: Int): Int {
-    return when (button) {
-        2 -> MouseButtons.MIDDLE.value
-        3 -> MouseButtons.BUTTON_4.value
-        4 -> MouseButtons.BUTTON_5.value
-        5 -> MouseButtons.BUTTON_6.value
-        6 -> MouseButtons.BUTTON_7.value
-        7 -> MouseButtons.BUTTON_8.value
-        else -> 0
+    private val NSEvent.offset: Offset get() {
+        val position = locationInWindow.useContents {
+            Offset(x = x.toFloat(), y = y.toFloat())
+        }
+        val height = nsView.frame.useContents { size.height }
+        return Offset(
+            x = position.x,
+            y = height.toFloat() - position.y,
+        ) * nsWindow.backingScaleFactor.toFloat()
     }
 }

@@ -23,19 +23,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.events.EventTargetListener
-import androidx.compose.ui.events.toNativeDragEvent
-import androidx.compose.ui.events.toNativePointerEvent
-import androidx.compose.ui.events.toNativeScrollEvent
-import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.composeButton
+import androidx.compose.ui.input.pointer.composeButtons
 import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.JSTextInputService
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfoImpl
+import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -59,15 +63,19 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
 import org.w3c.dom.MediaQueryListEvent
+import org.w3c.dom.TouchEvent
+import org.w3c.dom.asList
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
-import org.w3c.dom.TouchEvent
-
 
 private val actualDensity
     get() = window.devicePixelRatio
+
+private abstract external class ExtendedTouchEvent : TouchEvent {
+    val force: Double
+}
 
 private interface ComposeWindowState {
     fun init() {}
@@ -181,57 +189,54 @@ private class ComposeWindow(
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
-        var offsetX = 0.0
-        var offsetY = 0.0
-        var isPointerPressed = false
+        var offset = Offset.Zero
 
         addTypedEvent<TouchEvent>("touchstart") { event ->
             event.preventDefault()
 
             canvas.getBoundingClientRect().apply {
-                offsetX = left
-                offsetY = top
+                offset = Offset(x = left.toFloat(), y = top.toFloat())
             }
-
-            val skikoEvent = event.toNativePointerEvent(PointerEventType.Press, offsetX, offsetY)
-            layer.view.onPointerEvent(skikoEvent)
+            layer.onTouchEvent(event, offset)
         }
 
         addTypedEvent<TouchEvent>("touchmove") { event ->
             event.preventDefault()
-            layer.view.onPointerEvent(event.toNativePointerEvent(PointerEventType.Move, offsetX, offsetY))
+            layer.onTouchEvent(event, offset)
         }
 
         addTypedEvent<TouchEvent>("touchend") { event ->
             event.preventDefault()
-            layer.view.onPointerEvent(event.toNativePointerEvent(PointerEventType.Release, offsetX, offsetY))
+            layer.onTouchEvent(event, offset)
         }
 
         addTypedEvent<TouchEvent>("touchcancel") { event ->
             event.preventDefault()
-            layer.view.onPointerEvent(event.toNativePointerEvent(PointerEventType.Release, offsetX, offsetY))
+            layer.onTouchEvent(event, offset)
         }
 
         addTypedEvent<MouseEvent>("mousedown") { event ->
-            isPointerPressed = true
-            layer.view.onPointerEvent(event.toNativePointerEvent(PointerEventType.Press))
+            layer.onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseup") { event ->
-            isPointerPressed = false
-            layer.view.onPointerEvent(event.toNativePointerEvent(PointerEventType.Release))
+            layer.onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mousemove") { event ->
-            if (isPointerPressed) {
-                layer.view.onPointerEvent(event.toNativeDragEvent())
-            } else {
-                layer.view.onPointerEvent(event.toNativePointerEvent(PointerEventType.Move))
-            }
+            layer.onMouseEvent(event)
+        }
+
+        addTypedEvent<MouseEvent>("mouseenter") { event ->
+            layer.onMouseEvent(event)
+        }
+
+        addTypedEvent<MouseEvent>("mouseleave") { event ->
+            layer.onMouseEvent(event)
         }
 
         addTypedEvent<WheelEvent>("wheel") { event ->
-            layer.view.onPointerEvent(event.toNativeScrollEvent())
+            layer.onWheelEvent(event)
         }
 
         canvas.addEventListener("contextmenu", { event ->
@@ -239,12 +244,12 @@ private class ComposeWindow(
         })
 
         addTypedEvent<KeyboardEvent>("keydown") { event ->
-            val processed = layer.view.onKeyboardEvent(event.toNativePointerEvent(KeyEventType.KeyDown))
+            val processed = layer.onKeyboardEvent(event.toComposeEvent())
             if (processed) event.preventDefault()
         }
 
         addTypedEvent<KeyboardEvent>("keyup") { event ->
-            val processed = layer.view.onKeyboardEvent(event.toNativePointerEvent(KeyEventType.KeyUp))
+            val processed = layer.onKeyboardEvent(event.toComposeEvent())
             if (processed) event.preventDefault()
         }
 
@@ -285,6 +290,7 @@ private class ComposeWindow(
     }
 
     fun resize(boxSize: IntSize) {
+        // FIXME: density is not integer
         val scaledDensity = density.density.toInt()
 
         val width = boxSize.width * scaledDensity
@@ -315,6 +321,91 @@ private class ComposeWindow(
         // but actually we never can be sure dom element was collected in first place
         canvasEvents.dispose()
     }
+
+    private fun ComposeLayer.onTouchEvent(
+        event: TouchEvent,
+        offset: Offset,
+    ) {
+        val eventType = when (event.type) {
+            "touchstart" -> PointerEventType.Press
+            "touchmove" -> PointerEventType.Move
+            "touchend", "touchcancel" -> PointerEventType.Release
+            else -> PointerEventType.Unknown
+        }
+        val pointers = event.changedTouches.asList().map { touch ->
+            ComposeScenePointer(
+                id = PointerId(touch.identifier.toLong()),
+                position = Offset(
+                    x = touch.clientX - offset.x,
+                    y = touch.clientY - offset.y
+                ) * density.density,
+                pressed = when (eventType) {
+                    PointerEventType.Press, PointerEventType.Move -> true
+                    else -> false
+                },
+                type = PointerType.Touch,
+                pressure = touch.unsafeCast<ExtendedTouchEvent>().force.toFloat()
+            )
+        }
+        onTouchEvent(
+            eventType = eventType,
+            pointers = pointers,
+            nativeEvent = event,
+        )
+    }
+
+    private fun ComposeLayer.onMouseEvent(
+        event: MouseEvent,
+    ) {
+        val eventType = when (event.type) {
+            "mousedown" -> PointerEventType.Press
+            "mousemove" -> PointerEventType.Move
+            "mouseup" -> PointerEventType.Release
+            "mouseenter" -> PointerEventType.Enter
+            "mouseleave" -> PointerEventType.Exit
+            else -> PointerEventType.Unknown
+        }
+        onMouseEvent(
+            eventType = eventType,
+            position = event.offset,
+            buttons = event.composeButtons,
+            keyboardModifiers = PointerKeyboardModifiers(
+                isCtrlPressed = event.ctrlKey,
+                isMetaPressed = event.metaKey,
+                isAltPressed = event.altKey,
+                isShiftPressed = event.shiftKey,
+            ),
+            nativeEvent = event,
+            button = event.composeButton,
+        )
+    }
+
+    private fun ComposeLayer.onWheelEvent(
+        event: WheelEvent,
+    ) {
+        onMouseEvent(
+            eventType = PointerEventType.Scroll,
+            position = event.offset,
+            scrollDelta = Offset(
+                x = event.deltaX.toFloat(),
+                y = event.deltaY.toFloat()
+            ),
+            buttons = event.composeButtons,
+            keyboardModifiers = PointerKeyboardModifiers(
+                isCtrlPressed = event.ctrlKey,
+                isMetaPressed = event.metaKey,
+                isAltPressed = event.altKey,
+                isShiftPressed = event.shiftKey,
+            ),
+            nativeEvent = event,
+            button = event.composeButton,
+        )
+    }
+
+    private val MouseEvent.offset get() = Offset(
+        x = offsetX.toFloat(),
+        y = offsetY.toFloat()
+    ) * density.density
 }
 
 private const val defaultCanvasElementId = "ComposeTarget"

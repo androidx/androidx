@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@ package androidx.compose.foundation
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 
@@ -28,18 +30,8 @@ internal actual fun CompositionLocalConsumerModifierNode
     return false
 }
 
-/**
- * Whether the specified [KeyEvent] represents a user intent to perform a click.
- * (eg. When you press Enter on a focused button, it should perform a click).
- */
-internal actual val KeyEvent.isClick: Boolean
-    get() = type == KeyEventType.KeyUp && when (nativeKeyEvent.key) {
-        Key.Enter -> true
-        else -> false
-    }
-
 internal actual val KeyEvent.isPress: Boolean
-    get() = type == KeyEventType.KeyDown && when (nativeKeyEvent.key) {
-        Key.Enter -> true
-        else -> false
-    }
+    get() = type == KeyDown && key == Key.Enter
+
+internal actual val KeyEvent.isClick: Boolean
+    get() = type == KeyUp && key == Key.Enter

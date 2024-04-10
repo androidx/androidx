@@ -23,6 +23,4 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 
 actual val KeyEvent.isTypedEvent: Boolean
-    get() {
-        return type == KeyEventType.KeyDown && !isMetaPressed && utf16CodePoint != 0
-    }
+    get() = type == KeyEventType.KeyDown && !isMetaPressed && utf16CodePoint != 0

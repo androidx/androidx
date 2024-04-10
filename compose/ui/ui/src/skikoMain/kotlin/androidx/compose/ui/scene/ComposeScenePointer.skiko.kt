@@ -103,6 +103,15 @@ class ComposeScenePointer(
     }
 }
 
+internal fun PointerInputEventData.toComposeScenePointer() = ComposeScenePointer(
+    id = id,
+    position = position,
+    pressed = down,
+    type = type,
+    pressure = pressure,
+    historical = historical
+)
+
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputEvent(
     eventType: PointerEventType,
@@ -114,9 +123,9 @@ internal fun PointerInputEvent(
     keyboardModifiers: PointerKeyboardModifiers,
     changedButton: PointerButton?
 ) = PointerInputEvent(
-    eventType,
-    timeMillis,
-    pointers.map {
+    eventType = eventType,
+    uptime = timeMillis,
+    pointers = pointers.map {
         PointerInputEventData(
             id = it.id,
             uptime = timeMillis,
@@ -131,8 +140,8 @@ internal fun PointerInputEvent(
             originalEventPosition = it.position
         )
     },
-    buttons,
-    keyboardModifiers,
-    nativeEvent,
-    changedButton
+    buttons = buttons,
+    keyboardModifiers = keyboardModifiers,
+    nativeEvent = nativeEvent,
+    button = changedButton
 )

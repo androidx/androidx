@@ -19,13 +19,13 @@ package androidx.compose.foundation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.internal.keyEvent
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTestApi::class, InternalComposeUiApi::class)
 class ToggleableTest {
 
     @Test
@@ -57,13 +57,13 @@ class ToggleableTest {
         }
 
         onRoot().apply {
-            performKeyPress(keyEvent(Key.Tab, KeyEventType.KeyDown))
-            performKeyPress(keyEvent(Key.Tab, KeyEventType.KeyUp))
+            performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+            performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
         }
 
         onNodeWithTag("toggle").apply {
-            performKeyPress(keyEvent(Key.Spacebar, KeyEventType.KeyDown))
-            performKeyPress(keyEvent(Key.Spacebar, KeyEventType.KeyUp))
+            performKeyPress(KeyEvent(Key.Spacebar, KeyEventType.KeyDown))
+            performKeyPress(KeyEvent(Key.Spacebar, KeyEventType.KeyUp))
         }
 
         runOnIdle {
@@ -71,8 +71,8 @@ class ToggleableTest {
         }
 
         onNodeWithTag("toggle").apply {
-            performKeyPress(keyEvent(Key.Spacebar, KeyEventType.KeyDown))
-            performKeyPress(keyEvent(Key.Spacebar, KeyEventType.KeyUp))
+            performKeyPress(KeyEvent(Key.Spacebar, KeyEventType.KeyDown))
+            performKeyPress(KeyEvent(Key.Spacebar, KeyEventType.KeyUp))
         }
 
         runOnIdle {

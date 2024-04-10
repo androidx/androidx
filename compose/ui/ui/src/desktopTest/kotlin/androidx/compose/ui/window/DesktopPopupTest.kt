@@ -20,20 +20,22 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.keyEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -173,11 +175,11 @@ class DesktopPopupTest {
         }
 
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
     }
@@ -198,11 +200,11 @@ class DesktopPopupTest {
         }
 
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
     }
@@ -221,11 +223,11 @@ class DesktopPopupTest {
         }
 
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
     }
@@ -244,11 +246,11 @@ class DesktopPopupTest {
         }
 
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
         rule.onNode(isPopup())
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
     }

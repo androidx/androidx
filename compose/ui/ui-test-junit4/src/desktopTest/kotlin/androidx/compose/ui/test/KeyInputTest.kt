@@ -41,7 +41,7 @@ import org.junit.Test
 /**
  * Tests the key-event sending functionality of the test framework.
  */
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalTestApi::class)
 class KeyInputTest {
 
     @get:Rule
@@ -159,8 +159,9 @@ class KeyInputTest {
                 withKeyDown(Key.ShiftLeft) {
                     pressKey(Key.C)
                 }
+                pressKey(Key.C)
             }
-            assertEquals(4, keyEvents.size)
+            assertEquals(6, keyEvents.size)
             keyEvents[0].let {
                 assertEquals(Key.ShiftLeft, it.key, "Wrong key")
                 assertEquals(KeyEventType.KeyDown, it.type, "Wrong key type")
@@ -169,7 +170,7 @@ class KeyInputTest {
                 assertEquals(Key.C, it.key, "Wrong key")
                 assertEquals(KeyEventType.KeyDown, it.type, "Wrong key type")
                 assertTrue(it.isShiftPressed, "Shift is not pressed")
-                assertEquals(it.utf16CodePoint, 0x43, "Wrong code point")  // Uppercase 'C'
+                assertEquals('C'.code, it.utf16CodePoint, "Wrong code point")
             }
             keyEvents[2].let {
                 assertEquals(Key.C, it.key, "Wrong key")
@@ -178,6 +179,11 @@ class KeyInputTest {
             keyEvents[3].let {
                 assertEquals(Key.ShiftLeft, it.key, "Wrong key")
                 assertEquals(KeyEventType.KeyUp, it.type, "Wrong key type")
+            }
+            keyEvents[4].let {
+                assertEquals(Key.C, it.key, "Wrong key")
+                assertEquals(KeyEventType.KeyDown, it.type, "Wrong key type")
+                assertEquals('c'.code, it.utf16CodePoint, "Wrong code point")
             }
         }
     }
@@ -198,16 +204,22 @@ class KeyInputTest {
                     assertTrue(isCapsLockOn)
                     pressKey(Key.C)
                 }
+                pressKey(Key.C)
             }
-            assertEquals(6, keyEvents.size)
+            assertEquals(8, keyEvents.size)
             keyEvents[2].let {
                 assertEquals(Key.C, it.key, "Wrong key")
                 assertEquals(KeyEventType.KeyDown, it.type, "Wrong key type")
-                assertEquals(it.utf16CodePoint, 0x43, "Wrong code point")  // Uppercase 'C'
+                assertEquals('C'.code, it.utf16CodePoint, "Wrong code point")
             }
             keyEvents[3].let {
                 assertEquals(Key.C, it.key, "Wrong key")
                 assertEquals(KeyEventType.KeyUp, it.type, "Wrong key type")
+            }
+            keyEvents[6].let {
+                assertEquals(Key.C, it.key, "Wrong key")
+                assertEquals(KeyEventType.KeyDown, it.type, "Wrong key type")
+                assertEquals('c'.code, it.utf16CodePoint, "Wrong code point")
             }
         }
     }
