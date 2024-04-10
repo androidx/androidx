@@ -130,6 +130,7 @@ fun ScrollAwayScalingLazyColumnChipDemo2() {
     )
 }
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun ColumnCardDemo(offset: Dp) {
@@ -167,6 +168,7 @@ private fun ColumnCardDemo(offset: Dp) {
     }
 }
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemIndex: Int) {

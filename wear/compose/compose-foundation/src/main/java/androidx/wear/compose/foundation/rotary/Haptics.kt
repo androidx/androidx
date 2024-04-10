@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation.rotary
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import android.view.View
@@ -46,17 +47,23 @@ internal interface RotaryHapticHandler {
     /**
      * Handles haptics when scroll is used
      */
-    fun handleScrollHaptic(event: UnifiedRotaryEvent)
+    fun handleScrollHaptic(
+        timestamp: Long,
+        deltaInPixels: Float
+    )
 
     /**
      * Handles haptics when scroll with snap is used
      */
-    fun handleSnapHaptic(event: UnifiedRotaryEvent)
+    fun handleSnapHaptic(
+        timestamp: Long,
+        deltaInPixels: Float
+    )
 
     /**
      * Handles haptics when edge of the list is reached
      */
-    fun handleLimitHaptic(event: UnifiedRotaryEvent, isStart: Boolean)
+    fun handleLimitHaptic(isStart: Boolean)
 }
 
 @Composable
@@ -127,7 +134,7 @@ internal fun getCustomRotaryConstants(view: View): HapticConstants =
         // Order here is very important: We want to use WearSDK haptic constants for
         // all devices having api 34 and up, but for Wear3.5 and Wear 4 constants should be
         // different for Galaxy watches and other devices.
-        hasWearSDK() -> HapticConstants.WearSDKHapticConstants
+        hasWearSDK(view.context) -> HapticConstants.WearSDKHapticConstants
         isGalaxyWatch() -> HapticConstants.GalaxyWatchConstants
         isWear3_5(view.context) -> HapticConstants.Wear3Point5RotaryHapticConstants
         isWear4() -> HapticConstants.Wear4RotaryHapticConstants
@@ -207,12 +214,15 @@ private class CustomRotaryHapticHandler(
     private var currScrollPosition = 0f
     private var prevHapticsPosition = 0f
 
-    override fun handleScrollHaptic(event: UnifiedRotaryEvent) {
-        if (scrollableState.reachedTheLimit(event.deltaInPixels)) {
-            handleLimitHaptic(event, scrollableState.canScrollBackward)
+    override fun handleScrollHaptic(
+        timestamp: Long,
+        deltaInPixels: Float
+    ) {
+        if (scrollableState.reachedTheLimit(deltaInPixels)) {
+            handleLimitHaptic(scrollableState.canScrollBackward)
         } else {
             overscrollHapticTriggered = false
-            currScrollPosition += event.deltaInPixels
+            currScrollPosition += deltaInPixels
             val diff = abs(currScrollPosition - prevHapticsPosition)
 
             if (diff >= hapticsThresholdPx) {
@@ -222,16 +232,19 @@ private class CustomRotaryHapticHandler(
         }
     }
 
-    override fun handleSnapHaptic(event: UnifiedRotaryEvent) {
-        if (scrollableState.reachedTheLimit(event.deltaInPixels)) {
-            handleLimitHaptic(event, scrollableState.canScrollBackward)
+    override fun handleSnapHaptic(
+        timestamp: Long,
+        deltaInPixels: Float
+    ) {
+        if (scrollableState.reachedTheLimit(deltaInPixels)) {
+            handleLimitHaptic(scrollableState.canScrollBackward)
         } else {
             overscrollHapticTriggered = false
             hapticsChannel.trySend(RotaryHapticsType.ScrollItemFocus)
         }
     }
 
-    override fun handleLimitHaptic(event: UnifiedRotaryEvent, isStart: Boolean) {
+    override fun handleLimitHaptic(isStart: Boolean) {
         if (!overscrollHapticTriggered) {
             hapticsChannel.trySend(RotaryHapticsType.ScrollLimit)
             overscrollHapticTriggered = true
@@ -273,15 +286,21 @@ internal value class RotaryHapticsType(private val type: Int) {
 @Composable
 private fun rememberDisabledRotaryHapticHandler(): RotaryHapticHandler = remember {
     object : RotaryHapticHandler {
-        override fun handleScrollHaptic(event: UnifiedRotaryEvent) {
+        override fun handleScrollHaptic(
+            timestamp: Long,
+            deltaInPixels: Float
+        ) {
             // Do nothing
         }
 
-        override fun handleSnapHaptic(event: UnifiedRotaryEvent) {
+        override fun handleSnapHaptic(
+            timestamp: Long,
+            deltaInPixels: Float
+        ) {
             // Do nothing
         }
 
-        override fun handleLimitHaptic(event: UnifiedRotaryEvent, isStart: Boolean) {
+        override fun handleLimitHaptic(isStart: Boolean) {
             // Do nothing
         }
     }
@@ -323,7 +342,8 @@ private fun isWear3_5(context: Context): Boolean =
 private fun isWear4(): Boolean =
     Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU
 
-private fun hasWearSDK(): Boolean =
+private fun hasWearSDK(context: Context): Boolean =
+    context.packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) &&
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
 
 private fun getWearPlatformMrNumber(context: Context): Int =
