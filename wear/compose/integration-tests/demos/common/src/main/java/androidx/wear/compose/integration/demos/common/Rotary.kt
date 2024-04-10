@@ -51,6 +51,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun ScalingLazyColumnWithRSB(
@@ -92,6 +93,7 @@ fun ScalingLazyColumnWithRSB(
 
 @Suppress("ComposableModifierFactory")
 @Composable
+@Deprecated("Use .rotary modifier instead")
 fun Modifier.rsbScroll(
     scrollableState: ScrollableState,
     flingBehavior: FlingBehavior,
