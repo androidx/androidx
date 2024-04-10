@@ -43,6 +43,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.pdf.R;
 import androidx.pdf.data.DisplayData;
 import androidx.pdf.data.FutureValue;
@@ -1202,11 +1205,57 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     { // Init pdfLoaderCallbacks
         mPdfLoaderCallbacks =
                 new PdfLoaderCallbacks() {
+                    static final String PASSWORD_DIALOG_TAG = "password-dialog";
+
+                    @Nullable
+                    private PdfPasswordDialog currentPasswordDialog(@Nullable FragmentManager fm) {
+                        if (fm != null) {
+                            Fragment passwordDialog = fm.findFragmentByTag(PASSWORD_DIALOG_TAG);
+                            if (passwordDialog instanceof PdfPasswordDialog) {
+                                return (PdfPasswordDialog) passwordDialog;
+                            }
+                        }
+                        return null;
+                    }
+
                     // Callbacks should exit early if viewState == NO_VIEW (typically a Destroy
                     // is in progress).
                     @Override
                     public void requestPassword(boolean incorrect) {
-                        throw new UnsupportedOperationException("TODO: PDF Password");
+                        mIsPasswordProtected = true;
+
+                        if (!isShowing()) {
+                            // This would happen if the service decides to start while we're in
+                            // the background.
+                            // The dialog code below would then crash. We can't just bypass it
+                            // because then we'd
+                            // have
+                            // a started service with no loaded PDF and no means to load it. The
+                            // best way is to
+                            // just
+                            // kill the service which will restart on the next onStart.
+                            if (mPdfLoader != null) {
+                                mPdfLoader.disconnect();
+                            }
+                            return;
+                        }
+
+                        if (viewState().get() != ViewState.NO_VIEW) {
+                            FragmentManager fm = requireActivity().getSupportFragmentManager();
+
+                            PdfPasswordDialog passwordDialog = currentPasswordDialog(fm);
+                            if (passwordDialog == null) {
+                                passwordDialog = new PdfPasswordDialog();
+                                passwordDialog.setTargetFragment(PdfViewer.this, 0);
+                                passwordDialog.setFinishOnCancel(
+                                        getArguments().getBoolean(KEY_EXIT_ON_CANCEL));
+                                passwordDialog.show(fm, PASSWORD_DIALOG_TAG);
+                            }
+
+                            if (incorrect) {
+                                passwordDialog.retry();
+                            }
+                        }
                     }
 
                     @Override
@@ -1225,6 +1274,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                             mPaginatedView.setModel(mPaginationModel);
                             mPaginationModel.addObserver(mPaginatedView);
 
+                            dismissPasswordDialog();
                             maybeLayoutPages(1);
                             mPageIndicator.setNumPages(numPages);
                             mSearchModel.setNumPages(numPages);
@@ -1242,6 +1292,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                     @Override
                     public void documentNotLoaded(PdfStatus status) {
                         if (viewState().get() != ViewState.NO_VIEW) {
+                            dismissPasswordDialog();
                             if (getArguments().getBoolean(KEY_QUIT_ON_ERROR)) {
                                 getActivity().finish();
                             }
@@ -1277,6 +1328,15 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                     .setFailure(getString(R.string.error_on_page, page + 1));
                             Toaster.LONG.popToast(getActivity(), R.string.error_on_page, page + 1);
                             // TODO: Track render error.
+                        }
+                    }
+
+                    private void dismissPasswordDialog() {
+                        DialogFragment passwordDialog = currentPasswordDialog(
+                                requireActivity().getSupportFragmentManager());
+                        if (passwordDialog != null
+                                && PdfViewer.this.equals(passwordDialog.getTargetFragment())) {
+                            passwordDialog.dismiss();
                         }
                     }
 
