@@ -209,7 +209,8 @@ class AnnotatedString internal constructor(
      * list will be returned.
      */
     @ExperimentalTextApi
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "Deprecation")
+    @Deprecated("Use LinkAnnotation API instead", ReplaceWith("getLinkAnnotations(start, end)"))
     fun getUrlAnnotations(start: Int, end: Int): List<Range<UrlAnnotation>> =
         ((annotations?.fastFilter {
             it.item is UrlAnnotation && intersect(start, end, it.start, it.end)
@@ -542,7 +543,10 @@ class AnnotatedString internal constructor(
          * @sample androidx.compose.ui.text.samples.AnnotatedStringAddStringAnnotationSample
          */
         @ExperimentalTextApi
-        @Suppress("SetterReturnsThis")
+        @Suppress("SetterReturnsThis", "Deprecation")
+        @Deprecated("Use LinkAnnotation API for links instead",
+            ReplaceWith("addLink(, start, end)")
+        )
         fun addUrlAnnotation(urlAnnotation: UrlAnnotation, start: Int, end: Int) {
             annotations.add(MutableRange(urlAnnotation, start, end))
         }
@@ -665,8 +669,11 @@ class AnnotatedString internal constructor(
          * @see getStringAnnotations
          * @see Range
          */
-        @Suppress("BuilderSetStyle")
+        @Suppress("BuilderSetStyle", "Deprecation")
         @ExperimentalTextApi
+        @Deprecated("Use LinkAnnotation API for links instead",
+            ReplaceWith("pushLink(, start, end)")
+        )
         fun pushUrlAnnotation(urlAnnotation: UrlAnnotation): Int {
             MutableRange(item = urlAnnotation, start = text.length).also {
                 styleStack.add(it)
@@ -1128,6 +1135,10 @@ inline fun <R : Any> Builder.withAnnotation(
  * @see AnnotatedString.Builder.pop
  */
 @ExperimentalTextApi
+@Deprecated("Use LinkAnnotation API for links instead",
+    ReplaceWith("withLink(, block)")
+)
+@Suppress("Deprecation")
 inline fun <R : Any> Builder.withAnnotation(
     urlAnnotation: UrlAnnotation,
     crossinline block: Builder.() -> R

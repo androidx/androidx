@@ -73,6 +73,7 @@ fun AnnotatedString.toAccessibilitySpannableString(
         )
     }
 
+    @Suppress("Deprecation")
     getUrlAnnotations(0, length).fastForEach { (urlAnnotation, start, end) ->
         spannableString.setSpan(
             urlSpanCache.toURLSpan(urlAnnotation),
