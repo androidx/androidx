@@ -35,15 +35,14 @@ internal class PlatformClipboardManager : ClipboardManager {
 
     override fun getClip(): ClipEntry? = null
 
-    override fun getClipMetadata(): ClipMetadata? = null
-
     @Suppress("GetterSetterNames")
     override fun setClip(clipEntry: ClipEntry?) = Unit
-
-    override fun hasClip(): Boolean = false
 }
 
-actual class ClipEntry
+actual class ClipEntry {
+    actual val clipMetadata: ClipMetadata
+        get() = TODO("Not yet implemented")
+}
 
 actual class ClipMetadata
 
