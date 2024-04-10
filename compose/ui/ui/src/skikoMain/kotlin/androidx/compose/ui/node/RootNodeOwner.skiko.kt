@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.graphics.layer.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -383,7 +384,8 @@ internal class RootNodeOwner(
 
         override fun createLayer(
             drawBlock: (Canvas) -> Unit,
-            invalidateParentLayer: () -> Unit
+            invalidateParentLayer: () -> Unit,
+            explicitLayer: GraphicsLayer?,
         ) = RenderNodeLayer(
             density = Snapshot.withoutReadObservation {
                 // density is a mutable state that is observed whenever layer is created. the layer
