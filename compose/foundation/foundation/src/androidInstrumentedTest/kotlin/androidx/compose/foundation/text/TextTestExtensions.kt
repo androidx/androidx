@@ -15,6 +15,8 @@
  */
 package androidx.compose.foundation.text
 
+import android.graphics.PointF
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -51,6 +53,11 @@ internal fun TextLayoutResult.boundingBoxOf(substring: String): Rect {
 
     return boundingBoxOf(*Array(substring.length) { getBoundingBox(index + it) })
 }
+
+/**
+ * Convert an Offset to android PointF.
+ */
+internal fun Offset.toPointF(): PointF = PointF(x, y)
 
 /**
  * Helper function that returns the [TextRange] of the given string.

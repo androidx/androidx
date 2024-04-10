@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import kotlinx.coroutines.awaitCancellation
@@ -32,7 +33,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
-    stylusHandwritingTrigger: MutableSharedFlow<Unit>?
+    stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
+    viewConfiguration: ViewConfiguration?
 ): Nothing {
     // TODO(b/267235947) Wire up desktop.
     awaitCancellation()
