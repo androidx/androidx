@@ -223,9 +223,14 @@ fun FloatSubject.isAlmostEqualTo(f: Float, tolerance: Float = 1e-3f) {
  * Verifies that the [Offset] is equal to the given position with some tolerance. The default
  * tolerance is 0.001.
  */
-fun Offset.isAlmostEqualTo(position: Offset, tolerance: Float = 1e-3f) {
-    assertThat(x).isAlmostEqualTo(position.x, tolerance)
-    assertThat(y).isAlmostEqualTo(position.y, tolerance)
+fun Offset.isAlmostEqualTo(position: Offset, tolerance: Float = 1e-3f, message: String? = null) {
+    if (message != null) {
+        assertWithMessage(message).that(x).isAlmostEqualTo(position.x, tolerance)
+        assertWithMessage(message).that(y).isAlmostEqualTo(position.y, tolerance)
+    } else {
+        assertThat(x).isAlmostEqualTo(position.x, tolerance)
+        assertThat(y).isAlmostEqualTo(position.y, tolerance)
+    }
 }
 
 /**
