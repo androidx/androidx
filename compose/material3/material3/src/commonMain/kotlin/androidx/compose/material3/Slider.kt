@@ -287,7 +287,6 @@ fun Slider(
 
     state.onValueChangeFinished = onValueChangeFinished
     state.onValueChange = onValueChange
-    state.onValueChangeFinished = onValueChangeFinished
     state.value = value
 
     Slider(
@@ -2071,9 +2070,6 @@ class SliderState(
      * callback in which value should be updated
      */
     internal var onValueChange: ((Float) -> Unit)? = null
-
-    var onValueChangeFinished: (() -> Unit)? = onValueChangeFinished
-        internal set
 
     internal val tickFractions = stepsToTickFractions(steps)
     private var totalWidth by mutableIntStateOf(0)
