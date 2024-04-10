@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 
 @Sampled
 @Composable
+@Suppress("Deprecation")
 fun ClickableText() {
     ClickableText(
         text = AnnotatedString("Click Me"),
