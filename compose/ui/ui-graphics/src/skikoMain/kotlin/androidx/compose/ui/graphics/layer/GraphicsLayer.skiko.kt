@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
@@ -135,5 +136,9 @@ actual class GraphicsLayer internal constructor() {
         canvas: Canvas,
         parentLayer: GraphicsLayer?
     ) {
+    }
+
+    actual suspend fun toImageBitmap(): ImageBitmap {
+        TODO("Not yet implemented")
     }
 }
