@@ -897,7 +897,7 @@ public class ExifInterface {
      */
     public static final String TAG_F_NUMBER = "FNumber";
     /**
-     *  <p>TThe class of the program used by the camera to set exposure when the picture is taken.
+     *  <p>The class of the program used by the camera to set exposure when the picture is taken.
      *  The tag values are as follows.</p>
      *
      *  <ul>
