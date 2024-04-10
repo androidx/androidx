@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
@@ -200,7 +199,6 @@ fun Badge(
                 color = containerColor,
                 shape = shape
             )
-            .clip(shape)
             .then(
                 if (content != null)
                     Modifier.padding(horizontal = BadgeWithContentHorizontalPadding) else Modifier
