@@ -29,6 +29,8 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.input.key.internal
+import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.AwtCursor
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
@@ -422,10 +424,9 @@ internal class ComposeSceneMediator(
         if (eventListener.onKeyEvent(event)) {
             return
         }
+        val composeEvent = event.toComposeEvent()
         textInputService.onKeyEvent(event)
-        windowContext.setKeyboardModifiers(event.toPointerKeyboardModifiers())
-
-        val composeEvent = ComposeKeyEvent(event)
+        windowContext.setKeyboardModifiers(composeEvent.internal.modifiers)
         if (onPreviewKeyEvent(composeEvent) ||
             scene.sendKeyEvent(composeEvent) ||
             onKeyEvent(composeEvent)

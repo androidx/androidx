@@ -16,8 +16,33 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.toComposeEvent
+import platform.UIKit.UIPress
+import platform.UIKit.UIPressesEvent
 
 internal interface KeyboardEventHandler {
-    fun onKeyboardEvent(event: NativeKeyEvent)
+    fun onKeyboardEvent(event: KeyEvent) = Unit
+
+    companion object {
+        val Empty = object : KeyboardEventHandler {}
+    }
+}
+
+internal fun KeyboardEventHandler.pressesBegan(
+    presses: Set<*>,
+    withEvent: UIPressesEvent?
+) {
+    presses.filterIsInstance<UIPress>().forEach { press ->
+        onKeyboardEvent(press.toComposeEvent())
+    }
+}
+
+internal fun KeyboardEventHandler.pressesEnded(
+    presses: Set<*>,
+    withEvent: UIPressesEvent?
+) {
+    presses.filterIsInstance<UIPress>().forEach { press ->
+        onKeyboardEvent(press.toComposeEvent())
+    }
 }

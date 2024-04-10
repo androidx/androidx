@@ -59,28 +59,8 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import java.awt.event.KeyEvent.VK_ENTER
 
-// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3341): support isComposeRootInScrollableContainer
-internal actual fun DelegatableNode
-    .isComposeRootInScrollableContainer(): Boolean {
-    return false
-}
-
 // TODO: b/168524931 - should this depend on the input device?
 internal actual val TapIndicationDelay: Long = 0L
-
-/**
- * Whether the specified [KeyEvent] should trigger a press for a clickable component, i.e. whether
- * it is associated with a press of the enter key.
- */
-internal actual val KeyEvent.isPress: Boolean
-    get() = type == KeyDown && key.nativeKeyCode == VK_ENTER
-
-/**
- * Whether the specified [KeyEvent] should trigger a click for a clickable component, i.e. whether
- * it is associated with a release of the enter key.
- */
-internal actual val KeyEvent.isClick: Boolean
-    get() = type == KeyUp && key.nativeKeyCode == VK_ENTER
 
 @Immutable @ExperimentalFoundationApi
 @Deprecated(

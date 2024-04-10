@@ -1,8 +1,6 @@
 // Use `xcodegen` first, then `open ./SkikoSample.xcodeproj` and then Run button in XCode.
 package androidx.compose.mpp.demo
 
-import NativeModalWithNaviationExample
-import SwiftUIInteropExample
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.remember
@@ -11,8 +9,8 @@ import androidx.compose.ui.main.defaultUIKitMain
 import androidx.compose.ui.platform.AccessibilityDebugLogger
 import androidx.compose.ui.platform.AccessibilitySyncOptions
 import androidx.compose.ui.window.ComposeUIViewController
-import bugs.IosBugs
-import bugs.StartRecompositionCheck
+import androidx.compose.mpp.demo.bugs.IosBugs
+import androidx.compose.mpp.demo.bugs.StartRecompositionCheck
 import platform.UIKit.UIViewController
 
 @OptIn(ExperimentalComposeApi::class, ExperimentalComposeUiApi::class)
@@ -41,7 +39,7 @@ fun IosDemo(arg: String, makeHostingController: ((Int) -> UIViewController)? = n
         App(
             extraScreens = listOf(
                 IosBugs,
-                NativeModalWithNaviationExample,
+                IosSpecificFeatures,
             ) + listOf(makeHostingController).mapNotNull {
                 it?.let {
                     SwiftUIInteropExample(it)

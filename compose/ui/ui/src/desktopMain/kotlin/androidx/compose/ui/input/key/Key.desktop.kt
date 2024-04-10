@@ -17,7 +17,9 @@
 package androidx.compose.ui.input.key
 
 import androidx.compose.ui.input.key.Key.Companion.Number
+import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
+import androidx.compose.ui.util.unpackInt2
 import java.awt.event.KeyEvent
 import java.awt.event.KeyEvent.KEY_LOCATION_LEFT
 import java.awt.event.KeyEvent.KEY_LOCATION_NUMPAD
@@ -604,23 +606,18 @@ actual value class Key(val keyCode: Long) {
  * @param nativeKeyLocation represents the location of key as defined in [java.awt.event.KeyEvent]
  */
 fun Key(nativeKeyCode: Int, nativeKeyLocation: Int = KEY_LOCATION_STANDARD): Key {
-    // First 32 bits are for keycode.
-    val keyCode = nativeKeyCode.toLong().shl(32)
-
-    // Next 3 bits are for location.
-    val location = (nativeKeyLocation.toLong() and 0x7).shl(29)
-
-    return Key(keyCode or location)
+    // Only 3 bits are required for nativeKeyLocation.
+    return Key(packInts(nativeKeyLocation, nativeKeyCode))
 }
 
 /**
  * The native keycode corresponding to this [Key].
  */
 val Key.nativeKeyCode: Int
-    get() = unpackInt1(keyCode)
+    get() = unpackInt2(keyCode)
 
 /**
  * The native location corresponding to this [Key].
  */
 val Key.nativeKeyLocation: Int
-    get() = (keyCode and 0xFFFFFFFF).shr(29).toInt()
+    get() = unpackInt1(keyCode)

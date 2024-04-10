@@ -242,6 +242,8 @@ actual class PointerEvent internal constructor(
     }
 }
 
+// It matches to browser spec, so JS/WASM uses browser values as is.
+// Do not change this masks without [MouseEvent.composeButtons]
 private object ButtonMasks {
     const val Primary = 1 shl 0
     const val Secondary = 1 shl 1
@@ -339,18 +341,29 @@ actual val PointerKeyboardModifiers.isScrollLockOn: Boolean
 actual val PointerKeyboardModifiers.isNumLockOn: Boolean
     get() = (packedValue and KeyboardModifierMasks.NumLockOn) != 0
 
-@OptIn(ExperimentalComposeUiApi::class)
-internal fun PointerButtons.copyFor(
-    button: PointerButton,
-    pressed: Boolean
-): PointerButtons = when (button) {
-    PointerButton.Primary -> copy(isPrimaryPressed = pressed)
-    PointerButton.Secondary -> copy(isSecondaryPressed = pressed)
-    PointerButton.Tertiary -> copy(isTertiaryPressed = pressed)
-    PointerButton.Forward -> copy(isForwardPressed = pressed)
-    PointerButton.Back -> copy(isBackPressed = pressed)
-    else -> copy()
-}
+internal fun PointerKeyboardModifiers.copy(
+    isCtrlPressed: Boolean = this.isCtrlPressed,
+    isMetaPressed: Boolean = this.isMetaPressed,
+    isAltPressed: Boolean = this.isAltPressed,
+    isShiftPressed: Boolean = this.isShiftPressed,
+    isAltGraphPressed: Boolean = this.isAltGraphPressed,
+    isSymPressed: Boolean = this.isSymPressed,
+    isFunctionPressed: Boolean = this.isFunctionPressed,
+    isCapsLockOn: Boolean = this.isCapsLockOn,
+    isScrollLockOn: Boolean = this.isScrollLockOn,
+    isNumLockOn: Boolean = this.isNumLockOn
+) = PointerKeyboardModifiers(
+    isCtrlPressed = isCtrlPressed,
+    isMetaPressed = isMetaPressed,
+    isAltPressed = isAltPressed,
+    isShiftPressed = isShiftPressed,
+    isAltGraphPressed = isAltGraphPressed,
+    isSymPressed = isSymPressed,
+    isFunctionPressed = isFunctionPressed,
+    isCapsLockOn = isCapsLockOn,
+    isScrollLockOn = isScrollLockOn,
+    isNumLockOn = isNumLockOn
+)
 
 internal fun PointerButtons.copy(
     isPrimaryPressed: Boolean = this.isPrimaryPressed,
@@ -358,10 +371,10 @@ internal fun PointerButtons.copy(
     isTertiaryPressed: Boolean = this.isTertiaryPressed,
     isBackPressed: Boolean = this.isBackPressed,
     isForwardPressed: Boolean = this.isForwardPressed
-): PointerButtons = PointerButtons(
-    isPrimaryPressed,
-    isSecondaryPressed,
-    isTertiaryPressed,
-    isBackPressed,
-    isForwardPressed,
+) = PointerButtons(
+    isPrimaryPressed = isPrimaryPressed,
+    isSecondaryPressed = isSecondaryPressed,
+    isTertiaryPressed = isTertiaryPressed,
+    isBackPressed = isBackPressed,
+    isForwardPressed = isForwardPressed,
 )

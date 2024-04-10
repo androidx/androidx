@@ -17,16 +17,14 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.internal.keyEvent
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -39,18 +37,27 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.renderComposeScene
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onParent
+import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.runDesktopComposeUiTest
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(InternalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class DesktopAlertDialogTest {
 
@@ -99,14 +106,14 @@ class DesktopAlertDialogTest {
         }
 
         rule.onNodeWithTag("alertDialog")
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
 
         rule.runOnIdle {
             assertEquals(1, dismissCount)
         }
 
         rule.onNodeWithTag("alertDialog")
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
 
         rule.runOnIdle {
             assertEquals(1, dismissCount)

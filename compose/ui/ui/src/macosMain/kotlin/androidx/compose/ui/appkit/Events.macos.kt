@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.uikit
+package androidx.compose.ui.appkit
 
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.internal
 import androidx.compose.ui.input.pointer.PointerEvent
-import platform.UIKit.UIEvent
-import platform.UIKit.UIPress
+import platform.AppKit.NSEvent
 
 /**
- * The original raw native event from UIKit framework.
+ * The original raw native event from AppKit framework.
  *
  * Null if:
  * - the native event is sent by another framework (when Compose UI is embed into it)
@@ -31,17 +28,5 @@ import platform.UIKit.UIPress
  *
  * Always check for null, when you want to handle the native event
  */
-val PointerEvent.uikitEventOrNull: UIEvent?
-    get() = nativeEvent as? UIEvent?
-
-/**
- * The original raw native event from UIKit framework.
- *
- * Null if:
- * - the native event is sent by another framework (when Compose UI is embed into it)
- * - there is no native event (in tests, for example, or when Compose sends a synthetic event)
- *
- * Always check for null, when you want to handle the native event
- */
-val KeyEvent.uikitEventOrNull: UIPress?
-    get() = internal.nativeEvent as? UIPress?
+val PointerEvent.appkitEventOrNull: NSEvent?
+    get() = nativeEvent as? NSEvent?

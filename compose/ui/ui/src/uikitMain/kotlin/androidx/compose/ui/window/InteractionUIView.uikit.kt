@@ -16,20 +16,11 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.input.key.NativeKeyEvent
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIEvent
-import platform.UIKit.UIKeyModifierAlternate
-import platform.UIKit.UIKeyModifierCommand
-import platform.UIKit.UIKeyModifierControl
-import platform.UIKit.UIKeyModifierShift
-import platform.UIKit.UIPress
 import platform.UIKit.UIPressesEvent
 import platform.UIKit.UIView
 
@@ -67,12 +58,12 @@ internal class InteractionUIView(
     override fun canBecomeFirstResponder() = true
 
     override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        handleUIViewPressesBegan(keyboardEventHandler, presses, withEvent)
+        keyboardEventHandler.pressesBegan(presses, withEvent)
         super.pressesBegan(presses, withEvent)
     }
 
     override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        handleUIViewPressesEnded(keyboardEventHandler, presses, withEvent)
+        keyboardEventHandler.pressesEnded(presses, withEvent)
         super.pressesEnded(presses, withEvent)
     }
 
@@ -132,66 +123,6 @@ internal class InteractionUIView(
         }
         updateTouchesCount = {}
         inBounds = { false }
-        keyboardEventHandler = object: KeyboardEventHandler {
-            override fun onKeyboardEvent(event: NativeKeyEvent) {}
-        }
+        keyboardEventHandler = KeyboardEventHandler.Empty
     }
-}
-
-internal fun handleUIViewPressesBegan(
-    keyboardEventHandler: KeyboardEventHandler,
-    presses: Set<*>,
-    withEvent: UIPressesEvent?
-) {
-    if (withEvent != null) {
-        for (press in withEvent.allPresses) {
-            if (press is UIPress) {
-                keyboardEventHandler.onKeyboardEvent(
-                    press.toNativeKeyEvent(KeyEventType.KeyDown)
-                )
-            }
-        }
-    }
-}
-
-internal fun handleUIViewPressesEnded(
-    keyboardEventHandler: KeyboardEventHandler,
-    presses: Set<*>,
-    withEvent: UIPressesEvent?
-) {
-    if (withEvent != null) {
-        for (press in withEvent.allPresses) {
-            if (press is UIPress) {
-                keyboardEventHandler.onKeyboardEvent(
-                    press.toNativeKeyEvent(KeyEventType.KeyUp)
-                )
-            }
-        }
-    }
-}
-
-private fun UIPress.toNativeKeyEvent(kind: KeyEventType): NativeKeyEvent {
-    val timestamp = (timestamp * 1_000).toLong()
-
-    // TODO: https://developer.apple.com/documentation/uikit/uipress/3526315-key
-    //  can be potentially nil on TVOS, this will cause a crash
-    val key = requireNotNull(key) {
-        "UIPress with null key is not supported"
-    }
-
-    val modifiers = key.modifierFlags
-    val inputModifiers = PointerKeyboardModifiers(
-        isAltPressed = modifiers and UIKeyModifierAlternate != 0L,
-        isShiftPressed = modifiers and UIKeyModifierShift != 0L,
-        isCtrlPressed = modifiers and UIKeyModifierControl != 0L,
-        isMetaPressed = modifiers and UIKeyModifierCommand != 0L,
-    )
-
-    return NativeKeyEvent(
-        Key(key.keyCode),
-        key()?.characters(),
-        inputModifiers,
-        kind,
-        timestamp
-    )
 }

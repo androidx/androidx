@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.gestures
 
+import androidx.compose.ui.appkit.appkitEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import platform.AppKit.NSEvent
 
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig =
     MacOsScrollConfig
@@ -32,8 +30,7 @@ internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig():
 private object MacOsScrollConfig : ScrollConfig {
     // See https://developer.apple.com/documentation/appkit/nsevent/1535387-scrollingdeltay
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
-        // TODO: Replace with event.nsEventOrNull
-        val e: NSEvent = event.nativeEvent as? NSEvent? ?: return Offset.Zero
+        val e = event.appkitEventOrNull ?: return Offset.Zero
 
         // The multiplier value was derived from desktop MacOSCocoaConfig
         val multiplier = if (e.hasPreciseScrollingDeltas) 1.0F else 10.dp.toPx()

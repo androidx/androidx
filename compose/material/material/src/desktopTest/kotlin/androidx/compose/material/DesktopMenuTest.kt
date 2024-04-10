@@ -21,11 +21,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.internal.keyEvent
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -52,7 +53,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.runBlocking
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, InternalComposeUiApi::class)
 class DesktopMenuTest {
 
 
@@ -189,12 +190,12 @@ class DesktopMenuTest {
         }
 
         onNodeWithTag("dropDownMenu")
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyDown))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
 
         assertEquals(1, dismissCount)
 
         onNodeWithTag("dropDownMenu")
-            .performKeyPress(keyEvent(Key.Escape, KeyEventType.KeyUp))
+            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
 
         assertEquals(1, dismissCount)
     }
@@ -224,8 +225,8 @@ class DesktopMenuTest {
 
         fun performKeyDownAndUp(key: Key) {
             onNodeWithTag("dropDownMenu").apply {
-                performKeyPress(keyEvent(key, KeyEventType.KeyDown))
-                performKeyPress(keyEvent(key, KeyEventType.KeyUp))
+                performKeyPress(KeyEvent(key, KeyEventType.KeyDown))
+                performKeyPress(KeyEvent(key, KeyEventType.KeyUp))
             }
         }
 
