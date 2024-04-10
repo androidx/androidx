@@ -238,8 +238,6 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> FLOORS_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.IntervalDataPoint<java.lang.Long>> GOLF_SHOT_COUNT;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Long>> GOLF_SHOT_COUNT_TOTAL;
-    field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> GROUND_CONTACT_BALANCE;
-    field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Double>> GROUND_CONTACT_BALANCE_STATS;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Long,androidx.health.services.client.data.SampleDataPoint<java.lang.Long>> GROUND_CONTACT_TIME;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Long,androidx.health.services.client.data.StatisticalDataPoint<java.lang.Long>> GROUND_CONTACT_TIME_STATS;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.SampleDataPoint<java.lang.Double>> HEART_RATE_BPM;

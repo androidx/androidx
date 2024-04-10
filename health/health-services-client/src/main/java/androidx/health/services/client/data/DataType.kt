@@ -613,28 +613,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             createStatsDataType("Ground Contact Time")
 
         /**
-         * Percentage of time the right foot is on the ground in percentage in `double` format.
-         *
-         * Percentage value is from 0 to 100.0. For instance, 52.0 means the right foot is on the
-         * ground 52% of the time.
-         */
-        @JvmField
-        val GROUND_CONTACT_BALANCE: DeltaDataType<Double, SampleDataPoint<Double>> =
-            createSampleDataType("Ground Contact Balance")
-
-        /**
-         * Statistics on percentage of time the right foot is on the ground in percentage in
-         * `double` format.
-         *
-         * Percentage value is from 0 to 100.0. For instance, 52.0 means the right foot is on the
-         * round 52% of the time.
-         */
-        @JvmField
-        val GROUND_CONTACT_BALANCE_STATS:
-        AggregateDataType<Double, StatisticalDataPoint<Double>> =
-            createStatsDataType("Ground Contact Balance")
-
-        /**
          * Distance the center of mass moves up-and-down with each step in centimeters in `double`
          * format.
          */
@@ -746,7 +724,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             FLAT_GROUND_DURATION,
             FLOORS,
             GOLF_SHOT_COUNT,
-            GROUND_CONTACT_BALANCE,
             GROUND_CONTACT_TIME,
             HEART_RATE_BPM,
             INCLINE_DISTANCE,
@@ -781,7 +758,6 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             FLAT_GROUND_DURATION_TOTAL,
             FLOORS_TOTAL,
             GOLF_SHOT_COUNT_TOTAL,
-            GROUND_CONTACT_BALANCE_STATS,
             GROUND_CONTACT_TIME_STATS,
             HEART_RATE_BPM_STATS,
             INCLINE_DISTANCE_TOTAL,

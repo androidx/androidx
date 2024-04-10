@@ -26,8 +26,6 @@ import androidx.health.services.client.data.DataType.Companion.DISTANCE_DAILY
 import androidx.health.services.client.data.DataType.Companion.ELEVATION_GAIN_DAILY
 import androidx.health.services.client.data.DataType.Companion.FLOORS_DAILY
 import androidx.health.services.client.data.DataType.Companion.FORMAT_BYTE_ARRAY
-import androidx.health.services.client.data.DataType.Companion.GROUND_CONTACT_BALANCE
-import androidx.health.services.client.data.DataType.Companion.GROUND_CONTACT_BALANCE_STATS
 import androidx.health.services.client.data.DataType.Companion.GROUND_CONTACT_TIME
 import androidx.health.services.client.data.DataType.Companion.GROUND_CONTACT_TIME_STATS
 import androidx.health.services.client.data.DataType.Companion.LOCATION
@@ -269,7 +267,6 @@ internal class DataTypeTest {
 
     @Test
     fun sampleDataTypesAreNotAggregates() {
-        assertThat(GROUND_CONTACT_BALANCE.isAggregate).isFalse()
         assertThat(GROUND_CONTACT_TIME.isAggregate).isFalse()
         assertThat(VERTICAL_OSCILLATION.isAggregate).isFalse()
         assertThat(VERTICAL_RATIO.isAggregate).isFalse()
@@ -278,7 +275,6 @@ internal class DataTypeTest {
 
     @Test
     fun statsDataTypesAreAggregates() {
-        assertThat(GROUND_CONTACT_BALANCE_STATS.isAggregate).isTrue()
         assertThat(GROUND_CONTACT_TIME_STATS.isAggregate).isTrue()
         assertThat(VERTICAL_OSCILLATION_STATS.isAggregate).isTrue()
         assertThat(VERTICAL_RATIO_STATS.isAggregate).isTrue()
