@@ -53,12 +53,14 @@ abstract class LinkAnnotation private constructor() {
         override val hoveredStyle: SpanStyle? = null,
         override val linkInteractionListener: LinkInteractionListener? = null
     ) : LinkAnnotation() {
-
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Url) return false
 
             if (url != other.url) return false
+            if (style != other.style) return false
+            if (focusedStyle != other.focusedStyle) return false
+            if (hoveredStyle != other.hoveredStyle) return false
             if (linkInteractionListener != other.linkInteractionListener) return false
 
             return true
@@ -66,6 +68,9 @@ abstract class LinkAnnotation private constructor() {
 
         override fun hashCode(): Int {
             var result = url.hashCode()
+            result = 31 * result + (style?.hashCode() ?: 0)
+            result = 31 * result + (focusedStyle?.hashCode() ?: 0)
+            result = 31 * result + (hoveredStyle?.hashCode() ?: 0)
             result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
             return result
         }
@@ -93,6 +98,9 @@ abstract class LinkAnnotation private constructor() {
             if (other !is Clickable) return false
 
             if (tag != other.tag) return false
+            if (style != other.style) return false
+            if (focusedStyle != other.focusedStyle) return false
+            if (hoveredStyle != other.hoveredStyle) return false
             if (linkInteractionListener != other.linkInteractionListener) return false
 
             return true
@@ -100,7 +108,10 @@ abstract class LinkAnnotation private constructor() {
 
         override fun hashCode(): Int {
             var result = tag.hashCode()
-            result = 31 * result + linkInteractionListener.hashCode()
+            result = 31 * result + (style?.hashCode() ?: 0)
+            result = 31 * result + (focusedStyle?.hashCode() ?: 0)
+            result = 31 * result + (hoveredStyle?.hashCode() ?: 0)
+            result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
             return result
         }
 
