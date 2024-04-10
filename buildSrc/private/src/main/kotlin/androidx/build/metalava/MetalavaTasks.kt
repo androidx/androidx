@@ -27,7 +27,11 @@ import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.java.JavaCompileInputs
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
+import com.android.build.api.attributes.BuildTypeAttr
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import org.gradle.api.attributes.Usage
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
@@ -44,6 +48,24 @@ object MetalavaTasks {
         builtApiLocation: ApiLocation,
         outputApiLocations: List<ApiLocation>
     ) {
+        val generateApiDependencies = project.configurations.create("GenerateApiDependencies") {
+            it.isCanBeConsumed = false
+            it.isTransitive = false
+            it.attributes.attribute(
+                BuildTypeAttr.ATTRIBUTE,
+                project.objects.named(BuildTypeAttr::class.java, "debug")
+            )
+            it.attributes.attribute(
+                Usage.USAGE_ATTRIBUTE,
+                project.objects.named(Usage::class.java, Usage.JAVA_API)
+            )
+            it.attributes.attribute(
+                ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE,
+                ArtifactTypeDefinition.JAR_TYPE
+            )
+        }
+        project.dependencies.add(generateApiDependencies.name, project.project(project.path))
+
         val metalavaClasspath = project.getMetalavaClasspath()
         val version = project.version()
 
@@ -72,7 +94,7 @@ object MetalavaTasks {
                 task.currentVersion.set(version)
 
                 androidManifest?.let { task.manifestPath.set(it) }
-                applyInputs(javaCompileInputs, task)
+                applyInputs(javaCompileInputs, task, generateApiDependencies)
                 // If we will be updating the api lint baselines, then we should do that before
                 // using it to validate the generated api
                 task.mustRunAfter("updateApiLintBaseline")
@@ -128,7 +150,7 @@ object MetalavaTasks {
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
                 androidManifest?.let { task.manifestPath.set(it) }
-                applyInputs(javaCompileInputs, task)
+                applyInputs(javaCompileInputs, task, generateApiDependencies)
             }
 
         // Policy: All changes to API surfaces for which compatibility is enforced must be
@@ -208,10 +230,14 @@ object MetalavaTasks {
         )
     }
 
-    private fun applyInputs(inputs: JavaCompileInputs, task: MetalavaTask) {
+    private fun applyInputs(
+        inputs: JavaCompileInputs,
+        task: MetalavaTask,
+        generateApiDependencies: Configuration
+    ) {
         task.sourcePaths = inputs.sourcePaths
         task.commonModuleSourcePaths = inputs.commonModuleSourcePaths
-        task.dependsOn(inputs.sourcePaths)
+        task.compiledSources = generateApiDependencies
         task.dependencyClasspath = inputs.dependencyClasspath
         task.bootClasspath = inputs.bootClasspath
     }
