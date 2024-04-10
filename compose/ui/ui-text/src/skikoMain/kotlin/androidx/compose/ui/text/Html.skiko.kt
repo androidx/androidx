@@ -26,5 +26,6 @@ actual fun AnnotatedString.Companion.fromHtml(
     linkStyle: SpanStyle?,
     linkFocusedStyle: SpanStyle?,
     linkHoveredStyle: SpanStyle?,
+    linkPressedStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString = AnnotatedString(htmlString)

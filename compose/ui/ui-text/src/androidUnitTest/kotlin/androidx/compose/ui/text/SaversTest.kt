@@ -371,6 +371,7 @@ class SaversTest {
                     SpanStyle(color = Color.Red),
                     SpanStyle(color = Color.Green),
                     SpanStyle(color = Color.Blue),
+                    SpanStyle(background = Color.Gray),
                     null
                 )
             ) {
@@ -413,6 +414,7 @@ class SaversTest {
                     SpanStyle(color = Color.Red),
                     SpanStyle(color = Color.Green),
                     SpanStyle(color = Color.Blue),
+                    SpanStyle(background = Color.Gray),
                     null
                 )
             ) {

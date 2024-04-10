@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -700,6 +701,100 @@ class BasicTextLinkTest {
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertContainsColor(Color.Blue)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onPressed_pressedStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    pressedStyle = SpanStyle(color = Color.Green)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performTouchInput { longPress(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_withOtherStyle_onPressed_pressedStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withStyle(SpanStyle(color = Color.Green)) {
+                withLink(
+                    Url(
+                        "link",
+                        pressedStyle = SpanStyle(color = Color.Blue)
+                    )
+                ) { append("text") }
+            }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .performTouchInput { longPress(this.center) }
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Green)
+            .assertContainsColor(Color.Blue)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @OptIn(ExperimentalTestApi::class)
+    fun link_onPressed_whenHoveredAndFocused_pressedStyleUsed() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    focusedStyle = SpanStyle(color = Color.Red),
+                    hoveredStyle = SpanStyle(color = Color.Green),
+                    pressedStyle = SpanStyle(color = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .performMouseInput { enter(this.center) }
+            .performTouchInput { longPress(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertDoesNotContainColor(Color.Red)
+            .assertDoesNotContainColor(Color.Green)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onPressed_whenFocused_mergedStyle() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link",
+                    focusedStyle = SpanStyle(background = Color.Green),
+                    pressedStyle = SpanStyle(color = Color.Blue)
+                )
+            ) { append("text") }
+        }
+        setupContent {
+            BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .performTouchInput { longPress(this.center) }
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertContainsColor(Color.Green)
     }
 
     @Test

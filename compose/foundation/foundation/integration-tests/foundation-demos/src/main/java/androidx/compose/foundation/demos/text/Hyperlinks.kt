@@ -91,7 +91,8 @@ fun Hyperlinks() {
                         url = "$dac/accessibility",
                         style = SpanStyle(color = Color.Magenta),
                         focusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
-                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline),
+                        pressedStyle = SpanStyle(color = Color.Red)
                     )
                 ) {
                     append("DEVELOPER ANDROID COM LINK")
@@ -316,6 +317,7 @@ private class AnnotatedStringSaver(
                                linkRange.item.style,
                                linkRange.item.focusedStyle,
                                linkRange.item.hoveredStyle,
+                               linkRange.item.pressedStyle,
                                linkInteractionListener
                            )
                            builder.addLink(link, linkRange.start, linkRange.end)

@@ -249,7 +249,8 @@ private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
             save(it.url),
             save(it.style, SpanStyleSaver, this),
             save(it.focusedStyle, SpanStyleSaver, this),
-            save(it.hoveredStyle, SpanStyleSaver, this)
+            save(it.hoveredStyle, SpanStyleSaver, this),
+            save(it.pressedStyle, SpanStyleSaver, this)
         )
     },
     restore = {
@@ -259,11 +260,13 @@ private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
         val styleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
         val focusedStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
         val hoveredStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        val pressedStyleOrNull: SpanStyle? = restore(list[4], SpanStyleSaver)
         LinkAnnotation.Url(
             url = url,
             style = styleOrNull,
             focusedStyle = focusedStyleOrNull,
-            hoveredStyle = hoveredStyleOrNull
+            hoveredStyle = hoveredStyleOrNull,
+            pressedStyle = pressedStyleOrNull
         )
     }
 )
@@ -274,7 +277,8 @@ private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
             save(it.tag),
             save(it.style, SpanStyleSaver, this),
             save(it.focusedStyle, SpanStyleSaver, this),
-            save(it.hoveredStyle, SpanStyleSaver, this)
+            save(it.hoveredStyle, SpanStyleSaver, this),
+            save(it.pressedStyle, SpanStyleSaver, this)
         )
     },
     restore = {
@@ -284,12 +288,14 @@ private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
         val styleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
         val focusedStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
         val hoveredStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        val pressedStyleOrNull: SpanStyle? = restore(list[4], SpanStyleSaver)
         LinkAnnotation.Clickable(
             tag = tag,
             style = styleOrNull,
             focusedStyle = focusedStyleOrNull,
             hoveredStyle = hoveredStyleOrNull,
-            null
+            pressedStyle = pressedStyleOrNull,
+            linkInteractionListener = null
         )
     }
 )
