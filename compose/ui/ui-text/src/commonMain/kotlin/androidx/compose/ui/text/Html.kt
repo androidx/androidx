@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextDecoration
  * @param linkStyle style to be applied to links present in the string
  * @param linkFocusedStyle style to be applied to links present in the string when they are focused
  * @param linkHoveredStyle style to be applied to links present in the string when they are hovered
+ * @param linkPressedStyle style to be applied to links present in the string when they are pressed
  * @param linkInteractionListener a listener that will be attached to links that are present in
  * the string and triggered when user clicks on those links. When set to null, which is a default,
  * the system will try to open the corresponding links with the
@@ -54,5 +55,6 @@ expect fun AnnotatedString.Companion.fromHtml(
     linkStyle: SpanStyle? = SpanStyle(textDecoration = TextDecoration.Underline),
     linkFocusedStyle: SpanStyle? = null,
     linkHoveredStyle: SpanStyle? = null,
+    linkPressedStyle: SpanStyle? = null,
     linkInteractionListener: LinkInteractionListener? = null
 ): AnnotatedString
