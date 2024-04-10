@@ -70,14 +70,15 @@ import androidx.wear.compose.material.samples.OutlinedCompactButtonWithIcon
 import androidx.wear.compose.material.samples.OutlinedCompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.PickerGroup24Hours
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
+import androidx.wear.compose.material.samples.SelectableChipWithRadioButton
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
+import androidx.wear.compose.material.samples.SplitSelectableChipWithRadioButton
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
-import androidx.wear.compose.material.samples.SplitToggleChipWithRadioButton
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithCustomSemanticsSample
@@ -90,7 +91,6 @@ import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
 import androidx.wear.compose.material.samples.TitleCardWithImageBackground
 import androidx.wear.compose.material.samples.ToggleButtonWithIcon
-import androidx.wear.compose.material.samples.ToggleChipWithRadioButton
 import androidx.wear.compose.material.samples.ToggleChipWithSwitch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -481,19 +481,9 @@ val WearMaterialDemos = DemoCategory(
                                 ToggleChipWithSwitch()
                             }
                         },
-                        ComposableDemo("ToggleChip With RadioButton") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                ToggleChipWithRadioButton()
-                            }
-                        },
                         ComposableDemo("SplitToggleChip With Checkbox") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 SplitToggleChipWithCheckbox()
-                            }
-                        },
-                        ComposableDemo("SplitToggleChip With RadioButton") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                SplitToggleChipWithRadioButton()
                             }
                         },
                     )
@@ -504,6 +494,37 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Toggle chip") { ToggleChips() },
                         ComposableDemo("RTL Toggle chip") {
                             ToggleChips(
+                                layoutDirection = LayoutDirection.Rtl,
+                                description = "RTL ToggleChips"
+                            )
+                        },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Selectable Chip",
+            listOf(
+                DemoCategory("Samples",
+                    listOf(
+                        ComposableDemo("SelectableChip With RadioButton") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                SelectableChipWithRadioButton()
+                            }
+                        },
+                        ComposableDemo("SplitSelectableChip With RadioButton") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                SplitSelectableChipWithRadioButton()
+                            }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Selectable chip") { SelectableChips() },
+                        ComposableDemo("RTL Selectable chip") {
+                            SelectableChips(
                                 layoutDirection = LayoutDirection.Rtl,
                                 description = "RTL ToggleChips"
                             )

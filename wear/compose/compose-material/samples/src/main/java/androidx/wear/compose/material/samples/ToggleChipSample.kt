@@ -77,32 +77,6 @@ fun ToggleChipWithSwitch() {
 
 @Sampled
 @Composable
-fun ToggleChipWithRadioButton() {
-    var selected by remember { mutableStateOf(true) }
-    // The primary label should have a maximum 3 lines of text
-    // and the secondary label should have max 2 lines of text.
-    ToggleChip(
-        label = {
-            Text("RadioIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
-        },
-        secondaryLabel = {
-            Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
-        },
-        selected = selected,
-        onSelect = { selected = it },
-        appIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
-                contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
-            )
-        },
-        enabled = true,
-    )
-}
-
-@Sampled
-@Composable
 fun SplitToggleChipWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
     // The primary label should have a maximum 3 lines of text
@@ -119,25 +93,6 @@ fun SplitToggleChipWithCheckbox() {
             )
         },
         onCheckedChange = { checked = it },
-        onClick = {
-            /* Do something */
-        },
-        enabled = true,
-    )
-}
-
-@Sampled
-@Composable
-fun SplitToggleChipWithRadioButton() {
-    var selected by remember { mutableStateOf(true) }
-    // The primary label should have a maximum 3 lines of text
-    // and the secondary label should have max 2 lines of text.
-    SplitToggleChip(
-        label = {
-            Text("Split with RadioButton", maxLines = 3, overflow = TextOverflow.Ellipsis)
-        },
-        selected = selected,
-        onSelect = { selected = it },
         onClick = {
             /* Do something */
         },
