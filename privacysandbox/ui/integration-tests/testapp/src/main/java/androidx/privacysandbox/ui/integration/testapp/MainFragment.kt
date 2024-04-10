@@ -17,16 +17,12 @@
 package androidx.privacysandbox.ui.integration.testapp
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
-import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
-import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -79,7 +75,7 @@ class MainFragment : BaseFragment() {
     }
 
     private fun loadWebViewBannerAd() {
-        webViewBannerView.addStateChangedListener(StateChangeListener(webViewBannerView))
+        webViewBannerView.addStateChangedListener()
         webViewBannerView.setAdapter(
             SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadLocalWebViewAd()
@@ -101,7 +97,7 @@ class MainFragment : BaseFragment() {
     }
 
     private fun loadBottomBannerAd() {
-        bottomBannerView.addStateChangedListener(StateChangeListener(bottomBannerView))
+        bottomBannerView.addStateChangedListener()
         bottomBannerView.layoutParams = inflatedView.findViewById<LinearLayout>(
             R.id.bottom_banner_container).layoutParams
         requireActivity().runOnUiThread {
@@ -115,8 +111,7 @@ class MainFragment : BaseFragment() {
     }
 
     private fun loadResizableBannerAd() {
-        resizableBannerView.addStateChangedListener(
-            StateChangeListener(resizableBannerView))
+        resizableBannerView.addStateChangedListener()
         resizableBannerView.setAdapter(
             SandboxedUiAdapterFactory.createFromCoreLibInfo(
             sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Resizable View")
@@ -162,25 +157,6 @@ class MainFragment : BaseFragment() {
             val newWidth = newSize(resizableBannerView.width, maxWidthPixels)
             val newHeight = newSize(resizableBannerView.height, maxHeightPixels)
             sdkApi.requestResize(newWidth, newHeight)
-        }
-    }
-
-    private inner class StateChangeListener(val view: SandboxedSdkView) :
-        SandboxedSdkUiSessionStateChangedListener {
-        override fun onStateChanged(state: SandboxedSdkUiSessionState) {
-            Log.i(TAG, "UI session state changed to: $state")
-            if (state is SandboxedSdkUiSessionState.Error) {
-                // If the session fails to open, display the error.
-                val parent = view.parent as ViewGroup
-                val index = parent.indexOfChild(view)
-                val textView = TextView(requireActivity())
-                textView.text = state.throwable.message
-
-                requireActivity().runOnUiThread {
-                    parent.removeView(view)
-                    parent.addView(textView, index)
-                }
-            }
         }
     }
 }

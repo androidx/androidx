@@ -19,6 +19,6 @@
         android:id="@+id/item_main"
         android:title="Main CUJ" />
     <item
-        android:id="@+id/item_empty"
-        android:title="Empty CUJ" />
+        android:id="@+id/item_sandbox_death"
+        android:title="Sandbox Death CUJ" />
 </menu>
