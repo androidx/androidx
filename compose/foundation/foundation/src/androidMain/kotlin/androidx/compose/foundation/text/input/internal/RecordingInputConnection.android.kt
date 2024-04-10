@@ -35,6 +35,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
@@ -67,7 +68,8 @@ internal class RecordingInputConnection(
     val eventCallback: InputEventCallback2,
     val autoCorrect: Boolean,
     val legacyTextFieldState: LegacyTextFieldState? = null,
-    val textFieldSelectionManager: TextFieldSelectionManager? = null
+    val textFieldSelectionManager: TextFieldSelectionManager? = null,
+    val viewConfiguration: ViewConfiguration? = null
 ) : InputConnection {
 
     /** The depth of the batch session. 0 means no session. */
@@ -415,6 +417,7 @@ internal class RecordingInputConnection(
                 legacyTextFieldState,
                 textFieldSelectionManager,
                 gesture,
+                viewConfiguration,
                 executor,
                 consumer
             ) {
@@ -509,6 +512,7 @@ private object Api34LegacyPerformHandwritingGestureImpl {
         legacyTextFieldState: LegacyTextFieldState?,
         textFieldSelectionManager: TextFieldSelectionManager?,
         gesture: HandwritingGesture,
+        viewConfiguration: ViewConfiguration?,
         executor: Executor?,
         consumer: IntConsumer?,
         editCommandConsumer: (EditCommand) -> Unit
@@ -516,6 +520,7 @@ private object Api34LegacyPerformHandwritingGestureImpl {
         val result = legacyTextFieldState?.performHandwritingGesture(
             gesture,
             textFieldSelectionManager,
+            viewConfiguration,
             editCommandConsumer
         ) ?: InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
 

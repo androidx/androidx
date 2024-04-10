@@ -62,10 +62,12 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -693,6 +695,7 @@ internal class TextFieldDecoratorModifierNode(
                     receiveContentConfiguration = receiveContentConfiguration,
                     onImeAction = ::onImeActionPerformed,
                     stylusHandwritingTrigger = stylusHandwritingTrigger,
+                    viewConfiguration = currentValueOf(LocalViewConfiguration)
                 )
             }
         }
@@ -751,5 +754,6 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     imeOptions: ImeOptions,
     receiveContentConfiguration: ReceiveContentConfiguration?,
     onImeAction: ((ImeAction) -> Unit)?,
-    stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+    stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null,
+    viewConfiguration: ViewConfiguration? = null
 ): Nothing
