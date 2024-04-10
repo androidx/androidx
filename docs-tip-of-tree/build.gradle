@@ -282,6 +282,7 @@ dependencies {
     docs(project(":navigation:navigation-dynamic-features-fragment"))
     docs(project(":navigation:navigation-dynamic-features-runtime"))
     docs(project(":navigation:navigation-fragment"))
+    docs(project(":navigation:navigation-fragment-compose"))
     docs(project(":navigation:navigation-fragment-ktx"))
     docs(project(":navigation:navigation-runtime"))
     docs(project(":navigation:navigation-runtime-ktx"))
