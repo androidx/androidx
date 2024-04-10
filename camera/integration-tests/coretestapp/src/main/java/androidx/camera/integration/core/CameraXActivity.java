@@ -144,6 +144,7 @@ import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.ScreenFlashView;
 import androidx.camera.viewfinder.core.ZoomGestureDetector;
+import androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -2045,12 +2046,12 @@ public class CameraXActivity extends AppCompatActivity {
         mZoomRatioLabel.setTextColor(getResources().getColor(R.color.zoom_ratio_set));
     }
 
-    ZoomGestureDetector.OnZoomGestureListener mZoomGestureListener = (type, detector) -> {
-        if (mCamera != null && type == ZoomGestureDetector.ZOOM_GESTURE_MOVE) {
+    ZoomGestureDetector.OnZoomGestureListener mZoomGestureListener = zoomEvent -> {
+        if (mCamera != null && zoomEvent instanceof ZoomEvent.Move) {
             CameraInfo cameraInfo = mCamera.getCameraInfo();
             float newZoom =
                     requireNonNull(cameraInfo.getZoomState().getValue()).getZoomRatio()
-                            * detector.getScaleFactor();
+                            * ((ZoomEvent.Move) zoomEvent).getScaleFactor();
             setZoomRatio(newZoom);
         }
         return true;
