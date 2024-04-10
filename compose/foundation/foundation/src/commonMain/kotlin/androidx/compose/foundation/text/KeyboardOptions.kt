@@ -252,7 +252,7 @@ class KeyboardOptions(
 
     @Deprecated(
         "Please use the copy function that takes an autoCorrectMode parameter.",
-        level = DeprecationLevel.WARNING,
+        level = DeprecationLevel.HIDDEN,
         replaceWith = ReplaceWith(
             "copy(" +
                 "capitalization = capitalization, " +
