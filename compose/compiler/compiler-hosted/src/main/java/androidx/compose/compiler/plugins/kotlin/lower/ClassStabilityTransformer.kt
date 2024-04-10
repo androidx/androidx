@@ -64,7 +64,8 @@ class ClassStabilityTransformer(
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     metrics: ModuleMetrics,
-    stabilityInferencer: StabilityInferencer
+    stabilityInferencer: StabilityInferencer,
+    private val classStabilityInferredCollection: ClassStabilityInferredCollection? = null
 ) : AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer),
     ClassLoweringPass,
     ModuleLoweringPass {
@@ -181,6 +182,7 @@ class ClassStabilityTransformer(
             context.annotationsRegistrar.addMetadataVisibleAnnotationsToElement(cls, annotation)
         } else {
             cls.annotations += annotation
+            classStabilityInferredCollection?.addClass(cls, parameterMask)
         }
 
         cls.addStabilityMarkerField(stableExpr)
@@ -188,8 +190,7 @@ class ClassStabilityTransformer(
     }
 
     private fun IrClass.addStabilityMarkerField(stabilityExpression: IrExpression) {
-        val stabilityField = makeStabilityField().apply {
-            parent = this@addStabilityMarkerField
+        val stabilityField = this.makeStabilityField().apply {
             initializer = IrExpressionBodyImpl(
                 UNDEFINED_OFFSET,
                 UNDEFINED_OFFSET,
@@ -199,14 +200,6 @@ class ClassStabilityTransformer(
 
         if (context.platform.isJvm()) {
             declarations += stabilityField
-        } else {
-            // This ensures proper mangles in k/js and k/native (since kotlin 1.6.0-rc2)
-            val stabilityProp = makeStabilityProp().apply {
-                parent = this@addStabilityMarkerField
-                backingField = stabilityField
-            }
-            stabilityField.correspondingPropertySymbol = stabilityProp.symbol
-            declarations += stabilityProp
         }
     }
 }
