@@ -852,6 +852,20 @@ package androidx.appsearch.app.usagereporting {
     method public androidx.appsearch.app.usagereporting.ClickAction.Builder setTimeStayOnResultMillis(long);
   }
 
+  @androidx.appsearch.annotation.Document(name="builtin:SearchAction") public class SearchAction extends androidx.appsearch.app.usagereporting.TakenAction {
+    method public int getFetchedResultCount();
+    method public String? getQuery();
+  }
+
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SearchAction.Builder {
+    ctor public SearchAction.Builder(androidx.appsearch.app.usagereporting.SearchAction);
+    ctor public SearchAction.Builder(String, String, long);
+    method public androidx.appsearch.app.usagereporting.SearchAction build();
+    method public androidx.appsearch.app.usagereporting.SearchAction.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.app.usagereporting.SearchAction.Builder setFetchedResultCount(int);
+    method public androidx.appsearch.app.usagereporting.SearchAction.Builder setQuery(String?);
+  }
+
   @androidx.appsearch.annotation.Document(name="builtin:TakenAction") public abstract class TakenAction {
     method public long getActionTimestampMillis();
     method public long getDocumentTtlMillis();

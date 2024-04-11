@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * {@link TakenAction} is an abstract class which holds common fields of other AppSearch built-in
- * action types (e.g. {@link ClickAction}).
+ * action types (e.g. {@link SearchAction}, {@link ClickAction}).
  *
  * <p>Clients can report the user's actions by creating concrete actions with
  * {@link androidx.appsearch.app.PutDocumentsRequest.Builder#addTakenActions} API.
@@ -60,8 +60,7 @@ public abstract class TakenAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int ACTION_TYPE_UNKNOWN = 0;
 
-    // TODO(b/319285816): link SearchAction after implementing it.
-    /** Search action type. It is the action type for SearchAction. */
+    /** Search action type. It is the action type for {@link SearchAction}. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int ACTION_TYPE_SEARCH = 1;
 

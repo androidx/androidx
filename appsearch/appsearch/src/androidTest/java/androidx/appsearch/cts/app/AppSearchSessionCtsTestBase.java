@@ -61,6 +61,7 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.usagereporting.ClickAction;
+import androidx.appsearch.app.usagereporting.SearchAction;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
@@ -1554,11 +1555,20 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Schema registration
         mDb1.setSchemaAsync(
-                new SetSchemaRequest.Builder().addDocumentClasses(ClickAction.class).build()).get();
+                        new SetSchemaRequest.Builder()
+                                .addDocumentClasses(SearchAction.class, ClickAction.class)
+                                .build())
+                .get();
 
-        // Put a ClickAction document
+        // Put a SearchAction and ClickAction document
+        SearchAction searchAction =
+                new SearchAction.Builder("namespace", "search", /* actionTimestampMillis= */1000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("query")
+                        .setFetchedResultCount(10)
+                        .build();
         ClickAction clickAction =
-                new ClickAction.Builder("namespace", "click", /* actionTimestampMillis= */1000)
+                new ClickAction.Builder("namespace", "click", /* actionTimestampMillis= */2000)
                         .setDocumentTtlMillis(0)
                         .setQuery("query")
                         .setReferencedQualifiedId("pkg$db/ns#refId")
@@ -1568,8 +1578,11 @@ public abstract class AppSearchSessionCtsTestBase {
                         .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
-                new PutDocumentsRequest.Builder().addTakenActions(clickAction).build()));
-        assertThat(result.getSuccesses()).containsExactly("click", null);
+                new PutDocumentsRequest.Builder()
+                        .addTakenActions(searchAction, clickAction)
+                        .build()));
+        assertThat(result.getSuccesses()).containsEntry("search", null);
+        assertThat(result.getSuccesses()).containsEntry("click", null);
         assertThat(result.getFailures()).isEmpty();
     }
 // @exportToFramework:endStrip()
@@ -1580,7 +1593,20 @@ public abstract class AppSearchSessionCtsTestBase {
                 .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
 
         // Schema registration
+        AppSearchSchema searchActionSchema = new AppSearchSchema.Builder("builtin:SearchAction")
+                .addProperty(new LongPropertyConfig.Builder("actionType")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("query")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
         AppSearchSchema clickActionSchema = new AppSearchSchema.Builder("builtin:ClickAction")
+                .addProperty(new LongPropertyConfig.Builder("actionType")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
                 .addProperty(new StringPropertyConfig.Builder("query")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
@@ -1593,21 +1619,30 @@ public abstract class AppSearchSessionCtsTestBase {
                 ).build();
 
         mDb1.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(clickActionSchema)
+                new SetSchemaRequest.Builder().addSchemas(searchActionSchema, clickActionSchema)
                         .build()).get();
 
-        // Put a taken action generic document
-        GenericDocument takenActionGenericDocument = new GenericDocument.Builder<>(
-                "namespace", "click1", "builtin:ClickAction")
-                .setPropertyString("query", "body")
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#refId")
-                .build();
+        // Put search action and click action generic documents.
+        GenericDocument searchAction =
+                new GenericDocument.Builder<>("namespace", "search", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyLong("actionType", 1)
+                        .setPropertyString("query", "body")
+                        .build();
+        GenericDocument clickAction =
+                new GenericDocument.Builder<>("namespace", "click", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setPropertyLong("actionType", 2)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#refId")
+                        .build();
 
         AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
-                        .addTakenActionGenericDocuments(takenActionGenericDocument)
+                        .addTakenActionGenericDocuments(searchAction, clickAction)
                         .build()));
-        assertThat(result.getSuccesses()).containsExactly("click1", null);
+        assertThat(result.getSuccesses()).containsEntry("search", null);
+        assertThat(result.getSuccesses()).containsEntry("click", null);
         assertThat(result.getFailures()).isEmpty();
     }
 
@@ -2619,7 +2654,7 @@ public abstract class AppSearchSessionCtsTestBase {
         mDb1.setSchemaAsync(
                         new SetSchemaRequest.Builder()
                                 .addSchemas(AppSearchEmail.SCHEMA)
-                                .addDocumentClasses(ClickAction.class)
+                                .addDocumentClasses(SearchAction.class, ClickAction.class)
                                 .build())
                 .get();
 
@@ -2646,8 +2681,14 @@ public abstract class AppSearchSessionCtsTestBase {
         String qualifiedId2 = DocumentIdUtil.createQualifiedId(
                 mContext.getPackageName(), DB_NAME_1, inEmail2);
 
+        SearchAction searchAction =
+                new SearchAction.Builder("namespace", "search1", /* actionTimestampMillis= */1000)
+                        .setDocumentTtlMillis(0)
+                        .setQuery("body")
+                        .setFetchedResultCount(20)
+                        .build();
         ClickAction clickAction1 =
-                new ClickAction.Builder("namespace", "click1", /* actionTimestampMillis= */1000)
+                new ClickAction.Builder("namespace", "click1", /* actionTimestampMillis= */2000)
                         .setDocumentTtlMillis(0)
                         .setQuery("body")
                         .setReferencedQualifiedId(qualifiedId1)
@@ -2656,7 +2697,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setTimeStayOnResultMillis(512)
                         .build();
         ClickAction clickAction2 =
-                new ClickAction.Builder("namespace", "click2", /* actionTimestampMillis= */2000)
+                new ClickAction.Builder("namespace", "click2", /* actionTimestampMillis= */3000)
                         .setDocumentTtlMillis(0)
                         .setQuery("body")
                         .setReferencedQualifiedId(qualifiedId2)
@@ -2665,7 +2706,7 @@ public abstract class AppSearchSessionCtsTestBase {
                         .setTimeStayOnResultMillis(128)
                         .build();
         ClickAction clickAction3 =
-                new ClickAction.Builder("namespace", "click3", /* actionTimestampMillis= */3000)
+                new ClickAction.Builder("namespace", "click3", /* actionTimestampMillis= */4000)
                         .setDocumentTtlMillis(0)
                         .setQuery("body")
                         .setReferencedQualifiedId(qualifiedId1)
@@ -2677,7 +2718,7 @@ public abstract class AppSearchSessionCtsTestBase {
         checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(inEmail1, inEmail2)
-                        .addTakenActions(clickAction1, clickAction2, clickAction3)
+                        .addTakenActions(searchAction, clickAction1, clickAction2, clickAction3)
                         .build()));
 
         SearchSpec nestedSearchSpec =
@@ -2720,7 +2761,20 @@ public abstract class AppSearchSessionCtsTestBase {
         assumeTrue(mDb1.getFeatures()
                 .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
 
+        AppSearchSchema searchActionSchema = new AppSearchSchema.Builder("builtin:SearchAction")
+                .addProperty(new LongPropertyConfig.Builder("actionType")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
+                .addProperty(new StringPropertyConfig.Builder("query")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
         AppSearchSchema clickActionSchema = new AppSearchSchema.Builder("builtin:ClickAction")
+                .addProperty(new LongPropertyConfig.Builder("actionType")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .build())
                 .addProperty(new StringPropertyConfig.Builder("query")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
@@ -2734,8 +2788,10 @@ public abstract class AppSearchSessionCtsTestBase {
 
         // Schema registration
         mDb1.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA, clickActionSchema)
-                        .build()).get();
+                new SetSchemaRequest.Builder()
+                        .addSchemas(AppSearchEmail.SCHEMA, searchActionSchema, clickActionSchema)
+                        .build())
+                .get();
 
         // Index several email documents
         AppSearchEmail inEmail1 =
@@ -2760,26 +2816,39 @@ public abstract class AppSearchSessionCtsTestBase {
         String qualifiedId2 = DocumentIdUtil.createQualifiedId(
                 mContext.getPackageName(), DB_NAME_1, inEmail2);
 
-        GenericDocument clickAction1 = new GenericDocument.Builder<>(
-                "namespace", "click1", "builtin:ClickAction")
-                .setPropertyString("query", "body")
-                .setPropertyString("referencedQualifiedId", qualifiedId1)
-                .build();
-        GenericDocument clickAction2 = new GenericDocument.Builder<>(
-                "namespace", "click2", "builtin:ClickAction")
-                .setPropertyString("query", "body")
-                .setPropertyString("referencedQualifiedId", qualifiedId2)
-                .build();
-        GenericDocument clickAction3 = new GenericDocument.Builder<>(
-                "namespace", "click3", "builtin:ClickAction")
-                .setPropertyString("query", "body")
-                .setPropertyString("referencedQualifiedId", qualifiedId1)
-                .build();
+        GenericDocument searchAction =
+                new GenericDocument.Builder<>("namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyLong("actionType", 1)
+                        .setPropertyString("query", "body")
+                        .build();
+        GenericDocument clickAction1 =
+                new GenericDocument.Builder<>("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setPropertyLong("actionType", 2)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId1)
+                        .build();
+        GenericDocument clickAction2 =
+                new GenericDocument.Builder<>("namespace", "click2", "builtin:ClickAction")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyLong("actionType", 2)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId2)
+                        .build();
+        GenericDocument clickAction3 =
+                new GenericDocument.Builder<>("namespace", "click3", "builtin:ClickAction")
+                        .setCreationTimestampMillis(4000)
+                        .setPropertyLong("actionType", 2)
+                        .setPropertyString("query", "body")
+                        .setPropertyString("referencedQualifiedId", qualifiedId1)
+                        .build();
 
         checkIsBatchResultSuccess(mDb1.putAsync(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocuments(inEmail1, inEmail2)
-                        .addTakenActionGenericDocuments(clickAction1, clickAction2, clickAction3)
+                        .addTakenActionGenericDocuments(
+                                searchAction, clickAction1, clickAction2, clickAction3)
                         .build()));
 
         SearchSpec nestedSearchSpec =
