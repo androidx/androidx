@@ -114,6 +114,11 @@ fun NavigationSuiteScaffold(
  * Layout for a [NavigationSuiteScaffold]'s content. This function wraps the [content] and places
  * the [navigationSuite] component according to the given [layoutType].
  *
+ * The usage of this function is recommended when you need some customization that is not viable via
+ * the use of [NavigationSuiteScaffold].
+ * Example usage:
+ * @sample androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomNavigationRail
+ *
  * @param navigationSuite the navigation component to be displayed, typically [NavigationSuite]
  * @param layoutType the current [NavigationSuiteType]. Defaults to
  * [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]
