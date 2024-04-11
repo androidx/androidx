@@ -79,12 +79,14 @@ open class JetbrainsExtensions(
      */
     fun KotlinNativeTarget.substituteForRedirectedPublishedDependencies() {
         val comp = compilations.getByName("main")
-        val androidAnnotationVersion =
-            project.findProperty("artifactRedirecting.androidx.annotation.version")!!
-        val androidCollectionVersion =
-            project.findProperty("artifactRedirecting.androidx.collection.version")!!
-        val androidLifecycleVersion =
-            project.findProperty("artifactRedirecting.androidx.lifecycle.version")!!
+        val kNativeManifestRedirectingModulesRaw =
+            project.property("artifactRedirecting.modules-for-knative-manifest") as String
+
+        val projectPathToRedirectingVersionMap = kNativeManifestRedirectingModulesRaw
+            .split(",").associate {
+                val pair = it.split("=")
+                pair[0] to project.property(pair[1]) as String
+            }
         listOf(
             comp.configurations.compileDependencyConfiguration,
             comp.configurations.runtimeDependencyConfiguration,
@@ -94,19 +96,13 @@ open class JetbrainsExtensions(
             comp.configurations.compileOnlyConfiguration,
         ).forEach { c ->
             c?.resolutionStrategy {
-
-                // TODO: It should be based on config
                 it.dependencySubstitution {
-                    it.substitute(it.project(":annotation:annotation"))
-                        .using(it.module("androidx.annotation:annotation:$androidAnnotationVersion"))
-                    it.substitute(it.project(":collection:collection"))
-                        .using(it.module("androidx.collection:collection:$androidCollectionVersion"))
-                    it.substitute(it.project(":lifecycle:lifecycle-common"))
-                        .using(it.module("androidx.lifecycle:lifecycle-common:$androidLifecycleVersion"))
-                    it.substitute(it.project(":lifecycle:lifecycle-runtime"))
-                        .using(it.module("androidx.lifecycle:lifecycle-runtime:$androidLifecycleVersion"))
-                    it.substitute(it.project(":lifecycle:lifecycle-viewmodel"))
-                        .using(it.module("androidx.lifecycle:lifecycle-viewmodel:$androidLifecycleVersion"))
+                    projectPathToRedirectingVersionMap.forEach { path, version ->
+                        val artifact = path.replaceFirst(":", "").let {
+                            "androidx.$it:$version"
+                        }
+                        it.substitute(it.project(path)).using(it.module(artifact))
+                    }
                 }
             }
         }

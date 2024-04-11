@@ -35,13 +35,17 @@ fun Project.artifactRedirecting(): ArtifactRedirecting {
     // but we can comply to this convention:
         ?: project.group.toString().replace("org.jetbrains.", "androidx.")
 
+    val fullId = groupId + "." + project.name
+
     val targetNames = (findProperty("artifactRedirecting.publication.targetNames") as? String ?: "")
         .split(",").toSet()
 
-    var defaultVersion: String = findProperty("artifactRedirecting.${groupId}.version") as? String
+    var defaultVersion: String =
+        findProperty("artifactRedirecting.${fullId}.version") as? String ?:
+        findProperty("artifactRedirecting.${groupId}.version") as? String ?:
         // artifactRedirecting for compose was added before all other libs,
         // therefore it's a default:
-        ?: findProperty("artifactRedirecting.androidx.compose.version") as String
+        findProperty("artifactRedirecting.androidx.compose.version") as String
 
     val targetVersionsMap = mutableMapOf<String, String>()
 
