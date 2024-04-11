@@ -20,6 +20,7 @@
     <string name="m3c_dialog" msgid="7617233117134790350">"ডায়ল’গ"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"বিস্তাৰ কৰা আছে"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"সংকোচন কৰা আছে"</string>
+    <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"ড্ৰপডাউন মেনু ট’গল কৰক"</string>
     <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"অগ্ৰাহ্য কৰক"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"সন্ধান কৰক"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"তলত পৰামৰ্শ দেখুওৱা হৈছে"</string>
