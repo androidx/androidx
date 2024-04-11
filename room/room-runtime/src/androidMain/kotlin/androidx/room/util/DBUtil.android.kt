@@ -28,6 +28,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TransactionElement
 import androidx.room.coroutines.RawConnectionAccessor
 import androidx.room.driver.SupportSQLiteConnection
+import androidx.room.withTransactionContext
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -86,8 +87,14 @@ fun <R> performBlocking(
 actual suspend fun <R> performInTransactionSuspending(
     db: RoomDatabase,
     block: suspend () -> R
-): R = db.compatCoroutineExecute(true) {
-    db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+): R = if (db.inCompatibilityMode()) {
+    db.withTransactionContext {
+        db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+    }
+} else {
+    withContext(db.getCoroutineScope().coroutineContext) {
+        db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+    }
 }
 
 /**
