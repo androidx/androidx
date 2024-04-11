@@ -62,7 +62,7 @@ class ComposableFragment internal constructor() : Fragment() {
     }
 
     companion object {
-        private const val FULLY_QUALIFIED_NAME =
+        internal const val FULLY_QUALIFIED_NAME =
             "androidx.navigation.fragment.compose.FULLY_QUALIFIED_NAME"
 
         /**
