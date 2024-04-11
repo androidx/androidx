@@ -362,6 +362,29 @@ package androidx.compose.foundation.content {
 
 }
 
+package androidx.compose.foundation.contextmenu {
+
+  @androidx.compose.runtime.Stable public final class ContextMenuColors {
+    ctor public ContextMenuColors(long backgroundColor, long textColor, long iconColor, long disabledTextColor, long disabledIconColor);
+    method public long getBackgroundColor();
+    method public long getDisabledIconColor();
+    method public long getDisabledTextColor();
+    method public long getIconColor();
+    method public long getTextColor();
+    property public final long backgroundColor;
+    property public final long disabledIconColor;
+    property public final long disabledTextColor;
+    property public final long iconColor;
+    property public final long textColor;
+  }
+
+  public final class ContextMenuUiKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.contextmenu.ContextMenuColors?> getLocalContextMenuColors();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.contextmenu.ContextMenuColors?> LocalContextMenuColors;
+  }
+
+}
+
 package androidx.compose.foundation.draganddrop {
 
   public final class AndroidDragAndDropSource_androidKt {

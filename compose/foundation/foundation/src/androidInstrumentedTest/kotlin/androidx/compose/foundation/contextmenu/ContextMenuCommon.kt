@@ -17,9 +17,13 @@
 package androidx.compose.foundation.contextmenu
 
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import com.google.common.truth.Correspondence
 import com.google.common.truth.FailureMetadata
+import com.google.common.truth.IterableSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertAbout
@@ -32,11 +36,15 @@ internal fun ContextMenuState.open(offset: Offset = Offset.Zero) {
 internal fun ContextMenuScope.testItem(
     label: String = "Item",
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingIcon: @Composable ((iconColor: Color) -> Unit)? = null,
     onClick: () -> Unit = {},
 ) {
     item(
         label = label,
         modifier = modifier,
+        enabled = enabled,
+        leadingIcon = leadingIcon,
         onClick = onClick,
     )
 }
@@ -62,4 +70,24 @@ internal class ContextMenuStateSubject internal constructor(
     fun statusIsClosed() {
         assertThat(subject.status).isInstanceOf(Status.Closed::class.java)
     }
+}
+
+internal fun assertThatColors(
+    colors: Set<Color>,
+    tolerance: Double = 0.02,
+): IterableSubject.UsingCorrespondence<Color, Color> =
+    assertThat(colors).comparingElementsUsing(colorCorrespondence(tolerance))
+
+internal fun colorCorrespondence(tolerance: Double = 0.02): Correspondence<Color, Color> {
+    val floatingPointCorrespondence = Correspondence.tolerance(tolerance)
+    return Correspondence.from(
+        { actual: Color?, expected: Color? ->
+            if (expected == null || actual == null) return@from actual == expected
+            floatingPointCorrespondence.compare(actual.red, expected.red) &&
+                floatingPointCorrespondence.compare(actual.green, expected.green) &&
+                floatingPointCorrespondence.compare(actual.blue, expected.blue) &&
+                floatingPointCorrespondence.compare(actual.alpha, expected.alpha)
+        },
+        /* description = */ "equals",
+    )
 }
