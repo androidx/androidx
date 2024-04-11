@@ -232,6 +232,7 @@ private fun Project.configureComponentPublishing(
         task.doLast {
             val metadataFile = task.outputFile.asFile.get()
             val metadata = metadataFile.readText()
+            verifyGradleMetadata(metadata)
             val sortedMetadata = sortGradleMetadataDependencies(metadata)
 
             if (metadata != sortedMetadata) {
@@ -318,6 +319,20 @@ fun sortGradleMetadataDependencies(metadata: String): String {
     jsonWriter.setIndent("  ")
     gson.toJson(jsonObj, jsonWriter)
     return stringWriter.toString()
+}
+
+/**
+ * Checks the variants field in the metadata file has an entry containing "sourcesElements". All our
+ * publications must be published with a sources variant.
+ */
+fun verifyGradleMetadata(metadata: String) {
+    val gson = GsonBuilder().create()
+    val jsonObj = gson.fromJson(metadata, JsonObject::class.java)!!
+    jsonObj.getAsJsonArray("variants").firstOrNull { variantElement ->
+        variantElement.asJsonObject.get("name")
+            .asString
+            .contains(other = sourcesConfigurationName, ignoreCase = true)
+    } ?: throw Exception("The $sourcesConfigurationName variant must exist in the module file.")
 }
 
 private fun Project.isMultiplatformPublicationEnabled(): Boolean {
