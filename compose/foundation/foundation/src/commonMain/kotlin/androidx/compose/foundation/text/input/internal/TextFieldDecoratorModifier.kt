@@ -614,24 +614,6 @@ internal class TextFieldDecoratorModifierNode(
         textLayoutState.decoratorNodeCoordinates = coordinates
     }
 
-    override fun onRemeasured(size: IntSize) {
-        if (!isFocused) return
-
-        // Ensure that the cursor is kept in view if the decoration box is resized while focused.
-        // This handles the case where a multi-line text field sitting right above the keyboard
-        // grows due to a newline entered while typing, which isn't handled by the cursor moving yet
-        // because the resize happens after the text state change, and the resize moves the cursor
-        // under the keyboard. This also covers the case where the field shrinks while focused.
-        val selection = textFieldState.visualText.selection
-        val layoutResult = textLayoutState.layoutResult ?: return
-        if (selection.collapsed) {
-            coroutineScope.launch {
-                val rect = layoutResult.getCursorRect(selection.start)
-                textLayoutState.bringIntoViewRequester.bringIntoView(rect)
-            }
-        }
-    }
-
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
