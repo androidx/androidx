@@ -18,7 +18,7 @@ public final class androidx/lifecycle/viewmodel/compose/SavedStateHandleSaverKt 
 	public static synthetic fun saveableMutableState$default (Landroidx/lifecycle/SavedStateHandle;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
 }
 
-public final class androidx/lifecycle/viewmodel/compose/ViewModel_jbKt {
+public final class androidx/lifecycle/viewmodel/compose/ViewModelKt {
 	public static final fun viewModel (Lkotlin/reflect/KClass;Landroidx/lifecycle/ViewModelStoreOwner;Ljava/lang/String;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;Landroidx/compose/runtime/Composer;II)Landroidx/lifecycle/ViewModel;
 }
 
