@@ -18,7 +18,9 @@ package androidx.navigation
 
 import android.net.Uri
 import androidx.navigation.test.intArgument
+import androidx.navigation.test.intArgumentUnknownDefault
 import androidx.navigation.test.nullableStringArgument
+import androidx.navigation.test.nullableStringArgumentUnknownDefault
 import androidx.navigation.test.stringArgument
 import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
@@ -1308,6 +1310,32 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the value without additional decoding")
             .that(matchArgs?.getString("myarg"))
             .isEqualTo(value)
+    }
+
+    @Test
+    fun deepLinkMissingRequiredArgumentUnknownDefault() {
+        val deepLink = NavDeepLink("$DEEP_LINK_EXACT_HTTPS?myarg={myarg}")
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(DEEP_LINK_EXACT_HTTPS),
+            // NavArgument with unknown default value
+            mapOf("myarg" to intArgumentUnknownDefault())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+    }
+
+    @Test
+    fun deepLinkMissingNullableArgumentUnknownDefault() {
+        val deepLink = NavDeepLink("$DEEP_LINK_EXACT_HTTPS?myarg={myarg}")
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(DEEP_LINK_EXACT_HTTPS),
+            // NavArgument with unknown default value
+            mapOf("myarg" to nullableStringArgumentUnknownDefault())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
     }
 
     @Test
