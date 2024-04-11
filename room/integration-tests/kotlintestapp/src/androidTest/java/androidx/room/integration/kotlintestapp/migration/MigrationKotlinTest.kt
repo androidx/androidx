@@ -325,7 +325,7 @@ class MigrationKotlinTest {
         val dbFile = instrumentation.targetContext.getDatabasePath("test.db")
         val driverHelper = MigrationTestHelper(
             instrumentation = instrumentation,
-            fileName = dbFile.path,
+            file = dbFile,
             driver = AndroidSQLiteDriver(),
             databaseClass = MigrationDbKotlin::class
         )

@@ -41,7 +41,7 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
         instrumentation = instrumentation,
         driver = driver,
         databaseClass = AutoMigrationDatabase::class,
-        fileName = file.path
+        file = file
     )
 
     override fun getTestHelper() = migrationTestHelper
