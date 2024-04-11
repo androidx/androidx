@@ -234,23 +234,26 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     int getAge(final int id) {
         final String _sql = "SELECT ageColumn FROM user where uid = ?";
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-        int _argIndex = 1;
-        _statement.bindLong(_argIndex, id);
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int _result;
-            if (_cursor.moveToFirst()) {
-                _result = _cursor.getInt(0);
-            } else {
-                _result = 0;
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, Integer>() {
+            @Override
+            @NonNull
+            public Integer invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    _stmt.bindLong(_argIndex, id);
+                    final int _result;
+                    if (_stmt.step()) {
+                        _result = (int) (_stmt.getLong(0));
+                    } else {
+                        _result = 0;
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
+                }
             }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
@@ -299,39 +302,41 @@ public final class ComplexDao_Impl extends ComplexDao {
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        if (ids == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            for (Integer _item : ids) {
-                if (_item == null) {
-                    _statement.bindNull(_argIndex);
-                } else {
-                    _statement.bindLong(_argIndex, _item);
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<Integer>>() {
+            @Override
+            @NonNull
+            public List<Integer> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    if (ids == null) {
+                        _stmt.bindNull(_argIndex);
+                    } else {
+                        for (Integer _item : ids) {
+                            if (_item == null) {
+                                _stmt.bindNull(_argIndex);
+                            } else {
+                                _stmt.bindLong(_argIndex, _item);
+                            }
+                            _argIndex++;
+                        }
+                    }
+                    final List<Integer> _result = new ArrayList<Integer>();
+                    while (_stmt.step()) {
+                        final Integer _item_1;
+                        if (_stmt.isNull(0)) {
+                            _item_1 = null;
+                        } else {
+                            _item_1 = (int) (_stmt.getLong(0));
+                        }
+                        _result.add(_item_1);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
                 }
-                _argIndex++;
             }
-        }
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final List<Integer> _result = new ArrayList<Integer>();
-            while (_cursor.moveToNext()) {
-                final Integer _item_1;
-                if (_cursor.isNull(0)) {
-                    _item_1 = null;
-                } else {
-                    _item_1 = _cursor.getInt(0);
-                }
-                _result.add(_item_1);
-            }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
@@ -349,57 +354,59 @@ public final class ComplexDao_Impl extends ComplexDao {
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize_2);
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize + _inputSize_1 + _inputSize_2;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        if (ids1 == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            for (Integer _item : ids1) {
-                if (_item == null) {
-                    _statement.bindNull(_argIndex);
-                } else {
-                    _statement.bindLong(_argIndex, _item);
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, List<Integer>>() {
+            @Override
+            @NonNull
+            public List<Integer> invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    if (ids1 == null) {
+                        _stmt.bindNull(_argIndex);
+                    } else {
+                        for (Integer _item : ids1) {
+                            if (_item == null) {
+                                _stmt.bindNull(_argIndex);
+                            } else {
+                                _stmt.bindLong(_argIndex, _item);
+                            }
+                            _argIndex++;
+                        }
+                    }
+                    _argIndex = 1 + _inputSize;
+                    if (ids2 == null) {
+                        _stmt.bindNull(_argIndex);
+                    } else {
+                        for (int _item_1 : ids2) {
+                            _stmt.bindLong(_argIndex, _item_1);
+                            _argIndex++;
+                        }
+                    }
+                    _argIndex = 1 + _inputSize + _inputSize_1;
+                    if (ids3 == null) {
+                        _stmt.bindNull(_argIndex);
+                    } else {
+                        for (int _item_2 : ids3) {
+                            _stmt.bindLong(_argIndex, _item_2);
+                            _argIndex++;
+                        }
+                    }
+                    final List<Integer> _result = new ArrayList<Integer>();
+                    while (_stmt.step()) {
+                        final Integer _item_3;
+                        if (_stmt.isNull(0)) {
+                            _item_3 = null;
+                        } else {
+                            _item_3 = (int) (_stmt.getLong(0));
+                        }
+                        _result.add(_item_3);
+                    }
+                    return _result;
+                } finally {
+                    _stmt.close();
                 }
-                _argIndex++;
             }
-        }
-        _argIndex = 1 + _inputSize;
-        if (ids2 == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            for (int _item_1 : ids2) {
-                _statement.bindLong(_argIndex, _item_1);
-                _argIndex++;
-            }
-        }
-        _argIndex = 1 + _inputSize + _inputSize_1;
-        if (ids3 == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            for (int _item_2 : ids3) {
-                _statement.bindLong(_argIndex, _item_2);
-                _argIndex++;
-            }
-        }
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final List<Integer> _result = new ArrayList<Integer>();
-            while (_cursor.moveToNext()) {
-                final Integer _item_3;
-                if (_cursor.isNull(0)) {
-                    _item_3 = null;
-                } else {
-                    _item_3 = _cursor.getInt(0);
-                }
-                _result.add(_item_3);
-            }
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
