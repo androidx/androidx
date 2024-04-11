@@ -21,15 +21,18 @@ package androidx.compose.animation.demos.sharedelement
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -65,8 +70,16 @@ fun TextSharedBoundsExperiments() {
                 indication = null
             ) { isHorizontal = !isHorizontal }
             .fillMaxSize()
-            .padding(10.dp)) {
-        AnimatedContent(isHorizontal) { isHorizontal ->
+            .padding(20.dp)) {
+        AnimatedContent(
+            isHorizontal,
+            Modifier
+                .fillMaxSize()
+                .aspectRatio(1f)
+                .shadow(10.dp, RoundedCornerShape(10), clip = false)
+                .background(color = Color.White, shape = RoundedCornerShape(10))
+                .clip(RoundedCornerShape(10))
+        ) { isHorizontal ->
             if (isHorizontal) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -74,72 +87,76 @@ fun TextSharedBoundsExperiments() {
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Text(
-                        "油条", fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                        "Bold", fontSize = 30.sp,
                         modifier = Modifier
                             .sharedBounds(
-                                rememberSharedContentState(key = "油条"),
+                                rememberSharedContentState(key = "Bold"),
+                                this@AnimatedContent
+                            ),
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xff4f6d7a)
+                    )
+                    Text(
+                        "Italic", fontSize = 30.sp,
+                        modifier = Modifier
+                            .sharedBounds(
+                                rememberSharedContentState(key = "Italic"),
+                                this@AnimatedContent
+                            ),
+                        fontStyle = FontStyle.Italic,
+                        color = Color.Gray
+                    )
+                    Text(
+                        "Normal", fontSize = 30.sp,
+                        color = Color(0xff56a3a6),
+                        modifier = Modifier
+                            .sharedBounds(
+                                rememberSharedContentState(key = "Normal"),
                                 this@AnimatedContent
                             )
-                    )
-                    Text(
-                        "Tabby", fontSize = 20.sp,
-                        modifier = Modifier
-                            .sharedBounds(
-                                rememberSharedContentState(key = "Tabby"),
-                                this@AnimatedContent
-                            ),
-                        color = Color.Gray
-                    )
-                    Text(
-                        "Cat", fontSize = 20.sp,
-                        modifier = Modifier
-                            .sharedBounds(
-                                rememberSharedContentState(key = "Cat"),
-                                this@AnimatedContent
-                            ),
-                        color = Color.Gray
                     )
                 }
             } else {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
                     Text(
-                        "Cat",
-                        fontSize = 70.sp,
+                        "Normal", fontSize = 50.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentWidth(align = Alignment.CenterHorizontally)
+                            .sharedBounds(
+                                rememberSharedContentState(key = "Normal"),
+                                this@AnimatedContent,
+                            ),
+                        color = Color(0xffE85D04)
+                    )
+                    Text(
+                        "Bold", fontSize = 70.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xffF48C06),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentWidth(align = Alignment.CenterHorizontally)
+                            .sharedBounds(
+                                rememberSharedContentState(key = "Bold"),
+                                this@AnimatedContent
+                            )
+                    )
+                    Text(
+                        "Italic",
+                        fontSize = 50.sp,
                         fontStyle = FontStyle.Italic,
                         modifier = Modifier
                             .sharedBounds(
-                                rememberSharedContentState(key = "Cat"),
+                                rememberSharedContentState(key = "Italic"),
                                 this@AnimatedContent
                             ),
-                        color = Color.Red
-                    )
-                    Text(
-                        "油条", fontSize = 50.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentWidth(align = Alignment.CenterHorizontally)
-                            .sharedBounds(
-                                rememberSharedContentState(key = "油条"),
-                                this@AnimatedContent,
-                            ),
-                        color = Color.Green
-                    )
-                    Text(
-                        "Tabby", fontSize = 40.sp,
-                        color = Color.Blue,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentWidth(align = Alignment.CenterHorizontally)
-                            .sharedBounds(
-                                rememberSharedContentState(key = "Tabby"),
-                                this@AnimatedContent
-                            )
+                        color = Color(0xffFFBA08)
                     )
                 }
             }
