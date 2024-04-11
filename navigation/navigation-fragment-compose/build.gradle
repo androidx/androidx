@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     api(project(":navigation:navigation-fragment"))
     api("androidx.compose.runtime:runtime:1.5.4")
+    api("androidx.compose.ui:ui:1.5.4")
 
     androidTestImplementation project(":compose:ui:ui-test-junit4")
     androidTestImplementation project(":compose:material:material")
