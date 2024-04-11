@@ -31,7 +31,6 @@ import android.content.Context;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
@@ -41,7 +40,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -194,7 +192,6 @@ public class TitleChip implements LayoutElement {
         /** Constructs and returns {@link TitleChip} with the provided content and look. */
         @NonNull
         @Override
-        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public TitleChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)

@@ -88,7 +88,7 @@ public class TitleChipTest {
     }
 
     @Test
-    public void testIconChipIconCustomColor() {
+    public void testTitleChipIconCustomColor() {
         String iconId = "icon_id";
         TitleChip titleChip =
                 new TitleChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)

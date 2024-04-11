@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.material;
 
-import static androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
@@ -36,6 +35,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
+import androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
@@ -47,8 +47,8 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
  * ProtoLayout component {@link CompactChip} that represents clickable object with the text.
  *
  * <p>The CompactChip is Stadium shape and has a max height designed to take no more than one line
- * of text of {@link Typography#TYPOGRAPHY_CAPTION1} style. Width of the chip is adjustable to the
- * text size.
+ * of text of {@link Typography#TYPOGRAPHY_CAPTION1} style with included margin for tap target to
+ * meet accessibility requirements. Width of the chip is adjustable to the text size.
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#COMPACT_PRIMARY_COLORS} to get a color scheme for a primary {@link
@@ -80,7 +80,7 @@ public class CompactChip implements LayoutElement {
         this.mElement = element;
     }
 
-    /** Builder class for {@link androidx.wear.protolayout.material.CompactChip}. */
+    /** Builder class for {@link CompactChip}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final Context mContext;
         @Nullable private String mText;

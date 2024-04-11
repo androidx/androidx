@@ -21,6 +21,7 @@ import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_BOLD;
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_MEDIUM;
 import static androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_NORMAL;
 import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_END;
+import static androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_BODY1;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_CAPTION2;
 import static androidx.wear.protolayout.material.Typography.TYPOGRAPHY_TITLE1;
@@ -48,7 +49,6 @@ import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
 import androidx.wear.protolayout.TypeBuilders.StringLayoutConstraint;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
-import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,8 +128,7 @@ public class TextTest {
     }
 
     @Test
-    @ProtoLayoutExperimental
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // ELLIPSIZE_END
     public void testText() {
         String textContent = "Testing text.";
         Modifiers modifiers =
@@ -145,7 +144,7 @@ public class TextTest {
                         .setUnderline(true)
                         .setMaxLines(2)
                         .setModifiers(modifiers)
-                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
+                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
                         .setMultilineAlignment(TEXT_ALIGN_END)
                         .setWeight(FONT_WEIGHT_BOLD)
                         .build();
@@ -199,8 +198,7 @@ public class TextTest {
         assertThat(constraint.getAlignment()).isEqualTo(TEXT_ALIGN_END);
     }
 
-    @ProtoLayoutExperimental
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // ELLIPSIZE_END
     private void assertTextIsEqual(
             Text actualText,
             String expectedTextContent,
@@ -210,8 +208,9 @@ public class TextTest {
         assertThat(actualText.getFontStyle().toProto()).isEqualTo(expectedFontStyle.toProto());
         assertThat(actualText.getText().getValue()).isEqualTo(expectedTextContent);
         assertThat(actualText.getColor().getArgb()).isEqualTo(expectedColor);
+        assertThat(actualText.getModifiers().toProto()).isEqualTo(expectedModifiers.toProto());
         assertThat(actualText.getOverflow())
-                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END);
+                .isEqualTo(TEXT_OVERFLOW_ELLIPSIZE_END);
         assertThat(actualText.getMultilineAlignment()).isEqualTo(TEXT_ALIGN_END);
         assertThat(actualText.getMaxLines()).isEqualTo(2);
         assertThat(actualText.getLineHeight())
