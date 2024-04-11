@@ -44,13 +44,14 @@ class List : CliktCommand(help = "List all saved trace files.") {
 
     companion object {
         /** Returns a list of saved traces sorted by 'most recently modified first' */
-        internal fun savedTraces(savedTracesDir: File): List<FileWithId> {
-            val files: Array<File> = when {
-                !savedTracesDir.exists() -> emptyArray<File>()
-                else -> savedTracesDir.listFiles() ?: emptyArray<File>()
-            }
-            files.sortWith(compareBy { f: File -> -f.lastModified() })
-            return files.asSequence().withId().toList()
-        }
+        internal fun savedTraces(savedTracesDir: File): List<FileWithId> =
+            savedTracesDir
+                .listFiles()
+                .let { it ?: return emptyList() }
+                .filter { !it.name.lowercase().endsWith(".json") }
+                .sortedBy { -it.lastModified() }
+                .asSequence()
+                .withId()
+                .toList()
     }
 }

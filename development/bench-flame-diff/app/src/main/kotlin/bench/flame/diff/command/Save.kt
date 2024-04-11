@@ -50,7 +50,10 @@ class Save : CliktCommand(help = "Save a trace file for future comparison.") {
         val src = src // allows for smart casts
         val srcTraceFile: File = when {
             src != null && src.isFile -> src
-            else -> promptProvideFile("Provide trace source", pattern, src, Paths.outDir.toFile())
+            else -> promptProvideFile(
+                "Provide trace source", pattern,
+                excludePattern = null, src, Paths.outDir.toFile()
+            )
         }
         check(srcTraceFile.exists() && srcTraceFile.isFile)
 
