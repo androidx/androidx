@@ -888,6 +888,7 @@ includeProject(":room:room-common", [BuildType.MAIN, BuildType.COMPOSE, BuildTyp
 includeProject(":room:room-compiler", [BuildType.MAIN, BuildType.COMPOSE, BuildType.KMP])
 includeProject(":room:room-compiler-processing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.KMP])
 includeProject(":room:room-compiler-processing-testing", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
+includeProject(":room:room-external-antlr", [BuildType.MAIN])
 includeProject(":room:room-guava", [BuildType.MAIN])
 includeProject(":room:room-gradle-plugin", [BuildType.MAIN])
 includeProject(":room:room-ktx", [BuildType.MAIN, BuildType.COMPOSE])

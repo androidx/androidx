@@ -47,9 +47,7 @@ dependencies {
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))
-    kspAndroidTest(
-            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-    )
+    kspAndroidTest(project(":room:room-compiler"))
 }
 
 androidx {
