@@ -1,1 +1,14 @@
 // Signature format: 4.0
+package androidx.navigation.fragment.compose {
+
+  public final class ComposableFragment extends androidx.fragment.app.Fragment {
+    method public static androidx.navigation.fragment.compose.ComposableFragment ComposableFragment(String fullyQualifiedName);
+    field public static final androidx.navigation.fragment.compose.ComposableFragment.Companion Companion;
+  }
+
+  public static final class ComposableFragment.Companion {
+    method public androidx.navigation.fragment.compose.ComposableFragment ComposableFragment(String fullyQualifiedName);
+  }
+
+}
+
