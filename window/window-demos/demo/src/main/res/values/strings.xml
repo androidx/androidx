@@ -89,4 +89,8 @@
     <string name="show_placeholder_warning">Placeholder Activity may show (again) because "Use a placeholder for A is checked". Clear the check box to expand Activity A to fill the task by either clicking "FINISH SECONDARY ACTIVITIES".</string>
     <string name="dual_display">Dual Display</string>
     <string name="dual_display_description">Demo of showing content on the rear and internal displays concurrently</string>
+    <string name="toast_show_overlay_warning">The device does not support overlay features!</string>
+    <string name="overlay_bounds_text">Overlay bounds:</string>
+    <string name="width_in_ratio">Width in ratio: </string>
+    <string name="height_in_ratio">Height in ratio: </string>
 </resources>

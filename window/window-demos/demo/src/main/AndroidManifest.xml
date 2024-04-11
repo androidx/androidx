@@ -303,6 +303,32 @@
             android:taskAffinity="androidx.window.demo.split_ime">
         </activity>
 
+        <!-- The demo app to show how to use overlay features -->
+
+        <activity
+            android:name=".embedding.OverlayActivityA"
+            android:exported="true"
+            android:label="Overlay Activity A"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.overlay_activity_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.OverlayActivityB"
+            android:exported="true"
+            android:label="Overlay Activity B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.overlay_activity_affinity">
+        </activity>
+        <activity-alias
+            android:name=".embedding.SplitWithOverlayActivity"
+            android:targetActivity=".embedding.SplitActivityDetail"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.overlay_activity_affinity" />
+
         <!-- The demo app to show display configuration from different system callbacks. -->
 
         <activity

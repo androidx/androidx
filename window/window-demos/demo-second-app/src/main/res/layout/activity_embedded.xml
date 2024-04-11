@@ -56,5 +56,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="ENTER PIP" />
+    <Button
+        android:id="@+id/button_start_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Start a new instance of current Activity" />
+    <Button
+        android:id="@+id/button_start_activity_from_application_context"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Start a new instance of current Activity from Application Context" />
 
 </LinearLayout>
