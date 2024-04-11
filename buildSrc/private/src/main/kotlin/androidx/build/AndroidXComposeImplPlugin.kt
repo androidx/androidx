@@ -340,6 +340,6 @@ private enum class ComposeCompileOptions(val pluginId: String, val key: String) 
     SourceOption(ComposePluginId, "sourceInformation"),
     MetricsOption(ComposePluginId, "metricsDestination"),
     ReportsOption(ComposePluginId, "reportsDestination"),
-    StrongSkippingOption(ComposePluginId, "experimentalStrongSkipping"),
+    StrongSkippingOption(ComposePluginId, "strongSkipping"),
     NonSkippingGroupOption(ComposePluginId, "nonSkippingGroupOptimization")
 }
