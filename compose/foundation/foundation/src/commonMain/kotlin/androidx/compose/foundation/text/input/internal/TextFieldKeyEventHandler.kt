@@ -236,8 +236,8 @@ internal abstract class TextFieldKeyEventHandler {
         isFromSoftKeyboard: Boolean,
         block: TextFieldPreparedSelection.() -> Unit
     ) {
-        val layoutResult = textLayoutState.layoutResult ?: return
-        val visibleTextLayoutHeight = textLayoutState.getVisibleTextLayoutHeight() ?: return
+        val layoutResult = textLayoutState.layoutResult
+        val visibleTextLayoutHeight = textLayoutState.getVisibleTextLayoutHeight()
         val preparedSelection = TextFieldPreparedSelection(
             state = state,
             textLayoutResult = layoutResult,
@@ -254,13 +254,14 @@ internal abstract class TextFieldKeyEventHandler {
 
     /**
      * Returns the current viewport height of TextField to help calculate where cursor should travel
-     * when page down and up events are received.
+     * when page down and up events are received. If the text layout is not calculated, returns
+     * [Float.NaN].
      */
-    private fun TextLayoutState.getVisibleTextLayoutHeight(): Float? {
+    private fun TextLayoutState.getVisibleTextLayoutHeight(): Float {
         return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutCoordinates ->
             decoratorNodeCoordinates?.takeIf { it.isAttached }?.let { decoratorCoordinates ->
                 decoratorCoordinates.localBoundingBoxOf(textLayoutCoordinates)
             }
-        }?.size?.height
+        }?.size?.height ?: Float.NaN
     }
 }
