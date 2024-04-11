@@ -1977,7 +1977,7 @@ actual abstract class RoomDatabase {
  * The internal dispatcher used to execute the given [block] will block an utilize a thread from
  * Room's transaction executor until the [block] is complete.
  */
-public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R =
+suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R =
     withTransactionContext {
         @Suppress("DEPRECATION")
         beginTransaction()
@@ -2082,9 +2082,7 @@ private fun RoomDatabase.createTransactionContext(
 
 /**
  * A [CoroutineContext.Element] that indicates there is an on-going database transaction.
- *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class TransactionElement(
     internal val transactionDispatcher: ContinuationInterceptor
 ) : CoroutineContext.Element {
@@ -2137,7 +2135,7 @@ internal class TransactionElement(
  * @param emitInitialState Set to `false` if no initial emission is desired. Default value is
  *                         `true`.
  */
-public fun RoomDatabase.invalidationTrackerFlow(
+fun RoomDatabase.invalidationTrackerFlow(
     vararg tables: String,
     emitInitialState: Boolean = true
 ): Flow<Set<String>> = callbackFlow {
