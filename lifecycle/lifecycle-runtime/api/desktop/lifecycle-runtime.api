@@ -1,0 +1,47 @@
+public final class androidx/lifecycle/FlowExtKt {
+	public static final fun flowWithLifecycle (Lkotlinx/coroutines/flow/Flow;Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun flowWithLifecycle$default (Lkotlinx/coroutines/flow/Flow;Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class androidx/lifecycle/LifecycleDestroyedException : java/util/concurrent/CancellationException {
+	public fun <init> ()V
+}
+
+public class androidx/lifecycle/LifecycleRegistry : androidx/lifecycle/Lifecycle {
+	public static final field Companion Landroidx/lifecycle/LifecycleRegistry$Companion;
+	public fun <init> (Landroidx/lifecycle/LifecycleOwner;)V
+	public synthetic fun <init> (Landroidx/lifecycle/LifecycleOwner;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun addObserver (Landroidx/lifecycle/LifecycleObserver;)V
+	public static final fun createUnsafe (Landroidx/lifecycle/LifecycleOwner;)Landroidx/lifecycle/LifecycleRegistry;
+	public fun getCurrentState ()Landroidx/lifecycle/Lifecycle$State;
+	public fun getCurrentStateFlow ()Lkotlinx/coroutines/flow/StateFlow;
+	public fun getObserverCount ()I
+	public fun handleLifecycleEvent (Landroidx/lifecycle/Lifecycle$Event;)V
+	public fun markState (Landroidx/lifecycle/Lifecycle$State;)V
+	public static final fun min$lifecycle_runtime (Landroidx/lifecycle/Lifecycle$State;Landroidx/lifecycle/Lifecycle$State;)Landroidx/lifecycle/Lifecycle$State;
+	public fun removeObserver (Landroidx/lifecycle/LifecycleObserver;)V
+	public fun setCurrentState (Landroidx/lifecycle/Lifecycle$State;)V
+}
+
+public final class androidx/lifecycle/LifecycleRegistry$Companion {
+	public final fun createUnsafe (Landroidx/lifecycle/LifecycleOwner;)Landroidx/lifecycle/LifecycleRegistry;
+}
+
+public final class androidx/lifecycle/RepeatOnLifecycleKt {
+	public static final fun repeatOnLifecycle (Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun repeatOnLifecycle (Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$State;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class androidx/lifecycle/WithLifecycleStateKt {
+	public static final fun suspendWithStateAtLeastUnchecked (Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;ZLkotlinx/coroutines/CoroutineDispatcher;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withCreated (Landroidx/lifecycle/Lifecycle;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withCreated (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withResumed (Landroidx/lifecycle/Lifecycle;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withResumed (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withStarted (Landroidx/lifecycle/Lifecycle;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withStarted (Landroidx/lifecycle/LifecycleOwner;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withStateAtLeast (Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withStateAtLeast (Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$State;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withStateAtLeastUnchecked (Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/Lifecycle$State;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+

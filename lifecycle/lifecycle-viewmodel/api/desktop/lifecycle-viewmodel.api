@@ -1,0 +1,106 @@
+public abstract interface class androidx/lifecycle/HasDefaultViewModelProviderFactory {
+	public fun getDefaultViewModelCreationExtras ()Landroidx/lifecycle/viewmodel/CreationExtras;
+	public abstract fun getDefaultViewModelProviderFactory ()Landroidx/lifecycle/ViewModelProvider$Factory;
+}
+
+public abstract class androidx/lifecycle/ViewModel {
+	public fun <init> ()V
+	public fun <init> (Lkotlinx/coroutines/CoroutineScope;)V
+	public fun <init> (Lkotlinx/coroutines/CoroutineScope;[Ljava/lang/AutoCloseable;)V
+	public synthetic fun <init> ([Ljava/io/Closeable;)V
+	public fun <init> ([Ljava/lang/AutoCloseable;)V
+	public synthetic fun addCloseable (Ljava/io/Closeable;)V
+	public fun addCloseable (Ljava/lang/AutoCloseable;)V
+	public final fun addCloseable (Ljava/lang/String;Ljava/lang/AutoCloseable;)V
+	public final fun getCloseable (Ljava/lang/String;)Ljava/lang/AutoCloseable;
+	protected fun onCleared ()V
+}
+
+public final class androidx/lifecycle/ViewModelKt {
+	public static final fun getViewModelScope (Landroidx/lifecycle/ViewModel;)Lkotlinx/coroutines/CoroutineScope;
+}
+
+public final class androidx/lifecycle/ViewModelLazy : kotlin/Lazy {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getValue ()Landroidx/lifecycle/ViewModel;
+	public synthetic fun getValue ()Ljava/lang/Object;
+	public fun isInitialized ()Z
+}
+
+public final class androidx/lifecycle/ViewModelProvider {
+	public static final field Companion Landroidx/lifecycle/ViewModelProvider$Companion;
+	public static final field VIEW_MODEL_KEY Landroidx/lifecycle/viewmodel/CreationExtras$Key;
+	public synthetic fun <init> (Landroidx/lifecycle/viewmodel/ViewModelProviderImpl;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun create (Landroidx/lifecycle/ViewModelStore;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModelProvider;
+	public static final fun create (Landroidx/lifecycle/ViewModelStoreOwner;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModelProvider;
+	public final fun get (Ljava/lang/String;Lkotlin/reflect/KClass;)Landroidx/lifecycle/ViewModel;
+	public final fun get (Lkotlin/reflect/KClass;)Landroidx/lifecycle/ViewModel;
+}
+
+public final class androidx/lifecycle/ViewModelProvider$Companion {
+	public final fun create (Landroidx/lifecycle/ViewModelStore;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModelProvider;
+	public final fun create (Landroidx/lifecycle/ViewModelStoreOwner;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModelProvider;
+	public static synthetic fun create$default (Landroidx/lifecycle/ViewModelProvider$Companion;Landroidx/lifecycle/ViewModelStore;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;ILjava/lang/Object;)Landroidx/lifecycle/ViewModelProvider;
+	public static synthetic fun create$default (Landroidx/lifecycle/ViewModelProvider$Companion;Landroidx/lifecycle/ViewModelStoreOwner;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;ILjava/lang/Object;)Landroidx/lifecycle/ViewModelProvider;
+}
+
+public abstract interface class androidx/lifecycle/ViewModelProvider$Factory {
+	public fun create (Lkotlin/reflect/KClass;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModel;
+}
+
+public class androidx/lifecycle/ViewModelProvider$OnRequeryFactory {
+	public fun <init> ()V
+	public fun onRequery (Landroidx/lifecycle/ViewModel;)V
+}
+
+public class androidx/lifecycle/ViewModelStore {
+	public fun <init> ()V
+	public final fun clear ()V
+	public final fun get (Ljava/lang/String;)Landroidx/lifecycle/ViewModel;
+	public final fun keys ()Ljava/util/Set;
+	public final fun put (Ljava/lang/String;Landroidx/lifecycle/ViewModel;)V
+}
+
+public abstract interface class androidx/lifecycle/ViewModelStoreOwner {
+	public abstract fun getViewModelStore ()Landroidx/lifecycle/ViewModelStore;
+}
+
+public abstract class androidx/lifecycle/viewmodel/CreationExtras {
+	public abstract fun get (Landroidx/lifecycle/viewmodel/CreationExtras$Key;)Ljava/lang/Object;
+}
+
+public final class androidx/lifecycle/viewmodel/CreationExtras$Empty : androidx/lifecycle/viewmodel/CreationExtras {
+	public static final field INSTANCE Landroidx/lifecycle/viewmodel/CreationExtras$Empty;
+	public fun get (Landroidx/lifecycle/viewmodel/CreationExtras$Key;)Ljava/lang/Object;
+}
+
+public abstract interface class androidx/lifecycle/viewmodel/CreationExtras$Key {
+}
+
+public final class androidx/lifecycle/viewmodel/InitializerViewModelFactoryBuilder {
+	public fun <init> ()V
+	public final fun addInitializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public final fun build ()Landroidx/lifecycle/ViewModelProvider$Factory;
+}
+
+public final class androidx/lifecycle/viewmodel/InitializerViewModelFactoryKt {
+	public static final fun viewModelFactory (Lkotlin/jvm/functions/Function1;)Landroidx/lifecycle/ViewModelProvider$Factory;
+}
+
+public final class androidx/lifecycle/viewmodel/MutableCreationExtras : androidx/lifecycle/viewmodel/CreationExtras {
+	public fun <init> ()V
+	public fun <init> (Landroidx/lifecycle/viewmodel/CreationExtras;)V
+	public synthetic fun <init> (Landroidx/lifecycle/viewmodel/CreationExtras;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun get (Landroidx/lifecycle/viewmodel/CreationExtras$Key;)Ljava/lang/Object;
+	public final fun set (Landroidx/lifecycle/viewmodel/CreationExtras$Key;Ljava/lang/Object;)V
+}
+
+public abstract interface annotation class androidx/lifecycle/viewmodel/ViewModelFactoryDsl : java/lang/annotation/Annotation {
+}
+
+public final class androidx/lifecycle/viewmodel/ViewModelInitializer {
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+}
+

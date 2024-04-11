@@ -1,0 +1,36 @@
+public abstract class androidx/lifecycle/AbstractSavedStateViewModelFactory : androidx/lifecycle/ViewModelProvider$Factory {
+	public fun <init> ()V
+	public fun <init> (Landroidx/savedstate/SavedStateRegistryOwner;Landroidx/core/bundle/Bundle;)V
+	protected fun create (Ljava/lang/String;Lkotlin/reflect/KClass;Landroidx/lifecycle/SavedStateHandle;)Landroidx/lifecycle/ViewModel;
+	public fun create (Lkotlin/reflect/KClass;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModel;
+}
+
+public final class androidx/lifecycle/SavedStateHandle {
+	public static final field Companion Landroidx/lifecycle/SavedStateHandle$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public final fun clearSavedStateProvider (Ljava/lang/String;)V
+	public final fun contains (Ljava/lang/String;)Z
+	public static final fun createHandle (Landroidx/core/bundle/Bundle;Landroidx/core/bundle/Bundle;)Landroidx/lifecycle/SavedStateHandle;
+	public final fun get (Ljava/lang/String;)Ljava/lang/Object;
+	public final fun getStateFlow (Ljava/lang/String;Ljava/lang/Object;)Lkotlinx/coroutines/flow/StateFlow;
+	public final fun keys ()Ljava/util/Set;
+	public final fun remove (Ljava/lang/String;)Ljava/lang/Object;
+	public final fun savedStateProvider ()Landroidx/savedstate/SavedStateRegistry$SavedStateProvider;
+	public final fun set (Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun setSavedStateProvider (Ljava/lang/String;Landroidx/savedstate/SavedStateRegistry$SavedStateProvider;)V
+}
+
+public final class androidx/lifecycle/SavedStateHandle$Companion {
+	public final fun createHandle (Landroidx/core/bundle/Bundle;Landroidx/core/bundle/Bundle;)Landroidx/lifecycle/SavedStateHandle;
+	public final fun validateValue (Ljava/lang/Object;)Z
+}
+
+public final class androidx/lifecycle/SavedStateHandleSupport {
+	public static final field DEFAULT_ARGS_KEY Landroidx/lifecycle/viewmodel/CreationExtras$Key;
+	public static final field SAVED_STATE_REGISTRY_OWNER_KEY Landroidx/lifecycle/viewmodel/CreationExtras$Key;
+	public static final field VIEW_MODEL_STORE_OWNER_KEY Landroidx/lifecycle/viewmodel/CreationExtras$Key;
+	public static final fun createSavedStateHandle (Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/SavedStateHandle;
+	public static final fun enableSavedStateHandles (Landroidx/savedstate/SavedStateRegistryOwner;)V
+}
+

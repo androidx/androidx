@@ -1,0 +1,35 @@
+public final class androidx/savedstate/SavedStateRegistry {
+	public final fun consumeRestoredStateForKey (Ljava/lang/String;)Landroidx/core/bundle/Bundle;
+	public final fun getSavedStateProvider (Ljava/lang/String;)Landroidx/savedstate/SavedStateRegistry$SavedStateProvider;
+	public final fun isRestored ()Z
+	public final fun registerSavedStateProvider (Ljava/lang/String;Landroidx/savedstate/SavedStateRegistry$SavedStateProvider;)V
+	public final fun runOnNextRecreation (Ljava/lang/Class;)V
+	public final fun unregisterSavedStateProvider (Ljava/lang/String;)V
+}
+
+public abstract interface class androidx/savedstate/SavedStateRegistry$AutoRecreated {
+	public abstract fun onRecreated (Landroidx/savedstate/SavedStateRegistryOwner;)V
+}
+
+public abstract interface class androidx/savedstate/SavedStateRegistry$SavedStateProvider {
+	public abstract fun saveState ()Landroidx/core/bundle/Bundle;
+}
+
+public final class androidx/savedstate/SavedStateRegistryController {
+	public static final field Companion Landroidx/savedstate/SavedStateRegistryController$Companion;
+	public synthetic fun <init> (Landroidx/savedstate/SavedStateRegistryOwner;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun create (Landroidx/savedstate/SavedStateRegistryOwner;)Landroidx/savedstate/SavedStateRegistryController;
+	public final fun getSavedStateRegistry ()Landroidx/savedstate/SavedStateRegistry;
+	public final fun performAttach ()V
+	public final fun performRestore (Landroidx/core/bundle/Bundle;)V
+	public final fun performSave (Landroidx/core/bundle/Bundle;)V
+}
+
+public final class androidx/savedstate/SavedStateRegistryController$Companion {
+	public final fun create (Landroidx/savedstate/SavedStateRegistryOwner;)Landroidx/savedstate/SavedStateRegistryController;
+}
+
+public abstract interface class androidx/savedstate/SavedStateRegistryOwner : androidx/lifecycle/LifecycleOwner {
+	public abstract fun getSavedStateRegistry ()Landroidx/savedstate/SavedStateRegistry;
+}
+

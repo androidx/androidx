@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.build
+package androidx.build.jetbrains
 
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
