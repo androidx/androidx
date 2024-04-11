@@ -27,13 +27,11 @@ import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
 /**
- * Decoder to deserialize a bundle of argument value back into an object instance of that
- * destination.
+ * Decoder to deserialize a bundle of argument back into an object instance of type [T]
  *
  * This decoder iterates through every class field (argument) in [T], retrieves the value
- * for that argument from the bundle, then use the retrieved values (or default values as fallback)
+ * for that argument from the bundle (or fallback to default value), then use the retrieved values
  * to re-create the object instance.
- *
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal class RouteDecoder(
@@ -47,8 +45,11 @@ internal class RouteDecoder(
     override val serializersModule: SerializersModule = EmptySerializersModule
 
     /**
-     * The argument index returned here will be trigger deserializer to call [decodeValue] on that
-     * argument.
+     * Decodes the index of the next element to be decoded. Index represents a position of the
+     * current element in the [descriptor] that can be found with [descriptor].getElementIndex.
+     *
+     * The returned index will trigger deserializer to call [decodeValue] on the argument
+     * at that index.
      *
      * The decoder continually calls this method to process the next available argument until
      * this method returns [CompositeDecoder.DECODE_DONE], which indicates that there are
@@ -90,9 +91,9 @@ private class Decoder(
     private var elementName: String = ""
 
     /**
-     * Returns the next element index to call [decodeValue] on.
+     * Computes the index of the next element to call [decodeValue] on.
      *
-     * [decodeValue] should only be called for arguments with values stores within [bundle].
+     * [decodeValue] should only be called for arguments with values stored within [bundle].
      * Otherwise, we should let the deserializer fall back to default value. This is done by
      * skipping (not returning) the indices whose argument is not present in the bundle. In doing
      * so, the deserializer considers the skipped element un-processed and will use the
