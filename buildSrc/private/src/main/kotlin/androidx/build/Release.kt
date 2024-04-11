@@ -16,7 +16,6 @@
 package androidx.build
 
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
-import com.android.build.gradle.LibraryExtension
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.Locale
@@ -427,18 +426,6 @@ open class VerifyGMavenZipTask : DefaultTask() {
                     "${emptyDirs.size} empty dirs: $emptyDirsString. " +
                     "Checked files: $checkedFilesString"
             )
-        }
-    }
-}
-
-/** Let you configure a library variant associated with [Release.DEFAULT_PUBLISH_CONFIG] */
-@Suppress("DEPRECATION") // LibraryVariant
-fun LibraryExtension.defaultPublishVariant(
-    config: (com.android.build.gradle.api.LibraryVariant) -> Unit
-) {
-    libraryVariants.all { variant ->
-        if (variant.name == Release.DEFAULT_PUBLISH_CONFIG) {
-            config(variant)
         }
     }
 }
