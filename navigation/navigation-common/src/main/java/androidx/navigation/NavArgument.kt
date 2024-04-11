@@ -226,9 +226,8 @@ internal fun Map<String, NavArgument?>.missingRequiredArguments(
     isArgumentMissing: (key: String) -> Boolean
 ): List<String> {
     val requiredArgumentKeys = filterValues {
-        if (it != null) {
-            !it.isNullable && !it.isDefaultValuePresent
-        } else false
+        !it?.isNullable!! && !it.isDefaultValuePresent
     }.keys
+
     return requiredArgumentKeys.filter { key -> isArgumentMissing(key) }
 }

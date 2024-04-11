@@ -90,6 +90,11 @@ fun nullableStringArgument(
     .setIsNullable(true)
     .setDefaultValue(defaultValue)
     .build()
+
+fun nullableStringArgumentUnknownDefault() = NavArgument.Builder().setType(StringType)
+    .setIsNullable(true)
+    .setUnknownDefaultValuePresent(true)
+    .build()
 // endregion
 
 // region StringArrayType
