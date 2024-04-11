@@ -118,7 +118,7 @@ fun FloatingActionButton(
     ) {
         ProvideContentColorTextStyle(
             contentColor = contentColor,
-            textStyle = MaterialTheme.typography.fromToken(ExtendedFabPrimaryTokens.LabelTextFont)
+            textStyle = ExtendedFabPrimaryTokens.LabelTextFont.value
         ) {
             Box(
                 modifier = Modifier

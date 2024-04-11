@@ -115,8 +115,8 @@ fun Snackbar(
         contentColor = contentColor,
         shadowElevation = SnackbarTokens.ContainerElevation
     ) {
-        val textStyle = MaterialTheme.typography.fromToken(SnackbarTokens.SupportingTextFont)
-        val actionTextStyle = MaterialTheme.typography.fromToken(SnackbarTokens.ActionLabelTextFont)
+        val textStyle = SnackbarTokens.SupportingTextFont.value
+        val actionTextStyle = SnackbarTokens.ActionLabelTextFont.value
         CompositionLocalProvider(LocalTextStyle provides textStyle) {
             when {
                 action == null -> OneRowSnackbar(
