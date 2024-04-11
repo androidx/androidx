@@ -36,6 +36,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchStats {
+    /** Types of Visibility scopes available for search. */
     @IntDef(value = {
             // Searches apps' own documents.
             VISIBILITY_SCOPE_LOCAL,
