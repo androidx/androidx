@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
@@ -79,8 +81,8 @@ actual class GraphicsLayer {
 
     private var internalOutline: Outline? = null
     private var outlineDirty = true
-    private var roundRectOutlineTopLeft: IntOffset = UnsetOffset
-    private var roundRectOutlineSize: IntSize = UnsetSize
+    private var roundRectOutlineTopLeft: Offset = Offset.Unspecified
+    private var roundRectOutlineSize: Size = Size.Unspecified
     private var roundRectCornerRadius: Float = 0f
     private var outlinePath: Path? = null
 
@@ -211,18 +213,18 @@ actual class GraphicsLayer {
     actual var clip: Boolean = false
 
     private inline fun createOutlineWithPosition(
-        outlineTopLeft: IntOffset,
-        outlineSize: IntSize,
-        block: (IntOffset, IntSize) -> Outline
+        outlineTopLeft: Offset,
+        outlineSize: Size,
+        block: (Offset, Size) -> Outline
     ): Outline {
-        val targetTopLeft = if (outlineTopLeft == UnsetOffset) {
-            this.topLeft
+        val targetTopLeft = if (outlineTopLeft.isUnspecified) {
+            this.topLeft.toOffset()
         } else {
             outlineTopLeft
         }
 
-        val targetSize = if (outlineSize == UnsetSize) {
-            this.size
+        val targetSize = if (outlineSize.isUnspecified) {
+            this.size.toSize()
         } else {
             outlineSize
         }
@@ -372,15 +374,15 @@ actual class GraphicsLayer {
     private fun resetOutlineParams() {
         internalOutline = null
         outlinePath = null
-        roundRectOutlineSize = UnsetSize
-        roundRectOutlineTopLeft = UnsetOffset
+        roundRectOutlineSize = Size.Unspecified
+        roundRectOutlineTopLeft = Offset.Unspecified
         roundRectCornerRadius = 0f
         outlineDirty = true
     }
 
     actual fun setRoundRectOutline(
-        topLeft: IntOffset,
-        size: IntSize,
+        topLeft: Offset,
+        size: Size,
         cornerRadius: Float
     ) {
         resetOutlineParams()
@@ -412,10 +414,10 @@ actual class GraphicsLayer {
 
     /**
      * Configures a rectangular outline for this [GraphicsLayer]. By default, both [topLeft] and
-     * [size] are set to [UnsetOffset] and [UnsetSize] indicating that the outline should match the
-     * bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow is produced
-     * using with an [Outline] created from the rect parameters provided. Additionally if
-     * [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
+     * [size] are set to [Offset.Unspecified] and [Size.Unspecified] indicating that the outline
+     * should match the bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * is produced using with an [Outline] created from the rect parameters provided. Additionally
+     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
@@ -423,8 +425,8 @@ actual class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
     actual fun setRectOutline(
-        topLeft: IntOffset,
-        size: IntSize
+        topLeft: Offset,
+        size: Size
     ) {
         setRoundRectOutline(topLeft, size, 0f)
     }
@@ -537,11 +539,6 @@ actual class GraphicsLayer {
             ambientColor.toArgb(),
             spotColor.toArgb(), alpha < 1f, false
         )
-    }
-
-    actual companion object {
-        actual val UnsetOffset: IntOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
-        actual val UnsetSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
     }
 
     /**
