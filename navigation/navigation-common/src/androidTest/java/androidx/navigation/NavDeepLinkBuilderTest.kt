@@ -16,10 +16,12 @@
 
 package androidx.navigation
 
+import androidx.navigation.NavOptionsTest.TestClass
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.serialization.Serializable
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,6 +81,139 @@ class NavDeepLinkBuilderTest {
     fun buildDeepLinkDoubleActionSetNull() {
         val expectedUri = "www.example.com"
         val navDeepLink = navDeepLink {
+            uriPattern = expectedUri
+            action = "blah"
+            action = null
+        }
+
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
+            .isEqualTo(expectedUri)
+        assertWithMessage("NavDeepLink should have action set")
+            .that(navDeepLink.action)
+            .isNull()
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkAllSetKClass() {
+        val expectedUri = "example.com"
+        val expectedAction = "test.action"
+        val expectedMimeType = "test/type"
+        val navDeepLink = navDeepLink<TestClass> {
+            uriPattern = expectedUri
+            action = expectedAction
+            mimeType = expectedMimeType
+        }
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
+            .isEqualTo(expectedUri)
+        assertWithMessage("NavDeepLink should have action set")
+            .that(navDeepLink.action)
+            .isEqualTo(expectedAction)
+        assertWithMessage("NavDeepLink should have mimeType set")
+            .that(navDeepLink.mimeType)
+            .isEqualTo(expectedMimeType)
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkAllSetKClassWithPathArgs() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: String)
+
+        val expectedUri = "example.com"
+        val expectedAction = "test.action"
+        val expectedMimeType = "test/type"
+        val navDeepLink = navDeepLink<TestClass> {
+            uriPattern = expectedUri
+            action = expectedAction
+            mimeType = expectedMimeType
+        }
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
+            .isEqualTo("$expectedUri/{arg}/{arg2}")
+        assertWithMessage("NavDeepLink should have action set")
+            .that(navDeepLink.action)
+            .isEqualTo(expectedAction)
+        assertWithMessage("NavDeepLink should have mimeType set")
+            .that(navDeepLink.mimeType)
+            .isEqualTo(expectedMimeType)
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkAllSetKClassWithQueryArgs() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: String = "default")
+
+        val expectedUri = "example.com"
+        val expectedAction = "test.action"
+        val expectedMimeType = "test/type"
+        val navDeepLink = navDeepLink<TestClass> {
+            uriPattern = expectedUri
+            action = expectedAction
+            mimeType = expectedMimeType
+        }
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
+            .isEqualTo("$expectedUri/{arg}?arg2={arg2}")
+        assertWithMessage("NavDeepLink should have action set")
+            .that(navDeepLink.action)
+            .isEqualTo(expectedAction)
+        assertWithMessage("NavDeepLink should have mimeType set")
+            .that(navDeepLink.mimeType)
+            .isEqualTo(expectedMimeType)
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkNoneSetKClass() {
+        var exception: IllegalStateException? = null
+        try {
+            navDeepLink<TestClass> {}
+            fail("NavDeepLink must throw when attempting to build an empty builder.")
+        } catch (e: IllegalStateException) {
+            exception = e
+        }
+        assertThat(exception?.message)
+            .isEqualTo("The NavDeepLink must have an uri, action, and/or mimeType.")
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkNoUriKClass() {
+        var exception: IllegalStateException? = null
+        try {
+            navDeepLink<TestClass> { action = "action" }
+            fail("NavDeepLink must throw when attempting to build an empty builder.")
+        } catch (e: IllegalStateException) {
+            exception = e
+        }
+        assertThat(exception?.message)
+            .isEqualTo("Failed to build NavDeepLink from KClass. Ensure base path is " +
+                "set through uriPattern.")
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkEmptyActionKClass() {
+        var exception: IllegalArgumentException? = null
+        try {
+            navDeepLink<TestClass> { action = "" }
+            fail("NavDeepLink must throw when attempting to build with an empty action.")
+        } catch (e: IllegalArgumentException) {
+            exception = e
+        }
+        assertThat(exception?.message)
+            .isEqualTo("The NavDeepLink cannot have an empty action.")
+    }
+
+    @OptIn(ExperimentalSafeArgsApi::class)
+    @Test
+    fun buildDeepLinkDoubleActionSetNullKClass() {
+        val expectedUri = "www.example.com"
+        val navDeepLink = navDeepLink<TestClass> {
             uriPattern = expectedUri
             action = "blah"
             action = null
