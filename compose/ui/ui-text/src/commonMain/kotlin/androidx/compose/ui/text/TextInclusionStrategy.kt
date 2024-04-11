@@ -27,12 +27,12 @@ import androidx.compose.ui.geometry.Rect
  */
 fun interface TextInclusionStrategy {
     /**
-     * Returns true is this [TextInclusionStrategy] considers the text range's [textBounds] to be
+     * Returns true if this [TextInclusionStrategy] considers the text range's [textBounds] to be
      * inside the given [rect].
      * @param textBounds the bounding box of a range of the text.
      * @param rect a rectangle area.
      */
-    fun isInside(textBounds: Rect, rect: Rect): Boolean
+    fun isIncluded(textBounds: Rect, rect: Rect): Boolean
     companion object {
         /**
          * The [TextInclusionStrategy] that includes the text range whose bounds has any

@@ -101,7 +101,7 @@ class MultiParagraphGetRangeForRectTest {
             TextGranularity.Character,
             TextInclusionStrategy.ContainsCenter
         )
-        assertThat(range).isNull()
+        assertThat(range).isEqualTo(TextRange.Zero)
     }
 
     @Test
@@ -202,7 +202,7 @@ class MultiParagraphGetRangeForRectTest {
             TextInclusionStrategy.ContainsCenter
         )
 
-        assertThat(range).isNull()
+        assertThat(range).isEqualTo(TextRange.Zero)
     }
     private fun simpleMultiParagraph(
         text: AnnotatedString,
