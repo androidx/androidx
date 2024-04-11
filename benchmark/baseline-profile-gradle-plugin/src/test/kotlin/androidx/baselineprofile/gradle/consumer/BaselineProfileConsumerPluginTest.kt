@@ -305,6 +305,14 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
 
         data class VariantExpectedSrcSets(val variantName: String, val expectedDirs: List<String>)
 
+        fun variantBaselineProfileSrcSetDir(variantName: String): Array<String> {
+            return (if (agpVersion == TEST_AGP_VERSION_8_0_0) {
+                listOf("src/$variantName/resources")
+            } else {
+                listOf("src/$variantName/baselineProfiles")
+            }).toTypedArray()
+        }
+
         arrayOf(
             VariantExpectedSrcSets(
                 variantName = "freeRelease",
@@ -312,15 +320,8 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     "src/main/baselineProfiles",
                     "src/free/baselineProfiles",
                     "src/release/baselineProfiles",
+                    *variantBaselineProfileSrcSetDir("freeRelease"),
                     "src/freeRelease/generated/baselineProfiles",
-
-                    // In AGP 8.0 there seems to be a bug where the default baselineProfiles folder
-                    // is instead `src/freeRelease/resources`. This is fixed in AGP 8.1.
-                    *(if (agpVersion == TEST_AGP_VERSION_8_1_0) {
-                        listOf("src/freeRelease/baselineProfiles")
-                    } else {
-                        listOf()
-                    }).toTypedArray()
                 )
             ),
             VariantExpectedSrcSets(
@@ -329,17 +330,37 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     "src/main/baselineProfiles",
                     "src/paid/baselineProfiles",
                     "src/release/baselineProfiles",
+                    *variantBaselineProfileSrcSetDir("paidRelease"),
                     "src/paidRelease/generated/baselineProfiles",
-
-                    // In AGP 8.0 there seems to be a bug where the default baselineProfiles folder
-                    // is instead `src/paidRelease/resources`. This is fixed in AGP 8.1.
-                    *(if (agpVersion == TEST_AGP_VERSION_8_1_0) {
-                        listOf("src/paidRelease/baselineProfiles")
-                    } else {
-                        listOf()
-                    }).toTypedArray()
                 )
-            )
+            ),
+            // Note that we don't create a benchmark build type for AGP 8.0 due to b/265438201.
+            *(if (agpVersion > TEST_AGP_VERSION_8_0_0) {
+                listOf(
+                    VariantExpectedSrcSets(
+                        variantName = "freeBenchmarkRelease",
+                        expectedDirs = listOf(
+                            "src/main/baselineProfiles",
+                            "src/free/baselineProfiles",
+                            "src/benchmarkRelease/baselineProfiles",
+                            "src/freeBenchmarkRelease/baselineProfiles",
+                            "src/freeRelease/generated/baselineProfiles",
+                        )
+                    ),
+                    VariantExpectedSrcSets(
+                        variantName = "paidBenchmarkRelease",
+                        expectedDirs = listOf(
+                            "src/main/baselineProfiles",
+                            "src/paid/baselineProfiles",
+                            "src/benchmarkRelease/baselineProfiles",
+                            "src/paidBenchmarkRelease/baselineProfiles",
+                            "src/paidRelease/generated/baselineProfiles",
+                        )
+                    )
+                )
+            } else {
+                listOf()
+            }).toTypedArray()
         )
             .forEach {
 
@@ -1664,9 +1685,11 @@ class BaselineProfileConsumerPluginTestWithAgp81(private val agpVersion: TestAgp
             .consumer
             .gradleRunner
             .buildAndFailAndAssertThatOutput("generateBaselineProfile", "--dry-run") {
-                contains("The flag `automaticGenerationDuringBuild` is not compatible with " +
-                    "library modules. Please remove the flag `automaticGenerationDuringBuild` " +
-                    "in your com.android.library module")
+                contains(
+                    "The flag `automaticGenerationDuringBuild` is not compatible with library " +
+                        "modules. Please remove the flag `automaticGenerationDuringBuild` " +
+                        "in your com.android.library module"
+                )
             }
     }
 
