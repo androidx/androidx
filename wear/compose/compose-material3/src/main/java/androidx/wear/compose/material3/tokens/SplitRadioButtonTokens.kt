@@ -26,10 +26,10 @@ internal object SplitRadioButtonTokens {
     val DisabledSelectedSecondaryLabelOpacity = 0.8f
     val DisabledSelectedSplitContainerColor = ColorSchemeKeyTokens.Primary
     val DisabledSelectedSplitContainerOpacity = 0.15f
-    val DisabledUnselectedContainerColor = ColorSchemeKeyTokens.Surface
+    val DisabledUnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val DisabledUnselectedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUnselectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledUnselectedSplitContainerColor = ColorSchemeKeyTokens.SurfaceBright
+    val DisabledUnselectedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
     val SelectedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
@@ -39,8 +39,8 @@ internal object SplitRadioButtonTokens {
     val SelectedSplitContainerColor = ColorSchemeKeyTokens.Primary
     val SelectedSplitContainerOpacity = 0.15f
     val Shape = ShapeKeyTokens.CornerLarge
-    val UnselectedContainerColor = ColorSchemeKeyTokens.Surface
+    val UnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UnselectedContentColor = ColorSchemeKeyTokens.OnSurface
     val UnselectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedSplitContainerColor = ColorSchemeKeyTokens.SurfaceBright
+    val UnselectedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
 }

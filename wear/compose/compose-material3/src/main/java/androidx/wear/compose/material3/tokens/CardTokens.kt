@@ -25,7 +25,7 @@ internal object CardTokens {
     val AppImageSize = 16.0.dp
     val AppNameColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val AppNameTypography = TypographyKeyTokens.LabelSmall
-    val ContainerColor = ColorSchemeKeyTokens.Surface
+    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val ContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ContentTypography = TypographyKeyTokens.BodyLarge
     val Shape = ShapeKeyTokens.CornerLarge

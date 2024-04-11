@@ -32,13 +32,13 @@ internal object ToggleButtonTokens {
     val DisabledCheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val DisabledCheckedSecondaryLabelOpacity = 0.8f
     val DisabledOpacity = 0.38f
-    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.Surface
+    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUncheckedIconColor = ColorSchemeKeyTokens.Primary
     val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
-    val UncheckedContainerColor = ColorSchemeKeyTokens.Surface
+    val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val UncheckedIconColor = ColorSchemeKeyTokens.Primary
     val UncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant

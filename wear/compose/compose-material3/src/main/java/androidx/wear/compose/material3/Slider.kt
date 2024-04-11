@@ -329,7 +329,7 @@ object InlineSliderDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = MaterialTheme.colorScheme.surface,
+        containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
         buttonIconColor: Color = MaterialTheme.colorScheme.secondary,
         selectedBarColor: Color = MaterialTheme.colorScheme.primary,
         unselectedBarColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.3f),

@@ -34,14 +34,14 @@ internal object SplitToggleButtonTokens {
     val DisabledCheckedSplitContainerColor = ColorSchemeKeyTokens.Primary
     val DisabledCheckedSplitContainerOpacity = 0.15f
     val DisabledOpacity = 0.38f
-    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.Surface
+    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledUncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceBright
+    val DisabledUncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
-    val UncheckedContainerColor = ColorSchemeKeyTokens.Surface
+    val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val UncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceBright
+    val UncheckedSplitContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
 }

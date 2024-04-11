@@ -127,7 +127,7 @@ fun StatefulSwipeToDismissBox() {
                             modifier = Modifier
                                 .height(40.dp)
                                 .background(
-                                    color = MaterialTheme.colorScheme.surface,
+                                    color = MaterialTheme.colorScheme.surfaceContainer,
                                     shape = CircleShape
                                 )
                                 .padding(horizontal = 12.dp),
