@@ -263,6 +263,9 @@ actual class GraphicsLayer internal constructor(
         set(value) {
             if (impl.shadowElevation != value) {
                 impl.shadowElevation = value
+                impl.clip = clip || value > 0f
+                outlineDirty = true
+                configureOutline()
             }
         }
 
@@ -349,6 +352,8 @@ actual class GraphicsLayer internal constructor(
         set(value) {
             if (impl.clip != value) {
                 impl.clip = value
+                outlineDirty = true
+                configureOutline()
             }
         }
 
@@ -406,6 +411,8 @@ actual class GraphicsLayer internal constructor(
         if (this.size != size) {
             setPosition(topLeft, size)
             this.size = size
+            outlineDirty = true
+            configureOutline()
         }
         this.density = density
         this.layoutDirection = layoutDirection
@@ -527,32 +534,36 @@ actual class GraphicsLayer internal constructor(
     }
 
     private fun configureOutline() {
-        val shouldClip = clip || shadowElevation > 0f
         if (outlineDirty) {
-            val tmpPath = outlinePath
-            if (tmpPath != null) {
-                val androidOutline = updatePathOutline(tmpPath).apply {
-                    alpha = this@GraphicsLayer.alpha
-                }
-                impl.setOutline(androidOutline, shouldClip)
+            val outlineIsNeeded = clip || shadowElevation > 0f
+            if (!outlineIsNeeded) {
+                impl.setOutline(null)
             } else {
-                val roundRectOutline = obtainAndroidOutline().apply {
-                    resolveOutlinePosition { outlineTopLeft, outlineSize ->
-                        setRoundRect(
-                            outlineTopLeft.x,
-                            outlineTopLeft.y,
-                            outlineTopLeft.x + outlineSize.width,
-                            outlineTopLeft.y + outlineSize.height,
-                            roundRectCornerRadius
-                        )
+                val tmpPath = outlinePath
+                if (tmpPath != null) {
+                    val androidOutline = updatePathOutline(tmpPath).apply {
+                        alpha = this@GraphicsLayer.alpha
                     }
-                }.apply {
-                    alpha = this@GraphicsLayer.alpha
+                    impl.setOutline(androidOutline)
+                } else {
+                    val roundRectOutline = obtainAndroidOutline().apply {
+                        resolveOutlinePosition { outlineTopLeft, outlineSize ->
+                            setRoundRect(
+                                outlineTopLeft.x,
+                                outlineTopLeft.y,
+                                outlineTopLeft.x + outlineSize.width,
+                                outlineTopLeft.y + outlineSize.height,
+                                roundRectCornerRadius
+                            )
+                        }
+                    }.apply {
+                        alpha = this@GraphicsLayer.alpha
+                    }
+                    impl.setOutline(roundRectOutline)
                 }
-                impl.setOutline(roundRectOutline, shouldClip)
             }
-            outlineDirty = false
         }
+        outlineDirty = false
     }
 
     private inline fun <T> resolveOutlinePosition(block: (IntOffset, IntSize) -> T): T {
@@ -691,6 +702,7 @@ actual class GraphicsLayer internal constructor(
     actual fun setPathOutline(path: Path) {
         resetOutlineParams()
         this.outlinePath = path
+        configureOutline()
     }
 
     /**
@@ -713,6 +725,7 @@ actual class GraphicsLayer internal constructor(
             this.roundRectOutlineTopLeft = topLeft
             this.roundRectOutlineSize = size
             this.roundRectCornerRadius = cornerRadius
+            configureOutline()
         }
     }
 
@@ -920,7 +933,7 @@ internal interface GraphicsLayerImpl {
      * @see GraphicsLayer.setPathOutline
      * @see GraphicsLayer.setRoundRectOutline
      */
-    fun setOutline(outline: AndroidOutline, clip: Boolean)
+    fun setOutline(outline: AndroidOutline?)
 
     /**
      * Draw the GraphicsLayer into the provided canvas
