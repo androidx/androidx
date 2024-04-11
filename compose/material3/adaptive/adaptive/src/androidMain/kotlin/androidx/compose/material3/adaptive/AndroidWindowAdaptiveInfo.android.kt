@@ -39,7 +39,7 @@ actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
         currentWindowSize().toSize().toDpSize()
     }
     return WindowAdaptiveInfo(
-        WindowSizeClass(windowSize.width.value.toInt(), windowSize.height.value.toInt()),
+        WindowSizeClass.compute(windowSize.width.value, windowSize.height.value),
         calculatePosture(collectFoldingFeaturesAsState().value)
     )
 }

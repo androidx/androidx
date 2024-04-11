@@ -43,7 +43,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
                 api("androidx.compose.foundation:foundation:1.6.5")
                 api("androidx.compose.ui:ui-geometry:1.6.5")
-                api("androidx.window:window-core:1.3.0-alpha02")
+                api("androidx.window:window-core:1.3.0-beta01")
             }
         }
 

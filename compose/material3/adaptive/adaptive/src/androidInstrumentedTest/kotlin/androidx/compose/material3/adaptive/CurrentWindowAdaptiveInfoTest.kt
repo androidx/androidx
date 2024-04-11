@@ -79,7 +79,7 @@ class CurrentWindowAdaptiveInfoTest {
         composeRule.runOnIdle {
             val mockSize = with(MockDensity) { MockWindowSize1.toSize().toDpSize() }
             assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass(mockSize.width.value.toInt(), mockSize.height.value.toInt())
+                WindowSizeClass.compute(mockSize.width.value, mockSize.height.value)
             )
             assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
                 calculatePosture(MockFoldingFeatures1)
@@ -94,7 +94,7 @@ class CurrentWindowAdaptiveInfoTest {
         composeRule.runOnIdle {
             val mockSize = with(MockDensity) { MockWindowSize2.toSize().toDpSize() }
             assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass(mockSize.width.value.toInt(), mockSize.height.value.toInt())
+                WindowSizeClass.compute(mockSize.width.value, mockSize.height.value)
             )
             assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
                 calculatePosture(MockFoldingFeatures2)
