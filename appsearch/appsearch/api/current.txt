@@ -832,14 +832,8 @@ package androidx.appsearch.app {
 
 package androidx.appsearch.app.usagereporting {
 
-  @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ClickAction") public class ClickAction implements androidx.appsearch.app.usagereporting.TakenAction {
-    method public long getCreationTimestampMillis();
-    method public long getDocumentTtlMillis();
-    method public String? getFinalQuery();
-    method public String getId();
-    method public String? getName();
-    method public String getNamespace();
-    method public java.util.List<java.lang.String!> getPreviousQueries();
+  @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ClickAction") public class ClickAction extends androidx.appsearch.app.usagereporting.TakenAction {
+    method public String? getQuery();
     method public String? getReferencedQualifiedId();
     method public int getResultRankGlobal();
     method public int getResultRankInBlock();
@@ -848,21 +842,35 @@ package androidx.appsearch.app.usagereporting {
 
   @androidx.appsearch.annotation.Document.BuilderProducer public static final class ClickAction.Builder {
     ctor public ClickAction.Builder(androidx.appsearch.app.usagereporting.ClickAction);
-    ctor public ClickAction.Builder(String, String);
-    method public androidx.appsearch.app.usagereporting.ClickAction.Builder addPreviousQuery(String);
+    ctor public ClickAction.Builder(String, String, long);
     method public androidx.appsearch.app.usagereporting.ClickAction build();
-    method public androidx.appsearch.app.usagereporting.ClickAction.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.app.usagereporting.ClickAction.Builder setDocumentTtlMillis(long);
-    method public androidx.appsearch.app.usagereporting.ClickAction.Builder setFinalQuery(String?);
-    method public androidx.appsearch.app.usagereporting.ClickAction.Builder setName(String?);
-    method public androidx.appsearch.app.usagereporting.ClickAction.Builder setPreviousQueries(java.util.List<java.lang.String!>?);
+    method public androidx.appsearch.app.usagereporting.ClickAction.Builder setQuery(String?);
     method public androidx.appsearch.app.usagereporting.ClickAction.Builder setReferencedQualifiedId(String?);
     method public androidx.appsearch.app.usagereporting.ClickAction.Builder setResultRankGlobal(int);
     method public androidx.appsearch.app.usagereporting.ClickAction.Builder setResultRankInBlock(int);
     method public androidx.appsearch.app.usagereporting.ClickAction.Builder setTimeStayOnResultMillis(long);
   }
 
-  public interface TakenAction {
+  @androidx.appsearch.annotation.Document(name="builtin:SearchAction") public class SearchAction extends androidx.appsearch.app.usagereporting.TakenAction {
+    method public int getFetchedResultCount();
+    method public String? getQuery();
+  }
+
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class SearchAction.Builder {
+    ctor public SearchAction.Builder(androidx.appsearch.app.usagereporting.SearchAction);
+    ctor public SearchAction.Builder(String, String, long);
+    method public androidx.appsearch.app.usagereporting.SearchAction build();
+    method public androidx.appsearch.app.usagereporting.SearchAction.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.app.usagereporting.SearchAction.Builder setFetchedResultCount(int);
+    method public androidx.appsearch.app.usagereporting.SearchAction.Builder setQuery(String?);
+  }
+
+  @androidx.appsearch.annotation.Document(name="builtin:TakenAction") public abstract class TakenAction {
+    method public long getActionTimestampMillis();
+    method public long getDocumentTtlMillis();
+    method public String getId();
+    method public String getNamespace();
   }
 
 }

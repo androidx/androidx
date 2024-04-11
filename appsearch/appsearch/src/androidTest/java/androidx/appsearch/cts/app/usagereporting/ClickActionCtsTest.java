@@ -21,245 +21,102 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.usagereporting.ClickAction;
+import androidx.appsearch.app.usagereporting.TakenAction;
 
 import org.junit.Test;
 
 public class ClickActionCtsTest {
     @Test
     public void testBuilder() {
-        ClickAction takenAction = new ClickAction.Builder("namespace", "id")
-                .setCreationTimestampMillis(123)
-                .setDocumentTtlMillis(456)
-                .setName("name")
-                .setReferencedQualifiedId("pkg$db/ns#refId")
-                .addPreviousQuery("prevQuery1")
-                .addPreviousQuery("prevQuery2")
-                .setFinalQuery("query")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(3)
-                .setTimeStayOnResultMillis(65536)
-                .build();
+        ClickAction clickAction =
+                new ClickAction.Builder("namespace", "id", /* actionTimestampMillis= */123)
+                        .setDocumentTtlMillis(456)
+                        .setQuery("query")
+                        .setReferencedQualifiedId("pkg$db/ns#refId")
+                        .setResultRankInBlock(1)
+                        .setResultRankGlobal(3)
+                        .setTimeStayOnResultMillis(65536)
+                        .build();
 
-        assertThat(takenAction.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction.getId()).isEqualTo("id");
-        assertThat(takenAction.getCreationTimestampMillis()).isEqualTo(123);
-        assertThat(takenAction.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(takenAction.getName()).isEqualTo("name");
-        assertThat(takenAction.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
-
-        assertThat(takenAction.getPreviousQueries()).hasSize(2);
-        assertThat(takenAction.getPreviousQueries().get(0)).isEqualTo("prevQuery1");
-        assertThat(takenAction.getPreviousQueries().get(1)).isEqualTo("prevQuery2");
-
-        assertThat(takenAction.getFinalQuery()).isEqualTo("query");
-        assertThat(takenAction.getResultRankInBlock()).isEqualTo(1);
-        assertThat(takenAction.getResultRankGlobal()).isEqualTo(3);
-        assertThat(takenAction.getTimeStayOnResultMillis()).isEqualTo(65536);
+        assertThat(clickAction.getNamespace()).isEqualTo("namespace");
+        assertThat(clickAction.getId()).isEqualTo("id");
+        assertThat(clickAction.getActionTimestampMillis()).isEqualTo(123);
+        assertThat(clickAction.getDocumentTtlMillis()).isEqualTo(456);
+        assertThat(clickAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
+        assertThat(clickAction.getQuery()).isEqualTo("query");
+        assertThat(clickAction.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
+        assertThat(clickAction.getResultRankInBlock()).isEqualTo(1);
+        assertThat(clickAction.getResultRankGlobal()).isEqualTo(3);
+        assertThat(clickAction.getTimeStayOnResultMillis()).isEqualTo(65536);
     }
 
     @Test
     public void testBuilder_defaultValues() {
-        ClickAction takenAction = new ClickAction.Builder("namespace", "id")
-                .build();
+        ClickAction clickAction =
+                new ClickAction.Builder("namespace", "id", /* actionTimestampMillis= */123)
+                        .build();
 
-        assertThat(takenAction.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction.getId()).isEqualTo("id");
-        assertThat(takenAction.getCreationTimestampMillis()).isEqualTo(-1);
-        assertThat(takenAction.getDocumentTtlMillis())
-                .isEqualTo(ClickAction.DEFAULT_DOCUMENT_TTL_MILLIS);
-        assertThat(takenAction.getName()).isNull();
-        assertThat(takenAction.getReferencedQualifiedId()).isNull();
-        assertThat(takenAction.getPreviousQueries()).isEmpty();
-        assertThat(takenAction.getFinalQuery()).isNull();
-        assertThat(takenAction.getResultRankInBlock()).isEqualTo(-1);
-        assertThat(takenAction.getResultRankGlobal()).isEqualTo(-1);
-        assertThat(takenAction.getTimeStayOnResultMillis()).isEqualTo(-1);
+        assertThat(clickAction.getNamespace()).isEqualTo("namespace");
+        assertThat(clickAction.getId()).isEqualTo("id");
+        assertThat(clickAction.getActionTimestampMillis()).isEqualTo(123);
+        assertThat(clickAction.getDocumentTtlMillis())
+                .isEqualTo(TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS);
+        assertThat(clickAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
+        assertThat(clickAction.getQuery()).isNull();
+        assertThat(clickAction.getReferencedQualifiedId()).isNull();
+        assertThat(clickAction.getResultRankInBlock()).isEqualTo(-1);
+        assertThat(clickAction.getResultRankGlobal()).isEqualTo(-1);
+        assertThat(clickAction.getTimeStayOnResultMillis()).isEqualTo(-1);
     }
 
     @Test
     public void testBuilderCopy_allFieldsAreCopied() {
-        ClickAction takenAction1 = new ClickAction.Builder("namespace", "id")
-                .setCreationTimestampMillis(123)
-                .setDocumentTtlMillis(456)
-                .setName("name")
-                .setReferencedQualifiedId("pkg$db/ns#refId")
-                .addPreviousQuery("prevQuery1")
-                .addPreviousQuery("prevQuery2")
-                .setFinalQuery("query")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(3)
-                .setTimeStayOnResultMillis(65536)
-                .build();
-        ClickAction takenAction2 = new ClickAction.Builder(takenAction1).build();
+        ClickAction clickAction1 =
+                new ClickAction.Builder("namespace", "id", /* actionTimestampMillis= */123)
+                        .setDocumentTtlMillis(456)
+                        .setQuery("query")
+                        .setReferencedQualifiedId("pkg$db/ns#refId")
+                        .setResultRankInBlock(1)
+                        .setResultRankGlobal(3)
+                        .setTimeStayOnResultMillis(65536)
+                        .build();
+        ClickAction clickAction2 = new ClickAction.Builder(clickAction1).build();
 
-        // All fields should be copied correctly from takenAction1 to the builder and propagates to
-        // takenAction2 after calling build().
-        assertThat(takenAction2.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction2.getId()).isEqualTo("id");
-        assertThat(takenAction2.getCreationTimestampMillis()).isEqualTo(123);
-        assertThat(takenAction2.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(takenAction2.getName()).isEqualTo("name");
-        assertThat(takenAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
-
-        assertThat(takenAction2.getPreviousQueries()).hasSize(2);
-        assertThat(takenAction2.getPreviousQueries().get(0)).isEqualTo("prevQuery1");
-        assertThat(takenAction2.getPreviousQueries().get(1)).isEqualTo("prevQuery2");
-
-        assertThat(takenAction2.getFinalQuery()).isEqualTo("query");
-        assertThat(takenAction2.getResultRankInBlock()).isEqualTo(1);
-        assertThat(takenAction2.getResultRankGlobal()).isEqualTo(3);
-        assertThat(takenAction2.getTimeStayOnResultMillis()).isEqualTo(65536);
-    }
-
-
-    @Test
-    public void testBuilder_copiedFieldsCanBeUpdated() {
-        ClickAction takenAction1 = new ClickAction.Builder("namespace", "id")
-                .setCreationTimestampMillis(123)
-                .setDocumentTtlMillis(456)
-                .setName("name1")
-                .setReferencedQualifiedId("pkg$db/ns#refId1")
-                .addPreviousQuery("prevQuery1")
-                .addPreviousQuery("prevQuery2")
-                .setFinalQuery("query")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(3)
-                .setTimeStayOnResultMillis(65536)
-                .build();
-        ClickAction takenAction2 = new ClickAction.Builder(takenAction1)
-                .setName("name2")
-                .setReferencedQualifiedId("pkg$db/ns#refId2")
-                .setPreviousQueries(null)
-                .addPreviousQuery("prevQuery3")
-                .addPreviousQuery("prevQuery4")
-                .addPreviousQuery("prevQuery5")
-                .setFinalQuery("queryTwo")
-                .setResultRankInBlock(5)
-                .setResultRankGlobal(22)
-                .build();
-
-        // Check that takenAction1 wasn't altered after copying.
-        assertThat(takenAction1.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction1.getId()).isEqualTo("id");
-        assertThat(takenAction1.getCreationTimestampMillis()).isEqualTo(123);
-        assertThat(takenAction1.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(takenAction1.getName()).isEqualTo("name1");
-        assertThat(takenAction1.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId1");
-
-        assertThat(takenAction1.getPreviousQueries()).hasSize(2);
-        assertThat(takenAction1.getPreviousQueries().get(0)).isEqualTo("prevQuery1");
-        assertThat(takenAction1.getPreviousQueries().get(1)).isEqualTo("prevQuery2");
-
-        assertThat(takenAction1.getFinalQuery()).isEqualTo("query");
-        assertThat(takenAction1.getResultRankInBlock()).isEqualTo(1);
-        assertThat(takenAction1.getResultRankGlobal()).isEqualTo(3);
-        assertThat(takenAction1.getTimeStayOnResultMillis()).isEqualTo(65536);
-
-        // Check that takenAction2 has the new values.
-        assertThat(takenAction2.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction2.getId()).isEqualTo("id");
-        assertThat(takenAction2.getCreationTimestampMillis()).isEqualTo(123);
-        assertThat(takenAction2.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(takenAction2.getName()).isEqualTo("name2");
-        assertThat(takenAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId2");
-
-        assertThat(takenAction2.getPreviousQueries()).hasSize(3);
-        assertThat(takenAction2.getPreviousQueries().get(0)).isEqualTo("prevQuery3");
-        assertThat(takenAction2.getPreviousQueries().get(1)).isEqualTo("prevQuery4");
-        assertThat(takenAction2.getPreviousQueries().get(2)).isEqualTo("prevQuery5");
-
-        assertThat(takenAction2.getFinalQuery()).isEqualTo("queryTwo");
-        assertThat(takenAction2.getResultRankInBlock()).isEqualTo(5);
-        assertThat(takenAction2.getResultRankGlobal()).isEqualTo(22);
-        assertThat(takenAction2.getTimeStayOnResultMillis()).isEqualTo(65536);
-    }
-
-    @Test
-    public void testBuilderCopy_builderReuse() {
-        ClickAction.Builder builder = new ClickAction.Builder("namespace", "id")
-                .setCreationTimestampMillis(123)
-                .setDocumentTtlMillis(456)
-                .setName("name")
-                .setReferencedQualifiedId("pkg$db/ns#refId")
-                .addPreviousQuery("prevQuery1")
-                .addPreviousQuery("prevQuery2")
-                .setFinalQuery("query")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(3)
-                .setTimeStayOnResultMillis(65536);
-
-        ClickAction takenAction1 = builder.build();
-
-        builder.setName("newName")
-                .setPreviousQueries(null)
-                .addPreviousQuery("prevQuery3")
-                .setFinalQuery("queryTwo")
-                .setResultRankInBlock(5)
-                .setResultRankGlobal(22)
-                .build();
-
-        ClickAction takenAction2 = builder.build();
-
-        // Check that takenAction1 wasn't altered.
-        assertThat(takenAction1.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction1.getId()).isEqualTo("id");
-        assertThat(takenAction1.getCreationTimestampMillis()).isEqualTo(123);
-        assertThat(takenAction1.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(takenAction1.getName()).isEqualTo("name");
-        assertThat(takenAction1.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
-
-        assertThat(takenAction1.getPreviousQueries()).hasSize(2);
-        assertThat(takenAction1.getPreviousQueries().get(0)).isEqualTo("prevQuery1");
-        assertThat(takenAction1.getPreviousQueries().get(1)).isEqualTo("prevQuery2");
-
-        assertThat(takenAction1.getFinalQuery()).isEqualTo("query");
-        assertThat(takenAction1.getResultRankInBlock()).isEqualTo(1);
-        assertThat(takenAction1.getResultRankGlobal()).isEqualTo(3);
-        assertThat(takenAction1.getTimeStayOnResultMillis()).isEqualTo(65536);
-
-        // Check that takenAction2 has the new values.
-        assertThat(takenAction2.getNamespace()).isEqualTo("namespace");
-        assertThat(takenAction2.getId()).isEqualTo("id");
-        assertThat(takenAction2.getCreationTimestampMillis()).isEqualTo(123);
-        assertThat(takenAction2.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(takenAction2.getName()).isEqualTo("newName");
-        assertThat(takenAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
-
-        assertThat(takenAction2.getPreviousQueries()).hasSize(1);
-        assertThat(takenAction2.getPreviousQueries().get(0)).isEqualTo("prevQuery3");
-
-        assertThat(takenAction2.getFinalQuery()).isEqualTo("queryTwo");
-        assertThat(takenAction2.getResultRankInBlock()).isEqualTo(5);
-        assertThat(takenAction2.getResultRankGlobal()).isEqualTo(22);
-        assertThat(takenAction2.getTimeStayOnResultMillis()).isEqualTo(65536);
+        // All fields should be copied correctly from clickAction1 to the builder and propagates to
+        // clickAction2 after calling build().
+        assertThat(clickAction2.getNamespace()).isEqualTo("namespace");
+        assertThat(clickAction2.getId()).isEqualTo("id");
+        assertThat(clickAction2.getActionTimestampMillis()).isEqualTo(123);
+        assertThat(clickAction2.getDocumentTtlMillis()).isEqualTo(456);
+        assertThat(clickAction2.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
+        assertThat(clickAction2.getQuery()).isEqualTo("query");
+        assertThat(clickAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
+        assertThat(clickAction2.getResultRankInBlock()).isEqualTo(1);
+        assertThat(clickAction2.getResultRankGlobal()).isEqualTo(3);
+        assertThat(clickAction2.getTimeStayOnResultMillis()).isEqualTo(65536);
     }
 
     @Test
     public void testToGenericDocument() throws Exception {
-        ClickAction takenAction = new ClickAction.Builder("namespace", "id")
-                .setCreationTimestampMillis(123)
-                .setDocumentTtlMillis(456)
-                .setName("name")
-                .setReferencedQualifiedId("pkg$db/ns#refId")
-                .addPreviousQuery("prevQuery1")
-                .addPreviousQuery("prevQuery2")
-                .setFinalQuery("query")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(3)
-                .setTimeStayOnResultMillis(65536)
-                .build();
+        ClickAction clickAction =
+                new ClickAction.Builder("namespace", "id", /* actionTimestampMillis= */123)
+                        .setDocumentTtlMillis(456)
+                        .setQuery("query")
+                        .setReferencedQualifiedId("pkg$db/ns#refId")
+                        .setResultRankInBlock(1)
+                        .setResultRankGlobal(3)
+                        .setTimeStayOnResultMillis(65536)
+                        .build();
 
-        GenericDocument document = GenericDocument.fromDocumentClass(takenAction);
+        GenericDocument document = GenericDocument.fromDocumentClass(clickAction);
         assertThat(document.getNamespace()).isEqualTo("namespace");
         assertThat(document.getId()).isEqualTo("id");
         assertThat(document.getCreationTimestampMillis()).isEqualTo(123);
         assertThat(document.getTtlMillis()).isEqualTo(456);
-        assertThat(document.getPropertyString("name")).isEqualTo("name");
+        assertThat(document.getPropertyLong("actionType")).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
+        assertThat(document.getPropertyString("query")).isEqualTo("query");
         assertThat(document.getPropertyString("referencedQualifiedId"))
                 .isEqualTo("pkg$db/ns#refId");
-        assertThat(document.getPropertyString("previousQueries[0]")).isEqualTo("prevQuery1");
-        assertThat(document.getPropertyString("previousQueries[1]")).isEqualTo("prevQuery2");
-        assertThat(document.getPropertyString("finalQuery")).isEqualTo("query");
         assertThat(document.getPropertyLong("resultRankInBlock")).isEqualTo(1);
         assertThat(document.getPropertyLong("resultRankGlobal")).isEqualTo(3);
         assertThat(document.getPropertyLong("timeStayOnResultMillis")).isEqualTo(65536);
