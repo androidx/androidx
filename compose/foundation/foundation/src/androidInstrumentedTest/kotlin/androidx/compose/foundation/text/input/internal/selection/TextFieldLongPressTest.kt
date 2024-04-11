@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -41,6 +40,8 @@ import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
@@ -63,7 +64,6 @@ import org.junit.Test
 /**
  * Tests for long click interactions on BasicTextField.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 class TextFieldLongPressTest : FocusedWindowTest {
 
@@ -92,8 +92,8 @@ class TextFieldLongPressTest : FocusedWindowTest {
     }
 
     @Test
-    fun longPress_requestsFocus_beforePointerIsReleased() {
-        val state = TextFieldState("Hello, World!")
+    fun longPress_doesNotRequestsFocus_beforePointerIsReleased() {
+        val state = TextFieldState("abc def ghi")
         rule.setTextFieldTestContent {
             BasicTextField(
                 state = state,
@@ -106,9 +106,34 @@ class TextFieldLongPressTest : FocusedWindowTest {
             longPress(center)
         }
 
+        rule.onNodeWithTag(TAG).assertIsNotFocused()
+        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsNotDisplayed()
+        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsNotDisplayed()
+        assertThat(state.selection).isEqualTo(TextRange(4, 7))
+    }
+
+    @Test
+    fun longPress_requestsFocus_afterPointerIsReleased() {
+        val state = TextFieldState("abc def ghi")
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                textStyle = defaultTextStyle,
+                modifier = Modifier.testTag(TAG)
+            )
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(center)
+        }
+
+        rule.onNodeWithTag(TAG).assertIsNotFocused()
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            up()
+        }
+
         rule.onNodeWithTag(TAG).assertIsFocused()
-        rule.onNode(isSelectionHandle(Handle.SelectionStart)).assertIsDisplayed()
-        rule.onNode(isSelectionHandle(Handle.SelectionEnd)).assertIsDisplayed()
     }
 
     @Test
