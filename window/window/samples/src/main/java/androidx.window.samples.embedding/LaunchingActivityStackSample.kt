@@ -19,13 +19,11 @@ package androidx.window.samples.embedding
 import android.app.Activity
 import androidx.annotation.Sampled
 import androidx.core.app.ActivityOptionsCompat
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.OverlayController
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.setLaunchingActivityStack
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 suspend fun launchingOnPrimaryActivityStack() {
     var primaryActivityStack: ActivityStack? = null
@@ -44,7 +42,6 @@ suspend fun launchingOnPrimaryActivityStack() {
     )
 }
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 suspend fun launchingOnOverlayActivityStack() {
     var overlayActivityStack: ActivityStack? = null

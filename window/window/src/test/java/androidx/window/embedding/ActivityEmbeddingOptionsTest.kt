@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityStack.Token as ActivityStackToken
 import org.junit.After
 import org.junit.Before
@@ -36,7 +35,6 @@ import org.mockito.kotlin.whenever
  * @see Bundle.setLaunchingActivityStack
  * @see Bundle.setOverlayCreateParams
  */
-@OptIn(ExperimentalWindowApi::class)
 class ActivityEmbeddingOptionsTest {
 
     @Mock
