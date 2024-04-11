@@ -34,6 +34,7 @@ import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DimensionBuilders;
 import androidx.wear.protolayout.DimensionBuilders.SpProp;
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle;
@@ -83,7 +84,7 @@ public class Typography {
     /** Typography for small caption text. */
     public static final int TYPOGRAPHY_CAPTION3 = 12;
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
         TYPOGRAPHY_DISPLAY1,
