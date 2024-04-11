@@ -85,15 +85,6 @@
     <issue
         id="EagerGradleConfiguration"
         message="Use configureEach instead of all"
-        errorLine1="        buildTypes.all { buildType ->"
-        errorLine2="                   ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
         errorLine1="        project.configurations.all { configuration ->"
         errorLine2="                               ~~~">
         <location
@@ -114,24 +105,6 @@
         message="Use configureEach instead of all"
         errorLine1="        kmpExtension.targets.all { kotlinTarget ->"
         errorLine2="                             ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="            kotlinTarget.compilations.all {"
-        errorLine2="                                      ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="            project.configurations.all { config ->"
-        errorLine2="                                   ~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
     </issue>
@@ -291,18 +264,9 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="    libraryVariants.all { variant ->"
-        errorLine2="                    ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Release.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
         message="Use configureEach instead of whenObjectAdded"
-        errorLine1="        configurations.whenObjectAdded {"
-        errorLine2="                       ~~~~~~~~~~~~~~~">
+        errorLine1="    configurations.whenObjectAdded {"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
     </issue>
@@ -310,8 +274,8 @@
     <issue
         id="EagerGradleConfiguration"
         message="Use configureEach instead of whenObjectAdded"
-        errorLine1="                it.artifacts.whenObjectAdded { _ ->"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
+        errorLine1="            it.artifacts.whenObjectAdded { _ ->"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/SourceJarTaskHelper.kt"/>
     </issue>
@@ -373,8 +337,17 @@
     <issue
         id="GradleProjectIsolation"
         message="Use providers.gradleProperty instead of findProperty"
-        errorLine1="    override val compileSdk: String by lazy { project.findProperty(COMPILE_SDK_VERSION).toString() }"
-        errorLine2="                                                      ~~~~~~~~~~~~">
+        errorLine1="    override val compileSdk: Int by lazy { project.findProperty(COMPILE_SDK).toString().toInt() }"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/AndroidXConfig.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="        project.findProperty(COMPILE_SDK_EXTENSION) as Int?"
+        errorLine2="                ~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/AndroidXConfig.kt"/>
     </issue>

@@ -145,7 +145,8 @@ android {
     }
 
     namespace "androidx.privacysandbox.sdkruntime.client"
-    compileSdkVersion = "android-34-ext10"
+    compileSdk = 34
+    compileSdkExtension = 10
 }
 
 androidx {

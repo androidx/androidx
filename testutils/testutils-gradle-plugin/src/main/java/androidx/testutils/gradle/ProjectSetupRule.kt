@@ -74,7 +74,7 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
     val androidProject: String
         get() = """
             android {
-                compileSdkVersion ${props.compileSdkVersion}
+                compileSdk ${props.compileSdk}
                 buildToolsVersion "${props.buildToolsVersion}"
 
                 defaultConfig {
@@ -210,7 +210,7 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
 
 // TODO(b/233600239): document the rest of the parameters
 data class ProjectProps(
-    val compileSdkVersion: String,
+    val compileSdk: String,
     val buildToolsVersion: String,
     val minSdkVersion: String,
     val debugKeystore: String,
@@ -260,11 +260,7 @@ data class ProjectProps(
                         File(it).canonicalPath
                     }
                 },
-                compileSdkVersion = properties.getProperty("compileSdkVersion").let {
-                    // Add quotes around preview SDK string so that we call
-                    // compileSdkVersion(String) instead of compileSdkVersion(int)
-                    return@let if (it.startsWith("android-")) "\"$it\"" else it
-                },
+                compileSdk = properties.getProperty("compileSdk"),
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),

@@ -32,7 +32,7 @@ import androidx.build.multiplatformUsage
 import androidx.build.versionCatalog
 import androidx.build.workaroundPrebuiltTakingPrecedenceOverProject
 import com.android.build.api.attributes.BuildTypeAttr
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.google.gson.GsonBuilder
 import java.io.File
@@ -103,7 +103,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             when (plugin) {
                 is LibraryPlugin -> {
                     val libraryExtension = project.extensions.getByType<LibraryExtension>()
-                    libraryExtension.compileSdkVersion = project.defaultAndroidConfig.compileSdk
+                    libraryExtension.compileSdk = project.defaultAndroidConfig.compileSdk
                     libraryExtension.buildToolsVersion =
                         project.defaultAndroidConfig.buildToolsVersion
 
