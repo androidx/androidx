@@ -22,7 +22,6 @@ import java.io.OutputStream
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 
 /**
@@ -43,9 +42,10 @@ actual class SchemaBundle actual constructor(
     }
 
     companion object {
-        @OptIn(ExperimentalSerializationApi::class) // For decodeFromStream() with InputStream
         fun deserialize(fis: InputStream): SchemaBundle = fis.use {
-            json.decodeFromStream(it)
+            // TODO: Try to use decodeFromStream if possible, currently blocked by
+            //       https://github.com/Kotlin/kotlinx.serialization/issues/2457
+            json.decodeFromString(it.bufferedReader().readText())
         }
 
         @OptIn(ExperimentalSerializationApi::class) // For encodeToStream() with OutputStream
