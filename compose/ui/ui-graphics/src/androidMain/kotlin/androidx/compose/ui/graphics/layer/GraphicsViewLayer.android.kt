@@ -70,7 +70,7 @@ internal class ViewLayer(
      * and false otherwise. This can fail on API level 21 if the reflective call to rebuildOutline
      * fails. In case of failure calls are expected to invalidate this view
      */
-    fun setLayerOutline(outline: Outline): Boolean {
+    fun setLayerOutline(outline: Outline?): Boolean {
         layerOutline = outline
         return OutlineUtils.rebuildOutline(this)
     }
@@ -188,8 +188,10 @@ internal class GraphicsViewLayer(
 
     private var topLeft = IntOffset.Zero
     private var size = IntSize.Zero
-    private var clipInvalidated = false
+    private var clipBoundsInvalidated = false
     override var isInvalidated: Boolean = true
+    private var outlineIsProvided = false
+    private var clipToBounds = false
 
     override val layerId: Long = View.generateViewId().toLong()
 
@@ -324,10 +326,13 @@ internal class GraphicsViewLayer(
         set(value) {
             viewLayer.setCameraDistance(value * resources.displayMetrics.densityDpi)
         }
-    override var clip: Boolean = false
+
+    override var clip: Boolean
+        get() = clipToBounds || viewLayer.clipToOutline
         set(value) {
-            field = value
-            clipInvalidated = true
+            clipToBounds = value && !outlineIsProvided
+            clipBoundsInvalidated = true
+            viewLayer.clipToOutline = value && outlineIsProvided
         }
     override var renderEffect: RenderEffect? = null
         set(value) {
@@ -348,7 +353,7 @@ internal class GraphicsViewLayer(
 
         if (this.size != size) {
             if (clip) {
-                clipInvalidated = true
+                clipBoundsInvalidated = true
             }
             viewLayer.layout(topLeft.x, topLeft.y, topLeft.x + size.width, topLeft.y + size.height)
         }
@@ -356,14 +361,21 @@ internal class GraphicsViewLayer(
         this.size = size
     }
 
-    override fun setOutline(outline: Outline, clip: Boolean) {
+    override fun setOutline(outline: Outline?) {
         // b/18175261 On the initial Lollipop release invalidateOutline
         // would not invalidate shadows. As a workaround there is a reflective call to
         // invoke View#rebuildOutline directly. However, if the reflection fails
         // (setLayerOutline returns false), instead we need to invalidate the view and re-record
         // the drawing operations.
         val requiresRedraw = !viewLayer.setLayerOutline(outline)
-        viewLayer.clipToOutline = clip
+        if (clip && outline != null) {
+            viewLayer.clipToOutline = true
+            if (clipToBounds) {
+                clipToBounds = false
+                clipBoundsInvalidated = true
+            }
+        }
+        outlineIsProvided = outline != null
         if (requiresRedraw) {
             viewLayer.invalidate()
             recordDrawingOperations()
@@ -406,7 +418,7 @@ internal class GraphicsViewLayer(
     }
 
     override fun draw(canvas: androidx.compose.ui.graphics.Canvas) {
-        updateClip()
+        updateClipBounds()
         val androidCanvas = canvas.nativeCanvas
         if (androidCanvas.isHardwareAccelerated) {
             layerContainer.drawChild(canvas, viewLayer, viewLayer.drawingTime)
@@ -417,9 +429,9 @@ internal class GraphicsViewLayer(
 
     override fun calculateMatrix(): Matrix = viewLayer.matrix
 
-    private fun updateClip() {
-       if (clipInvalidated) {
-           viewLayer.clipBounds = if (clip) {
+    private fun updateClipBounds() {
+       if (clipBoundsInvalidated) {
+           viewLayer.clipBounds = if (clip && !outlineIsProvided) {
                clipRect.apply {
                    left = 0
                    top = 0

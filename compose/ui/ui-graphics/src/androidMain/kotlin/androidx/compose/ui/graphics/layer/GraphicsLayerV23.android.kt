@@ -56,6 +56,7 @@ internal class GraphicsLayerV23(
     private var size: IntSize = IntSize.Zero
     private var layerPaint: android.graphics.Paint? = null
     private var matrix: android.graphics.Matrix? = null
+    private var outlineIsProvided = false
 
     private fun obtainLayerPaint(): android.graphics.Paint =
         layerPaint ?: android.graphics.Paint().also { layerPaint = it }
@@ -242,7 +243,13 @@ internal class GraphicsLayerV23(
     override var clip: Boolean = false
         set(value) {
             field = value
+            applyClip()
         }
+
+    private fun applyClip() {
+        renderNode.setClipToBounds(clip && !outlineIsProvided)
+        renderNode.setClipToOutline(clip && outlineIsProvided)
+    }
 
     // API level 23 does not support RenderEffect so keep the field around for consistency
     // however, it will not be applied to the rendered result. Consumers are encouraged
@@ -261,9 +268,10 @@ internal class GraphicsLayerV23(
         this.size = size
     }
 
-    override fun setOutline(outline: Outline, clip: Boolean) {
+    override fun setOutline(outline: Outline?) {
         renderNode.setOutline(outline)
-        renderNode.clipToOutline = clip
+        outlineIsProvided = outline != null
+        applyClip()
     }
 
     override var isInvalidated: Boolean = true

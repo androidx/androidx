@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.toIntSize
+import kotlin.math.roundToInt
 import kotlin.test.Test
 import org.jetbrains.skia.IRect
 import org.jetbrains.skia.Surface
@@ -885,6 +887,48 @@ class DesktopGraphicsLayerTest {
                     Assert.assertEquals(bgColor, this[width - offset, offset])
                     Assert.assertEquals(bgColor, this[offset, height - offset])
                     Assert.assertEquals(bgColor, this[width - offset, height - offset])
+                }
+            }
+        )
+    }
+
+    @org.junit.Test
+    fun testSwitchingFromClipToBoundsToClipToOutline() {
+        val targetColor = Color.Red
+        val inset = 50f
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val fullSize = size
+                val layerSize = Size(
+                    fullSize.width.roundToInt() - inset * 2,
+                    fullSize.height.roundToInt() - inset * 2
+                ).toIntSize()
+
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record(size = layerSize) {
+                        inset(-inset) {
+                            drawRect(targetColor)
+                        }
+                    }
+                    // as no outline is provided yet, this command will enable clipToBounds
+                    clip = true
+                    // then with providing an outline we should disable clipToBounds and start
+                    // using clipToOutline instead
+                    setRectOutline(IntOffset(-inset.toInt(), -inset.toInt()), fullSize.toIntSize())
+                }
+
+                drawRect(Color.Black)
+                inset(inset) {
+                    drawLayer(layer)
+                }
+            },
+            verify = { pixmap ->
+                with(pixmap) {
+                    for (x in 0 until width) {
+                        for (y in 0 until height) {
+                            Assert.assertEquals(this[x, y], targetColor)
+                        }
+                    }
                 }
             }
         )

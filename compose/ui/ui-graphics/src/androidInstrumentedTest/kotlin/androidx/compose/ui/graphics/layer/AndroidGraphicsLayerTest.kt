@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.toIntSize
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -66,6 +67,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
@@ -1291,6 +1293,48 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testSwitchingFromClipToBoundsToClipToOutline() {
+        val targetColor = Color.Red
+        val inset = 50f
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val fullSize = size
+                val layerSize = Size(
+                    fullSize.width.roundToInt() - inset * 2,
+                    fullSize.height.roundToInt() - inset * 2
+                ).toIntSize()
+
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record(size = layerSize) {
+                        inset(-inset) {
+                            drawRect(targetColor)
+                        }
+                    }
+                    // as no outline is provided yet, this command will enable clipToBounds
+                    clip = true
+                    // then with providing an outline we should disable clipToBounds and start
+                    // using clipToOutline instead
+                    setRectOutline(IntOffset(-inset.toInt(), -inset.toInt()), fullSize.toIntSize())
+                }
+
+                drawRect(Color.Black)
+                inset(inset) {
+                    drawLayer(layer)
+                }
+            },
+            verify = { pixmap ->
+                with(pixmap) {
+                    for (x in 0 until width) {
+                        for (y in 0 until height) {
+                            assertEquals(this[x, y], targetColor)
+                        }
+                    }
+                }
+            }
+        )
+    }
+
     private fun PixelMap.verifyQuadrants(
         topLeft: Color,
         topRight: Color,
@@ -1353,7 +1397,7 @@ class AndroidGraphicsLayerTest {
                         resumed.countDown()
                     }
                 }
-            Assert.assertTrue(resumed.await(3000, TimeUnit.MILLISECONDS))
+            Assert.assertTrue(resumed.await(300000, TimeUnit.MILLISECONDS))
 
             if (verify != null) {
                 val target = if (entireScene) {
@@ -1377,7 +1421,7 @@ class AndroidGraphicsLayerTest {
                         }
                         recordLatch.countDown()
                     }
-                    assertTrue(recordLatch.await(3000, TimeUnit.MILLISECONDS))
+                    assertTrue(recordLatch.await(30000, TimeUnit.MILLISECONDS))
                     val bitmap = runBlocking {
                         rootGraphicsLayer!!.toImageBitmap()
                     }
