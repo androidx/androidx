@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,43 +22,16 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 
-internal class JSTextInputService : PlatformTextInputService {
-
-    data class CurrentInput(
-        var value: TextFieldValue,
-        val onEditCommand: ((List<EditCommand>) -> Unit),
-    )
-
-    private var currentInput: CurrentInput? = null
-
+internal class WebKeyboardInputService : PlatformTextInputService {
     override fun startInput(
         value: TextFieldValue,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
-    ) {
-        currentInput = CurrentInput(
-            value,
-            onEditCommand
-        )
-        showSoftwareKeyboard()
-    }
+    ) = Unit
 
-    override fun stopInput() {
-        currentInput = null
-    }
-
-    override fun showSoftwareKeyboard() {
-        println("TODO showSoftwareKeyboard in JS")
-    }
-
-    override fun hideSoftwareKeyboard() {
-        println("TODO showSoftwareKeyboard in JS")
-    }
-
-    override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-        currentInput?.let { input ->
-            input.value = newValue
-        }
-    }
+    override fun stopInput() = Unit
+    override fun showSoftwareKeyboard() = Unit
+    override fun hideSoftwareKeyboard() = Unit
+    override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) = Unit
 }
