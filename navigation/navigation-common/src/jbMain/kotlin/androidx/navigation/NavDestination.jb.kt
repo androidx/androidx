@@ -166,10 +166,14 @@ public actual open class NavDestination actual constructor(
         }
         if (args != null) {
             defaultArgs.putAll(args)
+            // Don't verify unknown default values - these default values are only available
+            // during deserialization for safe args.
             for ((key, value) in _arguments) {
-                require(value.verify(key, defaultArgs)) {
-                    "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
-                        "expected."
+                if (!value.isDefaultValueUnknown) {
+                    require(value.verify(key, defaultArgs)) {
+                        "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
+                            "expected."
+                    }
                 }
             }
         }
