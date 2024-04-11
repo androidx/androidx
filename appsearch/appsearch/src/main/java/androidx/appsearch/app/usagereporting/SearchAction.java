@@ -89,7 +89,7 @@ public class SearchAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ACTION_TYPE_SEARCH);
+            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_SEARCH);
         }
 
         /**
