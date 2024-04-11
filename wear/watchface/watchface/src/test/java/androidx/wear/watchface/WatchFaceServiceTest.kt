@@ -3718,8 +3718,19 @@ public class WatchFaceServiceTest {
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.R])
-    public fun processBatteryStatus() {
+    @Suppress("deprecation") // sendStickyBroadcast
+    public fun isBatteryLowAndNotCharging_initialValue_LowCharging() {
+        context.sendStickyBroadcast(
+            Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
+                putExtra(
+                    BatteryManager.EXTRA_LEVEL,
+                    (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD - 1).toInt()
+                )
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
@@ -3735,38 +3746,115 @@ public class WatchFaceServiceTest {
             )
         )
 
-        watchFaceImpl.broadcastsReceiver!!.processBatteryStatus(
-            Intent().apply {
+        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
+    }
+
+    @Test
+    @Suppress("deprecation") // sendStickyBroadcast
+    public fun isBatteryLowAndNotCharging_initialValue_LowNotCharging() {
+        context.sendStickyBroadcast(
+            Intent(Intent.ACTION_BATTERY_CHANGED).apply {
                 putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
-                putExtra(BatteryManager.EXTRA_LEVEL, 0)
+                putExtra(
+                    BatteryManager.EXTRA_LEVEL,
+                    (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD - 1).toInt()
+                )
                 putExtra(BatteryManager.EXTRA_SCALE, 100)
             }
         )
+
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+
         assertTrue(watchState.isBatteryLowAndNotCharging.value!!)
+    }
 
-        watchFaceImpl.broadcastsReceiver!!.processBatteryStatus(
-            Intent().apply {
-                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
-                putExtra(BatteryManager.EXTRA_LEVEL, 0)
-                putExtra(BatteryManager.EXTRA_SCALE, 100)
-            }
-        )
-        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
-
-        watchFaceImpl.broadcastsReceiver!!.processBatteryStatus(
-            Intent().apply {
+    @Test
+    @Suppress("deprecation") // sendStickyBroadcast
+    public fun isBatteryLowAndNotCharging_initialValue_HighNotCharging() {
+        context.sendStickyBroadcast(
+            Intent(Intent.ACTION_BATTERY_CHANGED).apply {
                 putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
-                putExtra(BatteryManager.EXTRA_LEVEL, 80)
+                putExtra(
+                    BatteryManager.EXTRA_LEVEL,
+                    (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD + 1).toInt()
+                )
                 putExtra(BatteryManager.EXTRA_SCALE, 100)
             }
         )
-        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
 
-        watchFaceImpl.broadcastsReceiver!!.processBatteryStatus(Intent())
-        assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
 
-        watchFaceImpl.broadcastsReceiver!!.processBatteryStatus(null)
         assertFalse(watchState.isBatteryLowAndNotCharging.value!!)
+    }
+
+    @Test
+    @Suppress("deprecation") // sendStickyBroadcast
+    public fun isBatteryLowAndNotCharging_changesWhileNotVisible() {
+        context.sendStickyBroadcast(
+            Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                putExtra(
+                    BatteryManager.EXTRA_LEVEL,
+                    BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD + 1
+                )
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+        engineWrapper.onVisibilityChanged(true)
+
+        context.sendStickyBroadcast(
+            Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                putExtra(
+                    BatteryManager.EXTRA_LEVEL,
+                    BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD - 1
+                )
+                putExtra(BatteryManager.EXTRA_SCALE, 100)
+            }
+        )
+        engineWrapper.onVisibilityChanged(true)
+
+        assertTrue(watchState.isBatteryLowAndNotCharging.value!!)
     }
 
     @Test
