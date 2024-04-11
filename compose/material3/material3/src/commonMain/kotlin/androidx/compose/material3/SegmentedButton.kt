@@ -325,8 +325,7 @@ private fun SegmentedButtonContent(
         contentAlignment = Alignment.Center,
         modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding)
     ) {
-        val typography =
-            MaterialTheme.typography.fromToken(OutlinedSegmentedButtonTokens.LabelTextFont)
+        val typography = OutlinedSegmentedButtonTokens.LabelTextFont.value
         ProvideTextStyle(typography) {
             val scope = rememberCoroutineScope()
             val measurePolicy = remember { SegmentedButtonContentMeasurePolicy(scope) }

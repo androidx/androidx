@@ -194,7 +194,7 @@ fun NavigationRailItem(
 
     val styledLabel: @Composable (() -> Unit)? = label?.let {
         @Composable {
-            val style = MaterialTheme.typography.fromToken(NavigationRailTokens.LabelTextFont)
+            val style = NavigationRailTokens.LabelTextFont.value
             val textColor by animateColorAsState(
                 targetValue = colors.textColor(selected = selected, enabled = enabled),
                 animationSpec = tween(ItemAnimationDurationMillis)

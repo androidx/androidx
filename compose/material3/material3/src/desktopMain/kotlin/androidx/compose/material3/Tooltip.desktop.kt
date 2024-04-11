@@ -74,8 +74,7 @@ actual fun CaretScope.PlainTooltip(
             )
             .padding(PlainTooltipContentPadding)
         ) {
-            val textStyle =
-                MaterialTheme.typography.fromToken(PlainTooltipTokens.SupportingTextFont)
+            val textStyle = PlainTooltipTokens.SupportingTextFont.value
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides textStyle,
@@ -128,12 +127,9 @@ actual fun CaretScope.RichTooltip(
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
     ) {
-        val actionLabelTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.ActionLabelTextFont)
-        val subheadTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.SubheadFont)
-        val supportingTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.SupportingTextFont)
+        val actionLabelTextStyle = RichTooltipTokens.ActionLabelTextFont.value
+        val subheadTextStyle = RichTooltipTokens.SubheadFont.value
+        val supportingTextStyle = RichTooltipTokens.SupportingTextFont.value
 
         Column(
             modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)

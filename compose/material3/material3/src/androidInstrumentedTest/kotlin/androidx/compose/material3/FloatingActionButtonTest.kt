@@ -249,9 +249,7 @@ class FloatingActionButtonTest {
                     }
                 )
             }
-            expectedTextStyle = MaterialTheme.typography.fromToken(
-                ExtendedFabPrimaryTokens.LabelTextFont
-            )
+            expectedTextStyle = ExtendedFabPrimaryTokens.LabelTextFont.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
@@ -284,9 +282,8 @@ class FloatingActionButtonTest {
                     }
                 )
             }
-            expectedTextStyle = MaterialTheme.typography.fromToken(
-                ExtendedFabPrimaryTokens.LabelTextFont
-            )
+            expectedTextStyle =
+                ExtendedFabPrimaryTokens.LabelTextFont.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
