@@ -416,6 +416,8 @@ object TextDefaults {
      * focused
      * @param linkHoveredStyle style to be applied to links present in the string when they are
      * hovered
+     * @param linkPressedStyle style to be applied to links present in the string when they are
+     * pressed
      * @param linkInteractionListener a listener that will be attached to links that are present in
      * the string and triggered when user clicks on those links. When set to null, which is
      * a default, the system will try to open the corresponding links with the
@@ -430,10 +432,16 @@ object TextDefaults {
         linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colors.primary),
         linkFocusedStyle: SpanStyle? = null,
         linkHoveredStyle: SpanStyle? = null,
+        linkPressedStyle: SpanStyle? = null,
         linkInteractionListener: LinkInteractionListener? = null
     ): AnnotatedString {
         return AnnotatedString.fromHtml(
-            htmlString, linkStyle, linkFocusedStyle, linkHoveredStyle, null, linkInteractionListener
+            htmlString,
+            linkStyle,
+            linkFocusedStyle,
+            linkHoveredStyle,
+            linkPressedStyle,
+            linkInteractionListener
         )
     }
 
@@ -449,10 +457,16 @@ object TextDefaults {
         linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colors.primary),
         linkFocusedStyle: SpanStyle? = null,
         linkHoveredStyle: SpanStyle? = null,
+        linkPressedStyle: SpanStyle? = null,
         linkInteractionListener: LinkInteractionListener? = null
     ): LinkAnnotation.Url {
         return LinkAnnotation.Url(
-            url, linkStyle, linkFocusedStyle, linkHoveredStyle, null, linkInteractionListener
+            url,
+            linkStyle,
+            linkFocusedStyle,
+            linkHoveredStyle,
+            linkPressedStyle,
+            linkInteractionListener
         )
     }
 
@@ -466,10 +480,16 @@ object TextDefaults {
         linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colors.primary),
         linkFocusedStyle: SpanStyle? = null,
         linkHoveredStyle: SpanStyle? = null,
+        linkPressedStyle: SpanStyle? = null,
         linkInteractionListener: LinkInteractionListener?
     ): LinkAnnotation.Clickable {
         return LinkAnnotation.Clickable(
-            tag, linkStyle, linkFocusedStyle, linkHoveredStyle, null, linkInteractionListener
+            tag,
+            linkStyle,
+            linkFocusedStyle,
+            linkHoveredStyle,
+            linkPressedStyle,
+            linkInteractionListener
         )
     }
 }
