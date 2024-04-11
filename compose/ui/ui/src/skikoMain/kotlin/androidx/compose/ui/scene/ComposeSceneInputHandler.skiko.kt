@@ -64,10 +64,9 @@ internal class ComposeSceneInputHandler(
         get() = pointerPositions.values.firstOrNull()
 
     /**
-     * Indicates if there were invalidations and triggering [BaseComposeScene.measureAndLayout]
-     * is now required.
+     * Indicates whether [updatePointerPosition] needs to be called.
      */
-    val hasInvalidations: Boolean
+    val needUpdatePointerPosition: Boolean
         get() = syntheticEventSender.needUpdatePointerPosition
 
     fun onPointerEvent(

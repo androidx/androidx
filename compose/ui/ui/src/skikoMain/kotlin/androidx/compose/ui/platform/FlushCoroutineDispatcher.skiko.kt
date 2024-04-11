@@ -40,7 +40,7 @@ internal class FlushCoroutineDispatcher(
 ) : CoroutineDispatcher(), Delay {
     // Dispatcher should always be alive, even if Job is cancelled. Otherwise coroutines which
     // use this dispatcher won't be properly cancelled.
-    // TODO replace it by scope.coroutineContext[Dispatcher] when it will be no longer experimental
+    // TODO replace it by scope.coroutineContext[CoroutineDispatcher] when it will be no longer experimental
     private val scope = CoroutineScope(scope.coroutineContext.minusKey(Job))
     private val tasks = mutableSetOf<Runnable>()
     private val delayedTasks = mutableSetOf<Runnable>()

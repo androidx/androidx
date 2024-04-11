@@ -25,6 +25,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 
 /**
@@ -44,8 +45,8 @@ internal class ComposeSceneRecomposer(
     private val coroutineScope = CoroutineScope(coroutineContext + job)
 
     /**
-     * We use [FlushCoroutineDispatcher] not because we need [flush] for
-     * LaunchEffect tasks, but because we need to know if it is idle (hasn't scheduled tasks)
+     * We use [FlushCoroutineDispatcher] not only because we need [FlushCoroutineDispatcher.flush]
+     * for LaunchEffect tasks, but also to know whether it is idle (has no scheduled tasks)
      */
     private val effectDispatcher = FlushCoroutineDispatcher(coroutineScope)
     private val recomposeDispatcher = FlushCoroutineDispatcher(coroutineScope)
@@ -75,12 +76,13 @@ internal class ComposeSceneRecomposer(
     }
 
     /**
-     * Perform all scheduled tasks and wait for the tasks which are already
+     * Perform all scheduled recomposer tasks and wait for the tasks which are already
      * performing in the recomposition scope.
      */
-    fun performScheduledTasks() = trace("ComposeSceneRecomposer:performScheduledTasks") {
-        recomposeDispatcher.flush()
-    }
+    fun performScheduledRecomposerTasks() =
+        trace("ComposeSceneRecomposer:performScheduledRecomposerTasks") {
+            recomposeDispatcher.flush()
+        }
 
     /**
      * Perform all scheduled effects.
@@ -90,7 +92,14 @@ internal class ComposeSceneRecomposer(
     }
 
     /**
-     * Permanently shut down this [Recomposer] for future use.
+     * Schedules the given [block] to run with the effects dispatcher.
+     */
+    fun scheduleAsEffect(block: () -> Unit) {
+        effectDispatcher.dispatch(job, Runnable(block))
+    }
+
+    /**
+     * Permanently shut down this [ComposeSceneRecomposer] for future use.
      *
      * @see Recomposer.cancel
      */

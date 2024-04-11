@@ -63,6 +63,9 @@ internal abstract class BaseComposeScene(
             processKeyEvent = ::processKeyEvent
         )
 
+    // Store this to avoid creating a lambda every frame
+    private val updatePointerPosition = inputHandler::updatePointerPosition
+
     private val frameClock = BroadcastFrameClock(onNewAwaiters = ::invalidateIfNeeded)
     private val recomposer: ComposeSceneRecomposer =
         ComposeSceneRecomposer(coroutineContext, frameClock)
@@ -95,8 +98,7 @@ internal abstract class BaseComposeScene(
     private var hasPendingDraws = true
     protected fun invalidateIfNeeded() {
         hasPendingDraws = frameClock.hasAwaiters ||
-            snapshotInvalidationTracker.hasInvalidations ||
-            inputHandler.hasInvalidations
+            snapshotInvalidationTracker.hasInvalidations
         if (hasPendingDraws && !isInvalidationDisabled && !isClosed && composition != null) {
             invalidate()
         }
@@ -133,7 +135,7 @@ internal abstract class BaseComposeScene(
          * It's required before setting content to apply changed parameters
          * before first recomposition. Otherwise, it can lead to double recomposition.
          */
-        recomposer.performScheduledTasks()
+        recomposer.performScheduledRecomposerTasks()
 
         composition?.dispose()
         composition = createComposition {
@@ -143,31 +145,30 @@ internal abstract class BaseComposeScene(
             )
         }
 
-        recomposer.performScheduledTasks()
+        recomposer.performScheduledRecomposerTasks()
     }
 
     override fun render(canvas: Canvas, nanoTime: Long) =
         postponeInvalidation("BaseComposeScene:render") {
-            // Note that on Android the order is slightly different:
-            // - Recomposition
-            // - Layout
-            // - Draw
-            // - Composition effects
-            // - Synthetic events
-            // We do this differently in order to be able to observe changes made by synthetic events
-            // in the drawing phase, thus reducing the time before they are visible on screen.
-            //
-            // It is important, however, to run the composition effects before the synthetic events are
-            // dispatched, in order to allow registering for these events before they are sent.
-            // Otherwise, events like a synthetic mouse-enter sent due to a new element appearing under
-            // the pointer would be missed by e.g. InteractionSource.collectHoverAsState
-            recomposer.performScheduledTasks()
-            frameClock.sendFrame(nanoTime)           // Recomposition
-            doLayout()                               // Layout
-            recomposer.performScheduledEffects()     // Composition effects (e.g. LaunchedEffect)
-            inputHandler.updatePointerPosition()     // Synthetic move event
+            // We try to run the phases here in the same order Android does.
+
+            // Flush composition effects (e.g. LaunchedEffect, coroutines launched in
+            // rememberCoroutineScope()) before everything else
+            recomposer.performScheduledEffects()
+
+            recomposer.performScheduledRecomposerTasks()
+            frameClock.sendFrame(nanoTime) // withFrameMillis/Nanos and recomposition
+
+            doLayout()  // Layout
+
+            // Schedule synthetic events to be sent after `render` completes
+            if (inputHandler.needUpdatePointerPosition) {
+                recomposer.scheduleAsEffect(updatePointerPosition)
+            }
+
+            // Draw
             snapshotInvalidationTracker.onDraw()
-            draw(canvas)                             // Draw
+            draw(canvas)
         }
 
     override fun sendPointerEvent(
