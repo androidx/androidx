@@ -64,18 +64,7 @@ import kotlinx.coroutines.guava.await
 class HealthConnectClientImpl
 internal constructor(
     private val delegate: HealthDataAsyncClient,
-    private val allPermissions: List<String> = buildList {
-        addAll(
-            HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
-                listOf(
-                    HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
-                    HealthPermission.READ_PERMISSION_PREFIX + it.value
-                )
-            }
-        )
-        add(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
-        add(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
-    },
+    private val allPermissions: List<String> = HealthPermission.ALL_PERMISSIONS,
 ) : HealthConnectClient, PermissionController {
 
     override suspend fun getGrantedPermissions(): Set<String> {
