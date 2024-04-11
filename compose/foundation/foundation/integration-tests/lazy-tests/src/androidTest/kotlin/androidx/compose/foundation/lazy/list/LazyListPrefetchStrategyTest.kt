@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyListPrefetchScope
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
+import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
 import androidx.compose.foundation.lazy.list.LazyListPrefetchStrategyTest.RecordingLazyListPrefetchStrategy.Callback
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.DisposableEffect
@@ -272,6 +273,8 @@ class LazyListPrefetchStrategyTest(
             _callbacks.add(Callback.OnVisibleItemsUpdated(layoutInfo.visibleIndices))
         }
 
+        override fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int) = Unit
+
         fun reset() {
             _callbacks.clear()
         }
@@ -297,6 +300,8 @@ class LazyListPrefetchStrategyTest(
 
         override fun LazyListPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyListLayoutInfo) =
             Unit
+
+        override fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int) = Unit
 
         private fun cancelPrefetch() {
             handle?.cancel()

@@ -2491,6 +2491,7 @@ package androidx.compose.ui.layout {
     method public void dispose();
     method public default int getPlaceablesCount();
     method public default void premeasure(int index, long constraints);
+    method public default void traverseDescendants(Object? key, kotlin.jvm.functions.Function1<? super androidx.compose.ui.node.TraversableNode,? extends androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction> block);
     property public default int placeablesCount;
   }
 
