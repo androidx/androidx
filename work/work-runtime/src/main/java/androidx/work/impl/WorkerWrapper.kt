@@ -128,7 +128,10 @@ class WorkerWrapper internal constructor(builder: Builder) {
         if (traceTag != null) {
             configuration.tracer.beginAsyncSection(
                 traceTag,
-                workGenerationalId.generation
+                // Use hashCode() instead of a generational id given we want to allow concurrent
+                // execution of Workers with the same name. Additionally `generation` is already
+                // a part of the WorkSpec's hashCode.
+                workSpec.hashCode()
             )
         }
         // Needed for nested transactions, such as when we're in a dependent work request when
@@ -256,7 +259,7 @@ class WorkerWrapper internal constructor(builder: Builder) {
             if (traceTag != null) {
                 configuration.tracer.endAsyncSection(
                     traceTag,
-                    workGenerationalId.generation
+                    workSpec.hashCode()
                 )
             }
         }

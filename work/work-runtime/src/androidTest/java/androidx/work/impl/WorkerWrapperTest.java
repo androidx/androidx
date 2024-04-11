@@ -100,6 +100,8 @@ import androidx.work.worker.UsedWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import kotlinx.coroutines.Dispatchers;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -118,7 +120,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import kotlinx.coroutines.Dispatchers;
 
 @RunWith(AndroidJUnit4.class)
 public class WorkerWrapperTest extends DatabaseTest {
@@ -181,7 +182,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         assertThat(listener.mResult, is(false));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(SUCCEEDED));
-        assertBeginEndTraceSpans(work);
+        assertBeginEndTraceSpans(work.getWorkSpec());
     }
 
     @Test
@@ -194,7 +195,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .launch();
         WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
         assertThat(latestWorkSpec.runAttemptCount, is(1));
-        assertBeginEndTraceSpans(work);
+        assertBeginEndTraceSpans(work.getWorkSpec());
     }
 
     @Test
@@ -207,7 +208,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .launch();
         WorkSpec latestWorkSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
         assertThat(latestWorkSpec.runAttemptCount, is(1));
-        assertBeginEndTraceSpans(work);
+        assertBeginEndTraceSpans(work.getWorkSpec());
     }
 
     @Test
@@ -250,7 +251,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .withWorker(usedWorker)
                 .build();
         workerWrapper.launch();
-        assertBeginEndTraceSpans(work);
+        assertBeginEndTraceSpans(work.getWorkSpec());
     }
 
     @Test
@@ -276,7 +277,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         assertThat(listener.mResult, is(false));
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(CANCELLED));
-        assertBeginEndTraceSpans(work);
+        assertBeginEndTraceSpans(work.getWorkSpec());
     }
 
     @Test
@@ -344,7 +345,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         assertThat(listener.mResult, is(true));
-        assertBeginEndTraceSpans(work);
+        assertBeginEndTraceSpans(work.getWorkSpec());
     }
 
     @Test
@@ -373,7 +374,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         List<Data> arguments = mWorkSpecDao.getInputsFromPrerequisites(work.getStringId());
         assertThat(arguments.size(), is(1));
         assertThat(arguments, contains(ChainedArgumentWorker.getChainedArguments()));
-        assertBeginEndTraceSpans(prerequisiteWork);
+        assertBeginEndTraceSpans(prerequisiteWork.getWorkSpec());
     }
 
     @Test
@@ -502,7 +503,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(mWorkSpecDao.getState(work.getStringId()),
                 isOneOf(ENQUEUED, RUNNING, SUCCEEDED));
         assertThat(mWorkSpecDao.getState(cancelledWork.getStringId()), is(CANCELLED));
-        assertBeginEndTraceSpans(prerequisiteWork);
+        assertBeginEndTraceSpans(prerequisiteWork.getWorkSpec());
     }
 
     @Test
@@ -565,7 +566,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkSpec workSpec = mWorkSpecDao.getWorkSpec(retryWork.getStringId());
         // The run attempt count should remain the same
         assertThat(workSpec.runAttemptCount, is(1));
-        assertBeginEndTraceSpans(retryWork);
+        assertBeginEndTraceSpans(workSpec);
     }
 
     @Test
@@ -586,7 +587,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         WorkSpec updatedWorkSpec = mWorkSpecDao.getWorkSpec(periodicWork.getStringId());
         assertThat(updatedWorkSpec.calculateNextRunTime(), greaterThan(periodStartTimeMillis));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -607,7 +608,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         WorkSpec updatedWorkSpec = mWorkSpecDao.getWorkSpec(periodicWork.getStringId());
         assertThat(updatedWorkSpec.calculateNextRunTime(), greaterThan(periodStartTimeMillis));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -628,7 +629,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(listener.mResult, is(false));
         assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(0));
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -649,7 +650,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(listener.mResult, is(false));
         assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(0));
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -670,7 +671,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(listener.mResult, is(true));
         assertThat(periodicWorkSpecAfterFirstRun.runAttemptCount, is(1));
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
 
@@ -693,7 +694,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         // Should get rescheduled
         assertThat(listener.mResult, is(true));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -715,7 +716,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         // Should get rescheduled because flex should be respected.
         assertThat(listener.mResult, is(true));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -842,7 +843,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(afterRunWorkSpec.getNextScheduleTimeOverride(), equalTo(secondOverride));
         assertThat(afterRunWorkSpec.calculateNextRunTime(),
                 equalTo(secondOverride));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -897,7 +898,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(afterRunWorkSpec.getNextScheduleTimeOverride(), equalTo(secondOverrideMillis));
         assertThat(afterRunWorkSpec.calculateNextRunTime(),
                 equalTo(secondOverrideMillis));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @Test
@@ -945,7 +946,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         // Normal next period is scheduled.
         assertThat(afterRunWorkSpec.calculateNextRunTime(),
                 equalTo(mTestClock.currentTimeMillis + intervalDurationMillis));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
 
@@ -997,7 +998,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         // Backoff timing is respected
         assertThat(afterRunWorkSpec.calculateNextRunTime(),
                 equalTo(mTestClock.currentTimeMillis + backoffLinearDurationMillis));
-        assertBeginEndTraceSpans(periodicWork);
+        assertBeginEndTraceSpans(periodicWork.getWorkSpec());
     }
 
     @NonNull
@@ -1423,15 +1424,15 @@ public class WorkerWrapperTest extends DatabaseTest {
         return listener;
     }
 
-    private void assertBeginEndTraceSpans(WorkRequest workRequest) {
+    private void assertBeginEndTraceSpans(WorkSpec workSpec) {
         ArgumentCaptor<String> traceSpan = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Integer> generation = ArgumentCaptor.forClass(Integer.class);
-        verify(mTracer).beginAsyncSection(traceSpan.capture(), generation.capture());
-        assertThat(workRequest.getWorkSpec().workerClassName, containsString(traceSpan.getValue()));
-        assertThat(workRequest.getWorkSpec().getGeneration(), is(generation.getValue()));
-        verify(mTracer).beginAsyncSection(traceSpan.capture(), generation.capture());
-        assertThat(workRequest.getWorkSpec().workerClassName, containsString(traceSpan.getValue()));
-        assertThat(workRequest.getWorkSpec().getGeneration(), is(generation.getValue()));
+        ArgumentCaptor<Integer> cookie = ArgumentCaptor.forClass(Integer.class);
+        verify(mTracer).beginAsyncSection(traceSpan.capture(), cookie.capture());
+        assertThat(workSpec.workerClassName, containsString(traceSpan.getValue()));
+        assertThat(workSpec.hashCode(), is(cookie.getValue()));
+        verify(mTracer).beginAsyncSection(traceSpan.capture(), cookie.capture());
+        assertThat(workSpec.workerClassName, containsString(traceSpan.getValue()));
+        assertThat(workSpec.hashCode(), is(cookie.getValue()));
     }
 
     private static class FutureListener implements Runnable {
@@ -1465,6 +1466,4 @@ public class WorkerWrapperTest extends DatabaseTest {
             this.mThrowable = params.getThrowable();
         }
     }
-
-    ;
 }
