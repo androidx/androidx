@@ -330,11 +330,21 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             // Applies the source path for this variant. Note that this doesn't apply when the
             // output is src/main/baseline-prof.txt.
             if (!forceOutputInSrcMain) {
-                srcOutputDir.asFile.apply {
-                    mkdirs()
-                    variant
-                        .sources
-                        .baselineProfiles?.addStaticSourceDirectory(absolutePath)
+
+                val srcOutputDirPath = srcOutputDir.asFile.apply { mkdirs() }.absolutePath
+                fun applySourceSets(variant: Variant) {
+                    variant.sources.baselineProfiles?.addStaticSourceDirectory(srcOutputDirPath)
+                }
+                applySourceSets(variant)
+
+                // For apps the source set needs to be applied to both the current variant
+                // (for example `release`) and its benchmark version.
+                if (isApplicationModule() &&
+                    supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)
+                ) {
+                    onVariant(variant.benchmarkVariantName) { v: ApplicationVariant ->
+                        applySourceSets(v)
+                    }
                 }
             }
 
