@@ -44,6 +44,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -103,9 +104,9 @@ fun rememberLazyListState(
 fun rememberLazyListState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
-    prefetchStrategy: LazyListPrefetchStrategy = DefaultLazyListPrefetchStrategy(),
+    prefetchStrategy: LazyListPrefetchStrategy = remember { LazyListPrefetchStrategy() },
 ): LazyListState {
-    return rememberSaveable(saver = LazyListState.saver(prefetchStrategy)) {
+    return rememberSaveable(prefetchStrategy, saver = LazyListState.saver(prefetchStrategy)) {
         LazyListState(
             initialFirstVisibleItemIndex,
             initialFirstVisibleItemScrollOffset,
@@ -130,7 +131,7 @@ fun rememberLazyListState(
 class LazyListState @ExperimentalFoundationApi constructor(
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
-    private val prefetchStrategy: LazyListPrefetchStrategy = DefaultLazyListPrefetchStrategy(),
+    private val prefetchStrategy: LazyListPrefetchStrategy = LazyListPrefetchStrategy(),
 ) : ScrollableState {
 
     /**
@@ -141,7 +142,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
     constructor(
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0
-    ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, DefaultLazyListPrefetchStrategy())
+    ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, LazyListPrefetchStrategy())
 
     internal var hasLookaheadPassOccurred: Boolean = false
         private set
@@ -266,7 +267,11 @@ class LazyListState @ExperimentalFoundationApi constructor(
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
-    internal val prefetchState = LazyLayoutPrefetchState(prefetchStrategy.prefetchExecutor)
+    internal val prefetchState = LazyLayoutPrefetchState(prefetchStrategy.prefetchExecutor) {
+        with(prefetchStrategy) {
+            onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
+        }
+    }
 
     private val prefetchScope: LazyListPrefetchScope = object : LazyListPrefetchScope {
         override fun schedulePrefetch(index: Int): LazyLayoutPrefetchState.PrefetchHandle {
