@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class GetChangesResponse(override val proto: ResponseProto.GetChangesResponse) :
     ProtoParcelable<ResponseProto.GetChangesResponse>() {
 

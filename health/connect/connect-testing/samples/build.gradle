@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -31,33 +32,25 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    implementation project(':health:connect:connect-client')
-    implementation(project(":health:connect:connect-client-proto"))
+    implementation(libs.kotlinStdlib)
 
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinCoroutinesTest)
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 26
-    }
-    namespace "androidx.health.connect.testing"
-    testOptions.unitTests.includeAndroidResources = true
-    compileSdk = 34
-    compileSdkExtension = 10
+    compileOnly(project(":annotation:annotation-sampled"))
+    implementation(project(":health:connect:connect-client"))
+    implementation(project(":health:connect:connect-testing"))
 }
 
 androidx {
-    name = "Health Connect Testing"
-    mavenVersion = LibraryVersions.HEALTH_CONNECT_TESTING_QUARANTINE
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    name = "Health Connect Testing Samples"
+    type = LibraryType.SAMPLES
     inceptionYear = "2024"
-    description = "Test utils for Health Connect. This library should be added as a test dependency when writing unit tests that call HealthConnect APIs."
-    samples(project(":health:connect:connect-testing-samples"))
+    description = "Contains the sample code for the Androidx Health Connect Testing Library"
+}
+
+android {
+    namespace "androidx.health.connect.testing.samples"
+    defaultConfig {
+        minSdkVersion 26
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {

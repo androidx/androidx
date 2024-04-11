@@ -38,6 +38,7 @@ import androidx.health.connect.client.response.ChangesResponse
 import androidx.health.connect.client.response.InsertRecordsResponse
 import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
+import androidx.health.connect.client.testing.stubs.throwOrContinue
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Clock
 import kotlin.reflect.KClass
@@ -48,6 +49,10 @@ import kotlin.reflect.KClass
  * Features:
  * * Add, remove, delete and read records using an in-memory object, supporting pagination.
  * * Token generation and change tracking.
+ * * Stub aggregation responses with [FakeHealthConnectClientOverrides.aggregate],
+ *   [FakeHealthConnectClientOverrides.aggregateGroupByDuration] and
+ *   [FakeHealthConnectClientOverrides.aggregateGroupByPeriod].
+ * * Stubs for every call, using the [overrides] property to set responses and exceptions.
  *
  * Note that this fake does not check for permissions.
  *
@@ -81,6 +86,22 @@ public class FakeHealthConnectClient(
     public var pageSizeGetChanges: Int = 1000
 
     /**
+     * Used to override or intercept responses to emulate scenarios that this fake doesn't support.
+     *
+     * Every call in [FakeHealthConnectClient] can be overridden.
+     *
+     * For example:
+     *
+     * @sample androidx.health.connect.testing.samples.StubResponse
+     * @sample androidx.health.connect.testing.samples.StubResponseException
+     * @sample androidx.health.connect.testing.samples.AggregationResult
+     * @sample androidx.health.connect.testing.samples.AggregationByDurationResult
+     * @sample androidx.health.connect.testing.samples.AggregationByPeriodResult
+     * @see FakeHealthConnectClientOverrides
+     */
+    public val overrides: FakeHealthConnectClientOverrides = FakeHealthConnectClientOverrides()
+
+    /**
      * Fake implementation that inserts one or more [Record]s into the in-memory store.
      *
      * Supports deduplication of
@@ -89,6 +110,10 @@ public class FakeHealthConnectClient(
      * precedence.
      */
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
+        // Stub that only throws
+        overrides.insertRecords?.throwOrContinue(null)
+
+        // Fake implementation
         val recordIdsList = mutableListOf<String>()
         records.forEach { record ->
             val recordId =
@@ -116,6 +141,9 @@ public class FakeHealthConnectClient(
     }
 
     override suspend fun updateRecords(records: List<Record>) {
+        // Stub that throws if set
+        overrides.updateRecords?.throwOrContinue(null)
+
         // Check if all records belong to the package
         if (records.any { it.packageName != packageName }) {
             throw SecurityException("Trying to delete records owned by another package")
@@ -139,7 +167,10 @@ public class FakeHealthConnectClient(
         recordIdsList: List<String>,
         clientRecordIdsList: List<String>
     ) {
-        // Check if all records belong to the package in recordsIdsList
+        // Stub that throws if set
+        overrides.deleteRecords?.throwOrContinue(null)
+
+        // Check if all records belong to the package
         if (
             recordIdsList
                 .asSequence()
@@ -178,6 +209,10 @@ public class FakeHealthConnectClient(
         recordType: KClass<out Record>,
         timeRangeFilter: TimeRangeFilter
     ) {
+        // Stub that throws if set
+        overrides.deleteRecords?.throwOrContinue(null)
+
+        // Fake implementation
         val recordIdsToRemove =
             idsToRecords
                 .filterValues { record ->
@@ -197,6 +232,10 @@ public class FakeHealthConnectClient(
         recordType: KClass<T>,
         recordId: String
     ): ReadRecordResponse<T> {
+        // Stubs
+        overrides.readRecord?.throwOrContinue(null)
+
+        // Fake implementation
         return ReadRecordResponse(idsToRecords[recordId.toRecordId(packageName)] as T)
     }
 
@@ -211,6 +250,10 @@ public class FakeHealthConnectClient(
     public override suspend fun <T : Record> readRecords(
         request: ReadRecordsRequest<T>
     ): ReadRecordsResponse<T> {
+        // Stubs
+        overrides.readRecords?.throwOrContinue(null)
+
+        // Fake implementation
         val startIndex = request.pageToken?.toIntOrNull() ?: 0
         val allRecords =
             idsToRecords
@@ -243,21 +286,39 @@ public class FakeHealthConnectClient(
 
     /** @throws IllegalStateException if no overrides are configured. */
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
-        TODO("This function should be mocked in tests.")
+        overrides.aggregate?.next(request)?.let {
+            return it
+        }
+        throw IllegalStateException(
+            "To use the aggregate method you must provide a fake response via " +
+                "overrides.aggregate."
+        )
     }
 
     /** @throws IllegalStateException if no overrides are configured. */
     override suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest
     ): List<AggregationResultGroupedByDuration> {
-        TODO("This function should be mocked in tests.")
+        overrides.aggregateGroupByDuration?.next(request)?.let {
+            return it
+        }
+        throw IllegalStateException(
+            "To use the aggregateGroupByDuration method you must provide a fake response via " +
+                "overrides.aggregateGroupByDuration."
+        )
     }
 
     /** @throws IllegalStateException if no overrides are configured. */
     override suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest
     ): List<AggregationResultGroupedByPeriod> {
-        TODO("This function should be mocked in tests.")
+        overrides.aggregateGroupByPeriod?.next(request)?.let {
+            return it
+        }
+        throw IllegalStateException(
+            "To use the aggregateGroupByPeriod method you must provide a fake response via " +
+                "overrides.aggregateGroupByPeriod."
+        )
     }
 
     /**
@@ -265,6 +326,8 @@ public class FakeHealthConnectClient(
      * track changes from the moment this function is called.
      */
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
+        overrides.getChangesToken?.throwOrContinue(null)
+
         if (request.recordTypes.isEmpty()) {
             throw IllegalArgumentException("Record types must not be empty")
         }
@@ -302,6 +365,11 @@ public class FakeHealthConnectClient(
     }
 
     override suspend fun getChanges(changesToken: String): ChangesResponse {
+        // Stubs
+        overrides.getChanges?.throwOrContinue(null)
+
+        // Fake implementation
+
         // The token is related to a moment in time in [tokenToTime] and to a set of Record types
         // in [tokenToRecordTypes].
         val tokenInfo = tokens[changesToken] ?: throw IllegalStateException("Token not found")
