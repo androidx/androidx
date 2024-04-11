@@ -66,7 +66,7 @@ class NavArgumentTest {
     }
 
     @Test
-    fun setDefaultValuePresent() {
+    fun setUnknownDefaultValuePresent() {
         val argument = NavArgument.Builder()
             .setType(NavType.IntType)
             .setIsNullable(false)
@@ -74,5 +74,6 @@ class NavArgumentTest {
             .build()
 
         assertThat(argument.isDefaultValuePresent).isTrue()
+        assertThat(argument.isDefaultValueUnknown).isTrue()
     }
 }
