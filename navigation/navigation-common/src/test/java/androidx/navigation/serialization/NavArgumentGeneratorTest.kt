@@ -48,7 +48,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -71,7 +71,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -84,7 +84,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -97,7 +97,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -120,7 +120,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -143,7 +143,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -166,7 +166,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -179,7 +179,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -192,7 +192,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -205,7 +205,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -218,7 +218,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -231,7 +231,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -244,7 +244,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -257,7 +257,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -270,7 +270,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -283,7 +283,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -311,7 +311,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -339,7 +339,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -366,7 +366,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -393,7 +393,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -417,7 +417,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -441,7 +441,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -465,7 +465,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -489,7 +489,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -510,7 +510,7 @@ class NavArgumentGeneratorTest {
             mapOf(typeOf<TestEnum>() to navType)
         )
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -533,7 +533,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -554,7 +554,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -567,7 +567,7 @@ class NavArgumentGeneratorTest {
             unknownDefaultValuePresent = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isTrue()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isTrue()
     }
 
     @Test
@@ -581,7 +581,7 @@ class NavArgumentGeneratorTest {
             // since String? is nullable, we cannot know for sure the default value is not null
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isTrue()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isTrue()
     }
 
     @Test
@@ -594,7 +594,7 @@ class NavArgumentGeneratorTest {
             unknownDefaultValuePresent = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isTrue()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isTrue()
     }
 
     @Test
@@ -629,7 +629,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -650,7 +650,7 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -689,8 +689,8 @@ class NavArgumentGeneratorTest {
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expectedInt, expectedString)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
-        assertThat(converted[1].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+        assertThat(converted[1].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -709,8 +709,8 @@ class NavArgumentGeneratorTest {
             unknownDefaultValuePresent = true
         }
         assertThat(converted).containsExactlyInOrder(expectedInt, expectedString)
-        assertThat(converted[0].argument.isDefaultValuePresent).isTrue()
-        assertThat(converted[1].argument.isDefaultValuePresent).isTrue()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isTrue()
+        assertThat(converted[1].argument.isDefaultValueUnknown).isTrue()
     }
 
     @Test
@@ -743,8 +743,8 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expectedStringList, expectedIntList)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
-        assertThat(converted[1].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+        assertThat(converted[1].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -782,8 +782,8 @@ class NavArgumentGeneratorTest {
             unknownDefaultValuePresent = true
         }
         assertThat(converted).containsExactlyInOrder(expectedStringList, expectedIntList)
-        assertThat(converted[0].argument.isDefaultValuePresent).isTrue()
-        assertThat(converted[1].argument.isDefaultValuePresent).isTrue()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isTrue()
+        assertThat(converted[1].argument.isDefaultValueUnknown).isTrue()
     }
 
     @Test
@@ -804,7 +804,7 @@ class NavArgumentGeneratorTest {
             nullable = false
         }
         assertThat(converted).containsExactlyInOrder(expectedStringList)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -830,8 +830,8 @@ class NavArgumentGeneratorTest {
         }
 
         assertThat(converted).containsExactlyInOrder(expectedString, expectedIntList)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
-        assertThat(converted[1].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+        assertThat(converted[1].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -853,7 +853,7 @@ class NavArgumentGeneratorTest {
         }
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0]).isNotEqualTo(NavType.IntType)
-        assertThat(converted[0].argument.isDefaultValuePresent).isFalse()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -882,7 +882,7 @@ class NavArgumentGeneratorTest {
             unknownDefaultValuePresent = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValuePresent).isTrue()
+        assertThat(converted[0].argument.isDefaultValueUnknown).isTrue()
     }
 
     @Test
@@ -981,6 +981,7 @@ class NavArgumentGeneratorTest {
         if (javaClass != other.javaClass) return false
         if (isNullable != other.isNullable) return false
         if (isDefaultValuePresent != other.isDefaultValuePresent) return false
+        if (isDefaultValueUnknown != other.isDefaultValueUnknown) return false
         if (type != other.type) return false
         // In context of serialization, we can only tell if defaultValue is present but don't know
         // actual value, so we cannot compare it to the generated defaultValue. But if

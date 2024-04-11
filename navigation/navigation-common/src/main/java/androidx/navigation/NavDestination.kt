@@ -587,7 +587,7 @@ public open class NavDestination(
     @Suppress("NullableCollection") // Needed for nullable bundle
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun addInDefaultArgs(args: Bundle?): Bundle? {
-        if (args == null && _arguments.isNullOrEmpty()) {
+        if (args == null && _arguments.isEmpty()) {
             return null
         }
         val defaultArgs = Bundle()
@@ -596,10 +596,14 @@ public open class NavDestination(
         }
         if (args != null) {
             defaultArgs.putAll(args)
+            // Don't verify unknown default values - these default values are only available
+            // during deserialization for safe args.
             for ((key, value) in _arguments) {
-                require(value.verify(key, defaultArgs)) {
-                    "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
-                        "expected."
+                if (!value.isDefaultValueUnknown) {
+                    require(value.verify(key, defaultArgs)) {
+                        "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
+                            "expected."
+                    }
                 }
             }
         }

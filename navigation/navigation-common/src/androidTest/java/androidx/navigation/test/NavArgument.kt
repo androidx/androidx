@@ -32,6 +32,11 @@ fun intArgument(
 ) = NavArgument.Builder().setType(IntType)
     .setDefaultValue(defaultValue)
     .build()
+
+fun intArgumentUnknownDefault() =
+    NavArgument.Builder().setType(IntType)
+    .setUnknownDefaultValuePresent(true)
+    .build()
 // endregion
 
 // region LongType
@@ -84,6 +89,11 @@ fun nullableStringArgument(
 ) = NavArgument.Builder().setType(StringType)
     .setIsNullable(true)
     .setDefaultValue(defaultValue)
+    .build()
+
+fun nullableStringArgumentUnknownDefault() = NavArgument.Builder().setType(StringType)
+    .setIsNullable(true)
+    .setUnknownDefaultValuePresent(true)
     .build()
 // endregion
 

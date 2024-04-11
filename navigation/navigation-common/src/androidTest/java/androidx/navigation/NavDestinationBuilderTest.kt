@@ -100,8 +100,11 @@ class NavDestinationTest {
         assertWithMessage("NavDestination should have argument added")
             .that(destination.arguments["arg"])
             .isNotNull()
-        assertWithMessage("NavArgument should have default value added")
+        assertWithMessage("NavArgument should have not have known default value added")
             .that(destination.arguments["arg2"]?.isDefaultValuePresent)
+            .isTrue()
+        assertWithMessage("NavArgument should have unknown default value added")
+            .that(destination.arguments["arg2"]?.isDefaultValueUnknown)
             .isTrue()
     }
 
@@ -192,7 +195,7 @@ class NavDestinationTest {
     }
 
     @Test
-    fun navDestinationDefaultValuePresent() {
+    fun navDestinationUnknownDefaultValuePresent() {
         val destination = provider.navDestination(DESTINATION_ID) {
             argument("arg1") {
                 type = NavType.StringType
@@ -205,9 +208,11 @@ class NavDestinationTest {
         }
         val arg1 = destination.arguments["arg1"]
         assertThat(arg1?.isDefaultValuePresent).isTrue()
+        assertThat(arg1?.isDefaultValueUnknown).isTrue()
 
         val arg2 = destination.arguments["arg2"]
         assertThat(arg2?.isDefaultValuePresent).isFalse()
+        assertThat(arg2?.isDefaultValueUnknown).isFalse()
     }
 }
 

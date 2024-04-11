@@ -226,10 +226,9 @@ public class NavDeepLink internal constructor(
             val value = Uri.decode(matcher.group(index + 1))
             val argument = arguments[argumentName]
             try {
-                if (parseArgument(bundle, argumentName, value, argument)) {
-                    return
-                }
+                parseArgument(bundle, argumentName, value, argument)
             } catch (e: IllegalArgumentException) {
+                // parse failed, quick return
                 return
             }
         }
@@ -244,9 +243,7 @@ public class NavDeepLink internal constructor(
             val value = Uri.decode(matcher.group(index + 1))
             val argument = arguments[argumentName]
             try {
-                if (parseArgument(bundle, argumentName, value, argument)) {
-                    return false
-                }
+                parseArgument(bundle, argumentName, value, argument)
             } catch (e: IllegalArgumentException) {
                 // Failed to parse means this isn't a valid deep link
                 // for the given URI - i.e., the URI contains a non-integer
@@ -254,6 +251,7 @@ public class NavDeepLink internal constructor(
                 return false
             }
         }
+        // parse success
         return true
     }
 
@@ -276,9 +274,11 @@ public class NavDeepLink internal constructor(
                 }
             }
             if (!parseInputParams(inputParams, storedParam, bundle, arguments)) {
+                // failed to parse input parameters
                 return false
             }
         }
+        // parse success
         return true
     }
 
@@ -307,9 +307,7 @@ public class NavDeepLink internal constructor(
                         // Passing in a value the exact same as the placeholder will be treated the
                         // as if no value was passed (unless value is based on String),
                         // being replaced if it is optional or throwing an error if it is required.
-                        if (parseArgument(queryParamBundle, argName, value, argument)) {
-                            return false
-                        }
+                        parseArgument(queryParamBundle, argName, value, argument)
                     }
                 }
                 bundle.putAll(queryParamBundle)
@@ -319,6 +317,7 @@ public class NavDeepLink internal constructor(
                 // that particular parameter from the argument bundle.
             }
         }
+        // parse success
         return true
     }
 
@@ -332,19 +331,22 @@ public class NavDeepLink internal constructor(
         return matches.size
     }
 
+    /**
+     * Parses [value] based on the NavArgument's NavType and stores the result
+     * inside the [bundle]. Throws if parse fails.
+     */
     private fun parseArgument(
         bundle: Bundle,
         name: String,
         value: String,
         argument: NavArgument?
-    ): Boolean {
+    ) {
         if (argument != null) {
             val type = argument.type
             type.parseAndPut(bundle, name, value)
         } else {
             bundle.putString(name, value)
         }
-        return false
     }
 
     private fun parseArgumentForRepeatedParam(
