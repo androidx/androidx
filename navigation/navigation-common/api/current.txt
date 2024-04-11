@@ -163,6 +163,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLink.Builder setAction(String action);
     method public androidx.navigation.NavDeepLink.Builder setMimeType(String mimeType);
     method public androidx.navigation.NavDeepLink.Builder setUriPattern(String uriPattern);
+    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public inline <reified T> androidx.navigation.NavDeepLink.Builder setUriPattern(String uriPattern, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap);
   }
 
   @kotlin.DslMarker public @interface NavDeepLinkDsl {

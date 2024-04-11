@@ -17,6 +17,7 @@
 package androidx.navigation.test
 
 import androidx.navigation.NavArgument
+import androidx.navigation.NavType.Companion.BoolType
 import androidx.navigation.NavType.Companion.FloatType
 import androidx.navigation.NavType.Companion.IntType
 import androidx.navigation.NavType.Companion.LongType
@@ -26,6 +27,7 @@ import androidx.navigation.NavType.Companion.StringType
 
 // region IntType
 fun intArgument() = NavArgument.Builder().setType(IntType).build()
+fun booleanArgument() = NavArgument.Builder().setType(BoolType).build()
 
 fun intArgument(
     defaultValue: Int
@@ -71,6 +73,11 @@ fun referenceArgument(
 
 // region StringType
 fun stringArgument() = NavArgument.Builder().setType(StringType)
+    .setIsNullable(false)
+    .build()
+
+fun stringArgumentUnknownDefault() = NavArgument.Builder().setType(StringType)
+    .setUnknownDefaultValuePresent(true)
     .setIsNullable(false)
     .build()
 
