@@ -28,17 +28,41 @@ import kotlinx.serialization.KSerializer
  */
 internal sealed class RouteBuilder<T> private constructor() {
     /**
-     * Builds a route pattern
-     *
-     * @param serializer The serializer for destination type T (class, object etc.) that you
-     * need to build the route for.
+     * DSL to construct a route pattern
      */
-    class Pattern<T>(
-        serializer: KSerializer<T>,
-        typeMap: Map<String, NavType<Any?>>
-    ) : RouteBuilder<T>() {
+    class Pattern<T> : RouteBuilder<T> {
 
-        private val builder = Builder(serializer, typeMap)
+        private val builder: Builder<T>
+
+        /**
+         * Create a builder that builds a route pattern
+         *
+         * @param serializer The serializer for destination type T (class, object etc.)
+         * to build the route for.
+         * @param typeMap map of destination arguments' name to its respective [NavType]
+         */
+        constructor(
+            serializer: KSerializer<T>,
+            typeMap: Map<String, NavType<Any?>>
+        ) : super() {
+            builder = Builder(serializer, typeMap)
+        }
+
+        /**
+         * Create a builder that builds a route pattern
+         *
+         * @param path The base uri path to which arguments are appended
+         * @param serializer The serializer for destination type T (class, object etc.)
+         * to build the route for.
+         * @param typeMap map of destination arguments' name to its respective [NavType]
+         */
+        constructor(
+            path: String,
+            serializer: KSerializer<T>,
+            typeMap: Map<String, NavType<Any?>>
+        ) : super() {
+            builder = Builder(path, serializer, typeMap)
+        }
 
         fun addArg(elementIndex: Int) {
             builder.apply(elementIndex) { name, _, paramType ->
@@ -129,13 +153,31 @@ internal sealed class RouteBuilder<T> private constructor() {
     /**
      * Internal builder that generates the final url output
      */
-    private class Builder<T>(
-        val serializer: KSerializer<T>,
-        val typeMap: Map<String, NavType<Any?>>
-    ) {
-        private val path = serializer.descriptor.serialName
+    private class Builder<T> {
+        private val serializer: KSerializer<T>
+        private val typeMap: Map<String, NavType<Any?>>
+        private val path: String
         private var pathArgs = ""
         private var queryArgs = ""
+
+        constructor(
+            serializer: KSerializer<T>,
+            typeMap: Map<String, NavType<Any?>>
+        ) {
+            this.serializer = serializer
+            this.typeMap = typeMap
+            path = serializer.descriptor.serialName
+        }
+
+        constructor(
+            path: String,
+            serializer: KSerializer<T>,
+            typeMap: Map<String, NavType<Any?>>
+        ) {
+            this.serializer = serializer
+            this.typeMap = typeMap
+            this.path = path
+        }
 
         /**
          * Returns final route
