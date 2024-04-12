@@ -107,7 +107,7 @@ fun SplitSelectableChipWithRadioButton() {
         SplitSelectableChip(
             modifier = Modifier.fillMaxWidth(),
             selected = selectedRadioIndex == 0,
-            onClick = { selectedRadioIndex = 0 },
+            onSelectionClick = { selectedRadioIndex = 0 },
             label = {
                 // The primary label should have a maximum 3 lines of text
                 Text("Primary label", maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -116,7 +116,7 @@ fun SplitSelectableChipWithRadioButton() {
                 // and the secondary label should have max 2 lines of text.
                 Text("Secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
-            onBodyClick = {
+            onContainerClick = {
                 /* Do something */
             },
             enabled = true,
@@ -125,7 +125,7 @@ fun SplitSelectableChipWithRadioButton() {
         SplitSelectableChip(
             modifier = Modifier.fillMaxWidth(),
             selected = selectedRadioIndex == 1,
-            onClick = { selectedRadioIndex = 1 },
+            onSelectionClick = { selectedRadioIndex = 1 },
             label = {
                 // The primary label should have a maximum 3 lines of text
                 Text("Alternative label", maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -134,7 +134,7 @@ fun SplitSelectableChipWithRadioButton() {
                 // and the secondary label should have max 2 lines of text.
                 Text("Alternative secondary", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
-            onBodyClick = {
+            onContainerClick = {
                 /* Do something */
             },
             enabled = true,

@@ -76,10 +76,10 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -107,11 +107,11 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 enabled = true,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -140,11 +140,11 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 enabled = false,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -172,9 +172,9 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG),
                 selectionControl = { TestImage() },
             )
@@ -188,10 +188,10 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -219,11 +219,11 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = true,
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -252,11 +252,11 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = false,
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -284,9 +284,9 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG),
                 selectionControl = { TestImage() },
             )
@@ -315,9 +315,9 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = false,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG),
                 selectionControl = { TestImage() },
             )
@@ -353,11 +353,11 @@ class SelectableChipTest {
             val (selected, onSelected) = remember { mutableStateOf(false) }
             SplitSelectableChip(
                 selected = selected,
-                onClick = onSelected,
+                onSelectionClick = onSelected,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = true,
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -397,11 +397,11 @@ class SelectableChipTest {
             val (selected, onSelected) = remember { mutableStateOf(false) }
             SplitSelectableChip(
                 selected = selected,
-                onClick = onSelected,
+                onSelectionClick = onSelected,
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
                 enabled = false,
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -419,10 +419,10 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = false,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
                 selectionControl = { TestImage() },
-                onBodyClick = {},
+                onContainerClick = {},
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -459,9 +459,9 @@ class SelectableChipTest {
         rule.setContentWithTheme {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text(textContent) },
-                onBodyClick = {},
+                onContainerClick = {},
                 selectionControl = { TestImage() },
             )
         }
@@ -515,8 +515,8 @@ class SelectableChipTest {
         rule.setContentWithThemeForSizeAssertions {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
-                onBodyClick = {},
+                onSelectionClick = {},
+                onContainerClick = {},
                 label = {
                     Text(
                         text = "SplitSelectableChip text spanning over multiple lines of text " +
@@ -535,9 +535,9 @@ class SelectableChipTest {
         rule.verifyHeight(expectedHeight) {
             SplitSelectableChip(
                 selected = true,
-                onClick = {},
+                onSelectionClick = {},
                 label = { Text("Label") },
-                onBodyClick = {},
+                onContainerClick = {},
                 selectionControl = { TestImage() },
             )
         }
@@ -652,14 +652,14 @@ class SelectableChipTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 SplitSelectableChip(
                     selected = true,
-                    onClick = {},
+                    onSelectionClick = {},
                     enabled = true,
                     colors = SelectableChipDefaults.splitSelectableChipColors(
                         contentColor = override
                     ),
                     label = { actualContentColor = LocalContentColor.current },
                     selectionControl = {},
-                    onBodyClick = {},
+                    onContainerClick = {},
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -677,12 +677,12 @@ class SelectableChipTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 SplitSelectableChip(
                     selected = true,
-                    onClick = {},
+                    onSelectionClick = {},
                     enabled = true,
                     colors = SelectableChipDefaults.splitSelectableChipColors(),
                     label = {},
                     selectionControl = {},
-                    onBodyClick = {},
+                    onContainerClick = {},
                     modifier = Modifier.testTag(TEST_TAG).fillMaxWidth()
                 )
             }
@@ -703,14 +703,14 @@ class SelectableChipTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 SplitSelectableChip(
                     selected = true,
-                    onClick = {},
+                    onSelectionClick = {},
                     enabled = true,
                     colors = SelectableChipDefaults.splitSelectableChipColors(
                         backgroundColor = override
                     ),
                     label = {},
                     selectionControl = {},
-                    onBodyClick = {},
+                    onContainerClick = {},
                     modifier = Modifier.testTag(TEST_TAG).fillMaxWidth()
                 )
             }
@@ -746,7 +746,7 @@ class SelectableChipTest {
                 if (splitSelectableChip) {
                     SplitSelectableChip(
                         selected = selected,
-                        onClick = {},
+                        onSelectionClick = {},
                         enabled = status.enabled(),
                         selectionControl = {
                             actualIcon = LocalContentColor.current
@@ -756,7 +756,7 @@ class SelectableChipTest {
                             actualLabel = LocalContentColor.current
                             actualLabelDisabledAlpha = ContentAlpha.disabled
                         },
-                        onBodyClick = {},
+                        onContainerClick = {},
                         modifier = Modifier.testTag(TEST_TAG)
                     )
                 } else {
