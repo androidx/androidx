@@ -54,10 +54,37 @@ class ComposableFragmentTest {
 
         testRule.onNodeWithText("ComposableFragment").assertIsDisplayed()
     }
+
+    @Test
+    fun showContentWithArgs() {
+        val composableFragment = ComposableFragment(
+            "androidx.navigation.fragment.compose.ComposableFragmentTestKt\$ContentWithArgs"
+        ).apply {
+            requireArguments().putString("test", "argument")
+        }
+        val fragmentManager = testRule.activity.supportFragmentManager
+        testRule.runOnUiThread {
+            fragmentManager.commitNow {
+                add(R.id.fragment_container, composableFragment)
+            }
+        }
+
+        testRule.waitForIdle()
+
+        testRule.onNodeWithText("ComposableFragment: argument").assertIsDisplayed()
+    }
 }
 
 @Suppress("TestFunctionName")
 @Composable
 fun Content() {
     Text("ComposableFragment")
+}
+
+@Suppress("TestFunctionName")
+@Composable
+fun ContentWithArgs() {
+    val args = LocalFragment.current.requireArguments()
+    val testArgument = args.getString("test")
+    Text("ComposableFragment: $testArgument")
 }
