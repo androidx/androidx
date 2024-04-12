@@ -146,7 +146,7 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
                     previous
                 else null
             is ComputedValueHolder ->
-                if (value.compute == previous.compute)
+                if (value.compute === previous.compute)
                     previous
                 else null
             else -> null

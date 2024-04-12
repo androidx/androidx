@@ -55,7 +55,7 @@ private class FocusedBoundsObserverElement(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         val otherModifier = other as? FocusedBoundsObserverElement ?: return false
-        return onPositioned == otherModifier.onPositioned
+        return onPositioned === otherModifier.onPositioned
     }
 
     override fun InspectorInfo.inspectableProperties() {
