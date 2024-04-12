@@ -189,8 +189,7 @@ fun BasicTextField2(
     // lambda.
 ) {
     // TODO https://youtrack.jetbrains.com/issue/COMPOSE-740/Implement-BasicTextField2
-    println("Compose Multiplatform doesn't support BasicTextField2 yet. " +
-        "Follow https://github.com/JetBrains/compose-multiplatform/issues/4218")
+    printBasicTextField2SupportWarning()
 
     val state = remember {
         TextFieldState(
@@ -338,8 +337,8 @@ fun BasicTextField2(
     // lambda.
 ) {
     // TODO https://youtrack.jetbrains.com/issue/COMPOSE-740/Implement-BasicTextField2
-    println("Compose Multiplatform doesn't support BasicTextField2 yet. " +
-        "Follow https://github.com/JetBrains/compose-multiplatform/issues/4218")
+    printBasicTextField2SupportWarning()
+
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val windowInfo = LocalWindowInfo.current
@@ -547,3 +546,19 @@ internal fun TextFieldSelectionHandles(
 
 @OptIn(ExperimentalFoundationApi::class)
 private val DefaultTextFieldDecorator = TextFieldDecorator { it() }
+
+private var basicTextField2SupportWarningPrinted = false
+
+private fun printBasicTextField2SupportWarning() {
+    if (!basicTextField2SupportWarningPrinted) {
+        println("""
+            Compose Multiplatform does not yet fully support BasicTextField2:
+            1. On platforms other than desktop it doesn't work at all.
+            2. Languages requiring input methods (e.g. Chinese, Korean) don't work.
+            3. Context menu is not implemented.
+            4. Possibly other features are missing or broken.
+            Follow https://github.com/JetBrains/compose-multiplatform/issues/4218 for updates
+        """.trimIndent())
+        basicTextField2SupportWarningPrinted = true
+    }
+}
