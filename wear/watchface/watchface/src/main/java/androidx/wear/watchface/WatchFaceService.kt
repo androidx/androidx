@@ -1198,6 +1198,40 @@ public abstract class WatchFaceService : WallpaperService() {
         val userStyleFlavors: UserStyleFlavors
     )
 
+    internal class ChoreographerCallback(
+        val watchFaceImpl: WatchFaceImpl
+    ) : Choreographer.FrameCallback {
+        /**
+         * Whether we already have a frameCallback posted and waiting in the [Choreographer]
+         * queue. This protects us from drawing multiple times in a single frame.
+         */
+        var frameCallbackPending = false
+
+        override fun doFrame(frameTimeNs: Long) {
+            frameCallbackPending = false
+
+            /**
+             * It's possible we went ambient by the time our callback occurred in which case
+             * there's no point drawing.
+             */
+            if (watchFaceImpl.renderer.shouldAnimate()) {
+                try {
+                    if (TRACE_DRAW) {
+                        Trace.beginSection("onDraw")
+                    }
+                    if (LOG_VERBOSE) {
+                        Log.v(TAG, "drawing frame")
+                    }
+                    watchFaceImpl.onDraw()
+                } finally {
+                    if (TRACE_DRAW) {
+                        Trace.endSection()
+                    }
+                }
+            }
+        }
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(WatchFaceExperimental::class)
     public inner class EngineWrapper(
@@ -1272,41 +1306,13 @@ public abstract class WatchFaceService : WallpaperService() {
         override val systemTimeProvider = getSystemTimeProvider()
         override val wearSdkVersion = this@WatchFaceService.wearPlatformVersion
 
-        /**
-         * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
-         * queue. This protects us from drawing multiple times in a single frame.
-         */
-        private var frameCallbackPending = false
-
         internal var editorObscuresWatchFace = false
             set(value) {
                 getWatchFaceImplOrNull()?.editorObscuresWatchFace = value
                 field = value
             }
 
-        private val frameCallback =
-            object : Choreographer.FrameCallback {
-                override fun doFrame(frameTimeNs: Long) {
-                    if (destroyed) {
-                        return
-                    }
-                    require(allowWatchfaceToAnimate) {
-                        "Choreographer doFrame called but allowWatchfaceToAnimate is false"
-                    }
-                    frameCallbackPending = false
-
-                    val watchFaceImpl: WatchFaceImpl? = getWatchFaceImplOrNull()
-
-                    /**
-                     * It's possible we went ambient by the time our callback occurred in which case
-                     * there's no point drawing.
-                     */
-                    if (watchFaceImpl?.renderer?.shouldAnimate() != false) {
-                        draw(watchFaceImpl)
-                    }
-                }
-            }
-
+        private var frameCallback: ChoreographerCallback? = null
         private val invalidateRunnable = Runnable(this::invalidate)
 
         // If non-null then changes to the style must be persisted.
@@ -1863,7 +1869,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 quitBackgroundThreadIfCreated()
                 uiThreadHandler.removeCallbacks(invalidateRunnable)
                 if (this::choreographer.isInitialized) {
-                    choreographer.removeFrameCallback(frameCallback)
+                    frameCallback?.let { choreographer.removeFrameCallback(it) }
                 }
                 if (this::interactiveInstanceId.isInitialized) {
                     InteractiveInstanceManager.deleteInstance(interactiveInstanceId)
@@ -2446,6 +2452,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 // executed. NB usually we won't have to wait at all.
                 initStyleAndComplicationsDone.await()
                 deferredWatchFaceImpl.complete(watchFaceImpl)
+                frameCallback = ChoreographerCallback(watchFaceImpl)
+                // Start issuing choreographer frames.
+                invalidate()
 
                 asyncWatchFaceConstructionPending = false
                 watchFaceImpl.initComplete = true
@@ -2592,18 +2601,20 @@ public abstract class WatchFaceService : WallpaperService() {
             if (!allowWatchfaceToAnimate) {
                 return
             }
-            if (!frameCallbackPending) {
-                if (LOG_VERBOSE) {
-                    Log.v(TAG, "invalidate: requesting draw")
-                }
-                frameCallbackPending = true
-                if (!this::choreographer.isInitialized) {
-                    choreographer = getChoreographer()
-                }
-                choreographer.postFrameCallback(frameCallback)
-            } else {
-                if (LOG_VERBOSE) {
-                    Log.v(TAG, "invalidate: draw already requested")
+            frameCallback?.let {
+                if (!it.frameCallbackPending) {
+                    if (LOG_VERBOSE) {
+                        Log.v(TAG, "invalidate: requesting draw")
+                    }
+                    it.frameCallbackPending = true
+                    if (!this::choreographer.isInitialized) {
+                        choreographer = getChoreographer()
+                    }
+                    choreographer.postFrameCallback(it)
+                } else {
+                    if (LOG_VERBOSE) {
+                        Log.v(TAG, "invalidate: draw already requested")
+                    }
                 }
             }
         }
@@ -2954,7 +2965,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 writer.println("interactiveInstanceId=$interactiveInstanceId")
             }
 
-            writer.println("frameCallbackPending=$frameCallbackPending")
+            writer.println("frameCallbackPending=${frameCallback?.frameCallbackPending}")
             writer.println("destroyed=$destroyed")
             writer.println("surfaceDestroyed=$surfaceDestroyed")
             writer.println("lastComplications=${complicationsFlow.value}")
