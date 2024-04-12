@@ -43,7 +43,7 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
 
 /** Returns a file tree representing the platform SDK suitable for use as a dependency. */
 fun Project.getSdkDependency(): FileTree =
-    fileTree("${getSdkPath()}/platforms/${project.defaultAndroidConfig.compileSdk}/") {
+    fileTree("${getSdkPath()}/platforms/android-${project.defaultAndroidConfig.compileSdk}/") {
         it.include("android.jar")
     }
 
