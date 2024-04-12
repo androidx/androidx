@@ -153,6 +153,13 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     }
 }
 
+/**
+ * Computes and return the [NavType] based on the SerialDescriptor of a class type.
+ *
+ * Match priority:
+ * 1. Match with custom NavType provided in [typeMap]
+ * 2. Match to a built-in NavType such as [NavType.IntType], [NavType.BoolArrayType] etc.
+ */
 @Suppress("UNCHECKED_CAST")
 private fun SerialDescriptor.computeNavType(
     typeMap: Map<KType, NavType<*>>

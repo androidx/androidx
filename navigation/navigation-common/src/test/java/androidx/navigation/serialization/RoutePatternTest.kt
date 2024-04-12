@@ -276,11 +276,7 @@ class RoutePatternTest {
     fun customSerializerParamType() {
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
-        class TestClass(
-            val arg: Int,
-            @Serializable(with = CustomSerializer::class)
-            val arg2: NonSerializedClass
-        )
+        class TestClass(val arg: Int, val arg2: CustomSerializerClass)
 
         // args will be duplicated
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
@@ -465,16 +461,17 @@ internal sealed class SealedClass {
     }
 }
 
-private class NonSerializedClass(val longArg: Long)
+@Serializable(with = CustomSerializer::class)
+internal open class CustomSerializerClass(val longArg: Long)
 
-private class CustomSerializer : KSerializer<NonSerializedClass> {
+internal class CustomSerializer : KSerializer<CustomSerializerClass> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
         "Date", PrimitiveKind.LONG
     )
-    override fun serialize(encoder: Encoder, value: NonSerializedClass) =
+    override fun serialize(encoder: Encoder, value: CustomSerializerClass) =
         encoder.encodeLong(value.longArg)
-    override fun deserialize(decoder: Decoder): NonSerializedClass =
-        NonSerializedClass(decoder.decodeLong())
+    override fun deserialize(decoder: Decoder): CustomSerializerClass =
+        CustomSerializerClass(decoder.decodeLong())
 }
 
 private interface TestInterface
