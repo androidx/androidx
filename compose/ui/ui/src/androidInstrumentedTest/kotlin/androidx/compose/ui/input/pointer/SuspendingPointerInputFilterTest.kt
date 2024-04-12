@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.DelegatingNode
@@ -35,6 +36,7 @@ import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.map
@@ -597,6 +600,28 @@ class SuspendingPointerInputFilterTest {
     }
 
     @Test
+    @SmallTest
+    fun testEquality_key() {
+        val block: suspend PointerInputScope.() -> Unit = {}
+
+        assertModifierIsPure { toggleInput ->
+            Modifier.pointerInput(toggleInput, block = block)
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun testEquality_block() {
+        val block1: suspend PointerInputScope.() -> Unit = {}
+        val block2: suspend PointerInputScope.() -> Unit = {}
+
+        assertModifierIsPure { toggleInput ->
+            val block = if (toggleInput) block1 else block2
+            Modifier.pointerInput(Unit, block = block)
+        }
+    }
+
+    @Test
     @MediumTest
     fun testRestartPointerInputWithTouchEvent() {
         val emitter = PointerInputChangeEmitter()
@@ -931,34 +956,145 @@ class SuspendingPointerInputFilterTest {
     }
 
     @Test
-    fun pointerInput_badStartingSinglePointer_composeIgnores() {
-        val events = mutableListOf<PointerEventType>()
-        val tag = "input rect"
+    @MediumTest
+    fun testUpdatingKey1RestartsPointerInput() {
+        val tag = "box"
+        var key1 by mutableStateOf(false)
+        var cancelled = false
+
         rule.setContent {
             Box(
-                Modifier.fillMaxSize()
+                Modifier
                     .testTag(tag)
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                events += event.type
-                            }
+                    .fillMaxSize()
+                    .pointerInput(key1 = key1) {
+                        try {
+                            suspendCancellableCoroutine<Unit> {}
+                        } catch (e: CancellationException) {
+                            cancelled = true
                         }
                     }
             )
         }
 
-        rule.onNodeWithTag(tag).performTouchInput {
-            // Starts gestures with bad data. Because the bad x/y are part of the
-            // MotionEvent, Compose won't process the entire event or any following events
-            // until the bad data is removed.
-            down(Offset(Float.NaN, Float.NaN)) // Compose ignores
-            moveBy(0, Offset(10f, 10f)) // Compose ignores because first was invalid
-            up() // Compose ignores because first was invalid
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle {
+            assertThat(cancelled).isFalse()
         }
-        assertThat(events).hasSize(0)
-        assertThat(events).containsExactly()
+
+        key1 = true
+
+        rule.runOnIdle {
+            assertThat(cancelled).isTrue()
+        }
+    }
+
+    @Test
+    @MediumTest
+    fun testUpdatingKey2RestartsPointerInput() {
+        val tag = "box"
+        var key2 by mutableStateOf(false)
+        var cancelled = false
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .fillMaxSize()
+                    .pointerInput(key1 = Unit, key2 = key2) {
+                        try {
+                            suspendCancellableCoroutine<Unit> {}
+                        } catch (e: CancellationException) {
+                            cancelled = true
+                        }
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle {
+            assertThat(cancelled).isFalse()
+        }
+
+        key2 = true
+
+        rule.runOnIdle {
+            assertThat(cancelled).isTrue()
+        }
+    }
+
+    @Test
+    @MediumTest
+    fun testUpdatingKeysRestartsPointerInput() {
+        val tag = "box"
+        var keys by mutableStateOf(arrayOf(false))
+        var cancelled = false
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .fillMaxSize()
+                    .pointerInput(keys = keys) {
+                        try {
+                            suspendCancellableCoroutine<Unit> {}
+                        } catch (e: CancellationException) {
+                            cancelled = true
+                        }
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle {
+            assertThat(cancelled).isFalse()
+        }
+
+        keys = arrayOf(true)
+
+        rule.runOnIdle {
+            assertThat(cancelled).isTrue()
+        }
+    }
+
+    @Test
+    @MediumTest
+    fun testUpdatingBlockDoesNotRestartPointerInput() {
+        val tag = "box"
+        var cancelled = false
+        val lambda1: suspend PointerInputScope.() -> Unit = {
+            try {
+                suspendCancellableCoroutine<Unit> {}
+            } catch (e: CancellationException) {
+                cancelled = true
+            }
+        }
+        val lambda2: suspend PointerInputScope.() -> Unit = {}
+        var block by mutableStateOf(lambda1)
+
+        rule.setContent {
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .fillMaxSize()
+                    .pointerInput(key1 = Unit, key2 = Unit, block = block)
+            )
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle {
+            assertThat(cancelled).isFalse()
+        }
+
+        block = lambda2
+
+        rule.runOnIdle {
+            assertThat(cancelled).isFalse()
+        }
     }
 
     // Tests pointerInput with bad pointer data

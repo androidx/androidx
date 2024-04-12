@@ -23,7 +23,6 @@ import androidx.compose.ui.CombinedModifier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
-import androidx.compose.ui.input.pointer.SuspendPointerInputElement
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.ModifierInfo
@@ -222,16 +221,6 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     internal fun resetState() {
         tailToHead {
             if (it.isAttached) it.reset()
-        }
-        current?.let { elements ->
-            elements.forEachIndexed { i, element ->
-                // we need to make sure the suspending pointer input modifier node is updated after
-                // being reset so we use the latest lambda, even if the keys provided as input
-                // didn't change.
-                if (element is SuspendPointerInputElement) {
-                    elements[i] = ForceUpdateElement(element)
-                }
-            }
         }
         runDetachLifecycle()
         markAsDetached()
@@ -814,9 +803,7 @@ private const val ActionReuse = 2
 internal fun actionForModifiers(prev: Modifier.Element, next: Modifier.Element): Int {
     return if (prev == next) {
         ActionReuse
-    } else if (areObjectsOfSameType(prev, next) ||
-        (prev is ForceUpdateElement && areObjectsOfSameType(prev.original, next))
-    ) {
+    } else if (areObjectsOfSameType(prev, next)) {
         ActionUpdate
     } else {
         ActionReplace
@@ -852,16 +839,4 @@ private fun Modifier.fillVector(
         }
     }
     return result
-}
-
-@Suppress("ModifierNodeInspectableProperties")
-private data class ForceUpdateElement(val original: ModifierNodeElement<*>) :
-    ModifierNodeElement<Modifier.Node>() {
-    override fun create(): Modifier.Node {
-        throw IllegalStateException("Shouldn't be called")
-    }
-
-    override fun update(node: Modifier.Node) {
-        throw IllegalStateException("Shouldn't be called")
-    }
 }
