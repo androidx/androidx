@@ -2331,7 +2331,113 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
-    fun testNavigateViaDeepLinkDefaultArgs() {
+    fun testNavigateViaDeepLinkKClass() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class) {
+                deepLink(
+                    navDeepLink<TestClass> { uriPattern = baseUri }
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri/1")
+
+        navController.navigate(deepLink)
+
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry!!.arguments!!.getInt("arg"))
+            .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkKClassDefaultArg() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int = 1)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class) {
+                deepLink(
+                    navDeepLink<TestClass> { uriPattern = baseUri }
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri")
+
+        navController.navigate(deepLink)
+
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val dest = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(dest?.arg).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkKClassDefaultArgOverride() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int = 1)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class) {
+                deepLink(
+                    navDeepLink<TestClass> { uriPattern = baseUri }
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri?arg=2")
+
+        navController.navigate(deepLink)
+
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val dest = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(dest?.arg).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkKClassPopUpTo() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test(TestClass::class) {
+                deepLink(
+                    navDeepLink<TestClass> { uriPattern = baseUri }
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri/1")
+
+        navController.navigate(deepLink, navOptions {
+            popUpTo("start") { inclusive = true }
+        })
+
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navController.currentBackStackEntry!!.arguments!!.getInt("arg"))
+            .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkDefaultArg() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
