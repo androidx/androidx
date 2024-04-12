@@ -862,73 +862,52 @@ class AnchoredDraggableState<T>(
         }
     }
 
-    private var nextValue: T by mutableStateOf(initialValue)
-
-    private val anchoredDragScope: AnchoredDragScope = object : AnchoredDragScope {
-        var initialized = false
-        var absoluteThresholdToCross: Float = Float.NaN
-        var min = Float.NaN
-        var max = Float.NaN
+    private val anchoredDragScope = object : AnchoredDragScope {
+        var leftBound: T? = null
+        var rightBound: T? = null
+        var distance = Float.NaN
 
         override fun dragTo(newOffset: Float, lastKnownVelocity: Float) {
             val previousOffset = offset
             offset = newOffset
             lastVelocity = lastKnownVelocity
+            if (previousOffset.isNaN()) return
             val isMovingForward = newOffset >= previousOffset
-            if (initialized) {
-                val crossedThresholdTowardsNextAnchor = if (isMovingForward) {
-                    newOffset >= absoluteThresholdToCross
-                } else {
-                    newOffset <= absoluteThresholdToCross
+            updateIfNeeded(isMovingForward)
+        }
+
+        fun updateIfNeeded(isMovingForward: Boolean) {
+            updateBounds(isMovingForward)
+            val distanceToCurrentAnchor = abs(offset - anchors.positionOf(currentValue))
+            val crossedThreshold = distanceToCurrentAnchor >= distance / 2f
+            if (crossedThreshold) {
+                val closestAnchor = (if (isMovingForward) rightBound else leftBound) ?: currentValue
+                if (confirmValueChange(closestAnchor)) {
+                    currentValue = closestAnchor
                 }
-                if (crossedThresholdTowardsNextAnchor) {
-                    update(isMovingForward)
-                }
-            } else if (!previousOffset.isNaN()) {
-                // In the first invocation, we do not have a direction. The previous offset will be
-                // NaN in the first invocation of dragTo; so we will only initialize in the second
-                // invocation when we have a direction to calculate the thresholds with
-                // update(isMovingForward)
-                initialize(isMovingForward)
-                val crossedThresholdTowardsNextAnchor = if (isMovingForward) {
-                    newOffset >= absoluteThresholdToCross
-                } else {
-                    newOffset <= absoluteThresholdToCross
-                }
-                if (crossedThresholdTowardsNextAnchor) {
-                    update(isMovingForward)
-                }
-                initialized = true
             }
         }
 
-        fun initialize(isMovingForward: Boolean) {
+        fun updateBounds(isMovingForward: Boolean) {
             val currentAnchorPosition = anchors.positionOf(currentValue)
-            val nextAnchor = anchors.closestAnchor(offset, isMovingForward) ?: currentValue
-            val nextAnchorPosition = anchors.positionOf(nextAnchor!!)
-            val relativeThreshold = (nextAnchorPosition - currentAnchorPosition) / 2f
-            absoluteThresholdToCross = currentAnchorPosition + relativeThreshold
-            nextValue = nextAnchor
-        }
-
-        fun update(isMovingForward: Boolean) {
-            val currentAnchorPosition = anchors.positionOf(currentValue)
-            min = anchors.minAnchor()
-            max = anchors.maxAnchor()
-            val lookUpwards = when (currentAnchorPosition) {
-                min -> true
-                max -> false
-                else -> isMovingForward
+            if (offset == currentAnchorPosition) {
+                val searchStartPosition = offset + (if (isMovingForward) 1f else -1f)
+                val closestExcludingCurrent =
+                    anchors.closestAnchor(searchStartPosition, isMovingForward) ?: currentValue
+                if (isMovingForward) {
+                    leftBound = currentValue
+                    rightBound = closestExcludingCurrent
+                } else {
+                    leftBound = closestExcludingCurrent
+                    rightBound = currentValue
+                }
+            } else {
+                val closestLeft = anchors.closestAnchor(offset, false) ?: currentValue
+                val closestRight = anchors.closestAnchor(offset, true) ?: currentValue
+                leftBound = closestLeft
+                rightBound = closestRight
             }
-            val closestAnchor = anchors.closestAnchor(offset, lookUpwards)
-            val nextAnchor = closestAnchor ?: currentValue
-            val nextAnchorPosition = anchors.positionOf(nextAnchor!!)
-            if (confirmValueChange(nextAnchor)) {
-                currentValue = nextAnchor
-            }
-            val relativeThreshold = (nextAnchorPosition - currentAnchorPosition) / 2f
-            absoluteThresholdToCross = currentAnchorPosition + relativeThreshold
-            nextValue = nextAnchor
+            distance = abs(anchors.positionOf(leftBound!!) - anchors.positionOf(rightBound!!))
         }
     }
 
