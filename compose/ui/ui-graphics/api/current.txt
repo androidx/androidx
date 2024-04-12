@@ -1497,10 +1497,6 @@ package androidx.compose.ui.graphics.layer {
   }
 
   public static final class GraphicsLayer.Companion {
-    method public long getUnsetOffset();
-    method public long getUnsetSize();
-    property public final long UnsetOffset;
-    property public final long UnsetSize;
   }
 
   public final class GraphicsLayerKt {

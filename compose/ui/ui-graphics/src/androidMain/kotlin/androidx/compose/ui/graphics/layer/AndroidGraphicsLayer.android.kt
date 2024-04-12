@@ -43,6 +43,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastRoundToInt
 
 @Suppress("NotCloseable")
 actual class GraphicsLayer internal constructor(
@@ -55,8 +58,8 @@ actual class GraphicsLayer internal constructor(
 
     private var androidOutline: AndroidOutline? = null
     private var outlineDirty = true
-    private var roundRectOutlineTopLeft: IntOffset = UnsetOffset
-    private var roundRectOutlineSize: IntSize = UnsetSize
+    private var roundRectOutlineTopLeft: Offset = Offset.Unspecified
+    private var roundRectOutlineSize: Size = Size.Unspecified
     private var roundRectCornerRadius: Float = 0f
 
     private var internalOutline: Outline? = null
@@ -549,10 +552,10 @@ actual class GraphicsLayer internal constructor(
                     val roundRectOutline = obtainAndroidOutline().apply {
                         resolveOutlinePosition { outlineTopLeft, outlineSize ->
                             setRoundRect(
-                                outlineTopLeft.x,
-                                outlineTopLeft.y,
-                                outlineTopLeft.x + outlineSize.width,
-                                outlineTopLeft.y + outlineSize.height,
+                                outlineTopLeft.x.fastRoundToInt(),
+                                outlineTopLeft.y.fastRoundToInt(),
+                                (outlineTopLeft.x + outlineSize.width).fastRoundToInt(),
+                                (outlineTopLeft.y + outlineSize.height).fastRoundToInt(),
                                 roundRectCornerRadius
                             )
                         }
@@ -566,18 +569,18 @@ actual class GraphicsLayer internal constructor(
         outlineDirty = false
     }
 
-    private inline fun <T> resolveOutlinePosition(block: (IntOffset, IntSize) -> T): T {
-        val layerTopLeft = this.topLeft
-        val layerSize = this.size
+    private inline fun <T> resolveOutlinePosition(block: (Offset, Size) -> T): T {
+        val layerTopLeft = this.topLeft.toOffset()
+        val layerSize = this.size.toSize()
         val rRectTopLeft = roundRectOutlineTopLeft
         val rRectSize = roundRectOutlineSize
-        val outlineTopLeft = if (rRectTopLeft == UnsetOffset) {
+        val outlineTopLeft = if (rRectTopLeft.isUnspecified) {
             layerTopLeft
         } else {
             rRectTopLeft
         }
 
-        val outlineSize = if (rRectSize == UnsetSize) {
+        val outlineSize = if (rRectSize.isUnspecified) {
             layerSize
         } else {
             rRectSize
@@ -666,8 +669,8 @@ actual class GraphicsLayer internal constructor(
                 Outline.Generic(tmpPath).also { internalOutline = it }
             } else {
                 resolveOutlinePosition { outlineTopLeft, outlineSize ->
-                    val left = outlineTopLeft.x.toFloat()
-                    val top = outlineTopLeft.y.toFloat()
+                    val left = outlineTopLeft.x
+                    val top = outlineTopLeft.y
                     val right = left + outlineSize.width
                     val bottom = top + outlineSize.height
                     val cornerRadius = this.roundRectCornerRadius
@@ -685,8 +688,8 @@ actual class GraphicsLayer internal constructor(
     private fun resetOutlineParams() {
         internalOutline = null
         outlinePath = null
-        roundRectOutlineSize = UnsetSize
-        roundRectOutlineTopLeft = UnsetOffset
+        roundRectOutlineSize = Size.Unspecified
+        roundRectOutlineTopLeft = Offset.Unspecified
         roundRectCornerRadius = 0f
         outlineDirty = true
     }
@@ -707,8 +710,8 @@ actual class GraphicsLayer internal constructor(
 
     /**
      * Specifies a round rect as the outline.
-     * By default, both [topLeft] and [size] are set to [UnsetOffset] and [UnsetSize] indicating
-     * that the outline should match the bounds of the [GraphicsLayer].
+     * By default, both [topLeft] and [size] are set to [Offset.Unspecified] and [Size.Unspecified]
+     * indicating that the outline should match the bounds of the [GraphicsLayer].
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
@@ -716,7 +719,7 @@ actual class GraphicsLayer internal constructor(
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
-    actual fun setRoundRectOutline(topLeft: IntOffset, size: IntSize, cornerRadius: Float) {
+    actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
         if (this.roundRectOutlineTopLeft != topLeft ||
             this.roundRectOutlineSize != size ||
             this.roundRectCornerRadius != cornerRadius
@@ -731,10 +734,10 @@ actual class GraphicsLayer internal constructor(
 
     /**
      * Configures a rectangular outline for this [GraphicsLayer]. By default, both [topLeft] and
-     * [size] are set to [UnsetOffset] and [UnsetSize] indicating that the outline should match the
-     * bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow is produced
-     * using with an [Outline] created from the rect parameters provided. Additionally if
-     * [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
+     * [size] are set to [Offset.Unspecified] and [Size.Unspecified] indicating that the outline
+     * should match the bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * is produced using with an [Outline] created from the rect parameters provided. Additionally
+     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
@@ -742,8 +745,8 @@ actual class GraphicsLayer internal constructor(
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
     actual fun setRectOutline(
-        topLeft: IntOffset,
-        size: IntSize
+        topLeft: Offset,
+        size: Size
     ) {
         setRoundRectOutline(topLeft, size, 0f)
     }
@@ -800,9 +803,7 @@ actual class GraphicsLayer internal constructor(
     actual suspend fun toImageBitmap(): ImageBitmap =
         SnapshotImpl.toBitmap(this).asImageBitmap()
 
-    actual companion object {
-        actual val UnsetOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
-        actual val UnsetSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+    companion object {
 
         private val SnapshotImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             LayerSnapshotV28
