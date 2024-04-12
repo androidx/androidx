@@ -39,7 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /**
  * Detects tap, double-tap, and long press gestures and calls [onTap], [onDoubleTap], and
@@ -212,39 +215,40 @@ internal suspend fun AwaitPointerEventScope.awaitPress(
  *
  * The order of callback execution is guaranteed.
  *
- * @param onTap  A callback function that will be called when a single tap gesture is detected. It will receive the position (Offset) where the tap occurred.
- * @param onDoubleTap  A callback function that will be called when a double tap gesture is detected. It will receive the position (Offset) where the tap occurred.
- * @param onTripleTap  A callback function that will be called when a triple tap gesture is detected. It will receive the position (Offset) where the tap occurred.
+ * @param onTapRelease  A callback function that will be called when a single tap and release gesture is detected. It will receive the position (Offset) where the tap occurred.
+ * @param onDoubleTapPress  A callback function that will be called when a double tap gesture is detected. It will receive the position (Offset) where the tap occurred.
+ * @param onTripleTapPress  A callback function that will be called when a triple tap gesture is detected. It will receive the position (Offset) where the tap occurred.
  */
 internal suspend fun PointerInputScope.detectRepeatingTapGestures(
-    onTap: ((Offset) -> Unit)? = null,
-    onDoubleTap: ((Offset) -> Unit)? = null,
-    onTripleTap: ((Offset) -> Unit)? = null,
+    onTapRelease: ((Offset) -> Unit)? = null,
+    onDoubleTapPress: ((Offset) -> Unit)? = null,
+    onTripleTapPress: ((Offset) -> Unit)? = null,
 ) {
     awaitEachGesture {
         val touchesCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
         while (true) {
-            val down = awaitFirstDown()
-            touchesCounter.update(down)
-            val downChange = down
+            val downChange = awaitFirstDown()
+            touchesCounter.update(downChange)
             when (touchesCounter.clicks) {
                 1 -> {
-                    if (onTap != null) {
-                        onTap(downChange.position)
-                        downChange.consume()
+                    if (onTapRelease != null) {
+                        waitForUpOrCancellation()?.let {
+                            onTapRelease(it.position)
+                            it.consume()
+                        }
                     }
                 }
 
                 2 -> {
-                    if (onDoubleTap != null) {
-                        onDoubleTap(downChange.position)
+                    if (onDoubleTapPress != null) {
+                        onDoubleTapPress(downChange.position)
                         downChange.consume()
                     }
                 }
 
                 else -> {
-                    if (onTripleTap != null) {
-                        onTripleTap(downChange.position)
+                    if (onTripleTapPress != null) {
+                        onTripleTapPress(downChange.position)
                         downChange.consume()
                     }
                 }
