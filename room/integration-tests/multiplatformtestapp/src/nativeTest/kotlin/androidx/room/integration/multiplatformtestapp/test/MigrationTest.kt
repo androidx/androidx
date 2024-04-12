@@ -26,25 +26,24 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import platform.posix.remove
 
-class AutoMigrationTest : BaseAutoMigrationTest() {
+class MigrationTest : BaseMigrationTest() {
     private val filename = "/tmp/test-${Random.nextInt()}.db"
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
-    private val dbFactory = { AutoMigrationDatabase::class.instantiateImpl() }
+    private val dbFactory = { MigrationDatabase::class.instantiateImpl() }
 
     private val migrationTestHelper = MigrationTestHelper(
         schemaDirectoryPath = getSchemaDirectoryPath(),
         fileName = filename,
         driver = driver,
-        databaseClass = AutoMigrationDatabase::class,
-        databaseFactory = dbFactory,
-        autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+        databaseClass = MigrationDatabase::class,
+        databaseFactory = dbFactory
     )
 
     override fun getTestHelper() = migrationTestHelper
 
-    override fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase> {
-        return Room.databaseBuilder<AutoMigrationDatabase>(filename, dbFactory)
+    override fun getDatabaseBuilder(): RoomDatabase.Builder<MigrationDatabase> {
+        return Room.databaseBuilder<MigrationDatabase>(filename, dbFactory)
             .setDriver(driver)
     }
 
