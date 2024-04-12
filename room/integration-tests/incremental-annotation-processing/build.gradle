@@ -48,6 +48,7 @@ tasks.withType(Test).configureEach { test ->
             ":room:room-migration:publish",
             ":room:room-compiler:publish",
             ":room:room-compiler-processing:publish",
+            ":room:room-external-antlr:publish",
             ":sqlite:sqlite:publish",
             ":sqlite:sqlite-framework:publish",
     )
