@@ -199,15 +199,15 @@ internal class MagnifierElement(
         if (this === other) return true
         if (other !is MagnifierElement) return false
 
-        if (sourceCenter != other.sourceCenter) return false
-        if (magnifierCenter != other.magnifierCenter) return false
+        if (sourceCenter !== other.sourceCenter) return false
+        if (magnifierCenter !== other.magnifierCenter) return false
         if (zoom != other.zoom) return false
         if (useTextDefault != other.useTextDefault) return false
         if (size != other.size) return false
         if (cornerRadius != other.cornerRadius) return false
         if (elevation != other.elevation) return false
         if (clippingEnabled != other.clippingEnabled) return false
-        if (onSizeChanged != other.onSizeChanged) return false
+        if (onSizeChanged !== other.onSizeChanged) return false
         if (platformMagnifierFactory != other.platformMagnifierFactory) return false
 
         return true

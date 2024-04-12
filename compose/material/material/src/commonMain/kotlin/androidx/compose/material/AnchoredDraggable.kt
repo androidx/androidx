@@ -838,7 +838,7 @@ private class DraggableAnchorsElement<T>(
         if (other !is DraggableAnchorsElement<*>) return false
 
         if (state != other.state) return false
-        if (anchors != other.anchors) return false
+        if (anchors !== other.anchors) return false
         if (orientation != other.orientation) return false
 
         return true

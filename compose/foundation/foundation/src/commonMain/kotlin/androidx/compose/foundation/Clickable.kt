@@ -514,7 +514,7 @@ private class ClickableElement(
         if (enabled != other.enabled) return false
         if (onClickLabel != other.onClickLabel) return false
         if (role != other.role) return false
-        if (onClick != other.onClick) return false
+        if (onClick !== other.onClick) return false
 
         return true
     }
@@ -592,10 +592,10 @@ private class CombinedClickableElement(
         if (enabled != other.enabled) return false
         if (onClickLabel != other.onClickLabel) return false
         if (role != other.role) return false
-        if (onClick != other.onClick) return false
+        if (onClick !== other.onClick) return false
         if (onLongClickLabel != other.onLongClickLabel) return false
-        if (onLongClick != other.onLongClick) return false
-        if (onDoubleClick != other.onDoubleClick) return false
+        if (onLongClick !== other.onLongClick) return false
+        if (onDoubleClick !== other.onDoubleClick) return false
 
         return true
     }
@@ -826,7 +826,7 @@ private class CombinedClickableNodeImpl(
             resetPointerInputHandling = true
         }
 
-        if (this.onLongClick != onLongClick) {
+        if (this.onLongClick !== onLongClick) {
             this.onLongClick = onLongClick
             invalidateSemantics()
         }
@@ -1225,9 +1225,9 @@ private class ClickableSemanticsElement(
         if (enabled != other.enabled) return false
         if (role != other.role) return false
         if (onLongClickLabel != other.onLongClickLabel) return false
-        if (onLongClick != other.onLongClick) return false
+        if (onLongClick !== other.onLongClick) return false
         if (onClickLabel != other.onClickLabel) return false
-        if (onClick != other.onClick) return false
+        if (onClick !== other.onClick) return false
 
         return true
     }

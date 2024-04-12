@@ -65,7 +65,7 @@ private class HandwritingDelegatorElement(
     override fun hashCode() = 31 * callback.hashCode()
 
     override fun equals(other: Any?) =
-        (this === other) or ((other is HandwritingDelegatorElement) && callback == other.callback)
+        (this === other) or ((other is HandwritingDelegatorElement) && callback === other.callback)
 
     override fun InspectorInfo.inspectableProperties() {
         name = "handwritingDelegator"

@@ -209,12 +209,12 @@ internal class TextAnnotatedStringNode(
     ): Boolean {
         var changed = false
 
-        if (this.onTextLayout != onTextLayout) {
+        if (this.onTextLayout !== onTextLayout) {
             this.onTextLayout = onTextLayout
             changed = true
         }
 
-        if (this.onPlaceholderLayout != onPlaceholderLayout) {
+        if (this.onPlaceholderLayout !== onPlaceholderLayout) {
             this.onPlaceholderLayout = onPlaceholderLayout
             changed = true
         }
@@ -224,7 +224,7 @@ internal class TextAnnotatedStringNode(
             changed = true
         }
 
-        if (this.onShowTranslation != onShowTranslation) {
+        if (this.onShowTranslation !== onShowTranslation) {
             this.onShowTranslation = onShowTranslation
             changed = true
         }
