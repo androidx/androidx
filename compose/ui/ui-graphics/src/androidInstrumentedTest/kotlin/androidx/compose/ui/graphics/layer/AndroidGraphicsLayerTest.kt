@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -794,7 +796,7 @@ class AndroidGraphicsLayerTest {
                     record(halfSize) {
                         drawRect(targetColor)
                     }
-                    setRoundRectOutline(IntOffset.Zero, halfSize, radius)
+                    setRoundRectOutline(Offset.Zero, halfSize.toSize(), radius)
                     shadowElevation = 20f
                 }
 
@@ -1130,7 +1132,7 @@ class AndroidGraphicsLayerTest {
                     record {
                         drawRect(targetColor)
                     }
-                    setRectOutline(this.size.center, this.size / 2)
+                    setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
                     clip = true
                 }
                 drawRect(bgColor)
@@ -1231,8 +1233,8 @@ class AndroidGraphicsLayerTest {
                         drawRect(targetColor)
                     }
                     setRoundRectOutline(
-                        this.size.center,
-                        this.size / 2,
+                        this.size.center.toOffset(),
+                        (this.size / 2).toSize(),
                         radius.toFloat()
                     )
                     clip = true
@@ -1315,7 +1317,7 @@ class AndroidGraphicsLayerTest {
                     clip = true
                     // then with providing an outline we should disable clipToBounds and start
                     // using clipToOutline instead
-                    setRectOutline(IntOffset(-inset.toInt(), -inset.toInt()), fullSize.toIntSize())
+                    setRectOutline(Offset(-inset, -inset), fullSize)
                 }
 
                 drawRect(Color.Black)
