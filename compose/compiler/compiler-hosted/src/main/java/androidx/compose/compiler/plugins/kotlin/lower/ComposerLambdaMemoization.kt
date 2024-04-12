@@ -98,6 +98,7 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.isJs
+import org.jetbrains.kotlin.platform.isWasm
 import org.jetbrains.kotlin.platform.jvm.isJvm
 
 private class CaptureCollector {
@@ -869,24 +870,23 @@ class ComposerLambdaMemoization(
         val function = expression.function
         val argumentCount = function.valueParameters.size
 
-        val isJs = context.platform.isJs()
-        if (argumentCount > MAX_RESTART_ARGUMENT_COUNT && isJs) {
+        if (argumentCount > MAX_RESTART_ARGUMENT_COUNT && !context.platform.isJvm()) {
             error(
                 "only $MAX_RESTART_ARGUMENT_COUNT parameters " +
-                    "in @Composable lambda are supported on JS"
+                    "in @Composable lambda are supported on" +
+                    "non-JVM targets (K/JS or K/Wasm or K/Native)"
             )
         }
 
         val useComposableLambdaN = argumentCount > MAX_RESTART_ARGUMENT_COUNT
         val useComposableFactory = collector.hasCaptures && declarationContext.composable
-        val rememberComposableN = rememberComposableLambdaNFunction ?: composableLambdaNFunction
         val rememberComposable = rememberComposableLambdaFunction ?: composableLambdaFunction
         val requiresExplicitComposerParameter = useComposableFactory &&
             rememberComposableLambdaFunction == null
         val restartFactorySymbol =
             if (useComposableFactory)
                 if (useComposableLambdaN)
-                    rememberComposableN
+                    rememberComposableLambdaNFunction ?: composableLambdaNFunction
                 else rememberComposable
             else if (useComposableLambdaN)
                 composableLambdaInstanceNFunction
@@ -952,7 +952,7 @@ class ComposerLambdaMemoization(
     ): IrExpression {
         // Kotlin/JS doesn't have an optimization for non-capturing lambdas
         // https://youtrack.jetbrains.com/issue/KT-49923
-        val skipNonCapturingLambdas = !context.platform.isJs()
+        val skipNonCapturingLambdas = !context.platform.isJs() && !context.platform.isWasm()
 
         // If the function doesn't capture, Kotlin's default optimization is sufficient
         if (captures.isEmpty() && skipNonCapturingLambdas) {
