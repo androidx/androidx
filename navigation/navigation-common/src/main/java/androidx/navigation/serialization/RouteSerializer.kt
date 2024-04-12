@@ -40,9 +40,12 @@ import kotlinx.serialization.serializer
  *
  * @param [typeMap] A mapping of KType to the custom NavType<*>. For example given
  * an argument of "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
+ * @param [path] The base path to append arguments to. If null, base path defaults to
+ * [KSerializer.descriptor].serialName.
  */
 internal fun <T> KSerializer<T>.generateRoutePattern(
-    typeMap: Map<KType, NavType<*>> = emptyMap()
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    path: String? = null,
 ): String {
     assertNotAbstractClass {
         throw IllegalArgumentException(
@@ -58,7 +61,11 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
         val type = descriptor.getElementDescriptor(i).computeNavType(typeMap)
         map[argName] = type
     }
-    val builder = RouteBuilder.Pattern(this, map)
+    val builder = if (path != null) {
+        RouteBuilder.Pattern(path, this, map)
+    } else {
+        RouteBuilder.Pattern(this, map)
+    }
     for (elementIndex in 0 until descriptor.elementsCount) {
         builder.addArg(elementIndex)
     }
