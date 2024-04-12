@@ -44,7 +44,8 @@ dependencies {
 
 android {
     namespace "androidx.privacysandbox.sdkruntime.provider"
-    compileSdkVersion = "android-34-ext10"
+    compileSdk = 34
+    compileSdkExtension = 10
 }
 
 androidx {

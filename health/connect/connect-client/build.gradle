@@ -86,7 +86,8 @@ android {
     }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.health.connect.client"
-    compileSdkVersion = "android-34-ext10"
+    compileSdk = 34
+    compileSdkExtension = 10
 }
 
 androidx {

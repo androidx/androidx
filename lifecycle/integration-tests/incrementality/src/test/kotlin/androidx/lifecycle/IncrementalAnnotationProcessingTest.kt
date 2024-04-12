@@ -237,7 +237,7 @@ class IncrementalAnnotationProcessingTest {
 
             android {
                 namespace "androidx.lifecycle.incap"
-                compileSdkVersion ${projectSetup.props.compileSdkVersion}
+                compileSdk ${projectSetup.props.compileSdk}
                 buildToolsVersion "${projectSetup.props.buildToolsVersion}"
 
                 defaultConfig {

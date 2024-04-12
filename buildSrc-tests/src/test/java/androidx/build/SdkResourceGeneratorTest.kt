@@ -46,6 +46,7 @@ class SdkResourceGeneratorTest {
         project.setSupportRootFolder(File("files/support"))
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
         extension.set("prebuiltsRoot", project.projectDir.resolve("relative/prebuilts"))
+        extension.set("androidx.compileSdk", 33)
 
         val taskProvider = SdkResourceGenerator.registerSdkResourceGeneratorTask(project)
         val tasks = project.getTasksByName(SdkResourceGenerator.TASK_NAME, false)
