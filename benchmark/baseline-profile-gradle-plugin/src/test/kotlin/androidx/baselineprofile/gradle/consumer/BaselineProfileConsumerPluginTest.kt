@@ -1308,7 +1308,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
     }
 
     @Test
-    fun whenBenchmarkVariantsAreDisabledShouldThrowException() {
+    fun whenBenchmarkVariantsAreDisabledShouldNotify() {
         // Note that this test doesn't works only on AGP > 8.0.0 because in previous versions
         // the benchmark variant is not created.
         assumeTrue(agpVersion != TEST_AGP_VERSION_8_0_0)
@@ -1341,15 +1341,8 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             )
         )
 
-        gradleRunner.buildAndFailAndAssertThatOutput("generateBaselineProfile") {
-            contains(
-                "java.lang.IllegalStateException: The task `mergeBenchmarkReleaseArtProfile` " +
-                    "doesn't exist. This may be related to a `beforeVariants` block filtering " +
-                    "variants and disabling`benchmarkRelease`. Please check your gradle " +
-                    "configuration and make sure variants with build type `benchmarkRelease` are " +
-                    "enabled. For more information on variant filters check out the docs at " +
-                    "https://developer.android.com/build/build-variants#filter-variants."
-            )
+        gradleRunner.buildAndAssertThatOutput("tasks", "--info") {
+            contains("Variant `benchmarkRelease` is disabled.")
         }
     }
 }
