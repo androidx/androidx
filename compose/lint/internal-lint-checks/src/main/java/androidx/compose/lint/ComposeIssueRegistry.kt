@@ -37,6 +37,7 @@ class ComposeIssueRegistry : IssueRegistry() {
             CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
             CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE,
             PrimitiveInCollectionDetector.ISSUE,
+            LambdaStructuralEqualityDetector.ISSUE
         )
     }
     override val vendor = Vendor(

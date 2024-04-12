@@ -620,7 +620,7 @@ class CustomAccessibilityAction(val label: String, val action: () -> Boolean) {
         if (other !is CustomAccessibilityAction) return false
 
         if (label != other.label) return false
-        if (action != other.action) return false
+        if (action !== other.action) return false
 
         return true
     }

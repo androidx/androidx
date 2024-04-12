@@ -67,7 +67,7 @@ private class ModifierLocalConsumerImpl(
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is ModifierLocalConsumerImpl && other.consumer == consumer
+        return other is ModifierLocalConsumerImpl && other.consumer === consumer
     }
 
     override fun hashCode() = consumer.hashCode()

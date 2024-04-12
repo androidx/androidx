@@ -559,7 +559,7 @@ internal class WithAlignmentLineBlockElement(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         val otherModifier = other as? WithAlignmentLineBlockElement ?: return false
-        return block == otherModifier.block
+        return block === otherModifier.block
     }
 
     override fun hashCode(): Int = block.hashCode()

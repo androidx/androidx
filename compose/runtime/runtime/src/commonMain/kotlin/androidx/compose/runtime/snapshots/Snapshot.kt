@@ -1794,7 +1794,7 @@ private fun mergedReadObserver(
 ): ((Any) -> Unit)? {
     @Suppress("NAME_SHADOWING")
     val parentObserver = if (mergeReadObserver) parentObserver else null
-    return if (readObserver != null && parentObserver != null && readObserver != parentObserver) {
+    return if (readObserver != null && parentObserver != null && readObserver !== parentObserver) {
         { state: Any ->
             readObserver(state)
             parentObserver(state)
@@ -1806,7 +1806,7 @@ private fun mergedWriteObserver(
     writeObserver: ((Any) -> Unit)?,
     parentObserver: ((Any) -> Unit)?
 ): ((Any) -> Unit)? =
-    if (writeObserver != null && parentObserver != null && writeObserver != parentObserver) {
+    if (writeObserver != null && parentObserver != null && writeObserver !== parentObserver) {
         { state: Any ->
             writeObserver(state)
             parentObserver(state)
