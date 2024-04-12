@@ -308,6 +308,18 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
                     val suppressKotlinVersionCheck = configuration.get(
                         ComposeConfiguration.SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK
                     )
+
+                    val decoysEnabled =
+                        configuration.get(ComposeConfiguration.DECOYS_ENABLED_KEY, false)
+                    if (decoysEnabled) {
+                        msgCollector?.report(
+                            CompilerMessageSeverity.ERROR,
+                            "decoys generation should be disabled" +
+                                " for Compose Multiplatform projects"
+                        )
+                        return false
+                    }
+
                     if (
                         suppressKotlinVersionCheck != null &&
                         suppressKotlinVersionCheck != version
