@@ -18,6 +18,8 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
@@ -117,6 +119,30 @@ object SemanticsProperties {
     val InvisibleToUser = SemanticsPropertyKey<Unit>(
         name = "InvisibleToUser",
         mergePolicy = { parentValue, _ ->
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.contentType
+     */
+    // TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+    internal val ContentType = SemanticsPropertyKey<ContentType>(
+        name = "ContentType",
+        mergePolicy = { parentValue, _ ->
+            // Never merge autofill types
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.contentDataType
+     */
+    // TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+    internal val ContentDataType = SemanticsPropertyKey<ContentDataType>(
+        name = "ContentDataType",
+        mergePolicy = { parentValue, _ ->
+            // Never merge autofill data types
             parentValue
         }
     )
@@ -942,6 +968,28 @@ var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversa
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }
+
+/**
+ * Content field type information.
+ *
+ * This API can be used to indicate to Autofill services what _kind of field_ is associated with
+ * this node. Not to be confused with the _data type_ to be entered into the field.
+ *
+ *  @see SemanticsProperties.ContentType
+ */
+// TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+internal var SemanticsPropertyReceiver.contentType by SemanticsProperties.ContentType
+
+/**
+ * Content data type information.
+ *
+ * This API can be used to indicate to Autofill services what _kind of data_ is meant to be
+ * suggested for this field. Not to be confused with the _type_ of the field.
+ *
+ *  @see SemanticsProperties.ContentType
+ */
+// TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+internal var SemanticsPropertyReceiver.contentDataType by SemanticsProperties.ContentDataType
 
 /**
  * A value to manually control screenreader traversal order.
