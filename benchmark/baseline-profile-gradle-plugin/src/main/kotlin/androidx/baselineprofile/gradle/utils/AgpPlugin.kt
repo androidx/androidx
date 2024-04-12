@@ -222,6 +222,13 @@ internal abstract class AgpPlugin(
     protected fun onVariant(variantName: String, block: (TestVariant) -> (Unit)) =
         onTestVariantBlockScheduler.executeOrScheduleOnVariantBlock(variantName, block)
 
+    protected fun removeOnVariantCallback(variantName: String) {
+        onVariantBlockScheduler.removeOnVariantCallback(variantName)
+        onAppVariantBlockScheduler.removeOnVariantCallback(variantName)
+        onLibraryVariantBlockScheduler.removeOnVariantCallback(variantName)
+        onTestVariantBlockScheduler.removeOnVariantCallback(variantName)
+    }
+
     protected fun agpVersion() = project.agpVersion()
 
     private fun checkAgpVersion() {
@@ -370,6 +377,10 @@ private class OnVariantBlockScheduler<T : Variant>(private val variantTypeName: 
         } else {
             onVariantBlocks.computeIfAbsent(variantName) { mutableListOf() } += block
         }
+    }
+
+    fun removeOnVariantCallback(variantName: String) {
+        onVariantBlocks.remove(variantName)
     }
 
     fun onVariant(variant: T) {

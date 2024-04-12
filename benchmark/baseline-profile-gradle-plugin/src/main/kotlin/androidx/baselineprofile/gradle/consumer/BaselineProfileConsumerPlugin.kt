@@ -40,6 +40,7 @@ import androidx.baselineprofile.gradle.utils.namedOrNull
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.ApplicationVariantBuilder
 import com.android.build.api.variant.Variant
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -152,6 +153,38 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             .filter { it.name != "debug" }
             .map { it.name }
         )
+    }
+
+    override fun onApplicationBeforeVariants(variantBuilder: ApplicationVariantBuilder) {
+
+        // Note that the lifecycle is for each variant `beforeVariant`, `onVariant`. This means
+        // that the `onVariant` for the base variants of the module (for example `release`) will
+        // run before `beforeVariant` of `benchmarkRelease` and `nonMinifiedRelease`.
+        // Since we schedule some callbacks in for benchmark and nonMinified variants in the
+        // onVariant callback for the base variants, this is the place where we can remove them,
+        // in case the benchmark and nonMinified variants have been disabled.
+
+        val isBaselineProfilePluginCreatedBuildType = variantBuilder.buildType?.let {
+            it.startsWith(BUILD_TYPE_BASELINE_PROFILE_PREFIX) ||
+                it.startsWith(BUILD_TYPE_BENCHMARK_PREFIX)
+        } ?: false
+
+        // Note that the callback should be remove at the end, after all the variants
+        // have been processed. This is because the benchmark and nonMinified variants can be
+        // disabled at any point AFTER the plugin has been applied. So checking immediately here
+        // would tell us that the variant is enabled, while it could be disabled later.
+        afterVariants {
+            if (!variantBuilder.enable && isBaselineProfilePluginCreatedBuildType) {
+                removeOnVariantCallback(variantBuilder.name)
+                logger.info(
+                    "Variant `${variantBuilder.name}` is disabled. If this " +
+                        "is not intentional, please check your gradle configuration " +
+                        "for beforeVariants blocks. For more information on variant " +
+                        "filters checkout the docs at https://developer.android.com/" +
+                        "build/build-variants#filter-variants."
+                )
+            }
+        }
     }
 
     @Suppress("UnstableApiUsage")
@@ -378,46 +411,30 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
 
             if (isApplicationModule()) {
                 // Defines a function to apply the baseline profile source sets to a variant.
-                fun applySourceSets(variantName: String, variantBuildType: String?) {
+                fun applySourceSets(variantName: String) {
                     val taskName = camelCase("merge", variantName, "artProfile")
                     project
                         .tasks
                         .namedOrNull<Task>(taskName)
                         ?.configure { t ->
-
-                            // TODO: this causes a circular task dependency when the producer points
-                            //  to a consumer that does not have the appTarget plugin. (b/272851616)
+                            // This causes a circular task dependency when the producer points to
+                            // a consumer that does not have the appTarget plugin. (b/272851616)
                             if (automaticGeneration) {
                                 t.dependsOn(copyTaskProvider)
                             } else {
                                 t.mustRunAfter(copyTaskProvider)
                             }
                         }
-                        ?: throw IllegalStateException(
-                            "The task `$taskName` doesn't exist. This may be related to a " +
-                                "`beforeVariants` block filtering variants and disabling" +
-                                "`$variantName`. Please check your gradle configuration and make " +
-                                "sure variants with build type `$variantBuildType` are " +
-                                "enabled. For more information on variant filters check out the " +
-                                "docs at https://developer.android.com/build/build-variants#" +
-                                "filter-variants."
-                        )
                 }
 
                 afterVariants {
 
                     // Apply the source sets to the variant.
-                    applySourceSets(
-                        variant.name,
-                        variant.buildType
-                    )
+                    applySourceSets(variant.name)
 
                     // Apply the source sets to the benchmark variant if supported.
                     if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
-                        applySourceSets(
-                            variant.benchmarkVariantName,
-                            variant.benchmarkBuildType
-                        )
+                        applySourceSets(variant.benchmarkVariantName)
                     }
                 }
             }
