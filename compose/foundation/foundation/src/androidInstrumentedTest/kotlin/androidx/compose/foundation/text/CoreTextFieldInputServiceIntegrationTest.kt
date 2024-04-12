@@ -42,7 +42,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -516,6 +518,48 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         rule.runOnIdle {
             assertThat(cursorAnchorInfos).hasSize(1)
+        }
+    }
+
+    @Test
+    fun textField_stopAndStartInput_whenToggleWindowFocus() {
+        val value = TextFieldValue("abc")
+        val focusRequester = FocusRequester()
+
+        val focusWindow = mutableStateOf(true)
+        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
+            override val isWindowFocused: Boolean
+                get() = focused
+        }
+
+        setContent {
+            CompositionLocalProvider(
+                LocalWindowInfo provides createWindowInfo(focusWindow.value)
+            ) {
+                CoreTextField(
+                    value = value,
+                    onValueChange = {},
+                    modifier = Modifier.focusRequester(focusRequester)
+                )
+            }
+        }
+
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            inputMethodInterceptor.assertSessionActive()
+        }
+
+        focusWindow.value = false
+        rule.runOnIdle {
+            inputMethodInterceptor.assertNoSessionActive()
+        }
+
+        focusWindow.value = true
+        rule.runOnIdle {
+            inputMethodInterceptor.assertSessionActive()
         }
     }
 
