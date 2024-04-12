@@ -30,10 +30,10 @@ import kotlin.math.max
 
 @ExperimentalFoundationApi
 @Composable
-internal actual fun rememberDefaultPrefetchExecutor(): PrefetchExecutor {
+internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
     val view = LocalView.current
     return remember(view) {
-        AndroidPrefetchExecutor(view)
+        AndroidPrefetchScheduler(view)
     }
 }
 
@@ -93,9 +93,9 @@ internal actual fun rememberDefaultPrefetchExecutor(): PrefetchExecutor {
  *    Tracking bug: 187393922
  */
 @ExperimentalFoundationApi
-internal class AndroidPrefetchExecutor(
+internal class AndroidPrefetchScheduler(
     private val view: View
-) : PrefetchExecutor, RememberObserver, Runnable, Choreographer.FrameCallback {
+) : PrefetchScheduler, RememberObserver, Runnable, Choreographer.FrameCallback {
 
     /**
      * The list of currently not processed prefetch requests. The requests will be processed one by
@@ -159,7 +159,7 @@ internal class AndroidPrefetchExecutor(
         }
     }
 
-    override fun requestPrefetch(prefetchRequest: PrefetchRequest) {
+    override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
         prefetchRequests.add(prefetchRequest)
         if (!prefetchScheduled) {
             prefetchScheduled = true

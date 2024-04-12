@@ -267,7 +267,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
-    internal val prefetchState = LazyLayoutPrefetchState(prefetchStrategy.prefetchExecutor) {
+    internal val prefetchState = LazyLayoutPrefetchState(prefetchStrategy.prefetchScheduler) {
         with(prefetchStrategy) {
             onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
         }
