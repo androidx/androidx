@@ -339,6 +339,28 @@ class AnchoredDraggableStateTest {
     }
 
     @Test
+    fun anchoredDraggable_currentValue_updatedWithDeltaDispatch() =
+        runBlocking(AutoTestFrameClock()) {
+            val state = AnchoredDraggableState(
+                initialValue = A,
+                positionalThreshold = defaultPositionalThreshold,
+                velocityThreshold = defaultVelocityThreshold,
+                snapAnimationSpec = defaultAnimationSpec,
+                decayAnimationSpec = defaultDecayAnimationSpec,
+                anchors = DraggableAnchors {
+                    A at 0f
+                    B at 20f
+                    C at 40f
+                }
+            )
+
+            state.testProgression(from = A, to = B, valueUnderTest = { currentValue })
+            state.testProgression(from = B, to = C, valueUnderTest = { currentValue })
+            state.testProgression(from = C, to = B, valueUnderTest = { currentValue })
+            state.testProgression(from = B, to = A, valueUnderTest = { currentValue })
+        }
+
+    @Test
     fun anchoredDraggable_progress() {
         rule.mainClock.autoAdvance = false
         val animationDuration = 320
@@ -1617,6 +1639,30 @@ class AnchoredDraggableStateTest {
         }
         runBlocking { clock.advanceByFrame() } // Advance only one frame, we should be done
         assertThat(state.offset).isEqualTo(200f)
+    }
+
+    /**
+     * Test the [valueUnderTest] progressively for each delta from [from] to [to].
+     */
+    private suspend fun<T> AnchoredDraggableState<T>.testProgression(
+        valueUnderTest: AnchoredDraggableState<T>.() -> Any,
+        from: T,
+        to: T
+    ) {
+        anchoredDrag { anchors ->
+            val origin = anchors.positionOf(from).roundToInt()
+            val destination = anchors.positionOf(to).roundToInt()
+            val distance = abs(origin - destination)
+            for (value in origin..destination) {
+                dragTo(value.toFloat())
+                val expectedCurrentValue = if (value < origin + (distance / 2)) from else to
+                assertWithMessage(
+                    "Going from $from@$origin to $to@$destination (distance $distance). " +
+                        "Dragged to $value, offset is now $offset but value is unexpected."
+                ).that(valueUnderTest()).isEqualTo(expectedCurrentValue)
+            }
+        }
+        settle(0f)
     }
 
     private suspend fun suspendIndefinitely() = suspendCancellableCoroutine<Unit> { }
