@@ -314,6 +314,15 @@ expect abstract class RoomDatabase() {
         ): Builder<T>
 
         /**
+         * Adds a type converter instance to the builder.
+         *
+         * @param typeConverter The converter instance that is annotated with
+         * [ProvidedTypeConverter].
+         * @return This builder instance.
+         */
+        fun addTypeConverter(typeConverter: Any): Builder<T>
+
+        /**
          * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
          * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
          *
@@ -571,7 +580,7 @@ internal fun RoomDatabase.validateTypeConverters(configuration: DatabaseConfigur
                 }
             }
             require(foundIndex >= 0) {
-                "A required type converter ($converter) for" +
+                "A required type converter (${converter.qualifiedName}) for" +
                     " ${daoName.qualifiedName} is missing in the database configuration."
             }
             addTypeConverter(converter, configuration.typeConverters[foundIndex])

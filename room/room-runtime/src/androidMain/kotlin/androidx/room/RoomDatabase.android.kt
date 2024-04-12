@@ -1536,13 +1536,13 @@ actual abstract class RoomDatabase {
         }
 
         /**
-         * Adds a type converter instance to this database.
+         * Adds a type converter instance to the builder.
          *
-         * @param typeConverter The converter. It must be an instance of a class annotated with
-         * [ProvidedTypeConverter] otherwise Room will throw an exception.
+         * @param typeConverter The converter instance that is annotated with
+         * [ProvidedTypeConverter].
          * @return This builder instance.
          */
-        open fun addTypeConverter(typeConverter: Any) = apply {
+        actual open fun addTypeConverter(typeConverter: Any) = apply {
             this.typeConverters.add(typeConverter)
         }
 

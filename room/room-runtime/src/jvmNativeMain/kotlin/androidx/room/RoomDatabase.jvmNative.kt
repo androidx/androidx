@@ -289,6 +289,7 @@ actual abstract class RoomDatabase {
 
         private var driver: SQLiteDriver? = null
         private val callbacks = mutableListOf<Callback>()
+        private val typeConverters: MutableList<Any> = mutableListOf()
         private var queryCoroutineContext: CoroutineContext? = null
 
         /**
@@ -437,6 +438,17 @@ actual abstract class RoomDatabase {
         }
 
         /**
+         * Adds a type converter instance to the builder.
+         *
+         * @param typeConverter The converter instance that is annotated with
+         * [ProvidedTypeConverter].
+         * @return This builder instance.
+         */
+        actual fun addTypeConverter(typeConverter: Any) = apply {
+            this.typeConverters.add(typeConverter)
+        }
+
+        /**
          * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
          * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
          *
@@ -487,7 +499,7 @@ actual abstract class RoomDatabase {
                 requireMigration = requireMigration,
                 allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
                 migrationNotRequiredFrom = migrationsNotRequiredFrom,
-                typeConverters = emptyList(),
+                typeConverters = typeConverters,
                 autoMigrationSpecs = autoMigrationSpecs,
                 allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
                 sqliteDriver = driver,

@@ -37,7 +37,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 
-abstract class BaseSimpleQueryTest {
+abstract class BaseQueryTest {
 
     private lateinit var db: SampleDatabase
 
