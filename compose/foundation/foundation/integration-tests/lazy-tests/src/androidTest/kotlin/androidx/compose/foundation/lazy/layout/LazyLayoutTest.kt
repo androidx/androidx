@@ -334,7 +334,7 @@ class LazyLayoutTest {
                     .testTag("$index"))
         }
 
-        val executor = RecordingPrefetchExecutor()
+        val executor = RecordingPrefetchScheduler()
         val prefetchState = LazyLayoutPrefetchState(executor)
         rule.setContent {
             LazyLayout(itemProvider, prefetchState = prefetchState) {
@@ -348,7 +348,7 @@ class LazyLayoutTest {
 
         assertThat(executor.requests).hasSize(1)
 
-        // Default PrefetchExecutor behavior should be overridden
+        // Default PrefetchScheduler behavior should be overridden
         rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
@@ -574,12 +574,12 @@ class LazyLayoutTest {
         return { provider }
     }
 
-    private class RecordingPrefetchExecutor : PrefetchExecutor {
+    private class RecordingPrefetchScheduler : PrefetchScheduler {
 
         private val _requests: MutableList<PrefetchRequest> = mutableListOf()
         val requests: List<PrefetchRequest> = _requests
 
-        override fun requestPrefetch(prefetchRequest: PrefetchRequest) {
+        override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
             _requests.add(prefetchRequest)
         }
     }

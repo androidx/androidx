@@ -25,10 +25,10 @@ import androidx.compose.runtime.Composable
  */
 @ExperimentalFoundationApi
 @Composable
-internal expect fun rememberDefaultPrefetchExecutor(): PrefetchExecutor
+internal expect fun rememberDefaultPrefetchScheduler(): PrefetchScheduler
 
 /**
- * Implementations of this interface accept prefetch requests via [requestPrefetch] and decide when
+ * Implementations of this interface accept prefetch requests via [schedulePrefetch] and decide when
  * to execute them in a way that will have minimal impact on user experience, e.g. during frame idle
  * time.
  *
@@ -38,17 +38,17 @@ internal expect fun rememberDefaultPrefetchExecutor(): PrefetchExecutor
  * [PrefetchRequestScope.availableTimeNanos].
  */
 @ExperimentalFoundationApi
-interface PrefetchExecutor {
+interface PrefetchScheduler {
 
     /**
      * Accepts a prefetch request. Implementations should find a time to execute them which will
      * have minimal impact on user experience.
      */
-    fun requestPrefetch(prefetchRequest: PrefetchRequest)
+    fun schedulePrefetch(prefetchRequest: PrefetchRequest)
 }
 
 /**
- * A request for prefetch which can be submitted to a [PrefetchExecutor] to execute during idle
+ * A request for prefetch which can be submitted to a [PrefetchScheduler] to execute during idle
  * time.
  */
 @ExperimentalFoundationApi

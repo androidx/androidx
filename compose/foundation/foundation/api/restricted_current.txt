@@ -872,11 +872,11 @@ package androidx.compose.foundation.lazy {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyListPrefetchStrategy {
-    method public default androidx.compose.foundation.lazy.layout.PrefetchExecutor? getPrefetchExecutor();
+    method public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? getPrefetchScheduler();
     method public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
     method public void onScroll(androidx.compose.foundation.lazy.LazyListPrefetchScope, float delta, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
     method public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.LazyListPrefetchScope, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
-    property public default androidx.compose.foundation.lazy.layout.PrefetchExecutor? prefetchExecutor;
+    property public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler;
   }
 
   public final class LazyListPrefetchStrategyKt {
@@ -1151,7 +1151,7 @@ package androidx.compose.foundation.lazy.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class LazyLayoutPrefetchState {
-    ctor public LazyLayoutPrefetchState(optional androidx.compose.foundation.lazy.layout.PrefetchExecutor? prefetchExecutor, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.NestedPrefetchScope,kotlin.Unit>? onNestedPrefetch);
+    ctor public LazyLayoutPrefetchState(optional androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.NestedPrefetchScope,kotlin.Unit>? onNestedPrefetch);
     method public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index, optional androidx.compose.ui.unit.Constraints? constraints);
   }
 
@@ -1176,10 +1176,6 @@ package androidx.compose.foundation.lazy.layout {
     method public void schedulePrefetch(int index, optional androidx.compose.ui.unit.Constraints? constraints);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchExecutor {
-    method public void requestPrefetch(androidx.compose.foundation.lazy.layout.PrefetchRequest prefetchRequest);
-  }
-
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PrefetchRequest {
     method public boolean execute(androidx.compose.foundation.lazy.layout.PrefetchRequestScope);
   }
@@ -1187,6 +1183,10 @@ package androidx.compose.foundation.lazy.layout {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchRequestScope {
     method public long getAvailableTimeNanos();
     property public abstract long availableTimeNanos;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchScheduler {
+    method public void schedulePrefetch(androidx.compose.foundation.lazy.layout.PrefetchRequest prefetchRequest);
   }
 
 }

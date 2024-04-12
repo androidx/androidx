@@ -21,12 +21,12 @@ import androidx.compose.runtime.Composable
 
 @ExperimentalFoundationApi
 @Composable
-actual fun rememberDefaultPrefetchExecutor(): PrefetchExecutor {
-    return NoOpPrefetchExecutor
+actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
+    return NoOpPrefetchScheduler
 }
 
 @ExperimentalFoundationApi
-private object NoOpPrefetchExecutor : PrefetchExecutor {
-    override fun requestPrefetch(prefetchRequest: PrefetchRequest) {
+private object NoOpPrefetchScheduler : PrefetchScheduler {
+    override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
     }
 }
