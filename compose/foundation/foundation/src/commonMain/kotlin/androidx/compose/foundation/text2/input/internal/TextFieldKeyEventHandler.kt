@@ -76,10 +76,6 @@ internal abstract class TextFieldKeyEventHandler {
         singleLine: Boolean,
         onSubmit: () -> Unit
     ): Boolean {
-        if (event.type != KeyEventType.KeyDown) {
-            return false
-        }
-
         if (event.isTypedEvent) {
             val codePoint = deadKeyCombiner.consume(event)
             if (codePoint != null) {
@@ -95,6 +91,10 @@ internal abstract class TextFieldKeyEventHandler {
                     false
                 }
             }
+        }
+
+        if (event.type != KeyEventType.KeyDown) {
+            return false
         }
 
         val command = keyMapping.map(event)
