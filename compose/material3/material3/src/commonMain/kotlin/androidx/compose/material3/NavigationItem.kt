@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -474,11 +475,10 @@ private class TopIconOrIconOnlyMeasurePolicy(
     ): Int {
         val iconHeight = measurables.fastFirst { it.layoutId == IconLayoutIdTag }
             .maxIntrinsicHeight(width)
-        val labelHeight = measurables.fastFirst { it.layoutId == LabelLayoutIdTag }
-            .maxIntrinsicHeight(width)
-        val paddings =
-            (topIconItemVerticalPadding * 2 + indicatorVerticalPadding * 2 +
-                indicatorToLabelVerticalPadding).roundToPx()
+        val labelHeight = measurables.fastFirstOrNull { it.layoutId == LabelLayoutIdTag }
+            ?.maxIntrinsicHeight(width) ?: 0
+        val paddings = (topIconItemVerticalPadding * 2 + indicatorVerticalPadding * 2 +
+            indicatorToLabelVerticalPadding).roundToPx()
 
         return iconHeight + labelHeight + paddings
     }
