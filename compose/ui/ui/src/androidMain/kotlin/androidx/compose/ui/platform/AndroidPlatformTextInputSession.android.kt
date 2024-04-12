@@ -21,9 +21,11 @@ package androidx.compose.ui.platform
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.node.Owner
+import androidx.compose.ui.node.WeakReference
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.input.NullableInputConnectionWrapper
 import androidx.compose.ui.text.input.TextInputService
@@ -67,8 +69,11 @@ internal class AndroidPlatformTextInputSession(
 
     override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing =
         methodSessionMutex.withSessionCancellingPrevious(
-            sessionInitializer = { coroutineScope ->
-                InputMethodSession(request, onConnectionClosed = { coroutineScope.cancel() })
+            sessionInitializer = {
+                InputMethodSession(
+                    request = request,
+                    onAllConnectionsClosed = { coroutineScope.cancel() }
+                )
             }
         ) { methodSession ->
             @Suppress("RemoveExplicitTypeArguments")
@@ -105,13 +110,16 @@ internal class AndroidPlatformTextInputSession(
  * [AndroidPlatformTextInputSession]'s input method session. Instances of this class correspond to
  * calls to [AndroidPlatformTextInputSession.startInputMethod]. This class ensures that old
  * connections are disposed before new ones are created.
+ *
+ * @param onAllConnectionsClosed Called when all created [InputConnection]s receive
+ *   [InputConnection.closeConnection] call.
  */
 private class InputMethodSession(
     private val request: PlatformTextInputMethodRequest,
-    private val onConnectionClosed: () -> Unit
+    private val onAllConnectionsClosed: () -> Unit
 ) {
     private val lock = Any()
-    private var connection: NullableInputConnectionWrapper? = null
+    private var connections = mutableVectorOf<WeakReference<NullableInputConnectionWrapper>>()
     private var disposed = false
 
     val isActive: Boolean
@@ -127,28 +135,48 @@ private class InputMethodSession(
     fun createInputConnection(outAttrs: EditorInfo): InputConnection? {
         synchronized(lock) {
             if (disposed) return null
-            // Manually close the delegate in case the system won't until later.
-            connection?.disposeDelegate()
+
+            // Do not manually dispose a previous InputConnection until it's collected by the GC or
+            // an explicit call is received to its `onConnectionClosed` callback.
 
             val connectionDelegate = request.createInputConnection(outAttrs)
             return NullableInputConnectionWrapper(
                     delegate = connectionDelegate,
-                    onConnectionClosed = onConnectionClosed
+                    onConnectionClosed = { closedConnection ->
+                        // We should not cancel any ongoing input session because connection is
+                        // closed
+                        // from InputConnection. This may happen at any time and does not indicate
+                        // whether the system is trying to stop an input session. The platform may
+                        // request a new InputConnection immediately after closing this one.
+                        // Instead we should just clear all the resources used by this
+                        // inputConnection,
+                        // because the platform guarantees that it will never reuse a closed
+                        // connection.
+                        closedConnection.disposeDelegate()
+                        val removeIndex = connections.indexOfFirst { it == closedConnection }
+                        if (removeIndex >= 0) connections.removeAt(removeIndex)
+                        if (connections.isEmpty()) {
+                            onAllConnectionsClosed()
+                        }
+                    }
                 )
-                .also { connection = it }
+                .also { connections.add(WeakReference(it)) }
         }
     }
 
     /**
      * Disposes the current [InputConnection]. After calling this method, all future calls to
      * [createInputConnection] will return null.
+     *
+     * This function is only called from coroutine cancellation routine so it's not required to
+     * cancel the coroutine from here.
      */
     fun dispose() {
         synchronized(lock) {
             // Manually close the delegate in case the system forgets to.
             disposed = true
-            connection?.disposeDelegate()
-            connection = null
+            connections.forEach { it.get()?.disposeDelegate() }
+            connections.clear()
         }
     }
 }

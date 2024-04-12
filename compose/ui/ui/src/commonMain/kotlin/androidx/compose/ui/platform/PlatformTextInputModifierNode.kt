@@ -112,8 +112,11 @@ fun interface PlatformTextInputInterceptor {
  * - The session function throws an exception.
  * - The requesting coroutine is cancelled.
  * - Another session is started via this method, either from the same modifier or a different one.
- * - The system closes the connection (currently only supported on Android, and there only depending
- *   on OS version).
+ *   The session may remain open when:
+ * - The system closes the connection. This behavior currently only exists on Android depending on
+ *   OS version. Android platform may intermittently close the active connection to immediately
+ *   start it back again. In these cases the session will not be prematurely closed, so that it can
+ *   serve the follow-up requests.
  *
  * This function should only be called from the modifier node's
  * [coroutineScope][Modifier.Node.coroutineScope]. If it is not, the session will _not_
