@@ -221,7 +221,7 @@ private fun macrobenchmark(
 
     val startTime = System.nanoTime()
     // Ensure method tracing is explicitly enabled and that we are not running in dry run mode.
-    val launchWithMethodTracing = Arguments.macrobenchMethodTracingEnabled()
+    val requestMethodTracing = Arguments.macrobenchMethodTracingEnabled()
     val applicationInfo = getInstalledPackageInfo(packageName)
     val scope = MacrobenchmarkScope(
         packageName,
@@ -229,7 +229,10 @@ private fun macrobenchmark(
     )
     // Capture if the app being benchmarked is a system app.
     scope.isSystemApp = applicationInfo.isSystemApp()
-    scope.launchWithMethodTracing = launchWithMethodTracing
+
+    if (requestMethodTracing) {
+        scope.startMethodTracing()
+    }
 
     // Ensure the device is awake
     scope.device.wakeUp()
@@ -276,9 +279,9 @@ private fun macrobenchmark(
                 }
 
                 val iterString = iteration.toString().padStart(3, '0')
-                val fileLabel = "${uniqueName}_iter$iterString"
+                scope.fileLabel = "${uniqueName}_iter$iterString"
                 val tracePath = perfettoCollector.record(
-                    fileLabel = fileLabel,
+                    fileLabel = scope.fileLabel,
                     config = perfettoConfig ?: PerfettoConfig.Benchmark(
                         /**
                          * Prior to API 24, every package name was joined into a single setprop
@@ -306,6 +309,7 @@ private fun macrobenchmark(
                                 it.start()
                             }
                         }
+                        scope.startMethodTracing()
                         trace("measureBlock") {
                             measureBlock(scope)
                         }
@@ -314,15 +318,7 @@ private fun macrobenchmark(
                             metrics.forEach {
                                 it.stop()
                             }
-                            if (launchWithMethodTracing && scope.isMethodTracing) {
-                                val (label, tracePath) = scope.stopMethodTracing(fileLabel)
-                                val resultFile = Profiler.ResultFile.ofPerfettoTrace(
-                                    label = label,
-                                    absolutePath = tracePath
-                                )
-                                methodTracingResultFiles += resultFile
-                                scope.isMethodTracing = false
-                            }
+                            methodTracingResultFiles += scope.stopMethodTracing()
                         }
                     }
                 }!!
@@ -371,13 +367,8 @@ private fun macrobenchmark(
                 in the measure block?
             """.trimIndent()
         }
-        InstrumentationResults.instrumentationReport {
-            if (launchWithMethodTracing && methodTracingResultFiles.size < iterations) {
-                warningMessage += "\nNOTE: Method traces cannot be captured during iterations" +
-                    " that start while the target process is already running (including HOT/WARM" +
-                    " launches)."
-            }
 
+        InstrumentationResults.instrumentationReport {
             reportSummaryToIde(
                 warningMessage = warningMessage,
                 testName = uniqueName,

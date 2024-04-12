@@ -77,6 +77,16 @@ sealed class Profiler() {
                 source = null
             )
 
+            fun ofMethodTrace(
+                label: String,
+                absolutePath: String
+            ) = ResultFile(
+                label = label,
+                outputRelativePath = Outputs.relativePathFor(absolutePath),
+                type = ProfilerOutput.Type.MethodTrace,
+                source = null
+            )
+
             fun of(
                 label: String,
                 type: ProfilerOutput.Type,
