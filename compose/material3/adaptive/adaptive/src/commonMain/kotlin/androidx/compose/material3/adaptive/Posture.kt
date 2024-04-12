@@ -100,6 +100,8 @@ val Posture.allHorizontalHingeBounds
  * A class that contains the info of a hinge relevant to a [Posture].
  *
  * @param bounds the bounds of the hinge in the relevant viewport.
+ * @param isFlat `true` if the hinge is fully open and the relevant window space presented to the
+ *        user is flat.
  * @param isVertical `true` if the hinge is a vertical one, i.e., it separates the viewport into
  *        left and right; `false` if the hinge is horizontal, i.e., it separates the viewport
  *        into top and bottom.
@@ -109,6 +111,7 @@ val Posture.allHorizontalHingeBounds
 @Immutable
 class HingeInfo(
     val bounds: Rect,
+    val isFlat: Boolean,
     val isVertical: Boolean,
     val isSeparating: Boolean,
     val isOccluding: Boolean
@@ -117,6 +120,7 @@ class HingeInfo(
         if (this === other) return true
         if (other !is HingeInfo) return false
         if (bounds != other.bounds) return false
+        if (isFlat != other.isFlat) return false
         if (isVertical != other.isVertical) return false
         if (isSeparating != other.isSeparating) return false
         if (isOccluding != other.isOccluding) return false
@@ -125,6 +129,7 @@ class HingeInfo(
 
     override fun hashCode(): Int {
         var result = bounds.hashCode()
+        result = 31 * result + isFlat.hashCode()
         result = 31 * result + isVertical.hashCode()
         result = 31 * result + isSeparating.hashCode()
         result = 31 * result + isOccluding.hashCode()
@@ -133,6 +138,7 @@ class HingeInfo(
 
     override fun toString(): String {
         return "HingeInfo(bounds=$bounds, " +
+            "isFlat=$isFlat, " +
             "isVertical=$isVertical, " +
             "isSeparating=$isSeparating, " +
             "isOccluding=$isOccluding)"

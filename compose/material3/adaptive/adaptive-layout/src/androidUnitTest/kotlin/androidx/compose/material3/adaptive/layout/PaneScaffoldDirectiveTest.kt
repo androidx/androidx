@@ -268,18 +268,21 @@ class PaneScaffoldDirectiveTest {
 private val hingeList = listOf(
     HingeInfo(
         bounds = Rect(0F, 0F, 1F, 1F),
+        isFlat = true,
         isVertical = true,
         isSeparating = false,
         isOccluding = true
     ),
     HingeInfo(
         bounds = Rect(1F, 1F, 2F, 2F),
+        isFlat = false,
         isVertical = true,
         isSeparating = false,
         isOccluding = true
     ),
     HingeInfo(
         bounds = Rect(2F, 2F, 3F, 3F),
+        isFlat = true,
         isVertical = true,
         isSeparating = true,
         isOccluding = false
