@@ -47,6 +47,7 @@ class Posture(
         if (this === other) return true
         if (other !is Posture) return false
         if (isTabletop != other.isTabletop) return false
+        if (hingeList != other.hingeList) return false
         return true
     }
 
