@@ -193,12 +193,13 @@ abstract class TaskUpToDateValidator :
                 return
             }
             if (!isAllowedToRerunTask(name)) {
+                val reasonsString = result.getExecutionReasons()?.joinToString("\n  ")
                 throw GradleException(
                     "Ran two consecutive builds of the same tasks, and in the " +
                         "second build, observed:\n" +
                         "task $name not UP-TO-DATE. It was out-of-date because:\n" +
                         "\n" +
-                        "  ${result.executionReasons}.\n" +
+                        "  $reasonsString.\n" +
                         "\n" +
                         "Some additional diagnostics: \n" +
                         "\n" +
