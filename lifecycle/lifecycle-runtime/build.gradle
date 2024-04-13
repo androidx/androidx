@@ -56,6 +56,12 @@ androidXMultiplatform {
             dependsOn(jvmMain)
         }
 
+        desktopTest {
+            dependencies {
+                implementation(libs.kotlinCoroutinesSwing)
+            }
+        }
+
         androidMain {
             dependsOn(jvmMain)
             dependencies {
