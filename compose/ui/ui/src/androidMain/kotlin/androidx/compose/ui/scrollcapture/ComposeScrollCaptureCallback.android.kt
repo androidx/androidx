@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect as AndroidRect
 import android.os.CancellationSignal
+import android.util.Log
 import android.view.ScrollCaptureCallback
 import android.view.ScrollCaptureSession
 import androidx.annotation.RequiresApi
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties.VerticalScrollAxisRange
 import androidx.compose.ui.unit.IntRect
 import java.util.function.Consumer
 import kotlin.math.roundToInt
@@ -46,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 
 private const val DEBUG = false
+private const val TAG = "ScrollCapture"
 
 /**
  * Implementation of [ScrollCaptureCallback] that captures Compose scroll containers.
@@ -67,14 +70,25 @@ internal class ComposeScrollCaptureCallback(
 
     private val scrollTracker = RelativeScroller(
         viewportSize = viewportBoundsInWindow.height,
-        scrollBy = { amount ->
+        scrollBy = { delta ->
             val scrollByOffset = checkPreconditionNotNull(node.scrollCaptureScrollByAction)
+            val reverseScrolling = node.unmergedConfig[VerticalScrollAxisRange].reverseScrolling
+
+            val actualDelta = if (reverseScrolling) -delta else delta
+            if (DEBUG) Log.d(
+                TAG, "scrolling by delta $actualDelta " +
+                    "(reverseScrolling=$reverseScrolling, requested delta=$delta)"
+            )
+
             // This action may animate, ensure any calls to this RelativeScroll are done with a
             // coroutine context that disables animations.
-            val consumed = scrollByOffset(Offset(0f, amount))
-            consumed.y
+            val consumed = scrollByOffset(Offset(0f, actualDelta))
+            if (reverseScrolling) -consumed.y else consumed.y
         }
     )
+
+    /** Only used when [DEBUG] is true. */
+    private var requestCount = 0
 
     override fun onScrollCaptureSearch(signal: CancellationSignal, onReady: Consumer<AndroidRect>) {
         val bounds = viewportBoundsInWindow
@@ -87,6 +101,7 @@ internal class ComposeScrollCaptureCallback(
         onReady: Runnable
     ) {
         scrollTracker.reset()
+        requestCount = 0
         listener.onSessionStarted()
         onReady.run()
     }
@@ -110,6 +125,7 @@ internal class ComposeScrollCaptureCallback(
         // Scroll the requested capture area into the viewport so we can draw it.
         val targetMin = captureArea.top
         val targetMax = captureArea.bottom
+        if (DEBUG) Log.d(TAG, "capture request for $targetMin..$targetMax")
         scrollTracker.scrollRangeIntoView(targetMin, targetMax)
 
         // Wait a frame to allow layout to respond to the scroll.
@@ -119,6 +135,7 @@ internal class ComposeScrollCaptureCallback(
         // the viewport.
         val viewportClippedMin = scrollTracker.mapOffsetToViewport(targetMin)
         val viewportClippedMax = scrollTracker.mapOffsetToViewport(targetMax)
+        if (DEBUG) Log.d(TAG, "drawing viewport $viewportClippedMin..$viewportClippedMax")
         val viewportClippedRect = captureArea.copy(
             top = viewportClippedMin,
             bottom = viewportClippedMax
@@ -164,6 +181,7 @@ internal class ComposeScrollCaptureCallback(
 
         // Translate back to "original" coordinates to report.
         val resultRect = viewportClippedRect.translate(0, scrollTracker.scrollAmount.roundToInt())
+        if (DEBUG) Log.d(TAG, "captured rectangle $resultRect")
         return resultRect
     }
 
@@ -190,6 +208,7 @@ internal class ComposeScrollCaptureCallback(
         val circleRadius = 20f
         val circlePaint = Paint().apply {
             color = Color.RED
+            textSize = 48f
         }
         drawCircle(0f, 0f, circleRadius, circlePaint)
         drawCircle(width.toFloat(), 0f, circleRadius, circlePaint)
@@ -200,6 +219,9 @@ internal class ComposeScrollCaptureCallback(
             circlePaint
         )
         drawCircle(0f, height.toFloat(), circleRadius, circlePaint)
+
+        drawText(requestCount.toString(), width / 2f, height / 2f, circlePaint)
+        requestCount++
     }
 
     interface ScrollCaptureSessionListener {
@@ -244,6 +266,7 @@ private class RelativeScroller(
      * viewport.
      */
     suspend fun scrollRangeIntoView(min: Int, max: Int) {
+        if (DEBUG) Log.d(TAG, "scrollRangeIntoView(min=$min, max=$max)")
         require(min <= max) { "Expected min=$min ≤ max=$max" }
         require(max - min <= viewportSize) {
             "Expected range (${max - min}) to be ≤ viewportSize=$viewportSize"
@@ -251,11 +274,13 @@ private class RelativeScroller(
 
         if (min >= scrollAmount && max <= scrollAmount + viewportSize) {
             // Already visible, no need to scroll.
+            if (DEBUG) Log.d(TAG, "requested range already in view, not scrolling")
             return
         }
 
         // Scroll to the nearest edge.
         val target = if (min < scrollAmount) min else max - viewportSize
+        if (DEBUG) Log.d(TAG, "scrolling to $target")
         scrollTo(target.toFloat())
     }
 
@@ -273,12 +298,17 @@ private class RelativeScroller(
     /**
      * Try to scroll to [offset] pixels past the original scroll position.
      */
-    suspend fun scrollTo(offset: Float): Float = scrollBy(offset - scrollAmount)
+    suspend fun scrollTo(offset: Float) {
+        scrollBy(offset - scrollAmount)
+    }
 
-    private suspend fun scrollBy(delta: Float): Float {
+    private suspend fun scrollBy(delta: Float) {
         val consumed = scrollBy.invoke(delta)
         scrollAmount += consumed
-        return consumed
+        if (DEBUG) Log.d(
+            TAG,
+            "scrolled $consumed of requested $delta, after scrollAmount=$scrollAmount"
+        )
     }
 }
 

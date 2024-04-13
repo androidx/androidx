@@ -134,7 +134,7 @@ private fun visitScrollCaptureCandidates(
 ) {
     fromNode.visitDescendants { node ->
         // Invisible/disabled nodes can't be candidates, nor can any of their descendants.
-        if (!node.isVisible || Disabled in node.config) {
+        if (!node.isVisible || Disabled in node.unmergedConfig) {
             return@visitDescendants false
         }
 
@@ -178,7 +178,8 @@ private fun visitScrollCaptureCandidates(
     }
 }
 
-internal val SemanticsNode.scrollCaptureScrollByAction get() = config.getOrNull(ScrollByOffset)
+internal val SemanticsNode.scrollCaptureScrollByAction
+    get() = unmergedConfig.getOrNull(ScrollByOffset)
 
 // TODO(mnuzen): Port this back to the SemanticsUtil file
 @OptIn(ExperimentalComposeUiApi::class)
@@ -188,7 +189,7 @@ private val SemanticsNode.isVisible: Boolean
 private val SemanticsNode.canScrollVertically: Boolean
     get() {
         val scrollByOffset = scrollCaptureScrollByAction
-        val verticalScrollAxisRange = config.getOrNull(VerticalScrollAxisRange)
+        val verticalScrollAxisRange = unmergedConfig.getOrNull(VerticalScrollAxisRange)
         return scrollByOffset != null &&
             verticalScrollAxisRange != null &&
             verticalScrollAxisRange.maxValue() > 0f
