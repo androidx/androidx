@@ -96,29 +96,33 @@ class PreviewProcessor {
                             Logger.d(TAG, "Ignore image in closed or paused state");
                             return;
                         }
-                        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
-                                && ExtensionVersion
-                                .isMinimumCompatibleVersion(Version.VERSION_1_3)) {
-                            mPreviewImageProcessor.process(imageReference.get(), totalCaptureResult,
-                                    new ProcessResultImpl() {
-                                        @Override
-                                        public void onCaptureCompleted(long shutterTimestamp,
-                                                @NonNull List<Pair<CaptureResult.Key, Object>>
-                                                        result) {
-                                            onResultCallback.onCaptureResult(shutterTimestamp,
-                                                    result);
-                                        }
+                        try {
+                            if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
+                                    && ExtensionVersion
+                                    .isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+                                mPreviewImageProcessor.process(imageReference.get(),
+                                        totalCaptureResult,
+                                        new ProcessResultImpl() {
+                                            @Override
+                                            public void onCaptureCompleted(long shutterTimestamp,
+                                                    @NonNull List<Pair<CaptureResult.Key, Object>>
+                                                            result) {
+                                                onResultCallback.onCaptureResult(shutterTimestamp,
+                                                        result);
+                                            }
 
-                                        @Override
-                                        public void onCaptureProcessProgressed(int progress) {
+                                            @Override
+                                            public void onCaptureProcessProgressed(int progress) {
 
-                                        }
-                                    }, CameraXExecutors.ioExecutor());
-                        } else {
-                            mPreviewImageProcessor.process(imageReference.get(),
-                                    totalCaptureResult);
+                                            }
+                                        }, CameraXExecutors.ioExecutor());
+                            } else {
+                                mPreviewImageProcessor.process(imageReference.get(),
+                                        totalCaptureResult);
+                            }
+                        } finally {
+                            imageReference.decrement();
                         }
-                        imageReference.decrement();
                     }
                 });
     }
