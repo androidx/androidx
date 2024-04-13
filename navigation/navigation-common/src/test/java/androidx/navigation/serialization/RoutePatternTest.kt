@@ -17,6 +17,7 @@
 package androidx.navigation.serialization
 
 import android.os.Bundle
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KType
@@ -510,6 +511,28 @@ class RoutePatternTest {
         // object variables are not serialized and does not show up on routePattern
         assertThatRoutePatternFrom(serializer<TestObjectWithArg>()).isEqualTo(
             PATH_SERIAL_NAME
+        )
+    }
+
+    @Test
+    fun collectionNavType() {
+        @Serializable
+        class CustomType
+
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val list: List<CustomType>)
+
+        val type = object : CollectionNavType<List<CustomType>>(false) {
+            override fun put(bundle: Bundle, key: String, value: List<CustomType>) { }
+            override fun serializeAsValues(value: List<CustomType>): List<String> = emptyList()
+            override fun get(bundle: Bundle, key: String): List<CustomType>? = null
+            override fun parseValue(value: String): List<CustomType> = listOf()
+            override fun serializeAsValue(value: List<CustomType>) = "customValue"
+        }
+        val map = mapOf(typeOf<List<CustomType>>() to type)
+        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
+            "$PATH_SERIAL_NAME?list={list}"
         )
     }
 }

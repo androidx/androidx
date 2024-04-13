@@ -54,6 +54,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -261,7 +262,7 @@ class NavControllerRouteTest {
 
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id).isEqualTo(
@@ -278,7 +279,7 @@ class NavControllerRouteTest {
 
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id).isEqualTo(
@@ -301,7 +302,7 @@ class NavControllerRouteTest {
             startDestination = NestedGraph::class
         ) {
             navigation<NestedGraph>(startDestination = TestClass::class) {
-                test(route = TestClass::class)
+                test<TestClass>()
             }
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
@@ -319,7 +320,7 @@ class NavControllerRouteTest {
 
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass()) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id).isEqualTo(
@@ -338,7 +339,7 @@ class NavControllerRouteTest {
         navController.graph = navController.createGraph(
             startDestination = TestClass(0)
         ) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo(
             "test/{arg}"
@@ -362,7 +363,7 @@ class NavControllerRouteTest {
         navController.graph = navController.createGraph(
             startDestination = TestClass(false)
         ) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo(
             "test?arg={arg}"
@@ -467,7 +468,7 @@ class NavControllerRouteTest {
             startDestination = NestedGraph(0)
         ) {
             navigation<NestedGraph>(startDestination = TestClass(1)) {
-                test(route = TestClass::class)
+                test<TestClass>()
             }
         }
         assertThat(navController.currentDestination?.route).isEqualTo(
@@ -710,7 +711,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -726,7 +727,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -747,7 +748,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -771,7 +772,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -790,6 +791,56 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectCollectionNavType() {
+        val navController = createNavController()
+        @Serializable
+        data class CustomType(val id: Int)
+        @Serializable
+        class TestClass(val list: List<CustomType>)
+
+        val collectionNavType = object : CollectionNavType<List<CustomType>>(false) {
+            override fun put(bundle: Bundle, key: String, value: List<CustomType>) {
+                val array = value.map { it.id }.toIntArray()
+                bundle.putIntArray(key, array)
+            }
+            override fun serializeAsValues(value: List<CustomType>) = value.map { it.id.toString() }
+            override fun get(bundle: Bundle, key: String): List<CustomType> {
+                return bundle.getIntArray(key)!!.map { CustomType(it) }
+            }
+            override fun parseValue(value: String) = listOf(CustomType(value.toInt()))
+            override fun parseValue(
+                value: String,
+                previousValue: List<CustomType>
+            ): List<CustomType> {
+                val list = mutableListOf<CustomType>()
+                list.addAll(previousValue)
+                list.add(CustomType(value.toInt()))
+                return list
+            }
+        }
+
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>(mapOf(typeOf<List<CustomType>>() to collectionNavType))
+        }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        val list = listOf(CustomType(1), CustomType(3), CustomType(5))
+        navController.navigate(TestClass(list))
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "androidx.navigation.NavControllerRouteTest." +
+                "testNavigateWithObjectCollectionNavType.TestClass?list={list}"
+        )
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        assertThat(
+            navController.currentBackStackEntry!!.toRoute<TestClass>().list
+        ).containsExactlyElementsIn(list).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectInvalidObject() {
         @Serializable
         class WrongTestClass
@@ -797,7 +848,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -813,7 +864,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -831,7 +882,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -862,7 +913,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1403,7 +1454,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -1421,7 +1472,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -1439,7 +1490,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -1459,7 +1510,7 @@ class NavControllerRouteTest {
             route = TestGraph::class,
             startDestination = TestClass::class
         ) {
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1479,7 +1530,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -1497,7 +1548,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -1727,7 +1778,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         // first nav
@@ -1752,7 +1803,7 @@ class NavControllerRouteTest {
             route = TestGraph::class,
             startDestination = TestClass::class
         ) {
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1773,7 +1824,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // first nav
@@ -1796,7 +1847,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         // first nav
@@ -1821,7 +1872,7 @@ class NavControllerRouteTest {
             route = TestGraph::class,
             startDestination = TestClass::class
         ) {
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1842,7 +1893,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // first nav
@@ -1865,7 +1916,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // first nav
@@ -2217,7 +2268,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2236,7 +2287,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2255,7 +2306,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -2274,7 +2325,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2293,7 +2344,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2312,7 +2363,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // second nav
@@ -2339,7 +2390,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class) {
+            test<TestClass> {
                 deepLink(
                     navDeepLink<TestClass> { uriPattern = baseUri }
                 )
@@ -2365,7 +2416,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class) {
+            test<TestClass> {
                 deepLink(
                     navDeepLink<TestClass> { uriPattern = baseUri }
                 )
@@ -2391,7 +2442,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class) {
+            test<TestClass> {
                 deepLink(
                     navDeepLink<TestClass> { uriPattern = baseUri }
                 )
@@ -2417,7 +2468,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class) {
+            test<TestClass> {
                 deepLink(
                     navDeepLink<TestClass> { uriPattern = baseUri }
                 )
@@ -3188,7 +3239,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopKClassInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
         }
 
@@ -3212,7 +3263,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopKClassNotInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
             test("third")
         }
@@ -3241,7 +3292,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
         }
 
@@ -3265,7 +3316,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectNotInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
             test("third")
         }
@@ -3294,7 +3345,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectArg() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClassPathArg(0)) {
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
             test("second")
         }
 
@@ -3318,7 +3369,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectWrongArg() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClassPathArg(0)) {
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
             test("second")
         }
 
