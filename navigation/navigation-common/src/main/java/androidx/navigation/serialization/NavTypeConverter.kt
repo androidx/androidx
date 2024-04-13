@@ -51,8 +51,7 @@ private enum class InternalType {
  *
  * Returns [UNKNOWN] type if the argument does not have built-in NavType support.
  */
-@Suppress("UNCHECKED_CAST")
-internal fun SerialDescriptor.getNavType(): NavType<Any?> {
+internal fun SerialDescriptor.getNavType(): NavType<*> {
     val type = when (this.toInternalType()) {
         InternalType.INT -> NavType.IntType
         InternalType.BOOL -> NavType.BoolType
@@ -69,7 +68,7 @@ internal fun SerialDescriptor.getNavType(): NavType<Any?> {
         }
         else -> UNKNOWN
     }
-    return type as NavType<Any?>
+    return type
 }
 
 /**
