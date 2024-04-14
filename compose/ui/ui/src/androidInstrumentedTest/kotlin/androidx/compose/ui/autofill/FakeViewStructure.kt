@@ -160,7 +160,34 @@ internal data class FakeViewStructure(
         other.autofillType == autofillType &&
         other.autofillHints.contentEquals(autofillHints) &&
         other.bounds.contentEquals(bounds) &&
-        other.children == children
+        other.activated == activated &&
+        other.alpha == alpha &&
+        other.autofillOptions.contentEquals(autofillOptions) &&
+        other.autofillValue == autofillValue &&
+        other.className == className &&
+        other.children.count() == children.count() &&
+        other.contentDescription == contentDescription &&
+        other.dataIsSensitive == dataIsSensitive &&
+        other.elevation == elevation &&
+        other.hint == hint &&
+        other.htmlInfo == htmlInfo &&
+        other.inputType == inputType &&
+        other.isEnabled == isEnabled &&
+        other.isCheckable == isCheckable &&
+        other.isChecked == isChecked &&
+        other.isClickable == isClickable &&
+        other.isContextClickable == isContextClickable &&
+        other.isAccessibilityFocused == isAccessibilityFocused &&
+        other.isFocused == isFocused &&
+        other.isLongClickable == isLongClickable &&
+        other.isOpaque == isOpaque &&
+        other.isFocusable == isFocusable &&
+        other.selected == selected &&
+        other.text == text &&
+        other.textLines.contentEquals(textLines) &&
+        other.transformation == transformation &&
+        other.visibility == visibility &&
+        other.webDomain == webDomain
 
     override fun hashCode() = super.hashCode()
 

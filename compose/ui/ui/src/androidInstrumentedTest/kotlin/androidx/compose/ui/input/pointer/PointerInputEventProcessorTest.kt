@@ -25,6 +25,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -3319,6 +3320,8 @@ private class TestOwner : Owner {
     override val autofillTree: AutofillTree
         get() = TODO("Not yet implemented")
     override val autofill: Autofill?
+        get() = null
+    override val semanticAutofill: SemanticAutofill?
         get() = null
     override val density: Density
         get() = Density(1f)
