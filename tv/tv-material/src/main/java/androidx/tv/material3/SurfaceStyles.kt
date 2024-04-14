@@ -597,7 +597,7 @@ class SelectableSurfaceGlow internal constructor(
  * Defines the container & content color [Color] for a non interactive surface.
  */
 @Immutable
-class NonInteractiveSurfaceColors internal constructor(
+class SurfaceColors internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color
 ) {
@@ -605,7 +605,7 @@ class NonInteractiveSurfaceColors internal constructor(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as NonInteractiveSurfaceColors
+        other as SurfaceColors
 
         if (containerColor != other.containerColor) return false
         if (contentColor != other.contentColor) return false
@@ -620,7 +620,7 @@ class NonInteractiveSurfaceColors internal constructor(
     }
 
     override fun toString(): String {
-        return "NonInteractiveSurfaceColors(containerColor=$containerColor, " +
+        return "SurfaceColors(containerColor=$containerColor, " +
             "contentColor=$contentColor)"
     }
 }
