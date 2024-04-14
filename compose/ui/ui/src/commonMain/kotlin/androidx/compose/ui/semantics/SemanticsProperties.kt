@@ -331,6 +331,13 @@ object SemanticsActions {
     val ScrollToIndex = ActionPropertyKey<(Int) -> Boolean>("ScrollToIndex")
 
     /**
+     * @see SemanticsPropertyReceiver.onAutofillText
+     */
+    // TODO(b/333102566): make this action public when Autofill is ready to go live
+    internal val OnAutofillText =
+        ActionPropertyKey<(AnnotatedString) -> Boolean>("OnAutofillText")
+
+    /**
      * @see SemanticsPropertyReceiver.setProgress
      */
     val SetProgress = ActionPropertyKey<(progress: Float) -> Boolean>("SetProgress")
@@ -1271,6 +1278,22 @@ fun SemanticsPropertyReceiver.scrollToIndex(
     action: (Int) -> Boolean
 ) {
     this[SemanticsActions.ScrollToIndex] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to autofill a TextField.
+ *
+ * Expected to be used in conjunction with contentType and contentDataType properties.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.OnAutofillText] is called.
+ */
+// TODO(b/333102566): make this action public when Autofill is ready to go live
+internal fun SemanticsPropertyReceiver.onAutofillText(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.OnAutofillText] = AccessibilityAction(label, action)
 }
 
 /**
