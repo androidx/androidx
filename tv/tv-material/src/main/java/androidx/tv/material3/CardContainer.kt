@@ -46,9 +46,7 @@ import androidx.compose.ui.graphics.Color
  *
  * @sample androidx.tv.samples.StandardCardContainerSample
  *
- * @param imageCard defines the [Composable] to be used for the image card. See
- * [CardContainerDefaults.ImageCard] to create an image card. The `interactionSource` param provided
- * in the lambda function should be forwarded and used with the image card composable.
+ * @param imageCard defines the [Composable] to be used for the image card.
  * @param title defines the [Composable] title placed below the image card in the CardContainer.
  * @param modifier the [Modifier] to be applied to this CardContainer.
  * @param subtitle defines the [Composable] supporting text placed below the title in CardContainer.
@@ -111,9 +109,7 @@ fun StandardCardContainer(
  *
  * @sample androidx.tv.samples.WideCardContainerSample
  *
- * @param imageCard defines the [Composable] to be used for the image card. See
- * [CardContainerDefaults.ImageCard] to create an image card. The `interactionSource` param provided
- * in the lambda function should to be forwarded and used with the image card composable.
+ * @param imageCard defines the [Composable] to be used for the image card.
  * @param title defines the [Composable] title placed below the image card in the CardContainer.
  * @param modifier the [Modifier] to be applied to this CardContainer.
  * @param subtitle defines the [Composable] supporting text placed below the title in CardContainer.
@@ -191,58 +187,6 @@ object CardContainerDefaults {
         focusedContentColor = focusedContentColor,
         pressedContentColor = pressedContentColor
     )
-
-    /**
-     * [ImageCard] is basically a [Card] composable with an image as the content. It is recommended
-     * to be used with the different CardContainer(s).
-     *
-     * This Card handles click events, calling its [onClick] lambda.
-     *
-     * @param onClick called when this card is clicked.
-     * @param interactionSource a hoisted [MutableInteractionSource] for observing and
-     * emitting [Interaction]s for this card. When using with the CardContainer(s), it is recommended
-     * to pass in the interaction state obtained from the parent lambda.
-     * @param modifier the [Modifier] to be applied to this card.
-     * @param onLongClick called when this card is long clicked (long-pressed).
-     * @param shape [CardShape] defines the shape of this card's container in different interaction
-     * states. See [CardDefaults.shape].
-     * @param colors [CardColors] defines the background & content colors used in this card for
-     * different interaction states. See [CardDefaults.colors].
-     * @param scale [CardScale] defines size of the card relative to its original size for different
-     * interaction states. See [CardDefaults.scale].
-     * @param border [CardBorder] defines a border around the card for different interaction states.
-     * See [CardDefaults.border].
-     * @param glow [CardGlow] defines a shadow to be shown behind the card for different interaction
-     * states. See [CardDefaults.glow].
-     * @param content defines the image content [Composable] to be displayed inside the Card.
-     */
-    @Composable
-    fun ImageCard(
-        onClick: () -> Unit,
-        interactionSource: MutableInteractionSource,
-        modifier: Modifier = Modifier,
-        onLongClick: (() -> Unit)? = null,
-        shape: CardShape = CardDefaults.shape(),
-        colors: CardColors = CardDefaults.colors(),
-        scale: CardScale = CardDefaults.scale(),
-        border: CardBorder = CardDefaults.border(),
-        glow: CardGlow = CardDefaults.glow(),
-        content: @Composable () -> Unit
-    ) {
-        Card(
-            onClick = onClick,
-            onLongClick = onLongClick,
-            modifier = modifier,
-            shape = shape,
-            colors = colors,
-            scale = scale,
-            border = border,
-            glow = glow,
-            interactionSource = interactionSource
-        ) {
-            content()
-        }
-    }
 }
 
 /**
