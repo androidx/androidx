@@ -41,9 +41,11 @@ private val buildGradle = """
         buildTypes {
             anotherRelease {
                 initWith(release)
+                minifyEnabled true
             }
             myCustomRelease {
                 initWith(release)
+                minifyEnabled false
             }
             benchmarkMyCustomRelease {
                 initWith(release)
@@ -162,15 +164,28 @@ class BaselineProfileAppTargetPluginTestWithAgp80 {
     fun verifyBuildTypes() {
         projectSetup.appTarget.setBuildGradle(buildGradle)
 
-        // Assert properties of the baseline profile build types
-        arrayOf("nonMinifiedReleaseBuildProperties", "nonMinifiedAnotherReleaseBuildProperties")
-            .forEach { taskName ->
-                projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(taskName) {
-                    contains("minifyEnabled=true")
-                    contains("testCoverageEnabled=false")
-                    contains("debuggable=false")
-                    contains("profileable=true")
-                }
+        // Assert properties of the baseline profile build types.
+
+        // For `release`, `minifiedEnabled` is false -> we expect the value to be copied.
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("nonMinifiedReleaseBuildProperties") {
+                contains("minifyEnabled=false")
+                contains("testCoverageEnabled=false")
+                contains("debuggable=false")
+                contains("profileable=true")
+            }
+
+        // For `anotherRelease`, `minifiedEnabled` is true -> we expect the value to be copied.
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("nonMinifiedAnotherReleaseBuildProperties") {
+                contains("minifyEnabled=true")
+                contains("testCoverageEnabled=false")
+                contains("debuggable=false")
+                contains("profileable=true")
             }
 
         // Note that the proguard file path does not exist till the generate keep rule task is
@@ -205,17 +220,31 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(agpVersion: TestAgpVer
         projectSetup.appTarget.setBuildGradle(buildGradle)
 
         // Assert properties of the benchmark build types
-        arrayOf("benchmarkReleaseBuildProperties", "benchmarkAnotherReleaseBuildProperties")
-            .forEach { taskName ->
-                projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(taskName) {
-                    contains("minifyEnabled=true")
-                    contains("testCoverageEnabled=false")
-                    contains("debuggable=false")
-                    contains("profileable=true")
-                }
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("benchmarkReleaseBuildProperties") {
+                contains("testCoverageEnabled=false")
+                contains("debuggable=false")
+                contains("profileable=true")
+
+                // This value is false for `release` so it should be copied over.
+                contains("minifyEnabled=false")
             }
 
-        // Assert properties of the baseline profile build types
+        projectSetup
+            .appTarget
+            .gradleRunner
+            .buildAndAssertThatOutput("benchmarkAnotherReleaseBuildProperties") {
+                contains("testCoverageEnabled=false")
+                contains("debuggable=false")
+                contains("profileable=true")
+
+                // This value is true for `release` so it should be copied over.
+                contains("minifyEnabled=true")
+            }
+
+        // Assert properties of the baseline profile build types.
         arrayOf("nonMinifiedReleaseBuildProperties", "nonMinifiedAnotherReleaseBuildProperties")
             .forEach { taskName ->
                 projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(taskName) {
