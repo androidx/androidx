@@ -86,7 +86,6 @@ package androidx.tv.material3 {
   }
 
   public final class CardContainerDefaults {
-    method @androidx.compose.runtime.Composable public void ImageCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional androidx.tv.material3.CardShape shape, optional androidx.tv.material3.CardColors colors, optional androidx.tv.material3.CardScale scale, optional androidx.tv.material3.CardBorder border, optional androidx.tv.material3.CardGlow glow, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardContainerColors contentColor(optional long contentColor, optional long focusedContentColor, optional long pressedContentColor);
     field public static final androidx.tv.material3.CardContainerDefaults INSTANCE;
   }
@@ -100,11 +99,11 @@ package androidx.tv.material3 {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardBorder border(optional androidx.tv.material3.Border border, optional androidx.tv.material3.Border focusedBorder, optional androidx.tv.material3.Border pressedBorder);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardColors colors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.tv.material3.CardColors compactCardColors(optional long containerColor, optional long contentColor, optional long focusedContainerColor, optional long focusedContentColor, optional long pressedContainerColor, optional long pressedContentColor);
-    method public androidx.compose.ui.graphics.Brush getContainerGradient();
+    method public androidx.compose.ui.graphics.Brush getScrimBrush();
     method public androidx.tv.material3.CardGlow glow(optional androidx.tv.material3.Glow glow, optional androidx.tv.material3.Glow focusedGlow, optional androidx.tv.material3.Glow pressedGlow);
     method public androidx.tv.material3.CardScale scale(optional @FloatRange(from=0.0) float scale, optional @FloatRange(from=0.0) float focusedScale, optional @FloatRange(from=0.0) float pressedScale);
     method public androidx.tv.material3.CardShape shape(optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Shape focusedShape, optional androidx.compose.ui.graphics.Shape pressedShape);
-    property public final androidx.compose.ui.graphics.Brush ContainerGradient;
+    property public final androidx.compose.ui.graphics.Brush ScrimBrush;
     field public static final float HorizontalImageAspectRatio = 1.7777778f;
     field public static final androidx.tv.material3.CardDefaults INSTANCE;
     field public static final float SquareImageAspectRatio = 1.0f;

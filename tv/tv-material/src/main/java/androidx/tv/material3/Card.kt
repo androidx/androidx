@@ -45,7 +45,11 @@ import androidx.compose.ui.unit.dp
  *
  * This Card handles click events, calling its [onClick] lambda.
  *
- * @sample androidx.tv.samples.CardSample
+ * Checkout <a href="https://developer.android.com/design/ui/tv/guides/components/cards#usage">TV Guidelines for Aspect ratios</a> for cards
+ *
+ * @sample androidx.tv.samples.HorizontalImageAspectRatioCardSample
+ * @sample androidx.tv.samples.VerticalImageAspectRatioCardSample
+ * @sample androidx.tv.samples.SquareImageAspectRatioCardSample
  *
  * @param onClick called when this card is clicked.
  * @param modifier the [Modifier] to be applied to this card.
@@ -212,7 +216,7 @@ fun ClassicCard(
  * @param glow [CardGlow] defines a shadow to be shown behind the card for different interaction
  * states. See [CardDefaults.glow].
  * @param scrimBrush [Brush] defines a brush/gradient to be used to draw the scrim over the image
- * in the background. See [CardDefaults.ContainerGradient].
+ * in the background. See [CardDefaults.ScrimBrush].
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  * emitting [Interaction]s for this card. You can use this to change the card's appearance
  * or preview the card in different states. Note that if `null` is provided, interactions will
@@ -232,7 +236,7 @@ fun CompactCard(
     scale: CardScale = CardDefaults.scale(),
     border: CardBorder = CardDefaults.border(),
     glow: CardGlow = CardDefaults.glow(),
-    scrimBrush: Brush = CardDefaults.ContainerGradient,
+    scrimBrush: Brush = CardDefaults.ScrimBrush,
     interactionSource: MutableInteractionSource? = null
 ) {
     Card(
@@ -407,7 +411,7 @@ object CardDefaults {
      * Gradient used in cards to give more emphasis to the textual content that is generally
      * displayed above an image.
      */
-    val ContainerGradient = Brush.verticalGradient(
+    val ScrimBrush = Brush.verticalGradient(
         listOf(
             Color(red = 28, green = 27, blue = 31, alpha = 0),
             Color(red = 28, green = 27, blue = 31, alpha = 204)

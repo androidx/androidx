@@ -29,7 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.CardContainerDefaults
+import androidx.tv.material3.Card
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.StandardCardContainer
 import androidx.tv.material3.Text
@@ -41,7 +41,7 @@ fun StandardCardContainerSample() {
     StandardCardContainer(
         modifier = Modifier.size(150.dp, 120.dp),
         imageCard = { interactionSource ->
-            CardContainerDefaults.ImageCard(
+            Card(
                 onClick = { },
                 interactionSource = interactionSource
             ) {
@@ -63,7 +63,7 @@ fun WideCardContainerSample() {
     WideCardContainer(
         modifier = Modifier.size(180.dp, 100.dp),
         imageCard = { interactionSource ->
-            CardContainerDefaults.ImageCard(
+            Card(
                 onClick = { },
                 interactionSource = interactionSource
             ) {
