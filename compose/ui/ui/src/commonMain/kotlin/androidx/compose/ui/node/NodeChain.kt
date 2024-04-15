@@ -164,15 +164,15 @@ internal class NodeChain(val layoutNode: LayoutNode) {
                     before,
                     after,
                     node,
-                    layoutNode.isAttached,
+                    !layoutNode.applyingModifierOnAttach,
                 )
             }
-        } else if (!layoutNode.isAttached && beforeSize == 0) {
+        } else if (layoutNode.applyingModifierOnAttach && beforeSize == 0) {
             // common case where we are initializing the chain and the previous size is zero. In
             // this case we just do all inserts. Since this is so common, we add a fast path here
-            // for this condition. Since the layout node is not attached, the inserted nodes will
-            // not get eagerly attached, which means we can avoid dealing with the coordinator sync
-            // until the end, which keeps this code path much simpler.
+            // for this condition. Since the layout node is currently attaching, the inserted nodes
+            // will not get eagerly attached, which means we can avoid dealing with the coordinator
+            // sync until the end, which keeps this code path much simpler.
             coordinatorSyncNeeded = true
             var node = paddedHead
             while (i < after.size) {
@@ -202,7 +202,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
                 before,
                 after,
                 paddedHead,
-                layoutNode.isAttached,
+                !layoutNode.applyingModifierOnAttach,
             )
         }
         current = after
