@@ -179,14 +179,19 @@ public actual abstract class NavType<T> actual constructor(
             when {
                 IntType.name == type -> return IntType
                 IntArrayType.name == type -> return IntArrayType
+                IntListType.name == type -> return IntListType
                 LongType.name == type -> return LongType
                 LongArrayType.name == type -> return LongArrayType
+                LongListType.name == type -> return LongListType
                 BoolType.name == type -> return BoolType
                 BoolArrayType.name == type -> return BoolArrayType
+                BoolListType.name == type -> return BoolListType
                 StringType.name == type -> return StringType
                 StringArrayType.name == type -> return StringArrayType
+                StringListType.name == type -> return StringListType
                 FloatType.name == type -> return FloatType
                 FloatArrayType.name == type -> return FloatArrayType
+                FloatListType.name == type -> return FloatListType
                 ReferenceType.name == type -> return ReferenceType
                 !type.isNullOrEmpty() -> {
                     try {
@@ -410,6 +415,46 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         /**
+         * NavType for storing list of Ints.
+         *
+         * Null values are supported.
+         * List NavTypes in Navigation XML files are not supported.
+         */
+        @JvmField
+        public actual val IntListType: NavType<List<Int>?> = object : CollectionNavType<List<Int>?>(
+            true
+        ) {
+            override val name: String
+                get() = "List<Int>"
+
+            override fun put(bundle: Bundle, key: String, value: List<Int>?) {
+                bundle.putIntArray(key, value?.toIntArray())
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): List<Int>? {
+                return (bundle[key] as IntArray?)?.toList()
+            }
+
+            override fun parseValue(value: String): List<Int> {
+                return listOf(IntType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: List<Int>?): List<Int>? {
+                return previousValue?.plus(IntType.parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: List<Int>?, other: List<Int>?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: List<Int>?): List<String> =
+                value?.map { it.toString() } ?: emptyList()
+        }
+
+        /**
          * NavType for storing long values,
          * corresponding with the "long" type in a Navigation XML file.
          *
@@ -484,6 +529,46 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         /**
+         * NavType for storing list of Longs.
+         *
+         * Null values are supported.
+         * List NavTypes in Navigation XML files are not supported.
+         */
+        @JvmField
+        public actual val LongListType: NavType<List<Long>?> = object : CollectionNavType<List<Long>?>(
+            true
+        ) {
+            override val name: String
+                get() = "List<Long>"
+
+            override fun put(bundle: Bundle, key: String, value: List<Long>?) {
+                bundle.putLongArray(key, value?.toLongArray())
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): List<Long>? {
+                return (bundle[key] as LongArray?)?.toList()
+            }
+
+            override fun parseValue(value: String): List<Long> {
+                return listOf(LongType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: List<Long>?): List<Long>? {
+                return previousValue?.plus(LongType.parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: List<Long>?, other: List<Long>?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: List<Long>?): List<String> =
+                value?.map { it.toString() } ?: emptyList()
+        }
+
+        /**
          * NavType for storing float values,
          * corresponding with the "float" type in a Navigation XML file.
          *
@@ -542,6 +627,46 @@ public actual abstract class NavType<T> actual constructor(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+        }
+
+        /**
+         * NavType for storing list of Floats.
+         *
+         * Null values are supported.
+         * List NavTypes in Navigation XML files are not supported.
+         */
+        @JvmField
+        public actual val FloatListType: NavType<List<Float>?> = object : CollectionNavType<List<Float>?>(
+            true
+        ) {
+            override val name: String
+                get() = "List<Float>"
+
+            override fun put(bundle: Bundle, key: String, value: List<Float>?) {
+                bundle.putFloatArray(key, value?.toFloatArray())
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): List<Float>? {
+                return (bundle[key] as FloatArray?)?.toList()
+            }
+
+            override fun parseValue(value: String): List<Float> {
+                return listOf(FloatType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: List<Float>?): List<Float>? {
+                return previousValue?.plus(FloatType.parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: List<Float>?, other: List<Float>?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: List<Float>?): List<String> =
+                value?.map { it.toString() } ?: emptyList()
         }
 
         /**
@@ -611,6 +736,45 @@ public actual abstract class NavType<T> actual constructor(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+        }
+
+        /**
+         * NavType for storing list of Booleans.
+         *
+         * Null values are supported.
+         * List NavTypes in Navigation XML files are not supported.
+         */
+        @JvmField
+        public actual val BoolListType: NavType<List<Boolean>?> =
+            object : CollectionNavType<List<Boolean>?>(true) {
+            override val name: String
+                get() = "List<Boolean>"
+
+            override fun put(bundle: Bundle, key: String, value: List<Boolean>?) {
+                bundle.putBooleanArray(key, value?.toBooleanArray())
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): List<Boolean>? {
+                return (bundle[key] as BooleanArray?)?.toList()
+            }
+
+            override fun parseValue(value: String): List<Boolean> {
+                return listOf(BoolType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: List<Boolean>?): List<Boolean>? {
+                return previousValue?.plus(BoolType.parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: List<Boolean>?, other: List<Boolean>?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: List<Boolean>?): List<String> =
+                value?.map { it.toString() } ?: emptyList()
         }
 
         /**
@@ -688,7 +852,52 @@ public actual abstract class NavType<T> actual constructor(
 
             override fun valueEquals(value: Array<String>?, other: Array<String>?) =
                 value.contentDeepEquals(other)
+
+            override fun serializeAsValues(value: Array<String>?): List<String> =
+                value?.map { Uri.encode(it) } ?: emptyList()
         }
+
+        /**
+         * NavType for storing list of Strings.
+         *
+         * Null values are supported.
+         * List NavTypes in Navigation XML files are not supported.
+         */
+        @JvmField
+        public actual val StringListType: NavType<List<String>?> =
+            object : CollectionNavType<List<String>?>(true) {
+                override val name: String
+                    get() = "List<String>"
+
+                override fun put(bundle: Bundle, key: String, value: List<String>?) {
+                    bundle.putStringArray(key, value?.toTypedArray())
+                }
+
+                @Suppress("UNCHECKED_CAST", "DEPRECATION")
+                override fun get(bundle: Bundle, key: String): List<String>? {
+                    return (bundle[key] as Array<String>?)?.toList()
+                }
+
+                override fun parseValue(value: String): List<String> {
+                    return listOf(value)
+                }
+
+                override fun parseValue(
+                    value: String,
+                    previousValue: List<String>?
+                ): List<String>? {
+                    return previousValue?.plus(value) ?: parseValue(value)
+                }
+
+                override fun valueEquals(value: List<String>?, other: List<String>?): Boolean {
+                    val valueArray = value?.toTypedArray()
+                    val otherArray = other?.toTypedArray()
+                    return valueArray.contentDeepEquals(otherArray)
+                }
+
+                override fun serializeAsValues(value: List<String>?): List<String> =
+                    value?.map { Uri.encode(it) } ?: emptyList()
+            }
     }
 
     /**
