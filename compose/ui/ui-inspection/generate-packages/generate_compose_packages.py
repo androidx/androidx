@@ -107,6 +107,7 @@ def regenerate_packages_kt_file(packages):
     package = 'package androidx.compose.ui.inspection.inspector\n\n'
     imports = (
         'import androidx.annotation.VisibleForTesting\n'
+        'import androidx.collection.intSetOf\n'
         'import kotlin.math.absoluteValue\n\n'
     )
     package_name_hash_function = (
@@ -115,7 +116,7 @@ def regenerate_packages_kt_file(packages):
         '    packageName.fold(0) { hash, char -> hash * 31 + char.code }.absoluteValue\n\n'
     )
     system_packages_val = (
-        'val systemPackages = setOf(\n'
+        'val systemPackages = intSetOf(\n'
         '    -1,\n'
         '%s\n'
         ')\n' % (
