@@ -183,7 +183,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.withType(AbstractTestTask::class.java) { task ->
             configureTestTask(project, task, allHostTests)
         }
-        project.tasks.withType(Test::class.java) { task -> configureJvmTestTask(project, task) }
+
+        project.tasks.withType(Test::class.java).configureEach { task ->
+            configureJvmTestTask(project, task)
+        }
 
         project.configureTaskTimeouts()
         project.configureMavenArtifactUpload(
@@ -217,7 +220,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.workaroundPrebuiltTakingPrecedenceOverProject()
     }
-
     private fun Project.registerProjectOrArtifact() {
         // Add a method for each sub project where they can declare an optional
         // dependency on a project or its latest snapshot artifact.
