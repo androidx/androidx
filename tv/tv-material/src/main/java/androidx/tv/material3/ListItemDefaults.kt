@@ -50,12 +50,12 @@ object ListItemDefaults {
     /**
      * The default shape for a [ListItem].
      */
-    val ListItemShape = RoundedCornerShape(8.dp)
+    private val ListItemShape = RoundedCornerShape(8.dp)
 
     /**
      * The default border applied to [ListItem] in focused disabled state.
      */
-    val FocusedDisabledBorder
+    private val FocusedDisabledBorder
         @ReadOnlyComposable
         @Composable get() = Border(
             border = BorderStroke(
@@ -67,7 +67,7 @@ object ListItemDefaults {
     /**
      * The default opacity for the [ListItem] container color in selected state.
      */
-    const val SelectedContainerColorOpacity = 0.4f
+    private const val SelectedContainerColorOpacity = 0.4f
 
     /**
      * The default content padding [PaddingValues] used by [ListItem]
