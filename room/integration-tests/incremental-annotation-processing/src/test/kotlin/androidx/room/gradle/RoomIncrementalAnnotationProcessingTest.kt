@@ -161,6 +161,7 @@ class RoomIncrementalAnnotationProcessingTest(
             ksp {
                 arg('room.incremental', '$withIncrementalRoom')
                 arg('room.schemaLocation', '${projectRoot.resolve(GEN_RES_DIR).canonicalPath}')
+                arg('room.generateKotlin', 'false')
             }
             """.trimIndent()
         } else {

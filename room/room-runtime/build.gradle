@@ -219,10 +219,6 @@ dependencies {
     add("kspAndroidAndroidTest", project(":room:room-compiler"))
 }
 
-ksp {
-    arg("room.generateKotlin", "true")
-}
-
 androidx {
     name = "Room-Runtime"
     type = LibraryType.PUBLISHED_LIBRARY
