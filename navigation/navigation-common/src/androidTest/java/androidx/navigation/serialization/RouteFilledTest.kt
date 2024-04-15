@@ -402,6 +402,23 @@ class RouteFilledTest {
     }
 
     @Test
+    fun routeListArgs() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class IntList(val list: List<Int>)
+        assertThatRouteFilledFrom(
+            IntList(listOf(1, 2)),
+            listOf(
+                navArgument("list") {
+                    type = NavType.IntListType
+                    nullable = false
+                    unknownDefaultValuePresent = false
+                }
+            )
+        ).isEqualTo("$PATH_SERIAL_NAME?list=1&list=2")
+    }
+
+    @Test
     fun withSecondaryConstructor() {
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
