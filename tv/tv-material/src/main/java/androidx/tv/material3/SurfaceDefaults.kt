@@ -29,14 +29,14 @@ import androidx.compose.ui.unit.dp
 /**
  * Contains the default values used by a non-interactive [Surface]
  */
-object NonInteractiveSurfaceDefaults {
+object SurfaceDefaults {
     /**
      * Represents the default shape used by a non-interactive [Surface]
      */
     val shape: Shape @ReadOnlyComposable @Composable get() = RectangleShape
 
     /**
-     * Creates a [NonInteractiveSurfaceColors] that represents the default container & content
+     * Creates a [SurfaceColors] that represents the default container & content
      * colors used by a non-interactive [Surface].
      *
      * @param containerColor the container color of this Surface
@@ -47,7 +47,7 @@ object NonInteractiveSurfaceDefaults {
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
         contentColor: Color = contentColorFor(containerColor)
-    ) = NonInteractiveSurfaceColors(
+    ) = SurfaceColors(
         containerColor = containerColor,
         contentColor = contentColor
     )

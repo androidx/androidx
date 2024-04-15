@@ -114,7 +114,7 @@ fun TabRow(
             .horizontalScroll(scrollState)
             .onFocusChanged { doesTabRowHaveFocus = it.hasFocus }
             .selectableGroup(),
-        colors = NonInteractiveSurfaceDefaults.colors(
+        colors = SurfaceDefaults.colors(
             containerColor = containerColor,
             contentColor = contentColor
         ),
