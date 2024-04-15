@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -79,6 +80,7 @@ val LongScreenshotsDemos = listOf(
     ComposableDemo("TextField in scrollable") { TextFieldInScrollableDemo() },
     ComposableDemo("Single giant text field") { SingleGiantTextFieldDemo() },
     ComposableDemo("Lazy list with sticky headers") { LazyListWithStickiesDemo() },
+    ComposableDemo("Reverse layout") { ReverseScrollingCaptureDemo() },
 )
 
 @Composable
@@ -170,17 +172,15 @@ private fun SingleLazyListDemo() {
 
 @Composable
 private fun SingleFullScreenListDemo() {
-    Column {
-        LazyColumn(Modifier.fillMaxSize()) {
-            items(50) { index ->
-                Button(
-                    onClick = {},
-                    Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                ) {
-                    Text("Button $index")
-                }
+    LazyColumn(Modifier.fillMaxSize()) {
+        items(50) { index ->
+            Button(
+                onClick = {},
+                Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text("Button $index")
             }
         }
     }
@@ -188,39 +188,37 @@ private fun SingleFullScreenListDemo() {
 
 @Composable
 private fun LazyListContentPaddingDemo() {
-    Column {
-        Scaffold(
+    Scaffold(
+        modifier = Modifier
+            .padding(8.dp)
+            .border(1.dp, Color.Black),
+        topBar = {
+            TopAppBar(
+                title = { Text("Top bar") },
+                backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f)
+            )
+        },
+        bottomBar = {
+            BottomAppBar(
+                backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f)
+            ) { Text("Bottom bar") }
+        }
+    ) { contentPadding ->
+        LazyColumn(
             modifier = Modifier
-                .padding(8.dp)
-                .border(1.dp, Color.Black),
-            topBar = {
-                TopAppBar(
-                    title = { Text("Top bar") },
-                    backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f)
-                )
-            },
-            bottomBar = {
-                BottomAppBar(
-                    backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f)
-                ) { Text("Bottom bar") }
-            }
-        ) { contentPadding ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Red),
-                contentPadding = contentPadding
-            ) {
-                items(15) { index ->
-                    Button(
-                        onClick = {},
-                        Modifier
-                            .background(Color.LightGray)
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text("Button $index")
-                    }
+                .fillMaxSize()
+                .background(Color.Red),
+            contentPadding = contentPadding
+        ) {
+            items(15) { index ->
+                Button(
+                    onClick = {},
+                    Modifier
+                        .background(Color.LightGray)
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text("Button $index")
                 }
             }
         }
@@ -502,6 +500,25 @@ private fun LazyListWithStickiesDemo() {
                         .fillParentMaxHeight(1f / (sectionCount - 1))
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ReverseScrollingCaptureDemo() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState(), reverseScrolling = true)
+    ) {
+        repeat(50) { index ->
+            Text(
+                "Row $index",
+                Modifier
+                    .heightIn(min = 40.dp)
+                    .padding(8.dp)
+            )
         }
     }
 }
