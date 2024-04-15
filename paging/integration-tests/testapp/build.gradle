@@ -67,3 +67,7 @@ android {
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters"
 }
+
+ksp {
+    arg('room.generateKotlin', 'false')
+}

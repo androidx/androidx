@@ -1309,9 +1309,11 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             COMMON.NOT_AN_ENTITY, COMMON.ARTIST, COMMON.SONG, COMMON.IMAGE, COMMON.IMAGE_FORMAT,
             COMMON.CONVERTER
         )
+        val allOptions =
+            mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false") + options
         runProcessorTest(
             sources = additionalSources + commonSources + inputSource,
-            options = options
+            options = allOptions
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)

@@ -795,7 +795,8 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
             COMMON.GUAVA_ROOM
         )
         runProcessorTest(
-            sources = commonSources + additionalSources + inputSource
+            sources = commonSources + additionalSources + inputSource,
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
@@ -836,7 +837,8 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
         )
 
         runProcessorTest(
-            sources = commonSources + additionalSources + inputSource
+            sources = commonSources + additionalSources + inputSource,
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
