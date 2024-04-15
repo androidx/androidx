@@ -59,7 +59,6 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -158,7 +157,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePicture(): Unit = runBlocking {
         val mockOnImageCapturedCallback = Mockito.mock(
             ImageCapture.OnImageCapturedCallback::class.java
@@ -302,7 +300,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePicture_diskIo(): Unit = runBlocking {
         val mockOnImageSavedCallback = Mockito.mock(
             ImageCapture.OnImageSavedCallback::class.java
@@ -488,7 +485,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress(): Unit = runBlocking {
         assumeTrue(isCaptureProcessProgressSupported())
 
@@ -525,7 +521,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress_diskIo(): Unit = runBlocking {
         assumeTrue(isCaptureProcessProgressSupported())
 
@@ -564,7 +559,6 @@ class ImageCaptureTest(
         ExifRotationAvailability().isRotationOptionSupported
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithPostview(): Unit = runBlocking {
         assumeTrue(isPostviewSupported())
 
@@ -618,7 +612,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithPostview_diskIo(): Unit = runBlocking {
         assumeTrue(isPostviewSupported())
 
@@ -665,7 +658,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
         val imageCapture = ImageCapture.Builder().build()
 
