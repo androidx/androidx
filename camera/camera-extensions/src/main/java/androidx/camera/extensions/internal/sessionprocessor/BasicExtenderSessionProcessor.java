@@ -262,7 +262,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             }
             mParameters.clear();
             mParameters.putAll(map);
-            applyRotationAndJpegQualityToProcessor();
         }
     }
 
@@ -315,24 +314,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             }
         }
     }
-
-    private void applyRotationAndJpegQualityToProcessor() {
-        synchronized (mLock) {
-            if (mStillCaptureProcessor == null) {
-                return;
-            }
-            Integer orientationObj = (Integer) mParameters.get(CaptureRequest.JPEG_ORIENTATION);
-            if (orientationObj != null) {
-                mStillCaptureProcessor.setRotationDegrees(orientationObj);
-            }
-
-            Byte qualityObj = (Byte) mParameters.get(CaptureRequest.JPEG_QUALITY);
-            if (qualityObj != null) {
-                mStillCaptureProcessor.setJpegQuality((int) qualityObj);
-            }
-        }
-    }
-
 
     private void submitRequestByCaptureStages(RequestProcessor requestProcessor,
             List<CaptureStageImpl> captureStageList) {
