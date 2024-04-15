@@ -580,7 +580,6 @@ private class ThreePaneContentMeasurePolicy(
         }
     }
 
-    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     private fun MutableList<PaneMeasurable>.createPaneMeasurableIfNeeded(
         measurables: List<Measurable>,
         priority: Int,
@@ -632,7 +631,6 @@ private class ThreePaneContentMeasurePolicy(
         )
     }
 
-    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     private fun Placeable.PlacementScope.measureAndPlacePanesWithLocalBounds(
         partitionBounds: IntRect,
         spacerSize: Int,
@@ -747,7 +745,6 @@ private class ThreePaneContentMeasurePolicy(
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class PaneMeasurable(
     val measurable: Measurable,
     val priority: Int,

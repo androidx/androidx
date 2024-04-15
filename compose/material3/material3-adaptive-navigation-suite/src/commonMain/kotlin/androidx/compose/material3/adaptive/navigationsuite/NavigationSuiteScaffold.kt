@@ -42,7 +42,6 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.contentColorFor
@@ -84,7 +83,6 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * passed in [content] lambda inside the navigation suite scaffold.
  * @param content the content of your screen
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun NavigationSuiteScaffold(
     navigationSuiteItems: NavigationSuiteScope.() -> Unit,
@@ -141,7 +139,6 @@ fun NavigationSuiteScaffold(
  * [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]
  * @param content the content of your screen
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun NavigationSuiteScaffoldLayout(
     navigationSuite: @Composable () -> Unit,
@@ -219,7 +216,6 @@ fun NavigationSuiteScaffoldLayout(
  * @param content the content inside the current navigation component, typically
  * [NavigationSuiteScope.item]s
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun NavigationSuite(
     modifier: Modifier = Modifier,
@@ -403,7 +399,6 @@ object NavigationSuiteScaffoldDefaults {
      * @param adaptiveInfo the provided [WindowAdaptiveInfo]
      * @see NavigationSuiteScaffold
      */
-    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationSuiteType {
         return with(adaptiveInfo) {
             if (windowPosture.isTabletop ||
@@ -541,7 +536,6 @@ class NavigationSuiteItemColors(
     val navigationDrawerItemColors: NavigationDrawerItemColors,
 )
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal val WindowAdaptiveInfoDefault
     @Composable
     get() = currentWindowAdaptiveInfo()
@@ -551,7 +545,6 @@ private interface NavigationSuiteItemProvider {
     val itemList: MutableVector<NavigationSuiteItem>
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 private class NavigationSuiteItem(
     val selected: Boolean,
     val onClick: () -> Unit,
@@ -566,7 +559,6 @@ private class NavigationSuiteItem(
     val interactionSource: MutableInteractionSource
 )
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 private class NavigationSuiteScopeImpl : NavigationSuiteScope,
     NavigationSuiteItemProvider {
 
@@ -605,7 +597,6 @@ private class NavigationSuiteScopeImpl : NavigationSuiteScope,
         get() = itemList.size
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @Composable
 private fun rememberStateOfItems(
     content: NavigationSuiteScope.() -> Unit

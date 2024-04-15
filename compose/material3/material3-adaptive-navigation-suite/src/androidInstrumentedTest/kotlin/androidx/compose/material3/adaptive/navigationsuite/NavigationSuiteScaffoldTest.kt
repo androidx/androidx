@@ -34,7 +34,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @RunWith(JUnit4::class)
 class NavigationSuiteScaffoldTest {
     @get:Rule
@@ -92,7 +91,6 @@ class NavigationSuiteScaffoldTest {
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @Composable
 private fun SampleNavigationSuiteScaffoldLayout(
     layoutType: NavigationSuiteType
