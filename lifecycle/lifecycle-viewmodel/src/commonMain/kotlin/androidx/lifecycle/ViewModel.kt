@@ -145,10 +145,7 @@ public expect abstract class ViewModel {
      * prevent a memory leak, as the subscriptions might hold a reference to the [ViewModel] even
      * after it is no longer needed.
      *
-     * **Clearing Sequence:**
-     * 1. [AutoCloseable.close] resources added **without** a key via [addCloseable].
-     * 2. [AutoCloseable.close] resources added **with** a key via [addCloseable].
-     * 3. Invoke the [onCleared] callback.
+     * For specifics about the clearing sequence, refer to the [clear] method.
      */
     protected open fun onCleared()
 
@@ -159,9 +156,10 @@ public expect abstract class ViewModel {
      * immediately closed.
      *
      * **Clearing Sequence:**
-     * 1. [AutoCloseable.close] resources added **without** a key via [addCloseable].
-     * 2. [AutoCloseable.close] resources added **with** a key via [addCloseable].
-     * 3. Invoke the [onCleared] callback.
+     * 1. [Close][AutoCloseable.close] resources added **with** a key via [addCloseable].
+     * 2. [Close][AutoCloseable.close] resources added via `constructor`.
+     * 3. [Close][AutoCloseable.close] resources added **without** a key via [addCloseable].
+     * 4. Invoke the [onCleared] callback.
      */
     @MainThread
     internal fun clear()
