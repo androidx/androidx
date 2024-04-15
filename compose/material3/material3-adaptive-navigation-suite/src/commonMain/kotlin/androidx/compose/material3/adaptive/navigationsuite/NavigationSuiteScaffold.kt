@@ -85,7 +85,6 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * @param content the content of your screen
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 @Composable
 fun NavigationSuiteScaffold(
     navigationSuiteItems: NavigationSuiteScope.() -> Unit,
@@ -143,7 +142,6 @@ fun NavigationSuiteScaffold(
  * @param content the content of your screen
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 @Composable
 fun NavigationSuiteScaffoldLayout(
     navigationSuite: @Composable () -> Unit,
@@ -222,7 +220,6 @@ fun NavigationSuiteScaffoldLayout(
  * [NavigationSuiteScope.item]s
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 @Composable
 fun NavigationSuite(
     modifier: Modifier = Modifier,
@@ -310,7 +307,6 @@ fun NavigationSuite(
 }
 
 /** The scope associated with the [NavigationSuiteScope]. */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 sealed interface NavigationSuiteScope {
 
     /**
@@ -360,7 +356,6 @@ sealed interface NavigationSuiteScope {
  * The [NavigationSuiteType] informs the [NavigationSuite] of what navigation component to expect.
  */
 @JvmInline
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 value class NavigationSuiteType private constructor(private val description: String) {
     override fun toString(): String {
         return description
@@ -400,7 +395,6 @@ value class NavigationSuiteType private constructor(private val description: Str
 }
 
 /** Contains the default values used by the [NavigationSuiteScaffold]. */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 object NavigationSuiteScaffoldDefaults {
     /**
      * Returns the expected [NavigationSuiteType] according to the provided [WindowAdaptiveInfo].
@@ -434,7 +428,6 @@ object NavigationSuiteScaffoldDefaults {
 }
 
 /** Contains the default values used by the [NavigationSuite]. */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 object NavigationSuiteDefaults {
     /**
      * Creates a [NavigationSuiteColors] with the provided colors for the container color, according
@@ -519,7 +512,6 @@ object NavigationSuiteDefaults {
  * @param navigationDrawerContentColor the content color for the [PermanentDrawerSheet] of the
  * [NavigationSuite]
  */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 class NavigationSuiteColors
 internal constructor(
     val navigationBarContainerColor: Color,
@@ -543,8 +535,7 @@ internal constructor(
  * @param navigationDrawerItemColors the [NavigationDrawerItemColors] associated with the
  * [NavigationDrawerItem] of the [NavigationSuiteScope.item]
  */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
-class NavigationSuiteItemColors constructor(
+class NavigationSuiteItemColors(
     val navigationBarItemColors: NavigationBarItemColors,
     val navigationRailItemColors: NavigationRailItemColors,
     val navigationDrawerItemColors: NavigationDrawerItemColors,
