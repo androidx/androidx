@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.reflect.getDeclaredComposableMethod
 import androidx.compose.ui.platform.ComposeView
@@ -29,7 +30,8 @@ import androidx.fragment.app.Fragment
 
 /**
  * This class provides a [Fragment] wrapper around a composable function that is loaded via
- * reflection.
+ * reflection. The composable function has access to this fragment instance via
+ * [LocalFragment].
  *
  * This class is constructed via a factory method: make sure you add
  * `import androidx.navigation.fragment.compose.ComposableFragment.Companion.ComposableFragment`
@@ -56,7 +58,9 @@ class ComposableFragment internal constructor() : Fragment() {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                composableMethod.invoke(currentComposer, null)
+                CompositionLocalProvider(LocalFragment provides this@ComposableFragment) {
+                    composableMethod.invoke(currentComposer, null)
+                }
             }
         }
     }
