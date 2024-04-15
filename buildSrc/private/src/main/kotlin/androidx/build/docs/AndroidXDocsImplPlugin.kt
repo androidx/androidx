@@ -39,6 +39,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.time.Duration
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -577,6 +578,18 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     )
                     task.doFirst { taskStartTime = LocalDateTime.now() }
                     task.doLast {
+                        val cpus = try {
+                            ProcessBuilder("lscpu").start()
+                                .apply { waitFor(100L, TimeUnit.MILLISECONDS) }
+                                .inputStream.bufferedReader().readLines()
+                                .filter { it.startsWith("CPU(s):") }.singleOrNull()
+                                ?.split(" ")?.last()?.toInt()
+                        } catch (e: java.io.IOException) { null } // not running on linux
+                        if (cpus != 64) { // Keep stddev of build metrics low b/334867245
+                            println("$cpus cpus, so not storing build metrics.")
+                            return@doLast
+                        }
+                        println("$cpus cpus, so storing build metrics.")
                         val taskEndTime = LocalDateTime.now()
                         val duration = Duration.between(taskStartTime, taskEndTime).toMillis()
                         metricsFile
