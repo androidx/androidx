@@ -62,7 +62,8 @@ internal fun CliktCommand.promptPickFile(candidates: List<FileWithId>, trimBaseD
 
 internal fun CliktCommand.promptProvideFile(
     prompt: String,
-    pattern: String = ".*",
+    includePattern: String = ".*",
+    excludePattern: String? = null,
     srcDir: File? = null,
     defaultSrcDir: File? = null
 ): File {
@@ -80,11 +81,20 @@ internal fun CliktCommand.promptProvideFile(
     }
 
     check(baseDir.isDirectory)
-    echo("Looking for files in '${baseDir.absolutePath}' matching '$pattern'...")
-    val candidates = baseDir.walkTopDown().filter { it.isFile && it.name.matches(Regex(pattern)) }
-        .sortedBy { -it.lastModified() }.withId().toList()
+    echo("Looking for files in '${baseDir.absolutePath}' matching '$includePattern'...")
+    val candidates = baseDir.walkTopDown()
+        .filter { it.isFile }
+        .filter { it.name.matches(Regex(includePattern)) }
+        .filter { if (excludePattern == null) true else !it.name.matches(Regex(excludePattern)) }
+        .sortedBy { -it.lastModified() }
+        .withId()
+        .toList()
 
-    if (candidates.isEmpty()) exitProcessWithError("No files matching '$pattern' in '$baseDir'")
+    if (candidates.isEmpty()) exitProcessWithError(
+        "No files matching '$includePattern'" +
+                (if (excludePattern == null) "" else " (and excluding $excludePattern)") +
+                " in '$baseDir'"
+    )
     return promptPickFile(candidates, baseDir)
 }
 
