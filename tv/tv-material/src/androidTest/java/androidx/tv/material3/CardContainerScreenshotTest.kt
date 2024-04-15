@@ -72,7 +72,7 @@ class CardContainerScreenshotTest {
                     StandardCardContainer(
                         modifier = standardCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardContainerDefaults.ImageCard(
+                            Card(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -103,7 +103,7 @@ class CardContainerScreenshotTest {
                     StandardCardContainer(
                         modifier = standardCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardContainerDefaults.ImageCard(
+                            Card(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -135,7 +135,7 @@ class CardContainerScreenshotTest {
                 StandardCardContainer(
                     modifier = standardCardContainerSizeModifier,
                     imageCard = { interactionSource ->
-                        CardContainerDefaults.ImageCard(
+                        Card(
                             onClick = { },
                             interactionSource = interactionSource
                         ) {
@@ -170,7 +170,7 @@ class CardContainerScreenshotTest {
                     WideCardContainer(
                         modifier = wideCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardContainerDefaults.ImageCard(
+                            Card(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -201,7 +201,7 @@ class CardContainerScreenshotTest {
                     WideCardContainer(
                         modifier = wideCardContainerSizeModifier,
                         imageCard = { interactionSource ->
-                            CardContainerDefaults.ImageCard(
+                            Card(
                                 onClick = { },
                                 interactionSource = interactionSource
                             ) {
@@ -233,7 +233,7 @@ class CardContainerScreenshotTest {
                 WideCardContainer(
                     modifier = wideCardContainerSizeModifier,
                     imageCard = { interactionSource ->
-                        CardContainerDefaults.ImageCard(
+                        Card(
                             onClick = { },
                             interactionSource = interactionSource
                         ) {
