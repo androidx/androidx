@@ -60,7 +60,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             .align(Alignment.Center)
     }
 
-    private val wrapperTestTag = "NonInteractiveSurfaceWrapper"
+    private val wrapperTestTag = "SurfaceWrapper"
 
     @Test
     fun nonInteractiveSurface_noCustomizations() {
@@ -98,7 +98,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    colors = NonInteractiveSurfaceDefaults.colors(containerColor = Color.Green)
+                    colors = SurfaceDefaults.colors(containerColor = Color.Green)
                 ) {}
             }
         }
@@ -111,7 +111,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    colors = NonInteractiveSurfaceDefaults.colors(contentColor = Color.Red)
+                    colors = SurfaceDefaults.colors(contentColor = Color.Red)
                 ) {}
             }
         }
