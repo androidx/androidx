@@ -178,16 +178,63 @@ class RoomKmpGradlePluginTest {
     }
 
     @Test
-    fun `Blocking DAO function in non-Android source set`() {
+    fun `Blocking query DAO function in non-Android source set`() {
         setup(generateKotlin = "true")
 
-        // Make a change that changes the schema at version 1
+        searchAndReplace(
+            file = projectSetup.rootDir.resolve("src/nativeMain/kotlin/room/testapp/MyDatabase.kt"),
+            search = "// Insert-change",
+            replace = """
+                @Query("SELECT * FROM NativeEntity")
+                fun blockingQuery(): NativeEntity
+            """.trimIndent()
+        )
+
+        runGradle(
+            NATIVE_COMPILE_TASK,
+            projectDir = projectSetup.rootDir,
+            expectFailure = true
+        ).let { result ->
+            result.assertTaskOutcome(NATIVE_KSP_TASK, TaskOutcome.FAILED)
+            result.output.contains("Only suspend functions are allowed in DAOs" +
+                " declared in non-Android platforms.")
+        }
+    }
+
+    @Test
+    fun `Blocking shortcut DAO function in non-Android source set`() {
+        setup(generateKotlin = "true")
+
         searchAndReplace(
             file = projectSetup.rootDir.resolve("src/nativeMain/kotlin/room/testapp/MyDatabase.kt"),
             search = "// Insert-change",
             replace = """
                 @Insert
                 fun blockingInsert(entity: NativeEntity)
+            """.trimIndent()
+        )
+
+        runGradle(
+            NATIVE_COMPILE_TASK,
+            projectDir = projectSetup.rootDir,
+            expectFailure = true
+        ).let { result ->
+            result.assertTaskOutcome(NATIVE_KSP_TASK, TaskOutcome.FAILED)
+            result.output.contains("Only suspend functions are allowed in DAOs" +
+                " declared in non-Android platforms.")
+        }
+    }
+
+    @Test
+    fun `Blocking transaction wrapper DAO function in non-Android source set`() {
+        setup(generateKotlin = "true")
+
+        searchAndReplace(
+            file = projectSetup.rootDir.resolve("src/nativeMain/kotlin/room/testapp/MyDatabase.kt"),
+            search = "// Insert-change",
+            replace = """
+                @Transaction
+                fun blockingTransaction() { }
             """.trimIndent()
         )
 
