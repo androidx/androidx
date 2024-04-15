@@ -30,4 +30,11 @@ object Packages {
      * Preferably use this app/package if not killing/compiling target.
      */
     const val TEST = "androidx.benchmark.macro.test"
+
+    /**
+     * Package not present on device.
+     *
+     * Used to validate behavior when package can't be found.
+     */
+    const val MISSING = "not.real.fake.package"
 }
