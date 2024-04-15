@@ -28,5 +28,10 @@ package androidx.navigation.fragment.compose {
     method public androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
   }
 
+  public final class LocalFragmentKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> getLocalFragment();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> LocalFragment;
+  }
+
 }
 
