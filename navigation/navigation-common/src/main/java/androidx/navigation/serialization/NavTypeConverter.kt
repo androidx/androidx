@@ -25,12 +25,10 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.serializer
 
-private interface InternalCommonType
-
 /**
- * Marker for Native Kotlin Primitives and Collections
+ * Marker for Native Kotlin types with either full or partial built-in NavType support
  */
-private enum class Native : InternalCommonType {
+private enum class InternalType {
     INT,
     BOOL,
     FLOAT,
@@ -42,42 +40,32 @@ private enum class Native : InternalCommonType {
     LONG_ARRAY,
     ARRAY,
     ARRAY_LIST,
-    SET,
-    HASHSET,
-    MAP,
-    HASH_MAP,
     UNKNOWN
 }
 
 /**
- * Marker for custom classes, objects, enums, and other Native Kotlin types that are not
- * included in [Native]
- */
-private data class Custom(val className: String) : InternalCommonType
-
-/**
- * Converts an argument type to a native NavType.
+ * Converts an argument type to a built-in NavType.
  *
- * Native NavTypes includes NavType objects declared within [NavType.Companion], or types that are
- * either java Serializable, Parcelable, or Enum.
+ * Built-in NavTypes include NavType objects declared within [NavType.Companion], such as
+ * [NavType.IntType], [NavType.BoolArrayType] etc.
  *
- * Returns [UNKNOWN] type if the argument does not belong to any of the above.
+ * Returns [UNKNOWN] type if the argument does not have built-in NavType support.
  */
 @Suppress("UNCHECKED_CAST")
 internal fun SerialDescriptor.getNavType(): NavType<Any?> {
     val type = when (this.toInternalType()) {
-        Native.INT -> NavType.IntType
-        Native.BOOL -> NavType.BoolType
-        Native.FLOAT -> NavType.FloatType
-        Native.LONG -> NavType.LongType
-        Native.STRING -> NavType.StringType
-        Native.INT_ARRAY -> NavType.IntArrayType
-        Native.BOOL_ARRAY -> NavType.BoolArrayType
-        Native.FLOAT_ARRAY -> NavType.FloatArrayType
-        Native.LONG_ARRAY -> NavType.LongArrayType
-        Native.ARRAY -> {
+        InternalType.INT -> NavType.IntType
+        InternalType.BOOL -> NavType.BoolType
+        InternalType.FLOAT -> NavType.FloatType
+        InternalType.LONG -> NavType.LongType
+        InternalType.STRING -> NavType.StringType
+        InternalType.INT_ARRAY -> NavType.IntArrayType
+        InternalType.BOOL_ARRAY -> NavType.BoolArrayType
+        InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
+        InternalType.LONG_ARRAY -> NavType.LongArrayType
+        InternalType.ARRAY -> {
             val typeParameter = getElementDescriptor(0).toInternalType()
-            if (typeParameter == Native.STRING) NavType.StringArrayType else UNKNOWN
+            if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
         }
         else -> UNKNOWN
     }
@@ -87,29 +75,26 @@ internal fun SerialDescriptor.getNavType(): NavType<Any?> {
 /**
  * Convert SerialDescriptor to an InternalCommonType.
  *
- * The descriptor's associated argument could be any of the native Kotlin types that
- * are supported in [Native], or it could be a custom type (custom class, object or enum).
+ * The descriptor's associated argument could be any of the native Kotlin types supported
+ * in [InternalType], or it could be an unsupported type (custom class, object or enum).
  */
-private fun SerialDescriptor.toInternalType(): InternalCommonType {
+private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
     return when {
-        serialName == "kotlin.Int" -> Native.INT
-        serialName == "kotlin.Boolean" -> Native.BOOL
-        serialName == "kotlin.Float" -> Native.FLOAT
-        serialName == "kotlin.Long" -> Native.LONG
-        serialName == "kotlin.String" -> Native.STRING
-        serialName == "kotlin.IntArray" -> Native.INT_ARRAY
-        serialName == "kotlin.BooleanArray" -> Native.BOOL_ARRAY
-        serialName == "kotlin.FloatArray" -> Native.FLOAT_ARRAY
-        serialName == "kotlin.LongArray" -> Native.LONG_ARRAY
-        serialName == "kotlin.Array" -> Native.ARRAY
+        serialName == "kotlin.Int" -> InternalType.INT
+        serialName == "kotlin.Boolean" -> InternalType.BOOL
+        serialName == "kotlin.Float" -> InternalType.FLOAT
+        serialName == "kotlin.Long" -> InternalType.LONG
+        serialName == "kotlin.String" -> InternalType.STRING
+        serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
+        serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
+        serialName == "kotlin.FloatArray" -> InternalType.FLOAT_ARRAY
+        serialName == "kotlin.LongArray" -> InternalType.LONG_ARRAY
+        serialName == "kotlin.Array" -> InternalType.ARRAY
         // serial name for both List and ArrayList
-        serialName.startsWith("kotlin.collections.ArrayList") -> Native.ARRAY_LIST
-        serialName.startsWith("kotlin.collections.LinkedHashSet") -> Native.SET
-        serialName.startsWith("kotlin.collections.HashSet") -> Native.HASHSET
-        serialName.startsWith("kotlin.collections.LinkedHashMap") -> Native.MAP
-        serialName.startsWith("kotlin.collections.HashMap") -> Native.HASH_MAP
-        else -> Custom(serialName)
+        serialName.startsWith("kotlin.collections.ArrayList") -> InternalType.ARRAY_LIST
+        // custom classes or other types without built-in NavTypes
+        else -> InternalType.UNKNOWN
     }
 }
 
