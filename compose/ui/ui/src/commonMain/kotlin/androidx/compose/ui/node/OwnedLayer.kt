@@ -103,7 +103,10 @@ internal interface OwnedLayer {
      * [drawBlock] and [invalidateParentLayer] values. The layer will be reinitialized
      * as new after this call.
      */
-    fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit)
+    fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    )
 
     /**
      * Calculates the transform from the parent to the local coordinates and multiplies

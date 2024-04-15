@@ -47,10 +47,10 @@ import androidx.compose.ui.unit.LayoutDirection
 @RequiresApi(Build.VERSION_CODES.M)
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
-    drawBlock: (Canvas) -> Unit,
+    drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
     invalidateParentLayer: () -> Unit
 ) : OwnedLayer, GraphicLayerInfo {
-    private var drawBlock: ((Canvas) -> Unit)? = drawBlock
+    private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
     /**
@@ -314,7 +314,7 @@ internal class RenderNodeLayer(
             canvas.translate(left, top)
             canvas.concat(matrixCache.calculateMatrix(renderNode))
             clipRenderNode(canvas)
-            drawBlock?.invoke(canvas)
+            drawBlock?.invoke(canvas, null)
             canvas.restore()
             isDirty = false
         }
@@ -337,8 +337,10 @@ internal class RenderNodeLayer(
             } else {
                 null
             }
-            drawBlock?.let {
-                renderNode.record(canvasHolder, clipPath, it)
+            drawBlock?.let { drawBlock ->
+                renderNode.record(canvasHolder, clipPath) {
+                    drawBlock(it, null)
+                }
             }
             isDirty = false
         }
@@ -377,7 +379,10 @@ internal class RenderNodeLayer(
         }
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
+    override fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
         isDirty = false
         isDestroyed = false
         drawnWithZ = false

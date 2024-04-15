@@ -484,7 +484,7 @@ private class MockOwner(
         TODO("Not yet implemented")
     }
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
@@ -495,7 +495,7 @@ private class MockOwner(
             override fun move(position: IntOffset) {}
             override fun resize(size: IntSize) {}
             override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
-                drawBlock(canvas)
+                drawBlock(canvas, parentLayer)
             }
             override fun updateDisplayList() {}
             override fun invalidate() { invalidatedLayers.add(this) }
@@ -505,7 +505,7 @@ private class MockOwner(
             override fun inverseTransform(matrix: Matrix) { matrix.timesAssign(inverseTransform) }
             override fun mapOffset(point: Offset, inverse: Boolean) = point
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {}
             override fun updateLayerProperties(
