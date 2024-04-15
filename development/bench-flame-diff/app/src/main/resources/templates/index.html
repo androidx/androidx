@@ -37,6 +37,7 @@
         <div class="spacer">|</div>
         <button class="button" onclick="window.open('http://go/bench-flame-diff-readme')">help</button>
       </div>
+      <div id="results"></div>
       <div id="%before_raw_name%" class="svg">
         <object type="image/svg+xml" data="%before_raw_file%">Failed to display the file: %before_raw_file%</object>
       </div>
@@ -51,6 +52,15 @@
       </div>
     </div>
 
+    <!-- Note: 'application/json' ensures the content is treated as data (i.e. not executed) -->
+    <script type="application/json" id="result-before-raw">
+      %benchmark_result_before_raw%
+    </script>
+
+    <script type="application/json" id="result-after-raw">
+      %benchmark_result_after_raw%
+    </script>
+
     <script>
       mdc.ripple.MDCRipple.attachTo(document.querySelector(".button"));
 
@@ -60,6 +70,31 @@
         document.getElementById(tabName).style.display = "block";
       }
 
+      function populateBenchmarkResult(stage, traceFileName) {
+        const dataString = document.getElementById(`result-${stage}-raw`).textContent.trim()
+        if (!dataString) return // no benchmark result data
+
+        const benchmark = JSON.parse(dataString).benchmarks.find(b =>
+                b.profilerOutputs &&
+                b.profilerOutputs.some(po => po.filename === traceFileName)
+        ) || undefined;
+        if (!benchmark || !benchmark.metrics) return // no benchmark matching the trace file name
+        const metrics = benchmark.metrics
+
+        let outputString = "";
+        Object.entries(metrics).forEach(([metricName, metricResult], ix) => {
+          const {minimum, maximum, median} = metricResult;
+          const resultString = JSON.stringify({minimum, maximum, median});
+          outputString += `${metricName}: ${resultString} `;
+          if (ix !== metrics.length - 1) outputString += " | "
+        })
+        document.querySelector(`#results`).innerHTML += "<div><span>" +
+                `${stage}: <code>${outputString}</code>` +
+                "</span></div>"
+      }
+
+      populateBenchmarkResult("before", "%before_trace_file_name%")
+      populateBenchmarkResult("after", "%after_trace_file_name%")
       openTab("%after_diff_name%");
     </script>
   </body>
