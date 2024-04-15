@@ -68,7 +68,7 @@ class LimitOffsetPagingSourceTest {
             ApplicationProvider.getApplicationContext(),
             LimitOffsetTestDb::class.java,
         ).build()
-        dao = database.dao
+        dao = database.getDao()
     }
 
     @After
@@ -735,7 +735,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
             it.run()
         }.setQueryExecutor(queryExecutor)
             .build()
-        dao = db.dao
+        dao = db.getDao()
     }
 
     @After

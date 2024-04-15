@@ -487,6 +487,7 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             createProcessingSteps = { listOf(DatabaseProcessingStep()) }
         ) { result ->
             result.generatedSourceFileWithPath("foo/bar/Db1_Impl.java")
@@ -1465,7 +1466,10 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(dbSource, USER),
-            options = mapOf("room.schemaLocation" to "schemas/")
+            options = mapOf(
+                "room.schemaLocation" to "schemas/",
+                "room.generateKotlin" to "false"
+            )
         ) { invocation ->
             val dbAnnotationName = "androidx.room.Database"
             val roundElements = mapOf(
@@ -1537,7 +1541,10 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        runProcessorTest(sources = listOf(jvmNameInDaoGetter)) { invocation ->
+        runProcessorTest(
+            sources = listOf(jvmNameInDaoGetter),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+        ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
             DatabaseProcessor(
                 baseContext = invocation.context,
@@ -1614,7 +1621,8 @@ class DatabaseProcessorTest {
         body: (List<DatabaseView>, XTestInvocation) -> Unit
     ) {
         runProcessorTest(
-            sources = listOf(DB3, BOOK)
+            sources = listOf(DB3, BOOK),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
             val database = invocation.roundEnv
                 .getElementsAnnotatedWith(
@@ -1665,6 +1673,7 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, bookDao) + dbs,
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             createProcessingSteps = { listOf(DatabaseProcessingStep()) },
         ) {
             onCompilationResult?.invoke(it)
@@ -1685,7 +1694,8 @@ class DatabaseProcessorTest {
                 ),
             classpath = classpath,
             options = mapOf(
-                "room.schemaLocation" to schemaFolder.root.absolutePath
+                "room.schemaLocation" to schemaFolder.root.absolutePath,
+                Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"
             )
         ) { invocation ->
             val entity = invocation.roundEnv

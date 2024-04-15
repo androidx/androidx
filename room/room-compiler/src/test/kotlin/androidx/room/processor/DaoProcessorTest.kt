@@ -764,6 +764,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 ),
                 COMMON.USER
             ),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             classpath = classpathFiles
         ) { invocation: XTestInvocation ->
             val dao = invocation.roundEnv

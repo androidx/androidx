@@ -1158,4 +1158,7 @@ object ProcessorErrors {
 
     val INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID = "Only suspend functions are allowed in DAOs" +
         " declared in source sets targeting non-Android platforms."
+
+    val INVALID_KOTLIN_CODE_GEN_IN_JAVAC =
+        "${Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName} can only be enabled in KSP."
 }
