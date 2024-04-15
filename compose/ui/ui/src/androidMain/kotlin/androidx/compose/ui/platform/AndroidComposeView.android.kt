@@ -1404,12 +1404,18 @@ internal class AndroidComposeView(
     }
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         if (explicitLayer != null) {
-            return GraphicsLayerOwnerLayer(explicitLayer, this, drawBlock, invalidateParentLayer)
+            return GraphicsLayerOwnerLayer(
+                graphicsLayer = explicitLayer,
+                context = null,
+                ownerView = this,
+                drawBlock = drawBlock,
+                invalidateParentLayer = invalidateParentLayer
+            )
         }
         // First try the layer cache
         val layer = layerCache.pop()
@@ -1423,6 +1429,15 @@ internal class AndroidComposeView(
         // the ViewLayer implementation. We'll try even on on P devices, but it will fail
         // until ART allows things on the unsupported list on P.
         if (isHardwareAccelerated && SDK_INT >= M && isRenderNodeCompatible) {
+            if (SDK_INT >= Q) {
+                return GraphicsLayerOwnerLayer(
+                    graphicsLayer = graphicsContext.createGraphicsLayer(),
+                    context = graphicsContext,
+                    ownerView = this,
+                    drawBlock = drawBlock,
+                    invalidateParentLayer = invalidateParentLayer
+                )
+            }
             try {
                 return RenderNodeLayer(
                     this,

@@ -52,10 +52,10 @@ import java.lang.reflect.Method
 internal class ViewLayer(
     val ownerView: AndroidComposeView,
     val container: DrawChildContainer,
-    drawBlock: (Canvas) -> Unit,
+    drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
     invalidateParentLayer: () -> Unit
 ) : View(ownerView.context), OwnedLayer, GraphicLayerInfo {
-    private var drawBlock: ((Canvas) -> Unit)? = drawBlock
+    private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
     private val outlineResolver = Snapshot.withoutReadObservation {
@@ -329,7 +329,7 @@ internal class ViewLayer(
                 save()
                 outlineResolver.clipToOutline(this)
             }
-            drawBlock?.invoke(this)
+            drawBlock?.invoke(this, null)
             if (didClip) {
                 restore()
             }
@@ -401,7 +401,10 @@ internal class ViewLayer(
         }
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
+    override fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw) {
             container.addView(this)
         } else {

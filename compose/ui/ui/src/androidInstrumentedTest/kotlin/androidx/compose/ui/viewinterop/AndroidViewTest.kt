@@ -179,9 +179,8 @@ class AndroidViewTest {
                         .inflate(R.layout.test_multiple_invalidation_layout, null)
                     customView = view.findViewById<InvalidatedTextView>(R.id.custom_draw_view)
                     customView!!.timesToInvalidate = timesToInvalidate
-                    view.viewTreeObserver?.addOnPreDrawListener {
+                    customView!!.onDraw = {
                         ++drawCount
-                        true
                     }
                     view
                 })

@@ -2644,7 +2644,7 @@ internal class MockOwner(
     val invalidatedLayers = mutableListOf<OwnedLayer>()
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
@@ -2673,7 +2673,7 @@ internal class MockOwner(
             }
 
             override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
-                drawBlock(canvas)
+                drawBlock(canvas, null)
             }
 
             override fun updateDisplayList() {
@@ -2690,7 +2690,7 @@ internal class MockOwner(
             }
 
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {
             }

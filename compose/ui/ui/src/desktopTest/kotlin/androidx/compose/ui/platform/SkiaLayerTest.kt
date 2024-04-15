@@ -374,7 +374,7 @@ class SkiaLayerTest {
     private fun TestSkiaLayer() = SkiaLayer(
         Density(1f, 1f),
         invalidateParentLayer = {},
-        drawBlock = {}
+        drawBlock = { _, _ -> }
     )
 
     private fun SkiaLayer.updateProperties(

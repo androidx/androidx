@@ -391,7 +391,7 @@ class AndroidLayoutDrawTest {
                 Executors.newFixedThreadPool(3).asCoroutineDispatcher()
             ),
             ViewLayerContainer(activity),
-            {},
+            { _, _ -> },
             {}).apply {
             val scope = ReusableGraphicsLayerScope()
             scope.cameraDistance = cameraDistance
@@ -431,7 +431,7 @@ class AndroidLayoutDrawTest {
                 Executors.newFixedThreadPool(3).asCoroutineDispatcher()
             ),
             ViewLayerContainer(activity),
-            {},
+            { _, _ -> },
             {}
         ).apply {
             val scope = ReusableGraphicsLayerScope()
