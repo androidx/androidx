@@ -173,18 +173,20 @@ interface MouseInjectionScope : InjectionScope {
     fun cancel(delayMillis: Long = eventPeriodMillis)
 
     /**
-     * Sends a hover enter event at the given [position], [delayMillis] after the last sent event.
-     *
-     * Note that it is discouraged to manually send a hover enter event followed by a [moveTo]
-     * event. [moveTo] does this for you automatically, making sure the event times of the two
-     * events are in sync. Only use this method for special scenarios where the hover enter event
-     * is not sent as a side effect of another event.
+     * Sends a hover enter event at the given [position], [delayMillis] after the last sent event,
+     * without sending a hover move event.
      *
      * An [IllegalStateException] will be thrown when mouse buttons are down, or if the mouse is
      * already hovering.
      *
      * The [position] is in the node's local coordinate system, where (0, 0) is the top left
      * corner of the node.
+     *
+     * __Note__: enter and exit events are already sent as a side effect of [movement][moveTo]
+     * when necessary. Whether or not this is part of the contract of mouse events is platform
+     * dependent, so it is highly discouraged to manually send enter or exit events.
+     * Only use this method for tests that need to make assertions about a component's state
+     * _in between_ the enter/exit and move event.
      *
      * @param position The new position of the mouse, in the node's local coordinate system.
      * [currentPosition] by default.
@@ -194,18 +196,19 @@ interface MouseInjectionScope : InjectionScope {
     fun enter(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
-     * Sends a hover exit event at the given [position], [delayMillis] after the last sent event.
-     *
-     * Note that it is discouraged to manually send a hover exit event followed by a [moveTo]
-     * that is outside the boundaries of the Compose root or [press]ing a button. These methods
-     * do this for you automatically, making sure the event times of the two events are in sync.
-     * Only use this method for special scenarios where the hover exit event is not sent as a
-     * side effect of another event.
+     * Sends a hover exit event at the given [position], [delayMillis] after the last sent event,
+     * without sending a hover move event.
      *
      * An [IllegalStateException] will be thrown if the mouse was not hovering.
      *
      * The [position] is in the node's local coordinate system, where (0, 0) is the top left
      * corner of the node.
+     *
+     * __Note__: enter and exit events are already sent as a side effect of [movement][moveTo]
+     * when necessary. Whether or not this is part of the contract of mouse events is platform
+     * dependent, so it is highly discouraged to manually send enter or exit events.
+     * Only use this method for tests that need to make assertions about a component's state
+     * _in between_ the enter/exit and move event.
      *
      * @param position The new position of the mouse, in the node's local coordinate system
      * [currentPosition] by default.
