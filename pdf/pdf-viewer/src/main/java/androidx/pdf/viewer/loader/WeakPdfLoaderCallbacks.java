@@ -18,7 +18,6 @@ package androidx.pdf.viewer.loader;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -182,9 +181,6 @@ public class WeakPdfLoaderCallbacks implements PdfLoaderCallbacks {
 
     private PdfLoaderCallbacks getCallbacks() {
         PdfLoaderCallbacks callbacks = mDelegate.get();
-        if (callbacks == null) {
-            Log.w(TAG, "Callbacks have been garbage collected - nothing to do.");
-        }
         return callbacks;
     }
 }

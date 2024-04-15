@@ -24,7 +24,6 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.Uris;
 
@@ -150,7 +149,6 @@ public class FileOpenable implements Openable, Parcelable {
                     try {
                         return new FileOpenable(makeFile(parcel.readString()), parcel.readString());
                     } catch (FileNotFoundException e) {
-                        ErrorLog.log(TAG, "File not found.", e);
                         return null;
                     }
                 }

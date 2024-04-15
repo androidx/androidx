@@ -19,7 +19,6 @@ package androidx.pdf.widget;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
@@ -64,7 +63,6 @@ public class SearchEditText extends AppCompatEditText {
     protected void onFocusChanged(boolean focused, int direction,
             @NonNull Rect previouslyFocusedRect) {
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
-        Log.w(TAG, "focused=" + focused + " direction=" + direction);
         if (focused) {
             post(mShowImeRunnable);
         } else {

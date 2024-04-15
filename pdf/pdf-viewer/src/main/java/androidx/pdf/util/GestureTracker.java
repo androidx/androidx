@@ -18,7 +18,6 @@ package androidx.pdf.util;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -136,8 +135,6 @@ public class GestureTracker implements OnTouchListener {
             }
         }
     }
-
-    private final String mViewTag;
     private final int mMoveSlop;
 
     private final ScaleGestureDetector mZoomDetector;
@@ -171,7 +168,6 @@ public class GestureTracker implements OnTouchListener {
     public GestureTracker(@NonNull String tag, @NonNull Context context) {
         ViewConfiguration config = ViewConfiguration.get(context);
         mMoveSlop = config.getScaledTouchSlop();
-        mViewTag = tag;
         DetectorListener listener = new DetectorListener();
         mMoveDetector = new GestureDetector(context, listener);
         mZoomDetector = new ScaleGestureDetector(context, listener);
@@ -229,7 +225,6 @@ public class GestureTracker implements OnTouchListener {
             // Call onGestureStart as soon as we start handling a gesture - even if we
             // missed the ACTION_DOWN part of the gesture.
             if (mDelegate != null && handle && !mHandling) {
-                log("Gesture start");
                 mDelegate.onGestureStart();
             }
             mHandling = handle;
@@ -237,9 +232,7 @@ public class GestureTracker implements OnTouchListener {
             mLog.append(getEventTag(event));
             mMoveDetector.onTouchEvent(event);
 
-            if (mQuickScaleBypassDecider.shouldSkipZoomDetector(event, mLastEvent)) {
-                log("Skipping zoom detector!");
-            } else {
+            if (!mQuickScaleBypassDecider.shouldSkipZoomDetector(event, mLastEvent)) {
                 mZoomDetector.onTouchEvent(event);
             }
             mDoubleTapDetector.onTouchEvent(event);
@@ -301,7 +294,6 @@ public class GestureTracker implements OnTouchListener {
             if (mDetectedGesture == Gesture.DOUBLE_TAP && mDelegate != null) {
                 // tracking might be false, if this happens after the regular endGesture() has
                 // been called.
-                log("handle double tap ");
                 mDelegate.onDoubleTap(ev);
                 endGesture();
             }
@@ -311,7 +303,6 @@ public class GestureTracker implements OnTouchListener {
     private void endGesture() {
         mTracking = false;
         mLog.append('/');
-        log("End gesture");
         if (mHandling && mDelegate != null) {
             mDelegate.onGestureEnd(mDetectedGesture);
         }
@@ -418,14 +409,6 @@ public class GestureTracker implements OnTouchListener {
         mLog.setLength(0);
         mTouchDown.set(x, y);
         mDetectedGesture = Gesture.TOUCH;
-        log(String.format("Start tracking (%d, %d)", (int) x, (int) y));
-    }
-
-    private void log(String msg) {
-        Log.v(TAG,
-                String.format("[%s] %s %s (%s) [Handling: %s]", mViewTag, msg, mDetectedGesture,
-                        mLog,
-                        mHandling));
     }
 
     /** A recipient for all gesture handling. */

@@ -18,11 +18,9 @@ package androidx.pdf.viewer.loader;
 
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
-import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.pdf.pdflib.PdfDocumentRemoteProto;
-import androidx.pdf.util.ErrorLog;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -57,7 +55,6 @@ abstract class AbstractWriteTask extends AbstractPdfTask<Boolean> {
                 return false;
             }
         } catch (IOException e) {
-            Log.w(getLogTag(), "Error creating a file descriptor from open file.", e);
             return false;
         }
 
@@ -68,7 +65,6 @@ abstract class AbstractWriteTask extends AbstractPdfTask<Boolean> {
                 return false;
             }
         } catch (IOException e) {
-            ErrorLog.log(getLogTag(), "Error creating ParcelFileDescriptor.", e);
             return false;
         }
 
@@ -77,13 +73,13 @@ abstract class AbstractWriteTask extends AbstractPdfTask<Boolean> {
         try {
             parcelFileDescriptor.close();
         } catch (IOException e) {
-            ErrorLog.log(getLogTag(), "Error closing parcelFileDescriptor.", e);
+            // TODO: Handle exceptions by sending back error codes
         }
 
         try {
             mFileOutputStream.close();
         } catch (IOException e) {
-            ErrorLog.log(getLogTag(), "Error closing fileOutputStream.", e);
+            // TODO: Handle exceptions by sending back error codes
         }
 
         return result;

@@ -19,7 +19,6 @@ package androidx.pdf.util;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -148,11 +147,9 @@ public class TileBoard {
     /** Returns true if the tile is still relevant and was saved. */
     public boolean setTile(@NonNull TileInfo tileInfo, @NonNull Bitmap tile) {
         if (!isTileVisible(tileInfo)) {
-            Log.v(mTag, String.format("Request to set tile %s outside visible area", tileInfo));
             return false;
         }
         if (!tileInfo.belongsTo(this)) {
-            Log.v(mTag, String.format("Discard %s (%s)", tileInfo, mBounds.getWidth()));
             return false;
         }
         mTiles[tileInfo.getIndex()] = tile;
@@ -198,7 +195,6 @@ public class TileBoard {
 
         // Accumulate tiles that we still need here, then replace 'tiles' with it.
         Bitmap[] retainedTiles = new Bitmap[mTiles.length];
-        int retainedCount = 0;
         List<TileInfo> newTiles = new ArrayList<>(mVisibleArea.size());
         List<Integer> retainRequests = new ArrayList<>(mPendingTileRequests.size());
         for (int k : areaIndexes(mVisibleArea)) {
@@ -212,7 +208,6 @@ public class TileBoard {
                 }
             } else {
                 retainedTiles[k] = tile;
-                retainedCount++;
                 mTiles[k] = null;
             }
         }
@@ -245,16 +240,6 @@ public class TileBoard {
 
         System.arraycopy(retainedTiles, 0, mTiles, 0, mTiles.length);
         if (!newTiles.isEmpty()) {
-            Log.v(
-                    mTag,
-                    String.format(
-                            "ViewArea has %d new tiles (had tiles: %d), discard: %d, cancel: %d,"
-                                    + "pending requests(%d)",
-                            newTiles.size(),
-                            retainedCount,
-                            disposed.size(),
-                            staleRequests.size(),
-                            retainRequests.size()));
             callback.requestNewTiles(newTiles);
             for (TileInfo requestedTile : newTiles) {
                 mPendingTileRequests.add(requestedTile.getIndex());
@@ -349,36 +334,19 @@ public class TileBoard {
     }
 
     private void logMem() {
-        int memSize = 0;
-        int count = 0;
         int i = 0;
         StringBuilder out = new StringBuilder();
         for (Bitmap bitmap : mTiles) {
             if (bitmap != null) {
-                count++;
-                memSize += BitmapRecycler.getMemSizeKb(bitmap);
                 out.append(i).append(",");
             }
             i++;
         }
-        Log.v(
-                mTag,
-                String.format(
-                        "Tile Mem usage (%s): %d tiles (out of %d) / %d K. %s",
-                        mTag, count, mTiles.length, memSize, out));
     }
 
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        int k = 0;
-        for (Bitmap tile : mTiles) {
-            if (tile != null) {
-                ErrorLog.log(mTag,
-                        "Finalize -- Memory leak candidate (bitmap not null) " + mTileInfos[k]);
-            }
-            k++;
-        }
     }
 
     /**
