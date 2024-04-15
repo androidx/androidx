@@ -41,7 +41,6 @@ import java.util.List;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class Fingerprint {
     private static final int DEFAULT_VALUE = 0;
-    private static final int DISCARDED_VALUE = -1;
     private final int selfTypeValue;
     private int selfPropsValue;
     private int childNodesValue;
@@ -65,12 +64,9 @@ public final class Fingerprint {
 
     /**
      * Get the aggregate numeric fingerprint, representing the message itself as well as all its
-     * child nodes. Returns -1 if the fingerprint is discarded.
+     * child nodes.
      */
     public int aggregateValueAsInt() {
-        if (selfPropsValue == DISCARDED_VALUE) {
-            return DISCARDED_VALUE;
-        }
         int aggregateValue = selfTypeValue;
         aggregateValue = (31 * aggregateValue) + selfPropsValue;
         aggregateValue = (31 * aggregateValue) + childNodesValue;
@@ -84,72 +80,29 @@ public final class Fingerprint {
 
     /**
      * Get the numeric fingerprint for the message's properties only, excluding its type and child
-     * nodes. Returns -1 if the fingerprint is discarded.
+     * nodes.
      */
     public int selfPropsValue() {
         return selfPropsValue;
     }
 
-    /**
-     * Get the numeric fingerprint for the child nodes. Returns -1 if the fingerprint for children
-     * is discarded.
-     *
-     * <p>Note: If {@link #childNodes()} is empty, the children should be considered fully discarded
-     * at this level. Otherwise, at least one of the children is discarded (self discard) and the
-     * fingerprint of each children should be checked individually.
-     */
+    /** Get the numeric fingerprint for the child nodes. */
     public int childNodesValue() {
         return childNodesValue;
     }
 
-    /**
-     * Get the child nodes. Returns empty list if the node has no children, or if the child
-     * fingerprints are discarded.
-     */
+    /** Get the child nodes. Returns empty list if the node has no children. */
     public @NonNull List<Fingerprint> childNodes() {
         return childNodes == null ? Collections.emptyList() : childNodes;
     }
 
     /** Add a child node to this fingerprint. */
     public void addChildNode(@NonNull Fingerprint childNode) {
-        // Even if the children are not discarded directly through discardValued(true), if one of
-        // them is individually discarded, we need to propagate that so that the differ knows it
-        // has to go down one more level. That's why childNodesValue == DISCARDED_VALUE doesn't
-        // necessarily mean all of the children are discarded. childNodes is used to
-        // differentiate these two cases.
-        if (selfPropsValue == DISCARDED_VALUE
-                && childNodesValue == DISCARDED_VALUE
-                && childNodes == null) {
-            return;
-        }
         if (childNodes == null) {
             childNodes = new ArrayList<>();
         }
         childNodes.add(childNode);
-        if (childNode.selfPropsValue == DISCARDED_VALUE) {
-            childNodesValue = DISCARDED_VALUE;
-        } else if (childNodesValue != DISCARDED_VALUE) {
-            childNodesValue = (31 * childNodesValue) + childNode.aggregateValueAsInt();
-        }
-    }
-
-    /**
-     * Discard values of this fingerprint.
-     *
-     * @param includeChildren if True, discards children values of this fingerprints too.
-     */
-    public void discardValues(boolean includeChildren) {
-        if (selfPropsValue == DISCARDED_VALUE
-                && childNodesValue == DISCARDED_VALUE
-                && !includeChildren) {
-            throw new IllegalStateException(
-                    "Container is in discarded state. Children can't be reinstated.");
-        }
-        selfPropsValue = DISCARDED_VALUE;
-        if (includeChildren) {
-            childNodesValue = DISCARDED_VALUE;
-            childNodes = null;
-        }
+        childNodesValue = (31 * childNodesValue) + childNode.aggregateValueAsInt();
     }
 
     /** Record a property value being updated. */
