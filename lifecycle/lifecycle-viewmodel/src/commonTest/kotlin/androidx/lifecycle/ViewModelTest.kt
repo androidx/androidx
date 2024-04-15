@@ -154,12 +154,50 @@ class ViewModelTest {
     }
     //endregion
 
+    @Test
+    fun clear_closesResources_inCleaningSequenceOrder() {
+        val clearedInOrderCloseables = mutableListOf<AutoCloseable>()
+        val closeableInConstructor1 = CloseableResource { clearedInOrderCloseables += this }
+        val closeableInConstructor2 = CloseableResource { clearedInOrderCloseables += this }
+        val closeableWithoutKey1 = CloseableResource { clearedInOrderCloseables += this }
+        val closeableWithoutKey2 = CloseableResource { clearedInOrderCloseables += this }
+        val closeableWithKey1 = CloseableResource { clearedInOrderCloseables += this }
+        val closeableWithKey2 = CloseableResource { clearedInOrderCloseables += this }
+
+        val viewModel = TestViewModel(closeableInConstructor1, closeableInConstructor2)
+        viewModel.addCloseable(closeableWithoutKey1)
+        viewModel.addCloseable(key = "customKey1", closeableWithKey1)
+        viewModel.addCloseable(closeableWithoutKey2)
+        viewModel.addCloseable(key = "customKey2", closeableWithKey2)
+        viewModel.clear()
+
+        // The clearing order is:
+        val expectedCloseables = listOf(
+            // 1. Resources added **with** a key via `addCloseable`.
+            closeableWithKey1,
+            closeableWithKey2,
+
+            // 2. Resources added **without** a key via `constructor`.
+            closeableInConstructor1,
+            closeableInConstructor2,
+
+            // 3. Resources added **without** a key via `addCloseable`.
+            closeableWithoutKey1,
+            closeableWithoutKey2,
+        )
+        assertThat(clearedInOrderCloseables).isEqualTo(expectedCloseables)
+    }
+
     //region test helpers
     private class TestViewModel(vararg closeables: AutoCloseable) : ViewModel(*closeables)
 
-    private class CloseableResource(var isClosed: Boolean = false) : AutoCloseable {
+    private class CloseableResource(
+        var isClosed: Boolean = false,
+        val onClose: CloseableResource.() -> Unit = {},
+    ) : AutoCloseable {
         override fun close() {
             isClosed = true
+            onClose(this)
         }
     }
     //endregion
