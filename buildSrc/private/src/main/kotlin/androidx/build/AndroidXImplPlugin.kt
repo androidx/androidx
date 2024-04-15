@@ -39,7 +39,6 @@ import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
-import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
@@ -646,10 +645,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             androidXExtension
         )
 
-        kotlinMultiplatformAndroidComponentsExtension.onVariant { variant ->
-            project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
-        }
-
         kotlinMultiplatformAndroidComponentsExtension.onVariant {
             it.configureTests()
         }
@@ -860,7 +855,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                             mainKotlinSrcDir.path
                     )
                 }
-                project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
                 variant.configureTests()
                 variant.aotCompileMicrobenchmarks(project)
                 variant.enableLongMethodTracingInMicrobenchmark(project)
@@ -1417,27 +1411,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         if (getProjectSubset() != null) return false
         if (ProjectLayoutType.isPlayground(this)) return false
         return true
-    }
-
-    private fun Project.createVariantAarManifestTransformerTask(
-        variantName: String,
-        artifacts: Artifacts
-    ) {
-        // Remove the android:targetSdkVersion element from the manifest used for AARs.
-        tasks
-            .register(
-                variantName + "AarManifestTransformer",
-                AarManifestTransformerTask::class.java
-            )
-            .let { taskProvider ->
-                artifacts
-                    .use(taskProvider)
-                    .wiredWithFiles(
-                        AarManifestTransformerTask::aarFile,
-                        AarManifestTransformerTask::updatedAarFile
-                    )
-                    .toTransform(SingleArtifact.AAR)
-            }
     }
 
     companion object {
