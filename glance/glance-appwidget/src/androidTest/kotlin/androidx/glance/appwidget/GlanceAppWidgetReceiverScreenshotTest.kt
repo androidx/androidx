@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
+import androidx.glance.ButtonColors
 import androidx.glance.ButtonDefaults
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -641,6 +642,76 @@ class GlanceAppWidgetReceiverScreenshotTest {
         }
         mHostRule.startHost()
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_buttonDefaultColors")
+    }
+
+    /**
+     * Button should ignore [androidx.glance.BackgroundModifier]. It does not support background
+     * images, and background color should be set via [androidx.glance.ButtonColors].
+     */
+    @Test
+    fun buttonTests_buttonShouldIgnoreBackgroundModifiers() {
+        @Composable
+        fun Ui() {
+            Column {
+                // the bg image modifier should be stripped.
+                Button(
+                    text = "Button w/incorrect bg modifier: image",
+                    onClick = { },
+                    modifier =
+                    GlanceModifier.background(
+                        imageProvider = ImageProvider(R.drawable.compose),
+                    ),
+                )
+                Spacer(GlanceModifier.size(4.dp))
+
+                // Bg modifiers should be stripped
+                Button(
+                    text = "Button w/incorrect modifiers: Image, Color",
+                    onClick = { },
+                    modifier =
+                    GlanceModifier.background(
+                        Color.Cyan
+                    ).background(
+                        imageProvider = ImageProvider(R.drawable.compose),
+                    ),
+                )
+                Spacer(GlanceModifier.size(4.dp))
+
+                // Bg color modifier should be stripped.
+                Button(
+                    text = "Button w/incorrect bg modifier: color",
+                    onClick = { },
+                    modifier =
+                    GlanceModifier.background(
+                        Color.Cyan
+                    ),
+                )
+                Spacer(GlanceModifier.size(4.dp))
+
+                Button(
+                    text = "Button with no modifier",
+                    onClick = { },
+                )
+                Spacer(GlanceModifier.size(4.dp))
+                Button(
+                    text = "Button with proper color",
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = ColorProvider(Color.Cyan),
+                        contentColor = ColorProvider(Color.Magenta)
+                    ),
+                    onClick = { },
+                )
+            }
+        }
+
+        TestGlanceAppWidget.uiDefinition = {
+            Ui()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "buttonTests_buttonIgnoresBgImageModifier"
+        )
     }
 
     @Test

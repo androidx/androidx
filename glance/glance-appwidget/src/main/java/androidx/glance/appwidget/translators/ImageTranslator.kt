@@ -142,8 +142,11 @@ private fun applyColorFilter(
                 rv.setImageViewColorFilter(viewDef.mainViewId, color)
                 rv.setImageViewImageAlpha(viewDef.mainViewId, android.graphics.Color.alpha(color))
             } else {
-                throw IllegalStateException(
-                    "There is no use case yet to support this colorFilter in S+ versions."
+                val trace = Throwable()
+                Log.e(
+                    GlanceAppWidgetTag,
+                    "There is no use case yet to support this colorFilter in S+ versions.",
+                    trace
                 )
             }
         }
