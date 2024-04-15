@@ -811,40 +811,15 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         experimentalProperties.put(ASB_SIGNING_CONFIG_PROPERTY_NAME, keyStore.absolutePath)
     }
 
-    @Suppress("DEPRECATION") // AGP DSL APIs
     private fun configureWithLibraryPlugin(project: Project, androidXExtension: AndroidXExtension) {
-        project.extensions.getByType<LibraryExtension>().apply {
-            configureAndroidLibraryOptions(project, androidXExtension)
-
-            // Make sure the main Kotlin source set doesn't contain anything under
-            // src/main/kotlin.
-            val mainKotlinSrcDir =
-                (sourceSets.findByName("main")?.kotlin
-                        as com.android.build.gradle.api.AndroidSourceDirectorySet)
-                    .srcDirs
-                    .filter { it.name == "kotlin" }
-                    .getOrNull(0)
-            if (mainKotlinSrcDir?.isDirectory == true) {
-                throw GradleException(
-                    "Invalid project structure! AndroidX does not support \"kotlin\" as a " +
-                        "top-level source directory for libraries, use \"java\" instead: " +
-                        mainKotlinSrcDir.path
-                )
-            }
-        }
-
-        val libraryAndroidComponentsExtension =
-            project.extensions.getByType<LibraryAndroidComponentsExtension>()
-
-        // Remove the android:targetSdkVersion element from the manifest used for AARs.
-        libraryAndroidComponentsExtension.onVariants { variant ->
-            project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
-        }
-
         project.extensions.getByType<com.android.build.api.dsl.LibraryExtension>().apply {
             publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
+
             configureAndroidBaseOptions(project, androidXExtension)
-            defaultConfig.targetSdk = project.defaultAndroidConfig.targetSdk
+            project.defaultAndroidConfig.targetSdk.let {
+                lint.targetSdk = it
+                testOptions.targetSdk = it
+            }
             val debugSigningConfig = signingConfigs.getByName("debug")
             // Use a local debug keystore to avoid build server issues.
             debugSigningConfig.storeFile = project.getKeystore()
@@ -856,17 +831,44 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             project.addAppApkToTestConfigGeneration(androidXExtension)
         }
 
+        val libraryAndroidComponentsExtension =
+            project.extensions.getByType<LibraryAndroidComponentsExtension>()
+
         libraryAndroidComponentsExtension.apply {
-            beforeVariants(selector().withBuildType("release")) { variant ->
-                variant.enableUnitTest = false
+            finalizeDsl {
+                // Propagate the compileSdk value into minCompileSdk. Don't propagate
+                // compileSdkExtension, since only one library actually depends on the extension
+                // APIs and they can explicitly declare that in their build.gradle. Note that when
+                // we're using a preview SDK, the value for compileSdk will be null and the
+                // resulting AAR metadata won't have a minCompileSdk --
+                // this is okay because AGP automatically embeds forceCompileSdkPreview in the AAR
+                // metadata and uses it instead of minCompileSdk.
+                it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
             }
-            onVariants {
-                it.configureTests()
-                it.aotCompileMicrobenchmarks(project)
-                it.enableLongMethodTracingInMicrobenchmark(project)
+            beforeVariants(selector().withBuildType("release")) { variant ->
+                (variant as HasUnitTestBuilder).enableUnitTest = false
+            }
+            onVariants { variant ->
+                // Make sure the main Kotlin source set doesn't contain anything under
+                // src/main/kotlin.
+                val mainKotlinSrcDir = variant.sources.kotlin?.static?.get()?.map { it.asFile }
+                    ?.filter { it.path.contains("src/main/kotlin") }?.getOrNull(0)
+                if (mainKotlinSrcDir?.isDirectory == true) {
+                    throw GradleException(
+                        "Invalid project structure! AndroidX does not support \"kotlin\" as a " +
+                            "top-level source directory for libraries, use \"java\" instead: " +
+                            mainKotlinSrcDir.path
+                    )
+                }
+                project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
+                variant.configureTests()
+                variant.aotCompileMicrobenchmarks(project)
+                variant.enableLongMethodTracingInMicrobenchmark(project)
             }
         }
 
+        project.disableStrictVersionConstraints()
+        project.setPublishProperty(androidXExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
@@ -1171,24 +1173,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             componentsExtension
         )
         project.configureFtlRunner(componentsExtension)
-    }
-
-    @Suppress("UnstableApiUsage") // finalizeDsl, minCompileSdkExtension
-    private fun LibraryExtension.configureAndroidLibraryOptions(
-        project: Project,
-        androidXExtension: AndroidXExtension
-    ) {
-        // Propagate the compileSdk value into minCompileSdk. Don't propagate compileSdkExtension,
-        // since only one library actually depends on the extension APIs and they can explicitly
-        // declare that in their build.gradle. Note that when we're using a preview SDK, the value
-        // for compileSdk will be null and the resulting AAR metadata won't have a minCompileSdk --
-        // this is okay because AGP automatically embeds forceCompileSdkPreview in the AAR metadata
-        // and uses it instead of minCompileSdk.
-        project.extensions.findByType<LibraryAndroidComponentsExtension>()!!.finalizeDsl {
-            it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
-        }
-        project.disableStrictVersionConstraints()
-        project.setPublishProperty(androidXExtension)
     }
 
     private fun KotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(
