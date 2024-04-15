@@ -28,9 +28,10 @@ import androidx.compose.ui.unit.round
  * Wraps [content] with the necessary components to show a context menu in it.
  *
  * @param state The state that controls the context menu popup.
- * @param modifier Modifier to apply to the Box surrounding the context menu and the content.
  * @param onDismiss Lambda to execute when the user clicks outside of the popup.
  * @param contextMenuBuilderBlock Block which builds the context menu.
+ * @param modifier Modifier to apply to the Box surrounding the context menu and the content.
+ * @param enabled Whether the context menu is enabled.
  * @param content The content that will have the context menu enabled.
  */
 @Composable
@@ -39,9 +40,11 @@ internal fun ContextMenuArea(
     onDismiss: () -> Unit,
     contextMenuBuilderBlock: ContextMenuScope.() -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    Box(modifier.contextMenuGestures(state), propagateMinConstraints = true) {
+    val finalModifier = if (enabled) modifier.contextMenuGestures(state) else modifier
+    Box(finalModifier, propagateMinConstraints = true) {
         content()
         ContextMenu(
             state = state,
