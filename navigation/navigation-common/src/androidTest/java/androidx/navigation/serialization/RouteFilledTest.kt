@@ -548,6 +548,67 @@ class RouteFilledTest {
     }
 
     @Test
+    fun customTypeParam() {
+        @Serializable
+        open class TypeParam
+        @Serializable
+        class CustomType<T : TypeParam>
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val custom: CustomType<TypeParam>)
+
+        val navType = object : NavType<CustomType<TypeParam>>(false) {
+            override val name: String
+                get() = "CustomType"
+            override fun put(bundle: Bundle, key: String, value: CustomType<TypeParam>) { }
+            override fun get(bundle: Bundle, key: String): CustomType<TypeParam>? = null
+            override fun parseValue(value: String): CustomType<TypeParam> = CustomType()
+            override fun serializeAsValue(value: CustomType<TypeParam>) = "customValue"
+        }
+        assertThatRouteFilledFrom(
+            TestClass(CustomType()),
+            listOf(navArgument("custom") { type = navType })
+        ).isEqualTo(
+            "$PATH_SERIAL_NAME/customValue"
+        )
+    }
+
+    @Test
+    fun customTypeParamNested() {
+        @Serializable
+        open class TypeParamNested
+        @Serializable
+        open class TypeParam<K : TypeParamNested>
+        @Serializable
+        class CustomType<T : TypeParam<TypeParamNested>>
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val custom: CustomType<TypeParam<TypeParamNested>>)
+
+        val navType = object : NavType<CustomType<TypeParam<TypeParamNested>>>(false) {
+            override val name: String
+                get() = "CustomType"
+            override fun put(
+                bundle: Bundle,
+                key: String,
+                value: CustomType<TypeParam<TypeParamNested>>
+            ) { }
+            override fun get(bundle: Bundle, key: String): CustomType<TypeParam<TypeParamNested>>? =
+                null
+            override fun parseValue(value: String): CustomType<TypeParam<TypeParamNested>> =
+                CustomType()
+            override fun serializeAsValue(value: CustomType<TypeParam<TypeParamNested>>) =
+                "customValue"
+        }
+        assertThatRouteFilledFrom(
+            TestClass(CustomType()),
+            listOf(navArgument("custom") { type = navType })
+        ).isEqualTo(
+            "$PATH_SERIAL_NAME/customValue"
+        )
+    }
+
+    @Test
     fun paramWithNoBackingField() {
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
