@@ -17,6 +17,7 @@
 package androidx.navigation.serialization
 
 import android.os.Bundle
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -745,6 +746,16 @@ class RouteFilledTest {
             PATH_SERIAL_NAME
         )
     }
+
+    @Test
+    fun collectionNavType() {
+        assertThatRouteFilledFrom(
+            TestClassCollectionArg(listOf(CustomType(1), CustomType(3), CustomType(5))),
+            listOf(navArgument("list") { type = collectionNavType })
+        ).isEqualTo(
+            "$PATH_SERIAL_NAME?list=1&list=3&list=5"
+        )
+    }
 }
 
 private fun <T : Any> assertThatRouteFilledFrom(
@@ -807,6 +818,25 @@ private class CustomSerializer : KSerializer<CustomSerializerClass> {
         encoder.encodeLong(value.longArg)
     override fun deserialize(decoder: Decoder): CustomSerializerClass =
         CustomSerializerClass(decoder.decodeLong())
+}
+
+@Serializable
+data class CustomType(val id: Int)
+
+@Serializable
+@SerialName(PATH_SERIAL_NAME)
+class TestClassCollectionArg(val list: List<CustomType>)
+
+val collectionNavType = object : CollectionNavType<List<CustomType>>(false) {
+    override fun put(bundle: Bundle, key: String, value: List<CustomType>) { }
+    override fun serializeAsValues(value: List<CustomType>): List<String> =
+        value.map { it.id.toString() }
+    @Suppress("UNCHECKED_CAST", "DEPRECATION")
+    override fun get(bundle: Bundle, key: String): List<CustomType> {
+        return bundle[key] as List<CustomType>
+    }
+    override fun parseValue(value: String): List<CustomType> = listOf()
+    override fun serializeAsValue(value: List<CustomType>) = "customValue"
 }
 
 private interface TestInterface

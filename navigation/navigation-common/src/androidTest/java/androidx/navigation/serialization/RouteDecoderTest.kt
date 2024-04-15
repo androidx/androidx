@@ -379,6 +379,17 @@ class RouteDecoderTest {
         assertThat(result.custom.arg).isNull()
     }
 
+    @Test
+    fun decodeCollectionNavType() {
+        val arg = listOf(CustomType(1), CustomType(3), CustomType(5))
+        val bundle = bundleOf("list" to arg)
+        val result = decode<TestClassCollectionArg>(
+            bundle,
+            listOf(navArgument("list") { type = collectionNavType })
+        )
+        assertThat(result.list).containsExactlyElementsIn(arg).inOrder()
+    }
+
     private inline fun <reified T : Any> decode(
         bundle: Bundle,
         args: List<NamedNavArgument> = emptyList()
