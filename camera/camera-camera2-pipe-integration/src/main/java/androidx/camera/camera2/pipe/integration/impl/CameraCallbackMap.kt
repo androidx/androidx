@@ -23,7 +23,6 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
@@ -32,9 +31,12 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.SensorTimestamp
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureResultAdapter
+import androidx.camera.camera2.pipe.integration.compat.Api24Compat
+import androidx.camera.camera2.pipe.integration.compat.Api34Compat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureFailure
@@ -85,7 +87,7 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
                 val surface: Surface? = requestMetadata.streams[stream]
                 if (session != null && request != null && surface != null) {
                     executor.execute {
-                        Api24CompatImpl.onCaptureBufferLost(
+                        Api24Compat.onCaptureBufferLost(
                             callback.captureCallback, session, request, surface, frameNumber.value
                         )
                     }
@@ -253,20 +255,31 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
         }
     }
 
-    @RequiresApi(24)
-    private object Api24CompatImpl {
-        @DoNotInline
-        @JvmStatic
-        fun onCaptureBufferLost(
-            callback: CameraCaptureSession.CaptureCallback,
-            session: CameraCaptureSession,
-            request: CaptureRequest,
-            surface: Surface,
-            frameNumber: Long
-        ) {
-            callback.onCaptureBufferLost(
-                session, request, surface, frameNumber
-            )
+    override fun onReadoutStarted(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        timestamp: SensorTimestamp
+    ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return
+        }
+        for ((callback, executor) in callbacks) {
+            if (callback is CameraUseCaseAdapter.CaptureCallbackContainer) {
+                val session: CameraCaptureSession? =
+                    requestMetadata.unwrapAs(CameraCaptureSession::class)
+                val request: CaptureRequest? = requestMetadata.unwrapAs(CaptureRequest::class)
+                if (session != null && request != null) {
+                    executor.execute {
+                        Api34Compat.onReadoutStarted(
+                            callback.captureCallback,
+                            session,
+                            request,
+                            timestamp.value,
+                            frameNumber.value
+                        )
+                    }
+                }
+            }
         }
     }
 

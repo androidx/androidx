@@ -164,6 +164,23 @@ class Request(
         }
 
         /**
+         * onReadoutStarted occurs when the camera device has started reading out the output image
+         * for the request, at the beginning of the sensor image readout. Concretely, it is invoked
+         * right after onCaptureStarted.
+         *
+         * @param requestMetadata the data about the camera2 request that was sent to the camera.
+         * @param frameNumber the android frame number for this capture.
+         * @param timestamp the android timestamp in nanos at the start of camera data readout.
+         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onReadoutStarted
+         */
+        fun onReadoutStarted(
+            requestMetadata: RequestMetadata,
+            frameNumber: FrameNumber,
+            timestamp: SensorTimestamp
+        ) {
+        }
+
+        /**
          * onBufferLost occurs when a CaptureRequest failed to create an image for a given output
          * stream. This method may be invoked multiple times per frame if multiple buffers were
          * lost. This method may not be invoked when an image is lost in some situations.
@@ -361,6 +378,14 @@ interface RequestMetadata : Metadata, UnsafeWrapper {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class CameraTimestamp(val value: Long)
+
+/**
+ * This is a timestamp happen at start of readout for a regular request, or the timestamp at the
+ * input image's start of readout for a reprocess request, in nanoseconds.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+value class SensorTimestamp(val value: Long)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
