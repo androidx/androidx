@@ -79,7 +79,6 @@ import platform.darwin.NSInteger
  */
 @Suppress("CONFLICTING_OVERLOADS")
 internal class IntermediateTextInputUIView(
-    private val keyboardEventHandler: KeyboardEventHandler,
     private val viewConfiguration: ViewConfiguration
 ) : UIView(frame = CGRectZero.readValue()),
     UIKeyInputProtocol, UITextInputProtocol {
@@ -92,6 +91,7 @@ internal class IntermediateTextInputUIView(
                 cancelContextMenuUpdate()
             }
         }
+    var keyboardEventHandler: KeyboardEventHandler? = null
 
     private var _currentTextMenuActions: TextActions? = null
     var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
@@ -99,12 +99,12 @@ internal class IntermediateTextInputUIView(
     override fun canBecomeFirstResponder() = true
 
     override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        keyboardEventHandler.pressesBegan(presses, withEvent)
+        keyboardEventHandler?.pressesBegan(presses, withEvent)
         super.pressesBegan(presses, withEvent)
     }
 
     override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        keyboardEventHandler.pressesEnded(presses, withEvent)
+        keyboardEventHandler?.pressesEnded(presses, withEvent)
         super.pressesEnded(presses, withEvent)
     }
 

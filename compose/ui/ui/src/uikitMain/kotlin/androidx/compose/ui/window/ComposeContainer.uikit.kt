@@ -104,6 +104,7 @@ internal class ComposeContainer(
     private var mediator: ComposeSceneMediator? = null
     private val layers: MutableList<UIViewComposeSceneLayer> = mutableListOf()
     private val layoutDirection get() = getLayoutDirection()
+    private var isViewAppeared: Boolean = false
 
     @OptIn(ExperimentalComposeApi::class)
     private val windowContainer: UIView
@@ -249,9 +250,10 @@ internal class ComposeContainer(
 
     override fun viewDidAppear(animated: Boolean) {
         super.viewDidAppear(animated)
-        mediator?.viewDidAppear(animated)
+        isViewAppeared = true
+        mediator?.sceneDidAppear()
         layers.fastForEach {
-            it.viewDidAppear(animated)
+            it.sceneDidAppear()
         }
         updateWindowContainer()
         configuration.delegate.viewDidAppear(animated)
@@ -259,9 +261,10 @@ internal class ComposeContainer(
 
     override fun viewWillDisappear(animated: Boolean) {
         super.viewWillDisappear(animated)
-        mediator?.viewWillDisappear(animated)
+        isViewAppeared = false
+        mediator?.sceneWillDisappear()
         layers.fastForEach {
-            it.viewWillDisappear(animated)
+            it.sceneWillDisappear()
         }
         configuration.delegate.viewWillDisappear(animated)
     }
@@ -354,14 +357,19 @@ internal class ComposeContainer(
         layers.fastForEach {
             it.close()
         }
-
     }
 
     fun attachLayer(layer: UIViewComposeSceneLayer) {
         layers.add(layer)
+        if (isViewAppeared) {
+            layer.sceneDidAppear()
+        }
     }
 
     fun detachLayer(layer: UIViewComposeSceneLayer) {
+        if (isViewAppeared) {
+            layer.sceneWillDisappear()
+        }
         layers.remove(layer)
     }
 
@@ -384,7 +392,6 @@ internal class ComposeContainer(
                 compositionContext = compositionContext,
             )
     }
-
 }
 
 private fun UIViewController.checkIfInsideSwiftUI(): Boolean {

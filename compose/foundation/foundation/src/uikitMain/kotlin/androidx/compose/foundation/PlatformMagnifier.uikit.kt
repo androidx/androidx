@@ -69,10 +69,7 @@ internal interface PlatformMagnifier {
      * Sets the properties on a Magnifier instance that can be updated without recreating the
      * magnifier.
      */
-    fun update(
-        sourceCenter: Offset,
-        magnifierCenter: Offset
-    )
+    fun update(sourceCenter: Offset)
 
     fun dismiss()
 }
@@ -136,7 +133,7 @@ internal object PlatformMagnifierFactoryIos17Impl : PlatformMagnifierFactory {
             // is not required. loupe redraws automatically
         }
 
-        override fun update(sourceCenter: Offset, magnifierCenter: Offset) {
+        override fun update(sourceCenter: Offset) {
 
             if (sourceCenter.isUnspecified)
                 return
