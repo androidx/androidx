@@ -1356,10 +1356,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Get corresponded resolutions for the target aspect ratio.
         int aspectRatio = videoSpec.getAspectRatio();
-        Map<Quality, Size> sizeMap = getQualityToResolutionMap(videoCapabilities,
+        Map<Quality, Size> supportedQualityToSizeMap = getQualityToResolutionMap(videoCapabilities,
                 requestedDynamicRange);
         QualityRatioToResolutionsTable qualityRatioTable = new QualityRatioToResolutionsTable(
-                cameraInfo.getSupportedResolutions(getImageFormat()), sizeMap);
+                cameraInfo.getSupportedResolutions(getImageFormat()), supportedQualityToSizeMap);
         List<Size> customOrderedResolutions = new ArrayList<>();
         for (Quality selectedQuality : selectedQualities) {
             customOrderedResolutions.addAll(
@@ -1367,7 +1367,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
         List<Size> filteredCustomOrderedResolutions = filterOutEncoderUnsupportedResolutions(
                 (VideoCaptureConfig<T>) builder.getUseCaseConfig(), mediaSpec,
-                requestedDynamicRange, videoCapabilities, customOrderedResolutions);
+                requestedDynamicRange, videoCapabilities, customOrderedResolutions,
+                supportedQualityToSizeMap);
         Logger.d(TAG, "Set custom ordered resolutions = " + filteredCustomOrderedResolutions);
         builder.getMutableConfig().insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
                 filteredCustomOrderedResolutions);
@@ -1379,7 +1380,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @NonNull MediaSpec mediaSpec,
             @NonNull DynamicRange dynamicRange,
             @NonNull VideoCapabilities videoCapabilities,
-            @NonNull List<Size> resolutions
+            @NonNull List<Size> resolutions,
+            @NonNull Map<Quality, Size> supportedQualityToSizeMap
     ) {
         if (resolutions.isEmpty()) {
             return resolutions;
@@ -1388,6 +1390,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Iterator<Size> iterator = resolutions.iterator();
         while (iterator.hasNext()) {
             Size resolution = iterator.next();
+            // To improve performance, there is no need to check for supported qualities'
+            // resolutions because the encoder should support them.
+            if (supportedQualityToSizeMap.containsValue(resolution)) {
+                continue;
+            }
             // We must find EncoderProfiles for each resolution because the EncoderProfiles found
             // by resolution may contain different video mine type which leads to different codec.
             VideoValidatedEncoderProfilesProxy encoderProfiles =
