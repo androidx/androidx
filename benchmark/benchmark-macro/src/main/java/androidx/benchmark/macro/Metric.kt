@@ -549,6 +549,12 @@ class TraceSectionMetric @JvmOverloads constructor(
          * does not appear in the trace.
          */
         object Average : Mode("Average")
+
+        /**
+         * Internal class to prevent external exhaustive when statements, which would break as we
+         * add more to this sealed class.
+         */
+        internal object WhenPrevention : Mode("N/A")
     }
 
     override fun configure(packageName: String) {
@@ -630,6 +636,7 @@ class TraceSectionMetric @JvmOverloads constructor(
                     )
                 )
             }
+            Mode.WhenPrevention -> throw IllegalStateException("WhenPrevention should be unused")
         }
     }
 }
