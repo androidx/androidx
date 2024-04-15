@@ -19,7 +19,6 @@ package androidx.compose.material3.adaptive
 import androidx.compose.runtime.Composable
 
 @Composable
-@ExperimentalMaterial3AdaptiveApi
 actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
     TODO("Not yet implemented")
 }
