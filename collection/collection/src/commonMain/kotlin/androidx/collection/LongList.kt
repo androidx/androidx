@@ -34,7 +34,8 @@ import kotlin.jvm.JvmOverloads
 /**
  * [LongList] is a [List]-like collection for [Long] values. It allows retrieving
  * the elements without boxing. [LongList] is always backed by a [MutableLongList],
- * its [MutableList]-like subclass.
+ * its [MutableList]-like subclass. The purpose of this class is to avoid the performance
+ * overhead of auto-boxing due to generics since [Collection] classes all operate on objects.
  *
  * This implementation is not thread-safe: if multiple threads access this
  * container concurrently, and one or more threads modify the structure of
