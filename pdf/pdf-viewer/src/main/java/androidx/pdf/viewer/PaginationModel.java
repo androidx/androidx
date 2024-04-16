@@ -24,7 +24,6 @@ import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
-import androidx.pdf.util.ProjectorContext;
 import androidx.pdf.util.Screen;
 
 import java.util.AbstractList;
@@ -109,7 +108,7 @@ public class PaginationModel {
     private final Set<PaginationModelObserver> mObservers = new HashSet<>();
 
     public PaginationModel() {
-        Screen screen = ProjectorContext.get().getScreen();
+        Screen screen = PdfViewer.getScreen();
         mPageSpacingPx = screen.pxFromDp(PAGE_SPACING_DP);
     }
 

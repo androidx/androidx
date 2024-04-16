@@ -22,6 +22,7 @@ import static android.view.View.VISIBLE;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -71,7 +72,7 @@ import androidx.pdf.util.GestureTracker.GestureHandler;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
-import androidx.pdf.util.ProjectorContext;
+import androidx.pdf.util.Screen;
 import androidx.pdf.util.StrictModeUtils;
 import androidx.pdf.util.ThreadUtils;
 import androidx.pdf.util.TileBoard;
@@ -153,6 +154,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /** Key to save/retrieve {@link #mEditingAuthorized} from Bundle. */
     private static final String KEY_EDITING_AUTHORIZED = "editingAuthorized";
+
+    private static Screen sScreen;
 
     /** Single access to the PDF document: loads contents asynchronously (bitmaps, text,...) */
     private PdfLoader mPdfLoader;
@@ -277,6 +280,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFetcher = Fetcher.build(getContext(), 1);
+        sScreen = new Screen(this.requireActivity().getApplicationContext());
     }
 
     @SuppressLint("InflateParams")
@@ -324,6 +328,15 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         setUpEditFab();
 
         return mPdfViewer;
+    }
+
+    public static Screen getScreen() {
+        return sScreen;
+    }
+
+    @VisibleForTesting
+    public static void setScreenForTest(Context context) {
+        sScreen = new Screen(context);
     }
 
     private void applyReservedSpace() {
@@ -741,7 +754,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         PageMosaicView pageMosaicView = pageView.getPageView();
         // Setting Elevation only works if there is a background color.
         pageMosaicView.setBackgroundColor(Color.WHITE);
-        pageMosaicView.setElevation(ProjectorContext.get().getScreen().pxFromDp(PAGE_ELEVATION_DP));
+        pageMosaicView.setElevation(sScreen.pxFromDp(PAGE_ELEVATION_DP));
         return pageView;
     }
 

@@ -24,6 +24,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 
 import androidx.annotation.RestrictTo;
+import androidx.pdf.viewer.PdfViewer;
 
 /**
  * Paint objects used for highlighting in various contexts.
@@ -109,7 +110,7 @@ public final class HighlightPaint {
      */
     private static Paint createOutlinedPaint(int r, int g, int b, int a) {
         Paint paint = new Paint();
-        Screen screen = ProjectorContext.get().getScreen();
+        Screen screen = PdfViewer.getScreen();
         paint.setStrokeWidth(screen.pxFromDp(OUTLINED_WIDTH_DP));
         paint.setStyle(Style.STROKE);
         paint.setPathEffect(new CornerPathEffect(screen.pxFromDp(OUTLINE_CORNER_RADIUS_DP)));
