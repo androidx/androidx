@@ -99,7 +99,7 @@ private fun getSdkPathFromEnvironmentVariable(): File {
 
 /** Sets the path to the canonical root project directory, e.g. {@code frameworks/support}. */
 fun Project.setSupportRootFolder(rootDir: File?) {
-    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+    val extension = project.property("ext") as ExtraPropertiesExtension
     return extension.set("supportRootFolder", rootDir)
 }
 
@@ -110,7 +110,7 @@ fun Project.setSupportRootFolder(rootDir: File?) {
  * because it is generalized to also work for the "ui" project and playground projects.
  */
 fun Project.getSupportRootFolder(): File {
-    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+    val extension = project.property("ext") as ExtraPropertiesExtension
     return extension.get("supportRootFolder") as File
 }
 
