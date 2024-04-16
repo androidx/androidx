@@ -40,7 +40,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.internal.MenuPosition
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.touchExplorationState
+import androidx.compose.material3.internal.rememberAccessibilityServiceState
 import androidx.compose.material3.tokens.FilledAutocompleteTokens
 import androidx.compose.material3.tokens.OutlinedAutocompleteTokens
 import androidx.compose.runtime.Composable
@@ -837,7 +837,7 @@ object ExposedDropdownMenuDefaults {
      */
     @Composable
     internal fun popupProperties(anchorType: MenuAnchorType): PopupProperties {
-        val a11yServicesEnabled by touchExplorationState()
+        val a11yServicesEnabled by rememberAccessibilityServiceState()
         var flags = WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 

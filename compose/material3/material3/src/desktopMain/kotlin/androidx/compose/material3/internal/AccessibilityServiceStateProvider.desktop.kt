@@ -21,11 +21,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
-/**
- * It depends on the state of accessibility services to determine the current state of touch
- * exploration services.
- */
 @Composable
-internal actual fun touchExplorationState(): State<Boolean> {
+internal actual fun rememberAccessibilityServiceState(
+    listenToTouchExplorationState: Boolean,
+    listenToSwitchAccessState: Boolean,
+): State<Boolean> {
     return remember { mutableStateOf(false) }
 }
