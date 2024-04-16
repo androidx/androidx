@@ -115,16 +115,6 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
         block: suspend (Transactor) -> R
     ): R = connectionPool.useConnection(isReadOnly, block)
 
-    override fun dropAllTables(connection: SQLiteConnection) {
-        if (configuration.allowDestructiveMigrationForAllTables) {
-            // Drops all tables (excluding special ones)
-            super.dropAllTables(connection)
-        } else {
-            // Drops known tables (Room entity tables)
-            openDelegate.dropAllTables(connection)
-        }
-    }
-
     fun close() {
         connectionPool.close()
     }

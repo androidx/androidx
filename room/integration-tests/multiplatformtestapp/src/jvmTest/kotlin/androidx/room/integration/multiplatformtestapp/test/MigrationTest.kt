@@ -25,7 +25,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createTempFile
 import org.junit.Rule
 
-class AutoMigrationTest : BaseAutoMigrationTest() {
+class MigrationTest : BaseMigrationTest() {
     private val tempFilePath = createTempFile("test.db").also { it.toFile().deleteOnExit() }
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
@@ -34,14 +34,13 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
         schemaDirectoryPath = Path("schemas-ksp"),
         databasePath = tempFilePath,
         driver = driver,
-        databaseClass = AutoMigrationDatabase::class,
-        autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+        databaseClass = MigrationDatabase::class
     )
 
     override fun getTestHelper() = migrationTestHelper
 
-    override fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase> {
-        return Room.databaseBuilder<AutoMigrationDatabase>(tempFilePath.toString())
+    override fun getDatabaseBuilder(): RoomDatabase.Builder<MigrationDatabase> {
+        return Room.databaseBuilder<MigrationDatabase>(tempFilePath.toString())
             .setDriver(driver)
     }
 }

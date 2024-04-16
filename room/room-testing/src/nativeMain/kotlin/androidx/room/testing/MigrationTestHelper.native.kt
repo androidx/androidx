@@ -173,6 +173,7 @@ actual class MigrationTestHelper(
         migrationNotRequiredFrom = null,
         typeConverters = emptyList(),
         autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
         sqliteDriver = driver,
         queryCoroutineContext = null
     )

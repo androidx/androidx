@@ -161,21 +161,27 @@ abstract class BaseRoomConnectionManager {
         }
     }
 
-    protected open fun dropAllTables(connection: SQLiteConnection) {
-        connection.prepare(
-            "SELECT name FROM sqlite_master WHERE type = 'table'"
-        ).use { statement ->
-            buildList {
-                while (statement.step()) {
-                    val name = statement.getText(0)
-                    if (name.startsWith("sqlite_") || name == "android_metadata") {
-                        continue
+    private fun dropAllTables(connection: SQLiteConnection) {
+        if (configuration.allowDestructiveMigrationForAllTables) {
+            // Drops all tables (excluding special ones)
+            connection.prepare(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).use { statement ->
+                buildList {
+                    while (statement.step()) {
+                        val name = statement.getText(0)
+                        if (name.startsWith("sqlite_") || name == "android_metadata") {
+                            continue
+                        }
+                        add(name)
                     }
-                    add(name)
                 }
+            }.forEach { table ->
+                connection.execSQL("DROP TABLE IF EXISTS $table")
             }
-        }.forEach { table ->
-            connection.execSQL("DROP TABLE IF EXISTS $table")
+        } else {
+            // Drops known tables (Room entity tables)
+            openDelegate.dropAllTables(connection)
         }
     }
 
