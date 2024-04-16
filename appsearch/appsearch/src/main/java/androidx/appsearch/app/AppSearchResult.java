@@ -119,7 +119,7 @@ public final class AppSearchResult<ValueType> {
     @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
     public static final int RESULT_TIMED_OUT = 11;
 
-    private final @ResultCode int mResultCode;
+    @ResultCode private final int mResultCode;
     @Nullable private final ValueType mResultValue;
     @Nullable private final String mErrorMessage;
 

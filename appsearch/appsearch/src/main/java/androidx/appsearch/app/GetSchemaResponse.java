@@ -465,6 +465,8 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         // Getter getRequiredPermissionsForSchemaTypeVisibility returns a map for all schemaTypes.
         @CanIgnoreReturnValue
         @SuppressLint("MissingGetterMatchingBuilder")
+        // @SetSchemaRequest is an IntDef annotation applied to Set<Set<Integer>>.
+        @SuppressWarnings("SupportAnnotationUsage")
         @NonNull
         public Builder setRequiredPermissionsForSchemaTypeVisibility(
                 @NonNull String schemaType,

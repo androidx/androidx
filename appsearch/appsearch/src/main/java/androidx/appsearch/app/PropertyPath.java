@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appsearch.checker.initialization.qual.UnderInitialization;
+import androidx.appsearch.checker.nullness.qual.RequiresNonNull;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -73,7 +75,9 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
         }
     }
 
-    private void recursivePathScan(String path) throws IllegalArgumentException {
+    @RequiresNonNull("mPathList")
+    private void recursivePathScan(@UnderInitialization PropertyPath this, String path)
+            throws IllegalArgumentException {
         // Determine whether the path is just a raw property name with no control characters
         int controlPos = -1;
         boolean controlIsIndex = false;
@@ -128,7 +132,9 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
      * @return the rest of the path after the end brackets, or null if there is nothing after them
      */
     @Nullable
-    private String consumePropertyWithIndex(@NonNull String path, int controlPos) {
+    @RequiresNonNull("mPathList")
+    private String consumePropertyWithIndex(
+            @UnderInitialization PropertyPath this, @NonNull String path, int controlPos) {
         Preconditions.checkNotNull(path);
         String propertyName = path.substring(0, controlPos);
         int endBracketIdx = path.indexOf(']', controlPos);

@@ -24,6 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.debugview.DebugAppSearchManager;
 import androidx.appsearch.debugview.R;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -36,7 +37,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.concurrent.Executors;
 
 /**
  * Debug Activity for AppSearch.
@@ -105,7 +105,8 @@ public class AppSearchDebugActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_appsearchdebug);
 
-        mBackgroundExecutor = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+        mBackgroundExecutor = MoreExecutors.listeningDecorator(AppSearchEnvironmentFactory
+                .getEnvironmentInstance().createCachedThreadPoolExecutor());
         mDbName = getIntent().getExtras().getString(DB_INTENT_KEY);
         String targetPackageName =
                 getIntent().getExtras().getString(TARGET_PACKAGE_NAME_INTENT_KEY);
