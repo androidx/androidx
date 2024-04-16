@@ -38,14 +38,24 @@ class NavTypeTest {
     companion object {
         private const val i = 1
         private val ints = intArrayOf(0, 1)
+        private val intList = listOf(0, 1)
+        private val intArrayList = arrayListOf(0, 1)
         private const val l = 1L
         private val longs = longArrayOf(0L, 1L)
+        private val longList = listOf(0L, 1L)
+        private val longArrayList = arrayListOf(0L, 1L)
         private const val fl = 1.5f
         private val floats = floatArrayOf(1f, 2.5f)
+        private val floatList = listOf(1f, 2.5f)
+        private val floatArrayList = arrayListOf(1f, 2.5f)
         private const val b = true
         private val booleans = booleanArrayOf(b, false)
+        private val boolList = listOf(b, false)
+        private val booArrayList = arrayListOf(b, false)
         private const val s = "a_string"
         private val strings = arrayOf("aa", "bb")
+        private val stringList = listOf("aa", "bb")
+        private val stringArrayList = arrayListOf("aa", "bb")
         private val reference = R.id.nav_id_reference
         private val referenceHex = "0x" + R.id.nav_id_reference.toString(16)
         private val parcelable = ActivityInfo()
@@ -71,22 +81,32 @@ class NavTypeTest {
             .isEqualTo(NavType.IntType)
         assertThat(NavType.fromArgType("integer[]", null))
             .isEqualTo(NavType.IntArrayType)
+        assertThat(NavType.fromArgType("List<Int>", null))
+            .isEqualTo(NavType.IntListType)
         assertThat(NavType.fromArgType("long", null))
             .isEqualTo(NavType.LongType)
         assertThat(NavType.fromArgType("long[]", null))
             .isEqualTo(NavType.LongArrayType)
+        assertThat(NavType.fromArgType("List<Long>", null))
+            .isEqualTo(NavType.LongListType)
         assertThat(NavType.fromArgType("float", null))
             .isEqualTo(NavType.FloatType)
         assertThat(NavType.fromArgType("float[]", null))
             .isEqualTo(NavType.FloatArrayType)
+        assertThat(NavType.fromArgType("List<Float>", null))
+            .isEqualTo(NavType.FloatListType)
         assertThat(NavType.fromArgType("boolean", null))
             .isEqualTo(NavType.BoolType)
         assertThat(NavType.fromArgType("boolean[]", null))
             .isEqualTo(NavType.BoolArrayType)
+        assertThat(NavType.fromArgType("List<Boolean>", null))
+            .isEqualTo(NavType.BoolListType)
         assertThat(NavType.fromArgType("string", null))
             .isEqualTo(NavType.StringType)
         assertThat(NavType.fromArgType("string[]", null))
             .isEqualTo(NavType.StringArrayType)
+        assertThat(NavType.fromArgType("List<String>", null))
+            .isEqualTo(NavType.StringListType)
         assertThat(NavType.fromArgType("reference", null))
             .isEqualTo(NavType.ReferenceType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo", null))
@@ -169,6 +189,16 @@ class NavTypeTest {
             .isEqualTo(ints)
         bundle.clear()
 
+        NavType.IntListType.put(bundle, key, intList)
+        assertThat(NavType.IntListType[bundle, key])
+            .isEqualTo(intList)
+        bundle.clear()
+
+        NavType.IntListType.put(bundle, key, intArrayList)
+        assertThat(NavType.IntListType[bundle, key])
+            .isEqualTo(intArrayList)
+        bundle.clear()
+
         NavType.LongType.put(bundle, key, l)
         assertThat(NavType.LongType[bundle, key])
             .isEqualTo(l)
@@ -177,6 +207,16 @@ class NavTypeTest {
         NavType.LongArrayType.put(bundle, key, longs)
         assertThat(NavType.LongArrayType[bundle, key])
             .isEqualTo(longs)
+        bundle.clear()
+
+        NavType.LongListType.put(bundle, key, longList)
+        assertThat(NavType.LongListType[bundle, key])
+            .isEqualTo(longList)
+        bundle.clear()
+
+        NavType.LongListType.put(bundle, key, longArrayList)
+        assertThat(NavType.LongListType[bundle, key])
+            .isEqualTo(longArrayList)
         bundle.clear()
 
         NavType.FloatType.put(bundle, key, fl)
@@ -189,6 +229,16 @@ class NavTypeTest {
             .isEqualTo(floats)
         bundle.clear()
 
+        NavType.FloatListType.put(bundle, key, floatList)
+        assertThat(NavType.FloatListType[bundle, key])
+            .isEqualTo(floatList)
+        bundle.clear()
+
+        NavType.FloatListType.put(bundle, key, floatArrayList)
+        assertThat(NavType.FloatListType[bundle, key])
+            .isEqualTo(floatArrayList)
+        bundle.clear()
+
         NavType.BoolType.put(bundle, key, b)
         assertThat(NavType.BoolType[bundle, key])
             .isEqualTo(b)
@@ -199,6 +249,16 @@ class NavTypeTest {
             .isEqualTo(booleans)
         bundle.clear()
 
+        NavType.BoolListType.put(bundle, key, boolList)
+        assertThat(NavType.BoolListType[bundle, key])
+            .isEqualTo(boolList)
+        bundle.clear()
+
+        NavType.BoolListType.put(bundle, key, booArrayList)
+        assertThat(NavType.BoolListType[bundle, key])
+            .isEqualTo(booArrayList)
+        bundle.clear()
+
         NavType.StringType.put(bundle, key, s)
         assertThat(NavType.StringType[bundle, key])
             .isEqualTo(s)
@@ -207,6 +267,16 @@ class NavTypeTest {
         NavType.StringArrayType.put(bundle, key, strings)
         assertThat(NavType.StringArrayType[bundle, key])
             .isEqualTo(strings)
+        bundle.clear()
+
+        NavType.StringListType.put(bundle, key, stringList)
+        assertThat(NavType.StringListType[bundle, key])
+            .isEqualTo(stringList)
+        bundle.clear()
+
+        NavType.StringListType.put(bundle, key, stringArrayList)
+        assertThat(NavType.StringListType[bundle, key])
+            .isEqualTo(stringArrayList)
         bundle.clear()
 
         NavType.ReferenceType.put(bundle, key, reference)
@@ -302,17 +372,47 @@ class NavTypeTest {
         assertThat((NavType.IntArrayType as CollectionNavType).serializeAsValues(
             intArrayOf(0, 1))
         ).containsExactly("0", "1").inOrder()
+        assertThat((NavType.IntListType as CollectionNavType).serializeAsValues(
+            listOf(0, 1))
+        ).containsExactly("0", "1").inOrder()
+        assertThat((NavType.IntListType as CollectionNavType).serializeAsValues(
+            arrayListOf(0, 1))
+        ).containsExactly("0", "1").inOrder()
         assertThat((NavType.BoolArrayType as CollectionNavType).serializeAsValues(
             booleanArrayOf(true, false))
+        ).containsExactly("true", "false").inOrder()
+        assertThat((NavType.BoolListType as CollectionNavType).serializeAsValues(
+            listOf(true, false))
+        ).containsExactly("true", "false").inOrder()
+        assertThat((NavType.BoolListType as CollectionNavType).serializeAsValues(
+            arrayListOf(true, false))
         ).containsExactly("true", "false").inOrder()
         assertThat((NavType.StringArrayType as CollectionNavType).serializeAsValues(
             arrayOf("test", "test2"))
         ).containsExactly("test", "test2").inOrder()
+        assertThat((NavType.StringListType as CollectionNavType).serializeAsValues(
+            listOf("test", "test2"))
+        ).containsExactly("test", "test2").inOrder()
+        assertThat((NavType.StringListType as CollectionNavType).serializeAsValues(
+            arrayListOf("test", "test2"))
+        ).containsExactly("test", "test2").inOrder()
         assertThat((NavType.FloatArrayType as CollectionNavType).serializeAsValues(
             floatArrayOf(1F, 2F))
         ).containsExactly("1.0", "2.0").inOrder()
+        assertThat((NavType.FloatListType as CollectionNavType).serializeAsValues(
+            listOf(1F, 2F))
+        ).containsExactly("1.0", "2.0").inOrder()
+        assertThat((NavType.FloatListType as CollectionNavType).serializeAsValues(
+            arrayListOf(1F, 2F))
+        ).containsExactly("1.0", "2.0").inOrder()
         assertThat((NavType.LongArrayType as CollectionNavType).serializeAsValues(
             longArrayOf(1L, 2L))
+        ).containsExactly("1", "2").inOrder()
+        assertThat((NavType.LongListType as CollectionNavType).serializeAsValues(
+            listOf(1L, 2L))
+        ).containsExactly("1", "2").inOrder()
+        assertThat((NavType.LongListType as CollectionNavType).serializeAsValues(
+            arrayListOf(1L, 2L))
         ).containsExactly("1", "2").inOrder()
     }
 
