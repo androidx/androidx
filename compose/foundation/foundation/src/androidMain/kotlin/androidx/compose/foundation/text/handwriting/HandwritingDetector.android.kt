@@ -30,17 +30,17 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntSize
 
 /**
- * Configures an element to act as a handwriting delegator which detects stylus handwriting and
- * delegates handling of the recognised text to a handwriting delegate.
+ * Configures an element to act as a handwriting detector which detects stylus handwriting and
+ * delegates handling of the recognised text to another element.
  *
  * Stylus movement on the element will start a handwriting session, and trigger the [callback]. The
- * [callback] implementation is expected to show and focus a handwriting delegate element which can
- * handle the recognized text from the handwriting session.
+ * [callback] implementation is expected to show and focus a text input field with a
+ * [handwritingHandler] modifier which can handle the recognized text from the handwriting session.
  *
  * A common use case is a component which looks like a text input field but does not actually
  * support text input itself, and clicking on this fake text input field causes a real text input
  * field to be shown. To support handwriting initiation in this case, this modifier can be applied
- * to the fake text input field to configure it as a delegator, and a [handwritingDelegate] modifier
+ * to the fake text input field to configure it as a detector, and a [handwritingHandler] modifier
  * can be applied to the real text input field. The [callback] implementation is typically the same
  * as the `onClick` implementation for the fake text field's [clickable] modifier, which shows and
  * focuses the real text input field.
@@ -49,31 +49,33 @@ import androidx.compose.ui.unit.IntSize
  * is not supported.
  *
  * @param callback a callback which will be triggered when stylus handwriting is detected
+ *
+ * @sample androidx.compose.foundation.samples.HandwritingDetectorSample
  */
-fun Modifier.handwritingDelegator(callback: () -> Unit) =
-    if (isStylusHandwritingSupported) then(HandwritingDelegatorElement(callback)) else this
+fun Modifier.handwritingDetector(callback: () -> Unit) =
+    if (isStylusHandwritingSupported) then(HandwritingDetectorElement(callback)) else this
 
-private class HandwritingDelegatorElement(
+private class HandwritingDetectorElement(
     private val callback: () -> Unit
-) : ModifierNodeElement<HandwritingDelegatorNode>() {
-    override fun create() = HandwritingDelegatorNode(callback)
+) : ModifierNodeElement<HandwritingDetectorNode>() {
+    override fun create() = HandwritingDetectorNode(callback)
 
-    override fun update(node: HandwritingDelegatorNode) {
+    override fun update(node: HandwritingDetectorNode) {
         node.callback = callback
     }
 
     override fun hashCode() = 31 * callback.hashCode()
 
     override fun equals(other: Any?) =
-        (this === other) or ((other is HandwritingDelegatorElement) && callback === other.callback)
+        (this === other) or ((other is HandwritingDetectorElement) && callback === other.callback)
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "handwritingDelegator"
+        name = "handwritingDetector"
         properties["callback"] = callback
     }
 }
 
-private class HandwritingDelegatorNode(var callback: () -> Unit) : DelegatingNode(),
+private class HandwritingDetectorNode(var callback: () -> Unit) : DelegatingNode(),
     PointerInputModifierNode {
     private val composeImm by lazy(LazyThreadSafetyMode.NONE) {
         ComposeInputMethodManager(requireView())

@@ -26,42 +26,44 @@ import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
- * Configures an element to act as a stylus handwriting delegate which can handle text input from a
- * handwriting session which was triggered by stylus handwriting on a handwriting delegator.
+ * Configures an element to act as a stylus handwriting handler which can handle text input from a
+ * handwriting session which was triggered by stylus handwriting on a handwriting detector.
  *
  * When this element gains focus, if there is an ongoing stylus handwriting delegation which was
- * triggered by stylus handwriting on a handwriting delegator, this element will receive text input
+ * triggered by stylus handwriting on a handwriting detector, this element will receive text input
  * from the handwriting session via its input connection.
  *
  * A common use case is a component which looks like a text input field but does not actually
  * support text input itself, and clicking on this fake text input field causes a real text input
- * field to be shown. To support handwriting initiation in this case, a [handwritingDelegator]
- * modifier can be applied to the fake text input field to configure it as a delegator, and this
+ * field to be shown. To support handwriting initiation in this case, a [handwritingDetector]
+ * modifier can be applied to the fake text input field to configure it as a detector, and this
  * modifier can be applied to the real text input field. The `callback` implementation for the fake
- * text field's [handwritingDelegator] modifier is typically the same as the `onClick`
+ * text field's [handwritingDetector] modifier is typically the same as the `onClick`
  * implementation its [clickable] modifier, which shows and focuses the real text input field.
  *
  * This function returns a no-op modifier on API levels below Android U (34) as stylus handwriting
  * is not supported.
+ *
+ * @sample androidx.compose.foundation.samples.HandwritingDetectorSample
  */
-fun Modifier.handwritingDelegate(): Modifier =
-    if (isStylusHandwritingSupported) then(HandwritingDelegateElement()) else this
+fun Modifier.handwritingHandler(): Modifier =
+    if (isStylusHandwritingSupported) then(HandwritingHandlerElement()) else this
 
-private class HandwritingDelegateElement : ModifierNodeElement<HandwritingDelegateNode>() {
-    override fun create() = HandwritingDelegateNode()
+private class HandwritingHandlerElement : ModifierNodeElement<HandwritingHandlerNode>() {
+    override fun create() = HandwritingHandlerNode()
 
-    override fun update(node: HandwritingDelegateNode) {}
+    override fun update(node: HandwritingHandlerNode) {}
 
     override fun hashCode() = 0
 
-    override fun equals(other: Any?) = other is HandwritingDelegateElement
+    override fun equals(other: Any?) = other is HandwritingHandlerElement
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "handwritingDelegate"
+        name = "handwritingHandler"
     }
 }
 
-private class HandwritingDelegateNode : FocusEventModifierNode, Modifier.Node() {
+private class HandwritingHandlerNode : FocusEventModifierNode, Modifier.Node() {
     private var focusState: FocusState? = null
     private val composeImm by lazy(LazyThreadSafetyMode.NONE) {
         ComposeInputMethodManager(requireView())

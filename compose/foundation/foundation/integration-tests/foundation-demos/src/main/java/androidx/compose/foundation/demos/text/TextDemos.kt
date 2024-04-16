@@ -25,7 +25,6 @@ import androidx.compose.foundation.demos.text2.BasicTextFieldLongTextDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldOutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldValueCallbackDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
-import androidx.compose.foundation.demos.text2.HandwritingDelegationDemo
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
 import androidx.compose.foundation.demos.text2.NestedReceiveContentDemo
@@ -36,6 +35,7 @@ import androidx.compose.foundation.demos.text2.TextFieldCursorNotBlinkingInUnfoc
 import androidx.compose.foundation.demos.text2.TextFieldLineLimitsDemos
 import androidx.compose.foundation.demos.text2.TextFieldReceiveContentDemo
 import androidx.compose.foundation.samples.BasicTextFieldUndoSample
+import androidx.compose.foundation.samples.HandwritingDetectorSample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.ui.text.samples.AnnotatedStringFromHtml
@@ -158,7 +158,6 @@ val TextDemos = DemoCategory(
             "Text Input (BasicTextFieldv2)",
             listOf(
                 ComposableDemo("Basic text input") { BasicTextFieldDemos() },
-                ComposableDemo("Handwriting delegation") { HandwritingDelegationDemo() },
                 ComposableDemo("Value/callback overload") { BasicTextFieldValueCallbackDemo() },
                 ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                 ComposableDemo("Keyboard Actions") { KeyboardActionsDemos() },
@@ -182,7 +181,8 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Custom PIN field") { BasicTextFieldCustomPinFieldDemo() },
                 ComposableDemo("Undo/Redo") { BasicTextFieldUndoSample() },
                 ComposableDemo("Long text") { BasicTextFieldLongTextDemo() },
-                ComposableDemo("Cursor") { TextFieldCursorNotBlinkingInUnfocusedWindowDemo() }
+                ComposableDemo("Cursor") { TextFieldCursorNotBlinkingInUnfocusedWindowDemo() },
+                ComposableDemo("Handwriting detector") { HandwritingDetectorSample() }
             )
         ),
         DemoCategory(
