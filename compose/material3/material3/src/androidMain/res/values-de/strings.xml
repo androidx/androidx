@@ -20,8 +20,7 @@
     <string name="m3c_dialog" msgid="7617233117134790350">"Dialogfeld"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"Maximiert"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Minimiert"</string>
-    <!-- no translation found for m3c_dropdown_menu_toggle (8687821690726149911) -->
-    <skip />
+    <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"Drop-down-Menü maximieren/minimieren"</string>
     <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"Schließen"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"Suche"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Vorschläge unten"</string>
