@@ -18,7 +18,7 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.text.handwriting.handwritingDelegator
+import androidx.compose.foundation.text.handwriting.handwritingDetector
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.performStylusClick
 import androidx.compose.foundation.text.performStylusHandwriting
@@ -39,7 +39,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class HandwritingDelegatorTest {
+internal class HandwritingDetectorTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -48,7 +48,7 @@ internal class HandwritingDelegatorTest {
 
     private val imm = FakeInputMethodManager()
 
-    private val tag = "delegator"
+    private val tag = "detector"
 
     private var callbackCount = 0;
 
@@ -65,35 +65,35 @@ internal class HandwritingDelegatorTest {
             Spacer(
                 modifier = Modifier
                     .fillMaxSize()
-                    .handwritingDelegator { callbackCount++ }
+                    .handwritingDetector { callbackCount++ }
                     .testTag(tag)
             )
         }
     }
 
     @Test
-    fun delegator_handwriting_preparesDelegation() {
+    fun detector_handwriting_preparesDelegation() {
         rule.onNodeWithTag(tag).performStylusHandwriting()
 
         assertHandwritingDelegationPrepared()
     }
 
     @Test
-    fun delegator_click_notPreparesDelegation() {
+    fun detector_click_notPreparesDelegation() {
         rule.onNodeWithTag(tag).performStylusClick()
 
         assertHandwritingDelegationNotPrepared()
     }
 
     @Test
-    fun delegator_longClick_notPreparesDelegation() {
+    fun detector_longClick_notPreparesDelegation() {
         rule.onNodeWithTag(tag).performStylusLongClick()
 
         assertHandwritingDelegationNotPrepared()
     }
 
     @Test
-    fun delegator_longPressAndDrag_notPreparesDelegation() {
+    fun detector_longPressAndDrag_notPreparesDelegation() {
         rule.onNodeWithTag(tag).performStylusLongPressAndDrag()
 
         assertHandwritingDelegationNotPrepared()

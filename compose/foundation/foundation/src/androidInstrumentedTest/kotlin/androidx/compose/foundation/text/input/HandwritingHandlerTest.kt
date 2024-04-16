@@ -18,7 +18,7 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.handwriting.handwritingDelegate
+import androidx.compose.foundation.text.handwriting.handwritingHandler
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class HandwritingDelegateTest {
+internal class HandwritingHandlerTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -51,16 +51,16 @@ internal class HandwritingDelegateTest {
     }
 
     @Test
-    fun delegate_gainFocus_acceptsDelegation() {
+    fun handler_gainFocus_acceptsDelegation() {
         val imm = FakeInputMethodManager()
         immRule.setFactory { imm }
 
-        val tag = "delegate"
+        val tag = "handler"
         InputMethodInterceptor(rule).setTextFieldTestContent {
             val state = remember { TextFieldState() }
             BasicTextField(
                 state = state,
-                modifier = Modifier.fillMaxSize().handwritingDelegate().testTag(tag)
+                modifier = Modifier.fillMaxSize().handwritingHandler().testTag(tag)
             )
         }
 

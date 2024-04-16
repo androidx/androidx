@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+package androidx.compose.foundation.samples
 
-package androidx.compose.foundation.demos.text2
-
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.annotation.Sampled
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,12 +30,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.handwriting.handwritingDelegate
-import androidx.compose.foundation.text.handwriting.handwritingDelegator
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.handwriting.handwritingDetector
+import androidx.compose.foundation.text.handwriting.handwritingHandler
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -54,8 +54,9 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
+@Sampled
 @Composable
-fun HandwritingDelegationDemo() {
+fun HandwritingDetectorSample() {
     var openDialog by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
@@ -68,14 +69,14 @@ fun HandwritingDelegationDemo() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "This is not an actual text field, but it is a handwriting delegator so you can use " +
+            "This is not an actual text field, but it is a handwriting detector so you can use " +
                 "a stylus to write here."
         )
         Spacer(Modifier.size(16.dp))
         Text("Fake text field",
             Modifier
                 .fillMaxWidth()
-                .handwritingDelegator { openDialog = !openDialog }
+                .handwritingDetector { openDialog = !openDialog }
                 .padding(4.dp)
                 .border(
                     1.dp,
@@ -96,13 +97,29 @@ fun HandwritingDelegationDemo() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("This text field is a handwriting delegate.")
+                    Text("This text field is a handwriting handler.")
                     Spacer(Modifier.size(16.dp))
-                    OutlinedBasicTextField(
-                        Modifier
+                    val state = remember { TextFieldState() }
+                    BasicTextField(
+                        state = state,
+                        modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
-                            .handwritingDelegate()
+                            .handwritingHandler(),
+                        decorator = { innerTextField ->
+                            Box(
+                                Modifier
+                                    .padding(4.dp)
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colors.onSurface,
+                                        RoundedCornerShape(4.dp)
+                                    )
+                                    .padding(16.dp)
+                            ) {
+                                innerTextField()
+                            }
+                        }
                     )
                 }
             }
