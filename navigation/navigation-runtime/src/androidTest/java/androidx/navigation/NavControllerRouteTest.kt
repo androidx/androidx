@@ -3390,6 +3390,27 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectListArg() {
+        @Serializable
+        class TestClass(val arg: MutableList<Boolean>)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = TestClass(mutableListOf(true, false, true))
+        ) {
+           test<TestClass>()
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "androidx.navigation.NavControllerRouteTest.testNavigateWithObjectListArg" +
+                ".TestClass?arg={arg}"
+        )
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route?.arg is MutableList).isTrue()
+        assertThat(route?.arg).containsExactly(true, false, true).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testDeepLinkFromNavGraph() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph

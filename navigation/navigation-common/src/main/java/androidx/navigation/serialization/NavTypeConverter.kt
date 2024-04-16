@@ -39,7 +39,7 @@ private enum class InternalType {
     FLOAT_ARRAY,
     LONG_ARRAY,
     ARRAY,
-    ARRAY_LIST,
+    LIST,
     UNKNOWN
 }
 
@@ -66,6 +66,17 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             val typeParameter = getElementDescriptor(0).toInternalType()
             if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
         }
+        InternalType.LIST -> {
+            val typeParameter = getElementDescriptor(0).toInternalType()
+            when (typeParameter) {
+                InternalType.INT -> NavType.IntListType
+                InternalType.BOOL -> NavType.BoolListType
+                InternalType.FLOAT -> NavType.FloatListType
+                InternalType.LONG -> NavType.LongListType
+                InternalType.STRING -> NavType.StringListType
+                else -> UNKNOWN
+            }
+        }
         else -> UNKNOWN
     }
     return type
@@ -91,7 +102,7 @@ private fun SerialDescriptor.toInternalType(): InternalType {
         serialName == "kotlin.LongArray" -> InternalType.LONG_ARRAY
         serialName == "kotlin.Array" -> InternalType.ARRAY
         // serial name for both List and ArrayList
-        serialName.startsWith("kotlin.collections.ArrayList") -> InternalType.ARRAY_LIST
+        serialName.startsWith("kotlin.collections.ArrayList") -> InternalType.LIST
         // custom classes or other types without built-in NavTypes
         else -> InternalType.UNKNOWN
     }

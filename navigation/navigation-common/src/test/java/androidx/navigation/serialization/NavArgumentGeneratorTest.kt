@@ -183,6 +183,45 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToIntList() {
+        @Serializable class TestClass(val arg: List<Int>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.IntListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertArrayListToIntList() {
+        @Serializable class TestClass(val arg: ArrayList<Int>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.IntListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToIntListNullable() {
+        @Serializable class TestClass(val arg: List<Int>?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.IntListType
+            nullable = true
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToLongArray() {
         @Serializable class TestClass(val arg: LongArray)
 
@@ -202,6 +241,45 @@ class NavArgumentGeneratorTest {
         val converted = serializer<TestClass>().generateNavArguments()
         val expected = navArgument("arg") {
             type = NavType.LongArrayType
+            nullable = true
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToLongList() {
+        @Serializable class TestClass(val arg: List<Long>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.LongListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertArrayListToLongList() {
+        @Serializable class TestClass(val arg: ArrayList<Long>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.LongListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToLongListNullable() {
+        @Serializable class TestClass(val arg: List<Long>?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.LongListType
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -235,6 +313,45 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToFloatList() {
+        @Serializable class TestClass(val arg: List<Float>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.FloatListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertArrayListToFloatList() {
+        @Serializable class TestClass(val arg: ArrayList<Float>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.FloatListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToFloatListNullable() {
+        @Serializable class TestClass(val arg: List<Float>?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.FloatListType
+            nullable = true
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToBoolArray() {
         @Serializable class TestClass(val arg: BooleanArray)
 
@@ -261,6 +378,45 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToBooleanList() {
+        @Serializable class TestClass(val arg: List<Boolean>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.BoolListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertArrayListToBooleanList() {
+        @Serializable class TestClass(val arg: ArrayList<Boolean>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.BoolListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToBooleanListNullable() {
+        @Serializable class TestClass(val arg: List<Boolean>?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.BoolListType
+            nullable = true
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToStringArray() {
         @Serializable class TestClass(val arg: Array<String>)
 
@@ -280,6 +436,45 @@ class NavArgumentGeneratorTest {
         val converted = serializer<TestClass>().generateNavArguments()
         val expected = navArgument("arg") {
             type = NavType.StringArrayType
+            nullable = true
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToStringList() {
+        @Serializable class TestClass(val arg: List<String>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.StringListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertArrayListToStringList() {
+        @Serializable class TestClass(val arg: ArrayList<String>)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.StringListType
+            nullable = false
+        }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToStringListNullable() {
+        @Serializable class TestClass(val arg: List<String>?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected = navArgument("arg") {
+            type = NavType.StringListType
             nullable = true
         }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -599,14 +794,14 @@ class NavArgumentGeneratorTest {
 
     @Test
     fun convertIllegalCustomType() {
-        @Serializable class TestClass(val arg: ArrayList<String>)
+        @Serializable class TestClass(val arg: Set<String>)
 
         val exception = assertFailsWith<IllegalArgumentException> {
             serializer<TestClass>().generateNavArguments()
         }
 
         assertThat(exception.message).isEqualTo(
-         "Cannot cast arg of type kotlin.collections.ArrayList to a NavType. " +
+         "Cannot cast arg of type kotlin.collections.LinkedHashSet to a NavType. " +
              "Make sure to provide custom NavType for this argument."
         )
     }
