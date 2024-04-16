@@ -268,7 +268,9 @@ package androidx.navigation {
     method public D build();
     method public final void deepLink(androidx.navigation.NavDeepLink navDeepLink);
     method public final void deepLink(String uriPattern);
+    method public inline <reified T> void deepLink(String basePath, kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> navDeepLink);
     method public final void deepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> navDeepLink);
+    method public inline <reified T> void deepLinkSafeArgs(String basePath);
     method public final int getId();
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
