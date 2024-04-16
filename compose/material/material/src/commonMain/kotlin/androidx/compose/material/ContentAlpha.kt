@@ -19,7 +19,6 @@ package androidx.compose.material
 import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
 /**
@@ -78,20 +77,11 @@ object ContentAlpha {
     ): Float {
         val contentColor = LocalContentColor.current
         val lightTheme = MaterialTheme.colors.isLight
-        return contentAlpha(contentColor, lightTheme, highContrastAlpha, lowContrastAlpha)
-    }
-
-    internal fun contentAlpha(
-        contentColor: Color,
-        lightTheme: Boolean,
-        @FloatRange(from = 0.0, to = 1.0)
-        highContrastAlpha: Float,
-        @FloatRange(from = 0.0, to = 1.0)
-        lowContrastAlpha: Float
-    ): Float = if (lightTheme) {
-        if (contentColor.luminance() > 0.5) highContrastAlpha else lowContrastAlpha
-    } else {
-        if (contentColor.luminance() < 0.5) highContrastAlpha else lowContrastAlpha
+        return if (lightTheme) {
+            if (contentColor.luminance() > 0.5) highContrastAlpha else lowContrastAlpha
+        } else {
+            if (contentColor.luminance() < 0.5) highContrastAlpha else lowContrastAlpha
+        }
     }
 }
 
