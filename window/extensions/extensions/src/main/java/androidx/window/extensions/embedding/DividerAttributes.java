@@ -139,7 +139,7 @@ public final class DividerAttributes {
                 && (primaryMinRatio != RATIO_SYSTEM_DEFAULT
                 || primaryMaxRatio != RATIO_SYSTEM_DEFAULT)) {
             throw new IllegalStateException(
-                    "primaryMinRatio and primaryMaxRatio must be RATIO_UNSET for "
+                    "primaryMinRatio and primaryMaxRatio must be RATIO_SYSTEM_DEFAULT for "
                             + "DIVIDER_TYPE_FIXED.");
         }
         if (primaryMinRatio != RATIO_SYSTEM_DEFAULT && primaryMaxRatio != RATIO_SYSTEM_DEFAULT
@@ -316,7 +316,7 @@ public final class DividerAttributes {
         public Builder setWidthDp(@Dimension int widthDp) {
             if (widthDp != WIDTH_SYSTEM_DEFAULT && widthDp < 0) {
                 throw new IllegalArgumentException(
-                        "widthDp must be greater than or equal to 0 or WIDTH_UNSET.");
+                        "widthDp must be greater than or equal to 0 or WIDTH_SYSTEM_DEFAULT.");
             }
             mWidthDp = widthDp;
             return this;
@@ -346,7 +346,7 @@ public final class DividerAttributes {
             if (primaryMinRatio != RATIO_SYSTEM_DEFAULT
                     && (primaryMinRatio >= 1.0 || primaryMinRatio < 0.0)) {
                 throw new IllegalArgumentException(
-                        "primaryMinRatio must be in [0.0, 1.0) or RATIO_UNSET.");
+                        "primaryMinRatio must be in [0.0, 1.0) or RATIO_SYSTEM_DEFAULT.");
             }
             mPrimaryMinRatio = primaryMinRatio;
             return this;
@@ -376,7 +376,7 @@ public final class DividerAttributes {
             if (primaryMaxRatio != RATIO_SYSTEM_DEFAULT
                     && (primaryMaxRatio > 1.0 || primaryMaxRatio <= 0.0)) {
                 throw new IllegalArgumentException(
-                        "primaryMaxRatio must be in (0.0, 1.0] or RATIO_UNSET.");
+                        "primaryMaxRatio must be in (0.0, 1.0] or RATIO_SYSTEM_DEFAULT.");
             }
             mPrimaryMaxRatio = primaryMaxRatio;
             return this;
