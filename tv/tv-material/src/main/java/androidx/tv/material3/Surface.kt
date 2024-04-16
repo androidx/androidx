@@ -210,7 +210,7 @@ fun Surface(
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
- * @param selected whether or not this Surface is toggled on or off
+ * @param selected whether or not this Surface is selected
  * @param onClick callback to be invoked when the selectable Surface is clicked.
  * @param modifier [Modifier] to be applied to the layout corresponding to the surface
  * @param onLongClick callback to be called when the selectable surface is long clicked
