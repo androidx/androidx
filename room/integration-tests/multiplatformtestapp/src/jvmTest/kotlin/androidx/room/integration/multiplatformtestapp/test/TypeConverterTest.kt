@@ -17,19 +17,13 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.test.platform.app.InstrumentationRegistry
-import kotlinx.coroutines.Dispatchers
 
-class SimpleQueryTest : BaseSimpleQueryTest() {
+class TypeConverterTest : BaseTypeConverterTest() {
 
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
-
-    override fun getRoomDatabase(): SampleDatabase {
-        return Room.inMemoryDatabaseBuilder<SampleDatabase>(
-            context = instrumentation.targetContext
-        ).setDriver(BundledSQLiteDriver())
-            .setQueryCoroutineContext(Dispatchers.IO)
-            .build()
+    override fun getDatabaseBuilder(): RoomDatabase.Builder<TestDatabase> {
+        return Room.inMemoryDatabaseBuilder<TestDatabase>()
+            .setDriver(BundledSQLiteDriver())
     }
 }
