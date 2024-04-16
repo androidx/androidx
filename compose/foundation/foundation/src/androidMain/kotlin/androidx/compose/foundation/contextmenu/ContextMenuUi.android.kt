@@ -36,28 +36,33 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight.Companion.Medium
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 
-/**
- * Layout constants from the [Material 3 Menu Spec](https://m3.material.io/components/menus/specs).
- */
+private const val DisabledAlpha = 0.38f
+private const val IconAlpha = 0.6f
+
 @VisibleForTesting
 internal object ContextMenuSpec {
-    // dimensions
+    // TODO(b/331955999) Determine colors/theming
+    private val PrimaryColor = Color.Black
+    val BackgroundColor = Color.White
+
+    val TextColor = PrimaryColor
+    val IconColor = PrimaryColor.copy(alpha = IconAlpha)
+    val DisabledColor = PrimaryColor.copy(DisabledAlpha)
+
+    // Layout constants from https://m3.material.io/components/menus/specs
     val ContainerWidthMin = 112.dp
     val ContainerWidthMax = 280.dp
     val ListItemHeight = 48.dp
@@ -68,20 +73,6 @@ internal object ContextMenuSpec {
     val HorizontalPadding = 12.dp // left/right of column and between elements in rows
     val VerticalPadding = 8.dp // top/bottom of column and around dividers
     val IconSize = 24.dp
-
-    // text
-    val FontSize = 14.sp
-    val FontWeight = Medium
-    val LineHeight = 20.sp
-    val LetterSpacing = 0.1f.sp
-    fun textStyle(color: Color): TextStyle = TextStyle(
-        color = color,
-        textAlign = LabelHorizontalTextAlignment,
-        fontSize = FontSize,
-        fontWeight = FontWeight,
-        lineHeight = LineHeight,
-        letterSpacing = LetterSpacing,
-    )
 }
 
 private val DefaultPopupProperties = PopupProperties(focusable = true)
@@ -98,13 +89,12 @@ internal fun ContextMenuPopup(
         onDismissRequest = onDismiss,
         properties = DefaultPopupProperties,
     ) {
-        val colors = LocalContextMenuColors.current ?: DefaultContextMenuColors
-        ContextMenuColumn(colors, modifier) {
+        ContextMenuColumn(modifier) {
             val scope = remember { ContextMenuScope() }
             with(scope) {
                 clear()
                 contextMenuBuilderBlock()
-                Content(colors)
+                Content()
             }
         }
     }
@@ -113,7 +103,6 @@ internal fun ContextMenuPopup(
 @VisibleForTesting
 @Composable
 internal fun ContextMenuColumn(
-    colors: ContextMenuColors,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -123,7 +112,7 @@ internal fun ContextMenuColumn(
                 ContextMenuSpec.MenuContainerElevation,
                 RoundedCornerShape(ContextMenuSpec.CornerRadius)
             )
-            .background(colors.backgroundColor)
+            .background(ContextMenuSpec.BackgroundColor)
             .width(IntrinsicSize.Max)
             .padding(vertical = ContextMenuSpec.VerticalPadding)
             .verticalScroll(rememberScrollState()),
@@ -138,7 +127,6 @@ internal fun ContextMenuColumn(
 internal fun ContextMenuItem(
     label: String,
     enabled: Boolean,
-    colors: ContextMenuColors,
     modifier: Modifier = Modifier,
     /**
      * Icon to place in front of the label. If null, the icon will not be rendered
@@ -182,12 +170,13 @@ internal fun ContextMenuItem(
                     maxWidth = ContextMenuSpec.IconSize,
                     maxHeight = ContextMenuSpec.IconSize,
                 )
-            ) { icon(if (enabled) colors.iconColor else colors.disabledIconColor) }
+            ) { icon(if (enabled) ContextMenuSpec.IconColor else ContextMenuSpec.DisabledColor) }
         }
         BasicText(
             text = label,
-            style = ContextMenuSpec.textStyle(
-                color = if (enabled) colors.textColor else colors.disabledTextColor,
+            style = TextStyle(
+                color = if (enabled) ContextMenuSpec.TextColor else ContextMenuSpec.DisabledColor,
+                textAlign = ContextMenuSpec.LabelHorizontalTextAlignment,
             ),
             maxLines = 1,
             modifier = Modifier.weight(1f, fill = true)
@@ -202,11 +191,11 @@ internal fun ContextMenuItem(
 // arbitrary composables into a context menu. Instead, we expose this API which then maps to
 // context menu composables.
 internal class ContextMenuScope internal constructor() {
-    private val composables = mutableStateListOf<@Composable (colors: ContextMenuColors) -> Unit>()
+    private val composables = mutableListOf<@Composable () -> Unit>()
 
     @Composable
-    internal fun Content(colors: ContextMenuColors) {
-        composables.fastForEach { composable -> composable(colors) }
+    internal fun Content() {
+        composables.fastForEach { composable -> composable() }
     }
 
     internal fun clear() {
@@ -234,8 +223,7 @@ internal class ContextMenuScope internal constructor() {
         /**
          * Icon to place in front of the label. If null, the icon will not be rendered
          * and the text will instead be further towards the start. The `iconColor` will
-         * change based on whether the item is disabled or not. The size of this composable
-         * will be [ContextMenuSpec.IconSize].
+         * change based on whether the item is disabled or not.
          */
         leadingIcon: @Composable ((iconColor: Color) -> Unit)? = null,
         /**
@@ -247,26 +235,14 @@ internal class ContextMenuScope internal constructor() {
         onClick: () -> Unit,
     ) {
         check(label.isNotBlank()) { "Label must not be blank" }
-        composables += { colors ->
+        composables += {
             ContextMenuItem(
                 modifier = modifier,
                 label = label,
                 enabled = enabled,
-                colors = colors,
                 leadingIcon = leadingIcon,
                 onClick = onClick
             )
         }
     }
 }
-
-private const val DisabledAlpha = 0.38f
-private const val IconAlpha = 0.6f
-
-private val DefaultContextMenuColors = ContextMenuColors(
-    backgroundColor = Color.White,
-    textColor = Color.Black,
-    iconColor = Color.Black.copy(alpha = IconAlpha),
-    disabledTextColor = Color.Black.copy(alpha = DisabledAlpha),
-    disabledIconColor = Color.Black.copy(alpha = DisabledAlpha),
-)
