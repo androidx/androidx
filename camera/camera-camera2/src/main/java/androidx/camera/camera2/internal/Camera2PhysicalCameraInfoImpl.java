@@ -17,7 +17,9 @@
 package androidx.camera.camera2.internal;
 
 import android.annotation.SuppressLint;
+import android.hardware.camera2.CameraCharacteristics;
 import android.util.Range;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -34,6 +36,8 @@ import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.utils.CameraOrientationUtil;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 
 import java.util.Set;
@@ -73,12 +77,23 @@ public class Camera2PhysicalCameraInfoImpl implements CameraInfo {
 
     @Override
     public int getSensorRotationDegrees() {
-        throw new UnsupportedOperationException("Physical camera doesn't support this function");
+        return getSensorRotationDegrees(Surface.ROTATION_0);
     }
 
     @Override
     public int getSensorRotationDegrees(int relativeRotation) {
-        throw new UnsupportedOperationException("Physical camera doesn't support this function");
+        int sensorOrientation = getSensorOrientation();
+        int relativeRotationDegrees =
+                CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
+        // Currently this assumes that a back-facing camera is always opposite to the screen.
+        // This may not be the case for all devices, so in the future we may need to handle that
+        // scenario.
+        final int lensFacing = getLensFacing();
+        boolean isOppositeFacingScreen = CameraSelector.LENS_FACING_BACK == lensFacing;
+        return CameraOrientationUtil.getRelativeImageRotation(
+                relativeRotationDegrees,
+                sensorOrientation,
+                isOppositeFacingScreen);
     }
 
     @Override
@@ -124,7 +139,10 @@ public class Camera2PhysicalCameraInfoImpl implements CameraInfo {
 
     @Override
     public int getLensFacing() {
-        throw new UnsupportedOperationException("Physical camera doesn't support this function");
+        Integer lensFacing = mCameraCharacteristicsCompat.get(CameraCharacteristics.LENS_FACING);
+        Preconditions.checkArgument(lensFacing != null, "Unable to get the lens facing of the "
+                + "camera.");
+        return LensFacingUtil.getCameraSelectorLensFacing(lensFacing);
     }
 
     @Override
@@ -171,5 +189,12 @@ public class Camera2PhysicalCameraInfoImpl implements CameraInfo {
     @Override
     public Set<CameraInfo> getPhysicalCameraInfos() {
         throw new UnsupportedOperationException("Physical camera doesn't support this function");
+    }
+
+    int getSensorOrientation() {
+        Integer sensorOrientation =
+                mCameraCharacteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        Preconditions.checkNotNull(sensorOrientation);
+        return sensorOrientation;
     }
 }

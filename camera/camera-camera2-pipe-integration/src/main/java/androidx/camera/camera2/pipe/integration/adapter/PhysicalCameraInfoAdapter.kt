@@ -17,7 +17,9 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
+import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
+import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
@@ -31,6 +33,7 @@ import androidx.camera.core.ExperimentalZeroShutterLag
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
 import kotlin.reflect.KClass
 
@@ -38,6 +41,9 @@ import kotlin.reflect.KClass
  * Implementation of [CameraInfo] for physical camera. In comparison,
  * [CameraInfoAdapter] is the version of logical camera.
  */
+@SuppressLint(
+    "UnsafeOptInUsageError" // Suppressed due to experimental API
+)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class PhysicalCameraInfoAdapter(
     private val cameraProperties: CameraProperties
@@ -48,12 +54,23 @@ class PhysicalCameraInfoAdapter(
         Camera2CameraInfo.create(cameraProperties)
     }
 
-    override fun getSensorRotationDegrees(): Int {
-        throw UnsupportedOperationException("Physical camera doesn't support this function")
-    }
+    override fun getSensorRotationDegrees(): Int = getSensorRotationDegrees(Surface.ROTATION_0)
 
     override fun getSensorRotationDegrees(relativeRotation: Int): Int {
-        throw UnsupportedOperationException("Physical camera doesn't support this function")
+        val sensorOrientation: Int =
+            cameraProperties.metadata[CameraCharacteristics.SENSOR_ORIENTATION]!!
+        val relativeRotationDegrees =
+            CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation)
+        // Currently this assumes that a back-facing camera is always opposite to the screen.
+        // This may not be the case for all devices, so in the future we may need to handle that
+        // scenario.
+        val lensFacing = lensFacing
+        val isOppositeFacingScreen = CameraSelector.LENS_FACING_BACK == lensFacing
+        return CameraOrientationUtil.getRelativeImageRotation(
+            relativeRotationDegrees,
+            sensorOrientation,
+            isOppositeFacingScreen
+        )
     }
 
     override fun hasFlashUnit(): Boolean {
@@ -84,9 +101,8 @@ class PhysicalCameraInfoAdapter(
         throw UnsupportedOperationException("Physical camera doesn't support this function")
     }
 
-    override fun getLensFacing(): Int {
-        throw UnsupportedOperationException("Physical camera doesn't support this function")
-    }
+    override fun getLensFacing(): Int =
+        getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
 
     override fun getIntrinsicZoomRatio(): Float {
         throw UnsupportedOperationException("Physical camera doesn't support this function")
@@ -130,6 +146,18 @@ class PhysicalCameraInfoAdapter(
         return when (type) {
             Camera2CameraInfo::class -> camera2CameraInfo as T
             else -> cameraProperties.metadata.unwrapAs(type)
+        }
+    }
+
+    @CameraSelector.LensFacing
+    private fun getCameraSelectorLensFacing(lensFacingInt: Int): Int {
+        return when (lensFacingInt) {
+            CameraCharacteristics.LENS_FACING_FRONT -> CameraSelector.LENS_FACING_FRONT
+            CameraCharacteristics.LENS_FACING_BACK -> CameraSelector.LENS_FACING_BACK
+            CameraCharacteristics.LENS_FACING_EXTERNAL -> CameraSelector.LENS_FACING_EXTERNAL
+            else -> throw IllegalArgumentException(
+                "The specified lens facing integer $lensFacingInt can not be recognized."
+            )
         }
     }
 }
