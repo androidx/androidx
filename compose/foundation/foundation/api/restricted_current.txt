@@ -1664,12 +1664,12 @@ package androidx.compose.foundation.text {
 
 package androidx.compose.foundation.text.handwriting {
 
-  public final class HandwritingDelegate_androidKt {
-    method public static androidx.compose.ui.Modifier handwritingDelegate(androidx.compose.ui.Modifier);
+  public final class HandwritingDetector_androidKt {
+    method public static androidx.compose.ui.Modifier handwritingDetector(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> callback);
   }
 
-  public final class HandwritingDelegator_androidKt {
-    method public static androidx.compose.ui.Modifier handwritingDelegator(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> callback);
+  public final class HandwritingHandler_androidKt {
+    method public static androidx.compose.ui.Modifier handwritingHandler(androidx.compose.ui.Modifier);
   }
 
 }
