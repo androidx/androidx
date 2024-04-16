@@ -37,7 +37,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *
  * @constructor Creates a new migration between [startVersion] and [endVersion] inclusive.
  */
-actual abstract class Migration(
+actual abstract class Migration actual constructor(
     @JvmField
     actual val startVersion: Int,
     @JvmField

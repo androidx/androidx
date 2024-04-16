@@ -25,21 +25,22 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
+import androidx.room.ProvidedAutoMigrationSpec
 import androidx.room.Query
 import androidx.room.RoomDatabase
-import androidx.room.Update
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.testing.MigrationTestHelper
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import androidx.sqlite.use
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseAutoMigrationTest {
     abstract fun getTestHelper(): MigrationTestHelper
-    abstract fun getRoomDatabase(): AutoMigrationDatabase
+    abstract fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase>
 
     @Test
-    @Ignore // TODO (b/331622149) Investigate, there seems to be an issue in native.
     fun migrateFromV1ToLatest() = runTest {
         val migrationTestHelper = getTestHelper()
 
@@ -61,11 +62,14 @@ abstract class BaseAutoMigrationTest {
         connection.close()
 
         // Auto migrate to latest
-        val dbVersion2 = getRoomDatabase()
-        assertThat(dbVersion2.dao().update(AutoMigrationEntity(1, 5))).isEqualTo(1)
-        assertThat(dbVersion2.dao().getSingleItem().pk).isEqualTo(1)
-        assertThat(dbVersion2.dao().getSingleItem().data).isEqualTo(5)
-        dbVersion2.close()
+        val dbVersion3 = getDatabaseBuilder()
+            .addAutoMigrationSpec(ProvidedSpecFrom2To3())
+            .build()
+        val dao = dbVersion3.dao()
+        assertThat(dao.getSingleItem().pk).isEqualTo(1)
+        assertThat(dao.getSingleItem().data).isEqualTo(0)
+        assertThat(dao.getSingleItem().moreData).isEqualTo("5")
+        dbVersion3.close()
     }
 
     @Test
@@ -73,47 +77,41 @@ abstract class BaseAutoMigrationTest {
         val migrationTestHelper = getTestHelper()
 
         // Create database V1
-        val connection = migrationTestHelper.createDatabase(1)
+        val connectionV1 = migrationTestHelper.createDatabase(1)
         // Insert some data, we'll validate it is present after migration
-        connection.prepare("INSERT INTO AutoMigrationEntity (pk) VALUES (?)").use {
+        connectionV1.prepare("INSERT INTO AutoMigrationEntity (pk) VALUES (?)").use {
             it.bindLong(1, 1)
             assertThat(it.step()).isFalse() // SQLITE_DONE
         }
-        connection.close()
+        connectionV1.close()
 
-        // Auto migrate to V2
-        migrationTestHelper.runMigrationsAndValidate(2)
+        // Auto migrate to V2 and validate data is still present
+        val connectionV2 = migrationTestHelper.runMigrationsAndValidate(2)
+        connectionV2.prepare("SELECT count(*) FROM AutoMigrationEntity").use {
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.getInt(0)).isEqualTo(1)
+        }
+        connectionV2.close()
     }
 
     @Test
-    fun misuseTestHelperAlreadyCreatedDatabase() {
-        val migrationTestHelper = getTestHelper()
-
-        // Create database V1
-        migrationTestHelper.createDatabase(1).close()
-
-        // When trying to create at V1 again, fail due to database file being already created.
-        assertThrows<IllegalStateException> {
-            migrationTestHelper.createDatabase(1)
-        }.hasMessageThat()
-            .contains("Creation of tables didn't occur while creating a new database.")
-
-        // If trying to create at V2, migration will try to run and fail.
-        assertThrows<IllegalStateException> {
-            migrationTestHelper.createDatabase(2)
-        }.hasMessageThat()
-            .contains("A migration from 1 to 2 was required but not found.")
+    fun missingProvidedAutoMigrationSpec() {
+        assertThrows<IllegalArgumentException> {
+            getDatabaseBuilder().build()
+        }.hasMessageThat().contains(
+            "A required auto migration spec (${ProvidedSpecFrom2To3::class.qualifiedName}) is " +
+                "missing in the database configuration."
+        )
     }
 
     @Test
-    fun misuseTestHelperMissingDatabaseForValidateMigrations() {
-        val migrationTestHelper = getTestHelper()
-
-        // Try to validate migrations, but fail due to no previous database created.
-        assertThrows<IllegalStateException> {
-            migrationTestHelper.runMigrationsAndValidate(2, emptyList())
-        }.hasMessageThat()
-            .contains("Creation of tables should never occur while validating migrations.")
+    fun extraProvidedAutoMigrationSpec() {
+        assertThrows<IllegalArgumentException> {
+            getDatabaseBuilder()
+                .addAutoMigrationSpec(ProvidedSpecFrom2To3())
+                .addAutoMigrationSpec(ExtraProvidedSpec())
+                .build()
+        }.hasMessageThat().contains("Unexpected auto migration specs found.")
     }
 
     @Entity
@@ -121,7 +119,9 @@ abstract class BaseAutoMigrationTest {
         @PrimaryKey
         val pk: Long,
         @ColumnInfo(defaultValue = "0")
-        val data: Long
+        val data: Long,
+        @ColumnInfo(defaultValue = "")
+        val moreData: String
     )
 
     @Dao
@@ -129,20 +129,29 @@ abstract class BaseAutoMigrationTest {
         @Insert
         suspend fun insert(entity: AutoMigrationEntity)
 
-        @Update
-        suspend fun update(entity: AutoMigrationEntity): Int
-
         @Query("SELECT * FROM AutoMigrationEntity")
         suspend fun getSingleItem(): AutoMigrationEntity
     }
 
     @Database(
         entities = [AutoMigrationEntity::class],
-        version = 2,
+        version = 3,
         exportSchema = true,
-        autoMigrations = [AutoMigration(from = 1, to = 2)]
+        autoMigrations = [
+            AutoMigration(from = 1, to = 2),
+            AutoMigration(from = 2, to = 3, spec = ProvidedSpecFrom2To3::class)
+        ]
     )
     abstract class AutoMigrationDatabase : RoomDatabase() {
         abstract fun dao(): AutoMigrationDao
     }
+
+    @ProvidedAutoMigrationSpec
+    open class ProvidedSpecFrom2To3 : AutoMigrationSpec {
+        override fun onPostMigrate(connection: SQLiteConnection) {
+            connection.execSQL("UPDATE AutoMigrationEntity SET moreData = '5'")
+        }
+    }
+
+    class ExtraProvidedSpec : AutoMigrationSpec
 }

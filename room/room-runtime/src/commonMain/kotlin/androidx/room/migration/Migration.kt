@@ -34,7 +34,7 @@ import androidx.sqlite.SQLiteConnection
  *
  * @constructor Creates a new migration between [startVersion] and [endVersion] inclusive.
  */
-expect abstract class Migration {
+expect abstract class Migration(startVersion: Int, endVersion: Int) {
     val startVersion: Int
     val endVersion: Int
 

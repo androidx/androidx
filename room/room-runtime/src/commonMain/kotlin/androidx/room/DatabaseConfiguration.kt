@@ -28,13 +28,23 @@ expect class DatabaseConfiguration {
     val name: String?
     /* Collection of available migrations. */
     val migrationContainer: RoomDatabase.MigrationContainer
+    /* Database callbacks. */
     val callbacks: List<RoomDatabase.Callback>?
+    /* The journal mode for this database. */
     val journalMode: RoomDatabase.JournalMode
+    /* Whether Room should throw an exception for missing migrations. */
     val requireMigration: Boolean
+    /* Whether Room will fallback to destructive migrations on downgrades only .*/
     val allowDestructiveMigrationOnDowngrade: Boolean
     internal val migrationNotRequiredFrom: Set<Int>?
+    /* List of provided type converters. */
     val typeConverters: List<Any>
+    /* List of provided auto migration specs. */
     val autoMigrationSpecs: List<AutoMigrationSpec>
+    /* Whether Room will delete all tables or only known tables during destructive migrations. */
+    val allowDestructiveMigrationForAllTables: Boolean
+    /* The SQLite Driver for the database. */
     val sqliteDriver: SQLiteDriver?
+    /* The Coroutine context for the database. */
     val queryCoroutineContext: CoroutineContext?
 }
