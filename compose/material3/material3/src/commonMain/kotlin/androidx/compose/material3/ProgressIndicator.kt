@@ -136,8 +136,9 @@ fun LinearProgressIndicator(
     trackColor: Color = ProgressIndicatorDefaults.linearTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
     gapSize: Dp = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
-    drawStopIndicator: (DrawScope.() -> Unit)? = {
+    drawStopIndicator: DrawScope.() -> Unit = {
         drawStopIndicator(
+            drawScope = this,
             stopSize = ProgressIndicatorDefaults.LinearTrackStopIndicatorSize,
             color = color,
             strokeCap = strokeCap
@@ -175,7 +176,7 @@ fun LinearProgressIndicator(
             0f, currentCoercedProgress, color, strokeWidth, strokeCap
         )
         // stop
-        drawStopIndicator?.invoke(this)
+        drawStopIndicator(this)
     }
 }
 
@@ -894,35 +895,40 @@ object ProgressIndicatorDefaults {
     /**
      * Draws the stop indicator at the end of the track.
      *
+     * @param drawScope the [DrawScope]
      * @param stopSize size of this stop indicator, it cannot be bigger than the track's height
      * @param color color of this stop indicator
      * @param strokeCap stroke cap to use for the ends of this stop indicator
      */
-    fun DrawScope.drawStopIndicator(
+    fun drawStopIndicator(
+        drawScope: DrawScope,
         stopSize: Dp,
         color: Color,
         strokeCap: StrokeCap,
     ) {
-        val adjustedStopSize = min(stopSize.toPx(), size.height) // Stop can't be bigger than track
-        val stopOffset = (size.height - adjustedStopSize) / 2 // Offset from end
-        if (strokeCap == StrokeCap.Round) {
-            drawCircle(
-                color = color,
-                radius = adjustedStopSize / 2f,
-                center = Offset(
-                    x = size.width - (adjustedStopSize / 2f) - stopOffset,
-                    y = size.height / 2f
+        with(drawScope) {
+            val adjustedStopSize =
+                min(stopSize.toPx(), size.height) // Stop can't be bigger than track
+            val stopOffset = (size.height - adjustedStopSize) / 2 // Offset from end
+            if (strokeCap == StrokeCap.Round) {
+                drawCircle(
+                    color = color,
+                    radius = adjustedStopSize / 2f,
+                    center = Offset(
+                        x = size.width - (adjustedStopSize / 2f) - stopOffset,
+                        y = size.height / 2f
+                    )
                 )
-            )
-        } else {
-            drawRect(
-                color = color,
-                topLeft = Offset(
-                    x = size.width - adjustedStopSize - stopOffset,
-                    y = (size.height - adjustedStopSize) / 2f
-                ),
-                size = Size(width = adjustedStopSize, height = adjustedStopSize)
-            )
+            } else {
+                drawRect(
+                    color = color,
+                    topLeft = Offset(
+                        x = size.width - adjustedStopSize - stopOffset,
+                        y = (size.height - adjustedStopSize) / 2f
+                    ),
+                    size = Size(width = adjustedStopSize, height = adjustedStopSize)
+                )
+            }
         }
     }
 }
