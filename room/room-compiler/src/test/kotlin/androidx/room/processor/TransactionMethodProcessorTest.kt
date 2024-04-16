@@ -19,7 +19,6 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Transaction
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -115,7 +114,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        FLOW.rawTypeName.toString(CodeLanguage.JAVA)
+                        FLOW.rawTypeName.toString()
                     )
                 )
             }
@@ -134,7 +133,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        LIVE_DATA.rawTypeName.toString(CodeLanguage.JAVA)
+                        LIVE_DATA.rawTypeName.toString()
                     )
                 )
             }
@@ -153,7 +152,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        COMPUTABLE_LIVE_DATA.rawTypeName.toString(CodeLanguage.JAVA)
+                        COMPUTABLE_LIVE_DATA.rawTypeName.toString()
                     )
                 )
             }
@@ -172,7 +171,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        RxJava2TypeNames.FLOWABLE.rawTypeName.toString(CodeLanguage.JAVA)
+                        RxJava2TypeNames.FLOWABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -193,7 +192,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        RxJava3TypeNames.FLOWABLE.rawTypeName.toString(CodeLanguage.JAVA)
+                        RxJava3TypeNames.FLOWABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -212,7 +211,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        RxJava2TypeNames.COMPLETABLE.rawTypeName.toString(CodeLanguage.JAVA)
+                        RxJava2TypeNames.COMPLETABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -233,7 +232,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        RxJava3TypeNames.COMPLETABLE.rawTypeName.toString(CodeLanguage.JAVA)
+                        RxJava3TypeNames.COMPLETABLE.rawTypeName.toString()
                     )
                 )
             }
@@ -252,7 +251,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        RxJava2TypeNames.SINGLE.rawTypeName.toString(CodeLanguage.JAVA)
+                        RxJava2TypeNames.SINGLE.rawTypeName.toString()
                     )
                 )
             }
@@ -273,7 +272,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        RxJava3TypeNames.SINGLE.rawTypeName.toString(CodeLanguage.JAVA)
+                        RxJava3TypeNames.SINGLE.rawTypeName.toString()
                     )
                 )
             }
@@ -292,7 +291,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        LISTENABLE_FUTURE.rawTypeName.toString(CodeLanguage.JAVA)
+                        LISTENABLE_FUTURE.rawTypeName.toString()
                     )
                 )
             }
@@ -311,7 +310,7 @@ class TransactionMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.transactionMethodAsync(
-                        PUBLISHER.rawTypeName.toString(CodeLanguage.JAVA)
+                        PUBLISHER.rawTypeName.toString()
                     )
                 )
             }
@@ -337,8 +336,7 @@ class TransactionMethodProcessorTest {
             COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE, COMMON.FLOW
         )
         runProcessorTest(
-            sources = inputSource + otherSources,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false")
+            sources = inputSource + otherSources
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
