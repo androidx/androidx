@@ -17,7 +17,6 @@
 package androidx.compose.foundation.contextmenu
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -28,13 +27,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
@@ -75,14 +75,6 @@ import org.junit.runner.RunWith
 private fun IntOffset.dx(dx: Int): IntOffset = copy(x = x + dx)
 private fun IntOffset.dy(dy: Int): IntOffset = copy(y = y + dy)
 
-private val TestColors = ContextMenuColors(
-    backgroundColor = Color.White,
-    textColor = Color.Black,
-    iconColor = Color.Blue,
-    disabledTextColor = Color.Red,
-    disabledIconColor = Color.Green,
-)
-
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class ContextMenuUiTest {
@@ -92,27 +84,11 @@ class ContextMenuUiTest {
     private val tag = "testTag"
     private val longText = "M ".repeat(200).trimEnd()
 
-    @Composable
-    private fun TestColumn(
-        colors: ContextMenuColors = TestColors,
-        contextMenuBuilderBlock: ContextMenuScope.() -> Unit,
-    ) {
-        ContextMenuColumn(colors, Modifier.testTag(tag)) {
-            val scope = remember { ContextMenuScope() }
-            with(scope) {
-                clear()
-                contextMenuBuilderBlock()
-                Content(colors)
-            }
-        }
-    }
-
     // region ContextMenuItem Tests
     @Composable
     private fun TestItem(
         label: String = "Item",
         enabled: Boolean = true,
-        colors: ContextMenuColors = TestColors,
         modifier: Modifier = Modifier.testTag(tag),
         leadingIcon: @Composable ((iconColor: Color) -> Unit)? = null,
         onClick: () -> Unit = {},
@@ -120,7 +96,6 @@ class ContextMenuUiTest {
         ContextMenuItem(
             label = label,
             enabled = enabled,
-            colors = colors,
             modifier = modifier,
             leadingIcon = leadingIcon,
             onClick = onClick
@@ -306,12 +281,8 @@ class ContextMenuUiTest {
         textNode.assertExists("Text does not exist.")
 
         val textStyle = textNode.fetchTextLayoutResult().layoutInput.style
-        assertThat(textStyle.color).isEqualTo(TestColors.textColor)
+        assertThat(textStyle.color).isEqualTo(ContextMenuSpec.TextColor)
         assertThat(textStyle.textAlign).isEqualTo(ContextMenuSpec.LabelHorizontalTextAlignment)
-        assertThat(textStyle.fontSize).isEqualTo(ContextMenuSpec.FontSize)
-        assertThat(textStyle.fontWeight).isEqualTo(ContextMenuSpec.FontWeight)
-        assertThat(textStyle.lineHeight).isEqualTo(ContextMenuSpec.LineHeight)
-        assertThat(textStyle.letterSpacing).isEqualTo(ContextMenuSpec.LetterSpacing)
     }
 
     @Test
@@ -322,19 +293,15 @@ class ContextMenuUiTest {
         textNode.assertExists("Text does not exist.")
 
         val textStyle = textNode.fetchTextLayoutResult().layoutInput.style
-        assertThat(textStyle.color).isEqualTo(TestColors.disabledTextColor)
+        assertThat(textStyle.color).isEqualTo(ContextMenuSpec.DisabledColor)
         assertThat(textStyle.textAlign).isEqualTo(ContextMenuSpec.LabelHorizontalTextAlignment)
-        assertThat(textStyle.fontSize).isEqualTo(ContextMenuSpec.FontSize)
-        assertThat(textStyle.fontWeight).isEqualTo(ContextMenuSpec.FontWeight)
-        assertThat(textStyle.lineHeight).isEqualTo(ContextMenuSpec.LineHeight)
-        assertThat(textStyle.letterSpacing).isEqualTo(ContextMenuSpec.LetterSpacing)
     }
 
     @Test
     fun whenContextMenuItem_enabled_correctIconColor() {
         var iconColor: Color? = null
         rule.setContent { TestItem(label = longText, leadingIcon = { iconColor = it }) }
-        assertThat(iconColor).isEqualTo(TestColors.iconColor)
+        assertThat(iconColor).isEqualTo(ContextMenuSpec.IconColor)
     }
 
     @Test
@@ -343,11 +310,25 @@ class ContextMenuUiTest {
         rule.setContent {
             TestItem(label = longText, enabled = false, leadingIcon = { iconColor = it })
         }
-        assertThat(iconColor).isEqualTo(TestColors.disabledIconColor)
+        assertThat(iconColor).isEqualTo(ContextMenuSpec.DisabledColor)
     }
     // endregion ContextMenuItem Tests
 
     // region ContextMenuColumn Tests
+    @Composable
+    private fun TestColumn(
+        contextMenuBuilderBlock: ContextMenuScope.() -> Unit,
+    ) {
+        ContextMenuColumn(Modifier.testTag(tag)) {
+            val scope = remember { ContextMenuScope() }
+            with(scope) {
+                clear()
+                contextMenuBuilderBlock()
+                Content()
+            }
+        }
+    }
+
     @Test
     fun whenContextMenuColumn_usedNormally_allInputItemsAreRendered() {
         val labelFunction: (Int) -> String = { "Item $it" }
@@ -363,6 +344,42 @@ class ContextMenuUiTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun whenContextMenuColumn_usedNormally_backgroundColorIsAsExpected() {
+        rule.setContent {
+            TestColumn {
+                // small label to keep text out of the way
+                testItem(
+                    label = "Item",
+                    modifier = Modifier.drawWithContent {
+                        // Don't draw content, only the column will draw.
+                        // Layout will still fill space.
+                    }
+                )
+            }
+        }
+
+        val node = rule.onNodeWithTag(tag)
+        val bitmap = node.captureToImage()
+        val density = node.fetchSemanticsNode().layoutInfo.density
+
+        // Ignore some padding around the edges where the shadow/rounded corners are.
+        val padding = with(density) { ContextMenuSpec.CornerRadius.toPx().ceilToIntPx() }
+        val pixelMap = bitmap.toPixelMap(
+            startX = padding,
+            startY = padding,
+            width = bitmap.width - padding * 2,
+            height = bitmap.height - padding * 2,
+        )
+
+        for (x in 0 until pixelMap.width) {
+            for (y in 0 until pixelMap.height) {
+                pixelMap.assertPixelColor(ContextMenuSpec.BackgroundColor, x, y)
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun whenContextMenuColumn_usedNormally_hasExpectedShadow() {
         val containerTag = "containerTag"
         rule.setContent {
@@ -371,7 +388,10 @@ class ContextMenuUiTest {
                     .testTag(containerTag)
                     .padding(ContextMenuSpec.MenuContainerElevation)
             ) {
-                TestColumn { testItem() }
+                TestColumn {
+                    // small label to keep text out of the way
+                    testItem(label = ".")
+                }
             }
         }
 
@@ -388,8 +408,9 @@ class ContextMenuUiTest {
         fun assertShadowAt(offset: IntOffset) {
             val (x, y) = offset
             val pixelColor = pixelMap[x, y]
-            val message = "Expected pixel at [$x, $y] to not be ${TestColors.backgroundColor}."
-            assertWithMessage(message).that(pixelColor).isNotEqualTo(TestColors.backgroundColor)
+            val message = "Expected pixel at [$x, $y] to not be ${ContextMenuSpec.BackgroundColor}."
+            assertWithMessage(message)
+                .that(pixelColor).isNotEqualTo(ContextMenuSpec.BackgroundColor)
         }
 
         assertShadowAt(columnBoundsInParent.centerLeft.dx(-1))
@@ -502,178 +523,6 @@ class ContextMenuUiTest {
     }
     // endregion ContextMenuColumn Tests
 
-    // region ContextMenuColor Tests
-    private val testColor = Color.Red
-
-    /** Without a baseline background color, the background color is non-deterministic. */
-    private val testBackgroundColor = Color.White
-
-    private fun transparentColors(
-        backgroundColor: Color = testBackgroundColor,
-        textColor: Color = Color.Transparent,
-        iconColor: Color = Color.Transparent,
-        disabledTextColor: Color = Color.Transparent,
-        disabledIconColor: Color = Color.Transparent,
-    ): ContextMenuColors = ContextMenuColors(
-        backgroundColor = backgroundColor,
-        textColor = textColor,
-        iconColor = iconColor,
-        disabledTextColor = disabledTextColor,
-        disabledIconColor = disabledIconColor,
-    )
-
-    /**
-     * Threshold % of pixels that must match a certain color.
-     * This filters out outlier colors resulting from anti-aliasing.
-     */
-    private val filterThresholdPercentage = 0.02f
-
-    /**
-     * Gets all the colors in the tagged node.
-     * Removes any padding and outlier colors from anti-aliasing from the result.
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun getColors(): Set<Color> {
-        val node = rule.onNodeWithTag(tag)
-        val bitmap = node.captureToImage()
-        val density = node.fetchSemanticsNode().layoutInfo.density
-
-        // Ignore some padding around the edges where the shadow/rounded corners are.
-        val padding = with(density) {
-            ContextMenuSpec.CornerRadius.toPx().times(4f).ceilToIntPx()
-        }
-
-        val pixelMap = bitmap.toPixelMap(
-            startX = padding,
-            startY = padding,
-            width = bitmap.width - padding,
-            height = bitmap.height - padding,
-        )
-
-        val pixelColorHistogram = buildMap<Color, Int> {
-            for (x in 0 until pixelMap.width) {
-                for (y in 0 until pixelMap.height) {
-                    val pixelColor = pixelMap[x, y]
-                    merge(pixelColor, 1) { old, new -> old + new }
-                }
-            }
-        }
-
-        val threshold = pixelMap.width * pixelMap.height * filterThresholdPercentage
-        return pixelColorHistogram.filterValues { it >= threshold }.keys
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun getNonBackgroundColors(): Set<Color> = getColors() - testBackgroundColor
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuColors_transparentExceptBackground_backgroundColorIsAsExpected() {
-        val colors = transparentColors(backgroundColor = testColor)
-        rule.setContent { TestColumn(colors) { testItem() } }
-        assertThatColors(getColors()).containsExactly(testColor)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuColors_transparentExceptText_textColorIsAsExpected() {
-        val colors = transparentColors(textColor = testColor)
-        rule.setContent { TestColumn(colors) { testItem(label = "M".repeat(10)) } }
-        assertThatColors(getNonBackgroundColors()).containsExactly(testColor)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuColors_transparentExceptDisabledText_textColorIsAsExpected() {
-        val colors = transparentColors(disabledTextColor = testColor)
-        rule.setContent {
-            TestColumn(colors) { testItem(label = "M".repeat(10), enabled = false) }
-        }
-        assertThatColors(getNonBackgroundColors()).containsExactly(testColor)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuColors_transparentExceptIcon_iconColorIsAsExpected() {
-        val colors = transparentColors(iconColor = testColor)
-        rule.setContent {
-            TestColumn(colors) {
-                testItem(
-                    leadingIcon = { iconColor ->
-                        Box(
-                            Modifier
-                                .background(iconColor)
-                                .fillMaxSize()
-                        )
-                    },
-                )
-            }
-        }
-        assertThatColors(getNonBackgroundColors()).containsExactly(testColor)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuColors_transparentExceptDisabledIcon_iconColorIsAsExpected() {
-        val colors = transparentColors(disabledIconColor = testColor)
-        rule.setContent {
-            TestColumn(colors) {
-                testItem(
-                    enabled = false,
-                    leadingIcon = { iconColor ->
-                        Box(
-                            Modifier
-                                .background(iconColor)
-                                .fillMaxSize()
-                        )
-                    },
-                )
-            }
-        }
-        assertThatColors(getNonBackgroundColors()).containsExactly(testColor)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuColors_enabledToggled_colorsChangeAsExpected() {
-        val enabledColor = Color.Red
-        val disabledColor = Color.Blue
-        val colors = transparentColors(
-            textColor = enabledColor,
-            iconColor = enabledColor,
-            disabledTextColor = disabledColor,
-            disabledIconColor = disabledColor,
-        )
-
-        var enabled by mutableStateOf(true)
-        rule.setContent {
-            TestColumn(colors) {
-                testItem(
-                    label = "M".repeat(5),
-                    enabled = enabled,
-                    leadingIcon = { iconColor ->
-                        Box(
-                            Modifier
-                                .background(iconColor)
-                                .fillMaxSize()
-                        )
-                    },
-                )
-            }
-        }
-
-        repeat(2) {
-            enabled = true
-            rule.waitForIdle()
-            assertThatColors(getNonBackgroundColors()).containsExactly(enabledColor)
-
-            enabled = false
-            rule.waitForIdle()
-            assertThatColors(getNonBackgroundColors()).containsExactly(disabledColor)
-        }
-    }
-    // endregion ContextMenuColor Tests
-
     // region ContextMenuPopup Tests
     private val centeringPopupPositionProvider = object : PopupPositionProvider {
         override fun calculatePosition(
@@ -712,51 +561,6 @@ class ContextMenuUiTest {
 
             rule.onNodeWithTag(tag).assertExists()
             rule.onNodeWithTag(itemTag).assertExists()
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun whenContextMenuPopup_enabledDisabled_colorsAreAsExpected() {
-        var enabled by mutableStateOf(true)
-        rule.setContent {
-            CompositionLocalProvider(LocalContextMenuColors provides TestColors) {
-                ContextMenuPopup(
-                    modifier = Modifier.testTag(tag),
-                    popupPositionProvider = centeringPopupPositionProvider,
-                    onDismiss = {},
-                ) {
-                    testItem(
-                        label = "M".repeat(10),
-                        enabled = enabled,
-                        leadingIcon = { iconColor ->
-                            Box(
-                                Modifier
-                                    .background(iconColor)
-                                    .fillMaxSize()
-                            )
-                        },
-                    )
-                }
-            }
-        }
-
-        repeat(2) {
-            enabled = true
-            rule.waitForIdle()
-            assertThatColors(getColors()).containsExactly(
-                TestColors.backgroundColor,
-                TestColors.textColor,
-                TestColors.iconColor
-            )
-
-            enabled = false
-            rule.waitForIdle()
-            assertThatColors(getColors()).containsExactly(
-                TestColors.backgroundColor,
-                TestColors.disabledTextColor,
-                TestColors.disabledIconColor
-            )
         }
     }
     // endregion ContextMenuPopup Tests
