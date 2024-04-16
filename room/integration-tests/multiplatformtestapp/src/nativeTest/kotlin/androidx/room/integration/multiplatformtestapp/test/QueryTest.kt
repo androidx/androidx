@@ -19,11 +19,14 @@ package androidx.room.integration.multiplatformtestapp.test
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
-class SimpleQueryTest : BaseSimpleQueryTest() {
+class QueryTest : BaseQueryTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
-        return Room.inMemoryDatabaseBuilder<SampleDatabase>()
+        return Room.inMemoryDatabaseBuilder<SampleDatabase> {
+            SampleDatabase::class.instantiateImpl()
+        }
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()

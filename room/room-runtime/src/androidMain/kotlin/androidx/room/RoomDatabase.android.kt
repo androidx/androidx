@@ -1208,18 +1208,16 @@ actual abstract class RoomDatabase {
         /**
          * Sets the journal mode for this database.
          *
-         * This value is ignored if the builder is initialized with
-         * [Room.inMemoryDatabaseBuilder].
-         *
-         * The journal mode should be consistent across multiple instances of
-         * [RoomDatabase] for a single SQLite database file.
+         * The value is ignored if the builder is for an 'in-memory database'. The journal mode
+         * should be consistent across multiple instances of [RoomDatabase] for a single SQLite
+         * database file.
          *
          * The default value is [JournalMode.AUTOMATIC].
          *
          * @param journalMode The journal mode.
          * @return This builder instance.
          */
-        open fun setJournalMode(journalMode: JournalMode) = apply {
+        actual open fun setJournalMode(journalMode: JournalMode) = apply {
             this.journalMode = journalMode
         }
 
@@ -1536,13 +1534,13 @@ actual abstract class RoomDatabase {
         }
 
         /**
-         * Adds a type converter instance to this database.
+         * Adds a type converter instance to the builder.
          *
-         * @param typeConverter The converter. It must be an instance of a class annotated with
-         * [ProvidedTypeConverter] otherwise Room will throw an exception.
+         * @param typeConverter The converter instance that is annotated with
+         * [ProvidedTypeConverter].
          * @return This builder instance.
          */
-        open fun addTypeConverter(typeConverter: Any) = apply {
+        actual open fun addTypeConverter(typeConverter: Any) = apply {
             this.typeConverters.add(typeConverter)
         }
 

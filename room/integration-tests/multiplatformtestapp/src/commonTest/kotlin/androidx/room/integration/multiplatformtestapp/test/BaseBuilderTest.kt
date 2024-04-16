@@ -19,6 +19,7 @@ package androidx.room.integration.multiplatformtestapp.test
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room.RoomDatabase
+import androidx.room.useReaderConnection
 import androidx.sqlite.SQLiteConnection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -75,5 +76,20 @@ abstract class BaseBuilderTest {
             getRoomDatabaseBuilder().setQueryCoroutineContext(EmptyCoroutineContext)
         }.hasMessageThat()
             .contains("It is required that the coroutine context contain a dispatcher.")
+    }
+
+    @Test
+    fun setJournalMode() = runTest {
+        val database = getRoomDatabaseBuilder()
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+        val journalMode = database.useReaderConnection { connection ->
+            connection.usePrepared("PRAGMA journal_mode") {
+                it.step()
+                it.getText(0)
+            }
+        }
+        assertThat(journalMode).isEqualTo("truncate")
+        database.close()
     }
 }
