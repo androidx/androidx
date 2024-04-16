@@ -823,13 +823,12 @@ private class CombinedClickableNodeImpl(
         if ((this.onLongClick == null) != (onLongClick == null)) {
             // Adding or removing longClick should cancel any existing press interactions
             disposeInteractions()
+            // Adding or removing longClick should add / remove the corresponding property
+            invalidateSemantics()
             resetPointerInputHandling = true
         }
 
-        if (this.onLongClick !== onLongClick) {
-            this.onLongClick = onLongClick
-            invalidateSemantics()
-        }
+        this.onLongClick = onLongClick
 
         if ((this.onDoubleClick == null) != (onDoubleClick == null)) {
             resetPointerInputHandling = true
