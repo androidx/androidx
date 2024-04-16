@@ -35,5 +35,6 @@ val IosBugs = Screen.Selection(
     KeyboardIMEActionPopup,
     ProperContainmentDisposal,
     ComposeAndNativeScroll,
-    MeasureAndLayoutCrash
+    MeasureAndLayoutCrash,
+    AnimationFreezeBug,
 )

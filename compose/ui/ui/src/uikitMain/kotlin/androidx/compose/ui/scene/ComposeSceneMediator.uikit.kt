@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
+import androidx.compose.ui.window.ApplicationStateListener
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
 import androidx.compose.ui.window.KeyboardEventHandler
@@ -251,6 +252,15 @@ internal class ComposeSceneMediator(
 
     private val renderingView by lazy {
         renderingUIViewFactory(interopContext, renderDelegate)
+    }
+
+    private val applicationStateListener = ApplicationStateListener { isForeground ->
+        // Sometimes the application can trigger animation and go background before the animation is
+        // finished. The scheduled GPU work is performed, but no presentation can be done, causing
+        // mismatch between visual state and application state. This can be fixed by forcing
+        // a redraw when app returns to foreground, which will ensure that the visual state is in
+        // sync with the application state even if such sequence of events took a place.
+        renderingView.needRedraw()
     }
 
     /**
@@ -490,6 +500,7 @@ internal class ComposeSceneMediator(
 
     fun dispose() {
         uiKitTextInputService.stopInput()
+        applicationStateListener.dispose()
         focusStack?.popUntilNext(renderingView)
         keyboardManager.stop()
         renderingView.dispose()
@@ -501,7 +512,7 @@ internal class ComposeSceneMediator(
         interopContext.retrieve().actions.forEach { it.invoke() }
     }
 
-    fun onComposeSceneInvalidate() = renderingView.needRedraw()
+    private fun onComposeSceneInvalidate() = renderingView.needRedraw()
 
     fun setLayout(value: SceneLayout) {
         _layout = value
