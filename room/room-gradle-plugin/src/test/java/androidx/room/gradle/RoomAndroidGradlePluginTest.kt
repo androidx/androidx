@@ -133,6 +133,7 @@ class RoomAndroidGradlePluginTest {
             |
             |room {
             |${schemaDslLines.joinToString(separator = "\n")}
+            |    generateKotlin = false
             |}
             |
             """.trimMargin()
