@@ -208,7 +208,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // flaky, so we use this callback to test accessibility events.
     @VisibleForTesting
     internal var onSendAccessibilityEvent: (AccessibilityEvent) -> Boolean = {
-        view.parent.requestSendAccessibilityEvent(view, it)
+        trace("sendAccessibilityEvent") { view.parent.requestSendAccessibilityEvent(view, it) }
     }
 
     private val accessibilityManager: AccessibilityManager =
@@ -1519,7 +1519,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             event.contentDescription = contentDescription.fastJoinToString(",")
         }
 
-        return trace("sendEvent") { sendEvent(event) }
+        return sendEvent(event)
     }
 
     /**
@@ -2239,47 +2239,45 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         try {
             val subtreeChangedSemanticsNodesIds = MutableIntSet()
             for (notification in boundsUpdateChannel) {
-                trace("AccessibilityLoopIteration") {
-                    if (isEnabled) {
-                        for (i in subtreeChangedLayoutNodes.indices) {
-                            val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
-                            trace("sendSubtreeChangeAccessibilityEvents") {
-                                sendSubtreeChangeAccessibilityEvents(
-                                    layoutNode,
-                                    subtreeChangedSemanticsNodesIds
-                                )
-                            }
-                            trace("sendTypeViewScrolledAccessibilityEvent") {
-                                sendTypeViewScrolledAccessibilityEvent(layoutNode)
-                            }
+                if (isEnabled) {
+                    for (i in subtreeChangedLayoutNodes.indices) {
+                        val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
+                        trace("sendSubtreeChangeAccessibilityEvents") {
+                            sendSubtreeChangeAccessibilityEvents(
+                                layoutNode,
+                                subtreeChangedSemanticsNodesIds
+                            )
                         }
-                        subtreeChangedSemanticsNodesIds.clear()
-                        // When the bounds of layout nodes change, we will not always get semantics
-                        // change notifications because bounds is not part of semantics. And bounds
-                        // change from a layout node without semantics will affect the global bounds
-                        // of it children which has semantics. Bounds change will affect which nodes
-                        // are covered and which nodes are not, so the currentSemanticsNodes is not
-                        // up to date anymore.
-                        // After the subtree events are sent, accessibility services will get the
-                        // current visible/invisible state. We also try to do semantics tree diffing
-                        // to send out the proper accessibility events and update our copy here so
-                        // that
-                        // our incremental changes (represented by accessibility events) are
-                        // consistent
-                        // with accessibility services. That is: change - notify - new change -
-                        // notify, if we don't do the tree diffing and update our copy here, we will
-                        // combine old change and new change, which is missing finer-grained
-                        // notification.
-                        if (!checkingForSemanticsChanges) {
-                            checkingForSemanticsChanges = true
-                            handler.post(semanticsChangeChecker)
+                        trace("sendTypeViewScrolledAccessibilityEvent") {
+                            sendTypeViewScrolledAccessibilityEvent(layoutNode)
                         }
                     }
-                    subtreeChangedLayoutNodes.clear()
-                    pendingHorizontalScrollEvents.clear()
-                    pendingVerticalScrollEvents.clear()
-                    delay(SendRecurringAccessibilityEventsIntervalMillis)
+                    subtreeChangedSemanticsNodesIds.clear()
+                    // When the bounds of layout nodes change, we will not always get semantics
+                    // change notifications because bounds is not part of semantics. And bounds
+                    // change from a layout node without semantics will affect the global bounds
+                    // of it children which has semantics. Bounds change will affect which nodes
+                    // are covered and which nodes are not, so the currentSemanticsNodes is not
+                    // up to date anymore.
+                    // After the subtree events are sent, accessibility services will get the
+                    // current visible/invisible state. We also try to do semantics tree diffing
+                    // to send out the proper accessibility events and update our copy here so
+                    // that
+                    // our incremental changes (represented by accessibility events) are
+                    // consistent
+                    // with accessibility services. That is: change - notify - new change -
+                    // notify, if we don't do the tree diffing and update our copy here, we will
+                    // combine old change and new change, which is missing finer-grained
+                    // notification.
+                    if (!checkingForSemanticsChanges) {
+                        checkingForSemanticsChanges = true
+                        handler.post(semanticsChangeChecker)
+                    }
                 }
+                subtreeChangedLayoutNodes.clear()
+                pendingHorizontalScrollEvents.clear()
+                pendingVerticalScrollEvents.clear()
+                delay(SendRecurringAccessibilityEventsIntervalMillis)
             }
         } finally {
             subtreeChangedLayoutNodes.clear()
