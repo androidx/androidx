@@ -48,6 +48,9 @@ import androidx.window.embedding.ActivityEmbeddingController;
 import androidx.window.embedding.ActivityEmbeddingOptions;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
+import androidx.window.embedding.DividerAttributes;
+import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes;
+import androidx.window.embedding.DividerAttributes.FixedDividerAttributes;
 import androidx.window.embedding.EmbeddedActivityWindowInfo;
 import androidx.window.embedding.EmbeddingRule;
 import androidx.window.embedding.RuleController;
@@ -218,6 +221,13 @@ public class SplitActivityBase extends AppCompatActivity
                         splitController.unpinTopActivityStack(getTaskId());
                     }
             );
+        }
+        if (extensionVersion < 6) {
+            mViewBinding.dividerCheckBox.setVisibility(View.GONE);
+            mViewBinding.draggableDividerCheckBox.setVisibility(View.GONE);
+        } else {
+            mViewBinding.dividerCheckBox.setOnCheckedChangeListener(this);
+            mViewBinding.draggableDividerCheckBox.setOnCheckedChangeListener(this);
         }
 
         // Listen for split configuration checkboxes to update the rules before launching
@@ -424,8 +434,19 @@ public class SplitActivityBase extends AppCompatActivity
     /** Updates the split rules based on the current selection on checkboxes. */
     private void updateRulesFromCheckboxes() {
         mRuleController.clearRules();
+
+        final DividerAttributes dividerAttributes;
+        if (mViewBinding.dividerCheckBox.isChecked()) {
+            dividerAttributes = mViewBinding.draggableDividerCheckBox.isChecked()
+                    ? new DraggableDividerAttributes.Builder().setWidthDp(1).build()
+                    : new FixedDividerAttributes.Builder().setWidthDp(1).build();
+        } else {
+            dividerAttributes = DividerAttributes.NO_DIVIDER;
+        }
+
         final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
+                .setDividerAttributes(dividerAttributes)
                 .build();
 
         if (mViewBinding.splitMainCheckBox.isChecked()) {
@@ -444,6 +465,8 @@ public class SplitActivityBase extends AppCompatActivity
                     .build();
             mRuleController.addRule(rule);
         }
+
+        mViewBinding.draggableDividerCheckBox.setEnabled(mViewBinding.dividerCheckBox.isChecked());
 
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
             // Split B with placeholder.

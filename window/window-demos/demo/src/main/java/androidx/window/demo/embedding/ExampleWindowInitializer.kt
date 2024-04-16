@@ -126,6 +126,11 @@ class ExampleWindowInitializer : Initializer<RuleController> {
             .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
             .setSplitType(params.defaultSplitAttributes.splitType)
             .setAnimationBackground(animationBackground)
+            .apply {
+                if (extensionVersion >= 6) {
+                    setDividerAttributes(params.defaultSplitAttributes.dividerAttributes)
+                }
+            }
             .build()
         when (tag
             ?.removePrefix(PREFIX_FULLSCREEN_TOGGLE)

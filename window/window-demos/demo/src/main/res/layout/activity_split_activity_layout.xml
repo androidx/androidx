@@ -46,6 +46,19 @@
             android:layout_height="wrap_content"
             android:text="Split Main with other activities" />
 
+        <CheckBox
+            android:id="@+id/dividerCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add a divider between containers" />
+
+        <CheckBox
+            android:id="@+id/draggableDividerCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Make the divider draggable"
+            android:enabled="false"/>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
