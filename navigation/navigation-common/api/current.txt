@@ -455,16 +455,21 @@ package androidx.navigation {
     property public boolean isNullableAllowed;
     property public String name;
     field public static final androidx.navigation.NavType<boolean[]?> BoolArrayType;
+    field public static final androidx.navigation.NavType<java.util.List<java.lang.Boolean>?> BoolListType;
     field public static final androidx.navigation.NavType<java.lang.Boolean> BoolType;
     field public static final androidx.navigation.NavType.Companion Companion;
     field public static final androidx.navigation.NavType<float[]?> FloatArrayType;
+    field public static final androidx.navigation.NavType<java.util.List<java.lang.Float>?> FloatListType;
     field public static final androidx.navigation.NavType<java.lang.Float> FloatType;
     field public static final androidx.navigation.NavType<int[]?> IntArrayType;
+    field public static final androidx.navigation.NavType<java.util.List<java.lang.Integer>?> IntListType;
     field public static final androidx.navigation.NavType<java.lang.Integer> IntType;
     field public static final androidx.navigation.NavType<long[]?> LongArrayType;
+    field public static final androidx.navigation.NavType<java.util.List<java.lang.Long>?> LongListType;
     field public static final androidx.navigation.NavType<java.lang.Long> LongType;
     field public static final androidx.navigation.NavType<java.lang.Integer> ReferenceType;
     field public static final androidx.navigation.NavType<java.lang.String[]?> StringArrayType;
+    field public static final androidx.navigation.NavType<java.util.List<java.lang.String>?> StringListType;
     field public static final androidx.navigation.NavType<java.lang.String?> StringType;
   }
 
