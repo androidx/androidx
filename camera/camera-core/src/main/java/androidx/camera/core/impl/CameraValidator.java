@@ -113,9 +113,9 @@ public final class CameraValidator {
         try {
             // Verifies the EXTERNAL camera.
             EXTERNAL_LENS_FACING.select(cameraRepository.getCameras());
+            Logger.d(TAG, "Found a LENS_FACING_EXTERNAL camera");
             availableCameraCount++;
         } catch (IllegalArgumentException e) {
-            Logger.d(TAG, "No camera with LENS_FACING_EXTERNAL characteristic detected", e);
         }
 
         if (exception != null) {

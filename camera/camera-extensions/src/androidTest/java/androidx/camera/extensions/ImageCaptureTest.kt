@@ -42,6 +42,7 @@ import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExifUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -88,6 +89,9 @@ class ImageCaptureTest(
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraXConfig)
     )
+
+    @get:Rule
+    var wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     @get:Rule
     val temporaryFolder = TemporaryFolder(context.cacheDir)
