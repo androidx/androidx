@@ -25,11 +25,21 @@ android {
     productFlavors {
         targetSdk29 {
             dimension "targetSdk"
-            targetSdkVersion 29
+            testOptions {
+                targetSdk 29
+            }
+            lint {
+                targetSdk 29
+            }
         }
         targetSdk30 {
             dimension "targetSdk"
-            targetSdkVersion 30
+            testOptions {
+                targetSdk 30
+            }
+            lint {
+                targetSdk 30
+            }
         }
         targetSdkLatest {
             dimension "targetSdk"
