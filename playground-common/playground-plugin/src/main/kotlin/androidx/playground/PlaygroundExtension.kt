@@ -111,6 +111,7 @@ open class PlaygroundExtension @Inject constructor(
         val propertiesFile = File(supportRoot, "playground-common/playground.properties")
         playgroundProperties.load(propertiesFile.inputStream())
         settings.gradle.beforeProject { project ->
+            project.extensions.extraProperties["supportRootFolder"] = supportRoot
             // load playground properties. These are not kept in the playground projects to prevent
             // AndroidX build from reading them.
             playgroundProperties.forEach {
