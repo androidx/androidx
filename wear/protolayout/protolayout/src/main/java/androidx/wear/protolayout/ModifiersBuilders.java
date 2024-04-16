@@ -1399,28 +1399,30 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Sets the x offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported.
+         * Gets the horizontal location of the point around which the element is rotated and scaled.
+         * With type {@link DpProp}, it is the offset from the element center; otherwise with type
+         * {@link BoundingBoxRatio}, it is the location proportional to the bounding box width.
          */
-        @Nullable
+        @NonNull
         public PivotDimension getPivotX() {
             if (mImpl.hasPivotX()) {
                 return DimensionBuilders.pivotDimensionFromProto(mImpl.getPivotX());
             } else {
-                return null;
+                return new DpProp.Builder(0f).build();
             }
         }
 
         /**
-         * Gets the y offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported.
+         * Gets the vertical location of the point around which the element is rotated and scaled.
+         * With type {@link DpProp}, it is the offset from the element center; otherwise with type
+         * {@link BoundingBoxRatio}, it is the location proportional to the bounding box height.
          */
-        @Nullable
+        @NonNull
         public PivotDimension getPivotY() {
             if (mImpl.hasPivotY()) {
                 return DimensionBuilders.pivotDimensionFromProto(mImpl.getPivotY());
             } else {
-                return null;
+                return new DpProp.Builder(0f).build();
             }
         }
 
@@ -1548,8 +1550,10 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets the x offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. If not set, defaults to the element center.
+             * Sets the horizontal location of the point around which the element is rotated and
+             * scaled. With type {@link DpProp}, it is the offset from the element center; otherwise
+             * with type {@link BoundingBoxRatio}, it is the location proportional to the bounding
+             * box width. Dynamic value is supported. If not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1561,8 +1565,10 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets the y offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. If not set, defaults to the element center.
+             * Sets the vertical location of the point around which the element is rotated and
+             * scaled. With type {@link DpProp}, it is the offset from the element center; otherwise
+             * with type {@link BoundingBoxRatio}, it is the location proportional to the bounding
+             * box height. Dynamic value is supported. If not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
