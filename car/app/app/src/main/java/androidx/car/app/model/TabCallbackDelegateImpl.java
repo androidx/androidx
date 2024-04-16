@@ -66,7 +66,7 @@ public class TabCallbackDelegateImpl implements TabCallbackDelegate {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static TabCallbackDelegate create(@NonNull TabTemplate.TabCallback callback) {
+    public static TabCallbackDelegate create(@NonNull TabTemplate.TabCallback callback) {
         return new TabCallbackDelegateImpl(callback);
     }
 
