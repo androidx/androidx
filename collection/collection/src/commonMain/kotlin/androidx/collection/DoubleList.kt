@@ -34,7 +34,8 @@ import kotlin.jvm.JvmOverloads
 /**
  * [DoubleList] is a [List]-like collection for [Double] values. It allows retrieving
  * the elements without boxing. [DoubleList] is always backed by a [MutableDoubleList],
- * its [MutableList]-like subclass.
+ * its [MutableList]-like subclass. The purpose of this class is to avoid the performance
+ * overhead of auto-boxing due to generics since [Collection] classes all operate on objects.
  *
  * This implementation is not thread-safe: if multiple threads access this
  * container concurrently, and one or more threads modify the structure of
