@@ -44,13 +44,30 @@ class TransactionMethodProcessor(
         val returnType = delegate.extractReturnType()
         val rawReturnType = returnType.rawType
 
-        DEFERRED_TYPES.firstOrNull { className ->
+        val deferredReturnTypeName = DEFERRED_TYPES.firstOrNull { className ->
             context.processingEnv.findType(className.canonicalName)
                 ?.rawType?.isAssignableFrom(rawReturnType) ?: false
-        }?.let { returnTypeName ->
+        }
+        if (deferredReturnTypeName != null) {
             context.logger.e(
-                ProcessorErrors.transactionMethodAsync(returnTypeName.toString()),
+                ProcessorErrors.transactionMethodAsync(
+                    deferredReturnTypeName.toString(context.codeLanguage)
+                ),
                 executableElement
+            )
+        }
+
+        val isSuspendFunction = delegate.executableElement.isSuspendFunction()
+        if (
+            !isSuspendFunction &&
+            deferredReturnTypeName == null &&
+            !context.isAndroidOnlyTarget()
+        ) {
+            // A blocking transaction wrapper function is not allowed if the target platforms
+            // include non-Android targets.
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID
             )
         }
 
