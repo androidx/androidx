@@ -2392,7 +2392,7 @@ class NavControllerRouteTest {
             test("start")
             test<TestClass> {
                 deepLink(
-                    navDeepLink<TestClass> { uriPattern = baseUri }
+                    navDeepLink<TestClass>(baseUri)
                 )
             }
         }
@@ -2418,7 +2418,7 @@ class NavControllerRouteTest {
             test("start")
             test<TestClass> {
                 deepLink(
-                    navDeepLink<TestClass> { uriPattern = baseUri }
+                    navDeepLink<TestClass>(baseUri)
                 )
             }
         }
@@ -2444,7 +2444,7 @@ class NavControllerRouteTest {
             test("start")
             test<TestClass> {
                 deepLink(
-                    navDeepLink<TestClass> { uriPattern = baseUri }
+                    navDeepLink<TestClass>(baseUri)
                 )
             }
         }
@@ -2470,7 +2470,7 @@ class NavControllerRouteTest {
             test("start")
             test<TestClass> {
                 deepLink(
-                    navDeepLink<TestClass> { uriPattern = baseUri }
+                    navDeepLink<TestClass>(baseUri)
                 )
             }
         }
