@@ -33,6 +33,7 @@ buildscript {
         classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta07")
     }
 }
+def supportRootFolder = buildscript.sourceFile.getParentFile()
 skikoSetup.defineSkikoInVersionCatalog(settings)
 
 // Abort immediately if we're running in Studio, but not a managed instance of Studio.
@@ -45,7 +46,7 @@ if (startParameter.projectProperties.containsKey('android.injected.invoked.from.
 
 // Makes strong assumptions about the project structure.
 def prebuiltsRoot = new File(
-        buildscript.sourceFile.parentFile.parentFile.parentFile,
+        supportRootFolder.parentFile.parentFile,
         "prebuilts"
 ).absolutePath
 def rootProjectRepositories
@@ -64,6 +65,7 @@ getGradle().beforeProject { project ->
         // on each project
         project.repositories.addAll(rootProjectRepositories)
     }
+    project.ext.supportRootFolder = supportRootFolder
     project.ext.prebuiltsRoot = prebuiltsRoot
     init.chooseBuildDirectory(
             new File("${buildscript.sourceFile.parent}/../.."), rootProject.name, project
