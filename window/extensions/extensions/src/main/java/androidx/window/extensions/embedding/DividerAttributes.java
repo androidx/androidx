@@ -225,7 +225,7 @@ public final class DividerAttributes {
      * Returns whether it is allowed to expand a container to full screen by dragging the
      * divider. Default is {@code true}.
      */
-    @RequiresVendorApiLevel(level = 6)
+    @RequiresVendorApiLevel(level = 7)
     public boolean isDraggingToFullscreenAllowed() {
         return mIsDraggingToFullscreenAllowed;
     }
@@ -397,7 +397,7 @@ public final class DividerAttributes {
          * Sets whether it is allowed to expand a container to full screen by dragging the divider.
          * Default is {@code true}.
          */
-        @RequiresVendorApiLevel(level = 6)
+        @RequiresVendorApiLevel(level = 7)
         @NonNull
         public Builder setDraggingToFullscreenAllowed(boolean isDraggingToFullscreenAllowed) {
             mIsDraggingToFullscreenAllowed = isDraggingToFullscreenAllowed;
