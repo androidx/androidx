@@ -46,6 +46,8 @@
     <string name="close_sheet">"Close sheet"</string>
     <!-- Default accessibility error text for an editable text field. -->
     <string name="default_error_message">"Invalid input"</string>
+    <!-- Spoken description of an empty editable text field -->
+    <string name="state_empty">Empty</string>
     <!-- Default title of the popup window to be read by a screen reader. -->
     <string name="default_popup_window_title" tools:ignore="ExtraTranslation">"Pop-Up Window"</string>
 
