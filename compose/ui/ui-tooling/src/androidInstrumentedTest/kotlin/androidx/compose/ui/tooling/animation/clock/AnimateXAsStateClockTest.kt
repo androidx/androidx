@@ -413,8 +413,8 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(Color.Red), listOf(0.1f, 0.2f, 0.3f))
             clock.setStateParameters(listOf(Color.Red), emptyList<Color>())
             clock.setStateParameters(listOf(null), listOf(null))
-            // Invalid arguments for color.
-            clock.setStateParameters(listOf(10f, 10f, 10f, 10f), listOf(10f, 10f, 10f, 10f))
+            // Values outside of color range, should get clamped
+            clock.setStateParameters(listOf(0f, 0f, 10f, 10f), listOf(10f, 10f, 0f, 10f))
         }
         // State hasn't changed.
         checkUpdatedState(clock, label = "ColorAnimation",

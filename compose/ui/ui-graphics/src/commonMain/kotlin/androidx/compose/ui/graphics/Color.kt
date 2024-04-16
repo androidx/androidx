@@ -403,10 +403,19 @@ value class Color(val value: ULong) {
 internal const val UnspecifiedColor = 0x10UL
 
 /**
- * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
- * components. The default [color space][ColorSpace] is [sRGB][ColorSpaces.Srgb] and
- * the default [alpha] is `1.0` (opaque). [colorSpace] must have a [ColorSpace.componentCount] of
- * 3.
+ * Create a [Color] by passing individual [red], [green], [blue], [alpha],
+ * and [colorSpace] components. The default [color space][ColorSpace]
+ * is [sRGB][ColorSpaces.Srgb] and the default [alpha] is `1.0`
+ * (opaque).
+ *
+ * If the [red], [green], or [blue] values are outside of the range defined
+ * by [colorSpace] (see [ColorSpace.getMinValue] and [ColorSpace.getMaxValue],
+ * these values get clamped appropriately to be within range.
+ *
+ * @throws IllegalArgumentException If [colorSpace] does not have
+ * [ColorSpace.componentCount] equal to 3.
+ * @throws IllegalArgumentException If [colorSpace] has an [ColorSpace.id]
+ * set to [ColorSpace.MinId].
  */
 @Stable
 fun Color(
@@ -416,21 +425,12 @@ fun Color(
     alpha: Float = 1f,
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
-    requirePrecondition(
-        red in colorSpace.getMinValue(0)..colorSpace.getMaxValue(0) &&
-            green in colorSpace.getMinValue(1)..colorSpace.getMaxValue(1) &&
-            blue in colorSpace.getMinValue(2)..colorSpace.getMaxValue(2) &&
-            alpha in 0f..1f
-    ) {
-        "red = $red, green = $green, blue = $blue, alpha = $alpha outside the range for $colorSpace"
-    }
-
     if (colorSpace.isSrgb) {
         val argb = (
-            ((alpha * 255.0f + 0.5f).toInt() shl 24) or
-            ((red * 255.0f + 0.5f).toInt() shl 16) or
-            ((green * 255.0f + 0.5f).toInt() shl 8) or
-            (blue * 255.0f + 0.5f).toInt()
+            ((alpha.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 24) or
+            ((red.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 16) or
+            ((green.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 8) or
+            (blue.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt()
         )
         return Color(argb.toULong() shl 32)
     }
@@ -444,11 +444,10 @@ fun Color(
         "Unknown color space, please use a color space in ColorSpaces"
     }
 
-    val r = floatToHalf(red)
-    val g = floatToHalf(green)
-    val b = floatToHalf(blue)
-
-    val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
+    val r = floatToHalf(red.fastCoerceIn(colorSpace.getMinValue(0), colorSpace.getMaxValue(0)))
+    val g = floatToHalf(green.fastCoerceIn(colorSpace.getMinValue(1), colorSpace.getMaxValue(1)))
+    val b = floatToHalf(blue.fastCoerceIn(colorSpace.getMinValue(2), colorSpace.getMaxValue(2)))
+    val a = (alpha.fastCoerceIn(0.0f, 1.0f) * 1023.0f + 0.5f).toInt()
 
     return Color(
         (
@@ -583,11 +582,16 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
     val endA = endColor.green
     val endB = endColor.blue
 
+    // We need to clamp the input fraction since over/undershoot easing curves
+    // can yield fractions outside of the 0..1 range, which would in turn cause
+    // Lab/alpha values to be outside of the valid color range.
+    // Clamping the fraction is cheaper than clamping all 4 components separately.
+    val t = fraction.fastCoerceIn(0.0f, 1.0f)
     val interpolated = UncheckedColor(
-        lerp(startL, endL, fraction),
-        lerp(startA, endA, fraction),
-        lerp(startB, endB, fraction),
-        lerp(startAlpha, endAlpha, fraction),
+        lerp(startL, endL, t),
+        lerp(startA, endA, t),
+        lerp(startB, endB, t),
+        lerp(startAlpha, endAlpha, t),
         colorSpace
     )
     return interpolated.convert(stop.colorSpace)
