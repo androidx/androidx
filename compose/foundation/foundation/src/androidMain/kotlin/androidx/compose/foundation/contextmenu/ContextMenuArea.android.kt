@@ -22,12 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.window.PopupPositionProvider
 
 /**
  * Wraps [content] with the necessary components to show a context menu in it.
@@ -67,7 +62,9 @@ internal fun ContextMenu(
     val status = state.status
     if (status !is Status.Open) return
 
-    val popupPositionProvider = remember(status) { StaticPositionProvider(status.offset.round()) }
+    val popupPositionProvider = remember(status) {
+        ContextMenuPopupPositionProvider(status.offset.round())
+    }
 
     ContextMenuPopup(
         modifier = modifier,
@@ -75,19 +72,4 @@ internal fun ContextMenu(
         onDismiss = onDismiss,
         contextMenuBuilderBlock = contextMenuBuilderBlock,
     )
-}
-
-// TODO(b/331958453) Create a smarter provider that will handle
-//  moving the menu outside of the click position when
-//  the menu is in the bottom right corner.
-private class StaticPositionProvider(
-    // The position should be local to the layout the popup is attached to.
-    private val localPosition: IntOffset,
-) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset = anchorBounds.topLeft + localPosition
 }
