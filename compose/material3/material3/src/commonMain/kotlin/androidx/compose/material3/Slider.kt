@@ -1164,13 +1164,15 @@ object SliderDefaults {
         colors: SliderColors = colors(),
         drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
             drawStopIndicator(
+                drawScope = this,
                 offset = it,
                 color = colors.activeTrackColor,
                 size = TrackStopIndicatorSize
             )
         },
-        drawTick: (DrawScope.(Offset, Color) -> Unit)? = { offset, color ->
+        drawTick: DrawScope.(Offset, Color) -> Unit = { offset, color ->
             drawStopIndicator(
+                drawScope = this,
                 offset = offset,
                 color = color,
                 size = TickSize
@@ -1272,13 +1274,15 @@ object SliderDefaults {
         colors: SliderColors = colors(),
         drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
             drawStopIndicator(
+                drawScope = this,
                 offset = it,
                 color = colors.activeTrackColor,
                 size = TrackStopIndicatorSize
             )
         },
-        drawTick: (DrawScope.(Offset, Color) -> Unit)? = { offset, color ->
+        drawTick: DrawScope.(Offset, Color) -> Unit = { offset, color ->
             drawStopIndicator(
+                drawScope = this,
                 offset = offset,
                 color = color,
                 size = TickSize
@@ -1329,7 +1333,7 @@ object SliderDefaults {
         thumbTrackGapSize: Dp,
         trackInsideCornerSize: Dp,
         drawStopIndicator: (DrawScope.(Offset) -> Unit)?,
-        drawTick: (DrawScope.(Offset, Color) -> Unit)?,
+        drawTick: DrawScope.(Offset, Color) -> Unit,
         isRangeSlider: Boolean
     ) {
         val sliderStart = Offset(0f, center.y)
@@ -1412,7 +1416,7 @@ object SliderDefaults {
             if ((isRangeSlider && center.x in startGap) || center.x in endGap) {
                 return@forEachIndexed
             }
-            drawTick?.invoke(
+            drawTick(
                 this,
                 center, // offset
                 if (outsideFraction) inactiveTickColor else activeTickColor // color
@@ -1474,16 +1478,19 @@ object SliderDefaults {
         halfRectPath.rewind()
     }
 
-    private fun DrawScope.drawStopIndicator(
+    private fun drawStopIndicator(
+        drawScope: DrawScope,
         offset: Offset,
         size: Dp,
         color: Color
     ) {
-        drawCircle(
-            color = color,
-            center = offset,
-            radius = size.toPx() / 2f
-        )
+        with(drawScope) {
+            drawCircle(
+                color = color,
+                center = offset,
+                radius = size.toPx() / 2f
+            )
+        }
     }
 
     /**
