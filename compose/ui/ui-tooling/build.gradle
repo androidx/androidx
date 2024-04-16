@@ -138,7 +138,7 @@ androidx {
     description = "Compose tooling library. This library exposes information to our tools for better IDE support."
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:animation:animation:animation-samples"))
-    // samples(project(":compose:animation:animation-core:animation-core-samples"))TODO(b/318840087)
+    // samples(project(":compose:animation:animation-core:animation-core-samples")) TODO(b/318840087)
 }
 
 android {

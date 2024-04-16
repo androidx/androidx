@@ -126,15 +126,19 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 distributionDirectory = project.getDistributionDirectory()
             }
 
-        val unzippedSamplesSources = project.layout.buildDirectory.dir("unzippedSampleSources")
-        val unzipSamplesTask =
+        val unzippedDeprecatedSamplesSources =
+            project.layout.buildDirectory.dir("unzippedDeprecatedSampleSources")
+        val deprecatedUnzipSamplesTask =
             configureUnzipTask(
                 project,
-                "unzipSampleSources",
-                unzippedSamplesSources,
+                "unzipSampleSourcesDeprecated",
+                unzippedDeprecatedSamplesSources,
                 samplesSourcesConfiguration
             )
-
+        val unzippedKmpSamplesSourcesDirectory =
+            project.layout.buildDirectory.dir("unzippedMultiplatformSampleSources")
+        val unzippedJvmSamplesSourcesDirectory =
+            project.layout.buildDirectory.dir("unzippedJvmSampleSources")
         val unzippedJvmSourcesDirectory = project.layout.buildDirectory.dir("unzippedJvmSources")
         val unzippedMultiplatformSourcesDirectory =
             project.layout.buildDirectory.dir("unzippedMultiplatformSources")
@@ -142,33 +146,38 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             project.layout.buildDirectory.file(
                 "project_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME"
             )
-        val unzipJvmSourcesTask =
+        val (unzipJvmSourcesTask, unzipJvmSamplesTask) =
             configureUnzipJvmSourcesTasks(
                 project,
                 unzippedJvmSourcesDirectory,
+                unzippedJvmSamplesSourcesDirectory,
                 docsSourcesConfiguration
             )
         val configureMultiplatformSourcesTask =
             configureMultiplatformInputsTasks(
                 project,
                 unzippedMultiplatformSourcesDirectory,
+                unzippedKmpSamplesSourcesDirectory,
                 multiplatformDocsSourcesConfiguration,
                 mergedProjectMetadata
             )
 
         configureDackka(
-            project,
-            unzippedJvmSourcesDirectory,
-            unzippedMultiplatformSourcesDirectory,
-            unzipJvmSourcesTask,
-            configureMultiplatformSourcesTask,
-            unzippedSamplesSources,
-            unzipSamplesTask,
-            dependencyClasspath,
-            buildOnServer,
-            docsSourcesConfiguration,
-            multiplatformDocsSourcesConfiguration,
-            mergedProjectMetadata
+            project = project,
+            unzippedJvmSourcesDirectory = unzippedJvmSourcesDirectory,
+            unzippedMultiplatformSourcesDirectory = unzippedMultiplatformSourcesDirectory,
+            unzipJvmSourcesTask = unzipJvmSourcesTask,
+            configureMultiplatformSourcesTask = configureMultiplatformSourcesTask,
+            unzippedDeprecatedSamplesSources = unzippedDeprecatedSamplesSources,
+            unzipDeprecatedSamplesTask = deprecatedUnzipSamplesTask,
+            unzippedJvmSamplesSources = unzippedJvmSamplesSourcesDirectory,
+            unzipJvmSamplesTask = unzipJvmSamplesTask,
+            unzippedKmpSamplesSources = unzippedKmpSamplesSourcesDirectory,
+            dependencyClasspath = dependencyClasspath,
+            buildOnServer = buildOnServer,
+            docsConfiguration = docsSourcesConfiguration,
+            multiplatformDocsConfiguration = multiplatformDocsSourcesConfiguration,
+            mergedProjectMetadata = mergedProjectMetadata
         )
 
         project.configureTaskTimeouts()
@@ -214,36 +223,45 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
     }
 
     /**
-     * Creates and configures a task that will build a list of select sources from jars and places
-     * them in [destinationDirectory].
+     * Creates and configures a task that builds a list of select sources from jars and places them
+     * in [sourcesDestinationDirectory], partitioning samples into [samplesDestinationDirectory].
      *
      * This is a modified version of [configureUnzipTask], customized for Dackka usage.
      */
     private fun configureUnzipJvmSourcesTasks(
         project: Project,
-        destinationDirectory: Provider<Directory>,
+        sourcesDestinationDirectory: Provider<Directory>,
+        samplesDestinationDirectory: Provider<Directory>,
         docsConfiguration: Configuration
-    ): TaskProvider<Sync> {
+    ): Pair<TaskProvider<Sync>, TaskProvider<Sync>> {
+        val pairProvider = docsConfiguration.incoming.artifactView {}.files.elements.map {
+            it.map { it.asFile }.toSortedSet().partition { "samples" !in it.toString() }
+        }
         return project.tasks.register("unzipJvmSources", Sync::class.java) { task ->
-            val sources = docsConfiguration.incoming.artifactView {}.files
-
             // Store archiveOperations into a local variable to prevent access to the plugin
             // during the task execution, as that breaks configuration caching.
             val localVar = archiveOperations
-            task.into(destinationDirectory)
+            task.into(sourcesDestinationDirectory)
             task.from(
-                sources.elements.map { jars ->
-                    // Now that we publish sample jars, they can get confused with normal source
-                    // jars. We want to handle sample jars separately, so filter by the name.
-                    jars.filter { "samples" !in it.toString() }
-                        .map { it.asFile }.toSortedSet().map { jar ->
-                        localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
-                    }
-                }
+                pairProvider.map { it.first }.map { it.map { jar ->
+                    localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
+                } }
             )
             // Files with the same path in different source jars of the same library will lead to
             // some classes/methods not appearing in the docs.
             task.duplicatesStrategy = DuplicatesStrategy.WARN
+        } to project.tasks.register("unzipSampleSources", Sync::class.java) { task ->
+            // Store archiveOperations into a local variable to prevent access to the plugin
+            // during the task execution, as that breaks configuration caching.
+            val localVar = archiveOperations
+            task.into(samplesDestinationDirectory)
+            task.from(
+                pairProvider.map { it.second }.map { it.map { jar ->
+                    localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
+                } }
+            )
+            // We expect this to happen when multiple libraries use the same sample, e.g. paging.
+            task.duplicatesStrategy = DuplicatesStrategy.INCLUDE
         }
     }
 
@@ -254,6 +272,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
     private fun configureMultiplatformInputsTasks(
         project: Project,
         unzippedMultiplatformSourcesDirectory: Provider<Directory>,
+        unzippedMultiplatformSamplesDirectory: Provider<Directory>,
         multiplatformDocsSourcesConfiguration: Configuration,
         mergedProjectMetadata: Provider<RegularFile>
     ): TaskProvider<MergeMultiplatformMetadataTask> {
@@ -270,6 +289,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 )
                 it.metadataOutput.set(tempMultiplatformMetadataDirectory)
                 it.sourceOutput.set(unzippedMultiplatformSourcesDirectory)
+                it.samplesOutput.set(unzippedMultiplatformSamplesDirectory)
             }
         // merge all the metadata files from the individual project dirs
         return project.tasks.register(
@@ -457,8 +477,11 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         unzippedMultiplatformSourcesDirectory: Provider<Directory>,
         unzipJvmSourcesTask: TaskProvider<Sync>,
         configureMultiplatformSourcesTask: TaskProvider<MergeMultiplatformMetadataTask>,
-        unzippedSamplesSources: Provider<Directory>,
-        unzipSamplesTask: TaskProvider<Sync>,
+        unzippedDeprecatedSamplesSources: Provider<Directory>,
+        unzipDeprecatedSamplesTask: TaskProvider<Sync>,
+        unzippedJvmSamplesSources: Provider<Directory>,
+        unzipJvmSamplesTask: TaskProvider<Sync>,
+        unzippedKmpSamplesSources: Provider<Directory>,
         dependencyClasspath: FileCollection,
         buildOnServer: TaskProvider<*>,
         docsConfiguration: Configuration,
@@ -506,7 +529,8 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     // Use samplesDir.set(unzipSamplesTask.flatMap { it.destinationDirectory })
                     // https://github.com/gradle/gradle/issues/25824
                     dependsOn(unzipJvmSourcesTask)
-                    dependsOn(unzipSamplesTask)
+                    dependsOn(unzipJvmSamplesTask)
+                    dependsOn(unzipDeprecatedSamplesTask)
                     dependsOn(configureMultiplatformSourcesTask)
 
                     description =
@@ -519,7 +543,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     frameworkSamplesDir.set(
                         project.rootProject.layout.projectDirectory.dir("samples")
                     )
-                    samplesDir.set(unzippedSamplesSources)
+                    samplesDeprecatedDir.set(unzippedDeprecatedSamplesSources)
+                    samplesJvmDir.set(unzippedJvmSamplesSources)
+                    samplesKmpDir.set(unzippedKmpSamplesSources)
                     jvmSourcesDir.set(unzippedJvmSourcesDirectory)
                     multiplatformSourcesDir.set(unzippedMultiplatformSourcesDirectory)
                     projectListsDirectory.set(
@@ -759,22 +785,31 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
     @get:OutputDirectory abstract val metadataOutput: DirectoryProperty
 
     @get:OutputDirectory abstract val sourceOutput: DirectoryProperty
+    @get:OutputDirectory abstract val samplesOutput: DirectoryProperty
 
     @get:Inject abstract val fileSystemOperations: FileSystemOperations
     @get:Inject abstract val archiveOperations: ArchiveOperations
 
     @TaskAction
     fun execute() {
-        val sources = inputJars.get()
+        val (sources, samples) = inputJars.get()
+            .associate { it.name to archiveOperations.zipTree(it) }.toSortedMap()
             // Now that we publish sample jars, they can get confused with normal source
             // jars. We want to handle sample jars separately, so filter by the name.
-            .filter { "samples" !in it.toString() }
-            .associate { it.name to archiveOperations.zipTree(it) }
-            .toSortedMap()
+            .partition { name -> "samples" !in name }
         fileSystemOperations.sync {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
             it.from(sources.values)
             it.into(sourceOutput)
+            it.exclude("META-INF/*")
+        }
+        fileSystemOperations.sync {
+            // Some libraries share samples, e.g. paging. This can be an issue if and only if the
+            // consumer libraries have pinned samples version or are not in an atomic group.
+            // We don't have anything matching this case now, but should enforce better. b/334825580
+            it.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            it.from(samples.values)
+            it.into(samplesOutput)
             it.exclude("META-INF/*")
         }
         sources.forEach { (name, fileTree) ->
@@ -786,6 +821,8 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
         }
     }
 }
+private fun <K, V> Map<K, V>.partition(condition: (K) -> Boolean): Pair<Map<K, V>, Map<K, V>> =
+    this.toList().partition { (k, _) -> condition(k) }.let { it.first.toMap() to it.second.toMap() }
 
 /** Merges multiplatform metadata files created by [CreateMultiplatformMetadata] */
 @CacheableTask
