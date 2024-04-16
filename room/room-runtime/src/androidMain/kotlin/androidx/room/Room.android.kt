@@ -90,6 +90,11 @@ actual object Room {
                 " If you are trying to create an in memory database, use Room" +
                 ".inMemoryDatabaseBuilder"
         }
+        require(name != ":memory:") {
+            "Cannot build a database with the special name ':memory:'." +
+                " If you are trying to create an in memory database, use Room" +
+                ".inMemoryDatabaseBuilder"
+        }
         return RoomDatabase.Builder(context, klass, name)
     }
 
@@ -113,7 +118,12 @@ actual object Room {
         require(name.isNotBlank()) {
             "Cannot build a database with empty name." +
                 " If you are trying to create an in memory database, use Room" +
-                ".inMemoryDatabaseBuilder"
+                ".inMemoryDatabaseBuilder()."
+        }
+        require(name != ":memory:") {
+            "Cannot build a database with the special name ':memory:'." +
+                " If you are trying to create an in memory database, use Room" +
+                ".inMemoryDatabaseBuilder()."
         }
         return RoomDatabase.Builder(T::class, name, factory, context)
     }
