@@ -469,7 +469,7 @@ public class NavDeepLink internal constructor(
          * Set the uri pattern for the [NavDeepLink].
          *
          * Arguments extracted from destination [T] will be automatically appended to the base path
-         * provided in [uriPattern].
+         * provided in [basePath].
          *
          * Arguments are appended based on property name and in the same order as their declaration
          * order in [T]. They are appended as query parameters if the argument has either:
@@ -512,7 +512,7 @@ public class NavDeepLink internal constructor(
          *
          *
          * @param T The destination's route from KClass
-         * @param uriPattern The base path to append arguments onto
+         * @param basePath The base uri path to append arguments onto
          * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
          * [NavType]. May be empty if [T] does not use custom NavTypes.
          *
@@ -520,18 +520,18 @@ public class NavDeepLink internal constructor(
          */
         @ExperimentalSafeArgsApi
         public inline fun <reified T : Any> setUriPattern(
-            uriPattern: String,
+            basePath: String,
             typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-        ): Builder = setUriPattern(uriPattern, T::class, typeMap)
+        ): Builder = setUriPattern(basePath, T::class, typeMap)
 
         @OptIn(InternalSerializationApi::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // need to be public for reified delegation
         public fun <T : Any> setUriPattern(
-            uriPattern: String,
+            basePath: String,
             route: KClass<T>,
             typeMap: Map<KType, NavType<*>> = emptyMap(),
         ): Builder {
-            this.uriPattern = route.serializer().generateRoutePattern(typeMap, uriPattern)
+            this.uriPattern = route.serializer().generateRoutePattern(typeMap, basePath)
             return this
         }
 
@@ -590,10 +590,10 @@ public class NavDeepLink internal constructor(
              * Creates a [NavDeepLink.Builder] with a set uri pattern.
              *
              * Arguments extracted from destination [T] will be automatically appended to the
-             * base path provided in [uriPattern]
+             * base path provided in [basePath]
              *
              * @param T The destination's route from KClass
-             * @param uriPattern The base path to append arguments onto
+             * @param basePath The base uri path to append arguments onto
              * @param typeMap map of destination arguments' kotlin type [KType] to its
              * respective custom [NavType]. May be empty if [T] does not use custom NavTypes.
              * @return a [Builder] instance
@@ -601,11 +601,11 @@ public class NavDeepLink internal constructor(
             @JvmStatic
             @ExperimentalSafeArgsApi
             inline fun <reified T : Any> fromUriPattern(
-                uriPattern: String,
+                basePath: String,
                 typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
             ): Builder {
                 val builder = Builder()
-                builder.setUriPattern(uriPattern, T::class, typeMap)
+                builder.setUriPattern(basePath, T::class, typeMap)
                 return builder
             }
 
