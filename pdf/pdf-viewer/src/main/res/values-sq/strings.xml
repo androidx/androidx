@@ -18,48 +18,29 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="desc_file_type" msgid="8918077960128045611">"Lloji i skedarit"</string>
-    <!-- no translation found for title_dialog_password (2018068413709926925) -->
-    <skip />
-    <!-- no translation found for label_password_first (4456258714097111908) -->
-    <skip />
-    <!-- no translation found for label_password_incorrect (8449142641187704667) -->
-    <skip />
-    <!-- no translation found for button_cancel (5855794576957267334) -->
-    <skip />
-    <!-- no translation found for button_open (5445014062438566842) -->
-    <skip />
-    <!-- no translation found for desc_password (6636473611443746739) -->
-    <skip />
-    <!-- no translation found for desc_password_incorrect (4718823067483963845) -->
-    <skip />
-    <!-- no translation found for desc_password_incorrect_message (4849541619951023025) -->
-    <skip />
+    <string name="title_dialog_password" msgid="2018068413709926925">"Ky skedar është i mbrojtur."</string>
+    <string name="label_password_first" msgid="4456258714097111908">"Fjalëkalimi"</string>
+    <string name="label_password_incorrect" msgid="8449142641187704667">"Fjalëkalimi është i pasaktë"</string>
+    <string name="button_cancel" msgid="5855794576957267334">"Anulo"</string>
+    <string name="button_open" msgid="5445014062438566842">"Hap"</string>
+    <string name="desc_password" msgid="6636473611443746739">"fusha e fjalëkalimit"</string>
+    <string name="desc_password_incorrect" msgid="4718823067483963845">"fjalëkalimi është i pasaktë"</string>
+    <string name="desc_password_incorrect_message" msgid="4849541619951023025">"fjalëkalimi është i pasaktë"</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_page_single" msgid="8459583146661044094">"faqja <xliff:g id="PAGE">%1$d</xliff:g> nga <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"zmadho me <xliff:g id="FIRST">%1$d</xliff:g> për qind"</string>
-    <!-- no translation found for desc_goto_link (2461368384824849714) -->
-    <skip />
+    <string name="desc_goto_link" msgid="2461368384824849714">"Shko te faqja <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"faqja <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <!-- no translation found for message_select_text_to_comment (5725327644007067522) -->
-    <skip />
-    <!-- no translation found for message_tap_to_comment (7820801719181709999) -->
-    <skip />
-    <!-- no translation found for action_cancel (5494417739210197522) -->
-    <skip />
-    <!-- no translation found for error_file_format_pdf (7567006188638831878) -->
-    <skip />
-    <!-- no translation found for error_on_page (1592475819957182385) -->
-    <skip />
-    <!-- no translation found for annotation_mode_failed_to_open (1659648756255912463) -->
-    <skip />
-    <!-- no translation found for desc_web_link_shortened_to_domain (3323639528531061592) -->
-    <skip />
-    <!-- no translation found for desc_web_link (2776023299237058419) -->
-    <skip />
-    <!-- no translation found for desc_email_link (7027325672358507448) -->
-    <skip />
-    <!-- no translation found for desc_phone_link (4986414958429253135) -->
-    <skip />
+    <string name="message_select_text_to_comment" msgid="5725327644007067522">"Zgjidh tekstin për të vendosur komentin"</string>
+    <string name="message_tap_to_comment" msgid="7820801719181709999">"Trokit te një zonë për të komentuar"</string>
+    <string name="action_cancel" msgid="5494417739210197522">"Anulo"</string>
+    <string name="error_file_format_pdf" msgid="7567006188638831878">"Skedari PDF nuk mund të shfaqet (\"<xliff:g id="TITLE">%1$s</xliff:g>\" ka format të pavlefshëm)"</string>
+    <string name="error_on_page" msgid="1592475819957182385">"Nuk mund të shfaqet faqja <xliff:g id="PAGE">%1$d</xliff:g> (gabim i skedarit)"</string>
+    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"Modaliteti i shënimit nuk mund të ngarkohet për këtë artikull."</string>
+    <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Lidhja: faqe uebi te <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
+    <string name="desc_web_link" msgid="2776023299237058419">"Lidhja: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
+    <string name="desc_email_link" msgid="7027325672358507448">"Email-i: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
+    <string name="desc_phone_link" msgid="4986414958429253135">"Telefoni: <xliff:g id="PHONE_NUMBER">%1$s</xliff:g>"</string>
     <string name="desc_selection_start" msgid="3249210022376857070">"fillimi i përzgjedhjes"</string>
     <string name="desc_selection_stop" msgid="2690168835536726898">"fundi i përzgjedhjes"</string>
     <string name="label_page_range" msgid="8290964180158460076">"<xliff:g id="FIRST">%1$d</xliff:g>-<xliff:g id="LAST">%2$d</xliff:g> / <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
