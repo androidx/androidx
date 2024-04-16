@@ -813,10 +813,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
 
             configureAndroidBaseOptions(project, androidXExtension)
-            project.defaultAndroidConfig.targetSdk.let {
-                lint.targetSdk = it
-                testOptions.targetSdk = it
-            }
+
+            // Move to api that allows settings of targetSdk on each variant's androidTest when
+            // b/335257447 is fixed
+            @Suppress("DEPRECATION")
+            defaultConfig.targetSdk = project.defaultAndroidConfig.targetSdk
+
             val debugSigningConfig = signingConfigs.getByName("debug")
             // Use a local debug keystore to avoid build server issues.
             debugSigningConfig.storeFile = project.getKeystore()
