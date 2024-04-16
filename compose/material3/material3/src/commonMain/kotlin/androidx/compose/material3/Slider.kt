@@ -1166,7 +1166,7 @@ object SliderDefaults {
             drawStopIndicator(
                 drawScope = this,
                 offset = it,
-                color = colors.activeTrackColor,
+                color = colors.trackColor(enabled, active = true),
                 size = TrackStopIndicatorSize
             )
         },
@@ -1276,7 +1276,7 @@ object SliderDefaults {
             drawStopIndicator(
                 drawScope = this,
                 offset = it,
-                color = colors.activeTrackColor,
+                color = colors.trackColor(enabled, active = true),
                 size = TrackStopIndicatorSize
             )
         },
