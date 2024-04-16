@@ -290,6 +290,7 @@ actual abstract class RoomDatabase {
         private var driver: SQLiteDriver? = null
         private val callbacks = mutableListOf<Callback>()
         private val typeConverters: MutableList<Any> = mutableListOf()
+        private var journalMode: JournalMode = JournalMode.WRITE_AHEAD_LOGGING
         private var queryCoroutineContext: CoroutineContext? = null
 
         /**
@@ -449,6 +450,22 @@ actual abstract class RoomDatabase {
         }
 
         /**
+         * Sets the journal mode for this database.
+         *
+         * The value is ignored if the builder is for an 'in-memory database'. The journal mode
+         * should be consistent across multiple instances of [RoomDatabase] for a single SQLite
+         * database file.
+         *
+         * The default value is [JournalMode.WRITE_AHEAD_LOGGING].
+         *
+         * @param journalMode The journal mode.
+         * @return This builder instance.
+         */
+        actual fun setJournalMode(journalMode: JournalMode) = apply {
+            this.journalMode = journalMode
+        }
+
+        /**
          * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
          * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
          *
@@ -495,7 +512,7 @@ actual abstract class RoomDatabase {
                 name = name,
                 migrationContainer = migrationContainer,
                 callbacks = callbacks,
-                journalMode = JournalMode.WRITE_AHEAD_LOGGING,
+                journalMode = journalMode,
                 requireMigration = requireMigration,
                 allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
                 migrationNotRequiredFrom = migrationsNotRequiredFrom,

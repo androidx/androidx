@@ -323,6 +323,20 @@ expect abstract class RoomDatabase() {
         fun addTypeConverter(typeConverter: Any): Builder<T>
 
         /**
+         * Sets the journal mode for this database.
+         *
+         * The value is ignored if the builder is for an 'in-memory database'. The journal mode
+         * should be consistent across multiple instances of [RoomDatabase] for a single SQLite
+         * database file.
+         *
+         * The default value is [JournalMode.WRITE_AHEAD_LOGGING].
+         *
+         * @param journalMode The journal mode.
+         * @return This builder instance.
+         */
+        fun setJournalMode(journalMode: JournalMode): Builder<T>
+
+        /**
          * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
          * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
          *

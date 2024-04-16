@@ -1208,18 +1208,16 @@ actual abstract class RoomDatabase {
         /**
          * Sets the journal mode for this database.
          *
-         * This value is ignored if the builder is initialized with
-         * [Room.inMemoryDatabaseBuilder].
-         *
-         * The journal mode should be consistent across multiple instances of
-         * [RoomDatabase] for a single SQLite database file.
+         * The value is ignored if the builder is for an 'in-memory database'. The journal mode
+         * should be consistent across multiple instances of [RoomDatabase] for a single SQLite
+         * database file.
          *
          * The default value is [JournalMode.AUTOMATIC].
          *
          * @param journalMode The journal mode.
          * @return This builder instance.
          */
-        open fun setJournalMode(journalMode: JournalMode) = apply {
+        actual open fun setJournalMode(journalMode: JournalMode) = apply {
             this.journalMode = journalMode
         }
 
