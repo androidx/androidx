@@ -44,10 +44,10 @@ internal object ReflectionUtils {
      * Otherwise will return the validation result from the [block]
      */
     @JvmStatic
-    internal fun validateReflection(errorMessage: String? = null, block: () -> Boolean): Boolean {
+    internal fun validateReflection(errorMessage: String, block: () -> Boolean): Boolean {
         return try {
             val result = block()
-            if (!result && errorMessage != null) {
+            if (!result) {
                 Log.e("ReflectionGuard", errorMessage)
             }
             result

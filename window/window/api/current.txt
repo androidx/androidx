@@ -632,10 +632,20 @@ package androidx.window.layout {
   public static final class FoldingFeature.State.Companion {
   }
 
+  public final class SupportedPosture {
+    field public static final androidx.window.layout.SupportedPosture.Companion Companion;
+    field public static final androidx.window.layout.SupportedPosture TABLETOP;
+  }
+
+  public static final class SupportedPosture.Companion {
+  }
+
   public interface WindowInfoTracker {
     method public static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public default java.util.List<androidx.window.layout.SupportedPosture> getSupportedPostures();
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
+    property @androidx.window.RequiresWindowSdkExtension(version=6) public default java.util.List<androidx.window.layout.SupportedPosture> supportedPostures;
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 
