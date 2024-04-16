@@ -17,7 +17,6 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.contextmenu.LocalContextMenuColors
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -66,7 +65,6 @@ fun MaterialTheme(
     }.apply { updateColorsFrom(colors) }
     val rippleIndication = rippleOrFallbackImplementation()
     val selectionColors = rememberTextSelectionColors(rememberedColors)
-    val contextMenuColors = rememberContextMenuColors(rememberedColors)
     @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColors provides rememberedColors,
@@ -76,8 +74,7 @@ fun MaterialTheme(
         androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
-        LocalTypography provides typography,
-        LocalContextMenuColors provides contextMenuColors,
+        LocalTypography provides typography
     ) {
         ProvideTextStyle(value = typography.body1) {
             PlatformMaterialTheme(content)
