@@ -18,6 +18,7 @@ package androidx.compose.material3.internal
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.ExperimentalMaterial3Api
 import java.time.DayOfWeek
 import java.time.Instant

@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
+
 /**
  * Returns a [CalendarModel] to be used by the date picker.
  */

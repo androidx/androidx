@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal
+package androidx.compose.material3
 
 import java.text.NumberFormat
 import java.util.Locale
