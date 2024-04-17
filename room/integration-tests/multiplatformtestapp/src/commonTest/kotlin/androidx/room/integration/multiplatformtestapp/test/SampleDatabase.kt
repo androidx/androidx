@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.PrimaryKey
@@ -48,7 +49,13 @@ data class SampleEntity2(
     val data2: Long
 )
 
-@Entity
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = SampleEntity2::class,
+        parentColumns = ["pk2"],
+        childColumns = ["pk3"]
+    )]
+)
 data class SampleEntity3(
     @PrimaryKey
     val pk3: Long,

@@ -69,23 +69,27 @@ abstract class BaseRoomConnectionManager {
                 }
                 val connection = actual.open(fileName)
                 if (!isConfigured) {
+                    // Perform initial connection configuration
                     try {
                         isInitializing = true
-                        configureConnection(connection)
+                        configureDatabase(connection)
                     } finally {
                         isInitializing = false
                     }
+                } else {
+                    // Perform other non-initial connection configuration
+                    configurationConnection(connection)
                 }
                 return@withLock connection
             }
     }
 
     /**
-     * Common database connection configuration and opening procedure, performs migrations if
-     * necessary, validates schema and invokes configured callbacks if any.
+     * Performs initial database connection configuration and opening procedure, such as
+     * running migrations if necessary, validating schema and invoking configured callbacks if any.
      */
     // TODO(b/316944352): Retry mechanism
-    private fun configureConnection(connection: SQLiteConnection) {
+    private fun configureDatabase(connection: SQLiteConnection) {
         configureJournalMode(connection)
         val version = connection.prepare("PRAGMA user_version").use { statement ->
             statement.step()
@@ -108,6 +112,14 @@ abstract class BaseRoomConnectionManager {
             }
         }
         onOpen(connection)
+    }
+
+    /**
+     * Performs non-initial database connection configuration, specifically executing any
+     * per-connection PRAGMA.
+     */
+    private fun configurationConnection(connection: SQLiteConnection) {
+        openDelegate.onOpen(connection)
     }
 
     private fun configureJournalMode(connection: SQLiteConnection) {
