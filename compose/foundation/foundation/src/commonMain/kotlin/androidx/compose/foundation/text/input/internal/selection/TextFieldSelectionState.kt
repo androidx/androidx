@@ -187,6 +187,13 @@ internal class TextFieldSelectionState(
     var draggingHandle by mutableStateOf<Handle?>(null)
 
     /**
+     * Whether a long press and drag gesture is currently ongoing. This is used to show the
+     * magnifier during a long press even though the element is not focused until long press
+     * is finished.
+     */
+    var isBeingLongPressed by mutableStateOf(false)
+
+    /**
      * Whether to show the cursor handle below cursor indicator when the TextField is focused.
      */
     private var showCursorHandle by mutableStateOf(false)
@@ -642,6 +649,9 @@ internal class TextFieldSelectionState(
                 dragBeginPosition = Offset.Unspecified
                 dragTotalDistance = Offset.Zero
                 previousRawDragOffset = -1
+
+                isBeingLongPressed = false
+                requestFocus()
             }
         }
 
@@ -649,14 +659,14 @@ internal class TextFieldSelectionState(
         detectDragGesturesAfterLongPress(
             onDragStart = onDragStart@{ dragStartOffset ->
                 logDebug { "onDragStart after longPress $dragStartOffset" }
-                requestFocus()
-
                 // this gesture detector is applied on the decoration box. We do not need to
                 // convert the gesture offset, that's going to be calculated by [handleDragPosition]
                 updateHandleDragging(
                     handle = actingHandle,
                     position = dragStartOffset
                 )
+
+                isBeingLongPressed = true
 
                 dragBeginPosition = dragStartOffset
                 dragTotalDistance = Offset.Zero

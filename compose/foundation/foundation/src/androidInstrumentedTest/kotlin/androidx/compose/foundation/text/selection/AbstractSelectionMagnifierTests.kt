@@ -388,7 +388,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     // Abstract composable functions can't have default parameters.
     @Composable
-    private fun Content(
+    protected fun Content(
         text: String,
         modifier: Modifier,
         style: TextStyle = TextStyle.Default,
@@ -442,7 +442,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         assertNoMagnifierExists(rule)
     }
 
-    protected fun checkMagnifierShowsDuringInitialLongPressDrag(
+    protected open fun checkMagnifierShowsDuringInitialLongPressDrag(
         expandForwards: Boolean,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr
     ) {
