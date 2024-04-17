@@ -195,10 +195,7 @@ private class LazyLayoutSemanticsModifierNode(
             scrollByOffset(action = it)
         }
 
-        getScrollViewportLength {
-            it.add((state.viewport - state.contentPadding).toFloat())
-            true
-        }
+        getScrollViewportLength { (state.viewport - state.contentPadding).toFloat() }
 
         collectionInfo = this@LazyLayoutSemanticsModifierNode.collectionInfo
     }
