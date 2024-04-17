@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.Preview
@@ -209,6 +210,10 @@ class UseCaseCameraState @Inject constructor(
     ) {
         // TODO: Consider if this should detect changes and only invoke an update if state has
         //  actually changed.
+        debug {
+            "UseCaseCameraState#updateState: parameters = $parameters, internalParameters = " +
+                "$internalParameters, streams = $streams, template = $template"
+        }
 
         if (parameters != null) {
             if (!appendParameters) {

@@ -332,6 +332,7 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
 
     override fun close() {
         closed = true
+        debug { "UseCaseCameraRequestControl: closed" }
     }
 
     private fun failedResults(count: Int, message: String): List<Deferred<Void?>> =
