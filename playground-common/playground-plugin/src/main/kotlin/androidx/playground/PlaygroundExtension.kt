@@ -145,7 +145,7 @@ open class PlaygroundExtension @Inject constructor(
         val playgroundProjectDependencyGraph =
             ProjectDependencyGraph(settings, true /*isPlayground*/, false /*constraintsEnabled*/)
         // also get full graph that treats projectOrArtifact equal to project
-        val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
+        val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/, false /*constraintsEnabled*/)
 
         SettingsParser.findProjects(supportSettingsFile).forEach {
             playgroundProjectDependencyGraph.addToAllProjects(
