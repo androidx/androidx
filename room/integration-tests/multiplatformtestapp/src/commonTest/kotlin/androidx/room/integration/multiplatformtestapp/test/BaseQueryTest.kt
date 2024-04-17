@@ -26,6 +26,7 @@ import androidx.sqlite.SQLiteException
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -376,5 +377,43 @@ abstract class BaseQueryTest {
             assertThat(count).isEqualTo(1)
         }
         assertThat(db.dao().getItemList()).containsExactly(SampleEntity(1))
+    }
+
+    @Test
+    fun insertAndDeleteArray() = runTest {
+        val entityArray = arrayOf(
+            SampleEntity(1, 1),
+            SampleEntity(2, 2)
+        )
+        val dao = getRoomDatabase().dao()
+
+        dao.insertArray(entityArray)
+
+        val result = dao.getItemArray()
+        assertThat(result[0].pk).isEqualTo(1)
+        assertThat(result[1].pk).isEqualTo(2)
+
+        dao.deleteArray(entityArray)
+        assertThrows<IllegalStateException> {
+            dao.getSingleItemWithColumn()
+        }.hasMessageThat().contains("The query result was empty")
+    }
+
+    @Test
+    fun insertAndReadArrays() = runTest {
+        val expected = arrayOf(
+            SampleEntity(1, 1),
+            SampleEntity(2, 2)
+        )
+        val dao = getRoomDatabase().dao()
+        dao.insertArray(expected)
+
+        val resultArray = dao.queryOfArray()
+        val resultArrayWithLong = dao.queryOfArrayWithLong()
+        val resultLongArray = dao.queryOfLongArray()
+
+        assertContentEquals(expected, resultArray)
+        assertContentEquals(arrayOf(1, 2), resultArrayWithLong)
+        assertContentEquals(longArrayOf(1, 2), resultLongArray)
     }
 }

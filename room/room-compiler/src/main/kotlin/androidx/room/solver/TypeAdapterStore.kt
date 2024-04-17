@@ -44,6 +44,7 @@ import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
+import androidx.room.processor.ProcessorErrors.invalidQueryForSingleColumnArray
 import androidx.room.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -507,15 +508,46 @@ class TypeAdapterStore private constructor(
 
         // TODO: (b/192068912) Refactor the following since this if-else cascade has gotten large
         if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
+            val componentType = typeMirror.componentType
             checkTypeNullability(
                 typeMirror,
                 extras,
                 "Array",
-                arrayComponentType = typeMirror.componentType
+                arrayComponentType = componentType
             )
-            val rowAdapter =
-                findRowAdapter(typeMirror.componentType, query) ?: return null
-            return ArrayQueryResultAdapter(typeMirror, rowAdapter)
+            val isSingleColumnArray = componentType.asTypeName().isPrimitive ||
+                componentType.isTypeOf(String::class)
+            val queryResultInfo = query.resultInfo
+            if (
+                isSingleColumnArray &&
+                queryResultInfo != null &&
+                queryResultInfo.columns.size > 1
+            ) {
+                context.logger.e(
+                    invalidQueryForSingleColumnArray(
+                        typeMirror.asTypeName().toString(context.codeLanguage)
+                    )
+                )
+                return null
+            }
+
+            // Create a type mirror for a regular List in order to use ListQueryResultAdapter. This
+            // avoids code duplication as an Array can be initialized using a list.
+            val listType = context.processingEnv.getDeclaredType(
+                context.processingEnv.requireTypeElement(List::class),
+                componentType.boxed().makeNonNullable()
+            ).makeNonNullable()
+
+            val listResultAdapter = findQueryResultAdapter(
+                typeMirror = listType,
+                query = query,
+                extras = extras
+            ) ?: return null
+
+            return ArrayQueryResultAdapter(
+                typeMirror,
+                listResultAdapter as ListQueryResultAdapter
+            )
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)
@@ -568,7 +600,6 @@ class TypeAdapterStore private constructor(
                 typeMirror,
                 extras
             )
-
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
             val rowAdapter = findRowAdapter(typeArg, query) ?: return null
             return ListQueryResultAdapter(
