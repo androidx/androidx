@@ -18,7 +18,6 @@ package androidx.navigation.dynamicfeatures.fragment
 
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavType
@@ -119,7 +118,6 @@ public inline fun DynamicNavGraphBuilder.fragment(
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
  * [NavType]. May be empty if [T] does not use custom NavTypes.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     ): Unit = fragment<F, T>(typeMap) {}
@@ -131,7 +129,6 @@ public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
  * [NavType]. May be empty if [T] does not use custom NavTypes.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
@@ -145,7 +142,6 @@ public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder
  * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> DynamicNavGraphBuilder.fragment(
     fragmentClassName: String,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -201,7 +197,6 @@ public class DynamicFragmentNavigatorDestinationBuilder :
      * [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param fragmentClassName Fully qualified class name of destination Fragment.
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         navigator: DynamicFragmentNavigator,
         route: KClass<*>,
