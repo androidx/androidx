@@ -16,7 +16,15 @@
 
 package androidx.compose.foundation.text.modifiers
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -27,13 +35,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 
 class TextAnnotatedStringContentCaptureInvalidationTest {
 
+    @get:Rule
+    val rule = createComposeRule()
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private fun createSubject(text: AnnotatedString): TextAnnotatedStringNode {
-        return TextAnnotatedStringNode(
+    private fun createSubject(text: AnnotatedString): TextAnnotatedStringElement {
+        return TextAnnotatedStringElement(
             text,
             TextStyle.Default,
             createFontFamilyResolver(context),
@@ -44,12 +55,22 @@ class TextAnnotatedStringContentCaptureInvalidationTest {
     @Test
     fun whenChangingText_invalidateTranslation() {
         val original = AnnotatedString("Ok")
-        val after = AnnotatedString("kO")
-        val subject = createSubject(original)
-        subject.addTranslation("A translation goes here")
+        val current = mutableStateOf(createSubject(original))
+        rule.setContent {
+            Box(current.value)
+        }
 
-        subject.updateText(after)
-        assertThat(subject.textSubstitution).isNull()
+        val semantics = rule.onNodeWithText("Ok").fetchSemanticsNode()
+        rule.runOnIdle {
+            semantics.translateTo("Foo")
+        }
+        val after = AnnotatedString("After")
+        current.value = createSubject(after)
+
+        val newSemantics = rule.onNodeWithText(after.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            assertThat(newSemantics.fetchTranslation()).isNull()
+        }
     }
 
     @Test
@@ -60,11 +81,23 @@ class TextAnnotatedStringContentCaptureInvalidationTest {
                 append(original.text)
             }
         }
-        val subject = createSubject(original)
+
+        val current = mutableStateOf(createSubject(original))
+
+        rule.setContent {
+            Box(current.value)
+        }
         val translation = "A translation goes here"
-        subject.addTranslation(translation)
-        subject.updateText(after)
-        assertThat(subject.textSubstitution?.substitution?.text).isEqualTo(translation)
+        val node = rule.onNodeWithText(original.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            node.translateTo(translation)
+        }
+        current.value = createSubject(after)
+
+        val node2 = rule.onNodeWithText(after.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            assertThat(node2.fetchTranslation()).isEqualTo(translation)
+        }
     }
 
     @Test
@@ -75,11 +108,22 @@ class TextAnnotatedStringContentCaptureInvalidationTest {
                 append(original.text)
             }
         }
-        val subject = createSubject(original)
+        val current = mutableStateOf(createSubject(original))
+
+        rule.setContent {
+            Box(current.value)
+        }
         val translation = "A translation goes here"
-        subject.addTranslation(translation)
-        subject.updateText(after)
-        assertThat(subject.textSubstitution?.substitution?.text).isEqualTo(translation)
+        val node = rule.onNodeWithText(original.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            node.translateTo(translation)
+        }
+        current.value = createSubject(after)
+
+        val node2 = rule.onNodeWithText(after.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            assertThat(node2.fetchTranslation()).isEqualTo(translation)
+        }
     }
 
     @Test
@@ -89,17 +133,29 @@ class TextAnnotatedStringContentCaptureInvalidationTest {
             append(original.text)
             addStringAnnotation("some annotation", "annotation", 0, 1)
         }
-        val subject = createSubject(original)
+        val current = mutableStateOf(createSubject(original))
+
+        rule.setContent {
+            Box(current.value)
+        }
         val translation = "A translation goes here"
-        subject.addTranslation(translation)
-        subject.updateText(after)
-        assertThat(subject.textSubstitution?.substitution?.text).isEqualTo(translation)
+        val node = rule.onNodeWithText(original.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            node.translateTo(translation)
+        }
+        current.value = createSubject(after)
+
+        val node2 = rule.onNodeWithText(after.text).fetchSemanticsNode()
+        rule.runOnIdle {
+            assertThat(node2.fetchTranslation()).isEqualTo(translation)
+        }
     }
 }
 
-private fun TextAnnotatedStringNode.addTranslation(
-    translation: String
-): TextAnnotatedStringNode.TextSubstitutionValue? {
-    setSubstitution(AnnotatedString(translation))
-    return this.textSubstitution
+private fun SemanticsNode.fetchTranslation(): String? {
+    return config.getOrNull(SemanticsProperties.TextSubstitution)?.text
+}
+
+private fun SemanticsNode.translateTo(translation: String) {
+    config[SemanticsActions.SetTextSubstitution].action?.invoke(AnnotatedString(translation))
 }
