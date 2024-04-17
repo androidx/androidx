@@ -356,7 +356,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             // do nothing
             invocation.assertCompilationResult {
-                hasErrorContaining("UNEXPECTED_CHAR=:")
+                hasErrorContaining("mismatched input ':'")
             }
         }
     }

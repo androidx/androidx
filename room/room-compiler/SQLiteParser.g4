@@ -3,915 +3,886 @@
  *
  * Copyright (c) 2014 by Bart Kiers
  *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * Project      : sqlite-parser; an ANTLR4 grammar for SQLite
- *                https://github.com/bkiers/sqlite-parser
- * Developed by : Bart Kiers, bart@big-o.nl
+ * Project : sqlite-parser; an ANTLR4 grammar for SQLite https://github.com/bkiers/sqlite-parser
+ * Developed by:
+ *     Bart Kiers, bart@big-o.nl
+ *     Martin Mirchev, marti_2203@abv.bg
+ *     Mike Lische, mike@lischke-online.de
  */
-grammar SQLite; // For version 3.24.0 of SQLite
+
+// $antlr-format alignTrailingComments on, columnLimit 130, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments off
+// $antlr-format useTab off, allowShortRulesOnASingleLine off, allowShortBlocksOnASingleLine on, alignSemicolons ownLine
+
+parser grammar SQLiteParser; // For version 3.41.0 of SQLite
+
+options {
+    tokenVocab = SQLiteLexer;
+}
 
 parse
- : ( sql_stmt_list | error )* EOF
- ;
-
-error
- : UNEXPECTED_CHAR
-   {
-     throw new RuntimeException("UNEXPECTED_CHAR=" + $UNEXPECTED_CHAR.text);
-   }
- ;
+    : (sql_stmt_list)* EOF
+;
 
 sql_stmt_list
- : ';'* sql_stmt ( ';'+ sql_stmt )* ';'*
- ;
+    : SCOL* sql_stmt (SCOL+ sql_stmt)* SCOL*
+;
 
 sql_stmt
- : ( K_EXPLAIN ( K_QUERY K_PLAN )? )? ( alter_table_stmt
-                                      | analyze_stmt
-                                      | attach_stmt
-                                      | begin_stmt
-                                      | commit_stmt
-                                      | create_index_stmt
-                                      | create_table_stmt
-                                      | create_trigger_stmt
-                                      | create_view_stmt
-                                      | create_virtual_table_stmt
-                                      | delete_stmt
-                                      | delete_stmt_limited
-                                      | detach_stmt
-                                      | drop_index_stmt
-                                      | drop_table_stmt
-                                      | drop_trigger_stmt
-                                      | drop_view_stmt
-                                      | insert_stmt
-                                      | pragma_stmt
-                                      | reindex_stmt
-                                      | release_stmt
-                                      | rollback_stmt
-                                      | savepoint_stmt
-                                      | select_stmt
-                                      | update_stmt
-                                      | update_stmt_limited
-                                      | vacuum_stmt )
- ;
+    : (EXPLAIN_ (QUERY_ PLAN_)?)? (
+        alter_table_stmt
+        | analyze_stmt
+        | attach_stmt
+        | begin_stmt
+        | commit_stmt
+        | create_index_stmt
+        | create_table_stmt
+        | create_trigger_stmt
+        | create_view_stmt
+        | create_virtual_table_stmt
+        | delete_stmt
+        | delete_stmt_limited
+        | detach_stmt
+        | drop_stmt
+        | insert_stmt
+        | pragma_stmt
+        | reindex_stmt
+        | release_stmt
+        | rollback_stmt
+        | savepoint_stmt
+        | select_stmt
+        | update_stmt
+        | update_stmt_limited
+        | vacuum_stmt
+    )
+;
 
 alter_table_stmt
- : K_ALTER K_TABLE ( schema_name '.' )? table_name
-   ( K_RENAME K_TO new_table_name
-   | K_ADD K_COLUMN? column_def
-   )
- ;
+    : ALTER_ TABLE_ (schema_name DOT)? table_name (
+        RENAME_ (
+            TO_ new_table_name = table_name
+            | COLUMN_? old_column_name = column_name TO_ new_column_name = column_name
+        )
+        | ADD_ COLUMN_? column_def
+        | DROP_ COLUMN_? column_name
+    )
+;
 
 analyze_stmt
- : K_ANALYZE ( schema_name | table_or_index_name | schema_name '.' table_or_index_name )?
- ;
+    : ANALYZE_ (schema_name | (schema_name DOT)? table_or_index_name)?
+;
 
 attach_stmt
- : K_ATTACH K_DATABASE? expr K_AS schema_name
- ;
+    : ATTACH_ DATABASE_? expr AS_ schema_name
+;
 
 begin_stmt
- : K_BEGIN ( K_DEFERRED | K_IMMEDIATE | K_EXCLUSIVE )? ( K_TRANSACTION transaction_name? )?
- ;
+    : BEGIN_ (DEFERRED_ | IMMEDIATE_ | EXCLUSIVE_)? (TRANSACTION_ transaction_name?)?
+;
 
 commit_stmt
- : ( K_COMMIT | K_END ) ( K_TRANSACTION transaction_name? )?
- ;
-
-create_index_stmt
- : K_CREATE K_UNIQUE? K_INDEX ( K_IF K_NOT K_EXISTS )?
-   ( schema_name '.' )? index_name K_ON table_name '(' indexed_column ( ',' indexed_column )* ')'
-   ( K_WHERE expr )?
- ;
-
-create_table_stmt
- : K_CREATE ( K_TEMP | K_TEMPORARY )? K_TABLE ( K_IF K_NOT K_EXISTS )?
-   ( schema_name '.' )? table_name
-   ( '(' column_def ( ',' column_def )*? ( ',' table_constraint )* ')' WITHOUT_ROWID?
-   | K_AS select_stmt
-   )
- ;
-
-create_trigger_stmt
- : K_CREATE ( K_TEMP | K_TEMPORARY )? K_TRIGGER ( K_IF K_NOT K_EXISTS )?
-   ( schema_name '.' )? trigger_name ( K_BEFORE  | K_AFTER | K_INSTEAD K_OF )?
-   ( K_DELETE | K_INSERT | K_UPDATE ( K_OF column_name ( ',' column_name )* )? ) K_ON ( schema_name '.' )? table_name
-   ( K_FOR K_EACH K_ROW )? ( K_WHEN expr )?
-   K_BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) ';' )+ K_END
- ;
-
-create_view_stmt
- : K_CREATE ( K_TEMP | K_TEMPORARY )? K_VIEW ( K_IF K_NOT K_EXISTS )?
-   ( schema_name '.' )? view_name ( column_name ( ',' column_name )* )? K_AS select_stmt
- ;
-
-create_virtual_table_stmt
- : K_CREATE K_VIRTUAL K_TABLE ( K_IF K_NOT K_EXISTS )?
-   ( schema_name '.' )? table_name
-   K_USING module_name ( '(' module_argument ( ',' module_argument )* ')' )?
- ;
-
-delete_stmt
- : with_clause? K_DELETE K_FROM qualified_table_name
-   ( K_WHERE expr )?
- ;
-
-delete_stmt_limited
- : with_clause? K_DELETE K_FROM qualified_table_name
-   ( K_WHERE expr )?
-   ( order_clause? limit_clause )?
- ;
-
-detach_stmt
- : K_DETACH K_DATABASE? schema_name
- ;
-
-drop_index_stmt
- : K_DROP K_INDEX ( K_IF K_EXISTS )? ( schema_name '.' )? index_name
- ;
-
-drop_table_stmt
- : K_DROP K_TABLE ( K_IF K_EXISTS )? ( schema_name '.' )? table_name
- ;
-
-drop_trigger_stmt
- : K_DROP K_TRIGGER ( K_IF K_EXISTS )? ( schema_name '.' )? trigger_name
- ;
-
-drop_view_stmt
- : K_DROP K_VIEW ( K_IF K_EXISTS )? ( schema_name '.' )? view_name
- ;
-
-insert_stmt
- : with_clause? ( K_INSERT
-                | K_REPLACE
-                | K_INSERT K_OR K_REPLACE
-                | K_INSERT K_OR K_ROLLBACK
-                | K_INSERT K_OR K_ABORT
-                | K_INSERT K_OR K_FAIL
-                | K_INSERT K_OR K_IGNORE ) K_INTO
-   ( schema_name '.' )? table_name ( K_AS table_alias )? ( '(' column_name ( ',' column_name )* ')' )?
-   ( K_VALUES '(' comma_separated_expr ')' ( ',' '(' comma_separated_expr ')' )*
-   | select_stmt
-   | K_DEFAULT K_VALUES
-   )
-   upsert_clause?
- ;
-
-upsert_clause
- : K_ON K_CONFLICT ( '(' indexed_column ( ',' indexed_column )* ')' ( K_WHERE expr )? )?
-   ( DO_NOTHING
-   | DO_UPDATE K_SET ( column_name | column_name_list ) '=' expr
-     ( ',' ( column_name | column_name_list ) '=' expr )*
-     ( K_WHERE expr )?
-   )
- ;
-
-pragma_stmt
- : K_PRAGMA ( schema_name '.' )? pragma_name ( '=' pragma_value | '(' pragma_value ')' )?
- ;
-
-reindex_stmt
- : K_REINDEX ( collation_name
-             | ( schema_name '.' )? ( table_name | index_name )
-             )?
- ;
-
-release_stmt
- : K_RELEASE K_SAVEPOINT? savepoint_name
- ;
+    : (COMMIT_ | END_) TRANSACTION_?
+;
 
 rollback_stmt
- : K_ROLLBACK ( K_TRANSACTION transaction_name? )? ( K_TO K_SAVEPOINT? savepoint_name )?
- ;
+    : ROLLBACK_ TRANSACTION_? (TO_ SAVEPOINT_? savepoint_name)?
+;
 
 savepoint_stmt
- : K_SAVEPOINT savepoint_name
- ;
+    : SAVEPOINT_ savepoint_name
+;
 
-select_stmt
- : with_clause?
-   select_or_values ( compound_operator select_or_values )*
-   order_clause?
-   limit_clause?
- ;
+release_stmt
+    : RELEASE_ SAVEPOINT_? savepoint_name
+;
 
-select_or_values
- : K_SELECT ( K_DISTINCT | K_ALL )? result_column ( ',' result_column )*
-   ( K_FROM ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) )?
-   ( K_WHERE expr )?
-   ( K_GROUP K_BY comma_separated_expr ( K_HAVING expr )? )?
- | K_VALUES '(' comma_separated_expr ')' ( ',' '(' comma_separated_expr ')' )*
- ;
-
-update_stmt
- : with_clause? K_UPDATE ( K_OR K_ROLLBACK
-                         | K_OR K_ABORT
-                         | K_OR K_REPLACE
-                         | K_OR K_FAIL
-                         | K_OR K_IGNORE )? qualified_table_name
-   K_SET ( column_name | column_name_list ) '=' expr ( ',' ( column_name | column_name_list ) '=' expr )*
-   ( K_WHERE expr )?
- ;
-
-update_stmt_limited
- : with_clause? K_UPDATE ( K_OR K_ROLLBACK
-                         | K_OR K_ABORT
-                         | K_OR K_REPLACE
-                         | K_OR K_FAIL
-                         | K_OR K_IGNORE )? qualified_table_name
-   K_SET ( column_name | column_name_list ) '=' expr ( ',' ( column_name | column_name_list ) '=' expr )*
-   ( K_WHERE expr )?
-   ( order_clause? limit_clause )?
- ;
-
-vacuum_stmt
- : K_VACUUM schema_name?
- ;
-
-column_def
- : column_name type_name? column_constraint*
- ;
-
-type_name
- : name+? ( '(' signed_number ')'
-          | '(' signed_number ',' signed_number ')' )?
- ;
-
-column_constraint
- : ( K_CONSTRAINT name )?
-   ( K_PRIMARY K_KEY ( K_ASC | K_DESC )? conflict_clause K_AUTOINCREMENT?
-   | K_NOT? K_NULL conflict_clause
-   | K_UNIQUE conflict_clause
-   | K_CHECK '(' expr ')'
-   | K_DEFAULT (signed_number | literal_value | '(' expr ')')
-   | K_COLLATE collation_name
-   | foreign_key_clause
-   )
- ;
-
-conflict_clause
- : ( K_ON K_CONFLICT ( K_ROLLBACK
-                     | K_ABORT
-                     | K_FAIL
-                     | K_IGNORE
-                     | K_REPLACE
-                     )
-   )?
- ;
-
-expr
- : literal_value
- | BIND_PARAMETER
- | ( ( schema_name '.' )? table_name '.' )? column_name
- | unary_operator expr
- | expr binary_operator expr
- | function_name '(' ( K_DISTINCT? comma_separated_expr | '*' )? ')'
- | '(' comma_separated_expr ')'
- | K_CAST '(' expr K_AS type_name ')'
- | expr K_COLLATE collation_name
- | expr K_NOT? ( K_LIKE | K_GLOB | K_REGEXP | K_MATCH ) expr ( K_ESCAPE expr )?
- | expr ( K_ISNULL | K_NOTNULL | K_NOT K_NULL )
- | expr K_IS K_NOT? expr
- | expr K_NOT? K_BETWEEN expr K_AND expr
- | expr K_NOT? K_IN ( '(' ( select_stmt | comma_separated_expr )? ')'
-                    | ( schema_name '.' )? table_name
-                    | ( schema_name '.' )? table_function '(' ( comma_separated_expr )? ')' )
- | ( ( K_NOT )? K_EXISTS )? '(' select_stmt ')'
- | K_CASE expr? ( K_WHEN expr K_THEN expr )+ ( K_ELSE expr )? K_END
- | raise_function
- ;
-
-comma_separated_expr
- : expr ( ',' expr )*
- ;
-
-foreign_key_clause
- : K_REFERENCES foreign_table ( '(' column_name ( ',' column_name )* ')' )?
-   ( ( K_ON ( K_DELETE | K_UPDATE ) ( K_SET K_NULL
-                                    | K_SET K_DEFAULT
-                                    | K_CASCADE
-                                    | K_RESTRICT
-                                    | K_NO K_ACTION )
-     | K_MATCH name
-     )
-   )*
-   ( K_NOT? K_DEFERRABLE ( K_INITIALLY K_DEFERRED | K_INITIALLY K_IMMEDIATE )? )?
- ;
-
-raise_function
- : K_RAISE '(' ( K_IGNORE
-               | ( K_ROLLBACK | K_ABORT | K_FAIL ) ',' error_message )
-           ')'
- ;
+create_index_stmt
+    : CREATE_ UNIQUE_? INDEX_ (IF_ NOT_ EXISTS_)? (schema_name DOT)? index_name ON_ table_name OPEN_PAR indexed_column (
+        COMMA indexed_column
+    )* CLOSE_PAR (WHERE_ expr)?
+;
 
 indexed_column
- : ( column_name | expr ) ( K_COLLATE collation_name )? ( K_ASC | K_DESC )?
- ;
+    : (column_name | expr) (COLLATE_ collation_name)? asc_desc?
+;
 
-table_constraint
- : ( K_CONSTRAINT name )?
-   ( ( K_PRIMARY K_KEY | K_UNIQUE ) '(' indexed_column ( ',' indexed_column )* ')' conflict_clause
-   | K_CHECK '(' expr ')'
-   | K_FOREIGN K_KEY '(' column_name ( ',' column_name )* ')' foreign_key_clause
-   )
- ;
+create_table_stmt
+    : CREATE_ (TEMP_ | TEMPORARY_)? TABLE_ (IF_ NOT_ EXISTS_)? (schema_name DOT)? table_name (
+        OPEN_PAR column_def (COMMA column_def)*? (COMMA table_constraint)* CLOSE_PAR (
+            WITHOUT_ row_ROW_ID = IDENTIFIER
+        )?
+        | AS_ select_stmt
+    )
+;
 
-with_clause
- : K_WITH K_RECURSIVE? common_table_expression ( ',' common_table_expression )*
- ;
+column_def
+    : column_name type_name? column_constraint*
+;
 
-common_table_expression
- : table_name ( '(' column_name ( ',' column_name )* ')' )? K_AS '(' select_stmt ')'
- ;
+type_name
+    : name+? (
+        OPEN_PAR signed_number CLOSE_PAR
+        | OPEN_PAR signed_number COMMA signed_number CLOSE_PAR
+    )?
+;
 
-qualified_table_name
- : ( schema_name '.' )? table_name ( K_AS table_alias )?
-   ( K_INDEXED K_BY index_name | K_NOT K_INDEXED )?
- ;
-
-order_clause
- : K_ORDER K_BY ordering_term ( ',' ordering_term )*
- ;
-
-ordering_term
- : expr ( K_COLLATE collation_name )? ( K_ASC | K_DESC )?
- ;
-
-limit_clause
- : K_LIMIT expr ( ( K_OFFSET | ',' ) expr )?
- ;
-
-pragma_value
- : signed_number
- | name
- | STRING_LITERAL
- | boolean_literal
- ;
-
-result_column
- : '*'
- | table_name '.' '*'
- | expr ( K_AS? column_alias )?
- ;
-
-table_or_subquery
- : ( schema_name '.' )? table_name ( K_AS? table_alias )?
-   ( K_INDEXED K_BY index_name | K_NOT K_INDEXED )?
- | ( schema_name '.' )? table_function '(' ( expr ( ',' expr )* )? ')' ( K_AS? table_alias )?
- | '(' ( table_or_subquery ( ',' table_or_subquery )* | join_clause ) ')'
- | '(' select_stmt ')' ( K_AS? table_alias )?
- ;
-
-join_clause
- : table_or_subquery ( join_operator table_or_subquery join_constraint )*
- ;
-
-join_operator
- : ','
- | K_NATURAL? ( K_LEFT K_OUTER? | K_INNER | K_CROSS )? K_JOIN
- ;
-
-join_constraint
- : ( K_ON expr
-   | K_USING '(' column_name ( ',' column_name )* ')' )?
- ;
-
-compound_operator
- : K_UNION
- | K_UNION K_ALL
- | K_INTERSECT
- | K_EXCEPT
- ;
+column_constraint
+    : (CONSTRAINT_ name)? (
+        (PRIMARY_ KEY_ asc_desc? conflict_clause? AUTOINCREMENT_?)
+        | (NOT_? NULL_ | UNIQUE_) conflict_clause?
+        | CHECK_ OPEN_PAR expr CLOSE_PAR
+        | DEFAULT_ (signed_number | literal_value | OPEN_PAR expr CLOSE_PAR)
+        | COLLATE_ collation_name
+        | foreign_key_clause
+        | (GENERATED_ ALWAYS_)? AS_ OPEN_PAR expr CLOSE_PAR (STORED_ | VIRTUAL_)?
+    )
+;
 
 signed_number
- : ( '+' | '-' )? NUMERIC_LITERAL
- ;
+    : (PLUS | MINUS)? NUMERIC_LITERAL
+;
 
-literal_value
- : NUMERIC_LITERAL
- | STRING_LITERAL
- | BLOB_LITERAL
- | K_NULL
- | K_CURRENT_TIME
- | K_CURRENT_DATE
- | K_CURRENT_TIMESTAMP
- | boolean_literal
- ;
+table_constraint
+    : (CONSTRAINT_ name)? (
+        (PRIMARY_ KEY_ | UNIQUE_) OPEN_PAR indexed_column (COMMA indexed_column)* CLOSE_PAR conflict_clause?
+        | CHECK_ OPEN_PAR expr CLOSE_PAR
+        | FOREIGN_ KEY_ OPEN_PAR column_name (COMMA column_name)* CLOSE_PAR foreign_key_clause
+    )
+;
 
-boolean_literal
- : TRUE
- | FALSE
- ;
+foreign_key_clause
+    : REFERENCES_ foreign_table (OPEN_PAR column_name (COMMA column_name)* CLOSE_PAR)? (
+        ON_ (DELETE_ | UPDATE_) (
+            SET_ (NULL_ | DEFAULT_)
+            | CASCADE_
+            | RESTRICT_
+            | NO_ ACTION_
+        )
+        | MATCH_ name
+    )* (NOT_? DEFERRABLE_ (INITIALLY_ (DEFERRED_ | IMMEDIATE_))?)?
+;
 
-unary_operator
- : '-'
- | '+'
- | '~'
- | K_NOT
- ;
+conflict_clause
+    : ON_ CONFLICT_ (ROLLBACK_ | ABORT_ | FAIL_ | IGNORE_ | REPLACE_)
+;
+
+create_trigger_stmt
+    : CREATE_ (TEMP_ | TEMPORARY_)? TRIGGER_ (IF_ NOT_ EXISTS_)? (schema_name DOT)? trigger_name (
+        BEFORE_
+        | AFTER_
+        | INSTEAD_ OF_
+    )? (DELETE_ | INSERT_ | UPDATE_ (OF_ column_name ( COMMA column_name)*)?) ON_ table_name (
+        FOR_ EACH_ ROW_
+    )? (WHEN_ expr)? BEGIN_ (
+        (update_stmt | insert_stmt | delete_stmt | select_stmt) SCOL
+    )+ END_
+;
+
+create_view_stmt
+    : CREATE_ (TEMP_ | TEMPORARY_)? VIEW_ (IF_ NOT_ EXISTS_)? (schema_name DOT)? view_name (
+        OPEN_PAR column_name (COMMA column_name)* CLOSE_PAR
+    )? AS_ select_stmt
+;
+
+create_virtual_table_stmt
+    : CREATE_ VIRTUAL_ TABLE_ (IF_ NOT_ EXISTS_)? (schema_name DOT)? table_name USING_ module_name (
+        OPEN_PAR module_argument (COMMA module_argument)* CLOSE_PAR
+    )?
+;
+
+with_clause
+    : WITH_ RECURSIVE_? cte_table_name AS_ OPEN_PAR select_stmt CLOSE_PAR (
+        COMMA cte_table_name AS_ OPEN_PAR select_stmt CLOSE_PAR
+    )*
+;
+
+cte_table_name
+    : table_name (OPEN_PAR column_name ( COMMA column_name)* CLOSE_PAR)?
+;
+
+recursive_cte
+    : cte_table_name AS_ OPEN_PAR initial_select UNION_ ALL_? recursive_select CLOSE_PAR
+;
+
+common_table_expression
+    : table_name (OPEN_PAR column_name ( COMMA column_name)* CLOSE_PAR)? AS_ OPEN_PAR select_stmt CLOSE_PAR
+;
+
+delete_stmt
+    : with_clause? DELETE_ FROM_ qualified_table_name (WHERE_ expr)? returning_clause?
+;
+
+delete_stmt_limited
+    : with_clause? DELETE_ FROM_ qualified_table_name (WHERE_ expr)? returning_clause? (
+        order_by_stmt? limit_stmt
+    )?
+;
+
+detach_stmt
+    : DETACH_ DATABASE_? schema_name
+;
+
+drop_stmt
+    : DROP_ object = (INDEX_ | TABLE_ | TRIGGER_ | VIEW_) (IF_ EXISTS_)? (
+        schema_name DOT
+    )? any_name
+;
 
 /*
-    SQLite understands the following binary operators, in order from highest to
-    lowest precedence:
-
+ SQLite understands the following binary operators, in order from highest to lowest precedence:
     ||
-    *    /    %
-    +    -
-    <<   >>   &    |
-    <    <=   >    >=
-    =    ==   !=   <>   IS   IS NOT   IN   LIKE   GLOB   MATCH   REGEXP
+    * / %
+    + -
+    << >> & |
+    < <= > >=
+    = == != <> IS IS NOT IS DISTINCT FROM IS NOT DISTINCT FROM IN LIKE GLOB MATCH REGEXP
     AND
     OR
+ */
+expr
+    : literal_value
+    | BIND_PARAMETER
+    | ((schema_name DOT)? table_name DOT)? column_name
+    | unary_operator expr
+    | expr PIPE2 expr
+    | expr ( STAR | DIV | MOD) expr
+    | expr ( PLUS | MINUS) expr
+    | expr ( LT2 | GT2 | AMP | PIPE) expr
+    | expr ( LT | LT_EQ | GT | GT_EQ) expr
+    | expr (
+        ASSIGN
+        | EQ
+        | NOT_EQ1
+        | NOT_EQ2
+        | IS_
+        | IS_ NOT_
+        | IS_ DISTINCT_ FROM_
+        | IS_ NOT_ DISTINCT_ FROM_
+        | IN_
+        | LIKE_
+        | GLOB_
+        | MATCH_
+        | REGEXP_
+    ) expr
+    | expr AND_ expr
+    | expr OR_ expr
+    | function_name OPEN_PAR ((DISTINCT_? comma_separated_expr) | STAR)? CLOSE_PAR filter_clause? over_clause?
+    | OPEN_PAR comma_separated_expr CLOSE_PAR
+    | CAST_ OPEN_PAR expr AS_ type_name CLOSE_PAR
+    | expr COLLATE_ collation_name
+    | expr NOT_? (LIKE_ | GLOB_ | REGEXP_ | MATCH_) expr (ESCAPE_ expr)?
+    | expr ( ISNULL_ | NOTNULL_ | NOT_ NULL_)
+    | expr IS_ NOT_? expr
+    | expr NOT_? BETWEEN_ expr AND_ expr
+    | expr NOT_? IN_ (
+        OPEN_PAR (select_stmt | comma_separated_expr)? CLOSE_PAR
+        | ( schema_name DOT)? table_name
+        | (schema_name DOT)? table_function_name OPEN_PAR (comma_separated_expr)? CLOSE_PAR
+    )
+    | ((NOT_)? EXISTS_)? OPEN_PAR select_stmt CLOSE_PAR
+    | CASE_ expr? (WHEN_ expr THEN_ expr)+ (ELSE_ expr)? END_
+    | raise_function
+;
 
-    This rule is only used in `expr`, which has more complete directives for `IS` through `REGEXP`,
-    so we leave them out here.
-*/
-binary_operator
- : '||'
- | ( '*' | '/' | '%' )
- | ( '+' | '-' )
- | ( '<<' | '>>' | '&' | '|' )
- | ( '<' | '<=' | '>' | '>=' )
- | ( '=' | '==' | '!=' | '<>' )
- | K_AND
- | K_OR
- ;
+comma_separated_expr
+    : expr ( COMMA expr )*
+;
 
-error_message
- : STRING_LITERAL
- ;
+raise_function
+    : RAISE_ OPEN_PAR (IGNORE_ | (ROLLBACK_ | ABORT_ | FAIL_) COMMA error_message) CLOSE_PAR
+;
 
-module_argument // TODO check what exactly is permitted here
- : expr
- | column_def
- ;
+literal_value
+    : NUMERIC_LITERAL
+    | STRING_LITERAL
+    | BLOB_LITERAL
+    | NULL_
+    | TRUE_
+    | FALSE_
+    | CURRENT_TIME_
+    | CURRENT_DATE_
+    | CURRENT_TIMESTAMP_
+;
 
-column_alias
- : IDENTIFIER
- | STRING_LITERAL
- ;
+value_row
+    : OPEN_PAR comma_separated_expr CLOSE_PAR
+;
+
+values_clause
+    : VALUES_ value_row (COMMA value_row)*
+;
+
+insert_stmt
+    : with_clause? (
+        INSERT_
+        | REPLACE_
+        | INSERT_ OR_ ( REPLACE_ | ROLLBACK_ | ABORT_ | FAIL_ | IGNORE_)
+    ) INTO_ (schema_name DOT)? table_name (AS_ table_alias)? (
+        OPEN_PAR column_name ( COMMA column_name)* CLOSE_PAR
+    )? (( ( values_clause | select_stmt) upsert_clause?) | DEFAULT_ VALUES_) returning_clause?
+;
+
+returning_clause
+    : RETURNING_ result_column (COMMA result_column)*
+;
+
+upsert_clause
+    : ON_ CONFLICT_ (
+        OPEN_PAR indexed_column (COMMA indexed_column)* CLOSE_PAR (WHERE_ expr)?
+    )? DO_ (
+        NOTHING_
+        | UPDATE_ SET_ (
+            (column_name | column_name_list) ASSIGN expr (
+                COMMA (column_name | column_name_list) ASSIGN expr
+            )* (WHERE_ expr)?
+        )
+    )
+;
+
+pragma_stmt
+    : PRAGMA_ (schema_name DOT)? pragma_name (
+        ASSIGN pragma_value
+        | OPEN_PAR pragma_value CLOSE_PAR
+    )?
+;
+
+pragma_value
+    : signed_number
+    | name
+    | STRING_LITERAL
+;
+
+reindex_stmt
+    : REINDEX_ (collation_name | (schema_name DOT)? (table_name | index_name))?
+;
+
+select_stmt
+    : common_table_stmt? select_core (compound_operator select_core)* order_by_stmt? limit_stmt?
+;
+
+join_clause
+    : table_or_subquery (join_operator table_or_subquery join_constraint?)*
+;
+
+select_core
+    : (
+        SELECT_ (DISTINCT_ | ALL_)? result_column (COMMA result_column)* (
+            FROM_ (table_or_subquery (COMMA table_or_subquery)* | join_clause)
+        )? (WHERE_ whereExpr = expr)? (
+            GROUP_ BY_ groupByExpr += expr (COMMA groupByExpr += expr)* (
+                HAVING_ havingExpr = expr
+            )?
+        )? (WINDOW_ window_name AS_ window_defn ( COMMA window_name AS_ window_defn)*)?
+    )
+    | values_clause
+;
+
+factored_select_stmt
+    : select_stmt
+;
+
+simple_select_stmt
+    : common_table_stmt? select_core order_by_stmt? limit_stmt?
+;
+
+compound_select_stmt
+    : common_table_stmt? select_core (
+        (UNION_ ALL_? | INTERSECT_ | EXCEPT_) select_core
+    )+ order_by_stmt? limit_stmt?
+;
+
+table_or_subquery
+    : (
+        (schema_name DOT)? table_name (AS_? table_alias)? (
+            INDEXED_ BY_ index_name
+            | NOT_ INDEXED_
+        )?
+    )
+    | (schema_name DOT)? table_function_name OPEN_PAR expr (COMMA expr)* CLOSE_PAR (
+        AS_? table_alias
+    )?
+    | OPEN_PAR (table_or_subquery (COMMA table_or_subquery)* | join_clause) CLOSE_PAR
+    | OPEN_PAR select_stmt CLOSE_PAR (AS_? table_alias)?
+;
+
+result_column
+    : STAR
+    | table_name DOT STAR
+    | expr ( AS_? column_alias)?
+;
+
+join_operator
+    : COMMA
+    | NATURAL_? ((LEFT_ | RIGHT_ | FULL_) OUTER_? | INNER_ | CROSS_)? JOIN_
+;
+
+join_constraint
+    : ON_ expr
+    | USING_ OPEN_PAR column_name ( COMMA column_name)* CLOSE_PAR
+;
+
+compound_operator
+    : UNION_ ALL_?
+    | INTERSECT_
+    | EXCEPT_
+;
+
+update_stmt
+    : with_clause? UPDATE_ (OR_ (ROLLBACK_ | ABORT_ | REPLACE_ | FAIL_ | IGNORE_))? qualified_table_name SET_ (
+        column_name
+        | column_name_list
+    ) ASSIGN expr (COMMA (column_name | column_name_list) ASSIGN expr)* (
+        FROM_ (table_or_subquery (COMMA table_or_subquery)* | join_clause)
+    )? (WHERE_ expr)? returning_clause?
+;
 
 column_name_list
- : '(' column_name ( ',' column_name )* ')'
- ;
+    : OPEN_PAR column_name (COMMA column_name)* CLOSE_PAR
+;
+
+update_stmt_limited
+    : with_clause? UPDATE_ (OR_ (ROLLBACK_ | ABORT_ | REPLACE_ | FAIL_ | IGNORE_))? qualified_table_name SET_ (
+        column_name
+        | column_name_list
+    ) ASSIGN expr (COMMA (column_name | column_name_list) ASSIGN expr)* (WHERE_ expr)? returning_clause? (
+        order_by_stmt? limit_stmt
+    )?
+;
+
+qualified_table_name
+    : (schema_name DOT)? table_name (AS_ alias)? (
+        INDEXED_ BY_ index_name
+        | NOT_ INDEXED_
+    )?
+;
+
+vacuum_stmt
+    : VACUUM_ schema_name? (INTO_ filename)?
+;
+
+filter_clause
+    : FILTER_ OPEN_PAR WHERE_ expr CLOSE_PAR
+;
+
+window_defn
+    : OPEN_PAR base_window_name? (PARTITION_ BY_ expr (COMMA expr)*)? (
+        ORDER_ BY_ ordering_term (COMMA ordering_term)*
+    ) frame_spec? CLOSE_PAR
+;
+
+over_clause
+    : OVER_ (
+        window_name
+        | OPEN_PAR base_window_name? (PARTITION_ BY_ expr (COMMA expr)*)? (
+            ORDER_ BY_ ordering_term (COMMA ordering_term)*
+        )? frame_spec? CLOSE_PAR
+    )
+;
+
+frame_spec
+    : frame_clause (EXCLUDE_ ( NO_ OTHERS_ | CURRENT_ ROW_ | GROUP_ | TIES_))?
+;
+
+frame_clause
+    : (RANGE_ | ROWS_ | GROUPS_) (
+        frame_single
+        | BETWEEN_ frame_left AND_ frame_right
+    )
+;
+
+simple_function_invocation
+    : simple_func OPEN_PAR (expr (COMMA expr)* | STAR) CLOSE_PAR
+;
+
+aggregate_function_invocation
+    : aggregate_func OPEN_PAR (DISTINCT_? expr (COMMA expr)* | STAR)? CLOSE_PAR filter_clause?
+;
+
+window_function_invocation
+    : window_function OPEN_PAR (expr (COMMA expr)* | STAR)? CLOSE_PAR filter_clause? OVER_ (
+        window_defn
+        | window_name
+    )
+;
+
+common_table_stmt
+    : //additional structures
+    WITH_ RECURSIVE_? common_table_expression (COMMA common_table_expression)*
+;
+
+order_by_stmt
+    : ORDER_ BY_ ordering_term (COMMA ordering_term)*
+;
+
+limit_stmt
+    : LIMIT_ expr ((OFFSET_ | COMMA) expr)?
+;
+
+ordering_term
+    : expr (COLLATE_ collation_name)? asc_desc? (NULLS_ (FIRST_ | LAST_))?
+;
+
+asc_desc
+    : ASC_
+    | DESC_
+;
+
+frame_left
+    : expr PRECEDING_
+    | expr FOLLOWING_
+    | CURRENT_ ROW_
+    | UNBOUNDED_ PRECEDING_
+;
+
+frame_right
+    : expr PRECEDING_
+    | expr FOLLOWING_
+    | CURRENT_ ROW_
+    | UNBOUNDED_ FOLLOWING_
+;
+
+frame_single
+    : expr PRECEDING_
+    | UNBOUNDED_ PRECEDING_
+    | CURRENT_ ROW_
+;
+
+// unknown
+
+window_function
+    : (FIRST_VALUE_ | LAST_VALUE_) OPEN_PAR expr CLOSE_PAR OVER_ OPEN_PAR partition_by? order_by_expr_asc_desc frame_clause?
+        CLOSE_PAR
+    | (CUME_DIST_ | PERCENT_RANK_) OPEN_PAR CLOSE_PAR OVER_ OPEN_PAR partition_by? order_by_expr? CLOSE_PAR
+    | (DENSE_RANK_ | RANK_ | ROW_NUMBER_) OPEN_PAR CLOSE_PAR OVER_ OPEN_PAR partition_by? order_by_expr_asc_desc CLOSE_PAR
+    | (LAG_ | LEAD_) OPEN_PAR expr offset? default_value? CLOSE_PAR OVER_ OPEN_PAR partition_by? order_by_expr_asc_desc CLOSE_PAR
+    | NTH_VALUE_ OPEN_PAR expr COMMA signed_number CLOSE_PAR OVER_ OPEN_PAR partition_by? order_by_expr_asc_desc frame_clause?
+        CLOSE_PAR
+    | NTILE_ OPEN_PAR expr CLOSE_PAR OVER_ OPEN_PAR partition_by? order_by_expr_asc_desc CLOSE_PAR
+;
+
+offset
+    : COMMA signed_number
+;
+
+default_value
+    : COMMA signed_number
+;
+
+partition_by
+    : PARTITION_ BY_ expr+
+;
+
+order_by_expr
+    : ORDER_ BY_ expr+
+;
+
+order_by_expr_asc_desc
+    : ORDER_ BY_ expr_asc_desc
+;
+
+expr_asc_desc
+    : expr asc_desc? (COMMA expr asc_desc?)*
+;
+
+initial_select
+    : select_stmt
+;
+
+recursive_select
+    : select_stmt
+;
+
+unary_operator
+    : MINUS
+    | PLUS
+    | TILDE
+    | NOT_
+;
+
+error_message
+    : STRING_LITERAL
+;
+
+module_argument
+    :
+    expr
+    | column_def
+;
+
+column_alias
+    : IDENTIFIER
+    | STRING_LITERAL
+;
 
 keyword
- : K_ABORT
- | K_ACTION
- | K_ADD
- | K_AFTER
- | K_ALL
- | K_ALTER
- | K_ANALYZE
- | K_AND
- | K_AS
- | K_ASC
- | K_ATTACH
- | K_AUTOINCREMENT
- | K_BEFORE
- | K_BEGIN
- | K_BETWEEN
- | K_BY
- | K_CASCADE
- | K_CASE
- | K_CAST
- | K_CHECK
- | K_COLLATE
- | K_COLUMN
- | K_COMMIT
- | K_CONFLICT
- | K_CONSTRAINT
- | K_CREATE
- | K_CROSS
- | K_CURRENT_DATE
- | K_CURRENT_TIME
- | K_CURRENT_TIMESTAMP
- | K_DATABASE
- | K_DEFAULT
- | K_DEFERRABLE
- | K_DEFERRED
- | K_DELETE
- | K_DESC
- | K_DETACH
- | K_DISTINCT
- | K_DROP
- | K_EACH
- | K_ELSE
- | K_END
- | K_ESCAPE
- | K_EXCEPT
- | K_EXCLUSIVE
- | K_EXISTS
- | K_EXPLAIN
- | K_FAIL
- | K_FOR
- | K_FOREIGN
- | K_FROM
- | K_FULL
- | K_GLOB
- | K_GROUP
- | K_HAVING
- | K_IF
- | K_IGNORE
- | K_IMMEDIATE
- | K_IN
- | K_INDEX
- | K_INDEXED
- | K_INITIALLY
- | K_INNER
- | K_INSERT
- | K_INSTEAD
- | K_INTERSECT
- | K_INTO
- | K_IS
- | K_ISNULL
- | K_JOIN
- | K_KEY
- | K_LEFT
- | K_LIKE
- | K_LIMIT
- | K_MATCH
- | K_NATURAL
- | K_NO
- | K_NOT
- | K_NOTNULL
- | K_NULL
- | K_OF
- | K_OFFSET
- | K_ON
- | K_OR
- | K_ORDER
- | K_OUTER
- | K_PLAN
- | K_PRAGMA
- | K_PRIMARY
- | K_QUERY
- | K_RAISE
- | K_RECURSIVE
- | K_REFERENCES
- | K_REGEXP
- | K_REINDEX
- | K_RELEASE
- | K_RENAME
- | K_REPLACE
- | K_RESTRICT
- | K_RIGHT
- | K_ROLLBACK
- | K_ROW
- | K_SAVEPOINT
- | K_SELECT
- | K_SET
- | K_TABLE
- | K_TEMP
- | K_TEMPORARY
- | K_THEN
- | K_TO
- | K_TRANSACTION
- | K_TRIGGER
- | K_UNION
- | K_UNIQUE
- | K_UPDATE
- | K_USING
- | K_VACUUM
- | K_VALUES
- | K_VIEW
- | K_VIRTUAL
- | K_WHEN
- | K_WHERE
- | K_WITH
- | K_WITHOUT
- ;
-
-// TODO check all names below
+    : ABORT_
+    | ACTION_
+    | ADD_
+    | AFTER_
+    | ALL_
+    | ALTER_
+    | ANALYZE_
+    | AND_
+    | AS_
+    | ASC_
+    | ATTACH_
+    | AUTOINCREMENT_
+    | BEFORE_
+    | BEGIN_
+    | BETWEEN_
+    | BY_
+    | CASCADE_
+    | CASE_
+    | CAST_
+    | CHECK_
+    | COLLATE_
+    | COLUMN_
+    | COMMIT_
+    | CONFLICT_
+    | CONSTRAINT_
+    | CREATE_
+    | CROSS_
+    | CURRENT_DATE_
+    | CURRENT_TIME_
+    | CURRENT_TIMESTAMP_
+    | DATABASE_
+    | DEFAULT_
+    | DEFERRABLE_
+    | DEFERRED_
+    | DELETE_
+    | DESC_
+    | DETACH_
+    | DISTINCT_
+    | DROP_
+    | EACH_
+    | ELSE_
+    | END_
+    | ESCAPE_
+    | EXCEPT_
+    | EXCLUSIVE_
+    | EXISTS_
+    | EXPLAIN_
+    | FAIL_
+    | FOR_
+    | FOREIGN_
+    | FROM_
+    | FULL_
+    | GLOB_
+    | GROUP_
+    | HAVING_
+    | IF_
+    | IGNORE_
+    | IMMEDIATE_
+    | IN_
+    | INDEX_
+    | INDEXED_
+    | INITIALLY_
+    | INNER_
+    | INSERT_
+    | INSTEAD_
+    | INTERSECT_
+    | INTO_
+    | IS_
+    | ISNULL_
+    | JOIN_
+    | KEY_
+    | LEFT_
+    | LIKE_
+    | LIMIT_
+    | MATCH_
+    | NATURAL_
+    | NO_
+    | NOT_
+    | NOTNULL_
+    | NULL_
+    | OF_
+    | OFFSET_
+    | ON_
+    | OR_
+    | ORDER_
+    | OUTER_
+    | PLAN_
+    | PRAGMA_
+    | PRIMARY_
+    | QUERY_
+    | RAISE_
+    | RECURSIVE_
+    | REFERENCES_
+    | REGEXP_
+    | REINDEX_
+    | RELEASE_
+    | RENAME_
+    | REPLACE_
+    | RESTRICT_
+    | RIGHT_
+    | ROLLBACK_
+    | ROW_
+    | ROWS_
+    | SAVEPOINT_
+    | SELECT_
+    | SET_
+    | TABLE_
+    | TEMP_
+    | TEMPORARY_
+    | THEN_
+    | TO_
+    | TRANSACTION_
+    | TRIGGER_
+    | UNION_
+    | UNIQUE_
+    | UPDATE_
+    | USING_
+    | VACUUM_
+    | VALUES_
+    | VIEW_
+    | VIRTUAL_
+    | WHEN_
+    | WHERE_
+    | WITH_
+    | WITHOUT_
+    | FIRST_VALUE_
+    | OVER_
+    | PARTITION_
+    | RANGE_
+    | PRECEDING_
+    | UNBOUNDED_
+    | CURRENT_
+    | FOLLOWING_
+    | CUME_DIST_
+    | DENSE_RANK_
+    | LAG_
+    | LAST_VALUE_
+    | LEAD_
+    | NTH_VALUE_
+    | NTILE_
+    | PERCENT_RANK_
+    | RANK_
+    | ROW_NUMBER_
+    | GENERATED_
+    | ALWAYS_
+    | STORED_
+    | TRUE_
+    | FALSE_
+    | WINDOW_
+    | NULLS_
+    | FIRST_
+    | LAST_
+    | FILTER_
+    | GROUPS_
+    | EXCLUDE_
+;
 
 name
- : any_name
- ;
+    : any_name
+;
 
 function_name
- : any_name
- ;
+    : any_name
+;
 
 schema_name
- : any_name
- ;
-
-table_function
- : any_name
- ;
+    : any_name
+;
 
 table_name
- : any_name
- ;
+    : any_name
+;
 
 table_or_index_name
- : any_name
- ;
-
-new_table_name
- : any_name
- ;
+    : any_name
+;
 
 column_name
- : any_name
- ;
+    : any_name
+;
 
 collation_name
- : any_name
- ;
+    : any_name
+;
 
 foreign_table
- : any_name
- ;
+    : any_name
+;
 
 index_name
- : any_name
- ;
+    : any_name
+;
 
 trigger_name
- : any_name
- ;
+    : any_name
+;
 
 view_name
- : any_name
- ;
+    : any_name
+;
 
 module_name
- : any_name
- ;
+    : any_name
+;
 
 pragma_name
- : any_name
- ;
+    : any_name
+;
 
 savepoint_name
- : any_name
- ;
+    : any_name
+;
 
 table_alias
- : IDENTIFIER
- | STRING_LITERAL
- | '(' table_alias ')'
- ;
+    : IDENTIFIER
+    | STRING_LITERAL
+    | OPEN_PAR table_alias CLOSE_PAR
+;
 
 transaction_name
- : any_name
- ;
+    : any_name
+;
+
+window_name
+    : any_name
+;
+
+alias
+    : any_name
+;
+
+filename
+    : any_name
+;
+
+base_window_name
+    : any_name
+;
+
+simple_func
+    : any_name
+;
+
+aggregate_func
+    : any_name
+;
+
+table_function_name
+    : any_name
+;
 
 any_name
- : IDENTIFIER
- | keyword
- | STRING_LITERAL
- | '(' any_name ')'
- ;
-
-SCOL : ';';
-DOT : '.';
-OPEN_PAR : '(';
-CLOSE_PAR : ')';
-COMMA : ',';
-ASSIGN : '=';
-STAR : '*';
-PLUS : '+';
-MINUS : '-';
-TILDE : '~';
-PIPE2 : '||';
-DIV : '/';
-MOD : '%';
-LT2 : '<<';
-GT2 : '>>';
-AMP : '&';
-PIPE : '|';
-LT : '<';
-LT_EQ : '<=';
-GT : '>';
-GT_EQ : '>=';
-EQ : '==';
-NOT_EQ1 : '!=';
-NOT_EQ2 : '<>';
-TRUE : T R U E;
-FALSE : F A L S E;
-
-// http://www.sqlite.org/lang_keywords.html
-K_ABORT : A B O R T;
-K_ACTION : A C T I O N;
-K_ADD : A D D;
-K_AFTER : A F T E R;
-K_ALL : A L L;
-K_ALTER : A L T E R;
-K_ANALYZE : A N A L Y Z E;
-K_AND : A N D;
-K_AS : A S;
-K_ASC : A S C;
-K_ATTACH : A T T A C H;
-K_AUTOINCREMENT : A U T O I N C R E M E N T;
-K_BEFORE : B E F O R E;
-K_BEGIN : B E G I N;
-K_BETWEEN : B E T W E E N;
-K_BY : B Y;
-K_CASCADE : C A S C A D E;
-K_CASE : C A S E;
-K_CAST : C A S T;
-K_CHECK : C H E C K;
-K_COLLATE : C O L L A T E;
-K_COLUMN : C O L U M N;
-K_COMMIT : C O M M I T;
-K_CONFLICT : C O N F L I C T;
-K_CONSTRAINT : C O N S T R A I N T;
-K_CREATE : C R E A T E;
-K_CROSS : C R O S S;
-K_CURRENT_DATE : C U R R E N T '_' D A T E;
-K_CURRENT_TIME : C U R R E N T '_' T I M E;
-K_CURRENT_TIMESTAMP : C U R R E N T '_' T I M E S T A M P;
-K_DATABASE : D A T A B A S E;
-K_DEFAULT : D E F A U L T;
-K_DEFERRABLE : D E F E R R A B L E;
-K_DEFERRED : D E F E R R E D;
-K_DELETE : D E L E T E;
-K_DESC : D E S C;
-K_DETACH : D E T A C H;
-K_DISTINCT : D I S T I N C T;
-K_DROP : D R O P;
-K_EACH : E A C H;
-K_ELSE : E L S E;
-K_END : E N D;
-K_ESCAPE : E S C A P E;
-K_EXCEPT : E X C E P T;
-K_EXCLUSIVE : E X C L U S I V E;
-K_EXISTS : E X I S T S;
-K_EXPLAIN : E X P L A I N;
-K_FAIL : F A I L;
-K_FOR : F O R;
-K_FOREIGN : F O R E I G N;
-K_FROM : F R O M;
-K_FULL : F U L L;
-K_GLOB : G L O B;
-K_GROUP : G R O U P;
-K_HAVING : H A V I N G;
-K_IF : I F;
-K_IGNORE : I G N O R E;
-K_IMMEDIATE : I M M E D I A T E;
-K_IN : I N;
-K_INDEX : I N D E X;
-K_INDEXED : I N D E X E D;
-K_INITIALLY : I N I T I A L L Y;
-K_INNER : I N N E R;
-K_INSERT : I N S E R T;
-K_INSTEAD : I N S T E A D;
-K_INTERSECT : I N T E R S E C T;
-K_INTO : I N T O;
-K_IS : I S;
-K_ISNULL : I S N U L L;
-K_JOIN : J O I N;
-K_KEY : K E Y;
-K_LEFT : L E F T;
-K_LIKE : L I K E;
-K_LIMIT : L I M I T;
-K_MATCH : M A T C H;
-K_NATURAL : N A T U R A L;
-K_NO : N O;
-K_NOT : N O T;
-K_NOTNULL : N O T N U L L;
-K_NULL : N U L L;
-K_OF : O F;
-K_OFFSET : O F F S E T;
-K_ON : O N;
-K_OR : O R;
-K_ORDER : O R D E R;
-K_OUTER : O U T E R;
-K_PLAN : P L A N;
-K_PRAGMA : P R A G M A;
-K_PRIMARY : P R I M A R Y;
-K_QUERY : Q U E R Y;
-K_RAISE : R A I S E;
-K_RECURSIVE : R E C U R S I V E;
-K_REFERENCES : R E F E R E N C E S;
-K_REGEXP : R E G E X P;
-K_REINDEX : R E I N D E X;
-K_RELEASE : R E L E A S E;
-K_RENAME : R E N A M E;
-K_REPLACE : R E P L A C E;
-K_RESTRICT : R E S T R I C T;
-K_RIGHT : R I G H T;
-K_ROLLBACK : R O L L B A C K;
-K_ROW : R O W;
-K_SAVEPOINT : S A V E P O I N T;
-K_SELECT : S E L E C T;
-K_SET : S E T;
-K_TABLE : T A B L E;
-K_TEMP : T E M P;
-K_TEMPORARY : T E M P O R A R Y;
-K_THEN : T H E N;
-K_TO : T O;
-K_TRANSACTION : T R A N S A C T I O N;
-K_TRIGGER : T R I G G E R;
-K_UNION : U N I O N;
-K_UNIQUE : U N I Q U E;
-K_UPDATE : U P D A T E;
-K_USING : U S I N G;
-K_VACUUM : V A C U U M;
-K_VALUES : V A L U E S;
-K_VIEW : V I E W;
-K_VIRTUAL : V I R T U A L;
-K_WHEN : W H E N;
-K_WHERE : W H E R E;
-K_WITH : W I T H;
-K_WITHOUT : W I T H O U T;
-
-// These are not keywords, but their constituents might be wrongly matched as identifiers.
-WITHOUT_ROWID: K_WITHOUT SPACES R O W I D;
-DO_NOTHING: D O SPACES N O T H I N G;
-DO_UPDATE: D O SPACES K_UPDATE;
-
-IDENTIFIER
- : '"' (~'"' | '""')* '"'
- | '`' (~'`' | '``')* '`'
- | '[' ~']'* ']'
- | [a-zA-Z_\u00a1-\uffff] [a-zA-Z_0-9\u00a1-\uffff]*
- ;
-
-NUMERIC_LITERAL
- : DIGIT+ ( '.' DIGIT* )? ( E [-+]? DIGIT+ )?
- | '.' DIGIT+ ( E [-+]? DIGIT+ )?
- | '0' X HEXDIGIT+
- ;
-
-BIND_PARAMETER
- : '?' DIGIT*
- | [:@$] IDENTIFIER
- ;
-
-STRING_LITERAL
- : '\'' ( ~'\'' | '\'\'' )* '\''
- ;
-
-BLOB_LITERAL
- : X STRING_LITERAL
- ;
-
-SINGLE_LINE_COMMENT
- : '--' ~[\r\n]* -> channel(HIDDEN)
- ;
-
-MULTILINE_COMMENT
- : '/*' .*? ( '*/' | EOF ) -> channel(HIDDEN)
- ;
-
-SPACES
- : [ \u000B\t\r\n] -> channel(HIDDEN)
- ;
-
-UNEXPECTED_CHAR
- : .
- ;
-
-fragment DIGIT : [0-9];
-fragment HEXDIGIT : [0-9a-fA-F];
-
-fragment A : [aA];
-fragment B : [bB];
-fragment C : [cC];
-fragment D : [dD];
-fragment E : [eE];
-fragment F : [fF];
-fragment G : [gG];
-fragment H : [hH];
-fragment I : [iI];
-fragment J : [jJ];
-fragment K : [kK];
-fragment L : [lL];
-fragment M : [mM];
-fragment N : [nN];
-fragment O : [oO];
-fragment P : [pP];
-fragment Q : [qQ];
-fragment R : [rR];
-fragment S : [sS];
-fragment T : [tT];
-fragment U : [uU];
-fragment V : [vV];
-fragment W : [wW];
-fragment X : [xX];
-fragment Y : [yY];
-fragment Z : [zZ];
+    : IDENTIFIER
+    | keyword
+    | STRING_LITERAL
+    | OPEN_PAR any_name CLOSE_PAR
+;
