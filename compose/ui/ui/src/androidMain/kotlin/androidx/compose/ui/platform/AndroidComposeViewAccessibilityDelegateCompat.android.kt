@@ -832,7 +832,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 val holder = view.androidViewsHandler.layoutNodeToHolder[child.layoutNode]
                 if (holder != null) {
                     info.addChild(holder)
-                } else {
+                } else if (child.id != View.NO_ID) {
                     info.addChild(view, child.id)
                 }
             }
