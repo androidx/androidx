@@ -208,7 +208,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
-    method public androidx.compose.ui.text.TextRange? getRangeForRect(androidx.compose.ui.geometry.Rect rect, int granularity, androidx.compose.ui.text.TextInclusionStrategy inclusionStrategy);
+    method public long getRangeForRect(androidx.compose.ui.geometry.Rect rect, int granularity, androidx.compose.ui.text.TextInclusionStrategy inclusionStrategy);
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -270,7 +270,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
-    method public androidx.compose.ui.text.TextRange? getRangeForRect(androidx.compose.ui.geometry.Rect rect, int granularity, androidx.compose.ui.text.TextInclusionStrategy inclusionStrategy);
+    method public long getRangeForRect(androidx.compose.ui.geometry.Rect rect, int granularity, androidx.compose.ui.text.TextInclusionStrategy inclusionStrategy);
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -501,7 +501,7 @@ package androidx.compose.ui.text {
   }
 
   public fun interface TextInclusionStrategy {
-    method public boolean isInside(androidx.compose.ui.geometry.Rect textBounds, androidx.compose.ui.geometry.Rect rect);
+    method public boolean isIncluded(androidx.compose.ui.geometry.Rect textBounds, androidx.compose.ui.geometry.Rect rect);
     field public static final androidx.compose.ui.text.TextInclusionStrategy.Companion Companion;
   }
 
