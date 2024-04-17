@@ -50,6 +50,13 @@ class RawQueryMethodProcessor(
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
         )
 
+        // TODO(b/330586815): Support @RawQuery in KMP
+        context.checker.check(
+            context.isAndroidOnlyTarget(),
+            executableElement,
+            ProcessorErrors.RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID
+        )
+
         val returnsDeferredType = delegate.returnsDeferredType()
         val isSuspendFunction = delegate.executableElement.isSuspendFunction()
         context.checker.check(
