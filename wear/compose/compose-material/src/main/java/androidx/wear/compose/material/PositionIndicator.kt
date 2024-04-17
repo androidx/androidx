@@ -200,7 +200,7 @@ public fun PositionIndicator(
     ScrollStateAdapter(scrollState),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection,
     fadeInAnimationSpec = fadeInAnimationSpec,
@@ -280,7 +280,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection,
     fadeInAnimationSpec = fadeInAnimationSpec,
@@ -349,7 +349,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection
 )
@@ -396,7 +396,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection,
     fadeInAnimationSpec = fadeInAnimationSpec,
@@ -1013,6 +1013,11 @@ public object PositionIndicatorDefaults {
      */
     val visibilityAnimationSpec: AnimationSpec<Float> =
         spring(stiffness = Spring.StiffnessMediumLow)
+
+    /**
+     * Horizontal padding from the PositionIndicator to the screen edge.
+     */
+    internal val horizontalPadding = 2.dp
 }
 
 internal fun handleFadeOut(
