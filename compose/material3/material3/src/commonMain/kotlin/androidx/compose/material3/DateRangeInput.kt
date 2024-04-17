@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.internal.CalendarModel
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.defaultLocale
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
