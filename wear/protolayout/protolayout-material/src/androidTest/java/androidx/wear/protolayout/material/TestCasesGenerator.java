@@ -347,18 +347,18 @@ public class TestCasesGenerator {
                 "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
         testCases.put(
                 "not_scaled_text_golden" + NORMAL_SCALE_SUFFIX,
-                new Text.Builder(context, "Testing").setIsScalable(false).build());
+                new Text.Builder(context, "Testing").setScalable(false).build());
         testCases.put(
                 "scaled_with_not_scaled_text_golden" + goldenSuffix,
                 new Row.Builder()
                         .addContent(
                                 new Text.Builder(context, "Scaled")
-                                        .setIsScalable(true)
+                                        .setScalable(true)
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .build())
                         .addContent(
                                 new Text.Builder(context, " NotScaled")
-                                        .setIsScalable(false)
+                                        .setScalable(false)
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .build())
                         .build());

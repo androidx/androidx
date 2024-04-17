@@ -189,12 +189,12 @@ package androidx.wear.protolayout.material {
     ctor public Text.Builder(android.content.Context, String);
     method public androidx.wear.protolayout.material.Text build();
     method public androidx.wear.protolayout.material.Text.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
-    method public androidx.wear.protolayout.material.Text.Builder setIsScalable(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setItalic(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.material.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method public androidx.wear.protolayout.material.Text.Builder setMultilineAlignment(int);
     method public androidx.wear.protolayout.material.Text.Builder setOverflow(int);
+    method public androidx.wear.protolayout.material.Text.Builder setScalable(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setTypography(int);
     method public androidx.wear.protolayout.material.Text.Builder setUnderline(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setWeight(int);
