@@ -1431,51 +1431,22 @@ object SliderDefaults {
         startCornerRadius: Float,
         endCornerRadius: Float
     ) {
-        trackPath.rewind()
-
+        val startCorner = CornerRadius(startCornerRadius, startCornerRadius)
+        val endCorner = CornerRadius(endCornerRadius, endCornerRadius)
         val track =
-            Rect(
-                Offset(offset.x + startCornerRadius, 0f),
-                size = Size(size.width - startCornerRadius - endCornerRadius, size.height)
+            RoundRect(
+                rect = Rect(
+                    Offset(offset.x, 0f),
+                    size = Size(size.width, size.height)
+                ),
+                topLeft = startCorner,
+                topRight = endCorner,
+                bottomRight = endCorner,
+                bottomLeft = startCorner
             )
-        trackPath.addRect(track)
-
-        buildCorner(offset, size, startCornerRadius, isStart = true) // start
-        buildCorner(Offset(track.right - endCornerRadius, 0f), size, endCornerRadius) // end
-
+        trackPath.addRoundRect(track)
         drawPath(trackPath, color)
-
         trackPath.rewind()
-    }
-
-    private fun buildCorner(
-        offset: Offset,
-        size: Size,
-        cornerRadius: Float,
-        isStart: Boolean = false
-    ) {
-        cornerPath.rewind()
-        halfRectPath.rewind()
-
-        val corner = RoundRect(
-            rect = Rect(
-                offset,
-                size = Size(cornerRadius * 2, size.height)
-            ), cornerRadius = CornerRadius(cornerRadius)
-        )
-        cornerPath.addRoundRect(corner)
-
-        // delete the unnecessary half of the RoundRect
-        halfRectPath.addRect(
-            Rect(
-                Offset(corner.left + if (isStart) cornerRadius else 0f, 0f),
-                size = Size(cornerRadius, size.height)
-            )
-        )
-        trackPath.addPath(cornerPath - halfRectPath)
-
-        cornerPath.rewind()
-        halfRectPath.rewind()
     }
 
     private fun drawStopIndicator(
@@ -1504,8 +1475,6 @@ object SliderDefaults {
     val TickSize: Dp = SliderTokens.StopIndicatorSize
 
     private val trackPath = Path()
-    private val cornerPath = Path()
-    private val halfRectPath = Path()
 }
 
 private fun snapValueToTick(
