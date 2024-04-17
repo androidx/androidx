@@ -19,6 +19,7 @@ package androidx.camera.integration.uiwidgets.viewpager
 import android.content.Context
 import android.content.Intent
 import android.graphics.SurfaceTexture
+import android.os.Build
 import android.view.TextureView
 import android.view.View
 import androidx.camera.camera2.Camera2Config
@@ -28,6 +29,7 @@ import androidx.camera.integration.uiwidgets.R
 import androidx.camera.integration.uiwidgets.viewpager.BaseActivity.Companion.COMPATIBLE_MODE
 import androidx.camera.integration.uiwidgets.viewpager.BaseActivity.Companion.PERFORMANCE_MODE
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -41,7 +43,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
@@ -52,6 +53,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -157,9 +159,9 @@ class ViewPager2ActivityTest(
     }
 
     // The test makes sure the TextureView surface texture keeps the same after switch.
-    @SdkSuppress(maxSdkVersion = 33) // b/331933633
     @Test
     fun testPreviewViewUpdateAfterSwitch() {
+        assumeFalse(shouldSkipTest()) // b/331933633
 
         launchActivity(lensFacing, cameraXConfig).use { scenario ->
             // At first, check Preview in stream state
@@ -178,6 +180,15 @@ class ViewPager2ActivityTest(
             assertPreviewViewUpdate(scenario)
         }
     }
+
+    /**
+     * The testPreviewViewUpdateAfterSwitch test will run failed in API 34 emulator's front camera
+     * when using SurfaceView implementation. See b/331933633.
+     */
+    private fun shouldSkipTest() = isEmulator() &&
+        Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+        lensFacing == CameraSelector.LENS_FACING_FRONT &&
+        implementationMode == PERFORMANCE_MODE
 
     @Test
     fun testPreviewViewUpdateAfterSwitchAndStop_ResumeAndSwitchBack() {
