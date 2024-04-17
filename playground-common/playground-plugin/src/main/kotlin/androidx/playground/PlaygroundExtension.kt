@@ -143,7 +143,7 @@ open class PlaygroundExtension @Inject constructor(
         }
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
         val playgroundProjectDependencyGraph =
-            ProjectDependencyGraph(settings, true /*isPlayground*/)
+            ProjectDependencyGraph(settings, true /*isPlayground*/, false /*constraintsEnabled*/)
         // also get full graph that treats projectOrArtifact equal to project
         val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
 
