@@ -153,7 +153,7 @@ public class Text implements LayoutElement {
         // know whether that size was scaled or not.
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setIsScalable(boolean isScalable) {
+        public Builder setScalable(boolean isScalable) {
             this.mIsScalable = isScalable;
             return this;
         }
