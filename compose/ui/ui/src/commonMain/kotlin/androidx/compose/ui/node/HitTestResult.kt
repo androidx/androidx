@@ -40,6 +40,8 @@ internal class HitTestResult : List<Modifier.Node> {
     override var size: Int = 0
         private set
 
+    var shouldSharePointerInputWithSibling = true
+
     /**
      * `true` when there has been a direct hit within touch bounds ([hit] called) or
      * `false` otherwise.
@@ -95,6 +97,9 @@ internal class HitTestResult : List<Modifier.Node> {
      */
     fun hit(node: Modifier.Node, isInLayer: Boolean, childHitTest: () -> Unit) {
         hitInMinimumTouchTarget(node, -1f, isInLayer, childHitTest)
+        if (node.coordinator?.shouldSharePointerInputWithSiblings() == false) {
+            shouldSharePointerInputWithSibling = false
+        }
     }
 
     /**
@@ -238,6 +243,7 @@ internal class HitTestResult : List<Modifier.Node> {
     fun clear() {
         hitDepth = -1
         resizeToHitDepth()
+        shouldSharePointerInputWithSibling = true
     }
 
     private inner class HitTestResultIterator(

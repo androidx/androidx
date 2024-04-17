@@ -240,9 +240,7 @@ internal class InnerNodeCoordinator(
                         val continueHitTest: Boolean
                         if (!wasHit) {
                             continueHitTest = true
-                        } else if (
-                            child.outerCoordinator.shouldSharePointerInputWithSiblings()
-                        ) {
+                        } else if (hitTestResult.shouldSharePointerInputWithSibling) {
                             hitTestResult.acceptHits()
                             continueHitTest = true
                         } else {

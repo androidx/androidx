@@ -101,11 +101,6 @@ internal class HandwritingTestStylusInjectScope(
     }
 
     private fun sendTouchEvent(action: Int) {
-        val positionInScreen = run {
-            val array = intArrayOf(0, 0)
-            root.view.getLocationOnScreen(array)
-            Offset(array[0].toFloat(), array[1].toFloat())
-        }
         val motionEvent = MotionEvent.obtain(
             /* downTime = */ downTime,
             /* eventTime = */ currentTime,
@@ -125,13 +120,13 @@ internal class HandwritingTestStylusInjectScope(
                     // test if it handles them properly (versus breaking here and we not knowing
                     // if Compose properly handles these values).
                     x = if (startOffset.isValid()) {
-                        positionInScreen.x + startOffset.x
+                        startOffset.x
                     } else {
                         Float.NaN
                     }
 
                     y = if (startOffset.isValid()) {
-                        positionInScreen.y + startOffset.y
+                        startOffset.y
                     } else {
                         Float.NaN
                     }
