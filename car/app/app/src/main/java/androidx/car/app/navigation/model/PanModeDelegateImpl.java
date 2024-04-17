@@ -65,7 +65,7 @@ public class PanModeDelegateImpl implements PanModeDelegate {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static PanModeDelegate create(@NonNull PanModeListener listener) {
+    public static PanModeDelegate create(@NonNull PanModeListener listener) {
         return new PanModeDelegateImpl(listener);
     }
 
