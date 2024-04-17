@@ -22,8 +22,11 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeName.Companion.ANY_OBJECT
 import androidx.room.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
+import androidx.room.compiler.processing.compat.XConverters.toKS
+import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_KTYPE_NAME
+import androidx.room.compiler.processing.ksp.KspTypeArgumentType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
@@ -41,6 +44,7 @@ import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.symbol.Variance
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.squareup.javapoet.ClassName
@@ -63,6 +67,9 @@ import org.junit.runner.RunWith
 
 @RunWith(TestParameterInjector::class)
 class XTypeTest {
+
+    private val UNKNOWN = JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
+
     @Test
     fun typeArguments() {
         val parent =
@@ -195,6 +202,155 @@ class XTypeTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun starProjectionsKotlin() {
+        val source =
+            Source.kotlin(
+                "Parent.kt",
+                """
+            package foo.bar
+            interface TUpper
+            class FooOut<out T: TUpper>
+            class FooIn<in T>
+            class Foo<T: TUpper>
+            class Test {
+                fun f(): Foo<*> = TODO()
+                fun fIn(): FooIn<*> = TODO()
+                fun fOut(): FooOut<*> = TODO()
+            }
+            """
+                    .trimIndent()
+            )
+        fun checkKsp(invocation: XTestInvocation) {
+            invocation.processingEnv.requireTypeElement("foo.bar.Test").let { cls ->
+                cls.getMethodByJvmName("f").returnType.let { returnType ->
+                    returnType.typeArguments.single().let { typeArgType ->
+                        (typeArgType as KspTypeArgumentType).typeArg.let { ksTypeArg ->
+                            assertThat(ksTypeArg.variance).isEqualTo(Variance.STAR)
+                            // The type is resolved to the upper bound in KSP1 but is null in KSP2.
+                            if (invocation.kspProcessingEnv.isKsp2) {
+                                assertThat(ksTypeArg.type).isNull()
+                            } else {
+                                assertThat(ksTypeArg.type!!.resolve().toString())
+                                    .isEqualTo("TUpper")
+                            }
+                        }
+
+                        assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
+                        assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                    }
+                }
+
+                cls.getMethodByJvmName("fOut").returnType.let { returnType ->
+                    returnType.typeArguments.single().let { typeArgType ->
+                        (typeArgType as KspTypeArgumentType).typeArg.let { ksTypeArg ->
+                            // The variance doesn't get replaced to OUT/COVARIANT.
+                            assertThat(ksTypeArg.variance).isEqualTo(Variance.STAR)
+                            if (invocation.kspProcessingEnv.isKsp2) {
+                                assertThat(ksTypeArg.type).isNull()
+                            } else {
+                                assertThat(ksTypeArg.type!!.resolve().toString())
+                                    .isEqualTo("TUpper")
+                            }
+                        }
+                        assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
+                        assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                    }
+                }
+
+                cls.getMethodByJvmName("fIn").returnType.let { returnType ->
+                    returnType.typeArguments.single().let { typeArgType ->
+                        (typeArgType as KspTypeArgumentType).typeArg.let { ksTypeArg ->
+                            // The variance doesn't get replaced to IN/CONTRAVARIANT.
+                            assertThat(ksTypeArg.variance).isEqualTo(Variance.STAR)
+                            if (invocation.kspProcessingEnv.isKsp2) {
+                                assertThat(ksTypeArg.type).isNull()
+                            } else {
+                                // The type is still resolved to the upper bound instead of Nothing.
+                                assertThat(ksTypeArg.type!!.resolve().toString()).isEqualTo("Any?")
+                            }
+                        }
+                        assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
+                        assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                    }
+                }
+            }
+        }
+        fun checkJavac(invocation: XTestInvocation) {
+            invocation.processingEnv.requireTypeElement("foo.bar.Test").let { cls ->
+                listOf("f", "fIn", "fOut").forEach { methodName ->
+                    cls.getMethodByJvmName(methodName)
+                        .returnType
+                        .typeArguments
+                        .map { it as JavacType }
+                        .single()
+                        .let {
+                            assertThat(it.toString()).isEqualTo("?")
+                            assertThat(it.asTypeName().java).isEqualTo(UNKNOWN)
+                        }
+                }
+            }
+        }
+        fun handler(invocation: XTestInvocation) {
+            if (invocation.isKsp) {
+                checkKsp(invocation)
+            } else {
+                checkJavac(invocation)
+            }
+        }
+        runProcessorTest(sources = listOf(source), handler = ::handler)
+        runProcessorTest(classpath = compileFiles(listOf(source)), handler = ::handler)
+    }
+
+    @Test
+    fun starProjectionsJava() {
+        val source =
+            Source.java(
+                "foo.bar.Parent",
+                """
+            package foo.bar;
+            import java.io.InputStream;
+            import java.util.Set;
+            import java.util.List;
+
+            interface TUpper {}
+            class Foo<T extends TUpper> {}
+            class Test {
+                Foo<?> f() {
+                    throw new RuntimeException();
+                }
+            }
+            """
+                    .trimIndent()
+            )
+        fun handler(invocation: XTestInvocation) {
+            invocation.processingEnv.requireTypeElement("foo.bar.Test").let { cls ->
+                cls.getMethodByJvmName("f").returnType.let { returnType ->
+                    returnType.typeArguments.single().let { typeArgType ->
+                        if (invocation.isKsp) {
+                            val kspVersion = invocation.processingEnv.toKS().kspVersion
+                            (typeArgType as KspTypeArgumentType).typeArg.type.let { typeRef ->
+                                if (kspVersion >= KotlinVersion(2, 0)) {
+                                    assertThat(typeRef).isNull()
+                                } else {
+                                    assertThat(typeRef!!.resolve().toString())
+                                        .isEqualTo("(TUpper..TUpper?)")
+                                }
+                            }
+                            assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
+                            assertThat(typeArgType.asTypeName().kotlin).isEqualTo(STAR)
+                        } else {
+                            assertThat(typeArgType.toString()).isEqualTo("?")
+                            assertThat(typeArgType.asTypeName().java).isEqualTo(UNKNOWN)
+                        }
+                    }
+                }
+            }
+        }
+        runProcessorTest(sources = listOf(source), handler = ::handler)
+        runProcessorTest(classpath = compileFiles(listOf(source)), handler = ::handler)
     }
 
     @Test

@@ -277,10 +277,11 @@ internal class KspProcessingEnv(
                 allowPrimitives = false
             )
         }
-        return KspTypeArgumentType(
-            env = this,
-            typeArg = ksTypeArgument,
-        )
+        return if (ksTypeArgument.variance == Variance.STAR) {
+            KspStarTypeArgumentType(env = this, typeArg = ksTypeArgument)
+        } else {
+            KspTypeArgumentType(env = this, typeArg = ksTypeArgument)
+        }
     }
 
     /**
