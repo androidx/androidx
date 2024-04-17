@@ -99,48 +99,33 @@ internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
     return null
 }
 
-internal inline fun DelegatableNode.visitSubtree(mask: Int, block: (Modifier.Node) -> Unit) {
-    // TODO(lmr): we might want to add some safety wheels to prevent this from being called
-    //  while one of the chains is being diffed / updated.
-    checkPrecondition(node.isAttached) { "visitSubtree called on an unattached node" }
-    var node: Modifier.Node? = node.child
-    var layout: LayoutNode? = requireLayoutNode()
-    // we use this bespoke data structure here specifically for traversing children. In the
-    // depth first traversal you would typically do a `stack.addAll(node.children)` type
-    // call, but to avoid enumerating the vector and moving into our stack, we simply keep
-    // a stack of vectors and keep track of where we are in each
-    val nodes = NestedVectorStack<LayoutNode>()
-    while (layout != null) {
-        // NOTE: the ?: is important here for the starting condition, since we are starting
-        // at THIS node, and not the head of this node chain.
-        node = node ?: layout.nodes.head
-        if (node.aggregateChildKindSet and mask != 0) {
-            while (node != null) {
-                if (node.kindSet and mask != 0) {
-                    block(node)
-                }
-                node = node.child
-            }
-        }
-        node = null
-        nodes.push(layout._children)
-        layout = if (nodes.isNotEmpty()) nodes.pop() else null
+private fun LayoutNode.getChildren(zOrder: Boolean) =
+    if (zOrder) {
+        zSortedChildren
+    } else {
+        _children
     }
+
+private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(
+    node: Modifier.Node,
+    zOrder: Boolean,
+) {
+    node.requireLayoutNode().getChildren(zOrder).forEachReversed { add(it.nodes.head) }
 }
 
-private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(node: Modifier.Node) {
-    node.requireLayoutNode()._children.forEachReversed { add(it.nodes.head) }
-}
-
-internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.Node) -> Unit) {
+internal inline fun DelegatableNode.visitChildren(
+    mask: Int,
+    zOrder: Boolean,
+    block: (Modifier.Node) -> Unit
+) {
     check(node.isAttached) { "visitChildren called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
-    if (child == null) branches.addLayoutNodeChildren(node) else branches.add(child)
+    if (child == null) branches.addLayoutNodeChildren(node, zOrder) else branches.add(child)
     while (branches.isNotEmpty()) {
         val branch = branches.removeAt(branches.lastIndex)
         if (branch.aggregateChildKindSet and mask == 0) {
-            branches.addLayoutNodeChildren(branch)
+            branches.addLayoutNodeChildren(branch, zOrder)
             // none of these nodes match the mask, so don't bother traversing them
             continue
         }
@@ -159,11 +144,15 @@ internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.No
  * visit the shallow tree of children of a given mask, but if block returns true, we will continue
  * traversing below it
  */
-internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.Node) -> Boolean) {
+internal inline fun DelegatableNode.visitSubtreeIf(
+    mask: Int,
+    zOrder: Boolean,
+    block: (Modifier.Node) -> Boolean
+) {
     checkPrecondition(node.isAttached) { "visitSubtreeIf called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
-    if (child == null) branches.addLayoutNodeChildren(node) else branches.add(child)
+    if (child == null) branches.addLayoutNodeChildren(node, zOrder) else branches.add(child)
     outer@ while (branches.isNotEmpty()) {
         val branch = branches.removeAt(branches.size - 1)
         if (branch.aggregateChildKindSet and mask != 0) {
@@ -176,7 +165,7 @@ internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.N
                 node = node.child
             }
         }
-        branches.addLayoutNodeChildren(branch)
+        branches.addLayoutNodeChildren(branch, zOrder)
     }
 }
 
@@ -264,30 +253,38 @@ internal inline fun <reified T : Any> DelegatableNode.nearestAncestor(type: Node
     return null
 }
 
-internal inline fun <reified T> DelegatableNode.visitSubtree(
-    type: NodeKind<T>,
-    block: (T) -> Unit
-) = visitSubtree(type.mask) { it.dispatchForKind(type, block) }
-
 internal inline fun <reified T> DelegatableNode.visitChildren(
     type: NodeKind<T>,
+    zOrder: Boolean = false,
     block: (T) -> Unit
-) = visitChildren(type.mask) { it.dispatchForKind(type, block) }
+) = visitChildren(type.mask, zOrder) { it.dispatchForKind(type, block) }
 
 internal inline fun <reified T> DelegatableNode.visitSelfAndChildren(
     type: NodeKind<T>,
+    zOrder: Boolean = false,
     block: (T) -> Unit
 ) {
     node.dispatchForKind(type, block)
-    visitChildren(type.mask) { it.dispatchForKind(type, block) }
+    visitChildren(type.mask, zOrder) { it.dispatchForKind(type, block) }
 }
 
 internal inline fun <reified T> DelegatableNode.visitSubtreeIf(
     type: NodeKind<T>,
+    zOrder: Boolean = false,
     block: (T) -> Boolean
 ) =
-    visitSubtreeIf(type.mask) foo@{ node ->
+    visitSubtreeIf(type.mask, zOrder) foo@{ node ->
         node.dispatchForKind(type) { if (!block(it)) return@foo false }
+        true
+    }
+
+internal inline fun <reified T> DelegatableNode.visitSubtree(
+    type: NodeKind<T>,
+    zOrder: Boolean = false,
+    block: (T) -> Unit
+) =
+    visitSubtreeIf(type.mask, zOrder) {
+        it.dispatchForKind(type, block)
         true
     }
 
