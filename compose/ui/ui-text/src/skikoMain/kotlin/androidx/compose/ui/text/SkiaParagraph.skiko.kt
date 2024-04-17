@@ -282,8 +282,8 @@ internal class SkiaParagraph(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
-    ): TextRange? {
-        return null
+    ): TextRange {
+        return TextRange.Zero
     }
 
     override fun getBoundingBox(offset: Int): Rect {

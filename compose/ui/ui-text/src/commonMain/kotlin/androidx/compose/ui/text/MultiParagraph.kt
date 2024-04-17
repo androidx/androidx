@@ -504,12 +504,14 @@ class MultiParagraph(
      * @param granularity the granularity of the text, it controls how text is segmented.
      * @param inclusionStrategy the strategy that determines whether a range of text's bounds is
      * inside the given [rect] or not.
+     * @return the [TextRange] that is inside the given [rect], or [TextRange.Zero] if no text is
+     * found.
      */
     fun getRangeForRect(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
-    ): TextRange? {
+    ): TextRange {
         var firstParagraph = findParagraphByY(paragraphInfoList, rect.top)
         // The first paragraph contains the entire rect, return early in this case.
         if (paragraphInfoList[firstParagraph].bottom >= rect.bottom ||
@@ -519,41 +521,41 @@ class MultiParagraph(
                     rect.toLocal(),
                     granularity,
                     inclusionStrategy
-                )?.toGlobal()
+                ).toGlobal()
             }
         }
 
         var lastParagraph = findParagraphByY(paragraphInfoList, rect.bottom)
 
-        var startRange: TextRange? = null
-        while (startRange == null && firstParagraph <= lastParagraph) {
+        var startRange: TextRange = TextRange.Zero
+        while (startRange == TextRange.Zero && firstParagraph <= lastParagraph) {
             startRange = with(paragraphInfoList[firstParagraph]) {
                 paragraph.getRangeForRect(
                     rect.toLocal(),
                     granularity,
                     inclusionStrategy
-                )?.toGlobal()
+                ).toGlobal()
             }
             ++firstParagraph
         }
 
-        if (startRange == null) {
-            return null
+        if (startRange == TextRange.Zero) {
+            return TextRange.Zero
         }
 
-        var endRange: TextRange? = null
-        while (endRange == null && firstParagraph <= lastParagraph) {
+        var endRange: TextRange = TextRange.Zero
+        while (endRange == TextRange.Zero && firstParagraph <= lastParagraph) {
             endRange = with(paragraphInfoList[lastParagraph]) {
                 paragraph.getRangeForRect(
                     rect.toLocal(),
                     granularity,
                     inclusionStrategy
-                )?.toGlobal()
+                ).toGlobal()
             }
             --lastParagraph
         }
 
-        if (endRange == null) return startRange
+        if (endRange == TextRange.Zero) return startRange
         return TextRange(startRange.start, endRange.end)
     }
 
@@ -737,7 +739,7 @@ class MultiParagraph(
         }
 
         return with(paragraphInfoList[paragraphIndex]) {
-            paragraph.getWordBoundary(offset.toLocalIndex()).toGlobal()
+            paragraph.getWordBoundary(offset.toLocalIndex()).toGlobal(treatZeroAsNull = false)
         }
     }
 
@@ -1130,8 +1132,13 @@ internal data class ParagraphInfo(
     /**
      * Convert a [TextRange] in to the [paragraph] to the [TextRange] in the parent
      * [MultiParagraph].
+     * @param treatZeroAsNull whether [TextRange.Zero] is used represents `null`. When it's true,
+     * [TextRange.Zero] is not mapped to global index and is returned directly.
      */
-    fun TextRange.toGlobal(): TextRange {
+    fun TextRange.toGlobal(treatZeroAsNull: Boolean = true): TextRange {
+        if (treatZeroAsNull && this == TextRange.Zero) {
+            return TextRange.Zero
+        }
         return TextRange(start = start.toGlobalIndex(), end = end.toGlobalIndex())
     }
 }
