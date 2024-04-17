@@ -22,6 +22,7 @@ import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.throwSQLiteException
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
+import kotlin.concurrent.Volatile
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
@@ -39,6 +40,8 @@ class NativeSQLiteConnection(
     private val dbPointer: CPointer<sqlite3>
 ) : SQLiteConnection {
 
+    @OptIn(ExperimentalStdlibApi::class)
+    @Volatile
     private var isClosed = false
 
     override fun prepare(sql: String): SQLiteStatement = memScoped {
@@ -62,7 +65,9 @@ class NativeSQLiteConnection(
     }
 
     override fun close() {
-        sqlite3_close_v2(dbPointer)
+        if (!isClosed) {
+            sqlite3_close_v2(dbPointer)
+        }
         isClosed = true
     }
 }
