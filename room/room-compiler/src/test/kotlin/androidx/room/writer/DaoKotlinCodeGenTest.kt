@@ -1339,13 +1339,21 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Query("SELECT * FROM MyEntity")
               fun queryOfArray(): Array<MyEntity>
 
+              @Suppress(RoomWarnings.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE)
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableArray(): Array<MyEntity?>
+
               @Query("SELECT pk FROM MyEntity")
               fun queryOfArrayWithLong(): Array<Long>
 
-              @Query("SELECT * FROM MyEntity")
+              @Suppress(RoomWarnings.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE)
+              @Query("SELECT pk FROM MyEntity")
+              fun queryOfArrayWithNullableLong(): Array<Long?>
+
+              @Query("SELECT pk FROM MyEntity")
               fun queryOfLongArray(): LongArray
 
-              @Query("SELECT * FROM MyEntity")
+              @Query("SELECT pk FROM MyEntity")
               fun queryOfShortArray(): ShortArray
             }
 

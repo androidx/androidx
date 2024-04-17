@@ -264,34 +264,44 @@ public final class ComplexDao_Impl extends ComplexDao {
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");
         final String _sql = _stringBuilder.toString();
-        final int _argCount = 0 + _inputSize;
-        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-        int _argIndex = 1;
-        if (ids == null) {
-            _statement.bindNull(_argIndex);
-        } else {
-            for (int _item : ids) {
-                _statement.bindLong(_argIndex, _item);
-                _argIndex++;
+        return DBUtil.performBlocking(__db, true, false, new Function1<SQLiteConnection, int[]>() {
+            @Override
+            @NonNull
+            public int[] invoke(@NonNull final SQLiteConnection _connection) {
+                final SQLiteStatement _stmt = _connection.prepare(_sql);
+                try {
+                    int _argIndex = 1;
+                    if (ids == null) {
+                        _stmt.bindNull(_argIndex);
+                    } else {
+                        for (int _item : ids) {
+                            _stmt.bindLong(_argIndex, _item);
+                            _argIndex++;
+                        }
+                    }
+                    final List<Integer> _listResult = new ArrayList<Integer>();
+                    while (_stmt.step()) {
+                        final Integer _item_1;
+                        if (_stmt.isNull(0)) {
+                            _item_1 = null;
+                        } else {
+                            _item_1 = (int) (_stmt.getLong(0));
+                        }
+                        _listResult.add(_item_1);
+                    }
+                    final int[] _tmpArrayResult = new int[_listResult.size()];
+                    int _index = 0;
+                    for (int _listItem : _listResult) {
+                        _tmpArrayResult[_index] = _listItem;
+                        _index++;
+                    }
+                    final int[] _result = _tmpArrayResult;
+                    return _result;
+                } finally {
+                    _stmt.close();
+                }
             }
-        }
-        __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-        try {
-            final int[] _tmpResult = new int[_cursor.getCount()];
-            int _index = 0;
-            while (_cursor.moveToNext()) {
-                final int _item_1;
-                _item_1 = _cursor.getInt(0);
-                _tmpResult[_index] = _item_1;
-                _index++;
-            }
-            final int[] _result = _tmpResult;
-            return _result;
-        } finally {
-            _cursor.close();
-            _statement.release();
-        }
+        });
     }
 
     @Override
