@@ -94,14 +94,12 @@ class NavDeepLinkBuilderTest {
             .isNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun buildDeepLinkAllSetKClass() {
         val expectedUri = "example.com"
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
-        val navDeepLink = navDeepLink<TestClass> {
-            uriPattern = expectedUri
+        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
             action = expectedAction
             mimeType = expectedMimeType
         }
@@ -116,7 +114,6 @@ class NavDeepLinkBuilderTest {
             .isEqualTo(expectedMimeType)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun buildDeepLinkAllSetKClassWithPathArgs() {
         @Serializable
@@ -125,8 +122,7 @@ class NavDeepLinkBuilderTest {
         val expectedUri = "example.com"
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
-        val navDeepLink = navDeepLink<TestClass> {
-            uriPattern = expectedUri
+        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
             action = expectedAction
             mimeType = expectedMimeType
         }
@@ -141,7 +137,6 @@ class NavDeepLinkBuilderTest {
             .isEqualTo(expectedMimeType)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun buildDeepLinkAllSetKClassWithQueryArgs() {
         @Serializable
@@ -150,8 +145,7 @@ class NavDeepLinkBuilderTest {
         val expectedUri = "example.com"
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
-        val navDeepLink = navDeepLink<TestClass> {
-            uriPattern = expectedUri
+        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
             action = expectedAction
             mimeType = expectedMimeType
         }
@@ -166,41 +160,24 @@ class NavDeepLinkBuilderTest {
             .isEqualTo(expectedMimeType)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
-    fun buildDeepLinkNoneSetKClass() {
-        var exception: IllegalStateException? = null
+    fun buildDeepLinkEmptyUriKClass() {
+        var exception: IllegalArgumentException? = null
         try {
-            navDeepLink<TestClass> {}
+            navDeepLink<TestClass>("") { action = "action" }
             fail("NavDeepLink must throw when attempting to build an empty builder.")
-        } catch (e: IllegalStateException) {
+        } catch (e: IllegalArgumentException) {
             exception = e
         }
         assertThat(exception?.message)
-            .isEqualTo("The NavDeepLink must have an uri, action, and/or mimeType.")
+            .isEqualTo("The basePath for NavDeepLink from KClass cannot be empty")
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    fun buildDeepLinkNoUriKClass() {
-        var exception: IllegalStateException? = null
-        try {
-            navDeepLink<TestClass> { action = "action" }
-            fail("NavDeepLink must throw when attempting to build an empty builder.")
-        } catch (e: IllegalStateException) {
-            exception = e
-        }
-        assertThat(exception?.message)
-            .isEqualTo("Failed to build NavDeepLink from KClass. Ensure base path is " +
-                "set through uriPattern.")
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun buildDeepLinkEmptyActionKClass() {
         var exception: IllegalArgumentException? = null
         try {
-            navDeepLink<TestClass> { action = "" }
+            navDeepLink<TestClass>("base") { action = "" }
             fail("NavDeepLink must throw when attempting to build with an empty action.")
         } catch (e: IllegalArgumentException) {
             exception = e
@@ -209,12 +186,10 @@ class NavDeepLinkBuilderTest {
             .isEqualTo("The NavDeepLink cannot have an empty action.")
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun buildDeepLinkDoubleActionSetNullKClass() {
         val expectedUri = "www.example.com"
-        val navDeepLink = navDeepLink<TestClass> {
-            uriPattern = expectedUri
+        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
             action = "blah"
             action = null
         }

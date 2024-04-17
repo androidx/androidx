@@ -56,7 +56,9 @@ class EmptyNavDeepLinkDetector : Detector(), SourceCodeScanner {
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // valueArgumentCount should be 1 when navDeepLink is called
-        if (node.valueArgumentCount > 0) {
+        // safe args version of navDeepLink (reified T) can have no lambda, as the base uriPattern
+        // is passed in as param
+        if (node.valueArgumentCount > 0 && node.typeArgumentCount == 0) {
             val lam = node.valueArguments[0] as ULambdaExpression
             val body = lam.body as UBlockExpression
             if (body.expressions.isEmpty()) {
