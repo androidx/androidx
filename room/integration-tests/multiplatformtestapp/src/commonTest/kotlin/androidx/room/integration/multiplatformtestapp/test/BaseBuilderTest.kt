@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room.RoomDatabase
 import androidx.room.useReaderConnection
+import androidx.room.useWriterConnection
 import androidx.sqlite.SQLiteConnection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
@@ -137,6 +138,32 @@ abstract class BaseBuilderTest {
         assertThrows<IllegalStateException> {
             database.dao().getItemList()
         }.hasMessageThat().contains("Recursive database initialization detected.")
+        database.close()
+    }
+
+    @Test
+    fun onConfigureConnections() = runTest {
+        val database = getRoomDatabaseBuilder().build()
+        // Validate that all connections are configured to be use by Room, in this case that they
+        // all have foreign keys enables as that is a per-connection PRAGMA.
+        val jobs = List(4) {
+            launch(Dispatchers.IO) {
+                database.useReaderConnection { connection ->
+                    connection.usePrepared("PRAGMA foreign_keys") {
+                        assertThat(it.step()).isTrue() // SQLITE_ROW
+                        assertThat(it.getBoolean(0)).isTrue()
+                    }
+                }
+            }
+        } + launch(Dispatchers.IO) {
+            database.useWriterConnection { connection ->
+                connection.usePrepared("PRAGMA foreign_keys") {
+                    assertThat(it.step()).isTrue() // SQLITE_ROW
+                    assertThat(it.getBoolean(0)).isTrue()
+                }
+            }
+        }
+        jobs.joinAll()
         database.close()
     }
 
