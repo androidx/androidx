@@ -518,7 +518,6 @@ public class NavDeepLink internal constructor(
          *
          * @return This builder.
          */
-        @ExperimentalSafeArgsApi
         public inline fun <reified T : Any> setUriPattern(
             basePath: String,
             typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -599,7 +598,6 @@ public class NavDeepLink internal constructor(
              * @return a [Builder] instance
              */
             @JvmStatic
-            @ExperimentalSafeArgsApi
             inline fun <reified T : Any> fromUriPattern(
                 basePath: String,
                 typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
