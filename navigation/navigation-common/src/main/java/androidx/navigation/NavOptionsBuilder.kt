@@ -69,8 +69,8 @@ public class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
     @Deprecated("Use the popUpToId property.")
     public var popUpTo: Int
@@ -81,8 +81,8 @@ public class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
     public var popUpToRoute: String? = null
         private set(value) {
@@ -96,8 +96,8 @@ public class NavOptionsBuilder {
     private var saveState = false
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
     // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
     @property:ExperimentalSafeArgsApi
@@ -114,8 +114,8 @@ public class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
     // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
     @property:ExperimentalSafeArgsApi
