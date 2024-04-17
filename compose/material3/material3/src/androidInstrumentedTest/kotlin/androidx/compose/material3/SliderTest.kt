@@ -879,7 +879,9 @@ class SliderTest {
             slop = LocalViewConfiguration.current.touchSlop
             RangeSlider(
                 state = state,
-                modifier = Modifier.testTag(tag)
+                modifier = Modifier.testTag(tag),
+                startThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },
+                endThumb = { SliderDefaults.Thumb(MutableInteractionSource()) }
             )
         }
 
