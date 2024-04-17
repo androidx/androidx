@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Deletion
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Insertion
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Replacement
@@ -184,6 +185,13 @@ internal class TransformedTextFieldState(
     fun selectUntransformedCharsIn(untransformedRange: TextRange) {
         textFieldState.editAsUser(inputTransformation) {
             setSelection(untransformedRange.start, untransformedRange.end)
+        }
+    }
+
+    fun highlightCharsIn(type: TextHighlightType, transformedRange: TextRange) {
+        val untransformedRange = mapFromTransformed(transformedRange)
+        textFieldState.editAsUser(inputTransformation) {
+            setHighlight(type, untransformedRange.start, untransformedRange.end)
         }
     }
 

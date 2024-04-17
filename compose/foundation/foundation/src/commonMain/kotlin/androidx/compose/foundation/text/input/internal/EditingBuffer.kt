@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 
@@ -53,6 +54,7 @@ internal class EditingBuffer(
         private set(value) {
             require(value >= 0) { "Cannot set selectionStart to a negative value: $value" }
             field = value
+            highlight = null
         }
 
     /**
@@ -62,7 +64,14 @@ internal class EditingBuffer(
         private set(value) {
             require(value >= 0) { "Cannot set selectionEnd to a negative value: $value" }
             field = value
+            highlight = null
         }
+
+    /**
+     * A highlighted range of text. This may be used to display handwriting gesture previews from
+     * the IME.
+     */
+    var highlight: Pair<TextHighlightType, TextRange>? = null
 
     /**
      * The inclusive composition start offset
@@ -186,6 +195,8 @@ internal class EditingBuffer(
         // to set composition range after replace function.
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
+
+        highlight = null
     }
 
     /**
@@ -219,6 +230,8 @@ internal class EditingBuffer(
                 compositionEnd = newComposition.max
             }
         }
+
+        highlight = null
     }
 
     /**
@@ -235,6 +248,33 @@ internal class EditingBuffer(
 
         selectionStart = clampedStart
         selectionEnd = clampedEnd
+    }
+
+    /**
+     * Mark a range of text to be highlighted. This may be used to display handwriting gesture
+     * previews from the IME.
+     *
+     * An empty or reversed range is not allowed.
+     *
+     * @param type the highlight type
+     * @param start the inclusive start offset of the highlight
+     * @param end the exclusive end offset of the highlight
+     */
+    fun setHighlight(type: TextHighlightType, start: Int, end: Int) {
+        if (start >= end) {
+            throw IllegalArgumentException("Do not set reversed or empty range: $start > $end")
+        }
+        val clampedStart = start.coerceIn(0, length)
+        val clampedEnd = end.coerceIn(0, length)
+
+        highlight = Pair(type, TextRange(clampedStart, clampedEnd))
+    }
+
+    /**
+     * Clear the highlighted text range.
+     */
+    fun clearHighlight() {
+        highlight = null
     }
 
     /**

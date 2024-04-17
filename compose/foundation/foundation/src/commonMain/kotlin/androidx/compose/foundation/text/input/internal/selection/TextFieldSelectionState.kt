@@ -246,6 +246,7 @@ internal class TextFieldSelectionState(
         val text = textFieldState.visualText
         val visible = showCursorHandle &&
             text.selection.collapsed &&
+            text.shouldShowSelection() &&
             text.isNotEmpty() &&
             (draggingHandle == Handle.Cursor || cursorHandleInBounds)
 
@@ -1050,6 +1051,8 @@ internal class TextFieldSelectionState(
                 ?: false)
 
         if (!visible) return TextFieldHandleState.Hidden
+
+        if (!textFieldState.visualText.shouldShowSelection()) return TextFieldHandleState.Hidden
 
         val directionOffset = if (isStartHandle) selection.start else max(selection.end - 1, 0)
         val direction = layoutResult.getBidiRunDirection(directionOffset)

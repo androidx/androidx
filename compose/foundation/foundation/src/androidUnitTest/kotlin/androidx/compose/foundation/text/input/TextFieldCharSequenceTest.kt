@@ -83,7 +83,8 @@ class TextFieldCharSequenceTest {
         val textFieldValue = TextFieldCharSequence(
             text = "a",
             selection = TextRange(1),
-            composition = TextRange(2)
+            composition = TextRange(2),
+            highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
         )
 
         assertThat(textFieldValue).isEqualTo(textFieldValue)
@@ -94,26 +95,29 @@ class TextFieldCharSequenceTest {
         val textFieldValue = TextFieldCharSequence(
             text = "a",
             selection = TextRange(1),
-            composition = TextRange(2)
+            composition = TextRange(2),
+            highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
         )
 
         assertThat(
             TextFieldCharSequence(
                 textFieldValue,
                 textFieldValue.selection,
-                textFieldValue.composition
+                textFieldValue.composition,
+                textFieldValue.highlight
             )
         ).isEqualTo(textFieldValue)
     }
 
     @Test
-    fun text_and_selection_parameter_constructor_has_null_composition() {
+    fun text_and_selection_parameter_constructor_has_null_composition_and_highlight() {
         val textFieldValue = TextFieldCharSequence(
             text = "a",
             selection = TextRange(1)
         )
 
         assertThat(textFieldValue.composition).isNull()
+        assertThat(textFieldValue.highlight).isNull()
     }
 
     private fun TextEditState(text: String, composition: TextRange) =

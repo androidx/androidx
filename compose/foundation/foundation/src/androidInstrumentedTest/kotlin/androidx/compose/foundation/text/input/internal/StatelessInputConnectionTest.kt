@@ -19,11 +19,13 @@ package androidx.compose.foundation.text.input.internal
 import android.content.ClipDescription
 import android.net.Uri
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.TextFieldCharSequence
@@ -82,6 +84,13 @@ class StatelessInputConnectionTest {
 
         override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
             return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
+        }
+
+        override fun previewHandwritingGesture(
+            gesture: PreviewableHandwritingGesture,
+            cancellationSignal: CancellationSignal?
+        ): Boolean {
+            return false
         }
     }
 
