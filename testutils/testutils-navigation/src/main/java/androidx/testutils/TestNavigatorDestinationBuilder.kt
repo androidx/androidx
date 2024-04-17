@@ -19,7 +19,6 @@
 package androidx.testutils
 
 import androidx.annotation.IdRes
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
@@ -84,7 +83,6 @@ inline fun <reified T : Any> NavGraphBuilder.test(
  * DSL for constructing a new [TestNavigator.Destination]
  */
 @NavDestinationDsl
-@OptIn(ExperimentalSafeArgsApi::class)
 class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Destination> {
     @Suppress("DEPRECATION")
     constructor(navigator: TestNavigator, @IdRes id: Int = 0) : super(navigator, id)

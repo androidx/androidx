@@ -301,7 +301,6 @@ public class NavBackStackEntry private constructor(
  *
  * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T> NavBackStackEntry.toRoute(): T {
     val bundle = arguments ?: Bundle()
     val typeMap = destination.arguments.mapValues {

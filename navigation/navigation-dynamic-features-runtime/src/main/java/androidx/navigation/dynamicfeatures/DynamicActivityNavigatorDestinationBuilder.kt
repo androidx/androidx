@@ -22,7 +22,6 @@ import android.content.ComponentName
 import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.navigation.ActivityNavigator
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavType
@@ -70,7 +69,6 @@ public inline fun DynamicNavGraphBuilder.activity(
  * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> DynamicNavGraphBuilder.activity(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
@@ -119,7 +117,6 @@ public class DynamicActivityNavigatorDestinationBuilder :
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
      * [NavType]. May be empty if [route] does not use custom NavTypes.
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         activityNavigator: DynamicActivityNavigator,
         route: KClass<*>,

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSafeArgsApi::class)
-
 package androidx.navigation.fragment
 
 import androidx.fragment.app.DialogFragment
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.contains
 import androidx.navigation.createGraph
 import androidx.navigation.get

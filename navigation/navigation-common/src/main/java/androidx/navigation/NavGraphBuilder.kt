@@ -73,7 +73,6 @@ public inline fun NavigatorProvider.navigation(
  *
  * @return the newly constructed NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun NavigatorProvider.navigation(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
@@ -94,7 +93,6 @@ public inline fun NavigatorProvider.navigation(
  *
  * @return the newly constructed NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun NavigatorProvider.navigation(
     startDestination: Any,
     route: KClass<*>? = null,
@@ -153,7 +151,6 @@ public inline fun NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -173,7 +170,6 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -251,7 +247,6 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         provider: NavigatorProvider,
         startDestination: KClass<*>,
@@ -274,7 +269,6 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         provider: NavigatorProvider,
         startDestination: Any,
@@ -308,7 +302,7 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         destinations += destination
     }
 
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     override fun build(): NavGraph = super.build().also { navGraph ->
         navGraph.addDestinations(destinations)
         if (startDestinationId == 0 && startDestinationRoute == null &&

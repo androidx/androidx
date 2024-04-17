@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSafeArgsApi::class)
-
 package androidx.navigation
 
 import android.net.Uri
@@ -1616,7 +1614,6 @@ class NavDeepLinkTest {
         assertThat(matchArgs).isNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun deepLinkFromKClassMissingNullableArgWithDefault() {
         @Serializable

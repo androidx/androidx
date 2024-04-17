@@ -90,7 +90,6 @@ public open class NavDestinationBuilder<out D : NavDestination> internal constru
      *
      * @return the newly constructed [NavDestination]
      */
-    @ExperimentalSafeArgsApi
     @OptIn(InternalSerializationApi::class)
     public constructor(
         navigator: Navigator<out D>,

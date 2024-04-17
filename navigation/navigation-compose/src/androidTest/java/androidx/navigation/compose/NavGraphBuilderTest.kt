@@ -21,7 +21,6 @@ import android.os.Bundle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -221,7 +220,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationKClassStart() {
         lateinit var navController: TestNavHostController
@@ -245,7 +243,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationNestedKClassStart() {
         lateinit var navController: TestNavHostController
@@ -271,7 +268,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationKClassNestedInGraph() {
         @Serializable
@@ -301,7 +297,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationObjectStart() {
         lateinit var navController: TestNavHostController
@@ -325,7 +320,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationObjectStartArgs() {
         lateinit var navController: TestNavHostController
@@ -352,7 +346,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationNestedObjectStart() {
         lateinit var navController: TestNavHostController
@@ -379,7 +372,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationNestedObjectStartArgs() {
         lateinit var navController: TestNavHostController
@@ -408,7 +400,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationNestedAllObjectsStart() {
         @Serializable
@@ -438,7 +429,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationNestedAllObjectsStartArgs() {
         @Serializable
@@ -472,7 +462,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationObjectNestedInGraph() {
         @Serializable
@@ -502,7 +491,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationObjectArgsNestedInGraph() {
         @Serializable
@@ -534,7 +522,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testComposableKClass() {
         lateinit var navController: TestNavHostController
@@ -554,7 +541,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testComposableKClassArgs() {
         lateinit var navController: TestNavHostController
@@ -575,7 +561,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testComposableKClassArgsCustomType() {
         @Serializable
@@ -598,7 +583,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNestedComposableKClassArgs() {
         lateinit var navController: TestNavHostController
@@ -623,7 +607,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testComposableKClassArgsMissingCustomType() {
         @Serializable
@@ -650,7 +633,6 @@ class NavGraphBuilderTest {
         )
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testDialogKClass() {
         lateinit var navController: TestNavHostController
@@ -671,7 +653,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testDialogKClassArgs() {
         lateinit var navController: TestNavHostController
@@ -693,7 +674,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testDialogKClassArgsCustomType() {
         @Serializable
@@ -717,7 +697,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNestedDialogKClassArgs() {
         lateinit var navController: TestNavHostController
@@ -743,7 +722,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testDialogKClassArgsMissingCustomType() {
         @Serializable
@@ -771,7 +749,6 @@ class NavGraphBuilderTest {
         )
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationDialogObjectStartArgs() {
         lateinit var navController: TestNavHostController
@@ -799,7 +776,6 @@ class NavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigationDialogNestedObjectStartArgs() {
         lateinit var navController: TestNavHostController
