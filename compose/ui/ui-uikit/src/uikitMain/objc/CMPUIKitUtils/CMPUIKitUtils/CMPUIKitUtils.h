@@ -26,3 +26,4 @@ FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
 #import "CMPAccessibilityElement.h"
 #import "CMPAccessibilityContainer.h"
 #import "CMPOSLogger.h"
+#import "CMPTextLoupeSession.h"
