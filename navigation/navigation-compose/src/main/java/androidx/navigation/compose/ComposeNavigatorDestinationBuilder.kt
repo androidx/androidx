@@ -22,7 +22,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
@@ -80,7 +79,6 @@ public class ComposeNavigatorDestinationBuilder :
      * [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param content composable for the destination
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         navigator: ComposeNavigator,
         route: KClass<*>,

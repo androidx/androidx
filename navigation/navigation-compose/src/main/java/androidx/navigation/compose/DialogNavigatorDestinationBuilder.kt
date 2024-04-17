@@ -18,7 +18,6 @@ package androidx.navigation.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
@@ -68,7 +67,6 @@ public class DialogNavigatorDestinationBuilder :
      * [androidx.compose.ui.window.Dialog].
      * @param content composable for the destination
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         navigator: DialogNavigator,
         route: KClass<*>,

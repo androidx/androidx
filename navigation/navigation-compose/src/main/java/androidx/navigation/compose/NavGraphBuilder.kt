@@ -24,7 +24,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
@@ -187,7 +186,6 @@ public fun NavGraphBuilder.composable(
  * @param sizeTransform callback to determine the destination's sizeTransform.
  * @param content composable for the destination
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.composable(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
@@ -366,7 +364,6 @@ public fun NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -398,7 +395,6 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
 }
 
 // need to be public for reified navigation
-@OptIn(ExperimentalSafeArgsApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun NavGraphBuilder.navigation(
     startDestination: KClass<*>,
@@ -453,7 +449,6 @@ public fun NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -485,7 +480,6 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
 }
 
 // need to be public for reified navigation
-@OptIn(ExperimentalSafeArgsApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun NavGraphBuilder.navigation(
     startDestination: Any,
@@ -573,7 +567,6 @@ public fun NavGraphBuilder.dialog(
  * @param dialogProperties properties that should be passed to [androidx.compose.ui.window.Dialog].
  * @param content composable content for the destination that will be hosted within the Dialog
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.dialog(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),

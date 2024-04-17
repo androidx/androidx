@@ -45,7 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -233,7 +232,6 @@ public fun NavHost(
  * @param sizeTransform callback to define the size transform for destinations in this host
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 @Composable
 public fun NavHost(
     navController: NavHostController,
@@ -294,7 +292,6 @@ public fun NavHost(
  * @param sizeTransform callback to define the size transform for destinations in this host
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 @Composable
 public fun NavHost(
     navController: NavHostController,
