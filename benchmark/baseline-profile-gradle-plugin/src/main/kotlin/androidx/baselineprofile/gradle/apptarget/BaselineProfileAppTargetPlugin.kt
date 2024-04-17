@@ -27,6 +27,7 @@ import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_RECOMMENDED_EXCLUSI
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED_INCLUSIVE
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.copyBuildTypeSources
+import androidx.baselineprofile.gradle.utils.copySigningConfigIfNotSpecified
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.dsl.ApplicationExtension
@@ -224,28 +225,32 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             extensionBuildTypes = extension.buildTypes,
             extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
-            debugSigningConfig = extension.debugSigningConfig,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
                 !it.isDebuggable
             },
-            newConfigureBlock = {
+            newConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type does not exist.
-                isJniDebuggable = false
-                isDebuggable = false
-                isMinifyEnabled = true
-                isShrinkResources = false
-                isProfileable = true
-                enableAndroidTestCoverage = false
-                enableUnitTestCoverage = false
+                ext.isJniDebuggable = false
+                ext.isDebuggable = false
+                ext.isProfileable = true
+                ext.enableAndroidTestCoverage = false
+                ext.enableUnitTestCoverage = false
+
+                ext.isMinifyEnabled = base.isMinifyEnabled
+                ext.isShrinkResources = base.isShrinkResources
+
+                copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
             },
-            overrideConfigureBlock = {
+            overrideConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type exists.
-                isProfileable = true
-                enableAndroidTestCoverage = false
-                enableUnitTestCoverage = false
+                ext.isProfileable = true
+                ext.enableAndroidTestCoverage = false
+                ext.enableUnitTestCoverage = false
+
+                copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
             }
         )
 
@@ -267,33 +272,40 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
-            debugSigningConfig = extension.debugSigningConfig,
             filterBlock = {
                 // Create baseline profile build types only for non debuggable builds.
                 !it.isDebuggable
             },
-            newConfigureBlock = {
+            newConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type does not exist.
-                isJniDebuggable = false
-                isDebuggable = false
-                isMinifyEnabled = false
-                isShrinkResources = false
-                isProfileable = true
-                enableAndroidTestCoverage = false
-                enableUnitTestCoverage = false
+                ext.isJniDebuggable = false
+                ext.isDebuggable = false
+                ext.isMinifyEnabled = false
+                ext.isShrinkResources = false
+                ext.isProfileable = true
+                ext.enableAndroidTestCoverage = false
+                ext.enableUnitTestCoverage = false
+
+                // Since minifyEnabled is `false`, no need to copy proguard files.
+
+                copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
             },
-            overrideConfigureBlock = {
+            overrideConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type exists.
                 // For baseline profile build type it's the same of `newConfigureBlock`.
-                isJniDebuggable = false
-                isDebuggable = false
-                isMinifyEnabled = false
-                isShrinkResources = false
-                isProfileable = true
-                enableAndroidTestCoverage = false
-                enableUnitTestCoverage = false
+                ext.isJniDebuggable = false
+                ext.isDebuggable = false
+                ext.isMinifyEnabled = false
+                ext.isShrinkResources = false
+                ext.isProfileable = true
+                ext.enableAndroidTestCoverage = false
+                ext.enableUnitTestCoverage = false
+
+                // Since minifyEnabled is `false`, no need to copy proguard files.
+
+                copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
             },
         )
 
@@ -311,29 +323,32 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             project = project,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
-            debugSigningConfig = extension.debugSigningConfig,
             extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
             filterBlock = {
                 // Create benchmark type for non debuggable types, and without considering
                 // baseline profiles build types.
                 !it.isDebuggable && it.name !in baselineProfileExtendedToOriginalTypeMap
             },
-            newConfigureBlock = {
+            newConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type does not exist.
-                isJniDebuggable = false
-                isDebuggable = false
-                isMinifyEnabled = true
-                isShrinkResources = true
-                isProfileable = true
-                enableAndroidTestCoverage = false
-                enableUnitTestCoverage = false
+                ext.isJniDebuggable = false
+                ext.isDebuggable = false
+                ext.isMinifyEnabled = base.isMinifyEnabled
+                ext.isShrinkResources = base.isShrinkResources
+                ext.isProfileable = true
+                ext.enableAndroidTestCoverage = false
+                ext.enableUnitTestCoverage = false
+
+                copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
             },
-            overrideConfigureBlock = {
+            overrideConfigureBlock = { base, ext ->
 
                 // Properties applied when the build type exists.
-                enableAndroidTestCoverage = false
-                enableUnitTestCoverage = false
+                ext.enableAndroidTestCoverage = false
+                ext.enableUnitTestCoverage = false
+
+                copySigningConfigIfNotSpecified(base, ext, extension.debugSigningConfig)
             }
         )
 
