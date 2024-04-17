@@ -25,12 +25,9 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("com.google.protobuf")
 }
 
 androidXMultiplatform {
-    android()
     desktop()
 
     sourceSets {
@@ -60,16 +57,7 @@ androidXMultiplatform {
                 implementation(project(":compose:runtime:runtime"))
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.4")
                 implementation("com.google.dagger:dagger:2.40.1")
-            }
-        }
 
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.kotlinMetadataJvm)
-                implementation(libs.robolectric)
-                implementation("androidx.activity:activity-ktx:1.9.0-alpha03")
-                implementation("androidx.core:core-ktx:1.13.0-alpha05")
                 runtimeOnly(
                         project(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged")
                 )
@@ -78,20 +66,8 @@ androidXMultiplatform {
 
         desktopTest {
             dependsOn(jvmTest)
-            dependencies {
-                runtimeOnly(
-                        project(":compose:compiler:compiler-hosted:integration-tests:kotlin-compiler-repackaged")
-                )
-            }
         }
     }
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-    namespace "androidx.compose.runtime.tests"
 }
 
 tasks.withType(Test).configureEach { test ->
@@ -113,17 +89,3 @@ androidx {
     description = "Contains test for the compose compiler plugin"
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
