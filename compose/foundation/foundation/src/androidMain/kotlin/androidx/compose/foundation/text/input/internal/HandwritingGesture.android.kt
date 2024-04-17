@@ -122,24 +122,17 @@ internal object HandwritingGestureApi34 {
         gesture: SelectRangeGesture,
         layoutState: TextLayoutState
     ): Int {
-        val granularity = gesture.granularity.toTextGranularity()
-        val startRange = layoutState.getRangeForScreenRect(
+        val rangeInTransformedText = layoutState.getRangeForScreenRects(
             gesture.selectionStartArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
-
-        val endRange = layoutState.getRangeForScreenRect(
             gesture.selectionEndArea.toComposeRect(),
-            granularity,
+            gesture.granularity.toTextGranularity(),
             TextInclusionStrategy.ContainsCenter
         ).apply {
             if (collapsed) return fallback(gesture)
         }
 
-        selectCharsIn(enclosure(startRange, endRange))
+        // TODO(332749926) show toolbar after selection.
+        selectCharsIn(rangeInTransformedText)
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
@@ -149,15 +142,8 @@ internal object HandwritingGestureApi34 {
         layoutState: TextLayoutState
     ): Int {
         val granularity = gesture.granularity.toTextGranularity()
-        val startRange = layoutState.getRangeForScreenRect(
+        val rangeInTransformedText = layoutState.getRangeForScreenRects(
             gesture.deletionStartArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
-
-        val endRange = layoutState.getRangeForScreenRect(
             gesture.deletionEndArea.toComposeRect(),
             granularity,
             TextInclusionStrategy.ContainsCenter
@@ -166,7 +152,7 @@ internal object HandwritingGestureApi34 {
         }
 
         performDeletion(
-            rangeInTransformedText = enclosure(startRange, endRange),
+            rangeInTransformedText = rangeInTransformedText,
             adjustRange = granularity == TextGranularity.Word
         )
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
@@ -381,15 +367,8 @@ internal object HandwritingGestureApi34 {
         textSelectionManager: TextFieldSelectionManager?,
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
-        val startRange = getRangeForScreenRect(
+        val range = getRangeForScreenRects(
             gesture.selectionStartArea.toComposeRect(),
-            gesture.granularity.toTextGranularity(),
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
-
-        val endRange = getRangeForScreenRect(
             gesture.selectionEndArea.toComposeRect(),
             gesture.granularity.toTextGranularity(),
             TextInclusionStrategy.ContainsCenter
@@ -398,7 +377,7 @@ internal object HandwritingGestureApi34 {
         }
 
         performSelectionOnLegacyTextField(
-            range = enclosure(startRange, endRange),
+            range = range,
             textSelectionManager = textSelectionManager,
             editCommandConsumer = editCommandConsumer
         )
@@ -412,15 +391,8 @@ internal object HandwritingGestureApi34 {
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
         val granularity = gesture.granularity.toTextGranularity()
-        val startRange = getRangeForScreenRect(
+        val range = getRangeForScreenRects(
             gesture.deletionStartArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
-
-        val endRange = getRangeForScreenRect(
             gesture.deletionEndArea.toComposeRect(),
             granularity,
             TextInclusionStrategy.ContainsCenter
@@ -428,7 +400,7 @@ internal object HandwritingGestureApi34 {
             if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
         }
         performDeletionOnLegacyTextField(
-            range = enclosure(startRange, endRange),
+            range = range,
             text = text,
             adjustRange = granularity == TextGranularity.Word,
             editCommandConsumer = editCommandConsumer
@@ -749,6 +721,31 @@ private fun TextLayoutState.getRangeForScreenRect(
     )
 }
 
+private fun TextLayoutState.getRangeForScreenRects(
+    startRectInScreen: Rect,
+    endRectInScreen: Rect,
+    granularity: TextGranularity,
+    inclusionStrategy: TextInclusionStrategy
+): TextRange {
+    val startRange = getRangeForScreenRect(
+        startRectInScreen,
+        granularity,
+        inclusionStrategy
+    ).apply {
+        if (collapsed) return TextRange.Zero
+    }
+
+    val endRange = getRangeForScreenRect(
+        endRectInScreen,
+        granularity,
+        inclusionStrategy
+    ).apply {
+        if (collapsed) return TextRange.Zero
+    }
+
+    return enclosure(startRange, endRange)
+}
+
 private fun LegacyTextFieldState.getRangeForScreenRect(
     rectInScreen: Rect,
     granularity: TextGranularity,
@@ -760,6 +757,31 @@ private fun LegacyTextFieldState.getRangeForScreenRect(
         granularity,
         inclusionStrategy
     )
+}
+
+private fun LegacyTextFieldState.getRangeForScreenRects(
+    startRectInScreen: Rect,
+    endRectInScreen: Rect,
+    granularity: TextGranularity,
+    inclusionStrategy: TextInclusionStrategy
+): TextRange {
+    val startRange = getRangeForScreenRect(
+        startRectInScreen,
+        granularity,
+        inclusionStrategy
+    ).apply {
+        if (collapsed) return TextRange.Zero
+    }
+
+    val endRange = getRangeForScreenRect(
+        endRectInScreen,
+        granularity,
+        inclusionStrategy
+    ).apply {
+        if (collapsed) return TextRange.Zero
+    }
+
+    return enclosure(startRange, endRange)
 }
 
 private fun CharSequence.rangeOfWhitespaces(offset: Int): TextRange {
