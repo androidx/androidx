@@ -21,6 +21,7 @@ import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.throwSQLiteException
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
+import kotlin.concurrent.Volatile
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.UShortVar
 import kotlinx.cinterop.readBytes
@@ -66,6 +67,8 @@ class NativeSQLiteStatement(
     private val stmtPointer: CPointer<sqlite3_stmt>
 ) : SQLiteStatement {
 
+    @OptIn(ExperimentalStdlibApi::class)
+    @Volatile
     private var isClosed = false
 
     override fun bindBlob(index: Int, value: ByteArray) {
@@ -206,7 +209,9 @@ class NativeSQLiteStatement(
     }
 
     override fun close() {
-        sqlite3_finalize(stmtPointer)
+        if (!isClosed) {
+            sqlite3_finalize(stmtPointer)
+        }
         isClosed = true
     }
 

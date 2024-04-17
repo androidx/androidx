@@ -28,6 +28,8 @@ actual class BundledSQLiteStatement(
     private val statementPointer: Long
 ) : SQLiteStatement {
 
+    @OptIn(ExperimentalStdlibApi::class)
+    @Volatile
     private var isClosed = false
 
     override fun bindBlob(index: Int, value: ByteArray) {
@@ -106,7 +108,9 @@ actual class BundledSQLiteStatement(
     }
 
     override fun close() {
-        nativeClose(statementPointer)
+        if (!isClosed) {
+            nativeClose(statementPointer)
+        }
         isClosed = true
     }
 
