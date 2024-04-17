@@ -21,7 +21,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -284,7 +283,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateKClass() {
         lateinit var navController: NavHostController
@@ -305,7 +303,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateKClassArgs() {
         lateinit var args: TestClassArg
@@ -329,7 +326,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateKClassMultipleArgs() {
         @Serializable
@@ -360,7 +356,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateKClassArgsNullValue() {
         @Serializable
@@ -390,7 +385,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClass() {
         lateinit var navController: NavHostController
@@ -411,7 +405,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClassArgs() {
         lateinit var args: TestClassArg
@@ -435,7 +428,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClassMultipleArgs() {
         @Serializable
@@ -466,7 +458,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClassArgsNullValue() {
         @Serializable
@@ -553,7 +544,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testGetBackStackEntryKClass() {
         lateinit var navController: NavHostController

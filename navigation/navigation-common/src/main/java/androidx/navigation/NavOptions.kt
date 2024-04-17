@@ -104,11 +104,6 @@ public class NavOptions internal constructor(
      * @see isPopUpToInclusive
      * @see shouldPopUpToSaveState
      */
-    // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
-    @get:ExperimentalSafeArgsApi
-    // required due to getter with ExperimentalSafeArgsApi annotation
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalSafeArgsApi
     public var popUpToRouteClass: KClass<*>? = null
         private set
 
@@ -121,11 +116,6 @@ public class NavOptions internal constructor(
      * @see isPopUpToInclusive
      * @see shouldPopUpToSaveState
      */
-    // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
-    @get:ExperimentalSafeArgsApi
-    // required due to getter with ExperimentalSafeArgsApi annotation
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalSafeArgsApi
     public var popUpToRouteObject: Any? = null
         private set
 
@@ -159,7 +149,7 @@ public class NavOptions internal constructor(
     /**
      * NavOptions stores special options for navigate actions
      */
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     internal constructor(
         singleTop: Boolean,
         restoreState: Boolean,
@@ -187,7 +177,7 @@ public class NavOptions internal constructor(
     /**
      * NavOptions stores special options for navigate actions
      */
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     internal constructor(
         singleTop: Boolean,
         restoreState: Boolean,
@@ -253,7 +243,6 @@ public class NavOptions internal constructor(
         return popUpToSaveState
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is NavOptions) return false
@@ -271,7 +260,6 @@ public class NavOptions internal constructor(
             popExitAnim == other.popExitAnim
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     override fun hashCode(): Int {
         var result = if (shouldLaunchSingleTop()) 1 else 0
         result = 31 * result + if (shouldRestoreState()) 1 else 0
@@ -288,7 +276,6 @@ public class NavOptions internal constructor(
         return result
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append(javaClass.simpleName)
@@ -465,7 +452,6 @@ public class NavOptions internal constructor(
          */
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
-        @ExperimentalSafeArgsApi
         public inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,
             saveState: Boolean = false
@@ -508,7 +494,6 @@ public class NavOptions internal constructor(
          */
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder")
-        @ExperimentalSafeArgsApi
         @OptIn(InternalSerializationApi::class)
         public fun <T : Any> setPopUpTo(
             route: T,

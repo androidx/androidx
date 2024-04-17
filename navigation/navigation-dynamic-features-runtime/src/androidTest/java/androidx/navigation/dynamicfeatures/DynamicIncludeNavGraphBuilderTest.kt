@@ -17,7 +17,6 @@
 package androidx.navigation.dynamicfeatures
 
 import android.content.Context
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavController
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.dynamicfeatures.shared.AndroidTestDynamicInstallManager
@@ -193,7 +192,6 @@ public class DynamicIncludeNavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun includeDynamicKClass() {
         val graph = navController.navigatorProvider.navigation(
@@ -218,7 +216,6 @@ public class DynamicIncludeNavGraphBuilderTest {
             .isEqualTo(GRAPH_RESOURCE_NAME)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun includeDynamic_emptyModuleNameKClass() {
         try {
@@ -231,7 +228,6 @@ public class DynamicIncludeNavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun includeDynamic_graphPackage_nullKClass() {
         val graph = navController.navigatorProvider.navigation(
@@ -246,7 +242,6 @@ public class DynamicIncludeNavGraphBuilderTest {
             .that(includeDynamic.graphPackage).isEqualTo("${context.packageName}.$MODULE_NAME")
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun includeDynamic_graphPackage_emptyKClass() {
         try {
@@ -261,7 +256,6 @@ public class DynamicIncludeNavGraphBuilderTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun includeDynamic_graphResourceName_emptyKClass() {
         try {

@@ -18,7 +18,6 @@ package androidx.navigation.dynamicfeatures.fragment
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.dynamicfeatures.createGraph
 import androidx.navigation.get
 import androidx.test.annotation.UiThreadTest
@@ -102,7 +101,6 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @UiThreadTest
     @Test
     public fun reifiedKClass() {
@@ -119,7 +117,6 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(TestFragment::class.java.name)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @UiThreadTest
     @Test
     public fun moduleNameKClass() {
@@ -141,7 +138,6 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @UiThreadTest
     @Test
     public fun no_moduleNameKClass() {
@@ -161,7 +157,6 @@ public class DynamicFragmentNavigatorDestinationBuilderTest {
             .isNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @UiThreadTest
     @Test
     public fun reifiedKClass_startDestinationObject() {

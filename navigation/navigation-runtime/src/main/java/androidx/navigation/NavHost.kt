@@ -88,7 +88,6 @@ public inline fun NavHost.createGraph(
  * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 public inline fun NavHost.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
@@ -106,7 +105,6 @@ public inline fun NavHost.createGraph(
  * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 public inline fun NavHost.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,

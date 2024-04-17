@@ -17,7 +17,6 @@
 package androidx.navigation.dynamicfeatures
 
 import androidx.annotation.IdRes
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraph
@@ -127,7 +126,6 @@ public inline fun DynamicNavGraphBuilder.navigation(
  * [route] does not use custom NavTypes.
  * @param builder Another builder for chaining.
  */
-@ExperimentalSafeArgsApi
 public inline fun NavigatorProvider.navigation(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
@@ -150,7 +148,6 @@ public inline fun NavigatorProvider.navigation(
  * [route] does not use custom NavTypes.
  * @param builder Another builder for chaining.
  */
-@ExperimentalSafeArgsApi
 public inline fun NavigatorProvider.navigation(
     startDestination: Any,
     route: KClass<*>? = null,
@@ -173,7 +170,6 @@ public inline fun NavigatorProvider.navigation(
  * [T] does not use custom NavTypes.
  * @param builder Another builder for chaining.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -197,7 +193,6 @@ public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
  * [T] does not use custom NavTypes.
  * @param builder Another builder for chaining.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -255,7 +250,6 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
      *
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         provider: NavigatorProvider,
         startDestination: KClass<*>,
@@ -275,7 +269,6 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
      *
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         provider: NavigatorProvider,
         startDestination: Any,

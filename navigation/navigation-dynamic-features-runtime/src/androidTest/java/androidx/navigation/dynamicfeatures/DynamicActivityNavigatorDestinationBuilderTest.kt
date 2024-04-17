@@ -17,7 +17,6 @@ package androidx.navigation.dynamicfeatures
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavController
 import androidx.navigation.plusAssign
 import androidx.test.core.app.ApplicationProvider
@@ -191,7 +190,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
         assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun moduleKClass() {
         val graph = navController.createGraph(startDestination = TestClass::class) {
@@ -206,7 +204,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun noModuleKClass() {
         val graph = navController.createGraph(startDestination = TestClass::class) {
@@ -218,7 +215,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
         ).isNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun activityKClass() {
         val graph = navController.createGraph(startDestination = TestClass::class) {
@@ -238,7 +234,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
         )
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun noActivityKClass() {
         val graph = navController.createGraph(startDestination = TestClass::class) {
@@ -251,7 +246,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
         ).isNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun modulePackageKClass() {
         val graph = navController.createGraph(startDestination = TestClass::class) {
@@ -265,7 +259,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
         assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun moduleObject() {
         @Serializable

@@ -19,7 +19,6 @@
 package androidx.navigation.dynamicfeatures
 
 import androidx.annotation.IdRes
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavType
@@ -105,7 +104,6 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
  * @param graphResourceName Graph's resource name without the `navigation` qualifier. This
  * must not be an empty string.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> DynamicNavGraphBuilder.includeDynamic(
     moduleName: String,
     graphResourceName: String,
@@ -148,7 +146,6 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
  * must not be an empty string.
  * @param builder Another builder for chaining.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> DynamicNavGraphBuilder.includeDynamic(
     moduleName: String,
     graphResourceName: String,
@@ -217,7 +214,6 @@ public class DynamicIncludeNavGraphBuilder : NavDestinationBuilder<DynamicInclud
      * must not be an empty string.
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
         route: KClass<*>,

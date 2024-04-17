@@ -16,7 +16,6 @@
 package androidx.navigation.dynamicfeatures
 
 import androidx.annotation.IdRes
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavGraph
@@ -118,7 +117,6 @@ public class DynamicNavGraphBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun navigationKClass() {
         @Serializable
@@ -137,7 +135,6 @@ public class DynamicNavGraphBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun navigationObject() {
         @Serializable
@@ -157,7 +154,6 @@ public class DynamicNavGraphBuilderTest {
         assertThat(graph.findNode<TestClass>()?.arguments?.get("arg")).isNotNull()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun navigationNestedKClass() {
         @Serializable
@@ -182,7 +178,6 @@ public class DynamicNavGraphBuilderTest {
             .isTrue()
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     public fun navigationNestedObject() {
         @Serializable
@@ -274,7 +269,6 @@ public fun DynamicNavGraphBuilder.navDestination(
  * Create a base NavDestination. Generally, only subtypes of NavDestination should be
  * added to a NavGraph (hence why this is not in the common-ktx library)
  */
-@OptIn(ExperimentalSafeArgsApi::class)
 public inline fun <reified T> DynamicNavGraphBuilder.navDestination(
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
 ): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], T::class, emptyMap())

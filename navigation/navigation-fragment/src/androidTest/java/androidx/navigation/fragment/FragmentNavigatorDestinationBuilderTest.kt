@@ -17,7 +17,6 @@
 package androidx.navigation.fragment
 
 import androidx.fragment.app.Fragment
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.contains
 import androidx.navigation.createGraph
 import androidx.navigation.get
@@ -118,7 +117,6 @@ class TestNavigatorDestinationBuilderTest {
             .isEqualTo(LABEL)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @UiThreadTest
     @Test fun fragmentKClass() {
         val navHostFragment = NavHostFragment()
@@ -136,7 +134,6 @@ class TestNavigatorDestinationBuilderTest {
             .isEqualTo(BuilderTestFragment::class.java.name)
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @UiThreadTest
     @Test fun fragmentWithBodyKClass() {
         val navHostFragment = NavHostFragment()

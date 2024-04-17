@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSafeArgsApi::class)
-
 package androidx.navigation.fragment
 
 import android.app.Dialog
@@ -27,7 +25,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavOptions
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.test.EmptyFragment

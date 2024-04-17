@@ -544,7 +544,6 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    @ExperimentalSafeArgsApi
     public inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false
@@ -567,7 +566,6 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    @ExperimentalSafeArgsApi
     public fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
@@ -888,7 +886,6 @@ public open class NavController(
      * @return true if the saved state of the stack associated with [T] was cleared.
      */
     @MainThread
-    @ExperimentalSafeArgsApi
     public inline fun <reified T : Any> clearBackStack(): Boolean =
         clearBackStack(serializer<T>().hashCode())
 
@@ -904,7 +901,6 @@ public open class NavController(
      */
     @OptIn(InternalSerializationApi::class)
     @MainThread
-    @ExperimentalSafeArgsApi
     public fun <T : Any> clearBackStack(route: T): Boolean {
         // route contains arguments so we need to generate and clear with the populated route
         // rather than clearing based on route pattern
@@ -1758,7 +1754,7 @@ public open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     @MainThread
     public open fun navigate(
         @IdRes resId: Int,
@@ -1965,7 +1961,7 @@ public open class NavController(
         }
     }
 
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     @MainThread
     private fun navigate(
         node: NavDestination,
@@ -2404,7 +2400,6 @@ public open class NavController(
      * @throws IllegalArgumentException if the given route is invalid
      */
     @MainThread
-    @ExperimentalSafeArgsApi
     public fun <T : Any> navigate(route: T, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
@@ -2426,7 +2421,6 @@ public open class NavController(
      */
     @MainThread
     @JvmOverloads
-    @ExperimentalSafeArgsApi
     public fun <T : Any> navigate(
         route: T,
         navOptions: NavOptions? = null,
@@ -2694,7 +2688,6 @@ public open class NavController(
      * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    @ExperimentalSafeArgsApi
     public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry =
         getBackStackEntry(serializer<T>().hashCode())
 
@@ -2709,7 +2702,6 @@ public open class NavController(
      * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    @ExperimentalSafeArgsApi
     public fun <T : Any> getBackStackEntry(route: T): NavBackStackEntry {
         // route contains arguments so we need to generate the populated route
         // rather than getting entry based on route pattern
@@ -2853,7 +2845,6 @@ public inline fun NavController.createGraph(
  * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 public inline fun NavController.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
@@ -2871,7 +2862,6 @@ public inline fun NavController.createGraph(
  * does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
-@ExperimentalSafeArgsApi
 public inline fun NavController.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,

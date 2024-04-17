@@ -18,7 +18,6 @@ package androidx.navigation.fragment
 
 import androidx.annotation.IdRes
 import androidx.fragment.app.DialogFragment
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
@@ -95,7 +94,6 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
  * [NavType]. May be empty if [T] does not use custom NavTypes.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
 ): Unit = dialog<F, T>(typeMap) {}
@@ -108,7 +106,6 @@ public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.
  * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
@@ -182,7 +179,6 @@ public class DialogFragmentNavigatorDestinationBuilder :
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
      * destination
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         navigator: DialogFragmentNavigator,
         route: KClass<out Any>,
