@@ -727,6 +727,7 @@ includeProject(":graphics:integration-tests:testapp-compose", [BuildType.COMPOSE
 includeProject(":gridlayout:gridlayout", [BuildType.MAIN])
 includeProject(":health:connect:connect-client", [BuildType.MAIN])
 includeProject(":health:connect:connect-client-proto", [BuildType.MAIN])
+includeProject(":health:connect:connect-client-external-protobuf", [BuildType.MAIN])
 includeProject(":health:connect:connect-client-samples", "health/connect/connect-client/samples", [BuildType.MAIN])
 includeProject(":health:health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", [BuildType.MAIN])
