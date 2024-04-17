@@ -2755,7 +2755,7 @@ package androidx.compose.ui.node {
   }
 
   public interface RootForTest {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void forceAccessibilityForTesting();
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void forceAccessibilityForTesting(boolean enable);
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
     method @Deprecated public androidx.compose.ui.text.input.TextInputService getTextInputService();
