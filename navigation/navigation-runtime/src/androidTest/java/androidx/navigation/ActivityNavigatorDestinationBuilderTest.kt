@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSafeArgsApi::class)
-
 package androidx.navigation
 
 import android.net.Uri
