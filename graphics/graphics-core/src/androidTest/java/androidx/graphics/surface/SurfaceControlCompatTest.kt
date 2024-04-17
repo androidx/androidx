@@ -351,6 +351,61 @@ class SurfaceControlCompatTest {
     }
 
     @Test
+    fun testSetBufferInvokesPreviousReleaseCallback() {
+        val buffer1 =
+            SurfaceControlUtils.getSolidBuffer(
+                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                Color.BLUE
+            )
+        val buffer2 =
+            SurfaceControlUtils.getSolidBuffer(
+                SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                Color.RED
+            )
+        var releaseCallbackInvoked = false
+        val setBuffer1Latch = CountDownLatch(1)
+
+        try {
+            verifySurfaceControlTest({ surfaceView ->
+                val scCompat = SurfaceControlCompat
+                    .Builder()
+                    .setParent(surfaceView)
+                    .setName("SurfaceControlCompatTest")
+                    .build()
+                SurfaceControlCompat.Transaction()
+                    .setBuffer(scCompat, buffer1) {
+                        releaseCallbackInvoked = true
+                        setBuffer1Latch.countDown()
+                    }
+                    .commit()
+
+                var visibility = false
+                repeat(3) {
+                    SurfaceControlCompat.Transaction()
+                        .setVisibility(scCompat, visibility)
+                        .commit()
+                    visibility = !visibility
+                }
+
+                assertFalse(setBuffer1Latch.await(1000, TimeUnit.MILLISECONDS))
+                assertFalse(releaseCallbackInvoked)
+
+                SurfaceControlCompat.Transaction()
+                    .setBuffer(scCompat, buffer2) {
+                        // NO-OP
+                    }
+            }) { _, _ ->
+                setBuffer1Latch.await(3000, TimeUnit.MILLISECONDS) && releaseCallbackInvoked
+            }
+        } finally {
+            buffer1.close()
+            buffer2.close()
+        }
+    }
+
+    @Test
     fun testTransactionReparent_childOfSibling() {
         verifySurfaceControlTest({ surfaceView ->
             val scCompat = SurfaceControlCompat
@@ -1723,7 +1778,7 @@ class SurfaceControlCompatTest {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun verifySurfaceControlTest(
         createTransaction: (SurfaceView) -> SurfaceControlCompat.Transaction,
-        verifyOutput: (Bitmap, Rect) -> Boolean
+        verifyOutput: (Bitmap, Rect) -> Boolean = { _, _ -> true }
     ) {
         SurfaceControlUtils.surfaceControlTestHelper(
             { surfaceView, latch ->
