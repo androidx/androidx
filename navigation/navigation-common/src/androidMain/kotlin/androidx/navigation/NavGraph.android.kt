@@ -196,7 +196,6 @@ public actual open class NavGraph actual constructor(
      * @return the node with route - the node must have been created with a route from [KClass]
      */
     @OptIn(InternalSerializationApi::class)
-    @ExperimentalSafeArgsApi
     public inline fun <reified T> findNode(): NavDestination? {
         return findNode(serializer<T>().hashCode())
     }
@@ -210,7 +209,6 @@ public actual open class NavGraph actual constructor(
      */
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    @ExperimentalSafeArgsApi
     public fun <T> findNode(route: T?): NavDestination? {
         return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
     }
@@ -392,7 +390,6 @@ public actual open class NavGraph actual constructor(
      * @param T The route of the destination as a [KClass] to be shown when navigating
      * to this NavGraph.
      */
-    @ExperimentalSafeArgsApi
     public actual inline fun <reified T : Any> setStartDestination() {
         setStartDestination(serializer<T>()) { startDestination ->
             startDestination.route!!
@@ -549,7 +546,6 @@ public actual inline operator fun NavGraph.get(route: String): NavDestination =
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalSafeArgsApi
 
 public inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): NavDestination =
     findNode<T>()
@@ -561,7 +557,6 @@ public inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): Nav
  * @throws IllegalArgumentException if no destination is found with that route.
  */
 @Suppress("NOTHING_TO_INLINE")
-@ExperimentalSafeArgsApi
 public inline operator fun <T : Any> NavGraph.get(route: T): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
@@ -574,12 +569,10 @@ public actual operator fun NavGraph.contains(route: String): Boolean = findNode(
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 @Suppress("UNUSED_PARAMETER")
-@ExperimentalSafeArgsApi
 public inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
     findNode<T>() != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
-@ExperimentalSafeArgsApi
 public operator fun <T : Any> NavGraph.contains(route: T): Boolean = findNode(route) != null
 
 /**

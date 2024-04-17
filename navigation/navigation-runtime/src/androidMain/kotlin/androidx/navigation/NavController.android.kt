@@ -548,7 +548,6 @@ public actual open class NavController(
      */
     @MainThread
     @JvmOverloads
-    @ExperimentalSafeArgsApi
     public inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false
@@ -578,7 +577,6 @@ public actual open class NavController(
      */
     @MainThread
     @JvmOverloads
-    @ExperimentalSafeArgsApi
     public fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
@@ -895,7 +893,6 @@ public actual open class NavController(
      * @return true if the saved state of the stack associated with [T] was cleared.
      */
     @MainThread
-    @ExperimentalSafeArgsApi
     public inline fun <reified T : Any> clearBackStack(): Boolean =
         clearBackStack(serializer<T>().hashCode())
 
@@ -911,7 +908,6 @@ public actual open class NavController(
      */
     @OptIn(InternalSerializationApi::class)
     @MainThread
-    @ExperimentalSafeArgsApi
     public fun <T : Any> clearBackStack(route: T): Boolean {
         // route contains arguments so we need to generate and clear with the populated route
         // rather than clearing based on route pattern
@@ -2421,7 +2417,6 @@ public actual open class NavController(
      * @throws IllegalArgumentException if the given route is invalid
      */
     @MainThread
-    @ExperimentalSafeArgsApi
     public fun <T : Any> navigate(route: T, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
@@ -2443,7 +2438,6 @@ public actual open class NavController(
      */
     @MainThread
     @JvmOverloads
-    @ExperimentalSafeArgsApi
     public fun <T : Any> navigate(
         route: T,
         navOptions: NavOptions? = null,
@@ -2738,7 +2732,6 @@ public actual open class NavController(
      * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    @ExperimentalSafeArgsApi
     public fun <T : Any> getBackStackEntry(route: T): NavBackStackEntry {
         // route contains arguments so we need to generate the populated route
         // rather than getting entry based on route pattern

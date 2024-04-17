@@ -98,7 +98,6 @@ public actual inline fun NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -118,7 +117,6 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
  *
  * @return the newly constructed nested NavGraph
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -196,7 +194,6 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public actual constructor(
         provider: NavigatorProvider,
         startDestination: KClass<*>,
@@ -219,7 +216,6 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      *
      * @return the newly created NavGraph
      */
-    @ExperimentalSafeArgsApi
     public actual constructor(
         provider: NavigatorProvider,
         startDestination: Any,
@@ -253,7 +249,7 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         destinations += destination
     }
 
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     override fun build(): NavGraph = super.build().also { navGraph ->
         navGraph.addDestinations(destinations)
         if (startDestinationId == 0 && startDestinationRoute == null &&

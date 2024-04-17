@@ -501,7 +501,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClass() {
         lateinit var navController: NavHostController
@@ -522,7 +521,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClassArgs() {
         lateinit var args: TestClassArg
@@ -546,7 +544,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClassMultipleArgs() {
         @Serializable
@@ -577,7 +574,6 @@ class NavHostControllerTest {
         }
     }
 
-    @OptIn(ExperimentalSafeArgsApi::class)
     @Test
     fun testNavigateDialogKClassArgsNullValue() {
         @Serializable
