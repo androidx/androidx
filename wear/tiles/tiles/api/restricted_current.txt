@@ -275,6 +275,22 @@ package androidx.wear.tiles {
     method public androidx.wear.tiles.EventBuilders.TileEnterEvent.Builder setTileId(int);
   }
 
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final class EventBuilders.TileInteractionEvent {
+    method public int getEventType();
+    method public int getTileId();
+    method public java.time.Instant getTimestamp();
+    field public static final int ENTER = 1; // 0x1
+    field public static final int LEAVE = 2; // 0x2
+    field public static final int UNKNOWN = 0; // 0x0
+  }
+
+  public static final class EventBuilders.TileInteractionEvent.Builder {
+    ctor public EventBuilders.TileInteractionEvent.Builder(int);
+    method public androidx.wear.tiles.EventBuilders.TileInteractionEvent build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.tiles.EventBuilders.TileInteractionEvent.Builder setTileId(int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.tiles.EventBuilders.TileInteractionEvent.Builder setTimestamp(java.time.Instant);
+  }
+
   public static final class EventBuilders.TileLeaveEvent {
     method public int getTileId();
   }

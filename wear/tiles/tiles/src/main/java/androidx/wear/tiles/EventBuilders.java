@@ -16,18 +16,22 @@
 
 package androidx.wear.tiles;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.tiles.proto.EventProto;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.time.Instant;
 
 /** Builders for messages used when events happen in the Tiles system. */
 public final class EventBuilders {
     private EventBuilders() {}
 
-    /**
-     * Event fired when a tile has been added to the carousel.
-     */
+    /** Event fired when a tile has been added to the carousel. */
     public static final class TileAddEvent {
         private final EventProto.TileAddEvent mImpl;
 
@@ -72,7 +76,9 @@ public final class EventBuilders {
             public Builder() {}
 
             /**
-             * Sets the ID of the tile added to the carousel.
+             * Sets instance ID of the added tile, allocated when the tile instance was added to the
+             * carousel. This ID will remain the same for this tile instance as long it is not
+             * removed from the carousel.
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -88,9 +94,7 @@ public final class EventBuilders {
         }
     }
 
-    /**
-     * Event fired when a tile has been removed from the carousel.
-     */
+    /** Event fired when a tile has been removed from the carousel. */
     public static final class TileRemoveEvent {
         private final EventProto.TileRemoveEvent mImpl;
 
@@ -135,7 +139,8 @@ public final class EventBuilders {
             public Builder() {}
 
             /**
-             * Sets the ID of the tile removed from the carousel.
+             * Sets instance ID of the removed tile, allocated when the tile instance was added to
+             * the carousel.
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -151,9 +156,7 @@ public final class EventBuilders {
         }
     }
 
-    /**
-     * Event fired when a tile is swiped to by the user (i.e. it's visible on screen).
-     */
+    /** Event fired when a tile is swiped to by the user (i.e. it's visible on screen). */
     public static final class TileEnterEvent {
         private final EventProto.TileEnterEvent mImpl;
 
@@ -198,7 +201,9 @@ public final class EventBuilders {
             public Builder() {}
 
             /**
-             * Sets the ID of the entered tile.
+             * Sets instance ID of the tile, allocated when the tile instance is added to the
+             * carousel. This ID will remain the same for this tile instance as long it is not
+             * removed from the carousel.
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -262,7 +267,9 @@ public final class EventBuilders {
             public Builder() {}
 
             /**
-             * Sets the ID of the tile.
+             * Sets instance ID of the tile, allocated when the tile instance is added to the
+             * carousel. This ID will remain the same for this tile instance as long it is not
+             * removed from the carousel.
              */
             @NonNull
             public Builder setTileId(int tileId) {
@@ -274,6 +281,144 @@ public final class EventBuilders {
             @NonNull
             public TileLeaveEvent build() {
                 return TileLeaveEvent.fromProto(mImpl.build());
+            }
+        }
+    }
+
+    /** Event reported when a user interacts with a tile (e.g. entering or leaving a tile). */
+    @RequiresSchemaVersion(major = 1, minor = 400)
+    public static final class TileInteractionEvent {
+        private final EventProto.TileInteractionEvent mImpl;
+
+        TileInteractionEvent(EventProto.TileInteractionEvent impl) {
+            this.mImpl = impl;
+        }
+
+        /**
+         * Gets instance ID of the tile, allocated when the tile instance is added to the carousel.
+         * This ID will remain the same for this tile instance as long it is not removed from the
+         * carousel.
+         */
+        public int getTileId() {
+            return mImpl.getTileId();
+        }
+
+        /** {@link TileInteractionEvent} type. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @IntDef({ENTER, LEAVE, UNKNOWN})
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface EventType {}
+
+        /** Unknown type */
+        @EventType public static final int UNKNOWN = 0;
+
+        /** User entered the tile. */
+        @EventType public static final int ENTER = 1;
+
+        /** User left the tile. */
+        @EventType public static final int LEAVE = 2;
+
+        /** Gets the type of the {@link TileInteractionEvent}. */
+        @EventType
+        public int getEventType() {
+            if (mImpl.hasEnter()) {
+                return ENTER;
+            } else if (mImpl.hasLeave()) {
+                return LEAVE;
+            }
+            return UNKNOWN;
+        }
+
+        /** Gets the timestamp of when the interaction was reported. */
+        @NonNull
+        public Instant getTimestamp() {
+            return Instant.ofEpochMilli(mImpl.getTimestampEpochMillis());
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static TileInteractionEvent fromProto(
+                @NonNull EventProto.TileInteractionEvent proto) {
+            return new TileInteractionEvent(proto);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public EventProto.TileInteractionEvent toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileInteractionEvent{"
+                    + "tileId="
+                    + getTileId()
+                    + ", timestamp="
+                    + getTimestamp()
+                    + ", eventType="
+                    + getEventType()
+                    + "}";
+        }
+
+        /** Builder for {@link TileInteractionEvent} */
+        public static final class Builder {
+            private final EventProto.TileInteractionEvent.Builder mImpl =
+                    EventProto.TileInteractionEvent.newBuilder();
+
+            /**
+             * Sets instance ID of the tile, allocated when the tile instance is added to the
+             * carousel. This ID will remain the same for this tile instance as long it is not
+             * removed from the carousel.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setTileId(int tileId) {
+                mImpl.setTileId(tileId);
+                return this;
+            }
+
+            private Builder() {}
+
+            /**
+             * A builder for {@link TileInteractionEvent}.
+             *
+             * @throws IllegalArgumentException when the provided {@code eventType} is equal to
+             *     {@link EventType#UNKNOWN} or not defined by {@link EventType}.
+             */
+            public Builder(@EventType int eventType) {
+                mImpl.setTimestampEpochMillis(Instant.now().toEpochMilli());
+                switch (eventType) {
+                    case ENTER:
+                        mImpl.setEnter(EventProto.TileEnter.newBuilder().build());
+                        break;
+                    case LEAVE:
+                        mImpl.setLeave(EventProto.TileLeave.newBuilder().build());
+                        break;
+                    default:
+                        throw new IllegalArgumentException(
+                                "Event type not supported: " + eventType);
+                }
+            }
+
+            /**
+             * Sets the timestamp of when the interaction was reported. Defaults to {@link
+             * Instant#now()} (Created at the time of {@link Builder#Builder(int)} constructor call)
+             * if not provided.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setTimestamp(@NonNull Instant instant) {
+                mImpl.setTimestampEpochMillis(instant.toEpochMilli());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public TileInteractionEvent build() {
+                return TileInteractionEvent.fromProto(mImpl.build());
             }
         }
     }
