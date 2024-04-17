@@ -50,7 +50,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.toLocalString
 import androidx.compose.material3.internal.touchExplorationState
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.TimeInputTokens
