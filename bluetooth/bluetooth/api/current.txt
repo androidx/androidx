@@ -21,10 +21,10 @@ package androidx.bluetooth {
     method public java.util.Map<java.util.UUID,byte[]> getServiceData();
     method public java.util.List<java.util.UUID> getServiceSolicitationUuids();
     method public java.util.List<java.util.UUID> getServiceUuids();
-    method public boolean getShouldIncludeDeviceAddress();
-    method public boolean getShouldIncludeDeviceName();
     method public boolean isConnectable();
     method public boolean isDiscoverable();
+    method public boolean shouldIncludeDeviceAddress();
+    method public boolean shouldIncludeDeviceName();
     property public final long durationMillis;
     property public final boolean isConnectable;
     property public final boolean isDiscoverable;
