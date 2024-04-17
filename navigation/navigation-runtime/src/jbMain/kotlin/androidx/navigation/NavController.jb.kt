@@ -25,11 +25,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -1094,9 +1092,13 @@ public actual open class NavController {
             "Cannot navigate to $route. Navigation graph has not been set for " +
                 "NavController $this."
         }
-        val destination = _graph!!.findDestination(route)
-        if (destination != null) {
-            navigate(destination, null, navOptions, navigatorExtras)
+
+        val deepLinkMatch = _graph!!.matchDeepLink(route)
+        if (deepLinkMatch != null) {
+            val destination = deepLinkMatch.destination
+            val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs) ?: Bundle()
+            val node = deepLinkMatch.destination
+            navigate(node, args, navOptions, navigatorExtras)
         } else {
             throw IllegalArgumentException(
                 "Navigation destination that matches route $route cannot be found in the " +

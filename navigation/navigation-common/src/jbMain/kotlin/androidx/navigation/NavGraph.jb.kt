@@ -27,6 +27,18 @@ public actual open class NavGraph actual constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun matchDeepLink(route: String): DeepLinkMatch? {
+        // First search through any deep links directly added to this NavGraph
+        val bestMatch = super.matchDeepLink(route)
+        // Then search through all child destinations for a matching deep link
+        val bestChildMatch = mapNotNull { child ->
+            child.matchDeepLink(route)
+        }.maxOrNull()
+
+        return listOfNotNull(bestMatch, bestChildMatch).maxOrNull()
+    }
+
     public actual fun addDestination(node: NavDestination) {
         val innerRoute = node.route
         require(innerRoute != null) {
@@ -74,7 +86,10 @@ public actual open class NavGraph actual constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun findNode(route: String, searchParents: Boolean): NavDestination? {
         // first try matching with routePattern
-        val destination = nodes[route]
+        val destination = nodes[route] ?: nodes.values.firstOrNull {
+            // if not found with routePattern, try matching with route args
+            it.matchDeepLink(route) != null
+        }
 
         // Search the parent for the NavDestination if it is not a child of this navigation graph
         // and searchParents is true

@@ -44,6 +44,11 @@ public expect class NavDeepLink internal constructor(
      */
     public val mimeType: String?
 
+    public var isExactDeepLink: Boolean
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        get
+        internal set
+
     /**
      * A builder for constructing [NavDeepLink] instances.
      */

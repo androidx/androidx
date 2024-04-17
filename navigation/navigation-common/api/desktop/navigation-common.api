@@ -77,9 +77,11 @@ public final class androidx/navigation/NavBackStackEntry$Companion {
 public final class androidx/navigation/NavDeepLink {
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAction ()Ljava/lang/String;
+	public final fun getMatchingArguments (Ljava/lang/String;Ljava/util/Map;)Landroidx/core/bundle/Bundle;
 	public final fun getMimeType ()Ljava/lang/String;
 	public final fun getUriPattern ()Ljava/lang/String;
 	public fun hashCode ()I
+	public final fun isExactDeepLink ()Z
 }
 
 public final class androidx/navigation/NavDeepLink$Builder {
@@ -111,6 +113,7 @@ public class androidx/navigation/NavDestination {
 	public final fun getRoute ()Ljava/lang/String;
 	public final fun hasRoute (Ljava/lang/String;Landroidx/core/bundle/Bundle;)Z
 	public fun hashCode ()I
+	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun removeArgument (Ljava/lang/String;)V
 	public final fun setLabel (Ljava/lang/CharSequence;)V
 	public final fun setParent (Landroidx/navigation/NavGraph;)V
@@ -120,6 +123,15 @@ public class androidx/navigation/NavDestination {
 
 public final class androidx/navigation/NavDestination$Companion {
 	public final fun getHierarchy (Landroidx/navigation/NavDestination;)Lkotlin/sequences/Sequence;
+}
+
+public final class androidx/navigation/NavDestination$DeepLinkMatch : java/lang/Comparable {
+	public fun <init> (Landroidx/navigation/NavDestination;Landroidx/core/bundle/Bundle;Z)V
+	public fun compareTo (Landroidx/navigation/NavDestination$DeepLinkMatch;)I
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public final fun getDestination ()Landroidx/navigation/NavDestination;
+	public final fun getMatchingArgs ()Landroidx/core/bundle/Bundle;
+	public final fun hasMatchingArgs (Landroidx/core/bundle/Bundle;)Z
 }
 
 public class androidx/navigation/NavDestinationBuilder {
@@ -152,6 +164,7 @@ public class androidx/navigation/NavGraph : androidx/navigation/NavDestination, 
 	public final fun getStartDestinationRoute ()Ljava/lang/String;
 	public fun hashCode ()I
 	public final fun iterator ()Ljava/util/Iterator;
+	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun remove (Landroidx/navigation/NavDestination;)V
 	public final fun setStartDestination (Ljava/lang/String;)V
 	public final fun setStartDestinationRoute (Ljava/lang/String;)V
