@@ -464,7 +464,7 @@ fun TouchInjectionScope.swipe(
  */
 fun TouchInjectionScope.swipe(
     curve: (Long) -> Offset,
-    durationMillis: Long,
+    durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
     @OptIn(ExperimentalTestApi::class)
@@ -491,7 +491,7 @@ fun TouchInjectionScope.swipe(
 @ExperimentalTestApi
 fun TouchInjectionScope.multiTouchSwipe(
     curves: List<(Long) -> Offset>,
-    durationMillis: Long,
+    durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
     val startTime = 0L
