@@ -183,7 +183,7 @@ package androidx.navigation {
   }
 
   public final class NavDeepLinkDslBuilderKt {
-    method @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public static inline <reified T> androidx.navigation.NavDeepLink navDeepLink(optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> deepLinkBuilder);
+    method public static inline <reified T> androidx.navigation.NavDeepLink navDeepLink(String basePath, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap, optional kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> deepLinkBuilder);
     method public static androidx.navigation.NavDeepLink navDeepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> deepLinkBuilder);
   }
 
