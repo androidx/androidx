@@ -18,7 +18,11 @@ package androidx.compose.ui.window
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.DialogState
 import androidx.compose.ui.FillBox
 import androidx.compose.ui.Modifier
@@ -30,15 +34,20 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertPositionInRootIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.runInternalSkikoComposeUiTest
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.fail
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.StandardTestDispatcher
 
 @OptIn(ExperimentalTestApi::class)
 class DialogTest {
@@ -207,5 +216,38 @@ class DialogTest {
         )
         scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f), buttons = buttons, button = PointerButton.Secondary)
         scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f), button = PointerButton.Secondary)
+    }
+
+    @OptIn(InternalTestApi::class)
+    @Test
+    fun dialogCompositionSubscribesToStateChangesImmediately() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        // https://github.com/JetBrains/compose-multiplatform/issues/4609
+        var showDialog by mutableStateOf(false)
+        var lastValueInComposition: Int? = null
+        setContent {
+            if (showDialog) {
+                Dialog(onDismissRequest = { showDialog = false }) {
+                    // https://issuetracker.google.com/issues/334996925
+                    var value by remember {
+                        mutableStateOf(0)
+                            .also {
+                                it.value = 1
+                            }
+                    }
+                    lastValueInComposition = value
+                    LaunchedEffect(Unit) {
+                        delay(1000)
+                        value = 2
+                    }
+                }
+            }
+        }
+
+        assertEquals(null, lastValueInComposition)
+        showDialog = true
+        waitForIdle()
+        assertEquals(2, lastValueInComposition)
     }
 }

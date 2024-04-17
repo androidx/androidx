@@ -18,7 +18,9 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -35,13 +37,13 @@ import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.union
 import androidx.compose.ui.scene.ComposeSceneLayer
+import androidx.compose.ui.scene.Content
 import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
-import androidx.compose.ui.unit.dp
 
 /**
  * The default scrim opacity.
@@ -181,6 +183,7 @@ private fun DialogLayout(
     onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    val currentContent by rememberUpdatedState(content)
     val platformInsets = properties.platformInsets
     val layer = rememberComposeSceneLayer(
         focusable = true
@@ -188,7 +191,7 @@ private fun DialogLayout(
     layer.scrimColor = properties.scrimColor
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
-    rememberLayerContent(layer) {
+    layer.Content {
         val containerSize = LocalWindowInfo.current.containerSize
         val measurePolicy = rememberDialogMeasurePolicy(
             layer = layer,
@@ -201,7 +204,7 @@ private fun DialogLayout(
             ime = properties.useSoftwareKeyboardInset,
         ) {
             Layout(
-                content = content,
+                content = currentContent,
                 modifier = modifier,
                 measurePolicy = measurePolicy
             )
@@ -223,13 +226,6 @@ private val DialogProperties.platformInsets: PlatformInsets
         }
         return safeInsets.union(ime)
     }
-
-@Composable
-private fun rememberLayerContent(layer: ComposeSceneLayer, content: @Composable () -> Unit) {
-    remember(layer, content) {
-        layer.setContent(content)
-    }
-}
 
 @Composable
 private fun rememberDialogMeasurePolicy(
