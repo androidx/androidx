@@ -952,8 +952,8 @@ internal class AndroidComposeView(
     /**
      * This function is used by the delegate file to enable accessibility frameworks for testing.
      */
-    override fun forceAccessibilityForTesting() {
-        composeAccessibilityDelegate.accessibilityForceEnabledForTesting = true
+    override fun forceAccessibilityForTesting(enable: Boolean) {
+        composeAccessibilityDelegate.accessibilityForceEnabledForTesting = enable
     }
 
     /**
