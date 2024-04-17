@@ -723,6 +723,7 @@ class AndroidAccessibilityTest {
         rule.runOnIdle {
             assertThat(ani3.extras.traversalBefore).isNotEqualTo(0)
             assertThat(ani3.extras.traversalBefore).isEqualTo(overlaidNodeVirtualId)
+            assertThat(getAccessibilityNodeInfoSourceSemanticsNodeId(ani3) == node3VirtualId)
         }
     }
 
@@ -4798,6 +4799,36 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testFakeNode_forContentDescriptionSemantics_id() {
+        setContent {
+            Column(
+                Modifier
+                    .semantics(true) { contentDescription = "Test" }
+                    .testTag(tag)
+            ) {
+                BasicText("Text")
+                with(LocalDensity.current) {
+                    Box(
+                        Modifier
+                            .size(100.toDp())
+                            .semantics { contentDescription = "Hello" })
+                }
+            }
+        }
+        val columnNode = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
+        val fakeNode = rule.runOnIdle { columnNode.replacedChildren.first() }
+        val fakeNodeId = fakeNode.id
+
+        val fakeNodeInfo = rule.runOnIdle { createAccessibilityNodeInfo(fakeNodeId) }
+        val fakeNodeInfoId = getAccessibilityNodeInfoSourceSemanticsNodeId(fakeNodeInfo)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(fakeNodeInfoId).isEqualTo(fakeNodeId)
+        }
+    }
+
+    @Test
     fun testFakeNode_createdForButton() {
         // Arrange.
         setContent {
@@ -4818,6 +4849,32 @@ class AndroidAccessibilityTest {
             assertThat(lastChild?.isFake).isTrue()
             assertThat(lastChild?.unmergedConfig?.getOrNull(SemanticsProperties.Role))
                 .isEqualTo(Role.Button)
+        }
+    }
+
+    @Test
+    fun testFakeNode_createdForButton_id() {
+        // Arrange.
+        setContent {
+            Column(
+                Modifier
+                    .clickable(role = Role.Button) {}
+                    .testTag(tag)) {
+                BasicText("Text")
+            }
+        }
+
+        val buttonNode = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
+
+        val fakeNode = rule.runOnIdle { buttonNode.replacedChildren.lastOrNull() }
+        val fakeNodeId = fakeNode?.id
+
+        val fakeNodeInfo = rule.runOnIdle { fakeNodeId?.let { createAccessibilityNodeInfo(it) } }
+        val fakeNodeInfoId = fakeNodeInfo?.let { getAccessibilityNodeInfoSourceSemanticsNodeId(it) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(fakeNodeInfoId).isEqualTo(fakeNodeId)
         }
     }
 
@@ -5306,6 +5363,15 @@ class AndroidAccessibilityTest {
 
         assertThat(androidComposeView.canScrollVertically(1)).isFalse()
     }
+
+    private fun getAccessibilityNodeInfoSourceSemanticsNodeId(
+        node: AccessibilityNodeInfo
+    ): Int = Class
+        .forName("android.view.accessibility.AccessibilityNodeInfo")
+        .getDeclaredMethod("getSourceNodeId").run {
+            isAccessible = true
+            invoke(node) as Long shr 32
+        }.toInt()
 
     private fun getAccessibilityEventSourceSemanticsNodeId(
         event: android.view.accessibility.AccessibilityEvent
