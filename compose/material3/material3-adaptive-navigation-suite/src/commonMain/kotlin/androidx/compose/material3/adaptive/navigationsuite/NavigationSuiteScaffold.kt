@@ -19,6 +19,8 @@ package androidx.compose.material3.adaptive.navigationsuite
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.Icon
@@ -105,7 +107,23 @@ fun NavigationSuiteScaffold(
                 )
             },
             layoutType = layoutType,
-            content = content
+            content = {
+                Box(
+                    Modifier.consumeWindowInsets(
+                        when (layoutType) {
+                            NavigationSuiteType.NavigationBar ->
+                                NavigationBarDefaults.windowInsets
+                            NavigationSuiteType.NavigationRail ->
+                                NavigationRailDefaults.windowInsets
+                            NavigationSuiteType.NavigationDrawer ->
+                                DrawerDefaults.windowInsets
+                            else -> WindowInsets(0, 0, 0, 0)
+                        }
+                    )
+                ) {
+                    content()
+                }
+            }
         )
     }
 }
