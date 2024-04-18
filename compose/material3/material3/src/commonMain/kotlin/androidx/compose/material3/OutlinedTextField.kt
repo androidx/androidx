@@ -53,6 +53,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.heightOrZero
 import androidx.compose.material3.internal.layoutId
 import androidx.compose.material3.internal.widthOrZero
+import androidx.compose.material3.tokens.TypeScaleTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -74,6 +75,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -197,18 +199,23 @@ fun OutlinedTextField(
     }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
+    val density = LocalDensity.current
+
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = value,
-            modifier = if (label != null) {
-                modifier
-                    // Merge semantics at the beginning of the modifier chain to ensure padding is
-                    // considered part of the text field.
-                    .semantics(mergeDescendants = true) {}
-                    .padding(top = OutlinedTextFieldTopPadding)
-            } else {
-                modifier
-            }
+            modifier = modifier
+                .then(
+                    if (label != null) {
+                        Modifier
+                            // Merge semantics at the beginning of the modifier chain to ensure
+                            // padding is considered part of the text field.
+                            .semantics(mergeDescendants = true) {}
+                            .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
+                    } else {
+                        Modifier
+                    }
+                )
                 .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                 .defaultMinSize(
                     minWidth = OutlinedTextFieldDefaults.MinWidth,
@@ -361,18 +368,23 @@ fun OutlinedTextField(
     }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
+    val density = LocalDensity.current
+
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicTextField(
             value = value,
-            modifier = if (label != null) {
-                modifier
-                    // Merge semantics at the beginning of the modifier chain to ensure padding is
-                    // considered part of the text field.
-                    .semantics(mergeDescendants = true) {}
-                    .padding(top = OutlinedTextFieldTopPadding)
-            } else {
-                modifier
-            }
+            modifier = modifier
+                .then(
+                    if (label != null) {
+                        Modifier
+                            // Merge semantics at the beginning of the modifier chain to ensure
+                            // padding is considered part of the text field.
+                            .semantics(mergeDescendants = true) {}
+                            .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
+                    } else {
+                        Modifier
+                    }
+                )
                 .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
                 .defaultMinSize(
                     minWidth = OutlinedTextFieldDefaults.MinWidth,
@@ -545,7 +557,6 @@ internal fun OutlinedTextFieldLayout(
             }
 
             if (supporting != null) {
-                @OptIn(ExperimentalMaterial3Api::class)
                 Box(Modifier
                     .layoutId(SupportingId)
                     .heightIn(min = MinSupportingTextLineHeight)
@@ -1073,10 +1084,10 @@ internal fun Modifier.outlineCutout(labelSize: () -> Size, paddingValues: Paddin
 
 private val OutlinedTextFieldInnerPadding = 4.dp
 
-/*
-This padding is used to allow label not overlap with the content above it. This 8.dp will work
-for default cases when developers do not override the label's font size. If they do, they will
-need to add additional padding themselves
-*/
-/* @VisibleForTesting */
-internal val OutlinedTextFieldTopPadding = 8.dp
+/**
+ * In the focused state, the top half of the label sticks out above the text field. This default
+ * padding is a best-effort approximation to keep the label from overlapping with the content
+ * above it. It is sufficient when the label is a single line and developers do not override the
+ * label's font size/style. Otherwise, developers will need to add additional padding themselves.
+ */
+internal val OutlinedTextFieldTopPadding = TypeScaleTokens.BodySmallLineHeight / 2
