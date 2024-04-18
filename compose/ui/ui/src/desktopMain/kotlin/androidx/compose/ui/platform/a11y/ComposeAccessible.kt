@@ -413,7 +413,7 @@ internal class ComposeAccessible(
         // -----------------------------------
 
         override fun getAccessibleRole(): AccessibleRole {
-            controller.notifyIsInUse()
+            AccessibilityController.AccessibilityUsage.notifyInUse()
             val fromSemanticRole = when (semanticsConfig.getOrNull(SemanticsProperties.Role)) {
                 Role.Button -> AccessibleRole.PUSH_BUTTON
                 Role.Checkbox -> AccessibleRole.CHECK_BOX
