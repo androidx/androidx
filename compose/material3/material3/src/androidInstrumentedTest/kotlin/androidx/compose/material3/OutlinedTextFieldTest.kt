@@ -102,7 +102,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OutlinedTextFieldTest {
@@ -264,7 +263,7 @@ class OutlinedTextFieldTest {
             // y position is centered, plus additional padding allowance on top
             assertThat(labelPosition.value?.y).isWithin(1f).of(
                 ((ExpectedMinimumTextFieldHeight - MinTextLineHeight) / 2 +
-                    OutlinedTextFieldTopPadding).toPx()
+                    OutlinedTextFieldTopPadding.toDp()).toPx()
             )
         }
     }
@@ -293,7 +292,7 @@ class OutlinedTextFieldTest {
             assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // y position is top + default padding + label padding allowance
             assertThat(labelPosition.value?.y).isWithin(1f).of(
-                (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                (ExpectedPadding + OutlinedTextFieldTopPadding.toDp()).toPx()
             )
         }
     }
@@ -331,7 +330,7 @@ class OutlinedTextFieldTest {
             assertThat(labelPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             // y position is top + default padding + label padding allowance
             assertThat(labelPosition.value?.y).isWithin(1f).of(
-                (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                (ExpectedPadding + OutlinedTextFieldTopPadding.toDp()).toPx()
             )
         }
     }
@@ -572,7 +571,7 @@ class OutlinedTextFieldTest {
         rule.runOnIdleWithDensity {
             assertThat(placeholderPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
             assertThat(placeholderPosition.value?.y).isWithin(1f).of(
-                (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                (ExpectedPadding + OutlinedTextFieldTopPadding.toDp()).toPx()
             )
         }
     }
@@ -740,7 +739,7 @@ class OutlinedTextFieldTest {
             // placeholder y position is top + default padding + label padding allowance, then
             // centered within allocated space
             assertThat(placeholderPosition.value?.y).isWithin(1f).of(
-                (ExpectedPadding + OutlinedTextFieldTopPadding +
+                (ExpectedPadding + OutlinedTextFieldTopPadding.toDp() +
                     (MinTextLineHeight - placeholderSize) / 2).toPx()
             )
         }
@@ -992,7 +991,7 @@ class OutlinedTextFieldTest {
                 // prefix
                 assertThat(prefixPosition.value?.x).isWithin(1f).of(ExpectedPadding.toPx())
                 assertThat(prefixPosition.value?.y).isWithin(1f).of(
-                    (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                    (ExpectedPadding + OutlinedTextFieldTopPadding.toDp()).toPx()
                 )
 
                 // suffix
@@ -1000,7 +999,7 @@ class OutlinedTextFieldTest {
                     (textFieldWidth - ExpectedPadding - suffixSize).toPx()
                 )
                 assertThat(suffixPosition.value?.y).isWithin(1f).of(
-                    (ExpectedPadding + OutlinedTextFieldTopPadding).toPx()
+                    (ExpectedPadding + OutlinedTextFieldTopPadding.toDp()).toPx()
                 )
             }
         }
