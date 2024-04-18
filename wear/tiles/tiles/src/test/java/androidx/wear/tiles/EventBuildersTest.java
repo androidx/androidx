@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
@@ -38,10 +39,8 @@ public class EventBuildersTest {
         long epochMillis = 12345;
         int tileId = 1;
         EventBuilders.TileInteractionEvent interactionEvent =
-                new EventBuilders.TileInteractionEvent.Builder(
-                                EventBuilders.TileInteractionEvent.ENTER)
+                new EventBuilders.TileInteractionEvent.Builder(tileId, ENTER)
                         .setTimestamp(Instant.ofEpochMilli(epochMillis))
-                        .setTileId(tileId)
                         .build();
 
         EventProto.TileInteractionEvent eventProto =
@@ -62,9 +61,8 @@ public class EventBuildersTest {
         long epochMillis = 12345;
         int tileId = 1;
         EventBuilders.TileInteractionEvent interactionEvent =
-                new EventBuilders.TileInteractionEvent.Builder(LEAVE)
+                new EventBuilders.TileInteractionEvent.Builder(tileId, LEAVE)
                         .setTimestamp(Instant.ofEpochMilli(epochMillis))
-                        .setTileId(tileId)
                         .build();
 
         EventProto.TileInteractionEvent eventProto =
@@ -78,5 +76,20 @@ public class EventBuildersTest {
         assertThat(interactionEvent.getEventType()).isEqualTo(LEAVE);
         assertThat(interactionEvent.getTimestamp().toEpochMilli()).isEqualTo(epochMillis);
         assertThat(interactionEvent.getTileId()).isEqualTo(tileId);
+    }
+
+    @Test
+    public void defaultTimestampIsSetWhenCreatingTheBuilderInstance() {
+        long timestamp1 = 12345L;
+        long timestamp2 = 54321L;
+        AtomicLong epochMillis = new AtomicLong(timestamp1);
+        EventBuilders.TileInteractionEvent.Builder builder =
+                new EventBuilders.TileInteractionEvent.Builder(
+                        () -> Instant.ofEpochMilli(epochMillis.get()).toEpochMilli(), 1, LEAVE);
+
+        epochMillis.set(timestamp2);
+        EventBuilders.TileInteractionEvent interactionEvent = builder.build();
+
+        assertThat(interactionEvent.toProto().getTimestampEpochMillis()).isEqualTo(timestamp1);
     }
 }
