@@ -313,7 +313,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 events =
                     hashSetOf(
                         TestLogEvent.FAILED,
-                        TestLogEvent.PASSED,
                         TestLogEvent.SKIPPED,
                         TestLogEvent.STANDARD_OUT
                     )
