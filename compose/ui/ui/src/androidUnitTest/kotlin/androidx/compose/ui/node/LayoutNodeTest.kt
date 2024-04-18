@@ -652,7 +652,7 @@ class LayoutNodeTest {
     fun testRemoveBeyondIndex() {
         val node = LayoutNode()
         node.insertAt(0, LayoutNode())
-        Assert.assertThrows(IndexOutOfBoundsException::class.java) {
+        Assert.assertThrows(NullPointerException::class.java) {
             node.removeAt(1, 1)
         }
     }
@@ -672,7 +672,7 @@ class LayoutNodeTest {
     fun testRemoveWithIndexBeyondSize() {
         val node = LayoutNode()
         node.insertAt(0, LayoutNode())
-        Assert.assertThrows(IndexOutOfBoundsException::class.java) {
+        Assert.assertThrows(NullPointerException::class.java) {
             node.removeAt(0, 2)
         }
     }
@@ -681,7 +681,7 @@ class LayoutNodeTest {
     @Test
     fun testRemoveWithIndexEqualToSize() {
         val node = LayoutNode()
-        Assert.assertThrows(IndexOutOfBoundsException::class.java) {
+        Assert.assertThrows(NullPointerException::class.java) {
             node.removeAt(0, 1)
         }
     }

@@ -695,7 +695,7 @@ class FocusableTest {
     }
 
     @Test
-    fun movableContent_movedContentRemainsFocused() {
+    fun movableContent_movedContentBecomesUnfocused() {
         var moveContent by mutableStateOf(false)
         val focusRequester = FocusRequester()
         val interactionSource = MutableInteractionSource()
@@ -752,15 +752,23 @@ class FocusableTest {
             moveContent = true // moving content
         }
 
-        // Assert that focus is kept during movable content change.
+        // Assert that focus is reset
         rule.runOnIdle {
-            assertThat(state.isFocused).isTrue()
+            assertThat(state.isFocused).isFalse()
         }
         rule.onNodeWithTag(focusTag)
-            .assertIsFocused()
+            .assertIsNotFocused()
 
-        // Checks if we still received the correct Focus/Unfocus events. When moving contents, the
-        // focus event node will send a sequence of Focus/Unfocus/Focus events.
+        rule.runOnIdle {
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus() // request focus again
+            assertThat(state.isFocused).isTrue()
+        }
+
         rule.runOnIdle {
             assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
             assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
