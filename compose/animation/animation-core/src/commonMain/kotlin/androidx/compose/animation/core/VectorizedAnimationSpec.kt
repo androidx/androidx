@@ -22,6 +22,7 @@ import androidx.collection.MutableIntList
 import androidx.collection.MutableIntObjectMap
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import kotlin.jvm.JvmInline
 import kotlin.math.min
 
 /**
