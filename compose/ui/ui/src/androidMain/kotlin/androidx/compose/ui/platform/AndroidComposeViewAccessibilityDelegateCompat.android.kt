@@ -32,11 +32,9 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
 import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener
-import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
-import android.view.accessibility.AccessibilityNodeProvider
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
@@ -263,10 +261,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             (accessibilityManager.isEnabled && accessibilityManager.isTouchExplorationEnabled)
 
     private val handler = Handler(Looper.getMainLooper())
-    private var nodeProvider = AccessibilityNodeProviderCompat(ComposeAccessibilityNodeProvider())
+    private var nodeProvider = ComposeAccessibilityNodeProvider()
 
     private var focusedVirtualViewId = InvalidId
-    private var currentlyFocusedANI: AccessibilityNodeInfo? = null
+    private var currentlyFocusedANI: AccessibilityNodeInfoCompat? = null
     private var sendingFocusAffectingEvent = false
     private val pendingHorizontalScrollEvents = MutableIntObjectMap<ScrollAxisRange>()
     private val pendingVerticalScrollEvents = MutableIntObjectMap<ScrollAxisRange>()
@@ -433,7 +431,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         return foundNode
     }
 
-    private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfo? {
+    private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
         trace("checkIfDestroyed") {
             if (view.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState ==
                 Lifecycle.State.DESTROYED
@@ -471,7 +469,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             populateAccessibilityNodeInfoProperties(virtualViewId, info, semanticsNode)
         }
 
-        return info.unwrap()
+        return info
     }
 
     private fun boundsInScreen(node: SemanticsNodeWithAdjustedBounds): android.graphics.Rect {
@@ -1032,10 +1030,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 extraDataKeys.add(ExtraDataTestTagKey)
             }
 
-            AccessibilityNodeInfoVerificationHelperMethods.setAvailableExtraData(
-                info.unwrap(),
-                extraDataKeys
-            )
+            info.availableExtraData = extraDataKeys
         }
 
         val rangeInfo =
@@ -1245,7 +1240,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 info.setTraversalBefore(view, beforeId)
             }
             addExtraDataToAccessibilityNodeInfoHelper(
-                virtualViewId, info.unwrap(), ExtraDataTestTraversalBeforeVal, null
+                virtualViewId, info, ExtraDataTestTraversalBeforeVal, null
             )
         }
 
@@ -1258,7 +1253,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             if (afterView != null) {
                 info.setTraversalAfter(afterView)
                 addExtraDataToAccessibilityNodeInfoHelper(
-                    virtualViewId, info.unwrap(), ExtraDataTestTraversalAfterVal, null
+                    virtualViewId, info, ExtraDataTestTraversalAfterVal, null
                 )
             }
         }
@@ -1936,7 +1931,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun addExtraDataToAccessibilityNodeInfoHelper(
         virtualViewId: Int,
-        info: AccessibilityNodeInfo,
+        info: AccessibilityNodeInfoCompat,
         extraDataKey: String,
         arguments: Bundle?
     ) {
@@ -3110,17 +3105,16 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         return getOrNull(SemanticsProperties.EditableText)
     }
 
-    // TODO(b/160820721): use AccessibilityNodeProviderCompat instead of AccessibilityNodeProvider
-    private inner class ComposeAccessibilityNodeProvider : AccessibilityNodeProvider() {
-        override fun createAccessibilityNodeInfo(virtualViewId: Int): AccessibilityNodeInfo? {
-        return trace("createAccessibilityNodeInfo") {
-            createNodeInfo(virtualViewId).also {
-                if (sendingFocusAffectingEvent && virtualViewId == focusedVirtualViewId) {
-                    currentlyFocusedANI = it
+    private inner class ComposeAccessibilityNodeProvider : AccessibilityNodeProviderCompat() {
+        override fun createAccessibilityNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
+            return trace("createAccessibilityNodeInfo") {
+                createNodeInfo(virtualViewId).also {
+                    if (sendingFocusAffectingEvent && virtualViewId == focusedVirtualViewId) {
+                        currentlyFocusedANI = it
+                    }
                 }
             }
         }
-    }
 
         override fun performAction(
             virtualViewId: Int,
@@ -3132,14 +3126,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         override fun addExtraDataToAccessibilityNodeInfo(
             virtualViewId: Int,
-            info: AccessibilityNodeInfo,
+            info: AccessibilityNodeInfoCompat,
             extraDataKey: String,
             arguments: Bundle?
         ) {
             addExtraDataToAccessibilityNodeInfoHelper(virtualViewId, info, extraDataKey, arguments)
         }
 
-        override fun findFocus(focus: Int): AccessibilityNodeInfo? {
+        override fun findFocus(focus: Int): AccessibilityNodeInfoCompat? {
             return createAccessibilityNodeInfo(focusedVirtualViewId)
         }
     }
@@ -3255,20 +3249,6 @@ private fun AccessibilityAction<*>.accessibilityEquals(other: Any?): Boolean {
     if (action != null && other.action == null) return false
 
     return true
-}
-
-/**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
- */
-@RequiresApi(Build.VERSION_CODES.O)
-private object AccessibilityNodeInfoVerificationHelperMethods {
-    @RequiresApi(Build.VERSION_CODES.O)
-    @DoNotInline
-    fun setAvailableExtraData(node: AccessibilityNodeInfo, data: List<String>) {
-        node.availableExtraData = data
-    }
 }
 
 @Deprecated(
