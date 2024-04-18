@@ -16,7 +16,6 @@
 
 package androidx.compose.material
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -154,7 +153,7 @@ fun OutlinedTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = TextFieldDefaults.OutlinedTextFieldShape,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
 ) {
     @Suppress("NAME_SHADOWING")
@@ -182,7 +181,6 @@ fun OutlinedTextField(
                     Modifier
                 }
             )
-            .background(colors.backgroundColor(enabled).value, shape)
             .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
@@ -213,6 +211,7 @@ fun OutlinedTextField(
                 enabled = enabled,
                 isError = isError,
                 interactionSource = interactionSource,
+                shape = shape,
                 colors = colors,
                 border = {
                     TextFieldDefaults.BorderBox(
@@ -251,7 +250,7 @@ fun OutlinedTextField(
     singleLine: Boolean = false,
     maxLines: Int = Int.MAX_VALUE,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = TextFieldDefaults.OutlinedTextFieldShape,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
 ) {
     OutlinedTextField(
@@ -391,7 +390,6 @@ fun OutlinedTextField(
                     Modifier
                 }
             )
-            .background(colors.backgroundColor(enabled).value, shape)
             .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
                 minWidth = TextFieldDefaults.MinWidth,
@@ -422,6 +420,7 @@ fun OutlinedTextField(
                 enabled = enabled,
                 isError = isError,
                 interactionSource = interactionSource,
+                shape = shape,
                 colors = colors,
                 border = {
                     TextFieldDefaults.BorderBox(
