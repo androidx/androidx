@@ -47,12 +47,13 @@ fun ThreePaneScaffoldScope.AnimatedPane(
 ) {
     val keepShowing = scaffoldStateTransition.currentState[role] != PaneAdaptedValue.Hidden &&
         scaffoldStateTransition.targetState[role] != PaneAdaptedValue.Hidden
+    val animateFraction = { scaffoldStateTransitionFraction }
     scaffoldStateTransition.AnimatedVisibility(
         visible = { value: ThreePaneScaffoldValue -> value[role] != PaneAdaptedValue.Hidden },
         modifier = modifier
             .animatedPane()
             .animateBounds(
-                animateFraction = scaffoldStateTransitionFraction,
+                animateFraction = animateFraction,
                 positionAnimationSpec = positionAnimationSpec,
                 sizeAnimationSpec = sizeAnimationSpec,
                 lookaheadScope = this,

@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.animateBounds(
-    animateFraction: Float,
+    animateFraction: () -> Float,
     sizeAnimationSpec: FiniteAnimationSpec<IntSize>,
     positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
     lookaheadScope: LookaheadScope,
@@ -51,10 +51,10 @@ internal fun Modifier.animateBounds(
     }
     this.approachLayout(
         isMeasurementApproachInProgress = {
-            animateFraction != 1f
+            animateFraction() != 1f
         },
         isPlacementApproachInProgress = {
-            animateFraction != 1f
+            animateFraction() != 1f
         },
     ) { measurable, _ ->
         // When layout changes, the lookahead pass will calculate a new final size for the
@@ -62,7 +62,7 @@ internal fun Modifier.animateBounds(
         // change, such that the animation starts from the current size and gradually
         // change towards `lookaheadSize`.
         sizeTracker.updateTargetSize(lookaheadSize)
-        val (width, height) = sizeTracker.updateAndGetCurrentSize(animateFraction)
+        val (width, height) = sizeTracker.updateAndGetCurrentSize(animateFraction())
         // Creates a fixed set of constraints using the animated size
         val animatedConstraints = Constraints.fixed(width, height)
         // Measure child/children with animated constraints.
@@ -76,7 +76,7 @@ internal fun Modifier.animateBounds(
                 )
                 placeable.place(
                     with(lookaheadScope) {
-                        positionTracker.updateAndGetCurrentOffset(animateFraction) -
+                        positionTracker.updateAndGetCurrentOffset(animateFraction()) -
                             lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero).toIntOffset()
                     }
                 )
