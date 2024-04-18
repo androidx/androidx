@@ -14,7 +14,7 @@ plugins {
 
 dependencies {
     api(project(":vectordrawable:vectordrawable"))
-    api("androidx.core:core-animation:1.0.0-rc01")
+    api(project(":core:core-animation"))
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testExtJunit)
