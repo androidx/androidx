@@ -144,10 +144,12 @@ actual fun Dialog(
     properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
+    val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
+
     val onKeyEvent = if (properties.dismissOnBackPress) {
         { event: KeyEvent ->
             if (event.isDismissRequest()) {
-                onDismissRequest()
+                currentOnDismissRequest()
                 true
             } else {
                 false
@@ -159,7 +161,7 @@ actual fun Dialog(
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside) {
         { eventType: PointerEventType ->
             if (eventType == PointerEventType.Release) {
-                onDismissRequest()
+                currentOnDismissRequest()
             }
         }
     } else {
