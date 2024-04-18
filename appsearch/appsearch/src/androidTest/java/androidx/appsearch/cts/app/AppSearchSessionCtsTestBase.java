@@ -5853,8 +5853,6 @@ public abstract class AppSearchSessionCtsTestBase {
                 .build();
         mDb1.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(email).build()).get();
 
-        // ListFilterQueryLanguage is enabled so that EXPERIMENTAL_ICING_ADVANCED_QUERY gets enabled
-        // in IcingLib.
         // Disable VERBATIM_SEARCH in the SearchSpec.
         SearchResults searchResults = mDb1.search("\"Hello, world!\"",
                 new SearchSpec.Builder()

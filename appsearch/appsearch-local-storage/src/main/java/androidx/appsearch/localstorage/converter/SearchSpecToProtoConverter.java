@@ -291,9 +291,7 @@ public final class SearchSpecToProtoConverter {
                 .setQuery(mQueryExpression)
                 .addAllNamespaceFilters(mTargetPrefixedNamespaceFilters)
                 .addAllSchemaTypeFilters(mTargetPrefixedSchemaFilters)
-                .setUseReadOnlySearch(mIcingOptionsConfig.getUseReadOnlySearch())
-                .setSearchType(
-                        SearchSpecProto.SearchType.Code.EXPERIMENTAL_ICING_ADVANCED_QUERY);
+                .setUseReadOnlySearch(mIcingOptionsConfig.getUseReadOnlySearch());
 
         List<EmbeddingVector> searchEmbeddings = mSearchSpec.getSearchEmbeddings();
         for (int i = 0; i < searchEmbeddings.size(); i++) {
