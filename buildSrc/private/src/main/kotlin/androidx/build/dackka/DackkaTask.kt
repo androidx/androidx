@@ -39,6 +39,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
@@ -127,6 +128,17 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:Input abstract val baseSourceLink: Property<String>
     @get:Input abstract val baseFunctionSourceLink: Property<String>
     @get:Input abstract val basePropertySourceLink: Property<String>
+
+    /**
+     * Option for whether to include apiSince metadata in the docs. Defaults to including metadata.
+     * Run with `--no-version-metadata -x generateApi` to avoid running `generateApi` before `docs`.
+     */
+    @get:Input
+    @set:Option(
+        option = "version-metadata",
+        description = "Include added-in/deprecated-in API version metadata"
+    )
+    var includeVersionMetadata: Boolean = true
 
     private fun sourceSets(): List<DokkaInputModels.SourceSet> {
         val externalDocs =
@@ -249,7 +261,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                         "annotationsNotToDisplayKotlin" to
                                             annotationsNotToDisplayKotlin.get(),
                                         "hidingAnnotations" to hidingAnnotations.get(),
-                                        "versionMetadataFilenames" to checkVersionMetadataFiles(),
+                                        "versionMetadataFilenames" to getVersionMetadataFiles(),
                                         "validNullabilityAnnotations" to
                                             nullabilityAnnotations.get(),
                                     )
@@ -265,11 +277,13 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     }
 
     /**
-     * Return the list of version metadata files after checking if they're all JSON. If version
-     * metadata does not exist for a project, it's possible that a configuration which isn't an
-     * exact match of the version metadata attributes to be selected as version metadata.
+     * If version metadata shouldn't be included in the docs, returns an empty list.
+     * Otherwise, returns the list of version metadata files after checking if they're all JSON. If
+     * version metadata does not exist for a project, it's possible that a configuration which isn't
+     * an exact match of the version metadata attributes to be selected as version metadata.
      */
-    private fun checkVersionMetadataFiles(): List<File> {
+    private fun getVersionMetadataFiles(): List<File> {
+        if (!includeVersionMetadata) return emptyList()
         val (json, nonJson) = versionMetadataFiles.files.partition { it.extension == "json" }
         if (nonJson.isNotEmpty()) {
             logger.error(
