@@ -21,8 +21,10 @@ import androidx.compose.foundation.contextmenu.ContextMenuItemState
 import androidx.compose.foundation.contextmenu.assertContextMenuItems
 import androidx.compose.foundation.contextmenu.clickOffPopup
 import androidx.compose.foundation.contextmenu.contextMenuItemInteraction
+import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -64,9 +66,9 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     private val textFieldTag = "BTF"
     private val defaultFullWidthText = "M".repeat(20)
 
-    //region BasicTextField Context Menu Gesture Tests
+    //region BTF1 Context Menu Gesture Tests
     @Test
-    fun contextMenu_rightClick_appears() {
+    fun btf1_contextMenu_rightClick_appears() {
         var value by mutableStateOf(TextFieldValue(defaultFullWidthText))
         rule.setTextFieldTestContent {
             BasicTextField(
@@ -83,7 +85,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_leftClick_doesNotAppear() {
+    fun btf1_contextMenu_leftClick_doesNotAppear() {
         var value by mutableStateOf(TextFieldValue(defaultFullWidthText))
         rule.setTextFieldTestContent {
             BasicTextField(
@@ -100,7 +102,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_disabled_rightClick_doesNotAppear() {
+    fun btf1_contextMenu_disabled_rightClick_doesNotAppear() {
         var value by mutableStateOf(TextFieldValue(defaultFullWidthText))
         rule.setTextFieldTestContent {
             BasicTextField(
@@ -118,7 +120,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_disappearsOnClickOffOfPopup() {
+    fun btf1_contextMenu_disappearsOnClickOffOfPopup() {
         var value by mutableStateOf(TextFieldValue(defaultFullWidthText))
         rule.setTextFieldTestContent {
             BasicTextField(
@@ -135,11 +137,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         rule.clickOffPopup { rootRect -> lerp(rootRect.topLeft, rootRect.center, 0.5f) }
         contextMenuInteraction.assertDoesNotExist()
     }
-    //endregion BasicTextField Context Menu Gesture Tests
+    //endregion BTF1 Context Menu Gesture Tests
 
-    //region Context Menu Item Click Tests
+    //region BTF1 Context Menu Item Click Tests
     @Test
-    fun contextMenu_onClickCut() = runClickContextMenuItemTest(
+    fun btf1_contextMenu_onClickCut() = runBtf1ClickContextMenuItemTest(
         labelToClick = ContextMenuItemLabels.CUT,
         expectedText = "Text  Text",
         expectedSelection = TextRange(5),
@@ -147,7 +149,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     )
 
     @Test
-    fun contextMenu_onClickCopy() = runClickContextMenuItemTest(
+    fun btf1_contextMenu_onClickCopy() = runBtf1ClickContextMenuItemTest(
         labelToClick = ContextMenuItemLabels.COPY,
         expectedText = "Text Text Text",
         expectedSelection = TextRange(5, 9),
@@ -155,7 +157,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     )
 
     @Test
-    fun contextMenu_onClickPaste() = runClickContextMenuItemTest(
+    fun btf1_contextMenu_onClickPaste() = runBtf1ClickContextMenuItemTest(
         labelToClick = ContextMenuItemLabels.PASTE,
         expectedText = "Text clip Text",
         expectedSelection = TextRange(9),
@@ -163,14 +165,14 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     )
 
     @Test
-    fun contextMenu_onClickSelectAll() = runClickContextMenuItemTest(
+    fun btf1_contextMenu_onClickSelectAll() = runBtf1ClickContextMenuItemTest(
         labelToClick = ContextMenuItemLabels.SELECT_ALL,
         expectedText = "Text Text Text",
         expectedSelection = TextRange(0, 14),
         expectedClipboardContent = "clip",
     )
 
-    private fun runClickContextMenuItemTest(
+    private fun runBtf1ClickContextMenuItemTest(
         labelToClick: String,
         expectedText: String,
         expectedSelection: TextRange,
@@ -219,11 +221,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         assertThat(clipboardContent).isNotNull()
         assertThat(clipboardContent!!.text).isEqualTo(expectedClipboardContent)
     }
-    //endregion Context Menu Item Click Tests
+    //endregion BTF1 Context Menu Item Click Tests
 
-    //region Context Menu Correct Item Tests
+    //region BTF1 Context Menu Correct Item Tests
     @Test
-    fun contextMenu_emptyClipboard_noSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_emptyClipboard_noSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.NONE,
     ) {
@@ -236,7 +238,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_emptyClipboard_partialSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_emptyClipboard_partialSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.PARTIAL,
     ) {
@@ -249,7 +251,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_emptyClipboard_fullSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_emptyClipboard_fullSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.ALL,
     ) {
@@ -262,7 +264,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_nonEmptyClipboard_noSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_nonEmptyClipboard_noSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isEmptyClipboard = false,
         selectionAmount = SelectionAmount.NONE,
     ) {
@@ -275,7 +277,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_nonEmptyClipboard_partialSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_nonEmptyClipboard_partialSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isPassword = false,
         isReadOnly = false,
         isEmptyClipboard = false,
@@ -290,7 +292,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_nonEmptyClipboard_fullSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_nonEmptyClipboard_fullSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isEmptyClipboard = false,
         selectionAmount = SelectionAmount.ALL,
     ) {
@@ -303,7 +305,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_password_noSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_password_noSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isPassword = true,
         selectionAmount = SelectionAmount.NONE,
     ) {
@@ -316,7 +318,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_password_partialSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_password_partialSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isPassword = true,
         selectionAmount = SelectionAmount.PARTIAL,
     ) {
@@ -329,7 +331,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_password_fullSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_password_fullSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isPassword = true,
         selectionAmount = SelectionAmount.ALL,
     ) {
@@ -342,7 +344,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_readOnly_noSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_readOnly_noSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isReadOnly = true,
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.NONE,
@@ -356,7 +358,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_readOnly_partialSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_readOnly_partialSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isReadOnly = true,
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.PARTIAL,
@@ -370,7 +372,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    fun contextMenu_readOnly_fullSelection_itemsMatch() = runCorrectItemsTest(
+    fun btf1_contextMenu_readOnly_fullSelection_itemsMatch() = runBtf1CorrectItemsTest(
         isReadOnly = true,
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.ALL,
@@ -383,9 +385,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         )
     }
 
-    private enum class SelectionAmount { NONE, PARTIAL, ALL }
-
-    private fun runCorrectItemsTest(
+    private fun runBtf1CorrectItemsTest(
         isPassword: Boolean = false,
         isReadOnly: Boolean = false,
         isEmptyClipboard: Boolean = false,
@@ -430,5 +430,363 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
         assertBlock()
     }
-    //endregion Context Menu Correct Item Tests
+    //endregion BTF1 Context Menu Correct Item Tests
+
+    //region BTF2 Context Menu Gesture Tests
+    @Test
+    fun btf2_contextMenu_rightClick_appears() {
+        val state = TextFieldState(defaultFullWidthText)
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(textFieldTag)
+            )
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
+        contextMenuInteraction.assertExists()
+    }
+
+    @Test
+    fun btf2_contextMenu_leftClick_doesNotAppear() {
+        val state = TextFieldState(defaultFullWidthText)
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(textFieldTag)
+            )
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textFieldTag).performMouseInput { click(center) }
+        contextMenuInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun btf2_contextMenu_disabled_rightClick_doesNotAppear() {
+        val state = TextFieldState(defaultFullWidthText)
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                enabled = false,
+                modifier = Modifier.testTag(textFieldTag)
+            )
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
+        contextMenuInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun btf2_contextMenu_disappearsOnClickOffOfPopup() {
+        val state = TextFieldState(defaultFullWidthText)
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(textFieldTag)
+            )
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
+        contextMenuInteraction.assertExists()
+        rule.clickOffPopup { rootRect -> lerp(rootRect.topLeft, rootRect.center, 0.5f) }
+        contextMenuInteraction.assertDoesNotExist()
+    }
+    //endregion BTF2 Context Menu Gesture Tests
+
+    //region BTF2 Context Menu Item Click Tests
+    @Test
+    fun btf2_contextMenu_onClickCut() = runBtf2ClickContextMenuItemTest(
+        labelToClick = ContextMenuItemLabels.CUT,
+        expectedText = "Text  Text",
+        expectedSelection = TextRange(5),
+        expectedClipboardContent = "Text",
+    )
+
+    @Test
+    fun btf2_contextMenu_onClickCopy() = runBtf2ClickContextMenuItemTest(
+        labelToClick = ContextMenuItemLabels.COPY,
+        expectedText = "Text Text Text",
+        expectedSelection = TextRange(5, 9),
+        expectedClipboardContent = "Text",
+    )
+
+    @Test
+    fun btf2_contextMenu_onClickPaste() = runBtf2ClickContextMenuItemTest(
+        labelToClick = ContextMenuItemLabels.PASTE,
+        expectedText = "Text clip Text",
+        expectedSelection = TextRange(9),
+        expectedClipboardContent = "clip",
+    )
+
+    @Test
+    fun btf2_contextMenu_onClickSelectAll() = runBtf2ClickContextMenuItemTest(
+        labelToClick = ContextMenuItemLabels.SELECT_ALL,
+        expectedText = "Text Text Text",
+        expectedSelection = TextRange(0, 14),
+        expectedClipboardContent = "clip",
+    )
+
+    private fun runBtf2ClickContextMenuItemTest(
+        labelToClick: String,
+        expectedText: String,
+        expectedSelection: TextRange,
+        expectedClipboardContent: String,
+    ) {
+        val text = "Text Text Text"
+        val initialClipboardText = "clip"
+
+        val state = TextFieldState(initialText = text, initialSelection = TextRange(5, 9))
+
+        val clipboardManager = FakeClipboardManager(
+            initialText = initialClipboardText,
+            supportsClipEntry = true,
+        )
+
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                BasicTextField(
+                    state = state,
+                    modifier = Modifier.testTag(textFieldTag)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
+        val itemInteraction = rule.contextMenuItemInteraction(labelToClick)
+        itemInteraction.assertHasClickAction()
+        itemInteraction.assertIsEnabled()
+        itemInteraction.performClick()
+        rule.waitForIdle()
+
+        // Context menu disappears
+        rule.onNode(isPopup()).assertDoesNotExist()
+        itemInteraction.assertDoesNotExist()
+
+        // Operation was applied
+        assertThat(state.text).isEqualTo(expectedText)
+        assertThat(state.selection).isEqualTo(expectedSelection)
+        val clipboardContent = clipboardManager.getText()
+        assertThat(clipboardContent).isNotNull()
+        assertThat(clipboardContent!!.text).isEqualTo(expectedClipboardContent)
+    }
+    //endregion BTF2 Context Menu Item Click Tests
+
+    //region BTF2 Context Menu Correct Item Tests
+    @Test
+    fun btf2_contextMenu_emptyClipboard_noSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isEmptyClipboard = true,
+        selectionAmount = SelectionAmount.NONE,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_emptyClipboard_partialSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isEmptyClipboard = true,
+        selectionAmount = SelectionAmount.PARTIAL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_emptyClipboard_fullSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isEmptyClipboard = true,
+        selectionAmount = SelectionAmount.ALL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_nonEmptyClipboard_noSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isEmptyClipboard = false,
+        selectionAmount = SelectionAmount.NONE,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_nonEmptyClipboard_partialSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isEmptyClipboard = false,
+        selectionAmount = SelectionAmount.PARTIAL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_nonEmptyClipboard_fullSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isEmptyClipboard = false,
+        selectionAmount = SelectionAmount.ALL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_password_noSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isPassword = true,
+        selectionAmount = SelectionAmount.NONE,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_password_partialSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isPassword = true,
+        selectionAmount = SelectionAmount.PARTIAL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_password_fullSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isPassword = true,
+        selectionAmount = SelectionAmount.ALL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_readOnly_noSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isReadOnly = true,
+        isEmptyClipboard = true,
+        selectionAmount = SelectionAmount.NONE,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_readOnly_partialSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isReadOnly = true,
+        isEmptyClipboard = true,
+        selectionAmount = SelectionAmount.PARTIAL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
+        )
+    }
+
+    @Test
+    fun btf2_contextMenu_readOnly_fullSelection_itemsMatch() = runBtf2CorrectItemsTest(
+        isReadOnly = true,
+        isEmptyClipboard = true,
+        selectionAmount = SelectionAmount.ALL,
+    ) {
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
+        )
+    }
+
+    private enum class SelectionAmount { NONE, PARTIAL, ALL }
+
+    private fun runBtf2CorrectItemsTest(
+        isPassword: Boolean = false, // todo use
+        isReadOnly: Boolean = false,
+        isEmptyClipboard: Boolean = false,
+        selectionAmount: SelectionAmount = SelectionAmount.PARTIAL,
+        assertBlock: () -> Unit,
+    ) {
+        check(!(isPassword && isReadOnly)) { "Can't be a password field and read-only." }
+
+        val text = "Text Text Text"
+        val state = TextFieldState(
+            initialText = text,
+            initialSelection = when (selectionAmount) {
+                SelectionAmount.NONE -> TextRange.Zero
+                SelectionAmount.PARTIAL -> TextRange(5, 9)
+                SelectionAmount.ALL -> TextRange(0, 14)
+            }
+        )
+
+        val clipboardManager = FakeClipboardManager(supportsClipEntry = true).apply {
+            if (isEmptyClipboard) {
+                setClip(null)
+            } else {
+                setText(AnnotatedString("Clipboard Text"))
+            }
+        }
+
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
+                if (isPassword) {
+                    BasicSecureTextField(
+                        state = state,
+                        modifier = Modifier.testTag(textFieldTag)
+                    )
+                } else {
+                    BasicTextField(
+                        state = state,
+                        readOnly = isReadOnly,
+                        modifier = Modifier.testTag(textFieldTag)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
+        assertBlock()
+    }
+    //endregion BTF2 Context Menu Correct Item Tests
 }

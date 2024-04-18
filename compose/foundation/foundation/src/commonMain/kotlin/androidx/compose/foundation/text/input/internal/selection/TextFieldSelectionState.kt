@@ -95,6 +95,7 @@ internal class TextFieldSelectionState(
     private var enabled: Boolean,
     private var readOnly: Boolean,
     var isFocused: Boolean, /* true iff component is focused and the window is focused */
+    private var isPassword: Boolean,
 ) {
     /**
      * [HapticFeedback] handle to perform haptic feedback.
@@ -321,6 +322,7 @@ internal class TextFieldSelectionState(
         density: Density,
         enabled: Boolean,
         readOnly: Boolean,
+        isPassword: Boolean,
     ) {
         if (!enabled) {
             hideTextToolbar()
@@ -331,6 +333,7 @@ internal class TextFieldSelectionState(
         this.density = density
         this.enabled = enabled
         this.readOnly = readOnly
+        this.isPassword = isPassword
     }
 
     /**
@@ -1123,6 +1126,14 @@ internal class TextFieldSelectionState(
     }
 
     /**
+     * Whether a copy operation can execute now and modify the clipboard.
+     * The paste operation requires the selection to not be collapsed,
+     * the text field to be editable, and for it to NOT be a password.
+     */
+    fun canCut(): Boolean =
+        !textFieldState.visualText.selection.collapsed && editable && !isPassword
+
+    /**
      * The method for cutting text.
      *
      * If there is no selection, return.
@@ -1139,6 +1150,13 @@ internal class TextFieldSelectionState(
 
         textFieldState.deleteSelectedText()
     }
+
+    /**
+     * Whether a copy operation can execute now and modify the clipboard.
+     * The copy operation requires the selection to not be collapsed,
+     * and the text field to NOT be a password.
+     */
+    fun canCopy(): Boolean = !textFieldState.visualText.selection.collapsed && !isPassword
 
     /**
      * The method for copying text.
@@ -1159,6 +1177,19 @@ internal class TextFieldSelectionState(
         if (!cancelSelection) return
 
         textFieldState.collapseSelectionToMax()
+    }
+
+    /**
+     * Whether a paste operation can execute now and have a meaningful effect.
+     * The paste operation requires the text field to be editable,
+     * and the clipboard manager to have content to paste.
+     */
+    fun canPaste(): Boolean {
+        if (!editable) return false
+        // if receive content is not configured, we expect at least a text item to be present
+        if (clipboardManager?.hasText() == true) return true
+        // if receive content is configured, hasClip should be enough to show the paste option
+        return receiveContentConfiguration?.invoke() != null && clipboardManager?.getClip() != null
     }
 
     fun paste() {
@@ -1205,6 +1236,23 @@ internal class TextFieldSelectionState(
     }
 
     /**
+     * Whether a select all operation can execute now and have a meaningful effect.
+     * The select all operation requires the selection to not already be selecting the
+     * entire text field.
+     */
+    fun canSelectAll(): Boolean =
+        textFieldState.visualText.selection.length != textFieldState.visualText.length
+
+    /**
+     * The method for selecting all text.
+     *
+     * Expands or creates the selection to cover the entire content of the text field.
+     */
+    fun selectAll() {
+        textFieldState.selectAll()
+    }
+
+    /**
      * This function get the selected region as a Rectangle region, and pass it to [TextToolbar]
      * to make the FloatingToolbar show up in the proper place. In addition, this function passes
      * the copy, paste and cut method as callbacks when "copy", "cut" or "paste" is clicked.
@@ -1212,51 +1260,27 @@ internal class TextFieldSelectionState(
      * @param contentRect Rectangle region where the toolbar will be anchored.
      */
     private fun showTextToolbar(contentRect: Rect) {
-        val selection = textFieldState.visualText.selection
-
-        // if receive content is configured, hasClip should be enough to show the paste option
-        val canPasteContent = receiveContentConfiguration?.invoke() != null &&
-            clipboardManager?.getClip() != null
-        // if receive content is not configured, we expect at least a text item to be present
-        val canPasteText = clipboardManager?.hasText() == true
-        val canPaste = editable && (canPasteContent || canPasteText)
-
         // TODO(halilibo): Add a new TextToolbar option "paste as plain text".
-        val paste: (() -> Unit)? = if (canPaste) {
-            {
-                paste()
-                updateTextToolbarState(TextToolbarState.None)
-            }
-        } else null
-
-        val copy: (() -> Unit)? = if (!selection.collapsed) {
-            {
-                copy()
-                updateTextToolbarState(TextToolbarState.None)
-            }
-        } else null
-
-        val cut: (() -> Unit)? = if (!selection.collapsed && editable) {
-            {
-                cut()
-                updateTextToolbarState(TextToolbarState.None)
-            }
-        } else null
-
-        val selectAll: (() -> Unit)? = if (selection.length != textFieldState.visualText.length) {
-            {
-                textFieldState.selectAll()
-                updateTextToolbarState(TextToolbarState.Selection)
-            }
-        } else null
-
         textToolbar?.showMenu(
             rect = contentRect,
-            onCopyRequested = copy,
-            onPasteRequested = paste,
-            onCutRequested = cut,
-            onSelectAllRequested = selectAll
+            onCopyRequested = menuItem(canCopy(), TextToolbarState.None) { copy() },
+            onPasteRequested = menuItem(canPaste(), TextToolbarState.None) { paste() },
+            onCutRequested = menuItem(canCut(), TextToolbarState.None) { cut() },
+            onSelectAllRequested = menuItem(canSelectAll(), TextToolbarState.Selection) {
+                selectAll()
+            },
         )
+    }
+
+    private inline fun menuItem(
+        enabled: Boolean,
+        desiredState: TextToolbarState,
+        crossinline operation: () -> Unit
+    ): (() -> Unit)? = if (!enabled) null else {
+        {
+            operation()
+            updateTextToolbarState(desiredState)
+        }
     }
 
     fun deselect() {

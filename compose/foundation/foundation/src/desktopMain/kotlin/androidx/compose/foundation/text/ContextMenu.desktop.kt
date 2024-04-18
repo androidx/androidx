@@ -20,6 +20,7 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ContextMenuState
 import androidx.compose.foundation.DesktopPlatform
+import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
@@ -29,7 +30,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import kotlinx.coroutines.flow.collect
 
 @Composable
 internal actual fun ContextMenuArea(
@@ -41,6 +41,16 @@ internal actual fun ContextMenuArea(
         OpenMenuAdjuster(state) { manager.contextMenuOpenAdjustment(it) }
     }
     ContextMenuArea(manager.contextMenuItems(), state, content = content)
+}
+
+// todo implement
+@Composable
+internal actual inline fun ContextMenuArea(
+    selectionState: TextFieldSelectionState,
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) {
+    content()
 }
 
 @Composable

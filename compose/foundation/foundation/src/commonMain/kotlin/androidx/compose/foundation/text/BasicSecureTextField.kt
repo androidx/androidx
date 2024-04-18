@@ -192,6 +192,7 @@ fun BasicSecureTextField(
             cursorBrush = cursorBrush,
             codepointTransformation = codepointTransformation,
             decorator = decorator,
+            isPassword = true,
         )
     }
 }
