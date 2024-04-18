@@ -286,7 +286,10 @@ def includeProject(name, List<BuildType> filter = []) {
     includeProject(name, null, filter)
 }
 // createProjectDependencyGraph is provided by project-dependency-graph.groovy
-ext.projectDependencyGraph = createProjectDependencyGraph(settings)
+ext.projectDependencyGraph = createProjectDependencyGraph(
+        settings,
+        providers.gradleProperty("androidx.constraints").getOrElse("false").toBoolean()
+)
 // A set of projects that the user asked to filter to.
 @Field Set<String> filteredProjects = new HashSet<String>()
 filteredProjects.add(":lint-checks")
