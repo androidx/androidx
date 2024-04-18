@@ -119,6 +119,7 @@ import androidx.compose.material3.samples.PrimaryTextTabs
 import androidx.compose.material3.samples.PullToRefreshSample
 import androidx.compose.material3.samples.PullToRefreshSampleCustomState
 import androidx.compose.material3.samples.PullToRefreshScalingSample
+import androidx.compose.material3.samples.PullToRefreshViewModelSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -873,7 +874,14 @@ val PullToRefreshExamples = listOf(
         sourceUrl = PullToRefreshExampleSourceUrl
     ) {
         PullToRefreshSampleCustomState()
-    }
+    },
+    Example(
+        name = ::PullToRefreshViewModelSample.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshViewModelSample()
+    },
 )
 
 private const val RadioButtonsExampleDescription = "Radio buttons examples"
