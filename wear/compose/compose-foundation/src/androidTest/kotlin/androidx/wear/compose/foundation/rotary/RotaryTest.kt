@@ -221,7 +221,7 @@ class RotaryScrollTest {
             DefaultLazyColumnItemsWithRotary(
                 itemSize = itemSizeDp,
                 scrollableState = state,
-                rotaryBehavior = RotaryDefaults.scrollBehavior(state),
+                behavior = RotaryScrollableDefaults.behavior(state),
                 focusRequester = focusRequester
             )
         }
@@ -236,14 +236,14 @@ class RotaryScrollTest {
     private fun DefaultLazyColumnItemsWithRotary(
         itemSize: Dp,
         focusRequester: FocusRequester,
-        rotaryBehavior: RotaryBehavior,
+        behavior: RotaryScrollableBehavior,
         scrollableState: LazyListState,
     ) {
         LazyColumn(
             modifier = Modifier
                 .size(200.dp)
                 .testTag(TEST_TAG)
-                .rotary(rotaryBehavior, focusRequester),
+                .rotaryScrollable(behavior, focusRequester),
             state = scrollableState,
         ) {
             items(300) {

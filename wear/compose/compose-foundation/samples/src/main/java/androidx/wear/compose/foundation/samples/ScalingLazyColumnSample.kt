@@ -30,7 +30,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.foundation.rotary.RotaryDefaults
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
@@ -63,7 +63,7 @@ fun SimpleScalingLazyColumn() {
 fun SimpleScalingLazyColumnWithSnap() {
     val state = rememberScalingLazyListState()
     ScalingLazyColumn(
-        rotaryBehavior = RotaryDefaults.snapBehavior(state = state),
+        rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(scrollableState = state),
         flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state = state),
         modifier = Modifier.fillMaxWidth(),
         state = state,
