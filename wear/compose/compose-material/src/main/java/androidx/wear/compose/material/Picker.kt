@@ -67,9 +67,9 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
-import androidx.wear.compose.foundation.rotary.RotaryBehavior
-import androidx.wear.compose.foundation.rotary.RotaryDefaults
-import androidx.wear.compose.foundation.rotary.RotaryScrollableAdapter
+import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.RotaryScrollableLayoutInfoProvider
 import kotlinx.coroutines.launch
 
 /**
@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
  * This overload has default support for rotary side button (crown) and bezel input devices.
  * The content will be scrolled when the rotary device is rotated
  * with a snap motion which will snap each item to the centre of the list
- * while it is rotated. It uses [RotaryDefaults.snapBehavior].
+ * while it is rotated. It uses [RotaryScrollableDefaults.snapBehavior].
  * This behavior can be modified using the alternative Picker overload
  * that takes a custom `rotaryBehavior` parameter.
  *
@@ -127,7 +127,6 @@ import kotlinx.coroutines.launch
     "Please use the new overload with additional rotaryBehavior parameter",
     level = DeprecationLevel.HIDDEN
 )
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun Picker(
     state: PickerState,
@@ -158,8 +157,9 @@ fun Picker(
         gradientColor = gradientColor,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        rotaryBehavior = RotaryDefaults.snapBehavior(
-            rotaryScrollableAdapter = state.toRotaryScrollableAdapter()
+        rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(
+            state,
+            state.toRotaryScrollableLayoutInfoProvider()
         ),
         option = option
     )
@@ -171,10 +171,10 @@ fun Picker(
  *
  * This overload supports rotary input. Rotary input allows users to scroll the content
  * of the [Picker] - by using a crown or a rotating bezel on their Wear OS device.
- * It can be modified with [rotaryBehavior] param.
- * Note that rotary scroll and touch scroll should be aligned. If [rotaryBehavior] is set for snap
- * (using [RotaryDefaults.snapBehavior]), [flingBehavior] should be set for snap as well
- * (using [PickerDefaults.flingBehavior]).
+ * It can be modified with [rotaryScrollableBehavior] param.
+ * Note that rotary scroll and touch scroll should be aligned.
+ * If [rotaryScrollableBehavior] is set for snap (using [RotaryScrollableDefaults.snapBehavior]),
+ * [flingBehavior] should be set for snap as well (using [PickerDefaults.flingBehavior]).
  *
  * Example of a simple picker to select one of five options:
  * @sample androidx.wear.compose.material.samples.SimplePicker
@@ -208,17 +208,17 @@ fun Picker(
  * 0.5. Use 0.0 to disable the gradient.
  * @param gradientColor Should be the color outside of the Picker, so there is continuity.
  * @param flingBehavior logic describing fling behavior. Note that when configuring fling or snap
- * behavior, this flingBehavior parameter and the [rotaryBehavior] parameter that controls
+ * behavior, this flingBehavior parameter and the [rotaryScrollableBehavior] parameter that controls
  * rotary scroll are expected to be consistent.
  * @param userScrollEnabled Determines whether the picker should be scrollable or not. When
  * userScrollEnabled = true, picker is scrollable. This is different from [readOnly] as it changes
  * the scrolling behaviour.
- * @param rotaryBehavior Parameter for changing rotary behavior.
- * Supports scroll [RotaryDefaults.scrollBehavior] and snap [RotaryDefaults.snapBehavior]. We do
- * recommend to use [RotaryDefaults.snapBehavior] as this is a recommended behavior for Pickers.
- * Note that when configuring fling or snap behavior, this rotaryBehavior parameter and
- * the [flingBehavior] parameter that controls touch scroll are expected to be consistent.
- * Can be null if rotary support is not required.
+ * @param rotaryScrollableBehavior Parameter for changing rotary behavior. Supports scroll
+ * [RotaryScrollableDefaults.behavior] and snap [RotaryScrollableDefaults.snapBehavior].
+ * We do recommend to use [RotaryScrollableDefaults.snapBehavior] as this is a recommended
+ * behavior for Pickers. Note that when configuring fling or snap behavior, this rotaryBehavior
+ * parameter and the [flingBehavior] parameter that controls touch scroll are expected to be
+ * consistent. Can be null if rotary support is not required.
  * @param option A block which describes the content. Inside this block you can reference
  * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
@@ -240,8 +240,9 @@ fun Picker(
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     userScrollEnabled: Boolean = true,
-    rotaryBehavior: RotaryBehavior? = RotaryDefaults.snapBehavior(
-        state.toRotaryScrollableAdapter()
+    rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.snapBehavior(
+        state,
+        state.toRotaryScrollableLayoutInfoProvider()
     ),
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
@@ -317,7 +318,7 @@ fun Picker(
                     }
                 }
             },
-            rotaryBehavior = rotaryBehavior,
+            rotaryScrollableBehavior = rotaryScrollableBehavior,
             contentPadding = PaddingValues(0.dp),
             scalingParams = scalingParams,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -869,42 +870,43 @@ private fun convertToDefaultFoundationScalingParams(
 )
 
 /**
- * An extension function for creating [RotaryScrollableAdapter] from [Picker]
+ * An extension function for creating [RotaryScrollableLayoutInfoProvider] from [Picker]
  */
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-internal fun PickerState.toRotaryScrollableAdapter(): RotaryScrollableAdapter =
-    remember(this) { PickerRotaryScrollableAdapter(this) }
+internal fun PickerState.toRotaryScrollableLayoutInfoProvider():
+    RotaryScrollableLayoutInfoProvider =
+    remember(this) { PickerRotaryScrollableLayoutInfoProvider(this) }
 
 /**
  * An implementation of RotaryScrollableAdapter for [Picker]
  */
 @ExperimentalWearFoundationApi
-internal class PickerRotaryScrollableAdapter(
-    override val scrollableState: PickerState
-) : RotaryScrollableAdapter {
+internal class PickerRotaryScrollableLayoutInfoProvider(
+    private val scrollableState: PickerState
+) : RotaryScrollableLayoutInfoProvider {
 
     /**
      * Returns a height of a first item, as all items in picker have the same height.
      */
-    override fun averageItemSize(): Float =
-        scrollableState.scalingLazyListState
+    override val averageItemSize: Float
+        get() = scrollableState.scalingLazyListState
             .layoutInfo.visibleItemsInfo.firstOrNull()?.unadjustedSize?.toFloat() ?: 0f
 
     /**
      * Current (centred) item index
      */
-    override fun currentItemIndex(): Int =
-        scrollableState.scalingLazyListState.centerItemIndex
+    override val currentItemIndex: Int
+        get() = scrollableState.scalingLazyListState.centerItemIndex
 
     /**
      * An offset from the item centre
      */
-    override fun currentItemOffset(): Float =
-        scrollableState.scalingLazyListState.centerItemScrollOffset.toFloat()
+    override val currentItemOffset: Float
+        get() = scrollableState.scalingLazyListState.centerItemScrollOffset.toFloat()
 
-    override fun totalItemsCount(): Int =
-        scrollableState.scalingLazyListState.layoutInfo.totalItemsCount
+    override val totalItemCount: Int
+        get() = scrollableState.scalingLazyListState.layoutInfo.totalItemsCount
 }
 
 @Stable
