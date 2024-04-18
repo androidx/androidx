@@ -446,6 +446,7 @@ includeProject(":camera:integration-tests:camera-testapp-camera2-pipe", "camera/
 includeProject(":camera:integration-tests:camera-testapp-core", "camera/integration-tests/coretestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-diagnose", "camera/integration-tests/diagnosetestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-extensions", "camera/integration-tests/extensionstestapp", [BuildType.CAMERA])
+includeProject(":camera:integration-tests:camera-testapp-testing", "camera/integration-tests/testingtestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integration-tests/timingtestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-uiwidgets", "camera/integration-tests/uiwidgetstestapp", [BuildType.CAMERA])
 includeProject(":camera:integration-tests:camera-testapp-viewfinder", "camera/integration-tests/viewfindertestapp", [BuildType.CAMERA])
