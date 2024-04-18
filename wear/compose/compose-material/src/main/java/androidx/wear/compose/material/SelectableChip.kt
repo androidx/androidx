@@ -217,8 +217,8 @@ public fun SelectableChip(
  * emitting [Interaction]s for this chip's "selectable" tap area. You can use this to change the
  * chip's appearance or preview the chip in different states. Note that if `null` is provided,
  * interactions will still happen internally.
- * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
+ * @param containerInteractionSource an optional hoisted [MutableInteractionSource] for observing
+ * and emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
  * chip's appearance or preview the chip in different states. Note that if `null` is provided,
  * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
@@ -240,7 +240,7 @@ public fun SplitSelectableChip(
     colors: SplitSelectableChipColors = SelectableChipDefaults.splitSelectableChipColors(),
     enabled: Boolean = true,
     selectionInteractionSource: MutableInteractionSource? = null,
-    clickInteractionSource: MutableInteractionSource? = null,
+    containerInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = SelectableChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
     selectionControl: @Composable BoxScope.() -> Unit = {
@@ -277,7 +277,7 @@ public fun SplitSelectableChip(
     },
     enabled = enabled,
     checkedInteractionSource = selectionInteractionSource,
-    clickInteractionSource = clickInteractionSource,
+    clickInteractionSource = containerInteractionSource,
     contentPadding = contentPadding,
     shape = shape,
     labelSpacerSize = 0.dp,
