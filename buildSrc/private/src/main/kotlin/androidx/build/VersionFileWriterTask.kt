@@ -105,8 +105,8 @@ private fun Project.configureVersionFile(
     androidXExtension: AndroidXExtension
 ) {
     writeVersionFile.configure {
-        val group = findProperty("group") as String
-        val artifactId = findProperty("name") as String
+        val group = project.getGroup() as String
+        val artifactId = project.getName() as String
         val version =
             if (androidXExtension.shouldPublish()) {
                 version().toString()

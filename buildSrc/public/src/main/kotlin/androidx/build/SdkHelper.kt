@@ -21,7 +21,6 @@ import java.util.Properties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
-import org.gradle.api.plugins.ExtraPropertiesExtension
 
 /** Writes the appropriate SDK path to local.properties file in specified location. */
 fun Project.writeSdkPathToLocalPropertiesFile() {
@@ -50,7 +49,7 @@ fun Project.getSdkDependency(): FileTree =
 /** Returns the root project's platform-specific SDK path as a file. */
 fun Project.getSdkPath(): File {
     if (
-        rootProject.plugins.hasPlugin("AndroidXPlaygroundRootPlugin") ||
+        ProjectLayoutType.from(project) == ProjectLayoutType.PLAYGROUND ||
             System.getenv("COMPOSE_DESKTOP_GITHUB_BUILD") != null
     ) {
         // This is not full checkout, use local settings instead.
@@ -99,7 +98,7 @@ private fun getSdkPathFromEnvironmentVariable(): File {
 
 /** Sets the path to the canonical root project directory, e.g. {@code frameworks/support}. */
 fun Project.setSupportRootFolder(rootDir: File?) {
-    val extension = project.property("ext") as ExtraPropertiesExtension
+    val extension = project.extensions.extraProperties
     return extension.set("supportRootFolder", rootDir)
 }
 
@@ -110,7 +109,7 @@ fun Project.setSupportRootFolder(rootDir: File?) {
  * because it is generalized to also work for the "ui" project and playground projects.
  */
 fun Project.getSupportRootFolder(): File {
-    val extension = project.property("ext") as ExtraPropertiesExtension
+    val extension = project.extensions.extraProperties
     return extension.get("supportRootFolder") as File
 }
 

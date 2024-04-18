@@ -110,9 +110,8 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
             val instance = AffectedModuleDetectorWrapper()
             rootProject.extensions.add(ROOT_PROP_NAME, instance)
 
-            val enabled =
-                rootProject.hasProperty(ENABLE_ARG) &&
-                    rootProject.findProperty(ENABLE_ARG) != "false"
+            val enabledProvider = rootProject.providers.gradleProperty(ENABLE_ARG)
+            val enabled = enabledProvider.isPresent() && enabledProvider.get() != "false"
 
             val distDir = rootProject.getDistributionDirectory()
             val outputFile = distDir.resolve(LOG_FILE_NAME)
@@ -134,10 +133,9 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                 instance.wrapped = provider
                 return
             }
-            val baseCommitOverride: String? = rootProject.findProperty(BASE_COMMIT_ARG) as String?
-            if (baseCommitOverride != null) {
-                logger.info("using base commit override $baseCommitOverride")
-            }
+            val baseCommitOverride: Provider<String> =
+                rootProject.providers.gradleProperty(BASE_COMMIT_ARG)
+
             gradle.taskGraph.whenReady {
                 logger.lifecycle("projects evaluated")
                 val projectGraph = ProjectGraph(rootProject)
@@ -257,7 +255,7 @@ abstract class AffectedModuleDetectorLoader :
         var cobuiltTestPaths: Set<Set<String>>?
         var alwaysBuildIfExists: Set<String>?
         var ignoredPaths: Set<String>?
-        var baseCommitOverride: String?
+        var baseCommitOverride: Provider<String>?
         var gitChangedFilesProvider: Provider<List<String>>
     }
 
@@ -266,10 +264,6 @@ abstract class AffectedModuleDetectorLoader :
         if (parameters.acceptAll) {
             AcceptAll(null)
         } else {
-            if (parameters.baseCommitOverride != null) {
-                logger.info("using base commit override ${parameters.baseCommitOverride}")
-            }
-
             AffectedModuleDetectorImpl(
                 projectGraph = parameters.projectGraph,
                 dependencyTracker = parameters.dependencyTracker,

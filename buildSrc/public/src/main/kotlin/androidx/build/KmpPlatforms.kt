@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import java.util.Locale
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -116,7 +117,9 @@ private val Project.enabledKmpPlatforms: Set<PlatformGroup>
 /** Extension used to store parsed KMP configuration information. */
 private open class KmpPlatformsExtension(project: Project) {
     val enabledKmpPlatforms =
-        parseTargetPlatformsFlag(project.findProperty(ENABLED_KMP_TARGET_PLATFORMS) as? String)
+        parseTargetPlatformsFlag(
+            project.extraPropertyOrNull(ENABLED_KMP_TARGET_PLATFORMS) as? String
+        )
 }
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
