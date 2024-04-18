@@ -285,9 +285,8 @@ package androidx.wear.tiles {
   }
 
   public static final class EventBuilders.TileInteractionEvent.Builder {
-    ctor public EventBuilders.TileInteractionEvent.Builder(int);
+    ctor public EventBuilders.TileInteractionEvent.Builder(int, int);
     method public androidx.wear.tiles.EventBuilders.TileInteractionEvent build();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.tiles.EventBuilders.TileInteractionEvent.Builder setTileId(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.tiles.EventBuilders.TileInteractionEvent.Builder setTimestamp(java.time.Instant);
   }
 

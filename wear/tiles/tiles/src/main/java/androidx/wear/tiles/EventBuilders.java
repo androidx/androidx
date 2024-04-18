@@ -20,6 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.tiles.proto.EventProto;
 
@@ -329,7 +330,11 @@ public final class EventBuilders {
             return UNKNOWN;
         }
 
-        /** Gets the timestamp of when the interaction was reported. */
+        /**
+         * Gets the timestamp of when the interaction was reported. Defaults to {@link
+         * Instant#now()} (Created at the time of {@link
+         * TileInteractionEvent.Builder#Builder(int,int)} constructor call) if not provided.
+         */
         @NonNull
         public Instant getTimestamp() {
             return Instant.ofEpochMilli(mImpl.getTimestampEpochMillis());
@@ -365,31 +370,46 @@ public final class EventBuilders {
 
         /** Builder for {@link TileInteractionEvent} */
         public static final class Builder {
+            @NonNull
             private final EventProto.TileInteractionEvent.Builder mImpl =
                     EventProto.TileInteractionEvent.newBuilder();
 
-            /**
-             * Sets instance ID of the tile, allocated when the tile instance is added to the
-             * carousel. This ID will remain the same for this tile instance as long it is not
-             * removed from the carousel.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            @NonNull
-            public Builder setTileId(int tileId) {
-                mImpl.setTileId(tileId);
-                return this;
+            /** Interface so this Builder can retrieve the current time. */
+            @VisibleForTesting
+            interface Clock {
+                /** Get the current wall-clock time in millis. */
+                long getCurrentTimeMillis();
             }
-
-            private Builder() {}
 
             /**
              * A builder for {@link TileInteractionEvent}.
              *
+             * @param tileId the instance ID of the tile, allocated when the tile instance is added
+             *     to the carousel. This ID will remain the same for this tile instance as long it
+             *     is not removed from the carousel.
+             * @param eventType the type of the {@link TileInteractionEvent}.
              * @throws IllegalArgumentException when the provided {@code eventType} is equal to
              *     {@link EventType#UNKNOWN} or not defined by {@link EventType}.
              */
-            public Builder(@EventType int eventType) {
-                mImpl.setTimestampEpochMillis(Instant.now().toEpochMilli());
+            public Builder(int tileId, @EventType int eventType) {
+                this(() -> Instant.now().toEpochMilli(), tileId, eventType);
+            }
+
+            /**
+             * A builder for {@link TileInteractionEvent}.
+             *
+             * @param clock the clock providing current timestamp.
+             * @param tileId the instance ID of the tile, allocated when the tile instance is added
+             *     to the carousel. This ID will remain the same for this tile instance as long it
+             *     is not removed from the carousel.
+             * @param eventType the type of the {@link TileInteractionEvent}.
+             * @throws IllegalArgumentException when the provided {@code eventType} is equal to
+             *     {@link EventType#UNKNOWN} or not defined by {@link EventType}.
+             */
+            @VisibleForTesting
+            Builder(@NonNull Clock clock, int tileId, @EventType int eventType) {
+                mImpl.setTileId(tileId);
+                mImpl.setTimestampEpochMillis(clock.getCurrentTimeMillis());
                 switch (eventType) {
                     case ENTER:
                         mImpl.setEnter(EventProto.TileEnter.newBuilder().build());
@@ -405,8 +425,8 @@ public final class EventBuilders {
 
             /**
              * Sets the timestamp of when the interaction was reported. Defaults to {@link
-             * Instant#now()} (Created at the time of {@link Builder#Builder(int)} constructor call)
-             * if not provided.
+             * Instant#now()} (Created at the time of {@link Builder#Builder(int,int)} constructor
+             * call) if not provided.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
