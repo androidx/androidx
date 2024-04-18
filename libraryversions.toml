@@ -148,6 +148,7 @@ TRACING = "1.3.0-alpha02"
 TRACING_PERFETTO = "1.0.0"
 TRANSITION = "1.5.0-rc01"
 TV = "1.0.0-alpha11"
+TV_MATERIAL = "1.0.0-beta01"
 TVPROVIDER = "1.1.0-alpha02"
 VECTORDRAWABLE = "1.2.0-rc01"
 VECTORDRAWABLE_ANIMATED = "1.2.0-rc01"
@@ -291,7 +292,7 @@ TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
 TRACING = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING" }
 TRACING_PERFETTO = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING_PERFETTO", overrideInclude = [ ":tracing:tracing-perfetto", ":tracing:tracing-perfetto-binary", ":tracing:tracing-perfetto-handshake" ] }
 TRANSITION = { group = "androidx.transition", atomicGroupVersion = "versions.TRANSITION" }
-TV = { group = "androidx.tv", atomicGroupVersion = "versions.TV" }
+TV = { group = "androidx.tv" }
 TVPROVIDER = { group = "androidx.tvprovider", atomicGroupVersion = "versions.TVPROVIDER" }
 VECTORDRAWABLE = { group = "androidx.vectordrawable" }
 VERSIONEDPARCELABLE = { group = "androidx.versionedparcelable" }
