@@ -17,9 +17,14 @@
 package androidx.compose.foundation.contextmenu
 
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import com.google.common.truth.Correspondence
+import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
+import com.google.common.truth.IterableSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertAbout
@@ -32,11 +37,15 @@ internal fun ContextMenuState.open(offset: Offset = Offset.Zero) {
 internal fun ContextMenuScope.testItem(
     label: String = "Item",
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingIcon: @Composable ((iconColor: Color) -> Unit)? = null,
     onClick: () -> Unit = {},
 ) {
     item(
         label = label,
         modifier = modifier,
+        enabled = enabled,
+        leadingIcon = leadingIcon,
         onClick = onClick,
     )
 }
@@ -61,5 +70,54 @@ internal class ContextMenuStateSubject internal constructor(
 
     fun statusIsClosed() {
         assertThat(subject.status).isInstanceOf(Status.Closed::class.java)
+    }
+}
+
+internal fun assertThatColors(
+    colors: Set<Color>,
+    tolerance: Double = 0.02,
+): IterableSubject.UsingCorrespondence<Color, Color> =
+    assertThat(colors).comparingElementsUsing(colorCorrespondence(tolerance))
+
+internal fun colorCorrespondence(tolerance: Double = 0.02): Correspondence<Color, Color> {
+    val floatingPointCorrespondence = Correspondence.tolerance(tolerance)
+    return Correspondence.from(
+        { actual: Color?, expected: Color? ->
+            if (expected == null || actual == null) return@from actual == expected
+            floatingPointCorrespondence.compare(actual.red, expected.red) &&
+                floatingPointCorrespondence.compare(actual.green, expected.green) &&
+                floatingPointCorrespondence.compare(actual.blue, expected.blue) &&
+                floatingPointCorrespondence.compare(actual.alpha, expected.alpha)
+        },
+        /* description = */ "equals",
+    )
+}
+
+internal fun assertThatColor(actual: Color): ColorSubject =
+    assertAbout(ColorSubject.INSTANCE).that(actual)
+
+internal class ColorSubject(
+    failureMetadata: FailureMetadata?,
+    private val subject: Color,
+) : Subject(failureMetadata, subject) {
+    companion object {
+        val INSTANCE = Factory<ColorSubject, Color> { failureMetadata, subject ->
+            ColorSubject(failureMetadata, subject)
+        }
+    }
+
+    fun isFuzzyEqualTo(expected: Color, tolerance: Float = 0.001f) {
+        try {
+            assertThat(subject.red).isWithin(tolerance).of(expected.red)
+            assertThat(subject.green).isWithin(tolerance).of(expected.green)
+            assertThat(subject.blue).isWithin(tolerance).of(expected.blue)
+            assertThat(subject.alpha).isWithin(tolerance).of(expected.alpha)
+        } catch (e: AssertionError) {
+            failWithActual(
+                Fact.simpleFact("Colors are not equal."),
+                Fact.fact("expected", expected.toString()),
+                Fact.fact("with tolerance", tolerance),
+            )
+        }
     }
 }
