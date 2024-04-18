@@ -48,6 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -79,11 +80,17 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
@@ -636,6 +643,40 @@ class ComposeSceneTest {
             }
             composeRule.awaitIdle()
         }
+    }
+
+    @Test
+    fun stateChangeFromNonUiThreadDoesntCrash() = runApplicationTest {
+        // https://github.com/JetBrains/compose-multiplatform/issues/4546
+        var value by mutableStateOf(0)
+        val done = CompletableDeferred<Unit>()
+        var exceptionThrown: Throwable? = null
+
+        launchTestApplication {
+            Window(onCloseRequest = {}) {
+                Canvas(Modifier.size(100.dp)) {
+                    @Suppress("UNUSED_EXPRESSION")
+                    value
+                }
+                LaunchedEffect(Unit) {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            for (i in 1..50) {
+                                value = i
+                                Snapshot.sendApplyNotifications()
+                                delay(1)
+                            }
+                        } catch (e: Throwable) {
+                            exceptionThrown = e
+                        }
+                        done.complete(Unit)
+                    }
+                }
+            }
+        }
+
+        done.await()
+        assertNull(exceptionThrown, "Exception thrown setting snapshot state from non-UI thread")
     }
 
     private class TestException : RuntimeException()
