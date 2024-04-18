@@ -208,12 +208,12 @@ public actual class NavDeepLink internal actual constructor(
         }
         // extract beginning of uriPattern until it hits either a query(?), a framgment(#), or
         // end of uriPattern
-        Regex("(\\?|\\#|$)").find(uriPattern)?.let {
+        Regex("(\\?|#|$)").find(uriPattern)?.let {
             buildRegex(uriPattern.substring(0, it.range.first), pathArgs, uriRegex)
             isExactDeepLink = !uriRegex.contains(".*") && !uriRegex.contains("([^/]+?)")
             // Match either the end of string if all params are optional or match the
             // question mark (or pound symbol) and 0 or more characters after it
-            uriRegex.append("($|(\\?(.)*)|(\\#(.)*))")
+            uriRegex.append("($|(\\?(.)*)|(#(.)*))")
         }
         // we need to specifically escape any .* instances to ensure
         // they are still treated as wildcards in our final regex
