@@ -69,7 +69,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
 import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
-import androidx.wear.compose.foundation.rotary.RotaryScrollableLayoutInfoProvider
+import androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider
 import kotlinx.coroutines.launch
 
 /**
@@ -159,7 +159,7 @@ fun Picker(
         userScrollEnabled = userScrollEnabled,
         rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(
             state,
-            state.toRotaryScrollableLayoutInfoProvider()
+            state.toRotarySnapLayoutInfoProvider()
         ),
         option = option
     )
@@ -242,7 +242,7 @@ fun Picker(
     userScrollEnabled: Boolean = true,
     rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.snapBehavior(
         state,
-        state.toRotaryScrollableLayoutInfoProvider()
+        state.toRotarySnapLayoutInfoProvider()
     ),
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
@@ -870,21 +870,21 @@ private fun convertToDefaultFoundationScalingParams(
 )
 
 /**
- * An extension function for creating [RotaryScrollableLayoutInfoProvider] from [Picker]
+ * An extension function for creating [RotarySnapLayoutInfoProvider] from [Picker]
  */
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-internal fun PickerState.toRotaryScrollableLayoutInfoProvider():
-    RotaryScrollableLayoutInfoProvider =
-    remember(this) { PickerRotaryScrollableLayoutInfoProvider(this) }
+internal fun PickerState.toRotarySnapLayoutInfoProvider():
+    RotarySnapLayoutInfoProvider =
+    remember(this) { PickerRotarySnapLayoutInfoProvider(this) }
 
 /**
  * An implementation of RotaryScrollableAdapter for [Picker]
  */
 @ExperimentalWearFoundationApi
-internal class PickerRotaryScrollableLayoutInfoProvider(
+internal class PickerRotarySnapLayoutInfoProvider(
     private val scrollableState: PickerState
-) : RotaryScrollableLayoutInfoProvider {
+) : RotarySnapLayoutInfoProvider {
 
     /**
      * Returns a height of a first item, as all items in picker have the same height.
