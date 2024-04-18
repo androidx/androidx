@@ -425,7 +425,7 @@ private class ScrollableNode(
         // monitor change in Density
         observeReads {
             val density = currentValueOf(LocalDensity)
-            defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+            defaultFlingBehavior.updateDensity(density)
         }
     }
 
