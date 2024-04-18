@@ -41,13 +41,18 @@ internal actual fun ContextMenuArea(
     )
 }
 
-// TODO (b/269341173) remove inline once this is non-trivial
 @Composable
-internal actual inline fun ContextMenuArea(
+internal actual fun ContextMenuArea(
     manager: SelectionManager,
     content: @Composable () -> Unit
 ) {
-    content()
+    val state = remember { ContextMenuState() }
+    androidx.compose.foundation.contextmenu.ContextMenuArea(
+        state = state,
+        onDismiss = { state.close() },
+        contextMenuBuilderBlock = manager.contextMenuBuilder(state),
+        content = content,
+    )
 }
 
 /**

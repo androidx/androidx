@@ -16,6 +16,11 @@
 
 package androidx.compose.foundation.textfield
 
+import androidx.compose.foundation.contextmenu.ContextMenuItemLabels
+import androidx.compose.foundation.contextmenu.ContextMenuItemState
+import androidx.compose.foundation.contextmenu.assertContextMenuItems
+import androidx.compose.foundation.contextmenu.clickOffPopup
+import androidx.compose.foundation.contextmenu.contextMenuItemInteraction
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
@@ -27,18 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.getBoundsInRoot
-import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performMouseInput
@@ -48,14 +46,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.lerp
-import androidx.compose.ui.unit.roundToIntRect
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -70,11 +63,6 @@ class TextFieldContextMenuTest : FocusedWindowTest {
 
     private val textFieldTag = "BTF"
     private val defaultFullWidthText = "M".repeat(20)
-
-    private val cutLabel = "Cut"
-    private val copyLabel = "Copy"
-    private val pasteLabel = "Paste"
-    private val selectAllLabel = "Select all"
 
     //region BasicTextField Context Menu Gesture Tests
     @Test
@@ -144,33 +132,15 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         contextMenuInteraction.assertDoesNotExist()
         rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
         contextMenuInteraction.assertExists()
-        clickOffPopup { rootRect -> lerp(rootRect.topLeft, rootRect.center, 0.5f) }
+        rule.clickOffPopup { rootRect -> lerp(rootRect.topLeft, rootRect.center, 0.5f) }
         contextMenuInteraction.assertDoesNotExist()
-    }
-
-    /**
-     * In order to trigger `Popup.onDismiss`, the click has to come from above compose's test
-     * framework. This method will send the click in this way.
-     *
-     * @param offsetPicker Given the root rect bounds, select an offset to click at.
-     */
-    private fun clickOffPopup(offsetPicker: (IntRect) -> IntOffset) {
-        // Need the click to register above Compose's test framework,
-        // else it won't be directed to the popup properly. So,
-        // we use a different way of dispatching the click.
-        val rootRect = with(rule.density) {
-            rule.onAllNodes(isRoot()).onFirst().getBoundsInRoot().toRect().roundToIntRect()
-        }
-        val offset = offsetPicker(rootRect)
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(offset.x, offset.y)
-        rule.waitForIdle()
     }
     //endregion BasicTextField Context Menu Gesture Tests
 
     //region Context Menu Item Click Tests
     @Test
     fun contextMenu_onClickCut() = runClickContextMenuItemTest(
-        labelToClick = cutLabel,
+        labelToClick = ContextMenuItemLabels.CUT,
         expectedText = "Text  Text",
         expectedSelection = TextRange(5),
         expectedClipboardContent = "Text",
@@ -178,7 +148,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
 
     @Test
     fun contextMenu_onClickCopy() = runClickContextMenuItemTest(
-        labelToClick = copyLabel,
+        labelToClick = ContextMenuItemLabels.COPY,
         expectedText = "Text Text Text",
         expectedSelection = TextRange(5, 9),
         expectedClipboardContent = "Text",
@@ -186,7 +156,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
 
     @Test
     fun contextMenu_onClickPaste() = runClickContextMenuItemTest(
-        labelToClick = pasteLabel,
+        labelToClick = ContextMenuItemLabels.PASTE,
         expectedText = "Text clip Text",
         expectedSelection = TextRange(9),
         expectedClipboardContent = "clip",
@@ -194,7 +164,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
 
     @Test
     fun contextMenu_onClickSelectAll() = runClickContextMenuItemTest(
-        labelToClick = selectAllLabel,
+        labelToClick = ContextMenuItemLabels.SELECT_ALL,
         expectedText = "Text Text Text",
         expectedSelection = TextRange(0, 14),
         expectedClipboardContent = "clip",
@@ -232,7 +202,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         }
 
         rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
-        val itemInteraction = contextMenuItemInteraction(labelToClick)
+        val itemInteraction = rule.contextMenuItemInteraction(labelToClick)
         itemInteraction.assertHasClickAction()
         itemInteraction.assertIsEnabled()
         itemInteraction.performClick()
@@ -257,11 +227,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.NONE,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = false,
-            pasteEnabled = false,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -270,11 +240,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.PARTIAL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = true,
-            copyEnabled = true,
-            pasteEnabled = false,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -283,11 +253,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.ALL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = true,
-            copyEnabled = true,
-            pasteEnabled = false,
-            selectAllEnabled = false,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
         )
     }
 
@@ -296,11 +266,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = false,
         selectionAmount = SelectionAmount.NONE,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = false,
-            pasteEnabled = true,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -311,11 +281,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = false,
         selectionAmount = SelectionAmount.PARTIAL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = true,
-            copyEnabled = true,
-            pasteEnabled = true,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -324,11 +294,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = false,
         selectionAmount = SelectionAmount.ALL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = true,
-            copyEnabled = true,
-            pasteEnabled = true,
-            selectAllEnabled = false,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.ENABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
         )
     }
 
@@ -337,11 +307,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isPassword = true,
         selectionAmount = SelectionAmount.NONE,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = false,
-            pasteEnabled = true,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -350,11 +320,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isPassword = true,
         selectionAmount = SelectionAmount.PARTIAL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = false,
-            pasteEnabled = true,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -363,11 +333,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isPassword = true,
         selectionAmount = SelectionAmount.ALL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = false,
-            pasteEnabled = true,
-            selectAllEnabled = false,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.ENABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
         )
     }
 
@@ -377,11 +347,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.NONE,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = false,
-            pasteEnabled = false,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.DISABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -391,11 +361,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.PARTIAL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = true,
-            pasteEnabled = false,
-            selectAllEnabled = true,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -405,11 +375,11 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         isEmptyClipboard = true,
         selectionAmount = SelectionAmount.ALL,
     ) {
-        assertContextMenuItems(
-            cutEnabled = false,
-            copyEnabled = true,
-            pasteEnabled = false,
-            selectAllEnabled = false,
+        rule.assertContextMenuItems(
+            cutState = ContextMenuItemState.DISABLED,
+            copyState = ContextMenuItemState.ENABLED,
+            pasteState = ContextMenuItemState.DISABLED,
+            selectAllState = ContextMenuItemState.DISABLED,
         )
     }
 
@@ -460,37 +430,5 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         rule.onNodeWithTag(textFieldTag).performMouseInput { rightClick(center) }
         assertBlock()
     }
-
-    /**
-     * Various asserts for checking enable/disable status of the context menu.
-     * Always checks that the popup exists and that all the items exist.
-     * Each boolean parameter represents whether the item is expected to be enabled or not.
-     */
-    private fun assertContextMenuItems(
-        cutEnabled: Boolean,
-        copyEnabled: Boolean,
-        pasteEnabled: Boolean,
-        selectAllEnabled: Boolean,
-    ) {
-        val contextMenuInteraction = rule.onNode(isPopup())
-        contextMenuInteraction.assertExists("Context Menu should exist.")
-
-        assertContextMenuItem(label = cutLabel, enabled = cutEnabled)
-        assertContextMenuItem(label = copyLabel, enabled = copyEnabled)
-        assertContextMenuItem(label = pasteLabel, enabled = pasteEnabled)
-        assertContextMenuItem(label = selectAllLabel, enabled = selectAllEnabled)
-    }
-
-    private fun assertContextMenuItem(label: String, enabled: Boolean) {
-        // Note: this test assumes the text and the row have been merged in the semantics tree.
-        contextMenuItemInteraction(label).run {
-            assertExists(errorMessageOnFail = """Couldn't find label "$label"""")
-            assertHasClickAction()
-            if (enabled) assertIsEnabled() else assertIsNotEnabled()
-        }
-    }
     //endregion Context Menu Correct Item Tests
-
-    private fun contextMenuItemInteraction(label: String): SemanticsNodeInteraction =
-        rule.onNode(matcher = hasAnyAncestor(isPopup()) and hasText(label))
 }
