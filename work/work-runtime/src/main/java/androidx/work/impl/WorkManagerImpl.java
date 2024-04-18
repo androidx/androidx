@@ -21,7 +21,7 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
 import static androidx.work.ListenableFutureKt.executeAsync;
-import static androidx.work.impl.UnfinishedWorkListenerKt.launchUnfinishedWorkListener;
+import static androidx.work.impl.UnfinishedWorkListenerKt.maybeLaunchUnfinishedWorkListener;
 import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
 import static androidx.work.impl.WorkManagerImplExtKt.createWorkManagerScope;
 import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
@@ -256,7 +256,7 @@ public class WorkManagerImpl extends WorkManager {
                 workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
-        launchUnfinishedWorkListener(mWorkManagerScope, mContext, workDatabase);
+        maybeLaunchUnfinishedWorkListener(mWorkManagerScope, mContext, configuration, workDatabase);
     }
 
     /**
