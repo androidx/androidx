@@ -16,11 +16,16 @@
 
 package androidx.compose.foundation.gestures.snapping
 
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
 import androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastForEach
+import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 /**
  * A [SnapLayoutInfoProvider] for LazyGrids.
@@ -30,7 +35,7 @@ import androidx.compose.ui.util.fastForEach
  * This position should be considered with regards to the start edge of the item and the placement
  * within the viewport.
  *
- * @return A [SnapLayoutInfoProvider] that can be used with [SnapFlingBehavior]
+ * @return A [SnapLayoutInfoProvider] that can be used with [snapFlingBehavior]
  */
 fun SnapLayoutInfoProvider(
     lazyGridState: LazyGridState,
@@ -39,8 +44,26 @@ fun SnapLayoutInfoProvider(
     private val layoutInfo: LazyGridLayoutInfo
         get() = lazyGridState.layoutInfo
 
-    override fun calculateSnappingOffset(
-        currentVelocity: Float
+    private val averageItemSize: Int
+        get() {
+            val layoutInfo = layoutInfo
+            return if (layoutInfo.visibleItemsInfo.isEmpty()) {
+                0
+            } else {
+                val numberOfItems = layoutInfo.visibleItemsInfo.size
+                layoutInfo.visibleItemsInfo.sumOf {
+                    it.sizeOnMainAxis(layoutInfo.orientation)
+                } / numberOfItems
+            }
+        }
+
+    override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
+        return (decayOffset.absoluteValue - averageItemSize)
+            .coerceAtLeast(0.0f) * decayOffset.sign
+    }
+
+    override fun calculateSnapOffset(
+        velocity: Float
     ): Float {
         var distanceFromItemBeforeTarget = Float.NEGATIVE_INFINITY
         var distanceFromItemAfterTarget = Float.POSITIVE_INFINITY
@@ -70,11 +93,31 @@ fun SnapLayoutInfoProvider(
         }
 
         return calculateFinalOffset(
-            with(lazyGridState.density) { calculateFinalSnappingItem(currentVelocity) },
+            with(lazyGridState.density) { calculateFinalSnappingItem(velocity) },
             distanceFromItemBeforeTarget,
             distanceFromItemAfterTarget
         )
     }
+}
+
+/**
+ * Create and remember a FlingBehavior for decayed snapping in Lazy Grids. This will snap
+ * the item according to [snapPosition].
+ *
+ * @param lazyGridState The [LazyGridState] from the LazyGrid where this [FlingBehavior] will
+ * be used.
+ * @param snapPosition The desired positioning of the snapped item within the main layout.
+ * This position should be considered with regards to the start edge of the item and the placement
+ * within the viewport.
+ */
+@Composable
+fun rememberSnapFlingBehavior(
+    lazyGridState: LazyGridState,
+    snapPosition: SnapPosition = SnapPosition.Center
+): FlingBehavior {
+    val snappingLayout =
+        remember(lazyGridState) { SnapLayoutInfoProvider(lazyGridState, snapPosition) }
+    return rememberSnapFlingBehavior(snappingLayout)
 }
 
 internal val LazyGridLayoutInfo.singleAxisViewportSize: Int

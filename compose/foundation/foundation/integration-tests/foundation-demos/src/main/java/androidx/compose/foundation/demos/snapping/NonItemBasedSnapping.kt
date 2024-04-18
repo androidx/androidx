@@ -56,10 +56,11 @@ class NonItemBasedSnappingLayoutInfoProvider(
     private val offsetList = listOf(0, layoutSize / 2 - thumbSize / 2, (layoutSize - thumbSize))
 
     // do not approach, our snapping positions are discrete.
-    override fun calculateApproachOffset(initialVelocity: Float): Float = 0f
+    override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float =
+        0.0f
 
-    override fun calculateSnappingOffset(currentVelocity: Float): Float {
-        val targetOffset = if (currentVelocity == 0.0f) {
+    override fun calculateSnapOffset(velocity: Float): Float {
+        val targetOffset = if (velocity == 0.0f) {
             // snap to closest offset
             var closestOffset = 0
             var prevMinAbs = Int.MAX_VALUE
@@ -71,7 +72,7 @@ class NonItemBasedSnappingLayoutInfoProvider(
                 }
             }
             (closestOffset).toFloat()
-        } else if (currentVelocity > 0) {
+        } else if (velocity > 0) {
             // snap to the next offset
             val offset = offsetList.firstOrNull { it > currentOffset }
             (offset ?: 0).toFloat() // if offset is found, move there, if not, don't move

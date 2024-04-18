@@ -206,17 +206,17 @@ class SnapFlingBehaviorTest {
     @Test
     fun findClosestOffset_noFlingDirection_shouldReturnAbsoluteDistance() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val offset = testLayoutInfoProvider.calculateSnappingOffset(0f)
+        val offset = testLayoutInfoProvider.calculateSnapOffset(0f)
         assertEquals(offset, MinOffset)
     }
 
     @Test
     fun findClosestOffset_flingDirection_shouldReturnCorrectBound() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
-        val forwardOffset = testLayoutInfoProvider.calculateSnappingOffset(with(rule.density) {
+        val forwardOffset = testLayoutInfoProvider.calculateSnapOffset(with(rule.density) {
             MinFlingVelocityDp.toPx()
         })
-        val backwardOffset = testLayoutInfoProvider.calculateSnappingOffset(-with(rule.density) {
+        val backwardOffset = testLayoutInfoProvider.calculateSnapOffset(-with(rule.density) {
             MinFlingVelocityDp.toPx()
         })
         assertEquals(forwardOffset, MaxOffset)
@@ -276,7 +276,7 @@ class SnapFlingBehaviorTest {
     }
 
     @Test
-    fun approach_notSpecified_useHighVelocityApproachAndSnap() {
+    fun approach_usedDefaultApproach_useHighVelocityApproachAndSnap() {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
@@ -299,14 +299,13 @@ class SnapFlingBehaviorTest {
     }
 
     @Test
-    fun approach_notSpecified_canDecay_shouldDecayMinusBoundDifference() {
+    fun approach_usedDefaultApproach_shouldDecay() {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
         val flingVelocity = 5 * TestVelocity
         val decayTargetOffset = decaySpec.calculateTargetValue(0.0f, flingVelocity)
         val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = Float.NaN)
-        val approachOffset = decayTargetOffset - (MaxOffset - MinOffset)
         var actualApproachOffset = 0f
 
         rule.mainClock.autoAdvance = false
@@ -326,16 +325,18 @@ class SnapFlingBehaviorTest {
         rule.mainClock.advanceTimeUntil { splineAnimationSpec.animationWasExecutions > 0 }
 
         rule.runOnIdle {
-            Truth.assertThat(approachOffset).isWithin(0.1f).of(actualApproachOffset)
+            Truth.assertThat(decayTargetOffset).isWithin(0.1f).of(actualApproachOffset)
         }
     }
 
     @Test
-    fun approach_notSpecified_cannotDecay_shouldJustSnapToBound() {
+    fun approach_cannotDecay_shouldJustSnapToBound() {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
-        val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = Float.NaN)
+        val testLayoutInfoProvider = TestLayoutInfoProvider(
+            approachOffset = MaxOffset
+        )
 
         var animationOffset = 0f
         rule.setContent {
@@ -358,6 +359,7 @@ class SnapFlingBehaviorTest {
         }
     }
 
+    @Suppress("Deprecation")
     @Test
     fun disableSystemAnimations_defaultFlingBehaviorShouldContinueToWork() {
 
@@ -426,6 +428,7 @@ class SnapFlingBehaviorTest {
         }
     }
 
+    @Suppress("Deprecation")
     @Test
     fun defaultFlingBehavior_useScrollMotionDurationScale() {
         // Arrange
@@ -511,20 +514,24 @@ class SnapFlingBehaviorTest {
             }
         }
 
-        override fun calculateSnappingOffset(currentVelocity: Float): Float {
+        override fun calculateSnapOffset(velocity: Float): Float {
             return calculateFinalOffset(
-                calculateFinalSnappingItem(currentVelocity),
+                calculateFinalSnappingItem(velocity),
                 minOffset,
                 maxOffset
             )
         }
 
-        override fun calculateApproachOffset(initialVelocity: Float): Float {
-            return approachOffset
+        override fun calculateApproachOffset(
+            velocity: Float,
+            decayOffset: Float
+        ): Float {
+            return if (approachOffset.isNaN()) (decayOffset) else approachOffset
         }
     }
 }
 
+@Suppress("Deprecation")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VelocityEffect(
@@ -598,7 +605,7 @@ private fun rememberSnapFlingBehavior(
         snapLayoutInfoProvider,
         highVelocityApproachSpec
     ) {
-        SnapFlingBehavior(
+        snapFlingBehavior(
             snapLayoutInfoProvider = snapLayoutInfoProvider,
             decayAnimationSpec = highVelocityApproachSpec,
             snapAnimationSpec = snapAnimationSpec,

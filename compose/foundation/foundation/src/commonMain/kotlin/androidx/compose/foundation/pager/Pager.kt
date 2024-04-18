@@ -25,10 +25,10 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateFinalSnappingBound
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
  * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
  * can use [beyondViewportPageCount] to place more pages before and after the visible pages.
  *
- * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
+ * If you need snapping with pages of different size, you can use a [snapFlingBehavior] with a
  * [SnapLayoutInfoProvider] adapted to a LazyList.
  * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
  * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
@@ -148,7 +148,7 @@ fun HorizontalPager(
  * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
  * can use [beyondViewportPageCount] to place more pages before and after the visible pages.
  *
- * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
+ * If you need snapping with pages of different size, you can use a [snapFlingBehavior] with a
  * [SnapLayoutInfoProvider] adapted to a LazyList.
  * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
  * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
@@ -235,9 +235,9 @@ fun VerticalPager(
 object PagerDefaults {
 
     /**
-     * A [SnapFlingBehavior] that will snap pages to the start of the layout. One can use the
+     * A [snapFlingBehavior] that will snap pages to the start of the layout. One can use the
      * given parameters to control how the snapping animation will happen.
-     * @see androidx.compose.foundation.gestures.snapping.SnapFlingBehavior for more information
+     * @see androidx.compose.foundation.gestures.snapping.snapFlingBehavior for more information
      * on what which parameter controls in the overall snapping animation.
      *
      * The animation specs used by the fling behavior will depend on 2 factors:
@@ -313,8 +313,7 @@ object PagerDefaults {
             val snapLayoutInfoProvider =
                 SnapLayoutInfoProvider(
                     state,
-                    pagerSnapDistance,
-                    decayAnimationSpec
+                    pagerSnapDistance
                 ) { flingVelocity, lowerBound, upperBound ->
                     calculateFinalSnappingBound(
                         pagerState = state,
@@ -326,7 +325,7 @@ object PagerDefaults {
                     )
                 }
 
-            SnapFlingBehavior(
+            snapFlingBehavior(
                 snapLayoutInfoProvider = snapLayoutInfoProvider,
                 decayAnimationSpec = decayAnimationSpec,
                 snapAnimationSpec = snapAnimationSpec

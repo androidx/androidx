@@ -175,9 +175,10 @@ private fun rememberNextItemSnappingLayoutInfoProvider(
     )
     return remember(scrollState, layoutSize) {
         object : SnapLayoutInfoProvider by basedSnappingLayoutInfoProvider {
-            override fun calculateApproachOffset(initialVelocity: Float): Float {
-                return 0f
-            }
+            override fun calculateApproachOffset(
+                velocity: Float,
+                decayOffset: Float
+            ): Float = 0.0f
         }
     }
 }
