@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,60 +22,32 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
-    id("java-library")
     id("AndroidXRepackagePlugin")
-    id("com.google.protobuf")
+    id("java-library")
 }
 
 repackage {
-    // Must match what is in core/core-location-altitiude-external-protobuf/build.gradle
     addRelocation {
         sourcePackage = "com.google.protobuf"
         targetPackage =  "androidx.core.location.altitude.impl.proto"
     }
+    artifactId = "core-location-altitude-external-protobuf"
 }
 
 dependencies {
-    // Must be compileOnly to not bring in protobufLite in runtime
-    // Repackaged protobufLite brought in by
-    // project(":core:core-location-altitude-external-protobuf") and used at runtime
-    compileOnly(libs.protobufLite)
-    api(project(":core:core-location-altitude-external-protobuf"))}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
-
-afterEvaluate {
-    lint {
-        lintOptions {
-            // protobuf generates unannotated methods
-            disable("UnknownNullness")
-        }
-    }
+    repackage(libs.protobufLite)
 }
 
 androidx {
-    name = "Location Altitude Protos"
+    name = "Location Altitude External Protobuf"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
-    inceptionYear = "2022"
-    description = "Implementation protos for core-location-altitude artifact."
-    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
-            "(b/180579063)")
+    inceptionYear = "2024"
+    description =  "Repackaged proto-lite dependency for use by core"
+    doNotDocumentReason = "Repackaging only"
+    license.name = "BSD-3-Clause"
+    license.url = "https://opensource.org/licenses/BSD-3-Clause"
 }
