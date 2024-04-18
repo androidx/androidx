@@ -38,6 +38,12 @@ message Clickable {
   // clickable height is not guaranteed unless there is enough space around the
   // element within its parent bounds.
   DpProp minimum_clickable_height = 4;
+
+  oneof optional_visual_feedback_enabled {
+    // Whether the click visual feedback (such as a ripple) should be enabled.
+    // Defaults to true.
+    bool visual_feedback_enabled = 5;
+  }
 }
 
 // The type of user interface element. Accessibility services might use this to
