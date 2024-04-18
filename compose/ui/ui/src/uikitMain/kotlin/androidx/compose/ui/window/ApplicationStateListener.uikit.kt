@@ -27,13 +27,15 @@ import platform.darwin.NSObject
 
 internal class ApplicationStateListener(
     /**
+     * [NSNotificationCenter] to listen to, can be customized for tests purposes
+     */
+    private val notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter,
+    /**
      * Callback which will be called with `true` when the app becomes active, and `false` when the app goes background
      */
-    private val callback: (Boolean) -> Unit
+    private val onApplicationActiveStateChanged: (Boolean) -> Unit
 ) : NSObject() {
     init {
-        val notificationCenter = NSNotificationCenter.defaultCenter
-
         notificationCenter.addObserver(
             this,
             NSSelectorFromString(::applicationWillEnterForeground.name),
@@ -51,20 +53,18 @@ internal class ApplicationStateListener(
 
     @ObjCAction
     fun applicationWillEnterForeground() {
-        callback(true)
+        onApplicationActiveStateChanged(true)
     }
 
     @ObjCAction
     fun applicationDidEnterBackground() {
-        callback(false)
+        onApplicationActiveStateChanged(false)
     }
 
     /**
      * Deregister from [NSNotificationCenter]
      */
     fun dispose() {
-        val notificationCenter = NSNotificationCenter.defaultCenter
-
         notificationCenter.removeObserver(this, UIApplicationWillEnterForegroundNotification, null)
         notificationCenter.removeObserver(this, UIApplicationDidEnterBackgroundNotification, null)
     }

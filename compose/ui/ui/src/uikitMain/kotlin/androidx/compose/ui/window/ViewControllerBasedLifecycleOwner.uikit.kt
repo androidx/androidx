@@ -16,195 +16,51 @@
 
 package androidx.compose.ui.window
 
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import kotlin.test.fail
+import platform.Foundation.NSNotificationCenter
 
-internal class ViewControllerBasedLifecycleOwner : LifecycleOwner {
-    private enum class Action {
-        VIEW_WILL_APPEAR,
-        VIEW_DID_DISAPPEAR,
-        APPLICATION_DID_ENTER_BACKGROUND,
-        APPLICATION_WILL_ENTER_FOREGROUND,
-        DISPOSE
-
-        // TODO: add actions for Popup and Dialog to behave like Android
-    }
-
-    private sealed interface State {
-        fun reduce(action: Action): State
-
-        class Created(
-            private val isApplicationForeground: Boolean,
-            private val lifecycle: LifecycleRegistry
-        ) : State {
-            override fun reduce(action: Action): State {
-                return when (action) {
-                    Action.VIEW_WILL_APPEAR -> {
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
-
-                        if (isApplicationForeground) {
-                            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                            Running(lifecycle = lifecycle)
-                        } else {
-                            Suspended(lifecycle = lifecycle)
-                        }
-                    }
-
-                    Action.VIEW_DID_DISAPPEAR -> {
-                        if (isApplicationForeground) {
-                            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-                        }
-
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-
-                        Created(isApplicationForeground = isApplicationForeground, lifecycle = lifecycle)
-                    }
-
-                    Action.APPLICATION_DID_ENTER_BACKGROUND -> {
-                        Created(isApplicationForeground = false, lifecycle = lifecycle)
-                    }
-
-                    Action.APPLICATION_WILL_ENTER_FOREGROUND -> {
-                        Created(isApplicationForeground = true, lifecycle = lifecycle)
-                    }
-
-                    Action.DISPOSE -> {
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-
-                        Disposed
-                    }
-                }
-            }
-        }
-        class Running(
-            private val lifecycle: LifecycleRegistry
-        ) : State {
-            override fun reduce(action: Action): State {
-                return when (action) {
-                    Action.VIEW_WILL_APPEAR -> {
-                        this
-                    }
-
-                    Action.VIEW_DID_DISAPPEAR -> {
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-
-                        Created(isApplicationForeground = true, lifecycle = lifecycle)
-                    }
-
-                    Action.APPLICATION_DID_ENTER_BACKGROUND -> {
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-
-                        Suspended(lifecycle = lifecycle)
-                    }
-
-                    Action.APPLICATION_WILL_ENTER_FOREGROUND -> {
-                        this
-                    }
-
-                    Action.DISPOSE -> {
-                        logWarning("'ViewControllerBasedLifecycleOwner' received 'Action.DISPOSE' while in 'State.Running'. Make sure that view controller containment API is used correctly. 'removeFromParent' must be called before 'dispose'")
-
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-
-                        Disposed
-                    }
-                }
-            }
-        }
-
-        class Suspended(private val lifecycle: LifecycleRegistry) : State {
-            override fun reduce(action: Action): State {
-                return when(action) {
-                    Action.VIEW_WILL_APPEAR -> {
-                        this
-                    }
-
-                    Action.VIEW_DID_DISAPPEAR -> {
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-
-                        Created(isApplicationForeground = false, lifecycle = lifecycle)
-                    }
-
-                    Action.APPLICATION_DID_ENTER_BACKGROUND -> {
-                        this
-                    }
-
-                    Action.APPLICATION_WILL_ENTER_FOREGROUND -> {
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-
-                        Running(lifecycle = lifecycle)
-                    }
-
-                    Action.DISPOSE -> {
-                        logWarning("'ViewControllerBasedLifecycleOwner' received 'Action.DISPOSE' while in 'State.Suspended'. Make sure that view controller containment API is used correctly. 'removeFromParent' must be called before 'dispose'")
-
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-                        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-
-                        Disposed
-                    }
-                }
-            }
-        }
-
-        object Disposed : State {
-            override fun reduce(action: Action): State {
-                when (action) {
-                    Action.VIEW_WILL_APPEAR, Action.VIEW_DID_DISAPPEAR, Action.DISPOSE -> {
-                        fail("Invalid '$action' for 'State.Disposed'")
-                    }
-                    Action.APPLICATION_DID_ENTER_BACKGROUND, Action.APPLICATION_WILL_ENTER_FOREGROUND -> {
-                        // no-op
-                        return this
-                    }
-                }
-            }
-        }
-    }
-
+internal class ViewControllerBasedLifecycleOwner(
+    notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter,
+) : LifecycleOwner {
     override val lifecycle = LifecycleRegistry(this)
 
-    private var state: State = State.Created(
-        isApplicationForeground = ApplicationStateListener.isApplicationActive,
-        lifecycle = lifecycle
-    )
+    private var isViewAppeared = false
+    private var isAppForeground = ApplicationStateListener.isApplicationActive
+    private var isDisposed = false
 
-    private val applicationStateListener = ApplicationStateListener { isForeground ->
-        handleAction(
-            if (isForeground) Action.APPLICATION_WILL_ENTER_FOREGROUND
-            else Action.APPLICATION_DID_ENTER_BACKGROUND
-        )
+    private val applicationStateListener = ApplicationStateListener(notificationCenter) { isForeground ->
+        isAppForeground = isForeground
+        updateLifecycleState()
     }
 
     init {
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        updateLifecycleState()
     }
 
     fun dispose() {
-        handleAction(Action.DISPOSE)
         applicationStateListener.dispose()
+        isDisposed = true
+        updateLifecycleState()
     }
 
     fun handleViewWillAppear() {
-        handleAction(Action.VIEW_WILL_APPEAR)
+        isViewAppeared = true
+        updateLifecycleState()
     }
 
     fun handleViewDidDisappear() {
-        handleAction(Action.VIEW_DID_DISAPPEAR)
+        isViewAppeared = false
+        updateLifecycleState()
     }
 
-    private fun handleAction(action: Action) {
-        state = state.reduce(action)
-    }
-
-    companion object {
-        fun logWarning(message: String) {
-            println("Warning: ViewControllerBasedLifecycleOwner - $message")
+    private fun updateLifecycleState() {
+        lifecycle.currentState = when {
+            isDisposed -> State.DESTROYED
+            isViewAppeared && isAppForeground -> State.RESUMED
+            isViewAppeared -> State.STARTED
+            else -> State.CREATED
         }
     }
 }
