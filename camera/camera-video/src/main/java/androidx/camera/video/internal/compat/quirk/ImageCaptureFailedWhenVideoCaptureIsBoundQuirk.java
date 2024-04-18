@@ -23,16 +23,19 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/239369953
+ *     Bug Id: b/239369953, b/331754902
  *     Description: When taking image with VideoCapture is bound, the capture result is returned
- *                  but the resulting image can not be obtained.
- *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805.
+ *                  but the resulting image can not be obtained. On Pixel 4XL API29, taking image
+ *                  with VideoCapture UHD is bound, camera HAL returns error. Pixel 4XL starts
+ *                  from API29 and API30+ work fine.
+ *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {
-        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro();
+        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
+                || isPixel4XLApi29();
     }
 
     public static boolean isBluStudioX10() {
@@ -50,5 +53,9 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
     public static boolean isPositivoTwist2Pro() {
         return "positivo".equalsIgnoreCase(Build.BRAND) && "twist 2 pro".equalsIgnoreCase(
                 Build.MODEL);
+    }
+
+    private static boolean isPixel4XLApi29() {
+        return "pixel 4 xl".equalsIgnoreCase(Build.MODEL) && Build.VERSION.SDK_INT == 29;
     }
 }
