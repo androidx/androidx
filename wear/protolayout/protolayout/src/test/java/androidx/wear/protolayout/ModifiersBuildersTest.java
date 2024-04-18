@@ -120,13 +120,13 @@ public class ModifiersBuildersTest {
                         .build();
         DimensionBuilders.PivotDimension pivotDimensionY =
                 new DimensionBuilders.BoundingBoxRatio.Builder(
-                        new TypeBuilders.FloatProp.Builder(0.8f)
-                                .setDynamicValue(
-                                        DynamicBuilders.DynamicFloat.constant(0.2f))
-                                .build())
+                                new TypeBuilders.FloatProp.Builder(0.8f)
+                                        .setDynamicValue(
+                                                DynamicBuilders.DynamicFloat.constant(0.2f))
+                                        .build())
                         .build();
 
-        ModifiersBuilders.Transformation transformationModifier=
+        ModifiersBuilders.Transformation transformationModifier =
                 new ModifiersBuilders.Transformation.Builder()
                         .setTranslationX(translation)
                         .setTranslationY(translation)
@@ -149,7 +149,21 @@ public class ModifiersBuildersTest {
                 .isEqualTo(pivotDimensionX.toPivotDimensionProto());
         assertThat(transformationProto.getPivotY())
                 .isEqualTo(pivotDimensionY.toPivotDimensionProto());
+    }
 
+    @Test
+    public void defaultRipple() {
+        ModifiersBuilders.Clickable clickableRippleNotSet =
+                new ModifiersBuilders.Clickable.Builder().build();
 
+        assertThat(clickableRippleNotSet.isVisualFeedbackEnabled()).isTrue();
+    }
+
+    @Test
+    public void disableRipple() {
+        ModifiersBuilders.Clickable clickableRippleDisabled =
+                new ModifiersBuilders.Clickable.Builder().setVisualFeedbackEnabled(false).build();
+
+        assertThat(clickableRippleDisabled.isVisualFeedbackEnabled()).isFalse();
     }
 }

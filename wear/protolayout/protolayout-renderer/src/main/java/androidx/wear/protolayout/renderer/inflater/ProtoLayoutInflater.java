@@ -69,7 +69,6 @@ import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
-import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewOutlineProvider;
@@ -1361,8 +1360,10 @@ public final class ProtoLayoutInflater {
         }
 
         if (hasAction) {
-            // Apply ripple effect
-            applyRippleEffect(view);
+            if (!clickable.hasVisualFeedbackEnabled() || clickable.getVisualFeedbackEnabled()) {
+                // Apply ripple effect
+                applyRippleEffect(view);
+            }
 
             if (!extendTouchTarget) {
                 // For temporarily disable the touch size check for element on arc
@@ -1552,7 +1553,6 @@ public final class ProtoLayoutInflater {
 
         return drawable;
     }
-
 
     private void applyTransformation(
             @NonNull View view,

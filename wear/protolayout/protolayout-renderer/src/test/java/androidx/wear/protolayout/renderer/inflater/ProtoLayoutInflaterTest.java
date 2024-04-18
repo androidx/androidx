@@ -1958,6 +1958,73 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_clickable_withoutRippleEffect_rippleDrawableNotAdded() throws IOException {
+        final String textContentsWithRipple = "clickable with ripple";
+        final String textContentsWithoutRipple = "clickable without ripple";
+
+        Action action = Action.newBuilder().setLoadAction(LoadAction.newBuilder()).build();
+
+        LayoutElement textElementWithRipple =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(textContentsWithRipple))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo1")
+                                                                        .setOnClick(action))))
+                        .build();
+        LayoutElement textElementWithoutRipple =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(textContentsWithoutRipple))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo2")
+                                                                        .setVisualFeedbackEnabled(
+                                                                                false)
+                                                                        .setOnClick(action))))
+                        .build();
+
+        FrameLayout rootLayout =
+                renderer(
+                        fingerprintedLayout(
+                                LayoutElement.newBuilder()
+                                        .setColumn(
+                                                Column.newBuilder()
+                                                        .addContents(textElementWithRipple)
+                                                        .addContents(
+                                                                textElementWithoutRipple)
+                                                        .build())
+                                        .build()))
+                        .inflate();
+
+        // Column
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        assertThat(rootLayout.getChildAt(0)).isInstanceOf(LinearLayout.class);
+        ViewGroup columnElement = (ViewGroup) rootLayout.getChildAt(0);
+        // Text elements
+        assertThat(columnElement.getChildCount()).isEqualTo(2);
+        assertThat(columnElement.getChildAt(0)).isInstanceOf(TextView.class);
+        assertThat(columnElement.getChildAt(1)).isInstanceOf(TextView.class);
+
+        TextView tvWithRipple = (TextView) columnElement.getChildAt(0);
+        TextView tvWithoutRipple = (TextView) columnElement.getChildAt(1);
+
+        assertThat(tvWithRipple.getText().toString()).isEqualTo(textContentsWithRipple);
+        assertThat(tvWithoutRipple.getText().toString()).isEqualTo(textContentsWithoutRipple);
+
+        // Ripple drawable gets set as foreground for the view.
+        assertThat(tvWithRipple.getForeground()).isNotNull();
+        assertThat(tvWithoutRipple.getForeground()).isNull();
+    }
+
+    @Test
     public void inflate_arc_withLineDrawnWithArcTo() {
         LayoutElement root =
                 LayoutElement.newBuilder()
