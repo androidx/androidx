@@ -135,6 +135,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#setShowAsAction(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.setShowAsAction(actionEnum)")
     @Deprecated
     public static void setShowAsAction(MenuItem item, int actionEnum) {
         item.setShowAsAction(actionEnum);
@@ -153,6 +154,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#setActionView(View)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.setActionView(view)")
     @Deprecated
     public static MenuItem setActionView(MenuItem item, View view) {
         return item.setActionView(view);
@@ -175,6 +177,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#setActionView(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.setActionView(resId)")
     @Deprecated
     public static MenuItem setActionView(MenuItem item, int resId) {
         return item.setActionView(resId);
@@ -188,6 +191,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#getActionView()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.getActionView()")
     @Deprecated
     public static View getActionView(MenuItem item) {
         return item.getActionView();
@@ -252,6 +256,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#expandActionView()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.expandActionView()")
     @Deprecated
     public static boolean expandActionView(MenuItem item) {
         return item.expandActionView();
@@ -271,6 +276,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#collapseActionView()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.collapseActionView()")
     @Deprecated
     public static boolean collapseActionView(MenuItem item) {
         return item.collapseActionView();
@@ -287,6 +293,7 @@ public final class MenuItemCompat {
      *
      * @deprecated Use {@link MenuItem#isActionViewExpanded()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "item.isActionViewExpanded()")
     @Deprecated
     public static boolean isActionViewExpanded(MenuItem item) {
         return item.isActionViewExpanded();

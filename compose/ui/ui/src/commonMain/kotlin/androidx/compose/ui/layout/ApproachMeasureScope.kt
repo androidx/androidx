@@ -53,7 +53,6 @@ sealed interface ApproachIntrinsicMeasureScope : IntrinsicMeasureScope {
  * in [ApproachLayoutModifierNode] to morph the layout gradually in both size and position
  * to arrive at its precalculated bounds.
  */
-@ExperimentalComposeUiApi
 sealed interface ApproachMeasureScope : ApproachIntrinsicMeasureScope, MeasureScope
 
 internal class ApproachMeasureScopeImpl(

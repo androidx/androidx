@@ -39,7 +39,7 @@ import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Draw the provided [GraphicsLayer] into the current [DrawScope].
- * The [GraphicsLayer] provided must have [GraphicsLayer.buildLayer] invoked on it otherwise
+ * The [GraphicsLayer] provided must have [GraphicsLayer.record] invoked on it otherwise
  * no visual output will be seen in the rendered result.
  *
  * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTopLeftSample
@@ -71,7 +71,7 @@ const val DefaultCameraDistance = 8.0f
  * Usage of a [GraphicsLayer] requires a minimum of 2 steps.
  *
  * 1) The [GraphicsLayer] must be built, which involves specifying the position alongside a list
- * of drawing commands using [GraphicsLayer.buildLayer]
+ * of drawing commands using [GraphicsLayer.record]
  *
  * 2) The [GraphicsLayer] is then drawn into another destination [Canvas] using
  * [GraphicsLayer.draw].
@@ -108,7 +108,7 @@ expect class GraphicsLayer {
      * Size in pixels of the [GraphicsLayer]. By default [GraphicsLayer] contents can draw outside
      * of the bounds specified by [topLeft] and [size], however, rasterization of this layer into
      * an offscreen buffer will be sized according to the specified size. This is configured
-     * by calling [buildLayer]
+     * by calling [record]
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerSizeSample
      */
@@ -230,7 +230,7 @@ expect class GraphicsLayer {
     /**
      * Returns the outline specified by either [setPathOutline] or [setRoundRectOutline].
      * By default this will return [Outline.Rectangle] with the size of the [GraphicsLayer]
-     * specified by [buildLayer] or [IntSize.Zero] if [buildLayer] was not previously invoked.
+     * specified by [record] or [IntSize.Zero] if [record] was not previously invoked.
      */
     val outline: Outline
 
@@ -375,16 +375,16 @@ expect class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    fun buildLayer(
+    fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
         block: DrawScope.() -> Unit
-    ): GraphicsLayer
+    )
 
     /**
      * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that
-     * [GraphicsLayer.buildLayer] must be invoked first to record drawing operations before invoking
+     * [GraphicsLayer.record] must be invoked first to record drawing operations before invoking
      * this method.
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap

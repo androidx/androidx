@@ -137,8 +137,12 @@ class NestedScrollingTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollResult = dispatcher.dispatchPreScroll(delta, NestedScrollSource.Drag)
-        scrollResult = dispatcher.dispatchPostScroll(delta, scrollResult, NestedScrollSource.Drag)
+        scrollResult = dispatcher.dispatchPreScroll(delta, NestedScrollSource.UserInput)
+        scrollResult = dispatcher.dispatchPostScroll(
+            delta,
+            scrollResult,
+            NestedScrollSource.UserInput
+        )
 
         runBlocking {
             velocityResult = dispatcher.dispatchPreFling(velocity)

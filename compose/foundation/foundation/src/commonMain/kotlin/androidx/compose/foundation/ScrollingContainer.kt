@@ -37,9 +37,10 @@ internal fun Modifier.scrollingContainer(
     reverseScrolling: Boolean,
     flingBehavior: FlingBehavior?,
     interactionSource: MutableInteractionSource?,
-    bringIntoViewSpec: BringIntoViewSpec = ScrollableDefaults.bringIntoViewSpec()
+    bringIntoViewSpec: BringIntoViewSpec? = null
 ): Modifier {
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
+
     return clipScrollableContainer(orientation)
         .overscroll(overscrollEffect)
         .scrollable(

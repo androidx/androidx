@@ -15,6 +15,8 @@
  */
 package androidx.camera.core;
 
+import android.hardware.camera2.params.SessionConfiguration;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -213,9 +215,12 @@ public final class CameraSelector {
     /**
      * Returns the physical camera id.
      *
+     * <p>If physical camera id is not set via {@link Builder#setPhysicalCameraId(String)},
+     * it will return null.
+     *
      * @return physical camera id.
+     * @see Builder#setPhysicalCameraId(String)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public String getPhysicalCameraId() {
         return mPhysicalCameraId;
@@ -294,10 +299,31 @@ public final class CameraSelector {
         /**
          * Sets the physical camera id.
          *
+         * <p>A logical camera is a grouping of two or more of those physical cameras.
+         * See <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>
+         *
+         * <p> If we want to open one physical camera, for example ultra wide, we just need to set
+         * physical camera id in {@link CameraSelector} and bind to lifecycle. All CameraX features
+         * will work normally when only a single physical camera is used.
+         *
+         * <p>If we want to open multiple physical cameras, we need to have multiple
+         * {@link CameraSelector}s and set physical camera id on each, then bind to lifecycle with
+         * the {@link CameraSelector}s. Internally each physical camera id will be set on
+         * {@link UseCase}, for example, {@link Preview} and call
+         * {@link android.hardware.camera2.params.OutputConfiguration#setPhysicalCameraId(String)}.
+         *
+         * <p>Currently only two physical cameras for the same logical camera id are allowed
+         * and the device needs to support physical cameras by checking
+         * {@link CameraInfo#isLogicalMultiCameraSupported()}. In addition, there is no guarantee
+         * or API to query whether the device supports multiple physical camera opening or not.
+         * Internally the library checks
+         * {@link android.hardware.camera2.CameraDevice#isSessionConfigurationSupported(SessionConfiguration)},
+         * if the device does not support the multiple physical camera configuration,
+         * {@link IllegalArgumentException} will be thrown when binding to lifecycle.
+         *
          * @param physicalCameraId physical camera id.
          * @return this builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setPhysicalCameraId(@NonNull String physicalCameraId) {
             mPhysicalCameraId = physicalCameraId;

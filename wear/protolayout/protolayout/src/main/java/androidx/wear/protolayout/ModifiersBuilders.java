@@ -1337,12 +1337,12 @@ public final class ModifiersBuilders {
          * Gets the horizontal offset of this element relative to the location where the element's
          * layout placed it.
          */
-        @Nullable
+        @NonNull
         public DpProp getTranslationX() {
             if (mImpl.hasTranslationX()) {
                 return DpProp.fromProto(mImpl.getTranslationX());
             } else {
-                return null;
+                return new DpProp.Builder(0f).build();
             }
         }
 
@@ -1350,12 +1350,12 @@ public final class ModifiersBuilders {
          * Gets the vertical offset of this element in addition to the location where the element's
          * layout placed it.
          */
-        @Nullable
+        @NonNull
         public DpProp getTranslationY() {
             if (mImpl.hasTranslationY()) {
                 return DpProp.fromProto(mImpl.getTranslationY());
             } else {
-                return null;
+                return new DpProp.Builder(0f).build();
             }
         }
 
@@ -1364,12 +1364,12 @@ public final class ModifiersBuilders {
          * Gets the scale of this element in the x direction around the pivot point, as a proportion
          * of the element's unscaled width.
          */
-        @Nullable
+        @NonNull
         public FloatProp getScaleX() {
             if (mImpl.hasScaleX()) {
                 return FloatProp.fromProto(mImpl.getScaleX());
             } else {
-                return null;
+                return new FloatProp.Builder(1f).build();
             }
         }
 
@@ -1377,24 +1377,24 @@ public final class ModifiersBuilders {
          * Gets the scale of this element in the y direction around the pivot point, as a proportion
          * of the element's unscaled height.
          */
-        @Nullable
+        @NonNull
         public FloatProp getScaleY() {
             if (mImpl.hasScaleY()) {
                 return FloatProp.fromProto(mImpl.getScaleY());
             } else {
-                return null;
+                return new FloatProp.Builder(1f).build();
             }
         }
 
         /**
          * Gets the clockwise Degrees that the element is rotated around the pivot point.
          */
-        @Nullable
+        @NonNull
         public DegreesProp getRotation() {
             if (mImpl.hasRotation()) {
                 return DegreesProp.fromProto(mImpl.getRotation());
             } else {
-                return null;
+                return new DegreesProp.Builder(0f).build();
             }
         }
 

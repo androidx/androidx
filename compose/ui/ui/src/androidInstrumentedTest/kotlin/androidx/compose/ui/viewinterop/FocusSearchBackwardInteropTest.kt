@@ -18,7 +18,6 @@ package androidx.compose.ui.viewinterop
 
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.O
-import android.os.Build.VERSION_CODES.P
 import android.view.KeyEvent
 import android.view.KeyEvent.ACTION_DOWN
 import android.view.KeyEvent.META_SHIFT_ON as Shift
@@ -195,17 +194,22 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
         rule.runOnIdle { assertThat(view.isFocused).isTrue() }
     }
 
-    @SdkSuppress(minSdkVersion = P) // b/328143586
     @Test
     fun focusedComposableWithFocusableView_view_inLinearLayout() {
         // Arrange.
+        var isComposableFocused = false
         setContent {
-            AndroidView({
-                LinearLayout(it).apply {
-                    addView(FocusableView(it).apply { view2 = this })
-                    addView(ComposeView(it).apply {
+            AndroidView({ context ->
+                LinearLayout(context).apply {
+                    addView(FocusableView(context).apply { view2 = this })
+                    addView(ComposeView(context).apply {
                         setContent {
-                            Row(Modifier.testTag(composable).focusable()) {
+                            Row(
+                                Modifier
+                                    .testTag(composable)
+                                    .onFocusChanged { isComposableFocused = it.isFocused }
+                                    .focusable()
+                            ) {
                                 AndroidView({ FocusableView(it).apply { view1 = this } })
                             }
                         }
@@ -214,13 +218,16 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
             })
         }
         rule.onNodeWithTag(composable).requestFocus()
+        rule.waitUntil { isComposableFocused }
 
         // Act.
-        rule.focusSearchBackward()
+        rule.focusSearchBackward(waitForIdle = false)
 
         // Assert.
-        rule.onNodeWithTag(composable).assertIsNotFocused()
-        rule.runOnIdle { assertThat(view2.isFocused).isTrue() }
+        rule.waitUntil { !isComposableFocused }
+
+        // TODO(b/332345953) Figure out why this fails on sdk 25 and below.
+        if (SDK_INT >= O) rule.waitUntil { view2.isFocused }
     }
 
     @Test
@@ -655,11 +662,11 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
         rule.onNodeWithTag(composable).assertIsNotFocused()
     }
 
-    private fun ComposeContentTestRule.focusSearchBackward() {
+    private fun ComposeContentTestRule.focusSearchBackward(waitForIdle: Boolean = true) {
+        if (waitForIdle) waitForIdle()
         if (moveFocusProgrammatically) {
-            runOnIdle { focusManager.moveFocus(FocusDirection.Previous) }
+            runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
         } else {
-            waitForIdle()
             InstrumentationRegistry
                 .getInstrumentation()
                 .sendKeySync(KeyEvent(0L, 0L, ACTION_DOWN, Key.Tab.nativeKeyCode, 0, Shift))

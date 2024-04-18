@@ -168,12 +168,12 @@ public class MacrobenchmarkScope(
                     packageName
                 ))
             ) {
-            isMethodTracing = true
-            val tracePath = methodTraceRecordPath(packageName)
-            "--start-profiler \"$tracePath\" --streaming"
-        } else {
-            ""
-        }
+                isMethodTracing = true
+                val tracePath = methodTraceRecordPath(packageName)
+                "--start-profiler \"$tracePath\" --streaming"
+            } else {
+                ""
+            }
         val cmd = "am start $profileArgs -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
@@ -228,9 +228,11 @@ public class MacrobenchmarkScope(
                 Thread.sleep(100)
             }
         }
-        throw IllegalStateException("Unable to confirm activity launch completion $lastFrameStats" +
-            " Please report a bug with the output of" +
-            " `adb shell dumpsys gfxinfo $packageName framestats`")
+        throw IllegalStateException(
+            "Unable to confirm activity launch completion $lastFrameStats" +
+                " Please report a bug with the output of" +
+                " `adb shell dumpsys gfxinfo $packageName framestats`"
+        )
     }
 
     /**
@@ -480,6 +482,32 @@ public class MacrobenchmarkScope(
                 }
                 Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
             }
+        }
+    }
+
+    /**
+     * Cancels the job responsible for running background `dexopt`.
+     *
+     * Background `dexopt` is a CPU intensive operation that can interfere with benchmarks.
+     * By cancelling this job, we ensure that this operation will not interfere with the benchmark,
+     * and we get stable numbers.
+     */
+    @RequiresApi(33)
+    internal fun cancelBackgroundDexopt() {
+        val result = if (Build.VERSION.SDK_INT >= 34) {
+            Shell.executeScriptCaptureStdout("pm bg-dexopt-job --cancel")
+        } else {
+            // This command is deprecated starting Android U, and is just an alias for the
+            // command above. More info in the link below.
+            // https://cs.android.com/android/platform/superproject/main/+/main:art/libartservice/service/java/com/android/server/art/ArtShellCommand.java;l=123;drc=93f35d39de15c555b0ddea16121b0ee3f0aa9f91
+            Shell.executeScriptCaptureStdout("pm cancel-bg-dexopt-job")
+        }
+        // We expect one of the following messages in stdout.
+        val expected = listOf("Success", "Background dexopt job cancelled")
+        if (expected.none { it == result.trim() }) {
+            throw IllegalStateException(
+                "Failed to cancel background dexopt job, result: '$result'"
+            )
         }
     }
 

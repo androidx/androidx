@@ -46,6 +46,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ExposureState getExposureState();
     method @FloatRange(from=0, fromInclusive=false) public default float getIntrinsicZoomRatio();
     method public default int getLensFacing();
+    method public default java.util.Set<androidx.camera.core.CameraInfo!> getPhysicalCameraInfos();
     method public int getSensorRotationDegrees();
     method public int getSensorRotationDegrees(int);
     method public default java.util.Set<android.util.Range<java.lang.Integer!>!> getSupportedFrameRateRanges();
@@ -53,6 +54,7 @@ package androidx.camera.core {
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
+    method public default boolean isLogicalMultiCameraSupported();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
     method public static boolean mustPlayShutterSound();
     method public default java.util.Set<androidx.camera.core.DynamicRange!> querySupportedDynamicRanges(java.util.Set<androidx.camera.core.DynamicRange!>);
@@ -68,6 +70,7 @@ package androidx.camera.core {
 
   @RequiresApi(21) public final class CameraSelector {
     method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
+    method public String? getPhysicalCameraId();
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
     field public static final int LENS_FACING_BACK = 1; // 0x1
@@ -81,6 +84,7 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraSelector.Builder addCameraFilter(androidx.camera.core.CameraFilter);
     method public androidx.camera.core.CameraSelector build();
     method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
+    method public androidx.camera.core.CameraSelector.Builder setPhysicalCameraId(String);
   }
 
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class CameraState {
@@ -264,6 +268,7 @@ package androidx.camera.core {
     method public void setTargetRotation(int);
     field public static final int COORDINATE_SYSTEM_ORIGINAL = 0; // 0x0
     field public static final int COORDINATE_SYSTEM_SENSOR = 2; // 0x2
+    field public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1; // 0x1
     field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
     field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
     field public static final int STRATEGY_BLOCK_PRODUCER = 1; // 0x1

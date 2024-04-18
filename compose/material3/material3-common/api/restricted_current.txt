@@ -17,7 +17,7 @@ package androidx.compose.material3.common {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalMinimumInteractiveComponentSize;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.common.ExperimentalMaterial3CommonApi public final class TonalPalette {
+  public final class TonalPalette {
     ctor public TonalPalette(long neutral100, long neutral99, long neutral98, long neutral96, long neutral95, long neutral94, long neutral92, long neutral90, long neutral87, long neutral80, long neutral70, long neutral60, long neutral50, long neutral40, long neutral30, long neutral24, long neutral22, long neutral20, long neutral17, long neutral12, long neutral10, long neutral6, long neutral4, long neutral0, long neutralVariant100, long neutralVariant99, long neutralVariant98, long neutralVariant96, long neutralVariant95, long neutralVariant94, long neutralVariant92, long neutralVariant90, long neutralVariant87, long neutralVariant80, long neutralVariant70, long neutralVariant60, long neutralVariant50, long neutralVariant40, long neutralVariant30, long neutralVariant24, long neutralVariant22, long neutralVariant20, long neutralVariant17, long neutralVariant12, long neutralVariant10, long neutralVariant6, long neutralVariant4, long neutralVariant0, long primary100, long primary99, long primary95, long primary90, long primary80, long primary70, long primary60, long primary50, long primary40, long primary30, long primary20, long primary10, long primary0, long secondary100, long secondary99, long secondary95, long secondary90, long secondary80, long secondary70, long secondary60, long secondary50, long secondary40, long secondary30, long secondary20, long secondary10, long secondary0, long tertiary100, long tertiary99, long tertiary95, long tertiary90, long tertiary80, long tertiary70, long tertiary60, long tertiary50, long tertiary40, long tertiary30, long tertiary20, long tertiary10, long tertiary0);
     method public long getNeutral0();
     method public long getNeutral10();
@@ -195,7 +195,7 @@ package androidx.compose.material3.common {
     property public final long tertiary99;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.common.ExperimentalMaterial3CommonApi public final class TonalPaletteDefaults {
+  public final class TonalPaletteDefaults {
     method public androidx.compose.material3.common.TonalPalette getBaselineTonalPalette();
     property public final androidx.compose.material3.common.TonalPalette BaselineTonalPalette;
     field public static final androidx.compose.material3.common.TonalPaletteDefaults INSTANCE;

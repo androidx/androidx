@@ -134,6 +134,25 @@ class GLRendererTest {
     }
 
     @Test
+    fun testExecuteHasEGLContext() {
+        val glRenderer = GLRenderer()
+        glRenderer.start()
+        try {
+            var hasContext = false
+            val contextLatch = CountDownLatch(1)
+            glRenderer.execute {
+                val eglContext = EGL14.eglGetCurrentContext()
+                hasContext = eglContext != null && eglContext != EGL14.EGL_NO_CONTEXT
+                contextLatch.countDown()
+            }
+            assertTrue(contextLatch.await(3000, TimeUnit.MILLISECONDS))
+            assertTrue(hasContext)
+        } finally {
+            glRenderer.stop(true)
+        }
+    }
+
+    @Test
     fun testDetachExecutesPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {

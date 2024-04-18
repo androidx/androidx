@@ -69,6 +69,7 @@ import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewOutlineProvider;
@@ -2481,16 +2482,7 @@ public final class ProtoLayoutInflater {
             if (spacer.getWidth().hasLinearDimension()) {
                 handleProp(
                         spacer.getWidth().getLinearDimension(),
-                        width -> {
-                            LayoutParams lp = view.getLayoutParams();
-                            if (lp == null) {
-                                Log.e(TAG, "LayoutParams was null when updating spacer width");
-                                return;
-                            }
-
-                            lp.width = safeDpToPx(width);
-                            view.requestLayout();
-                        },
+                        widthDp -> updateLayoutWidthParam(view, widthDp),
                         posId,
                         pipelineMaker);
             }
@@ -2498,16 +2490,7 @@ public final class ProtoLayoutInflater {
             if (spacer.getHeight().hasLinearDimension()) {
                 handleProp(
                         spacer.getHeight().getLinearDimension(),
-                        height -> {
-                            LayoutParams lp = view.getLayoutParams();
-                            if (lp == null) {
-                                Log.e(TAG, "LayoutParams was null when updating spacer height");
-                                return;
-                            }
-
-                            lp.height = safeDpToPx(height);
-                            view.requestLayout();
-                        },
+                        heightDp -> updateLayoutHeightParam(view, heightDp),
                         posId,
                         pipelineMaker);
             }
@@ -2517,45 +2500,14 @@ public final class ProtoLayoutInflater {
             if (spacer.getWidth().hasLinearDimension()) {
                 handleProp(
                         spacer.getWidth().getLinearDimension(),
-                        width -> {
-                            // Update minimum width first, because LayoutParams could be null.
-                            // This calls requestLayout.
-                            int widthPx = safeDpToPx(width);
-                            view.setMinimumWidth(widthPx);
-
-                            // We still need to update layout params in case other dimension is
-                            // expand, so 0 could
-                            // be miss interpreted.
-                            LayoutParams lp = view.getLayoutParams();
-                            if (lp == null) {
-                                Log.e(TAG, "LayoutParams was null when updating spacer width");
-                                return;
-                            }
-
-                            lp.width = widthPx;
-                        },
+                        widthDp -> updateLayoutWidthParam(view, widthDp),
                         posId,
                         pipelineMaker);
             }
             if (spacer.getHeight().hasLinearDimension()) {
                 handleProp(
                         spacer.getHeight().getLinearDimension(),
-                        height -> {
-                            // Update minimum height first, because LayoutParams could be null.
-                            // This calls requestLayout.
-                            int heightPx = safeDpToPx(height);
-                            view.setMinimumHeight(heightPx);
-
-                            // We still need to update layout params in case other dimension is
-                            // expand, so 0 could be miss interpreted.
-                            LayoutParams lp = view.getLayoutParams();
-                            if (lp == null) {
-                                Log.e(TAG, "LayoutParams was null when updating spacer height");
-                                return;
-                            }
-
-                            lp.height = heightPx;
-                        },
+                        heightDp -> updateLayoutHeightParam(view, heightDp),
                         posId,
                         pipelineMaker);
             }
@@ -2574,6 +2526,49 @@ public final class ProtoLayoutInflater {
                             .getParentProperties()
                             .applyPendingChildLayoutParams(layoutParams));
         }
+    }
+
+    private void updateLayoutWidthParam(@NonNull View view, float widthDp) {
+        scheduleLayoutParamsUpdate(
+                view,
+                () -> {
+                    checkNotNull(view.getLayoutParams()).width = safeDpToPx(widthDp);
+                    view.requestLayout();
+                });
+    }
+
+    private void updateLayoutHeightParam(@NonNull View view, float heightDp) {
+        scheduleLayoutParamsUpdate(
+                view,
+                () -> {
+                    checkNotNull(view.getLayoutParams()).height = safeDpToPx(heightDp);
+                    view.requestLayout();
+                });
+    }
+
+    private void scheduleLayoutParamsUpdate(@NonNull View view, Runnable layoutParamsUpdater) {
+        if (view.getLayoutParams() != null) {
+            layoutParamsUpdater.run();
+            return;
+        }
+
+        // View#getLayoutParams() returns null if this view is not attached to a parent ViewGroup.
+        // And once the view is attached to a parent ViewGroup, it guarantees a non-null return
+        // value. Thus, we use the listener to do the update of the layout param the moment that the
+        // view is attached to window.
+        view.addOnAttachStateChangeListener(
+                new View.OnAttachStateChangeListener() {
+
+                    @Override
+                    public void onViewAttachedToWindow(@NonNull View v) {
+                        layoutParamsUpdater.run();
+                        v.removeOnAttachStateChangeListener(this);
+                    }
+
+                    @Override
+                    public void onViewDetachedFromWindow(@NonNull View v) {
+                    }
+                });
     }
 
     @Nullable

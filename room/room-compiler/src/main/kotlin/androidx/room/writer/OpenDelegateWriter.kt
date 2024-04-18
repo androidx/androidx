@@ -55,7 +55,11 @@ class OpenDelegateWriter(val database: Database) {
 
     private fun createOpenDelegate(scope: CodeGenScope): XTypeSpec {
         return XTypeSpec.anonymousClassBuilder(
-            scope.language, "%L, %S", database.version, database.identityHash
+            scope.language,
+            "%L, %S, %S",
+            database.version,
+            database.identityHash,
+            database.legacyIdentityHash
         ).apply {
             superclass(RoomTypeNames.ROOM_OPEN_DELEGATE)
             addFunction(createCreateAllTables(scope))

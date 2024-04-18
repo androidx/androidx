@@ -136,7 +136,7 @@ class OverscrollTest {
 
         rule.runOnIdle {
             assertThat(controller.lastVelocity.x).isGreaterThan(0f)
-            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.Fling)
+            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.SideEffect)
         }
     }
 
@@ -166,7 +166,7 @@ class OverscrollTest {
             assertThat(abs(acummulatedScroll - 1000f * 9 / 10)).isWithin(0.1f)
 
             assertThat(controller.lastPreScrollDelta).isEqualTo(Offset(1000f - slop, 0f))
-            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.Drag)
+            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
         }
 
         rule.onNodeWithTag(boxTag).performTouchInput {
@@ -208,7 +208,7 @@ class OverscrollTest {
             assertThat(abs(acummulatedScroll - 1000f * 9 / 10)).isWithin(0.1f)
 
             assertThat(controller.lastPreScrollDelta).isEqualTo(Offset(1000f - slop, 0f))
-            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.Drag)
+            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
             controller.lastPreScrollDelta = Offset.Zero
         }
 
@@ -381,7 +381,7 @@ class OverscrollTest {
             val offset = Offset(x = 0f, y = 50f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -455,7 +455,7 @@ class OverscrollTest {
             val offset = Offset(x = 0f, y = 50f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -586,7 +586,7 @@ class OverscrollTest {
             val offset = Offset(x = 50f, y = 0f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -717,7 +717,7 @@ class OverscrollTest {
             val offset = Offset(x = 50f, y = 50f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -842,7 +842,7 @@ class OverscrollTest {
             val offset = Offset(x = 0f, y = 50f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -904,7 +904,7 @@ class OverscrollTest {
             val offset = Offset(x = 50f, y = 0f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -966,7 +966,7 @@ class OverscrollTest {
             val offset = Offset(x = 50f, y = 50f)
             controller.applyToScroll(
                 offset,
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             ) { Offset.Zero }
             // we have to disable further invalidation requests as otherwise while the overscroll
             // effect is considered active (as it is in a pulled state) this will infinitely
@@ -1004,7 +1004,7 @@ class OverscrollTest {
                 val offset = Offset(-10f, -10f)
                 var offsetConsumed: Offset? = null
 
-                effect.applyToScroll(offset, NestedScrollSource.Drag) {
+                effect.applyToScroll(offset, NestedScrollSource.UserInput) {
                     offsetConsumed = offset - it
                     Offset.Zero
                 }
@@ -1037,7 +1037,7 @@ class OverscrollTest {
                 val offset = Offset(0f, 10f)
                 var offsetConsumed: Offset? = null
 
-                effect.applyToScroll(offset, NestedScrollSource.Drag) {
+                effect.applyToScroll(offset, NestedScrollSource.UserInput) {
                     offsetConsumed = offset - it
                     Offset.Zero
                 }
@@ -1340,7 +1340,7 @@ class OverscrollTest {
             assertThat(controller.lastInitialDragDelta.y).isZero()
             assertThat(controller.lastOverscrollDelta.x)
                 .isEqualTo(controller.lastInitialDragDelta.x / 2)
-            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.Drag)
+            assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
         }
 
         rule.onNodeWithTag(boxTag).performTouchInput {

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.lifecycle.viewmodel.internal
 
-import kotlin.experimental.ExperimentalNativeApi
-import kotlin.native.ref.createCleaner
+import kotlin.native.internal.createCleaner
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
@@ -31,7 +29,6 @@ import platform.posix.pthread_mutexattr_destroy
 import platform.posix.pthread_mutexattr_init
 import platform.posix.pthread_mutexattr_settype
 import platform.posix.pthread_mutexattr_t
-
 /**
  * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which
  * is represented as kotlin.Int on darwin platforms and kotlin.UInt on linuxX64
@@ -39,22 +36,13 @@ import platform.posix.pthread_mutexattr_t
  */
 internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 
-internal actual class Lock actual constructor() {
+internal actual class SynchronizedObject actual constructor() {
 
     private val resource = Resource()
 
     @Suppress("unused") // The returned Cleaner must be assigned to a property
-    @OptIn(ExperimentalNativeApi::class)
-    private val cleaner = createCleaner(resource, Resource::destroy)
-
-    actual inline fun <T> withLockImpl(crossinline block: () -> T): T {
-        lock()
-        return try {
-            block()
-        } finally {
-            unlock()
-        }
-    }
+    @OptIn(ExperimentalStdlibApi::class)
+    private val cleaner = createCleaner(resource, Resource::dispose)
 
     fun lock() {
         resource.lock()
@@ -80,10 +68,22 @@ internal actual class Lock actual constructor() {
 
         fun unlock(): Int = pthread_mutex_unlock(mutex.ptr)
 
-        fun destroy() {
+        fun dispose() {
             pthread_mutex_destroy(mutex.ptr)
             pthread_mutexattr_destroy(attr.ptr)
             arena.clear()
         }
+    }
+}
+
+internal actual inline fun <T> synchronizedImpl(
+    lock: SynchronizedObject,
+    crossinline action: () -> T
+): T {
+    lock.lock()
+    return try {
+        action()
+    } finally {
+        lock.unlock()
     }
 }

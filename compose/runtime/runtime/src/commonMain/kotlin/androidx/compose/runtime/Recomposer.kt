@@ -27,7 +27,9 @@ import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotApplyResult
 import androidx.compose.runtime.snapshots.StateObjectImpl
+import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
+import androidx.compose.runtime.snapshots.fastFilterIndexed
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastGroupBy
 import androidx.compose.runtime.snapshots.fastMap
@@ -1214,7 +1216,35 @@ class Recomposer(
                             compositionValuesRemoved.removeLastMultiValue(reference.content)
                     }
                 }
-                composition.insertMovableContent(pairs)
+
+                // Avoid mixing creating new content with moving content as the moved content
+                // may release content when it is moved as it is recomposed when move.
+                val toInsert = if (
+                    pairs.fastAll { it.second == null } || pairs.fastAll { it.second != null }
+                ) { pairs } else {
+                    // Return the content not moving to the awaiting list. These will come back
+                    // here in the next iteration of the caller's loop and either have content
+                    // to move or by still needing to create the content.
+                    val toReturn = pairs.fastMapNotNull { item ->
+                        if (item.second == null) item.first else null
+                    }
+                    synchronized(stateLock) {
+                        compositionValuesAwaitingInsert += toReturn
+                    }
+
+                    // Only insert the moving content this time
+                    pairs.fastFilterIndexed { _, item -> item.second != null }
+                }
+
+                // toInsert is guaranteed to be not empty as,
+                // 1) refs is guaranteed to be not empty as a condition of groupBy
+                // 2) pairs is guaranteed to be not empty as it is a map of refs
+                // 3) toInsert is guaranteed to not be empty because the toReturn and toInsert
+                //    lists have at least one item by the condition of the guard in the if
+                //    expression. If one would be empty the condition is true and the filter is not
+                //    performed. As both have at least one item toInsert has at least one item. If
+                //    the filter is not performed the list is pairs which has at least one item.
+                composition.insertMovableContent(toInsert)
             }
         }
         return tasks.keys.toList()

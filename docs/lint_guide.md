@@ -628,6 +628,28 @@ The Lint tool processes files in a predefined order:
 It is often necessary to process the sources more than once. This can be done by
 using `context.driver.requestRepeat(detector, scope)`.
 
+### Debugging custom lint checks
+
+Using Android Studio, there are a few ways to debug custom lint checks:
+
+#### Debug against all lint check tests
+
+1.  Set breakpoint(s) in the desired lint detector sources
+1.  Click the `Gradle` icon on the right menu bar
+1.  Run the `lintDebug` Gradle task and then hit the `Stop` icon in the top menu
+    bar. This creates a Run configuration.
+1.  Click the `Debug` icon in the top menu bar for the newly-selected Run
+    configuration
+1.  Breakpoint will get hit
+
+#### Debug against a single lint check test
+
+1.  Set breakpoint(s) in the desired lint detector sources
+1.  Open a lint check test, such as
+    [`AnnotationRetentionDetectorTest`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:annotation/annotation-experimental-lint/src/test/kotlin/androidx/annotation/experimental/lint/AnnotationRetentionDetectorTest.kt)
+1.  Right-click on a test method and select `Debug`
+1.  Breakpoint will get hit
+
 ## Helpful tips {#tips}
 
 ### Useful classes/packages

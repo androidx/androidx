@@ -251,6 +251,351 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
     }
 
+    // Inserts a new Node at the top of an existing branch (tests removal of duplicate Nodes too).
+    @Test
+    fun addHitPath_dynamicNodeAddedTopPartiallyMatchingTreeWithOnePointerId_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId1, listOf(pifNew1, pif1, pif2, pif3, pif4))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pifNew1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif1).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif2).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif3).apply {
+                                            pointerIds.add(pointerId1)
+                                            children.add(
+                                                Node(pif4).apply {
+                                                    pointerIds.add(pointerId1)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_dynamicNodeAddedTopPartiallyMatchingTreeWithTwoPointerIds_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pif5 = PointerInputNodeMock()
+        val pif6 = PointerInputNodeMock()
+        val pif7 = PointerInputNodeMock()
+        val pif8 = PointerInputNodeMock()
+
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        val pointerId2 = PointerId(2)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8))
+
+        hitPathTracker.addHitPath(pointerId2, listOf(pifNew1, pif5, pif6, pif7, pif8))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            children.add(
+                Node(pifNew1).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif5).apply {
+                            pointerIds.add(pointerId2)
+                            children.add(
+                                Node(pif6).apply {
+                                    pointerIds.add(pointerId2)
+                                    children.add(
+                                        Node(pif7).apply {
+                                            pointerIds.add(pointerId2)
+                                            children.add(
+                                                Node(pif8).apply {
+                                                    pointerIds.add(pointerId2)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    // Inserts a new Node inside an existing branch (tests removal of duplicate Nodes too).
+    @Test
+    fun addHitPath_dynamicNodeAddedInsidePartiallyMatchingTreeWithOnePointerId_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pifNew1, pif2, pif3, pif4))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pifNew1).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif2).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif3).apply {
+                                            pointerIds.add(pointerId1)
+                                            children.add(
+                                                Node(pif4).apply {
+                                                    pointerIds.add(pointerId1)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_dynamicNodeAddedInsidePartiallyMatchingTreeWithTwoPointerIds_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pif5 = PointerInputNodeMock()
+        val pif6 = PointerInputNodeMock()
+        val pif7 = PointerInputNodeMock()
+        val pif8 = PointerInputNodeMock()
+
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        val pointerId2 = PointerId(2)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8))
+
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pifNew1, pif7, pif8))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            children.add(
+                Node(pif5).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif6).apply {
+                            pointerIds.add(pointerId2)
+                            children.add(
+                                Node(pifNew1).apply {
+                                    pointerIds.add(pointerId2)
+                                    children.add(
+                                        Node(pif7).apply {
+                                            pointerIds.add(pointerId2)
+                                            children.add(
+                                                Node(pif8).apply {
+                                                    pointerIds.add(pointerId2)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    // Inserts a Node in the bottom of an existing branch (tests removal of duplicate Nodes too).
+    @Test
+    fun addHitPath_dynamicNodeAddedBelowPartiallyMatchingTreeWithOnePointerId_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4, pifNew1))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                            children.add(
+                                                Node(pifNew1).apply {
+                                                    pointerIds.add(pointerId1)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_dynamicNodeAddedBelowPartiallyMatchingTreeWithTwoPointerIds_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pif5 = PointerInputNodeMock()
+        val pif6 = PointerInputNodeMock()
+        val pif7 = PointerInputNodeMock()
+        val pif8 = PointerInputNodeMock()
+
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        val pointerId2 = PointerId(2)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8))
+
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8, pifNew1))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            children.add(
+                Node(pif5).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif6).apply {
+                            pointerIds.add(pointerId2)
+                            children.add(
+                                Node(pif7).apply {
+                                    pointerIds.add(pointerId2)
+                                    children.add(
+                                        Node(pif8).apply {
+                                            pointerIds.add(pointerId2)
+                                            children.add(
+                                                Node(pifNew1).apply {
+                                                    pointerIds.add(pointerId2)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
     @Test
     fun dispatchChanges_noNodes_doesNotCrash() {
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(0)))

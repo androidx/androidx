@@ -180,23 +180,21 @@ fun SimpleBottomSheetScaffoldSample() {
         scaffoldState = scaffoldState,
         sheetPeekHeight = 128.dp,
         sheetContent = {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(128.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Swipe up to expand sheet")
-            }
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(64.dp),
+                Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(128.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Swipe up to expand sheet")
+                }
                 Text("Sheet content")
-                Spacer(Modifier.height(20.dp))
                 Button(
+                    modifier = Modifier.padding(bottom = 64.dp),
                     onClick = {
                         scope.launch { scaffoldState.bottomSheetState.partialExpand() }
                     }

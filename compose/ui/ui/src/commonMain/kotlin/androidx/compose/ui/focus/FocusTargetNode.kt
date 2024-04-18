@@ -54,6 +54,8 @@ internal class FocusTargetNode :
     // end of the transaction, this state is stored as committed focus state.
     private var committedFocusState: FocusStateImpl? = null
 
+    override val shouldAutoInvalidate = false
+
     @OptIn(ExperimentalComposeUiApi::class)
     override var focusState: FocusStateImpl
         get() = focusTransactionManager?.run { uncommittedFocusState }

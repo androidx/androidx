@@ -60,6 +60,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
+import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
@@ -144,6 +145,37 @@ class StreamSharingTest {
         sharingProcessor.cleanUp()
         effectProcessor.cleanUp()
         shadowOf(getMainLooper()).idle()
+    }
+
+    @Test
+    fun effectHandleSharing_effectUsedAsSharingNode() {
+        // Arrange: create an effect that handles sharing.
+        effect = FakeSurfaceEffect(
+            PREVIEW or VIDEO_CAPTURE,
+            CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
+            CameraEffect.OUTPUT_OPTION_ONE_FOR_EACH_TARGET,
+            effectProcessor
+        )
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        streamSharing =
+            StreamSharing(frontCamera, setOf(preview, videoCapture), useCaseConfigFactory)
+        streamSharing.setViewPortCropRect(cropRect)
+        streamSharing.effect = effect
+
+        // Act: Bind effect and get sharing input edge.
+        streamSharing.bindToCamera(frontCamera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+
+        // Assert: the sharing node is built with the effect's processor
+        val sharingProcessor =
+            (streamSharing.sharingNode!!.surfaceProcessor as SurfaceProcessorWithExecutor).processor
+        assertThat(sharingProcessor).isEqualTo(effectProcessor)
+        assertThat(streamSharing.sharingInputEdge).isEqualTo(streamSharing.cameraEdge)
+        assertThat(streamSharing.virtualCameraAdapter.mChildrenEdges[preview]!!.targets)
+            .isEqualTo(PREVIEW)
+        assertThat(streamSharing.virtualCameraAdapter.mChildrenEdges[videoCapture]!!.targets)
+            .isEqualTo(VIDEO_CAPTURE)
     }
 
     @Test

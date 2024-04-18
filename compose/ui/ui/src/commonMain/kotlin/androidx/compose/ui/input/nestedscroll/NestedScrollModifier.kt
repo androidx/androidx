@@ -229,25 +229,53 @@ value class NestedScrollSource internal constructor(
     override fun toString(): String {
         @Suppress("DEPRECATION")
         return when (this) {
-            Drag -> "Drag"
-            Fling -> "Fling"
+            UserInput -> "UserInput"
+            SideEffect -> "SideEffect"
             @OptIn(ExperimentalComposeUiApi::class)
             Relocate -> "Relocate"
-            Wheel -> "Wheel"
             else -> "Invalid"
         }
     }
 
     companion object {
+
+        /**
+         * Represents any source of scroll events originated from a user interaction: mouse, touch,
+         * key events.
+         */
+        val UserInput: NestedScrollSource = NestedScrollSource(1)
+
+        /**
+         * Represents any other source of scroll events that are not a direct user input. (e.g
+         * animations, fling)
+         */
+        val SideEffect: NestedScrollSource = NestedScrollSource(2)
+
         /**
          * Dragging via mouse/touch/etc events.
          */
-        val Drag: NestedScrollSource = NestedScrollSource(1)
+        @Deprecated(
+            "This has been replaced by UserInput.",
+            replaceWith = ReplaceWith(
+                "NestedScrollSource.UserInput",
+                "import androidx.compose.ui.input.nestedscroll." +
+                    "NestedScrollSource.Companion.UserInput"
+            )
+        )
+        val Drag: NestedScrollSource = UserInput
 
         /**
          * Flinging after the drag has ended with velocity.
          */
-        val Fling: NestedScrollSource = NestedScrollSource(2)
+        @Deprecated(
+            "This has been replaced by SideEffect.",
+            replaceWith = ReplaceWith(
+                "NestedScrollSource.SideEffect",
+                "import androidx.compose.ui.input.nestedscroll." +
+                    "NestedScrollSource.Companion.SideEffect"
+            )
+        )
+        val Fling: NestedScrollSource = SideEffect
 
         /**
          * Relocating when a component asks parents to scroll to bring it into view.
@@ -261,7 +289,15 @@ value class NestedScrollSource internal constructor(
         /**
          * Scrolling via mouse wheel.
          */
-        val Wheel: NestedScrollSource = NestedScrollSource(4)
+        @Deprecated(
+            "This has been replaced by UserInput.",
+            replaceWith = ReplaceWith(
+                "NestedScrollSource.UserInput",
+                "import androidx.compose.ui.input.nestedscroll." +
+                    "NestedScrollSource.Companion.UserInput"
+            )
+        )
+        val Wheel: NestedScrollSource = UserInput
     }
 }
 

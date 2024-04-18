@@ -57,6 +57,7 @@ import androidx.compose.material3.internal.layoutId
 import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,7 +82,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -964,10 +964,6 @@ private fun Placeable.PlacementScope.placeWithLabel(
         0,
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
     labelPlaceable?.let {
         // if it's a single line, the label's start position is in the center of the
         // container. When it's a multiline text field, the label's start position is at the
@@ -985,14 +981,20 @@ private fun Placeable.PlacementScope.placeWithLabel(
     }
 
     prefixPlaceable?.placeRelative(widthOrZero(leadingPlaceable), textPosition)
+
+    val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
+    textfieldPlaceable.placeRelative(textHorizontalPosition, textPosition)
+    placeholderPlaceable?.placeRelative(textHorizontalPosition, textPosition)
+
     suffixPlaceable?.placeRelative(
         width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
         textPosition,
     )
 
-    val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
-    textfieldPlaceable.placeRelative(textHorizontalPosition, textPosition)
-    placeholderPlaceable?.placeRelative(textHorizontalPosition, textPosition)
+    trailingPlaceable?.placeRelative(
+        width - trailingPlaceable.width,
+        Alignment.CenterVertically.align(trailingPlaceable.height, height)
+    )
 
     supportingPlaceable?.placeRelative(0, height)
 }
@@ -1028,10 +1030,6 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
         0,
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
 
     // Single line text field without label places its text components centered vertically.
     // Multiline text field without label places its text components at the top with padding.
@@ -1048,11 +1046,6 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
         calculateVerticalPosition(prefixPlaceable)
     )
 
-    suffixPlaceable?.placeRelative(
-        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
-        calculateVerticalPosition(suffixPlaceable),
-    )
-
     val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
 
     textPlaceable.placeRelative(textHorizontalPosition, calculateVerticalPosition(textPlaceable))
@@ -1062,21 +1055,29 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
         calculateVerticalPosition(placeholderPlaceable)
     )
 
+    suffixPlaceable?.placeRelative(
+        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
+        calculateVerticalPosition(suffixPlaceable),
+    )
+
+    trailingPlaceable?.placeRelative(
+        width - trailingPlaceable.width,
+        Alignment.CenterVertically.align(trailingPlaceable.height, height)
+    )
+
     supportingPlaceable?.placeRelative(0, height)
 }
 
 /**
  * A draw modifier that draws a bottom indicator line in [TextField]
  */
-internal fun Modifier.drawIndicatorLine(indicatorBorder: BorderStroke): Modifier {
-    val strokeWidthDp = indicatorBorder.width
+internal fun Modifier.drawIndicatorLine(indicatorBorder: State<BorderStroke>): Modifier {
     return drawWithContent {
         drawContent()
-        if (strokeWidthDp == Dp.Hairline) return@drawWithContent
-        val strokeWidth = strokeWidthDp.value * density
+        val strokeWidth = indicatorBorder.value.width.toPx()
         val y = size.height - strokeWidth / 2
         drawLine(
-            indicatorBorder.brush,
+            indicatorBorder.value.brush,
             Offset(0f, y),
             Offset(size.width, y),
             strokeWidth

@@ -1305,7 +1305,7 @@ class ScrollableTest {
             ): Offset {
                 // we should get in post scroll as much as left in controller callback
                 assertThat(available.x).isEqualTo(expectedLeft)
-                return if (source == NestedScrollSource.Fling) Offset.Zero else available
+                return if (source == NestedScrollSource.SideEffect) Offset.Zero else available
             }
 
             override suspend fun onPostFling(
@@ -1374,7 +1374,7 @@ class ScrollableTest {
             ): Offset {
                 // we should get in post scroll as much as left in controller callback
                 assertThat(available.x).isEqualTo(-expectedLeft)
-                return if (source == NestedScrollSource.Fling) Offset.Zero else available
+                return if (source == NestedScrollSource.SideEffect) Offset.Zero else available
             }
 
             override suspend fun onPostFling(
@@ -1459,14 +1459,14 @@ class ScrollableTest {
 
         val lastValueBeforeFling = rule.runOnIdle {
             val preScrollConsumed = dispatcher
-                .dispatchPreScroll(Offset(20f, 20f), NestedScrollSource.Drag)
+                .dispatchPreScroll(Offset(20f, 20f), NestedScrollSource.UserInput)
             // scrollable is not interested in pre scroll
             assertThat(preScrollConsumed).isEqualTo(Offset.Zero)
 
             val consumed = dispatcher.dispatchPostScroll(
                 Offset(20f, 20f),
                 Offset(50f, 50f),
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             assertThat(consumed.x - expectedConsumed).isWithin(0.001f)
             value
@@ -1640,7 +1640,7 @@ class ScrollableTest {
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                if (source == NestedScrollSource.Fling && available != Offset.Zero) {
+                if (source == NestedScrollSource.SideEffect && available != Offset.Zero) {
                     throw CancellationException()
                 }
                 return Offset.Zero

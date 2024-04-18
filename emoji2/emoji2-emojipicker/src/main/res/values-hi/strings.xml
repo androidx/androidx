@@ -30,6 +30,8 @@
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"कोई इमोजी उपलब्ध नहीं है"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"आपने अब तक किसी भी इमोजी का इस्तेमाल नहीं किया है"</string>
     <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"दोनों तरफ़ ले जा सकने वाले स्विचर का इमोजी"</string>
+    <!-- no translation found for emoji_bidirectional_switcher_clicked_desc (5055290162204827523) -->
+    <skip />
     <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"इमोजी के वैरिएंट चुनने का टूल"</string>
     <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s और %2$s"</string>
     <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"शैडो"</string>

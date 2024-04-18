@@ -197,7 +197,7 @@ class CoroutineRoomCancellationTest {
     private class TestDatabase : RoomDatabase() {
 
         override fun createOpenDelegate(): RoomOpenDelegate {
-            return object : RoomOpenDelegate(1, "") {
+            return object : RoomOpenDelegate(1, "", "") {
                 override fun onCreate(connection: SQLiteConnection) {}
                 override fun onPreMigrate(connection: SQLiteConnection) {}
                 override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {

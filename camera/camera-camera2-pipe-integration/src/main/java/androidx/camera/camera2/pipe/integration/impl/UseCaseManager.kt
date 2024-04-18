@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.InputStream
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.CameraPipeKeys
@@ -40,6 +41,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
+import androidx.camera.camera2.pipe.integration.adapter.ZslControl
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCameraDeviceOnCameraGraphCloseQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnDisconnectQuirk
@@ -55,6 +57,7 @@ import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
@@ -107,6 +110,8 @@ class UseCaseManager @Inject constructor(
     private val requestListener: ComboRequestListener,
     private val cameraConfig: CameraConfig,
     private val builder: UseCaseCameraComponent.Builder,
+    private val cameraControl: CameraControlInternal,
+    private val zslControl: ZslControl,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val camera2CameraControl: Camera2CameraControl,
@@ -216,6 +221,7 @@ class UseCaseManager @Inject constructor(
 
         if (attachedUseCases.addAll(useCases)) {
             if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
+                updateZslDisabledByUseCaseConfigStatus()
                 refreshAttachedUseCases(attachedUseCases)
             }
         }
@@ -259,6 +265,12 @@ class UseCaseManager @Inject constructor(
         if (attachedUseCases.removeAll(useCases)) {
             if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                 return
+            }
+
+            if (attachedUseCases.isEmpty()) {
+                cameraControl.setZslDisabledByUserCaseConfig(false)
+            } else {
+                updateZslDisabledByUseCaseConfigStatus()
             }
             refreshAttachedUseCases(attachedUseCases)
         }
@@ -568,6 +580,7 @@ class UseCaseManager @Inject constructor(
             cameraConfig,
             cameraQuirks,
             cameraGraphFlags,
+            zslControl,
             isExtensions,
         )
     }
@@ -647,6 +660,11 @@ class UseCaseManager @Inject constructor(
         return predicate(captureConfig.surfaces, sessionConfig.surfaces)
     }
 
+    private fun updateZslDisabledByUseCaseConfigStatus() {
+        val disableZsl = attachedUseCases.any { it.currentConfig.isZslDisabled(false) }
+        cameraControl.setZslDisabledByUserCaseConfig(disableZsl)
+    }
+
     companion object {
         internal data class UseCaseManagerConfig(
             val useCases: List<UseCase>,
@@ -667,11 +685,13 @@ class UseCaseManager @Inject constructor(
             cameraConfig: CameraConfig,
             cameraQuirks: CameraQuirks,
             cameraGraphFlags: CameraGraph.Flags?,
+            zslControl: ZslControl,
             isExtensions: Boolean = false,
         ): CameraGraph.Config {
             var containsVideo = false
             var operatingMode = OperatingMode.NORMAL
             val streamGroupMap = mutableMapOf<Int, MutableList<CameraStream.Config>>()
+            val inputStreams = mutableListOf<InputStream.Config>()
             sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
                 operatingMode = when (sessionConfig.sessionType) {
                     SESSION_REGULAR -> OperatingMode.NORMAL
@@ -681,6 +701,7 @@ class UseCaseManager @Inject constructor(
 
                 val physicalCameraIdForAllStreams =
                     sessionConfig.toCamera2ImplConfig().getPhysicalCameraId(null)
+                var zslStream: CameraStream.Config? = null
                 for (outputConfig in sessionConfig.outputConfigs) {
                     val deferrableSurface = outputConfig.surface
                     val physicalCameraId =
@@ -718,6 +739,21 @@ class UseCaseManager @Inject constructor(
                         if (surface.containerClass == MediaCodec::class.java) {
                             containsVideo = true
                         }
+                        if (surface != deferrableSurface) continue
+                        if (zslControl.isZslSurface(surface, sessionConfig)) {
+                            zslStream = stream
+                        }
+                    }
+                }
+                if (sessionConfig.inputConfiguration != null) {
+                    zslStream?.let {
+                        inputStreams.add(
+                            InputStream.Config(
+                                stream = it,
+                                format = it.outputs.single().format.value,
+                                1,
+                            )
+                        )
                     }
                 }
             }
@@ -798,6 +834,7 @@ class UseCaseManager @Inject constructor(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
                 exclusiveStreamGroups = streamGroupMap.values.toList(),
+                input = if (inputStreams.isEmpty()) null else inputStreams,
                 sessionMode = operatingMode,
                 defaultListeners = listOf(callbackMap, requestListener),
                 defaultParameters = defaultParameters,

@@ -5681,6 +5681,44 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun selectComplicationDataForInstant_withTimelineDoesntUpdateWithNoChange() {
+        val complication =
+            WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(WireComplicationText.plainText("A"))
+                .build()
+        complication.setTimelineEntryCollection(
+            listOf(
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("B"))
+                    .build()
+                    .apply {
+                        timelineStartEpochSecond = 1000
+                        timelineEndEpochSecond = 4000
+                    },
+                WireComplicationData.Builder(WireComplicationData.TYPE_SHORT_TEXT)
+                    .setShortText(WireComplicationText.plainText("C"))
+                    .build()
+                    .apply {
+                        timelineStartEpochSecond = 2000
+                        timelineEndEpochSecond = 3000
+                    }
+            )
+        )
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
+        engineWrapper.setComplicationDataList(
+            listOf(IdAndComplicationDataWireFormat(LEFT_COMPLICATION_ID, complication))
+        )
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1000))
+        reset(mockCanvasComplication)
+
+        // Calling selectComplicationDataForInstant again with another time inside the same timeline
+        // entry should not result in a call to loadData.
+        complicationSlotsManager.selectComplicationDataForInstant(Instant.ofEpochSecond(1050))
+
+        verifyNoMoreInteractions(mockCanvasComplication)
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun renderParameters_isScreenshot() {
         initWallpaperInteractiveWatchFaceInstance(

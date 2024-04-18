@@ -106,7 +106,10 @@ public final class LocationCompat {
      * based on the difference between system time and the location time. This should be taken as a
      * best "guess" at what the elapsed realtime might have been, but if the clock used for
      * location derivation is different from the system clock, the results may be inaccurate.
+     * @deprecated Call {@link Location#getElapsedRealtimeNanos()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "location.getElapsedRealtimeNanos()")
     public static long getElapsedRealtimeNanos(@NonNull Location location) {
         return location.getElapsedRealtimeNanos();
     }
@@ -491,7 +494,10 @@ public final class LocationCompat {
      * this should be considered a mock location.
      *
      * @see android.location.LocationManager#addTestProvider
+     * @deprecated Call {@link Location#isFromMockProvider()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "location.isFromMockProvider()")
     public static boolean isMock(@NonNull Location location) {
         return location.isFromMockProvider();
     }

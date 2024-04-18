@@ -741,8 +741,11 @@ class XTypeElementTest(
         val src = Source.kotlin(
             "Foo.kt",
             """
+            annotation class MyAnnotation
             interface MyInterface {
-                var x:Int
+                var x: Int
+                var y: Int
+                  @MyAnnotation get
             }
             """.trimIndent()
         )
@@ -754,6 +757,14 @@ class XTypeElementTest(
             }
             element.getMethodByJvmName("setX").let {
                 assertThat(it.isAbstract()).isTrue()
+            }
+            element.getMethodByJvmName("getY").let {
+                if (!isPreCompiled && invocation.isKsp) {
+                  // The modifier set is empty for both the property and accessor
+                  assertThat(it.isAbstract()).isFalse()
+                } else {
+                  assertThat(it.isAbstract()).isTrue()
+                }
             }
         }
     }

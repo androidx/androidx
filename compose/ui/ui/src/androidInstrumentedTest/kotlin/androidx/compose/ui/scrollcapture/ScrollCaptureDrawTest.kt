@@ -66,7 +66,7 @@ class ScrollCaptureDrawTest {
     }
 
     @Test
-    fun capture_drawsScrollContents_withCaptureHeight1px() {
+    fun capture_drawsScrollContents_fromTop_withCaptureHeight1px() = captureTester.runTest {
         val scrollState = ScrollState(0)
         captureTester.setContent {
             TestContent(scrollState)
@@ -82,14 +82,33 @@ class ScrollCaptureDrawTest {
     }
 
     @Test
-    fun capture_drawsScrollContents_withCaptureHeightFullViewport() {
+    fun capture_drawsScrollContents_fromTop_withCaptureHeightFullViewport() =
+        captureTester.runTest {
+            val scrollState = ScrollState(0)
+            captureTester.setContent {
+                TestContent(scrollState)
+            }
+            val target = captureTester.findCaptureTargets().single()
+            val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 10)
+            assertThat(bitmaps).hasSize(3)
+            bitmaps.joinVerticallyToBitmap().use { joined ->
+                joined.assertRect(Rect(0, 0, 10, 9), Color.Red)
+                joined.assertRect(Rect(0, 10, 10, 18), Color.Blue)
+                joined.assertRect(Rect(0, 19, 10, 27), Color.Green)
+            }
+        }
+
+    @Test
+    fun capture_drawsScrollContents_fromMiddle_withCaptureHeight1px() = captureTester.runTest {
         val scrollState = ScrollState(0)
         captureTester.setContent {
             TestContent(scrollState)
         }
+
+        scrollState.scrollTo(scrollState.maxValue / 2)
+
         val target = captureTester.findCaptureTargets().single()
-        val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 10)
-        assertThat(bitmaps).hasSize(3)
+        val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 1)
         bitmaps.joinVerticallyToBitmap().use { joined ->
             joined.assertRect(Rect(0, 0, 10, 9), Color.Red)
             joined.assertRect(Rect(0, 10, 10, 18), Color.Blue)
@@ -98,7 +117,65 @@ class ScrollCaptureDrawTest {
     }
 
     @Test
-    fun capture_resetsScrollPosition_from0() {
+    fun capture_drawsScrollContents_fromMiddle_withCaptureHeightFullViewport() =
+        captureTester.runTest {
+            val scrollState = ScrollState(0)
+            captureTester.setContent {
+                TestContent(scrollState)
+            }
+
+            scrollState.scrollTo(scrollState.maxValue / 2)
+
+            val target = captureTester.findCaptureTargets().single()
+            val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 10)
+            assertThat(bitmaps).hasSize(3)
+            bitmaps.joinVerticallyToBitmap().use { joined ->
+                joined.assertRect(Rect(0, 0, 10, 9), Color.Red)
+                joined.assertRect(Rect(0, 10, 10, 18), Color.Blue)
+                joined.assertRect(Rect(0, 19, 10, 27), Color.Green)
+            }
+        }
+
+    @Test
+    fun capture_drawsScrollContents_fromBottom_withCaptureHeight1px() = captureTester.runTest {
+        val scrollState = ScrollState(0)
+        captureTester.setContent {
+            TestContent(scrollState)
+        }
+
+        scrollState.scrollTo(scrollState.maxValue)
+
+        val target = captureTester.findCaptureTargets().single()
+        val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 1)
+        bitmaps.joinVerticallyToBitmap().use { joined ->
+            joined.assertRect(Rect(0, 0, 10, 9), Color.Red)
+            joined.assertRect(Rect(0, 10, 10, 18), Color.Blue)
+            joined.assertRect(Rect(0, 19, 10, 27), Color.Green)
+        }
+    }
+
+    @Test
+    fun capture_drawsScrollContents_fromBottom_withCaptureHeightFullViewport() =
+        captureTester.runTest {
+            val scrollState = ScrollState(0)
+            captureTester.setContent {
+                TestContent(scrollState)
+            }
+
+            scrollState.scrollTo(scrollState.maxValue)
+
+            val target = captureTester.findCaptureTargets().single()
+            val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 10)
+            assertThat(bitmaps).hasSize(3)
+            bitmaps.joinVerticallyToBitmap().use { joined ->
+                joined.assertRect(Rect(0, 0, 10, 9), Color.Red)
+                joined.assertRect(Rect(0, 10, 10, 18), Color.Blue)
+                joined.assertRect(Rect(0, 19, 10, 27), Color.Green)
+            }
+        }
+
+    @Test
+    fun capture_resetsScrollPosition_from0() = captureTester.runTest {
         val scrollState = ScrollState(0)
         captureTester.setContent {
             TestContent(scrollState)
@@ -106,13 +183,12 @@ class ScrollCaptureDrawTest {
         val target = captureTester.findCaptureTargets().single()
         val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 10)
         bitmaps.forEach { it.recycle() }
-        rule.runOnIdle {
-            assertThat(scrollState.value).isEqualTo(0)
-        }
+        rule.awaitIdle()
+        assertThat(scrollState.value).isEqualTo(0)
     }
 
     @Test
-    fun capture_resetsScrollPosition_fromNonZero() {
+    fun capture_resetsScrollPosition_fromNonZero() = captureTester.runTest {
         val scrollState = ScrollState(5)
         captureTester.setContent {
             TestContent(scrollState)
@@ -120,9 +196,8 @@ class ScrollCaptureDrawTest {
         val target = captureTester.findCaptureTargets().single()
         val bitmaps = captureTester.captureBitmapsVertically(target, captureHeight = 10)
         bitmaps.forEach { it.recycle() }
-        rule.runOnIdle {
-            assertThat(scrollState.value).isEqualTo(5)
-        }
+        rule.awaitIdle()
+        assertThat(scrollState.value).isEqualTo(5)
     }
 
     @Composable

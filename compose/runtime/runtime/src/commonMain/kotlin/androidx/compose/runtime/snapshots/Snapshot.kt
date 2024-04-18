@@ -299,11 +299,24 @@ sealed class Snapshot(
         val current get() = currentSnapshot()
 
         /**
+         * Return `true` if the thread is currently in the context of a snapshot.
+         */
+        val isInSnapshot: Boolean get() = threadSnapshot.get() != null
+
+        /**
          * Returns whether any threads are currently in the process of notifying observers about
          * changes to the global snapshot.
          */
         val isApplyObserverNotificationPending: Boolean
             get() = pendingApplyObserverCount.get() > 0
+
+        /**
+         * All new state objects initial state records should be [PreexistingSnapshotId] which then
+         * allows snapshots outside the creating snapshot to access the object with its initial
+         * state.
+         */
+        @Suppress("ConstPropertyName")
+        const val PreexistingSnapshotId = 1
 
         /**
          * Take a snapshot of the current value of all state objects. The values are preserved until
@@ -1009,6 +1022,15 @@ open class MutableSnapshot internal constructor(
             // in a nested snapshot that was committed then changed.
             val current = readable(first, snapshotId, invalidSnapshots) ?: return@forEach
             val previous = readable(first, id, start) ?: return@forEach
+            if (previous.snapshotId == PreexistingSnapshotId) {
+                // A previous record might not be found if the state object was created in a
+                // nested snapshot that didn't have any other modifications. The `apply()` for
+                // a nested snapshot considers such snapshots no-op snapshots and just closes them
+                // which allows this object's previous record to be missing or be the record created
+                // during initial construction. In these cases taking applied is the right choice
+                // this indicates there was no conflicting writes.
+                return@forEach
+            }
             if (current != previous) {
                 val applied = readable(first, id, this.invalid) ?: readError()
                 val merged = optimisticMerges?.get(current) ?: run {
@@ -1825,8 +1847,9 @@ internal inline fun <T> sync(block: () -> T): T = synchronized(lock, block)
  */
 private var openSnapshots = SnapshotIdSet.EMPTY
 
-/** The first snapshot created must be at least on more than the INVALID_SNAPSHOT */
-private var nextSnapshotId = INVALID_SNAPSHOT + 1
+/** The first snapshot created must be at least on more than the
+ * [Snapshot.PreexistingSnapshotId] */
+private var nextSnapshotId = Snapshot.PreexistingSnapshotId + 1
 
 /**
  * A tracking table for pinned snapshots. A pinned snapshot is the lowest snapshot id that the
@@ -2170,9 +2193,16 @@ internal fun <T : StateRecord> T.writableRecord(state: StateObject, snapshot: Sn
 
     // Otherwise, make a copy of the readable data and mark it as born in this snapshot, making it
     // writable.
-    val newData = readData.newWritableRecord(state, snapshot)
+    @Suppress("UNCHECKED_CAST")
+    val newData = sync {
+        // Verify that some other thread didn't already create this.
+        val newReadData = readable(state.firstStateRecord, id, snapshot.invalid) ?: readError()
+        if (newReadData.snapshotId == id)
+            newReadData
+        else newReadData.newWritableRecordLocked(state, snapshot)
+    } as T
 
-    snapshot.recordModified(state)
+    if (readData.snapshotId != Snapshot.PreexistingSnapshotId) snapshot.recordModified(state)
 
     return newData
 }
@@ -2193,7 +2223,7 @@ internal fun <T : StateRecord> T.overwritableRecord(
     val newData = sync { newOverwritableRecordLocked(state) }
     newData.snapshotId = id
 
-    snapshot.recordModified(state)
+    if (candidate.snapshotId != Snapshot.PreexistingSnapshotId) snapshot.recordModified(state)
 
     return newData
 }

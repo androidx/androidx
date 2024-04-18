@@ -226,6 +226,9 @@ internal abstract class AgpPlugin(
 
     private fun checkAgpVersion() {
         val agpVersion = project.agpVersion()
+        if (agpVersion.previewType == "dev") {
+            return // Skip version check for androidx-studio-integration branch
+        }
         if (agpVersion < minAgpVersionInclusive) {
             throw GradleException(
                 """

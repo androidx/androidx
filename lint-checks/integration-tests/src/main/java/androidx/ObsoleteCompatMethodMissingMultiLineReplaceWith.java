@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.carousel
+package androidx;
 
-import androidx.compose.material3.ExperimentalMaterial3Api
+public class ObsoleteCompatMethodMissingMultiLineReplaceWith {
+    private ObsoleteCompatMethodMissingMultiLineReplaceWith() {
+        // This class is non-instantiable.
+    }
 
-/**
- * Receiver scope for [Carousel].
- */
-@ExperimentalMaterial3Api
-sealed interface CarouselScope
+    /**
+     * Return the object's hash code.
+     *
+     * @param obj the object
+     * @return the hash code
+     * @deprecated Call {@link Object#hashCode()} directly.
+     */
+    @Deprecated
+    public static long hashCode(Object obj) {
+        return obj.hashCode(
 
-@ExperimentalMaterial3Api
-internal object CarouselScopeImpl : CarouselScope
+        );
+    }
+}

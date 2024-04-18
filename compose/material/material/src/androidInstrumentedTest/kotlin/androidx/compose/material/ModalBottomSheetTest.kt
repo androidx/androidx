@@ -971,7 +971,7 @@ class ModalBottomSheetTest {
             val offsetBeforeScroll = sheetState.requireOffset()
             scrollDispatcher.dispatchPreScroll(
                 Offset(x = 0f, y = -sheetHeightPx),
-                NestedScrollSource.Drag,
+                NestedScrollSource.UserInput,
             )
             rule.waitForIdle()
             assertWithMessage("Offset after scroll is equal to offset before scroll")

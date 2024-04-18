@@ -245,6 +245,10 @@ package androidx.compose.runtime {
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final inline T current;
   }
 
+  public interface CompositionLocalAccessorScope {
+    method public <T> T getCurrentValue(androidx.compose.runtime.CompositionLocal<T>);
+  }
+
   @androidx.compose.runtime.Stable public final class CompositionLocalContext {
   }
 
@@ -253,6 +257,7 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<?> value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<?>[] values, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalOf(optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> defaultFactory);
+    method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalWithComputedDefaultOf(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.CompositionLocalAccessorScope,? extends T> defaultComputation);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> staticCompositionLocalOf(kotlin.jvm.functions.Function0<? extends T> defaultFactory);
   }
 
@@ -501,6 +506,7 @@ package androidx.compose.runtime {
 
   @androidx.compose.runtime.Stable public abstract class ProvidableCompositionLocal<T> extends androidx.compose.runtime.CompositionLocal<T> {
     method public final infix androidx.compose.runtime.ProvidedValue<T> provides(T value);
+    method public final infix androidx.compose.runtime.ProvidedValue<T> providesComputed(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.CompositionLocalAccessorScope,? extends T> compute);
     method public final infix androidx.compose.runtime.ProvidedValue<T> providesDefault(T value);
   }
 
@@ -901,6 +907,7 @@ package androidx.compose.runtime.snapshots {
     property public abstract boolean readOnly;
     property public abstract androidx.compose.runtime.snapshots.Snapshot root;
     field public static final androidx.compose.runtime.snapshots.Snapshot.Companion Companion;
+    field public static final int PreexistingSnapshotId = 1; // 0x1
   }
 
   public static final class Snapshot.Companion {
@@ -908,6 +915,7 @@ package androidx.compose.runtime.snapshots {
     method public androidx.compose.runtime.snapshots.Snapshot getCurrent();
     method public inline <T> T global(kotlin.jvm.functions.Function0<? extends T> block);
     method public boolean isApplyObserverNotificationPending();
+    method public boolean isInSnapshot();
     method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot makeCurrentNonObservable(androidx.compose.runtime.snapshots.Snapshot? previous);
     method public void notifyObjectsInitialized();
     method public <T> T observe(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver, kotlin.jvm.functions.Function0<? extends T> block);
@@ -925,6 +933,7 @@ package androidx.compose.runtime.snapshots {
     property public final androidx.compose.runtime.snapshots.Snapshot current;
     property @kotlin.PublishedApi internal final androidx.compose.runtime.snapshots.Snapshot? currentThreadSnapshot;
     property public final boolean isApplyObserverNotificationPending;
+    property public final boolean isInSnapshot;
   }
 
   public final class SnapshotApplyConflictException extends java.lang.Exception {

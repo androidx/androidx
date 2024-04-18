@@ -211,8 +211,9 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         }
         assertThat(boxWidth).isEqualTo(screenWidth)
     }
-
+    // TODO(330937081): Update test logic to instead change virtual screen size.
     @Test
+    @Ignore
     fun modalBottomSheet_wideScreen_fixedMaxWidth_sheetRespectsMaxWidthAndIsCentered() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)
@@ -271,7 +272,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         }
     }
 
-    // TODO(b/323385152): Flaky test.
+    // TODO(330937081): Update test logic to instead change virtual screen size.
     @Test
     @Ignore
     fun modalBottomSheet_wideScreen_filledWidth_sheetFillsEntireWidth() {
@@ -1261,7 +1262,7 @@ class ModalBottomSheetTest(private val edgeToEdgeWrapper: EdgeToEdgeWrapper) {
         nestedScrollDispatcher.dispatchPostScroll(
             consumed = Offset.Zero,
             available = Offset(x = 0f, y = scrollableContentHeight / 2f),
-            source = NestedScrollSource.Drag
+            source = NestedScrollSource.UserInput
         )
         scope.launch {
             nestedScrollDispatcher.dispatchPostFling(

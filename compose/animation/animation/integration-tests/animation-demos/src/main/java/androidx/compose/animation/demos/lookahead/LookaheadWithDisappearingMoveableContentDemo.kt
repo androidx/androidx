@@ -157,8 +157,8 @@ fun Modifier.animatePosition(): Modifier = composed {
         DeferredTargetAnimation(IntOffset.VectorConverter)
     }
     val coroutineScope = rememberCoroutineScope()
-    this.approachLayout(isMeasurementApproachComplete = { true },
-        isPlacementApproachComplete = {
+    this.approachLayout(isMeasurementApproachInProgress = { false },
+        isPlacementApproachInProgress = {
             offsetAnimation.updateTarget(
                 lookaheadScopeCoordinates.localLookaheadPositionOf(
                     it
@@ -166,7 +166,7 @@ fun Modifier.animatePosition(): Modifier = composed {
                 coroutineScope,
                 spring(stiffness = Spring.StiffnessMediumLow)
             )
-            offsetAnimation.isIdle
+            !offsetAnimation.isIdle
         }
     ) { measurable, constraints ->
         measurable.measure(constraints).run {

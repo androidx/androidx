@@ -132,6 +132,8 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     var cancelFocusMeteringCallCount = 0
     var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
+    var awaitFocusMetering = true
+
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
@@ -154,13 +156,19 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
                 timeLimitNs
             )
         )
-        withTimeoutOrNull(TimeUnit.MILLISECONDS.convert(timeLimitNs, TimeUnit.NANOSECONDS)) {
-            focusMeteringResult.await()
-        }.let { result3A ->
-            if (result3A == null) {
-                focusMeteringResult.complete(Result3A(status = Result3A.Status.TIME_LIMIT_REACHED))
+
+        if (awaitFocusMetering) {
+            withTimeoutOrNull(TimeUnit.MILLISECONDS.convert(timeLimitNs, TimeUnit.NANOSECONDS)) {
+                focusMeteringResult.await()
+            }.let { result3A ->
+                if (result3A == null) {
+                    focusMeteringResult.complete(
+                        Result3A(status = Result3A.Status.TIME_LIMIT_REACHED)
+                    )
+                }
             }
         }
+
         return focusMeteringResult
     }
 

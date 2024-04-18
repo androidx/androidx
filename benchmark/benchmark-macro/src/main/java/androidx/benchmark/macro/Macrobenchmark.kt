@@ -227,8 +227,14 @@ private fun macrobenchmark(
     // Capture if the app being benchmarked is a system app.
     scope.isSystemApp = applicationInfo.isSystemApp()
     scope.launchWithMethodTracing = launchWithMethodTracing
+
     // Ensure the device is awake
     scope.device.wakeUp()
+
+    // Stop Background Dexopt during a Macrobenchmark to improve stability.
+    if (Build.VERSION.SDK_INT >= 33) {
+        scope.cancelBackgroundDexopt()
+    }
 
     // Always kill the process at beginning of test
     scope.killProcess()

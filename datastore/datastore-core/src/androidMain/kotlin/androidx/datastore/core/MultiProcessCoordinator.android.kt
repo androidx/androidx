@@ -25,6 +25,7 @@ import java.io.IOException
 import java.nio.channels.FileLock
 import kotlin.contracts.ExperimentalContracts
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -43,7 +44,7 @@ internal class MultiProcessCoordinator(
             FileOutputStream(lockFile).use { lockFileStream ->
                 var lock: FileLock? = null
                 try {
-                    lock = lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
+                    lock = getExclusiveFileLockWithRetryIfDeadlock(lockFileStream)
                     return block()
                 } finally {
                     lock?.release()
@@ -78,7 +79,8 @@ internal class MultiProcessCoordinator(
                         // will throw an IOException with EAGAIN error, instead of returning null as
                         // specified in {@link FileChannel#tryLock}. We only continue if the error
                         // message is EAGAIN, otherwise just throw it.
-                        if (ex.message?.startsWith(LOCK_ERROR_MESSAGE) != true) {
+                        if ((ex.message?.startsWith(LOCK_ERROR_MESSAGE) != true) &&
+                            (ex.message?.startsWith(DEADLOCK_ERROR_MESSAGE) != true)) {
                             throw ex
                         }
                     }
@@ -161,6 +163,32 @@ internal class MultiProcessCoordinator(
                 block(sharedCounter)
             }
         }
+    }
+
+    companion object {
+        // Retry with exponential backoff to get file lock if it hits "Resource deadlock would
+        // occur" error until the backoff reaches [MAX_WAIT_MILLIS].
+        private suspend fun getExclusiveFileLockWithRetryIfDeadlock(
+            lockFileStream: FileOutputStream
+        ): FileLock {
+            var backoff = INITIAL_WAIT_MILLIS
+            while (backoff <= MAX_WAIT_MILLIS) {
+                try {
+                    return lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
+                } catch (ex: IOException) {
+                    if (ex.message?.contains(DEADLOCK_ERROR_MESSAGE) != true) {
+                        throw ex
+                    }
+                    delay(backoff)
+                    backoff *= 2
+                }
+            }
+            return lockFileStream.getChannel().lock(0L, Long.MAX_VALUE, /* shared= */ false)
+        }
+
+        private val DEADLOCK_ERROR_MESSAGE = "Resource deadlock would occur"
+        private val INITIAL_WAIT_MILLIS: Long = 10
+        private val MAX_WAIT_MILLIS: Long = 60000
     }
 }
 

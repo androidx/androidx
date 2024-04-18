@@ -33,6 +33,7 @@ import kotlin.jvm.JvmField
 abstract class RoomOpenDelegate(
     val version: Int,
     val identityHash: String,
+    val legacyIdentityHash: String
 ) : RoomOpenDelegateMarker {
     abstract fun onCreate(connection: SQLiteConnection)
     abstract fun onPreMigrate(connection: SQLiteConnection)

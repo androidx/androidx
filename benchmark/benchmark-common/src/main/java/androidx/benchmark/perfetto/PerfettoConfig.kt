@@ -34,6 +34,7 @@ import perfetto.protos.SysStatsConfig
 import perfetto.protos.TraceConfig
 import perfetto.protos.TraceConfig.BufferConfig
 import perfetto.protos.TraceConfig.BufferConfig.FillPolicy
+import perfetto.protos.TrackEventConfig
 
 /**
  * Configuration for Perfetto trace recording.
@@ -333,7 +334,12 @@ internal fun perfettoConfig(
         TraceConfig.DataSource(DataSourceConfig("android.gpu.memory")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frame")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
-        TraceConfig.DataSource(DataSourceConfig("track_event")) // required by tracing-perfetto
+        TraceConfig.DataSource(DataSourceConfig(
+            "track_event",
+            track_event_config = TrackEventConfig(
+                enabled_categories = listOf("*") // required by tracing-perfetto
+            )
+        ))
     )
     if (stackSamplingConfig != null) {
         dataSources += stackSamplingSource(

@@ -207,7 +207,7 @@ private class AnchoredDraggableOverscrollNode<T>(
             } else {
                 overscrollEffect!!.applyToScroll(
                     delta = dragDelta.delta.reverseIfNeeded(),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 ) { deltaForDrag ->
                     val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
                     val consumedDelta = (dragOffset - state.requireOffset()).toOffset()
@@ -673,15 +673,14 @@ class AnchoredDraggableState<T>(
         private set
 
     /**
-     * The target value. This is the closest value to the current offset, taking into account
-     * positional thresholds. If no interactions like animations or drags are in progress, this
-     * will be the current value.
+     * The target value. This is the closest value to the current offset. If no interactions like
+     * animations or drags are in progress, this will be the current value.
      */
     val targetValue: T by derivedStateOf {
         dragTarget ?: run {
             val currentOffset = offset
             if (!currentOffset.isNaN()) {
-                computeTarget(currentOffset, currentValue, velocity = 0f)
+                anchors.closestAnchor(offset) ?: currentValue
             } else currentValue
         }
     }

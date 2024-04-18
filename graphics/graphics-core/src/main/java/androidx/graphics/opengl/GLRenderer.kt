@@ -225,7 +225,8 @@ class GLRenderer(
 
     /**
      * Queue a [Runnable] to be executed on the GL rendering thread. Note it is important that this
-     * [Runnable] does not block otherwise it can stall the GL thread.
+     * [Runnable] does not block otherwise it can stall the GL thread. The EGLContext will
+     * be created after [start] is invoked and before the runnable is executed.
      *
      * @param runnable Runnable to be executed
      */
@@ -304,8 +305,8 @@ class GLRenderer(
         /**
          * Callback invoked on the backing thread after EGL dependencies are initialized.
          * This is guaranteed to be invoked before any instance of
-         * [RenderCallback.onSurfaceCreated] is called.
-         * This will be invoked lazily before the first request to [GLRenderer.requestRender]
+         * [RenderCallback.onSurfaceCreated] is called. This will be invoked after
+         * [GLRenderer.start].
          */
         // Suppressing CallbackMethodName due to b/238939160
         @Suppress("AcronymName", "CallbackMethodName")

@@ -38,8 +38,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -50,6 +50,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
@@ -90,8 +91,8 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     private boolean mIsConcurrentModeOn = false;
     private boolean mIsLayoutPiP = true;
     private boolean mIsFrontPrimary = true;
-
     private boolean mIsDualSelfieEnabled = false;
+    private boolean mIsCameraPipeEnabled = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -129,6 +130,8 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mIsLayoutPiP = true;
                 bindPreviewForSingle(mCameraProvider);
                 mIsConcurrentModeOn = false;
+                mIsDualSelfieEnabled = false;
+                mDualSelfieButton.setChecked(false);
             } else {
                 mIsLayoutPiP = true;
                 bindPreviewForPiP(mCameraProvider);
@@ -170,7 +173,13 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     private void startCamera() {
+        if (mIsCameraPipeEnabled) {
+            ProcessCameraProvider.configureInstance(CameraPipeConfig.defaultConfig());
+        }
+
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -184,7 +193,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-    @SuppressLint("RestrictedApiAndroidX")
     void bindPreviewForSingle(@NonNull ProcessCameraProvider cameraProvider) {
         cameraProvider.unbindAll();
         mSideBySideLayout.setVisibility(GONE);
@@ -265,8 +273,9 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mBackPreviewView);
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
-    @SuppressLint({"RestrictedApiAndroidX", "NullAnnotationGroup"})
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = {ExperimentalCamera2Interop.class,
+            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class})
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,
@@ -288,13 +297,18 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             String innerPhysicalCameraId = null;
             String outerPhysicalCameraId = null;
             for (CameraInfo info : cameraInfoPrimary.getPhysicalCameraInfos()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    if (Camera2CameraInfo.from(info).getCameraCharacteristic(LENS_POSE_REFERENCE)
-                            == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA) {
-                        innerPhysicalCameraId = Camera2CameraInfo.from(info).getCameraId();
-                    } else {
-                        outerPhysicalCameraId = Camera2CameraInfo.from(info).getCameraId();
-                    }
+                if (isPrimaryCamera(info)) {
+                    innerPhysicalCameraId = mIsCameraPipeEnabled
+                            ? androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
+                                    .from(info).getCameraId()
+                            : androidx.camera.camera2.interop.Camera2CameraInfo
+                                    .from(info).getCameraId();
+                } else {
+                    outerPhysicalCameraId = mIsCameraPipeEnabled
+                            ? androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
+                                    .from(info).getCameraId()
+                            : androidx.camera.camera2.interop.Camera2CameraInfo
+                                    .from(info).getCameraId();
                 }
             }
 
@@ -377,6 +391,24 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
 
             setupZoomAndTapToFocus(concurrentCamera.getCameras().get(0), frontPreviewView);
             setupZoomAndTapToFocus(concurrentCamera.getCameras().get(1), backPreviewView);
+        }
+    }
+
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(markerClass = { ExperimentalCamera2Interop.class,
+            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class })
+    private boolean isPrimaryCamera(@NonNull CameraInfo info) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return true;
+        }
+        if (mIsCameraPipeEnabled) {
+            return androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(info)
+                    .getCameraCharacteristic(LENS_POSE_REFERENCE)
+                    == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA;
+        } else {
+            return androidx.camera.camera2.interop.Camera2CameraInfo.from(info)
+                    .getCameraCharacteristic(LENS_POSE_REFERENCE)
+                    == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA;
         }
     }
 

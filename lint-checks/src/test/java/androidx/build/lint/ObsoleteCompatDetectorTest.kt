@@ -108,6 +108,32 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingReplaceWith.java line 32: Re
     }
 
     @Test
+    fun `Obsolete compat method missing multi-line @ReplaceWith`() {
+        val input = arrayOf(
+            javaSample("androidx.ObsoleteCompatMethodMissingMultiLineReplaceWith"),
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/ObsoleteCompatMethodMissingMultiLineReplaceWith.java:32: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
+    public static long hashCode(Object obj) {
+                       ~~~~~~~~
+1 errors, 0 warnings
+        """.trimIndent()
+
+        val expectedAutoFix = """
+Autofix for src/androidx/ObsoleteCompatMethodMissingMultiLineReplaceWith.java line 32: Replace obsolete compat method:
+@@ -18 +18
++ import androidx.annotation.ReplaceWith;
+@@ -31 +32
++     @ReplaceWith(expression = "obj.hashCode()")
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedAutoFix)
+    }
+
+    @Test
     fun `Obsolete compat methods missing @Deprecated`() {
         val input = arrayOf(
             javaSample("androidx.ObsoleteCompatMethodMissingDeprecated"),

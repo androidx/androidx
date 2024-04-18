@@ -435,7 +435,7 @@ package androidx.compose.foundation.gestures {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface BringIntoViewSpec {
-    method public float calculateScrollDistance(float offset, float size, float containerSize);
+    method public default float calculateScrollDistance(float offset, float size, float containerSize);
     method public default androidx.compose.animation.core.AnimationSpec<java.lang.Float> getScrollAnimationSpec();
     property public default androidx.compose.animation.core.AnimationSpec<java.lang.Float> scrollAnimationSpec;
     field public static final androidx.compose.foundation.gestures.BringIntoViewSpec.Companion Companion;
@@ -444,6 +444,11 @@ package androidx.compose.foundation.gestures {
   public static final class BringIntoViewSpec.Companion {
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getDefaultScrollAnimationSpec();
     property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> DefaultScrollAnimationSpec;
+  }
+
+  public final class BringIntoViewSpec_androidKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.gestures.BringIntoViewSpec> getLocalBringIntoViewSpec();
+    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.gestures.BringIntoViewSpec> LocalBringIntoViewSpec;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface Drag2DScope {
@@ -544,7 +549,7 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class ScrollableDefaults {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.gestures.BringIntoViewSpec bringIntoViewSpec();
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.gestures.BringIntoViewSpec bringIntoViewSpec();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior();
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public androidx.compose.foundation.OverscrollEffect overscrollEffect();
     method public boolean reverseDirection(androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.foundation.gestures.Orientation orientation, boolean reverseScrolling);
@@ -552,7 +557,7 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class ScrollableKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier scrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.gestures.BringIntoViewSpec bringIntoViewSpec);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier scrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.foundation.gestures.BringIntoViewSpec? bringIntoViewSpec);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier scrollable(androidx.compose.ui.Modifier, androidx.compose.foundation.gestures.ScrollableState state, androidx.compose.foundation.gestures.Orientation orientation, optional boolean enabled, optional boolean reverseDirection, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
   }
 
@@ -1358,7 +1363,7 @@ package androidx.compose.foundation.pager {
     method public final float getCurrentPageOffsetFraction();
     method public final androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method public final androidx.compose.foundation.pager.PagerLayoutInfo getLayoutInfo();
-    method public final float getOffsetFractionForPage(int page);
+    method public final float getOffsetDistanceInPages(int page);
     method public abstract int getPageCount();
     method public final int getSettledPage();
     method public final int getTargetPage();

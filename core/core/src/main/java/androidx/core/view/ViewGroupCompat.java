@@ -71,6 +71,7 @@ public final class ViewGroupCompat {
      * @deprecated Use {@link ViewGroup#onRequestSendAccessibilityEvent(View, AccessibilityEvent)}
      * directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "group.onRequestSendAccessibilityEvent(child, event)")
     @Deprecated
     public static boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
             AccessibilityEvent event) {
@@ -95,6 +96,7 @@ public final class ViewGroupCompat {
      *
      * @deprecated Use {@link ViewGroup#setMotionEventSplittingEnabled(boolean)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "group.setMotionEventSplittingEnabled(split)")
     @Deprecated
     public static void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
         group.setMotionEventSplittingEnabled(split);
@@ -111,7 +113,10 @@ public final class ViewGroupCompat {
      * @return the layout mode to use during layout operations
      *
      * @see #setLayoutMode(ViewGroup, int)
+     * @deprecated Call {@link ViewGroup#getLayoutMode()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "group.getLayoutMode()")
     public static int getLayoutMode(@NonNull ViewGroup group) {
         return group.getLayoutMode();
     }
@@ -125,7 +130,10 @@ public final class ViewGroupCompat {
      * @param mode the layout mode to use during layout operations
      *
      * @see #getLayoutMode(ViewGroup)
+     * @deprecated Call {@link ViewGroup#setLayoutMode()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "group.setLayoutMode(mode)")
     public static void setLayoutMode(@NonNull ViewGroup group, int mode) {
         group.setLayoutMode(mode);
     }

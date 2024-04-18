@@ -30,6 +30,7 @@
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"কোনো ইম’জি উপলব্ধ নহয়"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"আপুনি এতিয়ালৈকে কোনো ইম’জি ব্যৱহাৰ কৰা নাই"</string>
     <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"ইম’জি বাইডাইৰেকশ্বনেল ছুইচ্চাৰ"</string>
+    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"দিক্-নিৰ্দেশনা প্ৰদৰ্শন কৰা ইম’জি সলনি কৰা হৈছে"</string>
     <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"ইম’জিৰ প্ৰকাৰ বাছনি কৰোঁতা"</string>
     <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s আৰু %2$s"</string>
     <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"ছাঁ"</string>

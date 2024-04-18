@@ -404,7 +404,7 @@ class KeyboardOptions(
      * [other]s null or `Unspecified` properties are replaced with the non-null properties of
      * this object.
      *
-     * If the [other] is null, returns this.
+     * If the either this or [other] is null, returns the non-null one.
      */
     // TODO(b/331222000) Rename to be more clear about precedence.
     fun merge(other: KeyboardOptions?): KeyboardOptions =
@@ -418,7 +418,7 @@ class KeyboardOptions(
      * [other]. This differs from the behavior of [copy], which always takes the
      * passed value over the current one, even if an unspecified value is passed.
      *
-     * If the [other] is null, returns this.
+     * If the either this or [other] is null, returns the non-null one.
      */
     @Stable
     internal fun fillUnspecifiedValuesWith(other: KeyboardOptions?): KeyboardOptions {

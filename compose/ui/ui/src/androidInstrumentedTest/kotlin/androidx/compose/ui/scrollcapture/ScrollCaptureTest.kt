@@ -16,10 +16,7 @@
 
 package androidx.compose.ui.scrollcapture
 
-import android.graphics.Canvas
 import android.graphics.Rect
-import android.view.ScrollCaptureSession
-import android.view.Surface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -48,23 +45,12 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
-import kotlin.test.fail
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.onTimeout
-import kotlinx.coroutines.selects.select
-import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 
 /**
  * Tests the scroll capture implementation's integration with semantics. Tests in this class should
@@ -94,7 +80,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_findsScrollableTarget() {
+    fun search_findsScrollableTarget() = captureTester.runTest {
         lateinit var coordinates: LayoutCoordinates
         captureTester.setContent {
             TestVerticalScrollable(
@@ -115,7 +101,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_usesTargetsCoordinates() {
+    fun search_usesTargetsCoordinates() = captureTester.runTest {
         lateinit var coordinates: LayoutCoordinates
         val padding = 15
         captureTester.setContent {
@@ -147,7 +133,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_findsLargestTarget_whenMultipleMatches() {
+    fun search_findsLargestTarget_whenMultipleMatches() = captureTester.runTest {
         val smallerSize = 10
         val largerSize = 11
         captureTester.setContent {
@@ -165,7 +151,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_findsDeepestTarget() {
+    fun search_findsDeepestTarget() = captureTester.runTest {
         captureTester.setContent {
             TestVerticalScrollable(size = 11) {
                 TestVerticalScrollable(size = 10)
@@ -179,7 +165,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_findsDeepestTarget_whenLargerParentSibling() {
+    fun search_findsDeepestTarget_whenLargerParentSibling() = captureTester.runTest {
         captureTester.setContent {
             Column {
                 TestVerticalScrollable(size = 10) {
@@ -196,7 +182,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_findsDeepestLargestTarget_whenMultipleMatches() {
+    fun search_findsDeepestLargestTarget_whenMultipleMatches() = captureTester.runTest {
         captureTester.setContent {
             Column {
                 TestVerticalScrollable(size = 10) {
@@ -215,7 +201,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_usesClippedSize() {
+    fun search_usesClippedSize() = captureTester.runTest {
         captureTester.setContent {
             TestVerticalScrollable(size = 10) {
                 TestVerticalScrollable(size = 100)
@@ -229,7 +215,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenFeatureFlagDisabled() {
+    fun search_doesNotFindTarget_whenFeatureFlagDisabled() = captureTester.runTest {
         @Suppress("DEPRECATION")
         ComposeFeatureFlag_LongScreenshotsEnabled = false
 
@@ -242,10 +228,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenInvisibleToUser() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = false
-
+    fun search_doesNotFindTarget_whenInvisibleToUser() = captureTester.runTest {
         captureTester.setContent {
             TestVerticalScrollable(Modifier.semantics {
                 invisibleToUser()
@@ -257,10 +240,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenZeroSize() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = false
-
+    fun search_doesNotFindTarget_whenZeroSize() = captureTester.runTest {
         captureTester.setContent {
             TestVerticalScrollable(Modifier.size(0.dp))
         }
@@ -270,7 +250,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenZeroMaxValue() {
+    fun search_doesNotFindTarget_whenZeroMaxValue() = captureTester.runTest {
         captureTester.setContent {
             TestVerticalScrollable(maxValue = 0f)
         }
@@ -280,7 +260,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenNoScrollAxisRange() {
+    fun search_doesNotFindTarget_whenNoScrollAxisRange() = captureTester.runTest {
         captureTester.setContent {
             Box(
                 Modifier
@@ -296,7 +276,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenNoVerticalScrollAxisRange() {
+    fun search_doesNotFindTarget_whenNoVerticalScrollAxisRange() = captureTester.runTest {
         captureTester.setContent {
             Box(
                 Modifier
@@ -316,7 +296,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun search_doesNotFindTarget_whenNoScrollByImmediately() {
+    fun search_doesNotFindTarget_whenNoScrollByImmediately() = captureTester.runTest {
         captureTester.setContent {
             Box(
                 Modifier
@@ -335,7 +315,7 @@ class ScrollCaptureTest {
     }
 
     @Test
-    fun callbackOnSearch_returnsViewportBounds() = runTest {
+    fun callbackOnSearch_returnsViewportBounds() = captureTester.runTest {
         lateinit var coordinates: LayoutCoordinates
         val padding = 15
         captureTester.setContent {
@@ -367,104 +347,50 @@ class ScrollCaptureTest {
         }
     }
 
-    // TODO this is flaky, figure out why
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun callbackOnImageCapture_scrollsBackwardsThenForwards() = runTest {
-        data class ScrollRequest(
-            val requestedOffset: Offset,
-            val consumeScroll: (Offset) -> Unit
-        )
-
-        val scrollRequests = Channel<ScrollRequest>(capacity = Channel.RENDEZVOUS)
-        suspend fun expectScrollRequest(expectedOffset: Offset, consume: Offset = expectedOffset) {
-            val request = select {
-                scrollRequests.onReceive { it }
-                onTimeout(1000) { fail("No scroll request received after 1000ms") }
+    fun callbackOnImageCapture_scrollsBackwardsThenForwards() = captureTester.runTest {
+        expectingScrolls(rule) {
+            val size = 10
+            val captureHeight = size / 2
+            captureTester.setContent {
+                TestVerticalScrollable(
+                    size = size,
+                    // Can't be a reference, see https://youtrack.jetbrains.com/issue/KT-49665
+                    onScrollByOffset = { respondToScrollExpectation(it) }
+                )
             }
-            assertThat(request.requestedOffset).isEqualTo(expectedOffset)
-            request.consumeScroll(consume)
-            // Allow the scroll request to be consumed.
-            rule.awaitIdle()
-        }
 
-        suspend fun expectNoScrollRequests() {
-            rule.awaitIdle()
-            if (!scrollRequests.isEmpty) {
-                val requests = buildList {
-                    do {
-                        val request = scrollRequests.tryReceive()
-                        request.getOrNull()?.let(::add)
-                    } while (request.isSuccess)
-                }
-                fail("Expected no scroll requests, but had ${requests.size}: " +
-                    requests.joinToString { it.requestedOffset.toString() })
+            val target = captureTester.findCaptureTargets().single()
+            captureTester.capture(target, captureHeight) {
+                // First request is at origin, no scrolling required.
+                assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                assertNoPendingScrollRequests()
+
+                // Back one half-page, but only respond to part of it.
+                expectScrollRequest(Offset(0f, -5f), consume = Offset(0f, -4f))
+                shiftWindowBy(-5)
+                assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, -4, 10, 0))
+
+                // Forward one half-page – already in viewport, no scrolling required.
+                shiftWindowBy(5)
+                assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                assertNoPendingScrollRequests()
+
+                // Forward another half-page. This time we need to scroll.
+                expectScrollRequest(Offset(0f, 4f))
+                shiftWindowBy(5)
+                assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 5, 10, 10))
+
+                // Forward another half-page, scroll again so now we're past the original viewport.
+                expectScrollRequest(Offset(0f, 5f))
+                shiftWindowBy(5)
+                assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 10, 10, 15))
+
+                // When capture ends expect one last scroll request to reset to original offset.
+                // Note that this request will be made _after_ this capture{} lambda returns.
+                expectScrollRequest(Offset(0f, -5f))
             }
-        }
-
-        val size = 10
-        captureTester.setContent {
-            TestVerticalScrollable(
-                size = size,
-                onScrollByImmediately = { offset ->
-                    val result = CompletableDeferred<Offset>(parent = currentCoroutineContext().job)
-                    scrollRequests.send(ScrollRequest(offset, consumeScroll = result::complete))
-                    result.await()
-                }
-            )
-        }
-
-        val callback = captureTester.findCaptureTargets().single().callback
-        val canvas = mock<Canvas>()
-        val surface = mock<Surface> {
-            on(it.lockHardwareCanvas()).thenReturn(canvas)
-        }
-        val session = mock<ScrollCaptureSession> {
-            on(it.surface).thenReturn(surface)
-        }
-
-        launch {
-            callback.onScrollCaptureStart(session)
-
-            // First request is at origin, no scrolling required.
-            async { callback.onScrollCaptureImageRequest(session, Rect(0, 0, 10, 10)) }
-                .let { captureResult ->
-                    expectNoScrollRequests()
-                    assertThat(captureResult.await()).isEqualTo(Rect(0, 0, 10, 10))
-                }
-
-            // Back one half-page, but only respond to part of it.
-            async { callback.onScrollCaptureImageRequest(session, Rect(0, -5, 10, 0)) }
-                .let { captureResult ->
-                    expectScrollRequest(Offset(0f, -5f), consume = Offset(0f, -4f))
-                    assertThat(captureResult.await()).isEqualTo(Rect(0, -4, 10, 0))
-                }
-
-            // Forward one half-page – already in viewport, no scrolling required.
-            async { callback.onScrollCaptureImageRequest(session, Rect(0, 0, 10, 5)) }
-                .let { captureResult ->
-                    expectNoScrollRequests()
-                    assertThat(captureResult.await()).isEqualTo(Rect(0, 0, 10, 5))
-                }
-
-            // Forward another half-page. This time we need to scroll.
-            async { callback.onScrollCaptureImageRequest(session, Rect(0, 5, 10, 10)) }
-                .let { captureResult ->
-                    expectScrollRequest(Offset(0f, 4f))
-                    assertThat(captureResult.await()).isEqualTo(Rect(0, 5, 10, 10))
-                }
-
-            // Forward another half-page, scroll again so now we're past the original viewport.
-            async { callback.onScrollCaptureImageRequest(session, Rect(0, 10, 10, 15)) }
-                .let { captureResult ->
-                    expectScrollRequest(Offset(0f, 5f))
-                    assertThat(captureResult.await()).isEqualTo(Rect(0, 10, 10, 15))
-                }
-
-            launch { callback.onScrollCaptureEnd() }
-            // One last scroll request to reset to original offset.
-            expectScrollRequest(Offset(0f, -5f))
-            expectNoScrollRequests()
+            assertNoPendingScrollRequests()
         }
     }
 
@@ -476,7 +402,7 @@ class ScrollCaptureTest {
         modifier: Modifier = Modifier,
         size: Int = 10,
         maxValue: Float = 1f,
-        onScrollByImmediately: suspend (Offset) -> Offset = { Offset.Zero },
+        onScrollByOffset: suspend (Offset) -> Offset = { Offset.Zero },
         content: (@Composable () -> Unit)? = null
     ) {
         with(LocalDensity.current) {
@@ -492,10 +418,15 @@ class ScrollCaptureTest {
                     .size(size.toDp())
                     .semantics {
                         verticalScrollAxisRange = scrollAxisRange
-                        scrollByOffset(onScrollByImmediately)
+                        scrollByOffset(onScrollByOffset)
                     },
                 content = { content?.invoke() }
             )
         }
     }
+
+    private suspend fun ScrollCaptureTester.CaptureSessionScope.performCaptureDiscardingBitmap() =
+        performCapture()
+            .also { it.bitmap?.recycle() }
+            .capturedRect
 }

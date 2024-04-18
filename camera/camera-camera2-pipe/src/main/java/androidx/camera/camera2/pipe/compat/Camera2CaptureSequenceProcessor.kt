@@ -331,9 +331,10 @@ internal class Camera2CaptureSequenceProcessor(
                     ) { it.awaitStarted() }
                 }
             }
+            imageWriter?.close()
+            session.inputSurface?.release()
             closed = true
         }
-        imageWriter?.close()
     }
 
     override fun toString(): String {

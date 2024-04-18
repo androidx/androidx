@@ -16,7 +16,6 @@
 
 package androidx.tv.samples
 
-import androidx.annotation.Sampled
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +41,6 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-@Sampled
 @Composable
 fun SampleImmersiveList() {
     val items = remember { listOf(Color.Red, Color.Green, Color.Yellow) }

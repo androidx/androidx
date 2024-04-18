@@ -17,6 +17,7 @@
 package androidx.transition
 
 import android.os.Build
+import android.view.View
 import android.window.BackEvent
 import androidx.activity.BackEventCompat
 import androidx.lifecycle.Lifecycle
@@ -217,6 +218,8 @@ class FragmentTransitionSeekingTest {
                     }
                 })
             })
+            fragment1.sharedElementEnterTransition = null
+            fragment1.sharedElementReturnTransition = null
 
             fm1.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment1, "1")
@@ -236,6 +239,8 @@ class FragmentTransitionSeekingTest {
                     }
                 })
             })
+            fragment2.sharedElementEnterTransition = null
+            fragment2.sharedElementReturnTransition = null
 
             fm1.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment2, "2")
@@ -257,6 +262,8 @@ class FragmentTransitionSeekingTest {
                     }
                 })
             })
+            fragment3.sharedElementEnterTransition = null
+            fragment3.sharedElementReturnTransition = null
 
             fm1.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment3, "3")
@@ -561,6 +568,63 @@ class FragmentTransitionSeekingTest {
 
             assertThat(resumedBeforeOnBackStarted).isFalse()
             assertThat(resumedAfterOnBackStarted).isTrue()
+        }
+    }
+
+    @Test
+    fun GestureBackWithNonSeekableSharedElement() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment(R.layout.scene1)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val fragment2 = TransitionFragment(R.layout.scene6)
+            fragment2.setEnterTransition(Fade())
+            fragment2.setReturnTransition(Fade())
+
+            val greenSquare = fragment1.requireView().findViewById<View>(R.id.greenSquare)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .addSharedElement(greenSquare, "green")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment2.waitForTransition()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(
+                        0.1F,
+                        0.1F,
+                        0.1F,
+                        BackEvent.EDGE_LEFT
+                    )
+                )
+            }
+            executePendingTransactions()
+
+            withActivity {
+                dispatcher.onBackPressed()
+            }
+            executePendingTransactions()
+
+            assertThat(fragment2.isAdded).isFalse()
+            assertThat(fm1.findFragmentByTag("2"))
+                .isEqualTo(null)
+
+            // Make sure the original fragment was correctly readded to the container
+            assertThat(fragment1.requireView().parent).isNotNull()
         }
     }
 }

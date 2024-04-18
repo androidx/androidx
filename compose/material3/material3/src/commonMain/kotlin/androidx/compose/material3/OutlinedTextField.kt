@@ -244,12 +244,12 @@ fun OutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
-                            enabled,
-                            isError,
-                            interactionSource,
-                            colors,
-                            shape
+                        OutlinedTextFieldDefaults.Container(
+                            enabled = enabled,
+                            isError = isError,
+                            interactionSource = interactionSource,
+                            colors = colors,
+                            shape = shape,
                         )
                     }
                 )
@@ -408,12 +408,12 @@ fun OutlinedTextField(
                     interactionSource = interactionSource,
                     colors = colors,
                     container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
-                            enabled,
-                            isError,
-                            interactionSource,
-                            colors,
-                            shape
+                        OutlinedTextFieldDefaults.Container(
+                            enabled = enabled,
+                            isError = isError,
+                            interactionSource = interactionSource,
+                            colors = colors,
+                            shape = shape,
                         )
                     }
                 )
@@ -980,12 +980,6 @@ private fun Placeable.PlacementScope.place(
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
 
-    // placed center vertically and to the end edge horizontally
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
-
     // label position is animated
     // in single line text field, label is centered vertically before animation starts
     labelPlaceable?.let {
@@ -1022,11 +1016,6 @@ private fun Placeable.PlacementScope.place(
         calculateVerticalPosition(prefixPlaceable)
     )
 
-    suffixPlaceable?.placeRelative(
-        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
-        calculateVerticalPosition(suffixPlaceable)
-    )
-
     val textHorizontalPosition = widthOrZero(leadingPlaceable) + widthOrZero(prefixPlaceable)
 
     textFieldPlaceable.placeRelative(
@@ -1040,13 +1029,25 @@ private fun Placeable.PlacementScope.place(
         calculateVerticalPosition(placeholderPlaceable)
     )
 
+    suffixPlaceable?.placeRelative(
+        width - widthOrZero(trailingPlaceable) - suffixPlaceable.width,
+        calculateVerticalPosition(suffixPlaceable)
+    )
+
+    // placed center vertically and to the end edge horizontally
+    trailingPlaceable?.placeRelative(
+        width - trailingPlaceable.width,
+        Alignment.CenterVertically.align(trailingPlaceable.height, height)
+    )
+
     // place supporting text
     supportingPlaceable?.placeRelative(0, height)
 }
 
-internal fun Modifier.outlineCutout(labelSize: Size, paddingValues: PaddingValues) =
+internal fun Modifier.outlineCutout(labelSize: () -> Size, paddingValues: PaddingValues) =
     this.drawWithContent {
-        val labelWidth = labelSize.width
+        val labelSizeValue = labelSize()
+        val labelWidth = labelSizeValue.width
         if (labelWidth > 0f) {
             val innerPadding = OutlinedTextFieldInnerPadding.toPx()
             val leftLtr = paddingValues.calculateLeftPadding(layoutDirection).toPx() - innerPadding
@@ -1059,7 +1060,7 @@ internal fun Modifier.outlineCutout(labelSize: Size, paddingValues: PaddingValue
                 LayoutDirection.Rtl -> size.width - leftLtr.coerceAtLeast(0f)
                 else -> rightLtr
             }
-            val labelHeight = labelSize.height
+            val labelHeight = labelSizeValue.height
             // using label height as a cutout area to make sure that no hairline artifacts are
             // left when we clip the border
             clipRect(left, -labelHeight / 2, right, labelHeight / 2, ClipOp.Difference) {

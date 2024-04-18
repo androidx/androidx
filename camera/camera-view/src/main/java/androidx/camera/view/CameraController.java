@@ -162,7 +162,9 @@ public abstract class CameraController {
      * camera-core directly.
      *
      * @see ImageAnalysis.Analyzer
+     * @deprecated Use {@link ImageAnalysis#COORDINATE_SYSTEM_VIEW_REFERENCED} instead.
      */
+    @Deprecated
     public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1;
 
     /**
@@ -1106,6 +1108,12 @@ public abstract class CameraController {
      * <p>Setting an analyzer function replaces any previous analyzer. Only one analyzer can be
      * set at any time.
      *
+     * <p>If the {@link ImageAnalysis.Analyzer#getTargetCoordinateSystem()} returns
+     * {@link ImageAnalysis#COORDINATE_SYSTEM_VIEW_REFERENCED}, the analyzer will receive a
+     * transformation via {@link ImageAnalysis.Analyzer#updateTransform} that converts
+     * coordinates from the {@link ImageAnalysis}'s coordinate system to the {@link PreviewView}'s
+     * coordinate system.
+     *
      * <p> If the {@link ImageAnalysis.Analyzer#getDefaultTargetResolution()} returns a non-null
      * value, calling this method will reconfigure the camera which might cause additional
      * latency. To avoid this, set the value before controller is bound to the lifecycle.
@@ -1453,7 +1461,7 @@ public abstract class CameraController {
             return;
         }
         if (mAnalysisAnalyzer.getTargetCoordinateSystem()
-                == COORDINATE_SYSTEM_VIEW_REFERENCED) {
+                == ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED) {
             mAnalysisAnalyzer.updateTransform(matrix);
         }
     }

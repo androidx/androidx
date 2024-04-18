@@ -86,14 +86,14 @@ class SceneScope internal constructor(
                 }
             }
             .approachLayout(
-                isMeasurementApproachComplete = {
+                isMeasurementApproachInProgress = {
                     sizeAnimation.updateTarget(it, coroutineScope)
-                    sizeAnimation.isIdle
+                    !sizeAnimation.isIdle
                 },
-                isPlacementApproachComplete = {
+                isPlacementApproachInProgress = {
                     val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
                     offsetAnimation.updateTarget(target.round(), coroutineScope, spring())
-                    offsetAnimation.isIdle
+                    !offsetAnimation.isIdle
                 }
             ) { measurable, _ ->
                 with(coroutineScope) {
@@ -139,9 +139,9 @@ fun Modifier.animateSizeAndSkipToFinalLayout() = composed {
             }
         }
         .approachLayout(
-            isMeasurementApproachComplete = {
+            isMeasurementApproachInProgress = {
                 sizeAnimation.updateTarget(it, scope)
-                sizeAnimation.isIdle
+                !sizeAnimation.isIdle
             }
         ) { measurable, constraints ->
             targetSize = lookaheadSize

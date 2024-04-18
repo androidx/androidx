@@ -62,6 +62,10 @@ kotlin {
     explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
+
         commonMain {
             dependencies {
                 api(project(":annotation:annotation"))

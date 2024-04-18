@@ -30,14 +30,16 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Header;
+import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Template;
-import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
+import androidx.car.app.navigation.model.MapController;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SamplePlaces;
 import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModelFactory;
 import androidx.core.graphics.drawable.IconCompat;
 
-/** Creates a screen using the {@link PlaceListNavigationTemplate} */
+/** Creates a screen using the new {@link MapWithContentTemplate} */
 public final class PlaceListNavigationTemplateDemoScreen extends Screen {
     private static final int NUMBER_OF_REFRESHES = 10;
     private static final long SECOND_DELAY = 1000L;
@@ -68,7 +70,7 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
             }
         }
 
-        Header header = new Header.Builder()
+        Header.Builder headerBuilder = new Header.Builder()
                 .setStartHeaderAction(Action.BACK)
                 .addEndHeaderAction(new Action.Builder()
                         .setIcon(
@@ -102,30 +104,38 @@ public final class PlaceListNavigationTemplateDemoScreen extends Screen {
                                                 R.drawable.ic_close_white_24dp))
                                         .build())
                         .build())
-                .setTitle(getCarContext().getString(R.string.place_list_nav_template_demo_title))
-                .build();
-
-        PlaceListNavigationTemplate.Builder placeListNavigationTemplateBuilder =
-                new PlaceListNavigationTemplate.Builder()
-                        .setItemList(
-                                mPlaces.getPlaceList(/* randomOrder= */ true))
-                        .setHeader(header)
-                        .setMapActionStrip(mRoutingDemoModelFactory.getMapActionStrip())
-                        .setActionStrip(
-                                new ActionStrip.Builder()
-                                        .addAction(
-                                                new Action.Builder()
-                                                        .setTitle(getCarContext().getString(
-                                                                R.string.search_action_title))
-                                                        .setOnClickListener(() -> {
-                                                        })
-                                                        .build())
-                                        .build());
+                .setTitle(getCarContext().getString(R.string.place_list_nav_template_demo_title));
 
         if (!isAppDrivenRefreshEnabled) {
-            placeListNavigationTemplateBuilder.setOnContentRefreshListener(this::invalidate);
+            headerBuilder.addEndHeaderAction(new Action.Builder()
+                    .setOnClickListener(this::invalidate)
+                    .setIcon(
+                            new CarIcon.Builder(
+                                    IconCompat.createWithResource(
+                                            getCarContext(),
+                                            R.drawable.baseline_refresh_24))
+                                    .build())
+                    .build());
         }
 
-        return placeListNavigationTemplateBuilder.build();
+
+        return new MapWithContentTemplate.Builder()
+                .setContentTemplate(new ListTemplate.Builder()
+                        .setHeader(headerBuilder.build())
+                        .setSingleList(mPlaces.getPlaceList(/* randomOrder= */ true))
+                        .build())
+                .setMapController(new MapController.Builder().setMapActionStrip(
+                        mRoutingDemoModelFactory.getMapActionStrip()).build())
+                .setActionStrip(
+                        new ActionStrip.Builder()
+                                .addAction(
+                                        new Action.Builder()
+                                                .setTitle(getCarContext().getString(
+                                                        R.string.search_action_title))
+                                                .setOnClickListener(() -> {
+                                                })
+                                                .build())
+                                .build())
+                .build();
     }
 }

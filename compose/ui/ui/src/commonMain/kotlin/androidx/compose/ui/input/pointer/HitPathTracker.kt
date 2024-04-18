@@ -43,6 +43,9 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
     /*@VisibleForTesting*/
     internal val root: NodeParent = NodeParent()
 
+    // Only used when removing duplicate Nodes from the Node tree ([removeDuplicateNode]).
+    private val vectorForHandlingDuplicateNodes: MutableVector<NodeParent> = mutableVectorOf()
+
     /**
      * Associates a [pointerId] to a list of hit [pointerInputNodes] and keeps track of them.
      *
@@ -58,6 +61,8 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
     fun addHitPath(pointerId: PointerId, pointerInputNodes: List<Modifier.Node>) {
         var parent: NodeParent = root
         var merging = true
+        var nodeBranchPathToSkipDuringDuplicateNodeRemoval: Node? = null
+
         eachPin@ for (i in pointerInputNodes.indices) {
             val pointerInputNode = pointerInputNodes[i]
             if (merging) {
@@ -77,8 +82,50 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
             val node = Node(pointerInputNode).apply {
                 pointerIds.add(pointerId)
             }
+
+            if (nodeBranchPathToSkipDuringDuplicateNodeRemoval == null) {
+                // Null means this is the first new Node created that will need a new branch path
+                // (possibly from a pre-existing cached version of the node chain).
+                // If that is the case, we need to skip this path when looking for duplicate
+                // nodes to remove (that may have previously existed somewhere else in the tree).
+                nodeBranchPathToSkipDuringDuplicateNodeRemoval = node
+            } else {
+                // Every node after the top new node (that is, the top Node in the new path)
+                // could have potentially existed somewhere else in the cached node tree, and
+                // we need to remove it if we are adding it to this new branch.
+                removeDuplicateNode(node, nodeBranchPathToSkipDuringDuplicateNodeRemoval)
+            }
+
             parent.children.add(node)
             parent = node
+        }
+    }
+
+    /*
+     * Removes duplicate nodes when using a cached version of the node tree. Uses breadth-first
+     * search for simplicity (and because the tree will be very small).
+     */
+    private fun removeDuplicateNode(
+        duplicateNodeToRemove: Node,
+        headOfPathToSkip: Node
+    ) {
+        vectorForHandlingDuplicateNodes.clear()
+        vectorForHandlingDuplicateNodes.add(root)
+
+        while (vectorForHandlingDuplicateNodes.isNotEmpty()) {
+            val parent = vectorForHandlingDuplicateNodes.removeAt(0)
+
+            for (index in parent.children.indices) {
+                val child = parent.children[index]
+                if (child == headOfPathToSkip) continue
+                if (child.modifierNode == duplicateNodeToRemove.modifierNode) {
+                    // Assumes there is only one unique Node in the tree (not copies).
+                    // This also removes all children attached below the node.
+                    parent.children.remove(child)
+                    return
+                }
+                vectorForHandlingDuplicateNodes.add(child)
+            }
         }
     }
 

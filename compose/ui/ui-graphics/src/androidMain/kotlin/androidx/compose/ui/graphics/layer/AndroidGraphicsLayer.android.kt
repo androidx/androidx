@@ -106,7 +106,7 @@ actual class GraphicsLayer internal constructor(
 
     /**
      * Offset in pixels where this [GraphicsLayer] will render within a provided canvas when
-     * [drawLayer] is called. This is configured by calling [buildLayer]
+     * [drawLayer] is called. This is configured by calling [record]
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTopLeftSample
      */
@@ -122,7 +122,7 @@ actual class GraphicsLayer internal constructor(
      * Size in pixels of the [GraphicsLayer]. By default [GraphicsLayer] contents can draw outside
      * of the bounds specified by [topLeft] and [size], however, rasterization of this layer into
      * an offscreen buffer will be sized according to the specified size. This is configured
-     * by calling [buildLayer]
+     * by calling [record]
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerSizeSample
      */
@@ -397,12 +397,12 @@ actual class GraphicsLayer internal constructor(
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    actual fun buildLayer(
+    actual fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
         block: DrawScope.() -> Unit
-    ): GraphicsLayer {
+    ) {
         if (this.size != size) {
             setPosition(topLeft, size)
             this.size = size
@@ -415,10 +415,8 @@ actual class GraphicsLayer internal constructor(
         childDependenciesTracker.withTracking(
             onDependencyRemoved = { it.onRemovedFromParentLayer() }
         ) {
-            impl.buildLayer(density, layoutDirection, this, drawBlock)
+            impl.record(density, layoutDirection, this, drawBlock)
         }
-
-        return this
     }
 
     private fun addSubLayer(graphicsLayer: GraphicsLayer) {
@@ -781,7 +779,7 @@ actual class GraphicsLayer internal constructor(
 
     /**
      * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that
-     * [GraphicsLayer.buildLayer] must be invoked first to record drawing operations before invoking
+     * [GraphicsLayer.record] must be invoked first to record drawing operations before invoking
      * this method.
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap
@@ -930,9 +928,9 @@ internal interface GraphicsLayerImpl {
     fun draw(canvas: Canvas)
 
     /**
-     * @see GraphicsLayer.buildLayer
+     * @see GraphicsLayer.record
      */
-    fun buildLayer(
+    fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,

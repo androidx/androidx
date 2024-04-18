@@ -1113,12 +1113,12 @@ object SliderDefaults {
      * accessibility services.
      */
     @Deprecated(
-        message = "Use the overload that takes `drawStopIndicator`, `thumbTrackGapSize` and " +
-            "`trackInsideCornerSize`, see `LegacySliderSample` on how to restore the previous " +
-            "behavior",
+        message = "Use the overload that takes `drawStopIndicator`, `drawTick`, " +
+            "`thumbTrackGapSize` and `trackInsideCornerSize`, see `LegacySliderSample` " +
+            "on how to restore the previous behavior",
         replaceWith = ReplaceWith(
             "Track(sliderState, modifier, enabled, colors, drawStopIndicator, " +
-                "thumbTrackGapSize, trackInsideCornerSize)"
+                "drawTick, thumbTrackGapSize, trackInsideCornerSize)"
         ),
         level = DeprecationLevel.HIDDEN
     )
@@ -1152,6 +1152,7 @@ object SliderDefaults {
      * different states. See [SliderDefaults.colors].
      * @param drawStopIndicator lambda that will be called to draw the stop indicator at the end of
      * the track.
+     * @param drawTick lambda that will be called to draw the ticks if steps are greater than 0.
      * @param thumbTrackGapSize size of the gap between the thumb and the track.
      * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      */
@@ -1167,6 +1168,13 @@ object SliderDefaults {
                 offset = it,
                 color = colors.activeTrackColor,
                 size = TrackStopIndicatorSize
+            )
+        },
+        drawTick: (DrawScope.(Offset, Color) -> Unit)? = { offset, color ->
+            drawStopIndicator(
+                offset = offset,
+                color = color,
+                size = TickSize
             )
         },
         thumbTrackGapSize: Dp = ThumbTrackGapSize,
@@ -1195,6 +1203,7 @@ object SliderDefaults {
                 thumbTrackGapSize,
                 trackInsideCornerSize,
                 drawStopIndicator,
+                drawTick,
                 isRangeSlider = false
             )
         }
@@ -1212,12 +1221,12 @@ object SliderDefaults {
      * accessibility services.
      */
     @Deprecated(
-        message = "Use the overload that takes `drawStopIndicator`, `thumbTrackGapSize` and " +
-            "`trackInsideCornerSize`, see `LegacyRangeSliderSample` on how to restore the " +
-            "previous behavior",
+        message = "Use the overload that takes `drawStopIndicator`, `drawTick`, " +
+            "`thumbTrackGapSize` and `trackInsideCornerSize`, see `LegacyRangeSliderSample` " +
+            "on how to restore the previous behavior",
         replaceWith = ReplaceWith(
             "Track(rangeSliderState, modifier, colors, enabled, drawStopIndicator, " +
-                "thumbTrackGapSize, trackInsideCornerSize)"
+                "drawTick, thumbTrackGapSize, trackInsideCornerSize)"
         ),
         level = DeprecationLevel.HIDDEN
     )
@@ -1251,6 +1260,7 @@ object SliderDefaults {
      * different states. See [SliderDefaults.colors].
      * @param drawStopIndicator lambda that will be called to draw the stop indicator at the
      * start/end of the track.
+     * @param drawTick lambda that will be called to draw the ticks if steps are greater than 0.
      * @param thumbTrackGapSize size of the gap between the thumbs and the track.
      * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
      */
@@ -1266,6 +1276,13 @@ object SliderDefaults {
                 offset = it,
                 color = colors.activeTrackColor,
                 size = TrackStopIndicatorSize
+            )
+        },
+        drawTick: (DrawScope.(Offset, Color) -> Unit)? = { offset, color ->
+            drawStopIndicator(
+                offset = offset,
+                color = color,
+                size = TickSize
             )
         },
         thumbTrackGapSize: Dp = ThumbTrackGapSize,
@@ -1294,6 +1311,7 @@ object SliderDefaults {
                 thumbTrackGapSize,
                 trackInsideCornerSize,
                 drawStopIndicator,
+                drawTick,
                 isRangeSlider = true,
             )
         }
@@ -1312,11 +1330,11 @@ object SliderDefaults {
         thumbTrackGapSize: Dp,
         trackInsideCornerSize: Dp,
         drawStopIndicator: (DrawScope.(Offset) -> Unit)?,
+        drawTick: (DrawScope.(Offset, Color) -> Unit)?,
         isRangeSlider: Boolean
     ) {
         val sliderStart = Offset(0f, center.y)
         val sliderEnd = Offset(size.width, center.y)
-        val tickSize = TickSize.toPx()
         val trackStrokeWidth = height.toPx()
 
         val sliderValueEnd = Offset(
@@ -1377,6 +1395,10 @@ object SliderDefaults {
             )
         }
 
+        val start = Offset(sliderStart.x + cornerSize, sliderStart.y)
+        val end = Offset(sliderEnd.x - cornerSize, sliderEnd.y)
+        val startGap = sliderValueStart.x - gap..sliderValueStart.x + gap
+        val endGap = sliderValueEnd.x - gap..sliderValueEnd.x + gap
         tickFractions.forEachIndexed { index, tick ->
             // skip ticks that fall on the stop indicator
             if (drawStopIndicator != null) {
@@ -1386,12 +1408,15 @@ object SliderDefaults {
             }
 
             val outsideFraction = tick > activeRangeEnd || tick < activeRangeStart
-            val start = Offset(sliderStart.x + gap, sliderStart.y)
-            val end = Offset(sliderEnd.x - gap, sliderEnd.y)
-            drawCircle(
-                color = if (outsideFraction) inactiveTickColor else activeTickColor,
-                center = Offset(lerp(start, end, tick).x, center.y),
-                radius = tickSize / 2f
+            val center = Offset(lerp(start, end, tick).x, center.y)
+            // skip ticks that fall on a gap
+            if ((isRangeSlider && center.x in startGap) || center.x in endGap) {
+                return@forEachIndexed
+            }
+            drawTick?.invoke(
+                this,
+                center, // offset
+                if (outsideFraction) inactiveTickColor else activeTickColor // color
             )
         }
     }
@@ -1461,6 +1486,16 @@ object SliderDefaults {
             radius = size.toPx() / 2f
         )
     }
+
+    /**
+     * The default size for the stop indicator at the end of the track.
+     */
+    val TrackStopIndicatorSize: Dp = SliderTokens.StopIndicatorSize
+
+    /**
+     * The default size for the ticks if steps are greater than 0.
+     */
+    val TickSize: Dp = SliderTokens.StopIndicatorSize
 
     private val trackPath = Path()
     private val cornerPath = Path()
@@ -1938,10 +1973,8 @@ internal val TrackHeight = SliderTokens.InactiveTrackHeight
 internal val ThumbWidth = SliderTokens.HandleWidth
 private val ThumbHeight = SliderTokens.HandleHeight
 private val ThumbSize = DpSize(ThumbWidth, ThumbHeight)
-private val TickSize: Dp = 2.dp
 private val ThumbTrackGapSize: Dp = SliderTokens.ActiveHandleLeadingSpace
 private val TrackInsideCornerSize: Dp = 2.dp
-private val TrackStopIndicatorSize: Dp = SliderTokens.StopIndicatorSize
 private const val SliderRangeTolerance = 0.0001
 
 private enum class SliderComponents {

@@ -48,9 +48,10 @@ fun DrawScope.GraphicsLayerTopLeftSample(layer: GraphicsLayer) {
     // Build the layer with the density, layout direction and size from the DrawScope
     // and position the top left to be 20 pixels from the left and 30 pixels from the top.
     // This will the bounds of the layer with a red rectangle
-    layer.buildLayer {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Red)
+        }
         this.topLeft = IntOffset(20, 30)
     }
 
@@ -62,7 +63,7 @@ fun DrawScope.GraphicsLayerTopLeftSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerSizeSample(layer: GraphicsLayer) {
     // Build the layer with the density, layout direction from the DrawScope that is
     // sized to 200 x 100 pixels and draw a red rectangle that occupies these bounds
-    layer.buildLayer(size = IntSize(200, 100)) {
+    layer.record(size = IntSize(200, 100)) {
         drawRect(Color.Red)
     }
 
@@ -74,12 +75,13 @@ fun DrawScope.GraphicsLayerSizeSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerScaleAndPivotSample(layer: GraphicsLayer) {
     // Create a 200 x 200 pixel layer that has a red rectangle drawn in the lower right
     // corner.
-    layer.buildLayer(size = IntSize(200, 200)) {
-        drawRect(
-            Color.Red,
-            topLeft = Offset(size.width / 2f, size.height / 2f)
-        )
-    }.apply {
+    layer.apply {
+        record(size = IntSize(200, 200)) {
+            drawRect(
+                Color.Red,
+                topLeft = Offset(size.width / 2f, size.height / 2f)
+            )
+        }
         // Scale the layer by 1.5x in both the x and y axis relative to the bottom
         // right corner
         scaleX = 1.5f
@@ -97,9 +99,10 @@ fun DrawScope.GraphicsLayerScaleAndPivotSample(layer: GraphicsLayer) {
 @Sampled
 fun DrawScope.GraphicsLayerTranslateSample(layer: GraphicsLayer) {
     // Create a 200 x 200 pixel layer that draws a red square
-    layer.buildLayer(size = IntSize(200, 200)) {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record(size = IntSize(200, 200)) {
+            drawRect(Color.Red)
+        }
         // Configuring the translationX + Y will translate the red square
         // by 100 pixels to the right and 50 pixels from the top when drawn
         // into the destination DrawScope
@@ -114,9 +117,10 @@ fun DrawScope.GraphicsLayerTranslateSample(layer: GraphicsLayer) {
 @Sampled
 fun DrawScope.GraphicsLayerShadowSample(layer: GraphicsLayer) {
     // Create a 200 x 200 pixel layer that draws a red square
-    layer.buildLayer(size = IntSize(200, 200)) {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record(size = IntSize(200, 200)) {
+            drawRect(Color.Red)
+        }
         // Apply a shadow with specified colors that has an elevation of 20f when this layer is
         // drawn into the destination DrawScope.
         shadowElevation = 20f
@@ -142,9 +146,10 @@ fun DrawScope.GraphicsLayerBlendModeSample(layer: GraphicsLayer) {
 
     // Build the GraphicsLayer with the specified offset and size that is filled
     // with a red rectangle.
-    layer.buildLayer(size = layerSize) {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record(size = layerSize) {
+            drawRect(Color.Red)
+        }
         this.topLeft = topLeft
         // Specify the Xor blend mode here so that layer contents will be shown in the
         // destination only if it is transparent, otherwise the destination would be cleared
@@ -170,9 +175,10 @@ fun DrawScope.GraphicsLayerBlendModeSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerColorFilterSample(layer: GraphicsLayer) {
     // Create a layer with the same configuration as the destination DrawScope
     // and draw a red rectangle in the layer
-    layer.buildLayer {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Red)
+        }
         // Apply a ColorFilter that will tint the contents of the layer to blue
         // when it is drawn into the destination DrawScope
         colorFilter = ColorFilter.tint(Color.Blue)
@@ -186,11 +192,12 @@ fun DrawScope.GraphicsLayerColorFilterSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerRenderEffectSample(layer: GraphicsLayer) {
     // Create a layer sized to the destination draw scope that is comprised
     // of an inset red rectangle
-    layer.buildLayer {
-        inset(20f, 20f) {
-            drawRect(Color.Red)
+    layer.apply {
+        record {
+            inset(20f, 20f) {
+                drawRect(Color.Red)
+            }
         }
-    }.apply {
         // Configure a blur to the contents of the layer that is applied
         // when drawn to the destination DrawScope
         renderEffect = BlurEffect(20f, 20f, TileMode.Decal)
@@ -203,11 +210,12 @@ fun DrawScope.GraphicsLayerRenderEffectSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerAlphaSample(layer: GraphicsLayer) {
     // Create a layer sized to the destination draw scope that is comprised
     // of an inset red rectangle
-    layer.buildLayer {
-        inset(20f, 20f) {
-            drawRect(Color.Red)
+    layer.apply {
+        record {
+            inset(20f, 20f) {
+                drawRect(Color.Red)
+            }
         }
-    }.apply {
         // Renders the content of the layer with 50% alpha when it is drawn
         // into the destination
         alpha = 0.5f
@@ -220,9 +228,10 @@ fun DrawScope.GraphicsLayerAlphaSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerOutlineSample(layer: GraphicsLayer) {
     // Create a layer sized to the destination draw scope that is comprised
     // of an inset red rectangle
-    layer.buildLayer {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Red)
+        }
         // Apply a shadow that is clipped to the specified round rect
         shadowElevation = 20f
         setRoundRectOutline(IntOffset.Zero, IntSize(300, 180), 30f)
@@ -235,9 +244,10 @@ fun DrawScope.GraphicsLayerOutlineSample(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerRoundRectOutline(layer: GraphicsLayer) {
     // Create a layer sized to the destination draw scope that is comprised
     // of an inset red rectangle
-    layer.buildLayer {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Red)
+        }
         // Apply a shadow and have the contents of the layer be clipped
         // to the size of the layer with a 20 pixel corner radius
         shadowElevation = 20f
@@ -251,9 +261,10 @@ fun DrawScope.GraphicsLayerRoundRectOutline(layer: GraphicsLayer) {
 fun DrawScope.GraphicsLayerRectOutline(layer: GraphicsLayer) {
     // Create a layer sized to the destination draw scope that is comprised
     // of an inset red rectangle
-    layer.buildLayer {
-        drawRect(Color.Red)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Red)
+        }
         // Apply a shadow and have the contents of the layer be clipped
         // to the size of the layer with a 20 pixel corner radius
         shadowElevation = 20f
@@ -265,9 +276,10 @@ fun DrawScope.GraphicsLayerRectOutline(layer: GraphicsLayer) {
 
 @Sampled
 fun DrawScope.GraphicsLayerRotationX(layer: GraphicsLayer) {
-    layer.buildLayer {
-        drawRect(Color.Yellow)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Yellow)
+        }
         // Rotates the yellow rect 45f clockwise relative to the x axis
         rotationX = 45f
     }
@@ -277,9 +289,10 @@ fun DrawScope.GraphicsLayerRotationX(layer: GraphicsLayer) {
 
 @Sampled
 fun DrawScope.GraphicsLayerRotationYWithCameraDistance(layer: GraphicsLayer) {
-    layer.buildLayer {
-        drawRect(Color.Yellow)
-    }.apply {
+    layer.apply {
+        record {
+            drawRect(Color.Yellow)
+        }
         // Rotates the yellow rect 45f clockwise relative to the y axis
         rotationY = 45f
         cameraDistance = 5.0f
@@ -291,7 +304,7 @@ fun DrawScope.GraphicsLayerRotationYWithCameraDistance(layer: GraphicsLayer) {
 @OptIn(DelicateCoroutinesApi::class)
 @Sampled
 fun GraphicsLayerToImageBitmap(context: Context, layer: GraphicsLayer) {
-    layer.buildLayer(Density(1f), LayoutDirection.Ltr, IntSize(300, 200)) {
+    layer.record(Density(1f), LayoutDirection.Ltr, IntSize(300, 200)) {
         val half = Size(size.width / 2, size.height)
         drawRect(Color.Red, size = half)
         drawRect(Color.Blue, topLeft = Offset(size.width / 2f, 0f), size = half)

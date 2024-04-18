@@ -79,7 +79,8 @@ class PullToRefreshStateImplTest {
             Box(
                 Modifier
                     .nestedScroll(state.nestedScrollConnection)
-                    .testTag(PullRefreshTag)) {
+                    .testTag(PullRefreshTag)
+            ) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -137,7 +138,8 @@ class PullToRefreshStateImplTest {
             Box(
                 Modifier
                     .nestedScroll(state.nestedScrollConnection)
-                    .testTag(PullRefreshTag)) {
+                    .testTag(PullRefreshTag)
+            ) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -180,7 +182,8 @@ class PullToRefreshStateImplTest {
             Box(
                 Modifier
                     .nestedScroll(state.nestedScrollConnection)
-                    .testTag(PullRefreshTag)) {
+                    .testTag(PullRefreshTag)
+            ) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -234,7 +237,8 @@ class PullToRefreshStateImplTest {
             Box(
                 Modifier
                     .nestedScroll(state.nestedScrollConnection)
-                    .testTag(PullRefreshTag)) {
+                    .testTag(PullRefreshTag)
+            ) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -277,18 +281,21 @@ class PullToRefreshStateImplTest {
             Box(
                 Modifier
                     .nestedScroll(state.nestedScrollConnection)
-                    .testTag(PullRefreshTag)) {
+                    .testTag(PullRefreshTag)
+            ) {
                 Box(
                     Modifier
                         .size(100.dp)
-                        .nestedScroll(connection, dispatcher))
+                        .nestedScroll(connection, dispatcher)
+                )
             }
         }
         // 100 pixels up
         val dragUpOffset = Offset(0f, -100f)
 
         rule.runOnIdle {
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // Pull refresh is not showing, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Offset.Zero)
             assertThat(state.verticalOffset).isEqualTo(0f)
@@ -300,7 +307,8 @@ class PullToRefreshStateImplTest {
         rule.runOnIdle {
             assertThat(state.calculateVerticalOffset())
                 .isEqualTo(100f /* 200 / 2 for drag multiplier */)
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // Pull refresh is currently showing, so we should consume all the delta
             assertThat(preConsumed).isEqualTo(dragUpOffset)
             assertThat(state.calculateVerticalOffset())
