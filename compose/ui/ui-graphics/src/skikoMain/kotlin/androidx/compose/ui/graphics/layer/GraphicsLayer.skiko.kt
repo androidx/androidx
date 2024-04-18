@@ -78,14 +78,13 @@ actual class GraphicsLayer internal constructor() {
 
     actual var renderEffect: RenderEffect? = null
 
-    actual fun buildLayer(
+    actual fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
         block: DrawScope.() -> Unit
-    ): GraphicsLayer {
+    ) {
         // TODO
-        return this
     }
 
     actual var clip: Boolean = false
