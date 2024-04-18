@@ -20,12 +20,15 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.stringArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.typeOf
+import kotlinx.serialization.Serializable
 import org.junit.Test
 
 @SmallTest
@@ -692,5 +695,73 @@ class NavDestinationAndroidTest {
         destination2.addArgument(TEST_ARG_KEY, stringArgument("bbb"))
 
         assertThat(destination).isNotEqualTo(destination2)
+    }
+
+    @Test
+    fun hasRoute() {
+        @Serializable
+        class TestClass
+
+        val destination = NavDestinationBuilder(
+            NoOpNavigator(), TestClass::class, emptyMap()
+        ).build()
+        assertThat(destination.hasRoute<TestClass>()).isTrue()
+    }
+
+    @Test
+    fun hasRouteArgs() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val destination = NavDestinationBuilder(
+            NoOpNavigator(), TestClass::class, emptyMap()
+        ).build()
+        assertThat(destination.hasRoute<TestClass>()).isTrue()
+    }
+
+    @Test
+    fun hasRouteArgsCustomType() {
+        @Serializable
+        class TestArg
+        val testArg = object : NavType<TestArg>(true) {
+            override fun put(bundle: Bundle, key: String, value: TestArg) {}
+            override fun get(bundle: Bundle, key: String): TestArg? = null
+            override fun parseValue(value: String) = TestArg()
+        }
+
+        @Serializable
+        class TestClass(val arg: TestArg)
+
+        val destination = NavDestinationBuilder(
+            NoOpNavigator(), TestClass::class, mapOf(typeOf<TestArg>() to testArg)
+        ).build()
+        assertThat(destination.hasRoute<TestClass>()).isTrue()
+    }
+
+    @Test
+    fun hasRouteWrongClass() {
+        @Serializable
+        class TestClass(val arg: Int)
+        @Serializable
+        class WrongClass(val arg: Int)
+
+        val destination = NavDestinationBuilder(
+            NoOpNavigator(), TestClass::class, emptyMap()
+        ).build()
+        assertThat(destination.hasRoute<WrongClass>()).isFalse()
+    }
+
+    @Test
+    fun hasRouteWrongId() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val destination = NavDestinationBuilder(
+            NoOpNavigator(), TestClass::class, emptyMap()
+        ).build()
+
+        destination.id = 0
+
+        assertThat(destination.hasRoute<TestClass>()).isFalse()
     }
 }
