@@ -38,9 +38,11 @@ import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiNewExpression
 import com.intellij.psi.impl.source.tree.TreeElement
+import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
@@ -73,6 +75,12 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
         // Ignore callbacks for assignment on the original declaration of an annotated field.
         if (type == AnnotationUsageType.ASSIGNMENT_RHS && usage.uastParent == referenced) return
+
+        // [b/323214452] Don't replace property usages since we don't handle property accessors.
+        if ((referenced as? KtLightMethod)?.kotlinOrigin is KtProperty) return
+
+        // Don't warn for Kotlin replacement in Kotlin files -- that's the Kotlin Compiler's job.
+        if (qualifiedName == KOTLIN_DEPRECATED_ANNOTATION && isKotlin(usage.lang)) return
 
         var (expression, imports) = when (qualifiedName) {
             KOTLIN_DEPRECATED_ANNOTATION -> {

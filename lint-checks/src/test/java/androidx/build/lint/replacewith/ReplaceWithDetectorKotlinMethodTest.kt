@@ -27,19 +27,19 @@ class ReplaceWithDetectorKotlinMethodTest {
     fun staticMethodExplicitClass() {
         val input = arrayOf(
             ktSample("replacewith.ReplaceWithUsageKotlin"),
-            javaSample("replacewith.StaticKotlinMethodExplicitClass")
+            javaSample("replacewith.StaticKotlinMethodExplicitClassJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/replacewith/StaticKotlinMethodExplicitClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageKotlin.toString(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
         """.trimIndent()
 
         val expectedFixDiffs = """
-Fix for src/replacewith/StaticKotlinMethodExplicitClass.java line 25: Replace with `this.toString()`:
+Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replace with `this.toString()`:
 @@ -25 +25
 -         ReplaceWithUsageKotlin.toString(this);
 +         this.toString();
@@ -47,5 +47,21 @@ Fix for src/replacewith/StaticKotlinMethodExplicitClass.java line 25: Replace wi
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
+    }
+
+    @Test
+    fun staticMethodExplicitClass_withKotlinSource_hasNoWarnings() {
+        val input = arrayOf(
+            ktSample("replacewith.ReplaceWithUsageKotlin"),
+            ktSample("replacewith.StaticKotlinMethodExplicitClassKotlin")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
     }
 }
