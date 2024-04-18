@@ -26,6 +26,9 @@ open class ComposePublishingTask : AbstractComposePublishingTask() {
 
 val composeProperties = ComposeProperties(project)
 
+// TODO: Align with other modules
+val viewModelPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE
+
 val mainComponents =
     listOf(
         ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
@@ -41,7 +44,7 @@ val mainComponents =
         ),
         ComposeComponent(
             path = ":lifecycle:lifecycle-viewmodel",
-            supportedPlatforms = ComposePlatforms.ALL_AOSP
+            supportedPlatforms = viewModelPlatforms
         ),
 
         ComposeComponent(
@@ -49,11 +52,11 @@ val mainComponents =
             supportedPlatforms = ComposePlatforms.ALL_AOSP,
             neverRedirect = true
         ),
-        ComposeComponent(":savedstate:savedstate", ComposePlatforms.ALL_AOSP),
-        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", ComposePlatforms.ALL_AOSP),
+        ComposeComponent(":savedstate:savedstate", viewModelPlatforms),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", viewModelPlatforms),
 
-        ComposeComponent(":navigation:navigation-common", ComposePlatforms.ALL_AOSP),
-        ComposeComponent(":navigation:navigation-runtime", ComposePlatforms.ALL_AOSP),
+        ComposeComponent(":navigation:navigation-common", viewModelPlatforms),
+        ComposeComponent(":navigation:navigation-runtime", viewModelPlatforms),
 
         //To be added later: (also don't forget to add gradle.properties see in lifecycle-runtime for an example)
         ComposeComponent(":lifecycle:lifecycle-runtime-compose"),

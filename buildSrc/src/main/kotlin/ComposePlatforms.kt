@@ -67,6 +67,23 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
             ComposePlatforms.IosSimulatorArm64
         )
 
+        val TV_OS = EnumSet.of(
+            ComposePlatforms.TvosArm64,
+            ComposePlatforms.TvosX64,
+            ComposePlatforms.TvosSimulatorArm64
+        )
+
+        val WATCH_OS = EnumSet.of(
+            ComposePlatforms.WatchosArm64,
+            ComposePlatforms.WatchosArm32,
+            ComposePlatforms.WatchosX64,
+            ComposePlatforms.WatchosSimulatorArm64
+        )
+
+        val WINDOWS_NATIVE = EnumSet.of(
+            ComposePlatforms.MingwX64
+        )
+
         val ANDROID = EnumSet.of(
             ComposePlatforms.AndroidDebug,
             ComposePlatforms.AndroidRelease
@@ -90,7 +107,7 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
         val SKIKO_SUPPORT = EnumSet.of(KotlinMultiplatform) + JVM_BASED + UI_KIT + MACOS + WEB
 
         val ALL = EnumSet.allOf(ComposePlatforms::class.java) - IOS
-        val ALL_AOSP = EnumSet.of(KotlinMultiplatform) + JVM_BASED + IOS + LINUX + MACOS + WEB
+        val ALL_AOSP = EnumSet.allOf(ComposePlatforms::class.java) - UI_KIT
 
         /**
          * Maps comma separated list of platforms into a set of [ComposePlatforms]

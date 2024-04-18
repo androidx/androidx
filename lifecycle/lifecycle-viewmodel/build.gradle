@@ -59,6 +59,16 @@ kotlin {
     }
     wasmJs()
 
+    watchosArm64()
+    watchosArm32()
+    watchosX64()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    // TODO: mingwX64 requires Lock actual implementation.
+    //  Or copy approach from :collection:collection - use unstable atomicFu
+
     explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
@@ -127,7 +137,7 @@ kotlin {
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                    if (konanTargetFamily.appleFamily) {
                         dependsOn(darwinMain)
                     } else if (konanTargetFamily == Family.LINUX) {
                         dependsOn(linuxMain)
