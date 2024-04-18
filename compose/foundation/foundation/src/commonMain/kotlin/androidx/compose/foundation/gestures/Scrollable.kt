@@ -352,7 +352,7 @@ private class ScrollableNode(
 
     private val onWheelScrollStopped: suspend CoroutineScope.(velocity: Float) -> Unit = { velocity ->
         nestedScrollDispatcher.coroutineScope.launch {
-            scrollingLogic.onScrollStopped(velocity, Wheel)
+            scrollingLogic.onScrollStopped(velocity, UserInput)
         }
     }
 
@@ -704,7 +704,7 @@ internal class ScrollingLogic(
         initialVelocity: Float,
         source: NestedScrollSource
     ) {
-        if (source == Wheel && !flingBehavior.shouldBeTriggeredByMouseWheel) {
+        if (source == UserInput && !flingBehavior.shouldBeTriggeredByMouseWheel) {
             return
         }
     }

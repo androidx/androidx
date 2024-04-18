@@ -51,6 +51,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeoutOrNull
 
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1350/Restore-Scrollable-animation
+
 internal class MouseWheelScrollNode(
     private val scrollingLogic: ScrollingLogic,
     private val onScrollStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
@@ -309,7 +311,11 @@ internal class MouseWheelScrollNode(
 
     private fun ScrollScope.dispatchMouseWheelScroll(delta: Float) = with(scrollingLogic) {
         val offset = delta.reverseIfNeeded().toOffset()
-        val consumed = dispatchScroll(offset, NestedScrollSource.Wheel)
+        val consumed = dispatchScroll(
+            offset,
+            NestedScrollSource.UserInput,
+            overscrollEnabledForSource = false
+        )
         consumed.reverseIfNeeded().toFloat()
     }
 }
