@@ -92,7 +92,6 @@ abstract class CombineObjectFilesTask : DefaultTask() {
             Family.LINUX to "linux",
             Family.MINGW to "windows",
             Family.OSX to "osx",
-            Family.IOS to "ios"
         )
 
         private val architectureSuffixes = mapOf(
@@ -100,7 +99,6 @@ abstract class CombineObjectFilesTask : DefaultTask() {
             Architecture.ARM64 to "arm64",
             Architecture.X64 to "x64",
             Architecture.X86 to "x86"
-
         )
 
         private fun targetFileFor(
@@ -131,7 +129,7 @@ abstract class CombineObjectFilesTask : DefaultTask() {
             val architectureSuffix = architectureSuffixes[konanTarget.architecture] ?: error(
                 "Unsupported architecture ${konanTarget.architecture} for $konanTarget"
             )
-            return "${familyPrefix}_$architectureSuffix"
+            return "natives/${familyPrefix}_$architectureSuffix"
         }
     }
 }
