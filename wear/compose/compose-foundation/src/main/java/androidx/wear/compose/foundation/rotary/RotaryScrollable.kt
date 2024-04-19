@@ -41,7 +41,10 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastSumBy
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -121,13 +124,13 @@ interface RotaryScrollableBehavior {
 }
 
 /**
- * An adapter which connects scrollableState to a rotary input for snapping scroll actions.
+ * A provider which connects scrollableState to a rotary input for snapping scroll actions.
  *
  * This interface defines the essential properties and methods required for a scrollable
  * to be controlled by rotary input and perform a snap action.
  *
  */
-interface RotaryScrollableLayoutInfoProvider {
+interface RotarySnapLayoutInfoProvider {
 
     /**
      * The average size in pixels of an item within the scrollable. This is used to
@@ -201,8 +204,8 @@ object RotaryScrollableDefaults {
      * while receiving rotary events.
      * @param layoutInfoProvider A connection between scrollable entities
      * and rotary events.
-     * @param snapOffset An optional offset to be applied when snapping the item.
-     * After snapping, defines the offset to the center of the item.
+     * @param snapOffset An optional offset to be applied when snapping the item. Defines the
+     * distance from the center of the scrollable to the center of the snapped item.
      * @param hapticFeedbackEnabled Controls whether haptic feedback is given during
      * rotary scrolling (true by default). It's recommended to keep the default value of true
      * for premium scrolling experience.
@@ -210,11 +213,12 @@ object RotaryScrollableDefaults {
     @Composable
     fun snapBehavior(
         scrollableState: ScrollableState,
-        layoutInfoProvider: RotaryScrollableLayoutInfoProvider,
-        snapOffset: Int = SnapOffset,
+        layoutInfoProvider: RotarySnapLayoutInfoProvider,
+        snapOffset: Dp = 0.dp,
         hapticFeedbackEnabled: Boolean = true
     ): RotaryScrollableBehavior {
         val isLowRes = isLowResInput()
+        val snapOffsetPx = with(LocalDensity.current) { snapOffset.roundToPx() }
         val rotaryHaptics: RotaryHapticHandler =
             rememberRotaryHapticHandler(
                 scrollableState,
@@ -229,7 +233,7 @@ object RotaryScrollableDefaults {
                 scrollableState,
                 layoutInfoProvider,
                 rotaryHaptics,
-                snapOffset,
+                snapOffsetPx,
                 ThresholdDivider,
                 ResistanceFactor,
                 isLowRes
@@ -242,8 +246,8 @@ object RotaryScrollableDefaults {
      * [ScalingLazyColumn] - used with the [rotaryScrollable] modifier when snapping is required.
      *
      * @param scrollableState [ScalingLazyListState] to which rotary scroll will be connected.
-     * @param snapOffset An optional offset to be applied when snapping the item.
-     * After snapping, defines the offset to the center of the item.
+     * @param snapOffset An optional offset to be applied when snapping the item. Defines the
+     * distance from the center of the scrollable to the center of the snapped item.
      * @param hapticFeedbackEnabled Controls whether haptic feedback is given during
      * rotary scrolling (true by default). It's recommended to keep the default value of true
      * for premium scrolling experience.
@@ -251,12 +255,12 @@ object RotaryScrollableDefaults {
     @Composable
     fun snapBehavior(
         scrollableState: ScalingLazyListState,
-        snapOffset: Int = SnapOffset,
+        snapOffset: Dp = 0.dp,
         hapticFeedbackEnabled: Boolean = true
     ): RotaryScrollableBehavior = snapBehavior(
         scrollableState = scrollableState,
         layoutInfoProvider = remember(scrollableState) {
-            ScalingLazyColumnRotaryScrollableLayoutInfoProvider(scrollableState)
+            ScalingLazyColumnRotarySnapLayoutInfoProvider(scrollableState)
         },
         snapOffset = snapOffset,
         hapticFeedbackEnabled = hapticFeedbackEnabled
@@ -269,7 +273,6 @@ object RotaryScrollableDefaults {
     private fun isLowResInput(): Boolean = LocalContext.current.packageManager
         .hasSystemFeature("android.hardware.rotaryencoder.lowres")
 
-    private const val SnapOffset: Int = 0
     private const val ThresholdDivider: Float = 1.5f
     private const val ResistanceFactor: Float = 3f
 
@@ -282,9 +285,9 @@ object RotaryScrollableDefaults {
 /**
  * An implementation of rotary scroll adapter for ScalingLazyColumn
  */
-internal class ScalingLazyColumnRotaryScrollableLayoutInfoProvider(
+internal class ScalingLazyColumnRotarySnapLayoutInfoProvider(
     private val scrollableState: ScalingLazyListState
-) : RotaryScrollableLayoutInfoProvider {
+) : RotarySnapLayoutInfoProvider {
 
     /**
      * Calculates the average item height by averaging the height of visible items.
@@ -356,15 +359,15 @@ private fun flingBehavior(
 /**
  * Handles scroll with snap.
  *
- * @return A snap implementation of [RotaryScrollableBehavior] which is either suitable for low-res or
- * high-res input.
+ * @return A snap implementation of [RotaryScrollableBehavior] which is either suitable for low-res
+ * or high-res input.
  *
- * @param layoutInfoProvider Implementation of [RotaryScrollableLayoutInfoProvider], which connects
+ * @param layoutInfoProvider Implementation of [RotarySnapLayoutInfoProvider], which connects
  * scrollableState to a rotary input for snapping scroll actions.
  * @param rotaryHaptics Implementation of [RotaryHapticHandler] which handles haptics
  * for rotary usage
  * @param snapOffset An offset to be applied when snapping the item. After the snap the
- * snapped items offset will be [snapOffset].
+ * snapped items offset will be [snapOffset]. In pixels.
  * @param maxThresholdDivider Factor to divide item size when calculating threshold.
  * @param scrollDistanceDivider A value which is used to slow down or
  * speed up the scroll before snap happens. The higher the value the slower the scroll.
@@ -372,7 +375,7 @@ private fun flingBehavior(
  */
 private fun snapBehavior(
     scrollableState: ScrollableState,
-    layoutInfoProvider: RotaryScrollableLayoutInfoProvider,
+    layoutInfoProvider: RotarySnapLayoutInfoProvider,
     rotaryHaptics: RotaryHapticHandler,
     snapOffset: Int,
     maxThresholdDivider: Float,
@@ -482,7 +485,7 @@ internal class RotaryScrollHandler(
  */
 internal class RotarySnapHandler(
     private val scrollableState: ScrollableState,
-    private val layoutInfoProvider: RotaryScrollableLayoutInfoProvider,
+    private val layoutInfoProvider: RotarySnapLayoutInfoProvider,
     private val snapOffset: Int,
 ) {
     private var snapTarget: Int = layoutInfoProvider.currentItemIndex

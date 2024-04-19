@@ -477,8 +477,8 @@ package androidx.wear.compose.foundation.rotary {
 
   public final class RotaryScrollableDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional boolean hapticFeedbackEnabled);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotaryScrollableLayoutInfoProvider layoutInfoProvider, optional int snapOffset, optional boolean hapticFeedbackEnabled);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional int snapOffset, optional boolean hapticFeedbackEnabled);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider layoutInfoProvider, optional float snapOffset, optional boolean hapticFeedbackEnabled);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional float snapOffset, optional boolean hapticFeedbackEnabled);
     field public static final androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults INSTANCE;
   }
 
@@ -486,7 +486,7 @@ package androidx.wear.compose.foundation.rotary {
     method public static androidx.compose.ui.Modifier rotaryScrollable(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior, androidx.compose.ui.focus.FocusRequester focusRequester, optional boolean reverseDirection);
   }
 
-  public interface RotaryScrollableLayoutInfoProvider {
+  public interface RotarySnapLayoutInfoProvider {
     method public float getAverageItemSize();
     method public int getCurrentItemIndex();
     method public float getCurrentItemOffset();
