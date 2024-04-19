@@ -154,9 +154,6 @@ class VersionChecker(val context: IrPluginContext) {
     }
 
     fun check() {
-        // version checker accesses bodies of the functions that are not deserialized in KLIB
-        if (!context.platform.isJvm()) return
-
         val versionClass = context.referenceClass(ComposeClassIds.ComposeVersion)
         if (versionClass == null) {
             // If the version class isn't present, it likely means that compose runtime isn't on the
@@ -170,6 +167,10 @@ class VersionChecker(val context: IrPluginContext) {
                 noRuntimeOnClasspathError()
             }
         }
+
+        // The check accesses bodies of the functions that are not deserialized in KLIB
+        if (!context.platform.isJvm()) return
+
         val versionExpr = versionClass
             .owner
             .declarations
