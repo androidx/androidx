@@ -3059,6 +3059,10 @@ public final class androidx/compose/ui/platform/DefaultViewConfiguration : andro
 	public fun getTouchSlop ()F
 }
 
+public final class androidx/compose/ui/platform/DefaultViewModelOwnerStore_skikoKt {
+	public static final fun findComposeDefaultViewModelStoreOwner (Landroidx/compose/runtime/Composer;I)Landroidx/lifecycle/ViewModelStoreOwner;
+}
+
 public abstract interface class androidx/compose/ui/platform/InfiniteAnimationPolicy : kotlin/coroutines/CoroutineContext$Element {
 	public static final field Key Landroidx/compose/ui/platform/InfiniteAnimationPolicy$Key;
 	public fun getKey ()Lkotlin/coroutines/CoroutineContext$Key;

@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel.compose
+package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.ui.platform.findComposeDefaultViewModelStoreOwner
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModelStoreOwner
 
-@OptIn(InternalComposeApi::class)
+/**
+ * Internal helper to provide [ViewModelStoreOwner] from Compose UI module.
+ * In applications please use [androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner].
+ *
+ * @hide
+ */
+internal val LocalInternalViewModelStoreOwner = staticCompositionLocalOf<ViewModelStoreOwner?> {
+    null
+}
+
+@InternalComposeApi
 @Composable
-internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? =
-    findComposeDefaultViewModelStoreOwner()
+fun findComposeDefaultViewModelStoreOwner(): ViewModelStoreOwner? =
+    LocalInternalViewModelStoreOwner.current

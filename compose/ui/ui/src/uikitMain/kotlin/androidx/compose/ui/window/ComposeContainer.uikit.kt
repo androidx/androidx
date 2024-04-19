@@ -30,6 +30,7 @@ import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.ComposeScene
@@ -91,12 +92,14 @@ import platform.darwin.dispatch_get_main_queue
 
 private val coroutineDispatcher = Dispatchers.Main
 
+// TODO: Move to androidx.compose.ui.scene
 @OptIn(InternalComposeApi::class)
 @ExportObjCClass
 internal class ComposeContainer(
     private val configuration: ComposeUIViewControllerConfiguration,
     private val content: @Composable () -> Unit,
 ) : CMPViewController(nibName = null, bundle = null) {
+    // TODO: Rename and make private
     val lifecycleOwner = ViewControllerBasedLifecycleOwner()
     val hapticFeedback = CupertinoHapticFeedback()
 
@@ -441,6 +444,7 @@ internal fun ProvideContainerCompositionLocals(
         LocalInterfaceOrientation provides interfaceOrientationState.value,
         LocalSystemTheme provides systemThemeState.value,
         LocalLifecycleOwner provides lifecycleOwner,
+        LocalInternalViewModelStoreOwner provides lifecycleOwner,
         content = content
     )
 }

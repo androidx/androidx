@@ -28,6 +28,7 @@ import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
@@ -47,6 +48,8 @@ import androidx.compose.ui.window.sizeInPx
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ComponentEvent
@@ -85,7 +88,7 @@ internal class ComposeContainer(
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
-) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner {
+) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner, ViewModelStoreOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -150,6 +153,8 @@ internal class ComposeContainer(
     val preferredSize by mediator::preferredSize
 
     override val lifecycle = LifecycleRegistry(this)
+    override val viewModelStore = ViewModelStore()
+
     private var isDisposed = false
     private var isDetached = true
     private var isMinimized = false
@@ -167,6 +172,7 @@ internal class ComposeContainer(
     fun dispose() {
         isDisposed = true
         updateLifecycleState()
+        viewModelStore.clear()
 
         _windowContainer?.removeComponentListener(this)
         mediator.dispose()
@@ -488,5 +494,6 @@ private fun ProvideContainerCompositionLocals(
     content: @Composable () -> Unit,
 ) = CompositionLocalProvider(
     LocalLifecycleOwner provides composeContainer,
+    LocalInternalViewModelStoreOwner provides composeContainer,
     content = content
 )
