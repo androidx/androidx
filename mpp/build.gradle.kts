@@ -1,3 +1,5 @@
+import androidx.build.jetbrains.ArtifactRedirecting
+import androidx.build.jetbrains.artifactRedirecting
 import org.jetbrains.compose.internal.publishing.*
 
 plugins {
@@ -24,6 +26,9 @@ open class ComposePublishingTask : AbstractComposePublishingTask() {
 
 val composeProperties = ComposeProperties(project)
 
+// TODO: Align with other modules
+val viewModelPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE
+
 val mainComponents =
     listOf(
         ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
@@ -39,7 +44,7 @@ val mainComponents =
         ),
         ComposeComponent(
             path = ":lifecycle:lifecycle-viewmodel",
-            supportedPlatforms = ComposePlatforms.ALL_AOSP
+            supportedPlatforms = viewModelPlatforms
         ),
 
         ComposeComponent(
@@ -47,11 +52,11 @@ val mainComponents =
             supportedPlatforms = ComposePlatforms.ALL_AOSP,
             neverRedirect = true
         ),
-        ComposeComponent(":savedstate:savedstate", ComposePlatforms.ALL_AOSP),
-        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", ComposePlatforms.ALL_AOSP),
+        ComposeComponent(":savedstate:savedstate", viewModelPlatforms),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", viewModelPlatforms),
 
-        ComposeComponent(":navigation:navigation-common", ComposePlatforms.ALL_AOSP),
-        ComposeComponent(":navigation:navigation-runtime", ComposePlatforms.ALL_AOSP),
+        ComposeComponent(":navigation:navigation-common", viewModelPlatforms),
+        ComposeComponent(":navigation:navigation-runtime", viewModelPlatforms),
 
         //To be added later: (also don't forget to add gradle.properties see in lifecycle-runtime for an example)
         ComposeComponent(":lifecycle:lifecycle-runtime-compose"),
@@ -277,3 +282,30 @@ fun readComposeModules(
 
 fun allTasksWith(name: String) =
     rootProject.subprojects.flatMap { it.tasks.filter { it.name == name } }
+
+
+// ./gradlew printAllArtifactRedirectingVersions -PfilterProjectPath=lifecycle
+// or just ./gradlew printAllArtifactRedirectingVersions
+val printAllArtifactRedirectingVersions = tasks.register("printAllArtifactRedirectingVersions") {
+    val filter = project.properties["filterProjectPath"] as? String ?: ""
+    doLast {
+        val map = mainComponents.filter { it.path.contains(filter) }
+            .joinToString("\n\n", prefix = "\n") {
+            val p = rootProject.findProject(it.path)!!
+            it.path + " --> \n" + p.artifactRedirecting().prettyText()
+        }
+
+        println(map)
+    }
+}
+
+fun ArtifactRedirecting.prettyText(): String {
+    val allLines = arrayOf(
+        "redirectGroupId = ${this.groupId}",
+        "redirectDefaultVersion = ${this.defaultVersion}",
+        "redirectForTargets = [${this.targetNames.joinToString().takeIf { it.isNotBlank() } ?: "android"}]",
+        "redirectTargetVersions = ${this.targetVersions}"
+    )
+
+    return allLines.joinToString("") { " ".repeat(3) + "$it\n" }
+}

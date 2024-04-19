@@ -443,8 +443,6 @@ private class AccessibilityElement(
     private fun scrollIfPossible(direction: UIAccessibilityScrollDirection): AccessibilityElement? {
         val config = cachedConfig
 
-        //val (width, height) = semanticsNode.size
-
         when (direction) {
             UIAccessibilityScrollDirectionUp -> {
                 var result = config.getOrNull(SemanticsActions.PageUp)?.action?.invoke()
@@ -601,6 +599,10 @@ private class AccessibilityElement(
             val config = cachedConfig
 
             if (config.contains(SemanticsProperties.LiveRegion)) {
+                // TODO: LiveRegionMode in the config is currently ignored.
+                //  the default behavior due this flag set will actually do `Polite` announcements
+                //  to do `Assertive` announcements, we need to post a notification explicitly on each change
+                //  which we need to track manually
                 result = result or UIAccessibilityTraitUpdatesFrequently
             }
 
@@ -622,6 +624,10 @@ private class AccessibilityElement(
                         // Do nothing
                     }
                 }
+            }
+
+            config.getOrNull(SemanticsProperties.LiveRegion)?.let {
+                result = result or UIAccessibilityTraitUpdatesFrequently
             }
 
             config.getOrNull(SemanticsActions.OnClick)?.let {
@@ -992,6 +998,10 @@ internal class AccessibilityMediator(
     private var needsInitialRefocusing = true
     private var isAlive = true
 
+    private var inflightScrollsCount = 0
+    private val needsRedundantRefocusingOnSameElement: Boolean
+        get() = inflightScrollsCount > 0
+
     /**
      * The kind of invalidation that determines what kind of logic will be executed in the next sync.
      * `COMPLETE` invalidation means that the whole tree should be recomputed, `BOUNDS` means that only
@@ -1066,6 +1076,7 @@ internal class AccessibilityMediator(
                     }
 
                     debugLogger?.log("AccessibilityMediator.sync took $time")
+                    debugLogger?.log("LayoutChanged, newElementToFocus: ${result.newElementToFocus}")
 
                     UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, result.newElementToFocus)
                 }
@@ -1087,16 +1098,24 @@ internal class AccessibilityMediator(
         focusedNode: SemanticsNode,
         focusedRectInWindow: Rect
     ) {
+        inflightScrollsCount++
+
         coroutineScope.launch {
             delay(delay)
+
+            inflightScrollsCount--
 
             UIAccessibilityPostNotification(
                 UIAccessibilityPageScrolledNotification,
                 null
             )
 
+            debugLogger?.log("PageScrolled")
+
             if (accessibilityElementsMap[focusedNode.id] == null) {
                 findElementInRect(rect = focusedRectInWindow)?.let {
+                    debugLogger?.log("LayoutChanged, result: $it")
+
                     UIAccessibilityPostNotification(
                         UIAccessibilityLayoutChangedNotification,
                         it
@@ -1275,8 +1294,12 @@ internal class AccessibilityMediator(
 
             refocusedElement
         } else {
-            focusedElement?.semanticsNodeId?.let {
-                accessibilityElementsMap[it]
+            if (needsRedundantRefocusingOnSameElement) {
+                focusedElement?.semanticsNodeId?.let {
+                    accessibilityElementsMap[it]
+                }
+            } else {
+                null // No need to refocus to anything
             }
         }
 

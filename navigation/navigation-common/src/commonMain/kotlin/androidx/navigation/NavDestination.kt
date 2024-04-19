@@ -34,6 +34,27 @@ import kotlin.jvm.JvmStatic
 public expect open class NavDestination(
     navigatorName: String
 ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class DeepLinkMatch {
+        public val destination: NavDestination
+        public val matchingArgs: Bundle?
+
+        /**
+         * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
+         * the [arguments].
+         *
+         * This returns true in these edge cases:
+         * 1. If the [arguments] contain more args than [DeepLinkMatch.matchingArgs].
+         * 2. If [DeepLinkMatch.matchingArgs] is empty
+         * 3. Argument has null value in both [DeepLinkMatch.matchingArgs] and [arguments]
+         * i.e. arguments/params with nullable values
+         *
+         * @param [arguments] The arguments to match with the matchingArgs stored in this
+         * DeepLinkMatch.
+         */
+        public fun hasMatchingArgs(arguments: Bundle?): Boolean
+    }
+
     /**
      * The name associated with this destination's [Navigator].
      */
@@ -155,6 +176,15 @@ public expect open class NavDestination(
      * @see NavController.navigate
      */
     public fun addDeepLink(navDeepLink: NavDeepLink)
+
+    /**
+     * Determines if this NavDestination has a deep link of this route.
+     *
+     * @param [route] The route to match against this [NavDestination.route]
+     * @return The matching [DeepLinkMatch], or null if no match was found.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLink(route: String): DeepLinkMatch?
 
     /**
      * Returns true if the [NavBackStackEntry.destination] contains the route.

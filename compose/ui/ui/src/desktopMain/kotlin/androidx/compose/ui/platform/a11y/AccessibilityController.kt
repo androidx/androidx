@@ -167,17 +167,6 @@ internal class AccessibilityController(
     }
 
     /**
-     * Called to notify us when an accessibility call is received from the system.
-     *
-     * This starts a process that actively synchronized the [ComposeAccessible]s with the semantics
-     * node tree.
-     */
-    fun notifyIsInUse() {
-        lastUseTimeNanos = System.nanoTime()
-        scheduleNodeSync()
-    }
-
-    /**
      * A channel that triggers the syncing of [ComposeAccessible]s with the semantics node tree.
      */
     private val nodeSyncChannel = Channel<Unit>(Channel.RENDEZVOUS)
@@ -205,21 +194,6 @@ internal class AccessibilityController(
     private val delayedNodeNotifications = mutableListOf<() -> Unit>()
 
     /**
-     * The time of the latest accessibility call from the system.
-     */
-    // Set initial value such that accessibilityRecentlyUsed is initially `false`
-    private var lastUseTimeNanos: Long = System.nanoTime() - (MaxIdleTimeNanos + 1)
-
-    /**
-     * Whether an accessibility call from the system has been received "recently".
-     *
-     * When this returns `false` the active syncing of [ComposeAccessible]s with the semantics node
-     * tree is paused.
-     */
-    private val accessibilityRecentlyUsed
-        get() = System.nanoTime() - lastUseTimeNanos < MaxIdleTimeNanos
-
-    /**
      * The coroutine syncing the [ComposeAccessible]s with the semantics node tree.
      */
     private var syncingJob: Job? = null
@@ -239,9 +213,9 @@ internal class AccessibilityController(
             throw IllegalStateException("Sync loop already running")
 
         syncingJob = CoroutineScope(context).launch {
-            while (true) {
-                nodeSyncChannel.receive()
-                if (accessibilityRecentlyUsed && !nodeMappingIsValid) {
+            AccessibilityUsage.runActiveController(this@AccessibilityController) {
+                while (true) {
+                    nodeSyncChannel.receive()
                     syncNodes()
                 }
             }
@@ -308,8 +282,10 @@ internal class AccessibilityController(
     /**
      * Schedules [syncNodes] to be called later.
      */
-    private fun scheduleNodeSync() {
-        nodeSyncChannel.trySend(Unit)
+    private fun scheduleNodeSyncIfNeeded() {
+        if (AccessibilityUsage.recentlyUsed && !nodeMappingIsValid) {
+            nodeSyncChannel.trySend(Unit)
+        }
     }
 
     /**
@@ -317,7 +293,7 @@ internal class AccessibilityController(
      */
     fun onSemanticsChange() {
         nodeMappingIsValid = false
-        scheduleNodeSync()
+        scheduleNodeSyncIfNeeded()
     }
 
     /**
@@ -327,7 +303,7 @@ internal class AccessibilityController(
     fun onLayoutChanged(@Suppress("UNUSED_PARAMETER") nodeId: Int) {
         // TODO: Only recompute the layout-related properties of the node
         nodeMappingIsValid = false
-        scheduleNodeSync()
+        scheduleNodeSyncIfNeeded()
     }
 
     /**
@@ -341,6 +317,77 @@ internal class AccessibilityController(
      */
     val rootAccessible: ComposeAccessible
         get() = accessibleByNodeId(rootSemanticNode.id)!!
+
+    /**
+     * Holds how recently the system has queried the program's accessibility state and manages
+     * enabling/disabling the syncing of [AccessibilityController]s with the semantic tree when the
+     * system has not queried the program's accessibility state for a while.
+     */
+    object AccessibilityUsage {
+
+        /**
+         * The time before we stop actively syncing [ComposeAccessible]s with the semantics node
+         * tree if we don't receive any accessibility calls from the system.
+         */
+        private val MaxIdleTimeNanos = 5.minutes.inWholeNanoseconds
+
+        /**
+         * The set of "live" [AccessibilityController]s.
+         */
+        private val activeControllers = mutableSetOf<AccessibilityController>()
+
+        /**
+         * The time of the latest accessibility call from the system.
+         */
+        // Set initial value such that accessibilityRecentlyUsed is initially `false`
+        private var lastUseTimeNanos: Long = System.nanoTime() - (MaxIdleTimeNanos + 1)
+
+        /**
+         * Resets this object to its initial state. This is needed for tests.
+         */
+        internal fun reset() {
+            assert(activeControllers.isEmpty())
+            lastUseTimeNanos = System.nanoTime() - (MaxIdleTimeNanos + 1)
+        }
+
+        /**
+         * Called to notify us when an accessibility query is received from the system.
+         *
+         * This starts a process that actively synchronized the [ComposeAccessible]s with the
+         * semantics node tree.
+         */
+        fun notifyInUse() {
+            lastUseTimeNanos = System.nanoTime()
+            for (controller in activeControllers) {
+                controller.scheduleNodeSyncIfNeeded()
+            }
+        }
+
+        /**
+         * Whether an accessibility call from the system has been received "recently".
+         *
+         * When this returns `false` the active syncing of [ComposeAccessible]s with the semantics
+         * node tree is paused.
+         */
+        val recentlyUsed
+            get() = System.nanoTime() - lastUseTimeNanos < MaxIdleTimeNanos
+
+
+        /**
+         * Registers the given controller as an active one until [block] returns.
+         */
+        suspend fun runActiveController(
+            controller: AccessibilityController,
+            block: suspend () -> Unit
+        ) {
+            try {
+                activeControllers.add(controller)
+                block()
+            } finally {
+                activeControllers.remove(controller)
+            }
+        }
+    }
 }
 
 /**
@@ -369,9 +416,3 @@ internal fun Accessible.print(level: Int = 0) {
         }
     }
 }
-
-/**
- * The time before we stop actively syncing [ComposeAccessible]s with the semantics node tree if we
- * don't receive any accessibility calls from the system.
- */
-private val MaxIdleTimeNanos = 5.minutes.inWholeNanoseconds

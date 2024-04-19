@@ -1,0 +1,66 @@
+public class androidx/navigation/NavController {
+	public static final field Companion Landroidx/navigation/NavController$Companion;
+	public fun <init> ()V
+	public fun addOnDestinationChangedListener (Landroidx/navigation/NavController$OnDestinationChangedListener;)V
+	public final fun clearBackStack (Ljava/lang/String;)Z
+	public final fun findDestination (Ljava/lang/String;)Landroidx/navigation/NavDestination;
+	public final fun getBackStackEntry (Ljava/lang/String;)Landroidx/navigation/NavBackStackEntry;
+	public final fun getCurrentBackStack ()Lkotlinx/coroutines/flow/StateFlow;
+	public fun getCurrentBackStackEntry ()Landroidx/navigation/NavBackStackEntry;
+	public final fun getCurrentBackStackEntryFlow ()Lkotlinx/coroutines/flow/Flow;
+	public fun getCurrentDestination ()Landroidx/navigation/NavDestination;
+	public fun getGraph ()Landroidx/navigation/NavGraph;
+	public fun getNavigatorProvider ()Landroidx/navigation/NavigatorProvider;
+	public fun getPreviousBackStackEntry ()Landroidx/navigation/NavBackStackEntry;
+	public final fun getVisibleEntries ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun navigate (Ljava/lang/String;)V
+	public final fun navigate (Ljava/lang/String;Landroidx/navigation/NavOptions;)V
+	public final fun navigate (Ljava/lang/String;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;)V
+	public final fun navigate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun navigate$default (Landroidx/navigation/NavController;Ljava/lang/String;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;ILjava/lang/Object;)V
+	public fun navigateUp ()Z
+	public fun popBackStack ()Z
+	public final fun popBackStack (Ljava/lang/String;Z)Z
+	public final fun popBackStack (Ljava/lang/String;ZZ)Z
+	public static synthetic fun popBackStack$default (Landroidx/navigation/NavController;Ljava/lang/String;ZZILjava/lang/Object;)Z
+	public fun removeOnDestinationChangedListener (Landroidx/navigation/NavController$OnDestinationChangedListener;)V
+	public fun restoreState (Landroidx/core/bundle/Bundle;)V
+	public fun saveState ()Landroidx/core/bundle/Bundle;
+	public fun setGraph (Landroidx/navigation/NavGraph;)V
+	public fun setGraph (Landroidx/navigation/NavGraph;Landroidx/core/bundle/Bundle;)V
+	public fun setLifecycleOwner (Landroidx/lifecycle/LifecycleOwner;)V
+	public fun setNavigatorProvider (Landroidx/navigation/NavigatorProvider;)V
+	public fun setViewModelStore (Landroidx/lifecycle/ViewModelStore;)V
+}
+
+public final class androidx/navigation/NavController$Companion {
+}
+
+public abstract interface class androidx/navigation/NavController$OnDestinationChangedListener {
+	public abstract fun onDestinationChanged (Landroidx/navigation/NavController;Landroidx/navigation/NavDestination;Landroidx/core/bundle/Bundle;)V
+}
+
+public final class androidx/navigation/NavController_jbKt {
+	public static final fun createGraph (Landroidx/navigation/NavController;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavGraph;
+	public static synthetic fun createGraph$default (Landroidx/navigation/NavController;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/navigation/NavGraph;
+}
+
+public abstract interface class androidx/navigation/NavHost {
+	public abstract fun getNavController ()Landroidx/navigation/NavController;
+}
+
+public class androidx/navigation/NavHostController : androidx/navigation/NavController {
+	public fun <init> ()V
+	public final fun setLifecycleOwner (Landroidx/lifecycle/LifecycleOwner;)V
+	public final fun setViewModelStore (Landroidx/lifecycle/ViewModelStore;)V
+}
+
+public final class androidx/navigation/NavHost_jbKt {
+	public static final fun createGraph (Landroidx/navigation/NavHost;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Landroidx/navigation/NavGraph;
+	public static synthetic fun createGraph$default (Landroidx/navigation/NavHost;Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/navigation/NavGraph;
+}
+
+public final class androidx/navigation/Navigation {
+	public static final field INSTANCE Landroidx/navigation/Navigation;
+}
+

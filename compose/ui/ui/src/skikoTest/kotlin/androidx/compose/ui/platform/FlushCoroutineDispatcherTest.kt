@@ -17,14 +17,12 @@
 package androidx.compose.ui.platform
 
 import kotlinx.coroutines.test.runTest
-import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.*
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class FlushCoroutineDispatcherTest {
 
     @Test

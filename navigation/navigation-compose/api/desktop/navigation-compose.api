@@ -1,0 +1,85 @@
+public final class androidx/navigation/compose/ComposableSingletons$ComposeNavigator_jbKt {
+	public static final field INSTANCE Landroidx/navigation/compose/ComposableSingletons$ComposeNavigator_jbKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function4;
+	public fun <init> ()V
+	public final fun getLambda-1$navigation_compose ()Lkotlin/jvm/functions/Function4;
+}
+
+public final class androidx/navigation/compose/ComposableSingletons$DialogNavigator_jbKt {
+	public static final field INSTANCE Landroidx/navigation/compose/ComposableSingletons$DialogNavigator_jbKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function3;
+	public fun <init> ()V
+	public final fun getLambda-1$navigation_compose ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class androidx/navigation/compose/ComposeNavigator : androidx/navigation/Navigator {
+	public static final field $stable I
+	public fun <init> ()V
+	public synthetic fun createDestination ()Landroidx/navigation/NavDestination;
+	public fun createDestination ()Landroidx/navigation/compose/ComposeNavigator$Destination;
+	public final fun getBackStack ()Lkotlinx/coroutines/flow/StateFlow;
+	public fun navigate (Ljava/util/List;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;)V
+	public final fun onTransitionComplete (Landroidx/navigation/NavBackStackEntry;)V
+	public fun popBackStack (Landroidx/navigation/NavBackStackEntry;Z)V
+	public final fun prepareForTransition (Landroidx/navigation/NavBackStackEntry;)V
+}
+
+public final class androidx/navigation/compose/ComposeNavigator$Destination : androidx/navigation/NavDestination {
+	public static final field $stable I
+	public fun <init> (Landroidx/navigation/compose/ComposeNavigator;Lkotlin/jvm/functions/Function4;)V
+}
+
+public final class androidx/navigation/compose/DialogHostKt {
+	public static final fun DialogHost (Landroidx/navigation/compose/DialogNavigator;Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class androidx/navigation/compose/DialogNavigator : androidx/navigation/Navigator {
+	public static final field $stable I
+	public fun <init> ()V
+	public synthetic fun createDestination ()Landroidx/navigation/NavDestination;
+	public fun createDestination ()Landroidx/navigation/compose/DialogNavigator$Destination;
+	public fun navigate (Ljava/util/List;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;)V
+	public fun popBackStack (Landroidx/navigation/NavBackStackEntry;Z)V
+}
+
+public final class androidx/navigation/compose/DialogNavigator$Destination : androidx/navigation/NavDestination, androidx/navigation/FloatingWindow {
+	public static final field $stable I
+	public fun <init> (Landroidx/navigation/compose/DialogNavigator;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function3;)V
+	public synthetic fun <init> (Landroidx/navigation/compose/DialogNavigator;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function3;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class androidx/navigation/compose/NavBackStackEntryProvider_jbKt {
+	public static final fun LocalOwnersProvider (Landroidx/navigation/NavBackStackEntry;Landroidx/compose/runtime/saveable/SaveableStateHolder;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class androidx/navigation/compose/NavGraphBuilderKt {
+	public static final fun composable (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)V
+	public static final synthetic fun composable (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)V
+	public static final synthetic fun composable (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function3;)V
+	public static synthetic fun composable$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)V
+	public static synthetic fun composable$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)V
+	public static synthetic fun composable$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
+	public static final fun dialog (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function3;)V
+	public static synthetic fun dialog$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Landroidx/compose/ui/window/DialogProperties;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
+	public static final synthetic fun navigation (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;)V
+	public static final synthetic fun navigation (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public static final fun navigation (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun navigation$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static synthetic fun navigation$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static synthetic fun navigation$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class androidx/navigation/compose/NavHostController_jbKt {
+	public static final fun currentBackStackEntryAsState (Landroidx/navigation/NavController;Landroidx/compose/runtime/Composer;I)Landroidx/compose/runtime/State;
+	public static final fun rememberNavController ([Landroidx/navigation/Navigator;Landroidx/compose/runtime/Composer;I)Landroidx/navigation/NavHostController;
+}
+
+public final class androidx/navigation/compose/NavHostKt {
+	public static final synthetic fun NavHost (Landroidx/navigation/NavHostController;Landroidx/navigation/NavGraph;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun NavHost (Landroidx/navigation/NavHostController;Landroidx/navigation/NavGraph;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavHost (Landroidx/navigation/NavHostController;Landroidx/navigation/NavGraph;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun NavHost (Landroidx/navigation/NavHostController;Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavHost (Landroidx/navigation/NavHostController;Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun NavHost (Landroidx/navigation/NavHostController;Ljava/lang/String;Landroidx/compose/ui/Modifier;Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+}
+

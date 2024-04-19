@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
@@ -47,18 +46,20 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import kotlinx.cinterop.useContents
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
+import platform.CoreGraphics.CGPointMake
 import platform.UIKit.UIView
 
 /**
  * A function on elements that are magnified with a [magnifier] modifier that returns the position
- * of the center of the magnified content in the coordinate space of the root composable.
+ * of the center of the magnified content in the coordinate space of the window composable.
  */
-internal val MagnifierPositionInRoot =
-    SemanticsPropertyKey<() -> Offset>("MagnifierPositionInRoot")
+internal val MagnifierPositionInWindow =
+    SemanticsPropertyKey<() -> Offset>("MagnifierPositionInWindow")
 
 internal fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,
@@ -195,15 +196,15 @@ internal class MagnifierNode(
     private var magnifier: PlatformMagnifier? = null
 
     /**
-     * Anchor Composable's position in root layout.
+     * Anchor Composable's position in window layout.
      */
-    private var anchorPositionInRoot: Offset by mutableStateOf(Offset.Unspecified)
+    private var anchorPositionInWindow: Offset by mutableStateOf(Offset.Unspecified)
 
     /**
-     * Position where [sourceCenter] is mapped on root layout. This is passed to platform magnifier
-     * to precisely target the requested location.
+     * Position where [sourceCenter] is mapped on window layout. This is passed to platform
+     * magnifier to precisely target the requested location.
      */
-    private var sourceCenterInRoot: Offset = Offset.Unspecified
+    private var sourceCenterInWindow: Offset = Offset.Unspecified
 
     /**
      * Last reported size to [onSizeChanged]. This is compared to the current size before calling
@@ -286,27 +287,42 @@ internal class MagnifierNode(
         val density = density ?: return
 
         val sourceCenterOffset = sourceCenter(density)
-        sourceCenterInRoot =
-            if (anchorPositionInRoot.isSpecified && sourceCenterOffset.isSpecified) {
-                anchorPositionInRoot + sourceCenterOffset
+        sourceCenterInWindow =
+            if (anchorPositionInWindow.isSpecified && sourceCenterOffset.isSpecified) {
+                anchorPositionInWindow + sourceCenterOffset
             } else {
                 Offset.Unspecified
             }
 
+        val sourceCenterInView = view?.window?.takeIf {
+            sourceCenterInWindow.isSpecified
+        }?.let { window ->
+            view!!.convertPoint(
+                CGPointMake(
+                    sourceCenterInWindow.x.toDouble() / density.density,
+                    sourceCenterInWindow.y.toDouble() / density.density
+                ),
+                fromCoordinateSpace = window.coordinateSpace()
+            ).useContents {
+                // HACK: Applying additional offset to adjust magnifier location
+                // when platform layers are disabled.
+                val additionalViewOffsetInWindow = view!!.layer.affineTransform().useContents {
+                    Offset(tx.toFloat(), ty.toFloat()) * density.density
+                }
+                Offset(x.toFloat(), y.toFloat()) * density.density + additionalViewOffsetInWindow
+            }
+        }
+
         // Once the position is set, it's never null again, so we don't need to worry
         // about dismissing the magnifier if this expression changes value.
-        if (sourceCenterInRoot.isSpecified) {
+        if (sourceCenterInView != null) {
             // Calculate magnifier center if it's provided. Only accept if the returned value is
-            // specified. Then add [anchorPositionInRoot] for relative positioning.
-            val magnifierCenter = magnifierCenter?.invoke(density)
+            // specified. Then add [anchorPositionInWindow] for relative positioning.
+            magnifierCenter?.invoke(density)
                 ?.takeIf { it.isSpecified }
-                ?.let { anchorPositionInRoot + it }
-                ?: Offset.Unspecified
+                ?.let { anchorPositionInWindow + it }
 
-            magnifier.update(
-                sourceCenter = sourceCenterInRoot,
-                magnifierCenter = magnifierCenter,
-            )
+            magnifier.update(sourceCenter = sourceCenterInView)
             updateSizeIfNecessary()
         } else {
             // Can't place the magnifier at an unspecified location, so just hide it.
@@ -338,11 +354,11 @@ internal class MagnifierNode(
         // The mutable state must store the Offset, not the LocalCoordinates, because the same
         // LocalCoordinates instance may be sent to this callback multiple times, not implement
         // equals, or be stable, and so won't invalidate the snapshotFlow.
-        anchorPositionInRoot = coordinates.positionInRoot()
+        anchorPositionInWindow = coordinates.positionInWindow()
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        this[MagnifierPositionInRoot] = { sourceCenterInRoot }
+        this[MagnifierPositionInWindow] = { sourceCenterInWindow }
     }
 }
 

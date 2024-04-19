@@ -66,10 +66,10 @@ public actual open class NavDestination actual constructor(
     public annotation class ClassType(val value: KClass<*>)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class DeepLinkMatch(
-        public val destination: NavDestination,
+    public actual class DeepLinkMatch(
+        public actual val destination: NavDestination,
         @get:Suppress("NullableCollection") // Needed for nullable bundle
-        public val matchingArgs: Bundle?,
+        public actual val matchingArgs: Bundle?,
         private val isExactDeepLink: Boolean,
         private val matchingPathSegments: Int,
         private val hasMatchingAction: Boolean,
@@ -123,7 +123,7 @@ public actual open class NavDestination actual constructor(
          * @param [arguments] The arguments to match with the matchingArgs stored in this
          * DeepLinkMatch.
          */
-        public fun hasMatchingArgs(arguments: Bundle?): Boolean {
+        public actual fun hasMatchingArgs(arguments: Bundle?): Boolean {
             if (arguments == null || matchingArgs == null) return false
 
             matchingArgs.keySet().forEach { key ->
@@ -368,7 +368,7 @@ public actual open class NavDestination actual constructor(
      * @return The matching [DeepLinkMatch], or null if no match was found.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun matchDeepLink(route: String): DeepLinkMatch? {
+    public actual fun matchDeepLink(route: String): DeepLinkMatch? {
         val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
         val matchingDeepLink = if (this is NavGraph) {
             matchDeepLinkExcludingChildren(request)
@@ -386,7 +386,7 @@ public actual open class NavDestination actual constructor(
      * extracted from the Uri, or null if no match was found.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
+    public actual open fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
         if (deepLinks.isEmpty()) {
             return null
         }

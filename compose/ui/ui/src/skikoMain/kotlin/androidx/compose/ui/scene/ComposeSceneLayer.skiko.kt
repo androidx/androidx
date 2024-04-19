@@ -20,8 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentCompositionLocalContext
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
@@ -189,4 +191,18 @@ internal fun rememberComposeSceneLayer(
         }
     }
     return layer
+}
+
+/**
+ * Sets the content of the layer to [content].
+ */
+@Composable
+internal fun ComposeSceneLayer.Content(content: @Composable () -> Unit) {
+    val currentContent by rememberUpdatedState(content)
+    DisposableEffect(this) {
+        setContent {
+            currentContent()
+        }
+        onDispose {  }
+    }
 }

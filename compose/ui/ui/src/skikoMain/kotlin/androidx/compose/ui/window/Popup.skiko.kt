@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.scene.ComposeSceneLayer
+import androidx.compose.ui.scene.Content
 import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
@@ -438,6 +439,7 @@ private fun PopupLayout(
     onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    val currentContent by rememberUpdatedState(content)
     val platformInsets = properties.platformInsets
     var layoutParentBoundsInWindow: IntRect? by remember { mutableStateOf(null) }
     EmptyLayout(Modifier.parentBoundsInWindow { layoutParentBoundsInWindow = it })
@@ -446,8 +448,8 @@ private fun PopupLayout(
     )
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
-    rememberLayerContent(layer) {
-        val parentBoundsInWindow = layoutParentBoundsInWindow ?: return@rememberLayerContent
+    layer.Content {
+        val parentBoundsInWindow = layoutParentBoundsInWindow ?: return@Content
         val containerSize = LocalWindowInfo.current.containerSize
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
@@ -464,7 +466,7 @@ private fun PopupLayout(
             ime = false,
         ) {
             Layout(
-                content = content,
+                content = currentContent,
                 modifier = modifier,
                 measurePolicy = measurePolicy
             )
@@ -478,13 +480,6 @@ private val PopupProperties.platformInsets: PlatformInsets
     } else {
         PlatformInsets.Zero
     }
-
-@Composable
-private fun rememberLayerContent(layer: ComposeSceneLayer, content: @Composable () -> Unit) {
-    remember(layer, content) {
-        layer.setContent(content)
-    }
-}
 
 private fun Modifier.parentBoundsInWindow(
     onBoundsChanged: (IntRect) -> Unit

@@ -310,9 +310,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     "multiplatformExtension is null (multiplatform plugin not enabled?)"
             }
 
-            val androidXExtension = project.extensions.findByType(AndroidXExtension::class.java)
-                ?: throw Exception("You have applied AndroidXComposePlugin without AndroidXPlugin")
-
             /*
             The following configures source sets - note:
 
@@ -343,10 +340,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 }
                 if (multiplatformExtension.targets.findByName("desktop") != null) {
                     tasks.named("desktopTestClasses").also(::addToBuildOnServer)
-                }
-
-                if (androidXExtension.type == LibraryType.PUBLISHED_LIBRARY) {
-                    project.apply(plugin = "org.jetbrains.kotlinx.binary-compatibility-validator")
                 }
             }
         }

@@ -41,7 +41,7 @@ private object SafeAreaInsetsConfig : InsetsConfig {
         @Composable get() = LocalSafeArea.current
 
     override val ime: PlatformInsets
-        @Composable get() = PlatformInsets(bottom = LocalKeyboardOverlapHeight.current.dp)
+        @Composable get() = PlatformInsets(bottom = LocalKeyboardOverlapHeight.current)
 
     @Composable
     override fun excludeInsets(
@@ -55,7 +55,7 @@ private object SafeAreaInsetsConfig : InsetsConfig {
         CompositionLocalProvider(
             LocalSafeArea provides if (safeInsets) PlatformInsets() else safeArea,
             LocalLayoutMargins provides if (safeInsets) layoutMargins.exclude(safeArea) else layoutMargins,
-            LocalKeyboardOverlapHeight provides if (ime) 0f else keyboardOverlapHeight,
+            LocalKeyboardOverlapHeight provides if (ime) 0.dp else keyboardOverlapHeight,
             content = content
         )
     }

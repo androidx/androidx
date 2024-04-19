@@ -23,6 +23,53 @@ import kotlin.jvm.JvmStatic
 public actual open class NavDestination actual constructor(
     public actual val navigatorName: String
 ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public actual class DeepLinkMatch(
+        public actual val destination: NavDestination,
+        public actual val matchingArgs: Bundle?,
+        private val isExactDeepLink: Boolean,
+    ) : Comparable<DeepLinkMatch> {
+        override fun compareTo(other: DeepLinkMatch): Int {
+            // Prefer exact deep links
+            if (isExactDeepLink && !other.isExactDeepLink) {
+                return 1
+            } else if (!isExactDeepLink && other.isExactDeepLink) {
+                return -1
+            }
+            if (matchingArgs != null && other.matchingArgs == null) {
+                return 1
+            } else if (matchingArgs == null && other.matchingArgs != null) {
+                return -1
+            }
+            if (matchingArgs != null) {
+                val sizeDifference = matchingArgs.size() - other.matchingArgs!!.size()
+                if (sizeDifference > 0) {
+                    return 1
+                } else if (sizeDifference < 0) {
+                    return -1
+                }
+            }
+            return 0
+        }
+
+        public actual fun hasMatchingArgs(arguments: Bundle?): Boolean {
+            if (arguments == null || matchingArgs == null) return false
+
+            matchingArgs.keySet().forEach { key ->
+                // the arguments must at least contain every argument stored in this deep link
+                if (!arguments.containsKey(key)) return false
+
+                val type = destination._arguments[key]?.type
+                val matchingArgValue = type?.get(matchingArgs, key!!)
+                val entryArgValue = type?.get(arguments, key!!)
+                if (type?.valueEquals(matchingArgValue, entryArgValue) == false) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
     public actual var parent: NavGraph? = null
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public set
@@ -39,9 +86,11 @@ public actual open class NavDestination actual constructor(
 
     public actual var route: String? = null
         set(route) {
+            if (field == route) return
             require(route == null || route.isNotBlank()) { "Cannot have an empty route" }
+            deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == createRoute(field) })
+            addDeepLink(createRoute(route))
             field = route
-            deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == field })
         }
 
     public actual open val displayName: String
@@ -57,9 +106,44 @@ public actual open class NavDestination actual constructor(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public actual open fun matchDeepLink(route: String): DeepLinkMatch? {
+        if (deepLinks.isEmpty()) {
+            return null
+        }
+        val internalRoute = createRoute(route)
+        var bestMatch: DeepLinkMatch? = null
+        for (deepLink in deepLinks) {
+            // includes matching args for path, query, and fragment
+            val matchingArguments = deepLink.getMatchingArguments(internalRoute, _arguments)
+            if (matchingArguments != null) {
+                val newMatch = DeepLinkMatch(
+                    destination = this,
+                    matchingArgs = matchingArguments,
+                    isExactDeepLink = deepLink.isExactDeepLink,
+                )
+                if (bestMatch == null || newMatch > bestMatch) {
+                    bestMatch = newMatch
+                }
+            }
+        }
+        return bestMatch
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun hasRoute(route: String, arguments: Bundle?): Boolean {
         // this matches based on routePattern
-        return this.route == route
+        if (this.route == route) return true
+
+        // if no match based on routePattern, this means route contains filled in args or query
+        // params
+        val matchingDeepLink = matchDeepLink(route)
+
+        // if no matchingDeepLink or mismatching destination, return false directly
+        if (this != matchingDeepLink?.destination) return false
+
+        // Any args (partially or completely filled in) must exactly match between
+        // the route and entry's route.
+        return matchingDeepLink.hasMatchingArgs(arguments)
     }
 
     public actual fun addArgument(argumentName: String, argument: NavArgument) {
@@ -138,6 +222,9 @@ public actual open class NavDestination actual constructor(
     }
 
     public actual companion object {
+        private fun createRoute(route: String?): String =
+            if (route != null) "multiplatform-app://androidx.navigation/$route" else ""
+
         @JvmStatic
         public actual val NavDestination.hierarchy: Sequence<NavDestination>
             get() = generateSequence(this) { it.parent }

@@ -44,7 +44,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SkikoComposeUiTest
-import androidx.compose.ui.test.defaultTestDispatcher
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runInternalSkikoComposeUiTest
 import androidx.compose.ui.toDpSize
@@ -53,10 +52,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import java.awt.Point
 import javax.accessibility.AccessibleComponent
+import javax.accessibility.AccessibleContext
 import javax.accessibility.AccessibleRole
 import javax.accessibility.AccessibleText
-import javax.accessibility.AccessibleContext
 import kotlin.test.fail
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -239,7 +239,10 @@ private fun runDesktopA11yTest(block: ComposeA11yTestScope.() -> Unit) {
         semanticsOwnerListener.accessibilityControllers
     }
 
-    val testDispatcher = defaultTestDispatcher()
+    // Reset the a11y usage, to avoid having one test affect the next
+    AccessibilityController.AccessibilityUsage.reset()
+
+    val testDispatcher = StandardTestDispatcher()
     runInternalSkikoComposeUiTest(
         semanticsOwnerListener = semanticsOwnerListener,
         coroutineDispatcher = testDispatcher

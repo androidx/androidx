@@ -47,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -75,31 +76,29 @@ import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.renderingTest
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertFalse
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+@OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
 class ComposeSceneTest {
     @get:Rule
     val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop")
@@ -648,6 +647,40 @@ class ComposeSceneTest {
         }
     }
 
+    @Test
+    fun stateChangeFromNonUiThreadDoesntCrash() = runApplicationTest {
+        // https://github.com/JetBrains/compose-multiplatform/issues/4546
+        var value by mutableStateOf(0)
+        val done = CompletableDeferred<Unit>()
+        var exceptionThrown: Throwable? = null
+
+        launchTestApplication {
+            Window(onCloseRequest = {}) {
+                Canvas(Modifier.size(100.dp)) {
+                    @Suppress("UNUSED_EXPRESSION")
+                    value
+                }
+                LaunchedEffect(Unit) {
+                    withContext(Dispatchers.IO) {
+                        try {
+                            for (i in 1..50) {
+                                value = i
+                                Snapshot.sendApplyNotifications()
+                                delay(1)
+                            }
+                        } catch (e: Throwable) {
+                            exceptionThrown = e
+                        }
+                        done.complete(Unit)
+                    }
+                }
+            }
+        }
+
+        done.await()
+        assertNull(exceptionThrown, "Exception thrown setting snapshot state from non-UI thread")
+    }
+
     private class TestException : RuntimeException()
 
     @ExperimentalComposeUiApi
@@ -705,125 +738,6 @@ class ComposeSceneTest {
             assertThat(field1FocusState!!.isFocused).isTrue()
             assertThat(field2FocusState!!.isFocused).isFalse()
         }
-    }
-
-    // Test that we're draining the effect dispatcher completely before starting the draw phase
-    @Test
-    fun allEffectsRunBeforeDraw() = runApplicationTest {
-        var flag by mutableStateOf(false)
-        val events = mutableListOf<String>()
-        launchTestApplication {
-            Window(onCloseRequest = {}) {
-                LaunchedEffect(flag) {
-                    if (flag) {
-                        launch {
-                            launch {
-                                launch {
-                                    launch {
-                                        launch {
-                                            launch {
-                                                events.add("effect")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Canvas(Modifier.size(100.dp)) {
-                    if (flag) {
-                        events.add("draw")
-                    }
-                }
-            }
-        }
-        awaitIdle()
-
-        flag = true
-        awaitIdle()
-        assertEquals(listOf("effect", "draw"), events)
-    }
-
-    // Test that effects are run before synthetic events are delivered.
-    // This is important because the effects may be registering to receive the events. For example
-    // when a new element appears under the mouse pointer and registers to mouse-enter events.
-    @Test
-    fun effectsRunBeforeSyntheticEvents() = runComposeUiTest {
-        var flag by mutableStateOf(false)
-        val events = mutableListOf<String>()
-
-        setContent {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .testTag("container"),
-                contentAlignment = Alignment.Center
-            ) {
-                if (flag) {
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .onPointerEvent(eventType = PointerEventType.Enter) {
-                                events.add("mouse-enter")
-                            }
-                    )
-
-                    LaunchedEffect(Unit) {
-                        events.add("effect")
-                    }
-                }
-            }
-        }
-
-        onNodeWithTag("container").performMouseInput {
-            moveTo(Offset(50f, 50f))
-        }
-        flag = true
-        waitForIdle()
-
-        assertEquals(listOf("effect", "mouse-enter"), events)
-    }
-
-    // Test that synthetic events are dispatched before the drawing phase.
-    @Test
-    fun syntheticEventsDispatchedBeforeDraw() = runComposeUiTest {
-        var flag by mutableStateOf(false)
-        val events = mutableListOf<String>()
-
-        setContent {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .testTag("container"),
-                contentAlignment = Alignment.Center
-            ) {
-                if (flag) {
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .onPointerEvent(eventType = PointerEventType.Enter) {
-                                events.add("mouse-enter")
-                            }
-                    )
-
-                    Canvas(Modifier.size(100.dp)) {
-                        if (flag) {
-                            events.add("draw")
-                        }
-                    }
-                }
-            }
-        }
-
-        onNodeWithTag("container").performMouseInput {
-            moveTo(Offset(50f, 50f))
-        }
-        flag = true
-        waitForIdle()
-
-        assertEquals(listOf("mouse-enter", "draw"), events)
     }
 }
 

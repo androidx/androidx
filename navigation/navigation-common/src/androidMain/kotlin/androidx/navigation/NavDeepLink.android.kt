@@ -84,7 +84,7 @@ public actual class NavDeepLink internal actual constructor(
     internal val argumentsNames: List<String>
         get() = pathArgs + queryArgsMap.values.flatMap { it.arguments } + fragArgs
 
-    public var isExactDeepLink: Boolean = false
+    public actual var isExactDeepLink: Boolean = false
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get
         internal set

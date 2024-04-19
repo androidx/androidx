@@ -24,6 +24,7 @@ import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.SwingInteropContainer
+import androidx.compose.ui.awt.runOnEDTThread
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
@@ -492,9 +493,11 @@ internal class ComposeSceneMediator(
         }
     }
 
-    fun onComposeInvalidation() = catchExceptions {
-        if (isDisposed) return
-        skiaLayerComponent.onComposeInvalidation()
+    fun onComposeInvalidation() = runOnEDTThread {
+        catchExceptions {
+            if (isDisposed) return@catchExceptions
+            skiaLayerComponent.onComposeInvalidation()
+        }
     }
 
     fun onChangeComponentPosition() = catchExceptions {

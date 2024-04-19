@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import java.awt.Component
+import java.awt.EventQueue
 import java.awt.Rectangle
 import javax.swing.JComponent
 import kotlin.math.ceil
@@ -86,5 +87,18 @@ internal fun JComponent.setTransparent(transparent: Boolean) {
     } else {
         background = null
         isOpaque = false
+    }
+}
+
+/**
+ * Calls [block] synchronously on the event dispatching thread. If the calling thread is already the
+ * event dispatch thread, simply executes [block]; otherwise schedules [block] to run on event
+ * dispatching thread and waits for it to return.
+ */
+internal fun runOnEDTThread(block: () -> Unit) {
+    if (EventQueue.isDispatchThread()) {
+        block()
+    } else {
+        EventQueue.invokeAndWait(block)
     }
 }

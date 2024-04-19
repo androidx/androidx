@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.unit.dp
 
 
 /**
  * Composition local for height that is overlapped with keyboard over Compose view.
  */
 @InternalComposeApi
-val LocalKeyboardOverlapHeight = staticCompositionLocalOf { 0f }
+val LocalKeyboardOverlapHeight = compositionLocalOf { 0.dp }

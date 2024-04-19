@@ -1,0 +1,153 @@
+public abstract interface class androidx/compose/ui/test/junit4/ComposeContentTestRule : androidx/compose/ui/test/junit4/ComposeTestRule {
+	public abstract fun setContent (Lkotlin/jvm/functions/Function2;)V
+}
+
+public abstract interface class androidx/compose/ui/test/junit4/ComposeTestRule : androidx/compose/ui/test/SemanticsNodeInteractionsProvider, org/junit/rules/TestRule {
+	public abstract fun awaitIdle (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun getDensity ()Landroidx/compose/ui/unit/Density;
+	public abstract fun getMainClock ()Landroidx/compose/ui/test/MainTestClock;
+	public abstract fun registerIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
+	public abstract fun runOnIdle (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public abstract fun runOnUiThread (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public abstract fun unregisterIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
+	public abstract fun waitForIdle ()V
+	public abstract fun waitUntil (JLkotlin/jvm/functions/Function0;)V
+	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public abstract fun waitUntilAtLeastOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
+	public static synthetic fun waitUntilAtLeastOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
+	public abstract fun waitUntilDoesNotExist (Landroidx/compose/ui/test/SemanticsMatcher;J)V
+	public static synthetic fun waitUntilDoesNotExist$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
+	public abstract fun waitUntilExactlyOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
+	public static synthetic fun waitUntilExactlyOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
+	public abstract fun waitUntilNodeCount (Landroidx/compose/ui/test/SemanticsMatcher;IJ)V
+	public static synthetic fun waitUntilNodeCount$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;IJILjava/lang/Object;)V
+}
+
+public final class androidx/compose/ui/test/junit4/ComposeTestRule$DefaultImpls {
+	public static synthetic fun waitUntil$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static synthetic fun waitUntilAtLeastOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
+	public static synthetic fun waitUntilDoesNotExist$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
+	public static synthetic fun waitUntilExactlyOneExists$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;JILjava/lang/Object;)V
+	public static synthetic fun waitUntilNodeCount$default (Landroidx/compose/ui/test/junit4/ComposeTestRule;Landroidx/compose/ui/test/SemanticsMatcher;IJILjava/lang/Object;)V
+}
+
+public final class androidx/compose/ui/test/junit4/DesktopComposeTestRule : androidx/compose/ui/test/junit4/ComposeContentTestRule {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (Lkotlin/coroutines/CoroutineContext;)V
+	public synthetic fun <init> (Lkotlin/coroutines/CoroutineContext;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
+	public fun awaitIdle (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun getDensity ()Landroidx/compose/ui/unit/Density;
+	public fun getMainClock ()Landroidx/compose/ui/test/MainTestClock;
+	public final fun getScene ()Landroidx/compose/ui/scene/ComposeScene;
+	public fun onAllNodes (Landroidx/compose/ui/test/SemanticsMatcher;Z)Landroidx/compose/ui/test/SemanticsNodeInteractionCollection;
+	public fun onNode (Landroidx/compose/ui/test/SemanticsMatcher;Z)Landroidx/compose/ui/test/SemanticsNodeInteraction;
+	public fun registerIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
+	public fun runOnIdle (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun runOnUiThread (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun setContent (Lkotlin/jvm/functions/Function2;)V
+	public final fun setScene (Landroidx/compose/ui/scene/ComposeScene;)V
+	public fun unregisterIdlingResource (Landroidx/compose/ui/test/IdlingResource;)V
+	public fun waitForIdle ()V
+	public fun waitUntil (JLkotlin/jvm/functions/Function0;)V
+	public fun waitUntilAtLeastOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
+	public fun waitUntilDoesNotExist (Landroidx/compose/ui/test/SemanticsMatcher;J)V
+	public fun waitUntilExactlyOneExists (Landroidx/compose/ui/test/SemanticsMatcher;J)V
+	public fun waitUntilNodeCount (Landroidx/compose/ui/test/SemanticsMatcher;IJ)V
+}
+
+public final class androidx/compose/ui/test/junit4/DesktopComposeTestRule_desktopKt {
+	public static final fun createComposeRule ()Landroidx/compose/ui/test/junit4/ComposeContentTestRule;
+	public static final fun createComposeRule (Lkotlin/coroutines/CoroutineContext;)Landroidx/compose/ui/test/junit4/ComposeContentTestRule;
+	public static synthetic fun createComposeRule$default (Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Landroidx/compose/ui/test/junit4/ComposeContentTestRule;
+}
+
+public final class androidx/compose/ui/test/junit4/GoldenConfig {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Landroidx/compose/ui/test/junit4/GoldenConfig;
+	public static synthetic fun copy$default (Landroidx/compose/ui/test/junit4/GoldenConfig;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/test/junit4/GoldenConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFsGoldenPath ()Ljava/lang/String;
+	public final fun getModulePrefix ()Ljava/lang/String;
+	public final fun getRepoGoldenPath ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/test/junit4/ScreenshotResultProto {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Landroidx/compose/ui/test/junit4/ScreenshotResultProto;
+	public static synthetic fun copy$default (Landroidx/compose/ui/test/junit4/ScreenshotResultProto;Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/test/junit4/ScreenshotResultProto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getComparisonStatistics ()Ljava/lang/String;
+	public final fun getCurrentScreenshotFileName ()Ljava/lang/String;
+	public final fun getDiffImageFileName ()Ljava/lang/String;
+	public final fun getExpectedImageFileName ()Ljava/lang/String;
+	public final fun getLocationOfGoldenInRepo ()Ljava/lang/String;
+	public final fun getRepoRootPath ()Ljava/lang/String;
+	public final fun getResult ()Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/test/junit4/ScreenshotResultProto$Status : java/lang/Enum {
+	public static final field FAILED Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public static final field MISSING_GOLDEN Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public static final field PASSED Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public static final field SIZE_MISMATCH Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public static final field UNSPECIFIED Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+	public static fun values ()[Landroidx/compose/ui/test/junit4/ScreenshotResultProto$Status;
+}
+
+public final class androidx/compose/ui/test/junit4/ScreenshotTestRule : org/junit/rules/TestRule {
+	public static final field $stable I
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
+	public final fun getConfig ()Landroidx/compose/ui/test/junit4/GoldenConfig;
+	public final fun getExecutionQueue ()Ljava/util/LinkedList;
+	public final fun snap (Lorg/jetbrains/skia/Surface;Ljava/lang/String;)V
+	public static synthetic fun snap$default (Landroidx/compose/ui/test/junit4/ScreenshotTestRule;Lorg/jetbrains/skia/Surface;Ljava/lang/String;ILjava/lang/Object;)V
+	public final fun write (Lorg/jetbrains/skia/Image;Ljava/lang/String;)V
+	public static synthetic fun write$default (Landroidx/compose/ui/test/junit4/ScreenshotTestRule;Lorg/jetbrains/skia/Image;Ljava/lang/String;ILjava/lang/Object;)V
+}
+
+public final class androidx/compose/ui/test/junit4/SkiaTestAlbum {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/test/junit4/GoldenConfig;)V
+	public final fun check ()Landroidx/compose/ui/test/junit4/SkiaTestAlbum$Report;
+	public final fun getConfig ()Landroidx/compose/ui/test/junit4/GoldenConfig;
+	public final fun snap (Lorg/jetbrains/skia/Surface;Ljava/lang/String;)V
+	public final fun write (Lorg/jetbrains/skia/Image;Ljava/lang/String;)V
+}
+
+public final class androidx/compose/ui/test/junit4/SkiaTestAlbum$Report {
+	public static final field $stable I
+	public fun <init> (Ljava/util/Map;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Landroidx/compose/ui/test/junit4/SkiaTestAlbum$Report;
+	public static synthetic fun copy$default (Landroidx/compose/ui/test/junit4/SkiaTestAlbum$Report;Ljava/util/Map;ILjava/lang/Object;)Landroidx/compose/ui/test/junit4/SkiaTestAlbum$Report;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScreenshots ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/test/junit4/SkiaTest_desktopKt {
+	public static final fun DesktopScreenshotTestRule (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Landroidx/compose/ui/test/junit4/ScreenshotTestRule;
+	public static synthetic fun DesktopScreenshotTestRule$default (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Landroidx/compose/ui/test/junit4/ScreenshotTestRule;
+}
+

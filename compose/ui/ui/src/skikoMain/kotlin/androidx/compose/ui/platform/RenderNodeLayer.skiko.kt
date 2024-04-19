@@ -19,7 +19,6 @@ package androidx.compose.ui.platform
 import org.jetbrains.skia.Rect as SkRect
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
@@ -44,7 +43,6 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkiaRRect
-import androidx.compose.ui.graphics.toSkiaRect
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -240,12 +238,11 @@ internal class RenderNodeLayer(
 
     override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         if (picture == null) {
-            val bounds = size.toSize().toRect()
             val pictureCanvas = pictureRecorder.beginRecording(
-                bounds = if (clip) bounds.toSkiaRect() else PICTURE_BOUNDS,
-                bbh = if (clip) null else bbhFactory
+                bounds = PICTURE_BOUNDS,
+                bbh = bbhFactory
             )
-            performDrawLayer(pictureCanvas.asComposeCanvas(), bounds)
+            performDrawLayer(pictureCanvas.asComposeCanvas())
             picture = pictureRecorder.finishRecordingAsPicture()
         }
 
@@ -264,7 +261,7 @@ internal class RenderNodeLayer(
         matrix.timesAssign(inverseMatrix)
     }
 
-    private fun performDrawLayer(canvas: Canvas, bounds: Rect) {
+    private fun performDrawLayer(canvas: Canvas) {
         if (alpha > 0) {
             if (shadowElevation > 0) {
                 drawShadow(canvas)
@@ -285,6 +282,7 @@ internal class RenderNodeLayer(
                     currentRenderEffect != null ||
                     compositingStrategy == CompositingStrategy.Offscreen
             if (requiresLayer) {
+                val bounds = size.toSize().toRect()
                 canvas.saveLayer(
                     bounds,
                     Paint().apply {

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.uikit.utils.CMPTextLoupeSession
 import kotlin.math.roundToInt
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.getAndUpdate
@@ -31,7 +32,6 @@ import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIColor
-import platform.UIKit.UITextLoupeSession
 import platform.UIKit.UIView
 
 @Stable
@@ -69,10 +69,7 @@ internal interface PlatformMagnifier {
      * Sets the properties on a Magnifier instance that can be updated without recreating the
      * magnifier.
      */
-    fun update(
-        sourceCenter: Offset,
-        magnifierCenter: Offset
-    )
+    fun update(sourceCenter: Offset)
 
     fun dismiss()
 }
@@ -106,7 +103,7 @@ internal object PlatformMagnifierFactoryIos17Impl : PlatformMagnifierFactory {
                 }
 
                 checkNotNull(
-                    UITextLoupeSession.beginLoupeSessionAtPoint(
+                    CMPTextLoupeSession.beginLoupeSessionAtPoint(
                         point = CGPointMake(it.x.toDouble(), it.y.toDouble()),
                         fromSelectionWidgetView = null,
                         inView = view
@@ -122,7 +119,7 @@ internal object PlatformMagnifierFactoryIos17Impl : PlatformMagnifierFactory {
 
     class PlatformMagnifierImpl(
         val density: Float,
-        val loupeSessionFactory: (Offset) -> UITextLoupeSession
+        val loupeSessionFactory: (Offset) -> CMPTextLoupeSession
     ) : PlatformMagnifier {
 
         override val size: IntSize = IntSize(
@@ -130,13 +127,13 @@ internal object PlatformMagnifierFactoryIos17Impl : PlatformMagnifierFactory {
             (80 * density).roundToInt()
         )
 
-        private val loupeSession = atomic<UITextLoupeSession?>(null)
+        private val loupeSession = atomic<CMPTextLoupeSession?>(null)
 
         override fun updateContent() {
             // is not required. loupe redraws automatically
         }
 
-        override fun update(sourceCenter: Offset, magnifierCenter: Offset) {
+        override fun update(sourceCenter: Offset) {
 
             if (sourceCenter.isUnspecified)
                 return

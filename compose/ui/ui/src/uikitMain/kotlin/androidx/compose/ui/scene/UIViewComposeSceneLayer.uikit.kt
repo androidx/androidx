@@ -234,12 +234,12 @@ internal class UIViewComposeSceneLayer(
         )
     }
 
-    fun viewDidAppear(animated: Boolean) {
-        mediator.viewDidAppear(animated)
+    fun sceneDidAppear() {
+        mediator.sceneDidAppear()
     }
 
-    fun viewWillDisappear(animated: Boolean) {
-        mediator.viewWillDisappear(animated)
+    fun sceneWillDisappear() {
+        mediator.sceneWillDisappear()
     }
 
     fun viewSafeAreaInsetsDidChange() {

@@ -1,0 +1,24 @@
+public final class androidx/lifecycle/viewmodel/compose/LocalViewModelStoreOwner {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/lifecycle/viewmodel/compose/LocalViewModelStoreOwner;
+	public final fun getCurrent (Landroidx/compose/runtime/Composer;I)Landroidx/lifecycle/ViewModelStoreOwner;
+	public final fun provides (Landroidx/lifecycle/ViewModelStoreOwner;)Landroidx/compose/runtime/ProvidedValue;
+}
+
+public abstract interface annotation class androidx/lifecycle/viewmodel/compose/SavedStateHandleSaveableApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/lifecycle/viewmodel/compose/SavedStateHandleSaverKt {
+	public static final fun saveable (Landroidx/lifecycle/SavedStateHandle;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;)Lkotlin/properties/PropertyDelegateProvider;
+	public static final fun saveable (Landroidx/lifecycle/SavedStateHandle;Ljava/lang/String;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;)Landroidx/compose/runtime/MutableState;
+	public static final fun saveable (Landroidx/lifecycle/SavedStateHandle;Ljava/lang/String;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public static synthetic fun saveable$default (Landroidx/lifecycle/SavedStateHandle;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+	public static synthetic fun saveable$default (Landroidx/lifecycle/SavedStateHandle;Ljava/lang/String;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun saveableMutableState (Landroidx/lifecycle/SavedStateHandle;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;)Lkotlin/properties/PropertyDelegateProvider;
+	public static synthetic fun saveableMutableState$default (Landroidx/lifecycle/SavedStateHandle;Landroidx/compose/runtime/saveable/Saver;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+}
+
+public final class androidx/lifecycle/viewmodel/compose/ViewModelKt {
+	public static final fun viewModel (Lkotlin/reflect/KClass;Landroidx/lifecycle/ViewModelStoreOwner;Ljava/lang/String;Landroidx/lifecycle/ViewModelProvider$Factory;Landroidx/lifecycle/viewmodel/CreationExtras;Landroidx/compose/runtime/Composer;II)Landroidx/lifecycle/ViewModel;
+}
+
