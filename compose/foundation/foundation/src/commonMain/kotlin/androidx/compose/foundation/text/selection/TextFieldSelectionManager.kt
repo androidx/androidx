@@ -578,6 +578,23 @@ internal class TextFieldSelectionManager(
         updateFloatingToolbar(show = false)
     }
 
+    internal fun setSelectionPreviewHighlight(range: TextRange) {
+        state?.selectionPreviewHighlightRange = range
+        state?.deletionPreviewHighlightRange = TextRange.Zero
+        if (!range.collapsed) exitSelectionMode()
+    }
+
+    internal fun setDeletionPreviewHighlight(range: TextRange) {
+        state?.deletionPreviewHighlightRange = range
+        state?.selectionPreviewHighlightRange = TextRange.Zero
+        if (!range.collapsed) exitSelectionMode()
+    }
+
+    internal fun clearPreviewHighlight() {
+        state?.deletionPreviewHighlightRange = TextRange.Zero
+        state?.selectionPreviewHighlightRange = TextRange.Zero
+    }
+
     /**
      * The method for copying text.
      *
