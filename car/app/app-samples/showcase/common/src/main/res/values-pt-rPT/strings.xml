@@ -237,7 +237,7 @@
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demonstração do modelo de pesquisa"</string>
     <string name="search_hint" msgid="978495498991026792">"Pesquise aqui"</string>
     <string name="additional_text" msgid="5755100726890686184">"Reveja os nossos "<annotation link="terms_of_service">"Termos de Utilização"</annotation></string>
-    <string name="google_sign_in" msgid="6556259799319701727">"Início de sessão do Google"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Início de sessão da Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Usar PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Código QR"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"O anfitrião não suporta o modelo de início de sessão"</string>
@@ -253,7 +253,7 @@
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Escreva este PIN no telemóvel"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Leia o código QR para iniciar sessão"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Iniciar sessão com o Google"</string>
-    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Use este botão para concluir o Início de sessão do Google"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Use este botão para concluir o Início de sessão da Google"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Iniciou sessão!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Início de sessão concluído"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demonstração do modelo de início de sessão"</string>
