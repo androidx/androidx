@@ -487,7 +487,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // Builtin R8 desugaring, such as rewriting compare calls (see b/36390874)
             if (owner.startsWith("java.") &&
-                DesugaredMethodLookup.isDesugared(owner, name, desc, context.sourceSetType)) {
+                DesugaredMethodLookup.isDesugaredMethod(owner, name, desc, context.sourceSetType)) {
                 return
             }
 
@@ -573,7 +573,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             api: Int
         ): LintFix? {
             val callPsi = call.sourcePsi ?: return null
-            if (isKotlin(callPsi)) {
+            if (isKotlin(callPsi.language)) {
                 // We only support Java right now.
                 return null
             }
