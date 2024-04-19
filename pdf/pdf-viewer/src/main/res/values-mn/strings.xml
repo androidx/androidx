@@ -27,7 +27,7 @@
     <string name="desc_password_incorrect" msgid="4718823067483963845">"нууц үг буруу байна"</string>
     <string name="desc_password_incorrect_message" msgid="4849541619951023025">"нууц үг буруу байна"</string>
     <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="TOTAL">%2$d</xliff:g>-н <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g>-н <xliff:g id="PAGE">%1$d</xliff:g>-р хуудас"</string>
+    <string name="desc_page_single" msgid="8459583146661044094">"Нийт <xliff:g id="TOTAL">%2$d</xliff:g> хуудасны <xliff:g id="PAGE">%1$d</xliff:g>-р хуудас"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> хувь томруулсан"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g>-р хуудсанд очих"</string>
     <string name="desc_page" msgid="5684226167093594168">"<xliff:g id="PAGE">%1$d</xliff:g>-р хуудас"</string>
@@ -44,6 +44,6 @@
     <string name="desc_selection_start" msgid="3249210022376857070">"сонголтын эхлэл"</string>
     <string name="desc_selection_stop" msgid="2690168835536726898">"сонголтын төгсгөл"</string>
     <string name="label_page_range" msgid="8290964180158460076">"<xliff:g id="FIRST">%1$d</xliff:g>-<xliff:g id="LAST">%2$d</xliff:g> / <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
-    <string name="desc_page_range" msgid="5286496438609641577">"<xliff:g id="TOTAL">%3$d</xliff:g>-н <xliff:g id="FIRST">%1$d</xliff:g>-с <xliff:g id="LAST">%2$d</xliff:g> хүртэлх хуудас"</string>
+    <string name="desc_page_range" msgid="5286496438609641577">"Нийт <xliff:g id="TOTAL">%3$d</xliff:g> хуудасны <xliff:g id="FIRST">%1$d</xliff:g>-<xliff:g id="LAST">%2$d</xliff:g>-р хуудаснууд"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"Зураг: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
 </resources>
