@@ -501,14 +501,8 @@ internal class IntermediateTextInputUIView(
      * @param targetRect - rectangle of selected text area
      * @param textActions - available (not null) actions in text menu
      */
-    fun showTextMenu(targetRect: org.jetbrains.skia.Rect, textActions: TextActions) {
-        val cgRect = CGRectMake(
-            x = targetRect.left.toDouble(),
-            y = targetRect.top.toDouble(),
-            width = targetRect.width.toDouble(),
-            height = targetRect.height.toDouble()
-        )
-        val isTargetVisible = CGRectIntersectsRect(bounds, cgRect)
+    fun showTextMenu(targetRect: CValue<CGRect>, textActions: TextActions) {
+        val isTargetVisible = CGRectIntersectsRect(bounds, targetRect)
 
         if (isTargetVisible) {
             // TODO: UIMenuController is deprecated since iOS 17 and not available on iOS 12
@@ -519,7 +513,7 @@ internal class IntermediateTextInputUIView(
             cancelContextMenuUpdate()
             CoroutineScope(Dispatchers.Main + menuMonitoringJob).launch {
                 delay(viewConfiguration.doubleTapTimeoutMillis)
-                menu.showMenuFromView(targetView = this@IntermediateTextInputUIView, cgRect)
+                menu.showMenuFromView(targetView = this@IntermediateTextInputUIView, targetRect)
             }
             _currentTextMenuActions = textActions
         } else {

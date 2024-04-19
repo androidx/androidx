@@ -39,6 +39,7 @@ import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.WebTextInputService
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfoImpl
@@ -49,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import kotlin.coroutines.coroutineContext
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -61,8 +64,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.SkiaLayer
 import org.w3c.dom.AddEventListenerOptions
-import org.w3c.dom.DOMRect
-import org.w3c.dom.DOMRectReadOnly
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
@@ -103,6 +104,13 @@ internal interface ComposeWindowState {
                 }
             }
         }
+    }
+}
+
+private sealed interface KeyboardModeState {
+    companion object {
+        object Virtual: KeyboardModeState
+        object Hardware: KeyboardModeState
     }
 }
 
@@ -148,7 +156,7 @@ internal class ComposeWindow(
     private val canvas: HTMLCanvasElement,
     content: @Composable () -> Unit,
     private val state: ComposeWindowState
-) : LifecycleOwner {
+) : LifecycleOwner, ViewModelStoreOwner {
     private val density: Density = Density(
         density = actualDensity.toFloat(),
         fontScale = 1f
@@ -160,13 +168,16 @@ internal class ComposeWindow(
 
     private val canvasEvents = EventTargetListener(canvas)
 
+    private var keyboardModeState: KeyboardModeState = KeyboardModeState.Companion.Hardware
+
     private val platformContext: PlatformContext = object : PlatformContext {
         override val windowInfo get() = _windowInfo
 
         override val inputModeManager: InputModeManager = DefaultInputModeManager()
 
         override val textInputService = object : WebTextInputService() {
-            override fun resolveInputMode() = inputModeManager.inputMode
+            override fun isVirtualKeyboard() = keyboardModeState == KeyboardModeState.Companion.Virtual
+
             override fun getOffset(rect: Rect): Offset {
                 val viewportRect = canvas.getBoundingClientRect()
                 val offsetX = viewportRect.left.toFloat().coerceAtLeast(0f) + (rect.left / density.density)
@@ -194,8 +205,8 @@ internal class ComposeWindow(
     )
     private val systemThemeObserver = getSystemThemeObserver()
 
-    private val lifecycleOwner = LifecycleRegistry(this)
-    override val lifecycle: Lifecycle get() = lifecycleOwner
+    override val lifecycle = LifecycleRegistry(this)
+    override val viewModelStore = ViewModelStore()
 
     private fun <T : Event> addTypedEvent(
         type: String,
@@ -271,11 +282,11 @@ internal class ComposeWindow(
         }
 
         state.globalEvents.addDisposableEvent("focus") {
-            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         }
 
         state.globalEvents.addDisposableEvent("blur") {
-            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         }
     }
 
@@ -290,6 +301,7 @@ internal class ComposeWindow(
             CompositionLocalProvider(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
                 LocalLifecycleOwner provides this,
+                LocalInternalViewModelStoreOwner provides this,
                 content = {
                     content()
                     rememberCoroutineScope().launch {
@@ -301,7 +313,7 @@ internal class ComposeWindow(
             )
         }
 
-        lifecycleOwner.handleLifecycleEvent(if (document.hasFocus()) Lifecycle.Event.ON_RESUME else Lifecycle.Event.ON_START)
+        lifecycle.handleLifecycleEvent(if (document.hasFocus()) Lifecycle.Event.ON_RESUME else Lifecycle.Event.ON_START)
     }
 
     fun resize(boxSize: IntSize) {
@@ -327,7 +339,9 @@ internal class ComposeWindow(
 
     // TODO: need to call .dispose() on window close.
     fun dispose() {
-        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        viewModelStore.clear()
+
         layer.dispose()
         systemThemeObserver.dispose()
         state.dispose()
@@ -340,6 +354,7 @@ internal class ComposeWindow(
         event: TouchEvent,
         offset: Offset,
     ) {
+        keyboardModeState = KeyboardModeState.Companion.Virtual
         val eventType = when (event.type) {
             "touchstart" -> PointerEventType.Press
             "touchmove" -> PointerEventType.Move
@@ -371,6 +386,7 @@ internal class ComposeWindow(
     private fun ComposeLayer.onMouseEvent(
         event: MouseEvent,
     ) {
+        keyboardModeState = KeyboardModeState.Companion.Hardware
         val eventType = when (event.type) {
             "mousedown" -> PointerEventType.Press
             "mousemove" -> PointerEventType.Move
@@ -397,6 +413,7 @@ internal class ComposeWindow(
     private fun ComposeLayer.onWheelEvent(
         event: WheelEvent,
     ) {
+        keyboardModeState = KeyboardModeState.Companion.Hardware
         onMouseEvent(
             eventType = PointerEventType.Scroll,
             position = event.offset,

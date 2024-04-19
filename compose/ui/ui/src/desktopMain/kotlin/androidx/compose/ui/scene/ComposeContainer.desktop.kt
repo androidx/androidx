@@ -28,6 +28,7 @@ import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
@@ -44,9 +45,11 @@ import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import androidx.compose.ui.window.sizeInPx
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ComponentEvent
@@ -85,7 +88,7 @@ internal class ComposeContainer(
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
-) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner {
+) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner, ViewModelStoreOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -150,6 +153,12 @@ internal class ComposeContainer(
     val preferredSize by mediator::preferredSize
 
     override val lifecycle = LifecycleRegistry(this)
+    override val viewModelStore = ViewModelStore()
+
+    private var isDisposed = false
+    private var isDetached = true
+    private var isMinimized = false
+    private var isFocused = false
 
     init {
         setWindow(window)
@@ -158,12 +167,12 @@ internal class ComposeContainer(
         if (layerType == LayerType.OnComponent && !useSwingGraphics) {
             error("Unsupported LayerType.OnComponent might be used only with rendering to Swing graphics")
         }
-
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
     fun dispose() {
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        isDisposed = true
+        updateLifecycleState()
+        viewModelStore.clear()
 
         _windowContainer?.removeComponentListener(this)
         mediator.dispose()
@@ -188,24 +197,23 @@ internal class ComposeContainer(
     override fun windowOpened(e: WindowEvent) = Unit
     override fun windowClosing(e: WindowEvent) = Unit
     override fun windowClosed(e: WindowEvent) = Unit
-    override fun windowIconified(e: WindowEvent) =
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-    override fun windowDeiconified(e: WindowEvent) =
-        // The window is always in focus at this moment, so bump the state to [RESUMED].
-        // It will generate [ON_START] event implicitly or skip it at all if [windowGainedFocus]
-        // happened first.
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    override fun windowIconified(e: WindowEvent) {
+        isMinimized = true
+        updateLifecycleState()
+    }
+    override fun windowDeiconified(e: WindowEvent) {
+        isMinimized = false
+        updateLifecycleState()
+    }
     override fun windowActivated(e: WindowEvent) = Unit
     override fun windowDeactivated(e: WindowEvent) = Unit
 
     private fun onChangeWindowFocus() {
-        val isFocused = window?.isFocused ?: false
+        isFocused = window?.isFocused ?: false
         windowContext.setWindowFocused(isFocused)
         mediator.onChangeWindowFocus()
         layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowFocus)
-        lifecycle.handleLifecycleEvent(
-            event = if (isFocused) Lifecycle.Event.ON_RESUME else Lifecycle.Event.ON_PAUSE
-        )
+        updateLifecycleState()
     }
 
     private fun onChangeWindowPosition() {
@@ -255,11 +263,13 @@ internal class ComposeContainer(
         onChangeWindowSize()
         onChangeWindowPosition()
 
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        isDetached = false
+        updateLifecycleState()
     }
 
     fun removeNotify() {
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        isDetached = true
+        updateLifecycleState()
 
         setWindow(null)
     }
@@ -422,6 +432,15 @@ internal class ComposeContainer(
     fun createComposeSceneContext(platformContext: PlatformContext): ComposeSceneContext =
         ComposeSceneContextImpl(platformContext)
 
+    private fun updateLifecycleState() {
+        lifecycle.currentState = when {
+            isDisposed -> State.DESTROYED
+            isDetached || isMinimized -> State.CREATED
+            !isDetached && !isMinimized && isFocused -> State.RESUMED
+            else -> State.STARTED
+        }
+    }
+
     private inner class ComposeSceneContextImpl(
         override val platformContext: PlatformContext,
     ) : ComposeSceneContext {
@@ -475,5 +494,6 @@ private fun ProvideContainerCompositionLocals(
     content: @Composable () -> Unit,
 ) = CompositionLocalProvider(
     LocalLifecycleOwner provides composeContainer,
+    LocalInternalViewModelStoreOwner provides composeContainer,
     content = content
 )

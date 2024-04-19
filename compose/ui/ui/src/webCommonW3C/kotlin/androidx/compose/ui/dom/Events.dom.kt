@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text
+package androidx.compose.ui.dom
 
-import androidx.compose.ui.dom.domEventOrNull
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isMetaPressed
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.internal
 import org.w3c.dom.events.KeyboardEvent
 
-actual val KeyEvent.isTypedEvent: Boolean
-    get() = type == KeyEventType.KeyDown && !isMetaPressed && domEventOrNull?.isPrintable() == true
 
-private fun KeyboardEvent.isPrintable(): Boolean {
-    return key.firstOrNull()?.toString() == key
-}
-
+/**
+ * The original raw native KeyboardEvent event
+ *
+ * Null if:
+ * - the native event is sent by another framework (when Compose UI is embed into it)
+ * - there is no native event (in tests, for example, or when Compose sends a synthetic event)
+ *
+ */
+val KeyEvent.domEventOrNull: KeyboardEvent?
+    get() = internal.nativeEvent as? KeyboardEvent?

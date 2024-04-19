@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.compose.ui.window
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlinx.browser.document
 import org.w3c.dom.HTMLCanvasElement
-import androidx.compose.ui.window.*
 import kotlin.test.AfterTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

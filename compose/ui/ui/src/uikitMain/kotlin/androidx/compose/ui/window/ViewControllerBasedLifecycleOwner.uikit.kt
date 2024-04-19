@@ -19,12 +19,16 @@ package androidx.compose.ui.window
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import platform.Foundation.NSNotificationCenter
 
+// TODO: Rename and move to androidx.compose.ui.platform
 internal class ViewControllerBasedLifecycleOwner(
     notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter,
-) : LifecycleOwner {
+) : LifecycleOwner, ViewModelStoreOwner {
     override val lifecycle = LifecycleRegistry(this)
+    override val viewModelStore = ViewModelStore()
 
     private var isViewAppeared = false
     private var isAppForeground = ApplicationStateListener.isApplicationActive
@@ -41,6 +45,7 @@ internal class ViewControllerBasedLifecycleOwner(
 
     fun dispose() {
         applicationStateListener.dispose()
+        viewModelStore.clear()
         isDisposed = true
         updateLifecycleState()
     }

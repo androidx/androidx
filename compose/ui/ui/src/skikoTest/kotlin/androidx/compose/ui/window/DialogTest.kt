@@ -152,7 +152,7 @@ class DialogTest {
     }
 
     @Test
-    fun secondClickDoesNotDismissPopup() = runSkikoComposeUiTest(
+    fun secondTouchDoesNotDismissPopup() = runSkikoComposeUiTest(
         size = Size(100f, 100f)
     ) {
         val background = FillBox()
@@ -197,25 +197,41 @@ class DialogTest {
     }
 
     @Test
-    fun nonPrimaryButtonClickDoesNotDismissDialog() = runSkikoComposeUiTest(
+    fun secondaryButtonClickDismissDialog() = runSkikoComposeUiTest(
         size = Size(100f, 100f)
     ) {
+        val openDialog = mutableStateOf(true)
         val background = FillBox()
         val dialog = DialogState(
             IntSize(40, 40),
-            onDismissRequest = { fail() }
+            onDismissRequest = {
+                openDialog.value = false
+            }
         )
 
         setContent {
             background.Content()
-            dialog.Content()
+            if (openDialog.value) {
+                dialog.Content()
+            }
         }
 
         val buttons = PointerButtons(
             isSecondaryPressed = true
         )
-        scene.sendPointerEvent(PointerEventType.Press, Offset(10f, 10f), buttons = buttons, button = PointerButton.Secondary)
-        scene.sendPointerEvent(PointerEventType.Release, Offset(10f, 10f), button = PointerButton.Secondary)
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            position = Offset(10f, 10f),
+            buttons = buttons,
+            button = PointerButton.Secondary
+        )
+        scene.sendPointerEvent(
+            PointerEventType.Release,
+            position = Offset(10f, 10f),
+            button = PointerButton.Secondary
+        )
+
+        onNodeWithTag(dialog.tag).assertDoesNotExist()
     }
 
     @OptIn(InternalTestApi::class)

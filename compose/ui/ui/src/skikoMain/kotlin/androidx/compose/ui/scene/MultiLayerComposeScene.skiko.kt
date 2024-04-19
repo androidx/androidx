@@ -618,8 +618,7 @@ private class MultiLayerComposeSceneImpl(
 private val PointerInputEvent.isGestureInProgress get() = pointers.fastAny { it.down }
 
 private fun PointerInputEvent.isMainAction() =
-    button == PointerButton.Primary ||
-        button == null && pointers.size == 1
+    button != null || pointers.size == 1
 
 private class CopiedList<T>(
     private val populate: (MutableList<T>) -> Unit

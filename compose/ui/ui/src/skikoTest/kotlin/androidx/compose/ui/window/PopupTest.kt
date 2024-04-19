@@ -556,7 +556,7 @@ class PopupTest {
     }
 
     @Test
-    fun secondClickDoesNotDismissPopup() = runSkikoComposeUiTest(
+    fun secondTouchDoesNotDismissPopup() = runSkikoComposeUiTest(
         size = Size(100f, 100f)
     ) {
         val background = FillBox()
@@ -597,6 +597,40 @@ class PopupTest {
                 touch(10f, 10f, pressed = false, id = 2),
             )
         )
+    }
+
+    @Test
+    fun secondaryButtonClickDismissPopup() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val openPopup = mutableStateOf(true)
+        val background = FillBox()
+        val popup = PopupState(
+            IntRect(20, 20, 60, 60),
+            focusable = true,
+            onDismissRequest = {
+                openPopup.value = false
+            }
+        )
+
+        setContent {
+            background.Content()
+            if (openPopup.value) {
+                popup.Content()
+            }
+        }
+
+        val buttons = PointerButtons(
+            isSecondaryPressed = true
+        )
+        scene.sendPointerEvent(
+            PointerEventType.Press,
+            position = Offset(10f, 10f),
+            buttons = buttons,
+            button = PointerButton.Secondary
+        )
+
+        onNodeWithTag(popup.tag).assertDoesNotExist()
     }
 
     @Test

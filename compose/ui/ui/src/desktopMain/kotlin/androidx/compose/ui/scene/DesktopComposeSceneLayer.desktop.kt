@@ -188,7 +188,7 @@ internal abstract class DesktopComposeSceneLayer(
      * @param event the mouse event
      */
     fun onMouseEventOutside(event: MouseEvent) {
-        if (isClosed || !event.isMainAction() || inBounds(event)) {
+        if (isClosed) {
             return
         }
         val eventType = when (event.id) {
@@ -215,7 +215,9 @@ internal abstract class DesktopComposeSceneLayer(
     private inner class DetectEventOutsideLayer : AwtEventListener {
         override fun onMouseEvent(event: MouseEvent): Boolean {
             layersAbove.toList().fastForEachReversed {
-                it.onMouseEventOutside(event)
+                if (!inBounds(event)) {
+                    it.onMouseEventOutside(event)
+                }
                 if (it.focusable) {
                     return false
                 }
@@ -262,9 +264,6 @@ internal abstract class DesktopComposeSceneLayer(
         }
     }
 }
-
-private fun MouseEvent.isMainAction() =
-    button == MouseEvent.BUTTON1
 
 private fun maxInflate(baseBounds: IntRect, currentBounds: IntRect, maxInflate: IntRect) = IntRect(
     left = max(baseBounds.left - currentBounds.left, maxInflate.left),

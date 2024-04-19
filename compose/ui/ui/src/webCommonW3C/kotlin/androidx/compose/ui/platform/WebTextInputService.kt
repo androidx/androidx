@@ -26,8 +26,8 @@ import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 
 internal interface InputAwareInputService {
-    fun resolveInputMode(): InputMode
     fun getOffset(rect: Rect): Offset
+    fun isVirtualKeyboard(): Boolean
 }
 
 internal abstract class WebTextInputService : PlatformTextInputService, InputAwareInputService {
@@ -35,11 +35,7 @@ internal abstract class WebTextInputService : PlatformTextInputService, InputAwa
     private val webKeyboardInputService = WebKeyboardInputService()
 
     private fun delegatedService(): PlatformTextInputService {
-        return when (resolveInputMode()) {
-            InputMode.Touch -> webImeInputService
-            InputMode.Keyboard -> webKeyboardInputService
-            else -> webKeyboardInputService
-        }
+        return if (isVirtualKeyboard()) webImeInputService else webKeyboardInputService
     }
 
     override fun startInput(
