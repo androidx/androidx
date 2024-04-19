@@ -5416,7 +5416,7 @@ public class ExifInterface {
             }
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             // Not valid
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -6057,7 +6057,7 @@ public class ExifInterface {
                 }
             } catch (RuntimeException e) {
                 throw new UnsupportedOperationException("Failed to read EXIF from HEIF file. "
-                        + "Given stream is either malformed or unsupported.");
+                        + "Given stream is either malformed or unsupported.", e);
             } finally {
                 try {
                     retriever.release();
@@ -6285,7 +6285,7 @@ public class ExifInterface {
         } catch (EOFException e) {
             // Should not reach here. Will only reach here if the file is corrupted or
             // does not follow the PNG specifications
-            throw new IOException("Encountered corrupt PNG file.");
+            throw new IOException("Encountered corrupt PNG file.", e);
         }
     }
 
@@ -6368,7 +6368,7 @@ public class ExifInterface {
         } catch (EOFException e) {
             // Should not reach here. Will only reach here if the file is corrupted or
             // does not follow the WebP specifications
-            throw new IOException("Encountered corrupt WebP file.");
+            throw new IOException("Encountered corrupt WebP file.", e);
         }
     }
 
