@@ -492,6 +492,7 @@ class TextFieldLayoutStateCacheTest {
         ) { old, new ->
             Truth.assertThat(old.layoutInput.style.fontSize).isEqualTo(12.sp)
             Truth.assertThat(new.layoutInput.style.fontSize).isEqualTo(23.sp)
+            Truth.assertThat(old.multiParagraph).isNotSameInstanceAs(new.multiParagraph)
         }
     }
 
