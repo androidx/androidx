@@ -74,6 +74,7 @@ class Save : CliktCommand(help = "Save a trace file for future comparison.") {
 
         // copy the test result file to the destination
         srcTestResultFile?.let {
+            // adding the extension (.json) helps us avoid a conflict with the trace file name
             val dstTestResultFileName = dstTraceFile.nameWithoutExtension + ".json"
             val dstTestResultFile = dstTraceFile.parentFile.resolve(dstTestResultFileName)
             // If we are changing the name of the trace file, we also need to reflect that in JSON.
