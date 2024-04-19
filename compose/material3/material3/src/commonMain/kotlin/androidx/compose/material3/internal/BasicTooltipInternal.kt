@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/BasicTooltipInternal.kt
-package androidx.compose.material3
-========
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package androidx.compose.material3.internal
->>>>>>>> 67004410fdbff19f90caa4cc43965ab21dca1943:compose/material3/material3/src/androidMain/kotlin/androidx/compose/material3/internal/BasicTooltip.android.kt
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.awaitEachGesture
