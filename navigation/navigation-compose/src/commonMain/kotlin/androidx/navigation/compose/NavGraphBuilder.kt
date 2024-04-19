@@ -204,23 +204,24 @@ public inline fun <reified T : Any> NavGraphBuilder.composable(
     @JvmSuppressWildcards SizeTransform?)? = null,
     noinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
-    destination(
-        ComposeNavigatorDestinationBuilder(
-            provider[ComposeNavigator::class],
-            T::class,
-            typeMap,
-            content
-        ).apply {
-            deepLinks.forEach { deepLink ->
-                deepLink(deepLink)
-            }
-            this.enterTransition = enterTransition
-            this.exitTransition = exitTransition
-            this.popEnterTransition = popEnterTransition
-            this.popExitTransition = popExitTransition
-            this.sizeTransform = sizeTransform
-        }
-    )
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1352/Revert-Revert-Use-NavDestinationBuilder-for-Navigation-Compose
+//    destination(
+//        ComposeNavigatorDestinationBuilder(
+//            provider[ComposeNavigator::class],
+//            T::class,
+//            typeMap,
+//            content
+//        ).apply {
+//            deepLinks.forEach { deepLink ->
+//                deepLink(deepLink)
+//            }
+//            this.enterTransition = enterTransition
+//            this.exitTransition = exitTransition
+//            this.popEnterTransition = popEnterTransition
+//            this.popExitTransition = popExitTransition
+//            this.sizeTransform = sizeTransform
+//        }
+//    )
 }
 
 /**
@@ -581,17 +582,18 @@ public inline fun <reified T : Any> NavGraphBuilder.dialog(
     dialogProperties: DialogProperties = DialogProperties(),
     noinline content: @Composable (NavBackStackEntry) -> Unit
 ) {
-    destination(
-        DialogNavigatorDestinationBuilder(
-            provider[DialogNavigator::class],
-            T::class,
-            typeMap,
-            dialogProperties,
-            content
-        ).apply {
-            deepLinks.forEach { deepLink ->
-                deepLink(deepLink)
-            }
-        }
-    )
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1352/Revert-Revert-Use-NavDestinationBuilder-for-Navigation-Compose
+//    destination(
+//        DialogNavigatorDestinationBuilder(
+//            provider[DialogNavigator::class],
+//            T::class,
+//            typeMap,
+//            dialogProperties,
+//            content
+//        ).apply {
+//            deepLinks.forEach { deepLink ->
+//                deepLink(deepLink)
+//            }
+//        }
+//    )
 }
