@@ -591,7 +591,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         if (visibleRect.width < 0 || visibleRect.height < 0) return null
 
         val rootRect = visibleRect.translate(containerCoordinates.positionInRoot())
-        return rootRect.copy(bottom = visibleRect.bottom + HandleHeight.value * 4)
+        return rootRect.copy(bottom = rootRect.bottom + HandleHeight.value * 4)
     }
 
     // This is for PressGestureDetector to cancel the selection.
