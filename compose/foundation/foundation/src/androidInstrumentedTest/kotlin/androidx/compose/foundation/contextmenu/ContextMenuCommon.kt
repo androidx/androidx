@@ -21,6 +21,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isPopup
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.roundToIntRect
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
@@ -118,6 +135,71 @@ internal class ColorSubject(
                 Fact.fact("expected", expected.toString()),
                 Fact.fact("with tolerance", tolerance),
             )
+        }
+    }
+}
+
+/**
+ * In order to trigger `Popup.onDismiss`, the click has to come from above compose's test
+ * framework. This method will send the click in this way.
+ *
+ * @param offsetPicker Given the root rect bounds, select an offset to click at.
+ */
+internal fun ComposeTestRule.clickOffPopup(offsetPicker: (IntRect) -> IntOffset) {
+    // Need the click to register above Compose's test framework,
+    // else it won't be directed to the popup properly. So,
+    // we use a different way of dispatching the click.
+    val rootRect = with(density) {
+        onAllNodes(isRoot()).onFirst().getBoundsInRoot().toRect().roundToIntRect()
+    }
+    val offset = offsetPicker(rootRect)
+    UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(offset.x, offset.y)
+    waitForIdle()
+}
+
+internal object ContextMenuItemLabels {
+    internal const val CUT = "Cut"
+    internal const val COPY = "Copy"
+    internal const val PASTE = "Paste"
+    internal const val SELECT_ALL = "Select all"
+}
+
+internal fun ComposeTestRule.contextMenuItemInteraction(
+    label: String,
+): SemanticsNodeInteraction = onNode(matcher = hasAnyAncestor(isPopup()) and hasText(label))
+
+internal enum class ContextMenuItemState { ENABLED, DISABLED, DOES_NOT_EXIST }
+
+/**
+ * Various asserts for checking enable/disable status of the context menu.
+ * Always checks that the popup exists and that all the items exist.
+ * Each boolean parameter represents whether the item is expected to be enabled or not.
+ */
+internal fun ComposeTestRule.assertContextMenuItems(
+    cutState: ContextMenuItemState,
+    copyState: ContextMenuItemState,
+    pasteState: ContextMenuItemState,
+    selectAllState: ContextMenuItemState,
+) {
+    val contextMenuInteraction = onNode(isPopup())
+    contextMenuInteraction.assertExists("Context Menu should exist.")
+
+    assertContextMenuItem(label = ContextMenuItemLabels.CUT, state = cutState)
+    assertContextMenuItem(label = ContextMenuItemLabels.COPY, state = copyState)
+    assertContextMenuItem(label = ContextMenuItemLabels.PASTE, state = pasteState)
+    assertContextMenuItem(label = ContextMenuItemLabels.SELECT_ALL, state = selectAllState)
+}
+
+private fun ComposeTestRule.assertContextMenuItem(label: String, state: ContextMenuItemState) {
+    // Note: this test assumes the text and the row have been merged in the semantics tree.
+    contextMenuItemInteraction(label).run {
+        if (state == ContextMenuItemState.DOES_NOT_EXIST) {
+            assertDoesNotExist()
+        } else {
+            assertExists(errorMessageOnFail = """Couldn't find label "$label"""")
+            assertIsDisplayed()
+            assertHasClickAction()
+            if (state == ContextMenuItemState.ENABLED) assertIsEnabled() else assertIsNotEnabled()
         }
     }
 }
