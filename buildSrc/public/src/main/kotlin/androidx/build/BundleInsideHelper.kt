@@ -60,7 +60,7 @@ object BundleInsideHelper {
      * @see forInsideAar(String, String)
      */
     @JvmStatic
-    fun Project.forInsideAar(relocations: List<Relocation>, dropResourcesWithSuffix: String?) {
+    fun Project.forInsideAar(relocations: List<Relocation>?, dropResourcesWithSuffix: String?) {
         val bundle = createBundleConfiguration()
         val repackage = configureRepackageTaskForType(relocations, bundle, dropResourcesWithSuffix)
         // Add to AGP's configuration so this jar get packaged inside of the aar.
@@ -227,15 +227,17 @@ object BundleInsideHelper {
     data class Relocation(val from: String, val to: String)
 
     private fun Project.configureRepackageTaskForType(
-        relocations: List<Relocation>,
+        relocations: List<Relocation>?,
         configuration: Configuration,
         dropResourcesWithSuffix: String?
     ): TaskProvider<ShadowJar> {
         return tasks.register(REPACKAGE_TASK_NAME, ShadowJar::class.java) { task ->
             task.apply {
                 configurations = listOf(configuration)
-                for (relocation in relocations) {
-                    relocate(relocation.from, relocation.to)
+                if (relocations != null) {
+                    for (relocation in relocations) {
+                        relocate(relocation.from, relocation.to)
+                    }
                 }
                 val dontIncludeResourceTransformer = DontIncludeResourceTransformer()
                 dontIncludeResourceTransformer.dropResourcesWithSuffix = dropResourcesWithSuffix
