@@ -22,18 +22,32 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.scene.getConstraintsToFillParent
+import androidx.compose.ui.text.input.CommitTextCommand
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.FinishComposingTextCommand
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.PlatformTextInputService
+import androidx.compose.ui.text.input.SetComposingRegionCommand
+import androidx.compose.ui.text.input.SetComposingTextCommand
+import androidx.compose.ui.text.input.SetSelectionCommand
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.asCGRect
+import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import androidx.compose.ui.window.KeyboardEventHandler
-import androidx.compose.ui.scene.getConstraintsToFillParent
-import androidx.compose.ui.unit.Density
 import kotlin.math.absoluteValue
 import kotlin.math.min
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.BreakIterator
-import platform.UIKit.*
+import platform.UIKit.NSLayoutConstraint
+import platform.UIKit.UIView
+import platform.UIKit.reloadInputViews
 
 internal class UIKitTextInputService(
     private val updateView: () -> Unit,
@@ -111,17 +125,7 @@ internal class UIKitTextInputService(
         currentImeOptions = imeOptions
         currentImeActionHandler = onImeActionPerformed
 
-        textUIView?.removeFromSuperview()
-        textUIView = IntermediateTextInputUIView(
-            viewConfiguration = viewConfiguration
-        ).also {
-            it.keyboardEventHandler = keyboardEventHandler
-            rootView.addSubview(it)
-            it.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activateConstraints(
-                getConstraintsToFillParent(it, rootView)
-            )
-        }
+        attachIntermediateTextInputView()
         textUIView?.input = createSkikoInput(value)
         textUIView?.inputTraits = getUITextInputTraits(imeOptions)
 
@@ -137,14 +141,7 @@ internal class UIKitTextInputService(
 
         textUIView?.inputTraits = EmptyInputTraits
         textUIView?.input = null
-        textUIView?.keyboardEventHandler = null
-        textUIView?.let { view ->
-            mainScope.launch {
-                view.resignFirstResponder()
-                view.removeFromSuperview()
-            }
-        }
-        textUIView = null
+        detachIntermediateTextInputView()
     }
 
     override fun showSoftwareKeyboard() {
@@ -274,25 +271,23 @@ internal class UIKitTextInputService(
         onCutRequested: (() -> Unit)?,
         onSelectAllRequested: (() -> Unit)?
     ) {
-        textUIView?.let {
-            val skiaRect = with(densityProvider()) {
-                org.jetbrains.skia.Rect.makeLTRB(
-                    l = rect.left / density,
-                    t = rect.top / density,
-                    r = rect.right / density,
-                    b = rect.bottom / density,
-                )
-            }
-            it.showTextMenu(
-                targetRect = skiaRect,
-                textActions = object : TextActions {
-                    override val copy: (() -> Unit)? = onCopyRequested
-                    override val cut: (() -> Unit)? = onCutRequested
-                    override val paste: (() -> Unit)? = onPasteRequested
-                    override val selectAll: (() -> Unit)? = onSelectAllRequested
-                }
-            )
+        if (textUIView == null) {
+            // If showMenu() is called and textUIView is not created,
+            // then it means that showMenu() called in SelectionContainer without any textfields,
+            // and IntermediateTextInputView must be created to show an editing menu
+            attachIntermediateTextInputView()
+            textUIView?.becomeFirstResponder()
+            updateView()
         }
+        textUIView?.showTextMenu(
+            targetRect = rect.toDpRect(densityProvider()).asCGRect(),
+            textActions = object : TextActions {
+                override val copy: (() -> Unit)? = onCopyRequested
+                override val cut: (() -> Unit)? = onCutRequested
+                override val paste: (() -> Unit)? = onPasteRequested
+                override val selectAll: (() -> Unit)? = onSelectAllRequested
+            }
+        )
     }
 
     /**
@@ -300,6 +295,10 @@ internal class UIKitTextInputService(
      */
     override fun hide() {
         textUIView?.hideTextMenu()
+        if ((textUIView != null) && (currentInput == null)) { // means that editing context menu shown in selection container
+            textUIView?.resignFirstResponder()
+            detachIntermediateTextInputView()
+        }
     }
 
     override val status: TextToolbarStatus
@@ -308,6 +307,29 @@ internal class UIKitTextInputService(
         else
             TextToolbarStatus.Hidden
 
+    private fun attachIntermediateTextInputView() {
+        textUIView?.removeFromSuperview()
+        textUIView = IntermediateTextInputUIView(
+            viewConfiguration = viewConfiguration
+        ).also {
+            it.keyboardEventHandler = keyboardEventHandler
+            rootView.addSubview(it)
+            it.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activateConstraints(
+                getConstraintsToFillParent(it, rootView)
+            )
+        }
+    }
+
+    private fun detachIntermediateTextInputView() {
+        textUIView?.let { view ->
+            view.keyboardEventHandler = null
+            mainScope.launch {
+                view.removeFromSuperview()
+            }
+        }
+        textUIView = null
+    }
 
     private fun createSkikoInput(value: TextFieldValue) = object : IOSSkikoInput {
         /**

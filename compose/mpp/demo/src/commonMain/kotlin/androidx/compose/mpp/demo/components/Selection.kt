@@ -26,8 +26,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.mpp.demo.textfield.ClearFocusBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,46 +42,60 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SelectionExample() {
     var count by remember { mutableStateOf(0) }
-    Column {
-        Button(onClick = { count++ }) {
-            Text("Outside Count: $count")
-        }
-        SelectionContainer(
-            Modifier.padding(24.dp).fillMaxWidth()
-        ) {
-            Column {
-                Text(
-                    "I'm a selection container. Double tap on word to select a word." +
-                        " Triple tap on content to select whole paragraph.\nAnother paragraph for testing.\n" +
-                        "And another one."
-                )
-                Row {
-                    DisableSelection {
+    val textState = remember {
+        mutableStateOf(
+            buildString {
+                repeat(3) {
+                    appendLine("Text line $it")
+                }
+            }
+        )
+    }
+    ClearFocusBox {
+        Column {
+            Button(onClick = { count++ }) {
+                Text("Outside Count: $count")
+            }
+            SelectionContainer(
+                Modifier.padding(24.dp).fillMaxWidth()
+            ) {
+                Column {
+                    TextField(
+                        textState.value, { textState.value = it },
+                    )
+                    Text(
+                        "I'm a selection container. Double tap on word to select a word." +
+                            " Triple tap on content to select whole paragraph.\nAnother paragraph for testing.\n" +
+                            "And another one."
+                    )
+                    Row {
+                        DisableSelection {
+                            Button(onClick = { count++ }) {
+                                Text("DisableSelection Count: $count")
+                            }
+                        }
                         Button(onClick = { count++ }) {
-                            Text("DisableSelection Count: $count")
+                            Text("SelectionContainer Count: $count")
                         }
                     }
-                    Button(onClick = { count++ }) {
-                        Text("SelectionContainer Count: $count")
-                    }
+                    Text("I'm another Text() block. Let's try to select me!")
+                    Text("I'm yet another Text() with multiparagraph structure block.\nLet's try to select me!")
                 }
-                Text("I'm another Text() block. Let's try to select me!")
-                Text("I'm yet another Text() with multiparagraph structure block.\nLet's try to select me!")
             }
-        }
-        Column(
-            Modifier
-                .height(100.dp)
-                .padding(2.dp)
-                .border(1.dp, Color.Blue)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-            SelectionContainer {
-                Text(
-                    text = "Select text and scroll\n".repeat(100),
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            Column(
+                Modifier
+                    .height(100.dp)
+                    .padding(2.dp)
+                    .border(1.dp, Color.Blue)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                SelectionContainer {
+                    Text(
+                        text = "Select text and scroll\n".repeat(100),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
