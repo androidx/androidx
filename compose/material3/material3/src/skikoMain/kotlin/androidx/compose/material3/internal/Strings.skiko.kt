@@ -91,6 +91,7 @@ internal actual value class Strings(val value: Int) {
         actual val TimePickerMinuteTextField = Strings(60)
         actual val TooltipPaneDescription = Strings(61)
         actual val ExposedDropdownMenu = Strings(62)
+        actual val ToggleDropdownMenu = Strings(63)
     }
 }
 
