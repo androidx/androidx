@@ -43,13 +43,13 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
-import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
@@ -269,8 +269,8 @@ private class WindowInsetsNestedScrollConnection(
         }
 
         val total = current + scrollAmount + partialConsumption
-        val next = total.roundToInt().coerceIn(hidden, shown)
-        partialConsumption = total - total.roundToInt()
+        val next = total.fastRoundToInt().coerceIn(hidden, shown)
+        partialConsumption = total - total.fastRoundToInt()
 
         if (next != current) {
             animationController.setInsetsAndAlpha(
@@ -388,7 +388,7 @@ private class WindowInsetsNestedScrollConnection(
     private fun adjustInsets(inset: Float) {
         animationController?.let {
             val currentInsets = it.currentInsets
-            val nextInsets = sideCalculator.adjustInsets(currentInsets, inset.roundToInt())
+            val nextInsets = sideCalculator.adjustInsets(currentInsets, inset.fastRoundToInt())
             it.setInsetsAndAlpha(
                 nextInsets,
                 1f, // alpha

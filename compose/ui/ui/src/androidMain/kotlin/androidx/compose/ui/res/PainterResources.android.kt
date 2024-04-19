@@ -17,7 +17,6 @@
 package androidx.compose.ui.res
 
 import android.content.res.Resources
-import android.util.TypedValue
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -30,8 +29,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.compat.seekToStartTag
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalImageVectorCache
+import androidx.compose.ui.platform.LocalResourceIdCache
 
 /**
  * Create a [Painter] from an Android resource id. This can load either an instance of
@@ -56,9 +57,13 @@ import androidx.compose.ui.platform.LocalImageVectorCache
 @Composable
 fun painterResource(@DrawableRes id: Int): Painter {
     val context = LocalContext.current
-    val res = resources()
-    val value = remember { TypedValue() }
-    res.getValue(id, value, true)
+
+    // Query the current configuration in order to recompose during configuration changes
+    LocalConfiguration.current
+    val res = context.resources
+    val resourceIdCache = LocalResourceIdCache.current
+    val value = resourceIdCache.resolveResourcePath(res, id)
+
     val path = value.string
     // Assume .xml suffix implies loading a VectorDrawable resource
     return if (path?.endsWith(".xml") == true) {

@@ -20,7 +20,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.room.Room;
 import androidx.room.integration.testapp.FtsTestDatabase;
@@ -31,7 +30,6 @@ import androidx.room.integration.testapp.vo.Song;
 import androidx.room.integration.testapp.vo.SongDescription;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Lists;
@@ -44,7 +42,6 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 public class FtsTableTest {
 
     private FtsTestDatabase mDatabase;

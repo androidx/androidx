@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
@@ -21,6 +28,7 @@ import androidx.build.AndroidXConfig
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
+    id("com.github.johnrengelman.shadow")
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")
@@ -28,11 +36,48 @@ androidx.configureAarAsJarForConfiguration("testImplementation")
 def buildToolsVersion = AndroidXConfig.getDefaultAndroidConfig(project).getBuildToolsVersion()
 def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
 
+configurations {
+    // Configuration of shadowed / jarjared dependencies
+    shadowed
+    // Shadowed dependencies are compile only
+    compileOnly.extendsFrom(shadowed)
+    // Include shadowed dependencies for test compilation
+    testCompile.extendsFrom(shadowed)
+
+    // Replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
+    apiElements.outgoing.artifacts.clear()
+    apiElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+    runtimeElements.outgoing.artifacts.clear()
+    runtimeElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+}
+
+shadowJar {
+    archiveClassifier = ""
+    configurations = [project.configurations.shadowed]
+    relocate("kotlinx.metadata", "androidx.privacysandbox.tools.kotlinx.metadata")
+    mergeServiceFiles() // kotlinx-metadata-jvm has a service descriptor that needs transformation
+    // Exclude Kotlin metadata files from kotlinx-metadata-jvm
+    exclude 'META-INF/kotlinx-metadata-jvm.kotlin_module'
+    exclude 'META-INF/kotlinx-metadata.kotlin_module'
+    exclude 'META-INF/metadata.jvm.kotlin_module'
+    exclude 'META-INF/metadata.kotlin_module'
+}
+
+jar {
+    archiveClassifier = "before-jarjar"
+}
+
 dependencies {
     api(libs.kotlinStdlib)
     implementation(libs.asm)
     implementation(libs.asmCommons)
-    implementation(libs.kotlinMetadataJvm)
+    shadowed(libs.kotlinMetadataJvm) {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    }
     implementation(libs.kotlinPoet)
     implementation project(path: ':privacysandbox:tools:tools')
     implementation project(path: ':privacysandbox:tools:tools-core')
@@ -41,11 +86,14 @@ dependencies {
     testImplementation(project(":privacysandbox:tools:tools-apipackager"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
+    testImplementationAarAsJar(project(":privacysandbox:activity:activity-core"))
+    testImplementationAarAsJar(project(":privacysandbox:activity:activity-client"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-client"))
     testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-client"))
     testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-core"))
     testImplementation(libs.kotlinCoroutinesCore)
+    testImplementation(libs.kotlinMetadataJvm)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 
@@ -55,17 +103,17 @@ dependencies {
 
 // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
 def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/$buildToolsVersion/aidl"
-def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/$compileSdk/framework.aidl"
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/android-$compileSdk/framework.aidl"
 def testGeneratedSourcesPath = "${project.buildDir}/testGeneratedSources"
-test {
-    inputs.files(aidlCompilerPath)
+tasks.withType(Test).configureEach { test ->
+    test.inputs.files(aidlCompilerPath)
             .withPropertyName("aidl_compiler_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
-    inputs.files(frameworkAidlPath)
+    test.inputs.files(frameworkAidlPath)
             .withPropertyName("framework_aidl_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
-    inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
-    doFirst {
+    test.inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
+    test.doFirst {
         systemProperty "aidl_compiler_path", aidlCompilerPath
         systemProperty "framework_aidl_path", frameworkAidlPath
         systemProperty "test_output_dir", testGeneratedSourcesPath

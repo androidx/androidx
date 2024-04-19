@@ -23,7 +23,7 @@ import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.snapshots.StateFactoryMarker
-import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.overwritable
 import androidx.compose.runtime.snapshots.readable
@@ -124,9 +124,15 @@ internal expect fun createSnapshotMutableFloatState(
  */
 internal open class SnapshotMutableFloatStateImpl(
     value: Float
-) : StateObject, MutableFloatState, SnapshotMutableState<Float> {
+) : StateObjectImpl(), MutableFloatState, SnapshotMutableState<Float> {
 
-    private var next = FloatStateStateRecord(value)
+    private var next = FloatStateStateRecord(value).also {
+        if (Snapshot.isInSnapshot) {
+            it.next = FloatStateStateRecord(value).also { next ->
+                next.snapshotId = Snapshot.PreexistingSnapshotId
+            }
+        }
+    }
 
     override val firstStateRecord: StateRecord
         get() = next

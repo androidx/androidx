@@ -294,6 +294,7 @@ public class Chip implements LayoutElement {
         public Chip build() {
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
+                            .setClickable(mClickable)
                             .setPadding(
                                     new Padding.Builder()
                                             .setStart(mHorizontalPadding)
@@ -306,7 +307,11 @@ public class Chip implements LayoutElement {
                                                     new Corner.Builder()
                                                             .setRadius(radiusOf(mHeight))
                                                             .build())
-                                            .build());
+                                            .build())
+                            .setSemantics(
+                                    new Semantics.Builder()
+                                        .setContentDescription(getCorrectContentDescription())
+                                        .build());
 
             Box.Builder visible =
                     new Box.Builder()
@@ -316,32 +321,38 @@ public class Chip implements LayoutElement {
                             .addContent(getCorrectContent())
                             .setModifiers(modifiers.build());
 
-            Box tappable =
+            // Following accessibility guide, the renderer will attempt to extend the clickable's
+            // touch target size to a minimum of 48dp when inflating it. Since this touch extension
+            // is not layout affecting, thus it is not guaranteed unless there is enough space
+            // around it. This wrapper ensures that there is enough space for this extended touch
+            // target.
+            Box wrapperForTapTarget =
                     new Box.Builder()
                             .setWidth(resolveMinTappableWidth())
                             .setHeight(dp(resolveMinTappableHeight()))
                             .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setClickable(mClickable)
-                                            .setMetadata(getCorrectMetadataTag())
-                                            .setSemantics(
-                                                    new Semantics.Builder()
-                                                            .setContentDescription(
-                                                                    getCorrectContentDescription())
-                                                            .build())
-                                            .build())
+                                new Modifiers.Builder()
+                                    .setMetadata(getCorrectMetadataTag())
+                                    .build())
                             .addContent(visible.build())
                             .build();
 
-            return new Chip(tappable);
+            return new Chip(wrapperForTapTarget);
         }
 
         private ContainerDimension resolveMinTappableWidth() {
             if (mWidth instanceof DpProp) {
                 return dp(max(((DpProp) mWidth).getValue(), mMinTappableSquareLength.getValue()));
             } else if (mWidth instanceof WrappedDimensionProp) {
+                WrappedDimensionProp widthWrap = ((WrappedDimensionProp) mWidth);
                 return new WrappedDimensionProp.Builder()
-                        .setMinimumSize(mMinTappableSquareLength)
+                        .setMinimumSize(
+                                dp(
+                                        max(
+                                                widthWrap.getMinimumSize() != null
+                                                        ? widthWrap.getMinimumSize().getValue()
+                                                        : 0,
+                                                mMinTappableSquareLength.getValue())))
                         .build();
             } else {
                 return mWidth;
@@ -382,6 +393,13 @@ public class Chip implements LayoutElement {
         private LayoutElement getCorrectContent() {
             if (mCustomContent != null) {
                 return mCustomContent;
+            }
+
+            if (mPrimaryLabelContent == null
+                    && mSecondaryLabelContent == null
+                    && mIconContent != null) {
+                // Icon only variant of chip.
+                return mIconContent;
             }
 
             Column.Builder column =
@@ -431,7 +449,7 @@ public class Chip implements LayoutElement {
     /** Returns click event action associated with this Chip. */
     @NonNull
     public Clickable getClickable() {
-        return checkNotNull(checkNotNull(mImpl.getModifiers()).getClickable());
+        return checkNotNull(checkNotNull(mElement.getModifiers()).getClickable());
     }
 
     /** Returns background color of this Chip. */
@@ -444,7 +462,8 @@ public class Chip implements LayoutElement {
     /** Returns content description of this Chip. */
     @Nullable
     public StringProp getContentDescription() {
-        Semantics semantics = checkNotNull(mImpl.getModifiers()).getSemantics();
+        // Semantics are applied to the visible view.
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
@@ -478,7 +497,12 @@ public class Chip implements LayoutElement {
         if (!getMetadataTag().equals(METADATA_TAG_ICON)) {
             return null;
         }
-        return ((Row) mElement.getContents().get(0)).getContents().get(0);
+        // TODO(b/330165026): Refactor to use bit in the metadata tag like layouts do, instead of
+        // relying on the null here. The primary label can be null in case of icon only CompactChip.
+        LayoutElement topLevel = mElement.getContents().get(0);
+        return topLevel instanceof Row
+                ? ((Row) mElement.getContents().get(0)).getContents().get(0)
+                : topLevel;
     }
 
     @Nullable
@@ -491,6 +515,11 @@ public class Chip implements LayoutElement {
         // In any other case, text (either primary or primary + label) must be present.
         Column content;
         if (metadataTag.equals(METADATA_TAG_ICON)) {
+            if (!(mElement.getContents().get(0) instanceof Row)) {
+                // This is icon only Chip, no label.
+                return null;
+            }
+
             content =
                     (Column)
                             ((Box)

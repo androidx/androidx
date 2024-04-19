@@ -764,9 +764,6 @@ public class WebSettingsCompat {
         }
     }
 
-    /**
-     * @hide
-     */
     @IntDef({ATTRIBUTION_BEHAVIOR_DISABLED,
             ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER,
             ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER,
@@ -869,6 +866,129 @@ public class WebSettingsCompat {
                 WebViewFeatureInternal.ATTRIBUTION_REGISTRATION_BEHAVIOR;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getAttributionRegistrationBehavior();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets permissions provided through
+     * {@link WebViewMediaIntegrityApiStatusConfig} for using the
+     * WebView Integrity API.
+     */
+    @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setWebViewMediaIntegrityApiStatus(
+            @NonNull WebSettings settings,
+            @NonNull WebViewMediaIntegrityApiStatusConfig permissionConfig) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEBVIEW_MEDIA_INTEGRITY_API_STATUS;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setWebViewMediaIntegrityApiStatus(permissionConfig);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Returns the {@link WebViewMediaIntegrityApiStatusConfig} currently in use.
+     */
+    @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @NonNull
+    public static WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus(
+            @NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEBVIEW_MEDIA_INTEGRITY_API_STATUS;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getWebViewMediaIntegrityApiStatus();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @IntDef({WEB_AUTHENTICATION_SUPPORT_NONE,
+            WEB_AUTHENTICATION_SUPPORT_FOR_APP,
+            WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Retention(RetentionPolicy.SOURCE)
+    @interface WebAuthenticationSupport {
+    }
+
+    /**
+     * The support level that disables WebAuthn requests from WebView.
+     * <p>
+     * This is the default behavior.
+     */
+    public static final int WEB_AUTHENTICATION_SUPPORT_NONE =
+            WebSettingsBoundaryInterface.WebauthnSupport.NONE;
+    /**
+     * The support level that allows WebAuthn requests for the app in which the WebView is embedded.
+     * See
+     * <a href="https://developers.google.com/digital-asset-links">Digital Asset Links</a>
+     * to learn how to associate an app with a website.
+     */
+    public static final int WEB_AUTHENTICATION_SUPPORT_FOR_APP =
+            WebSettingsBoundaryInterface.WebauthnSupport.APP;
+
+    /**
+     * The support level that allows apps to make WebAuthn calls for any website. See
+     * <a href="https://developer.android.com/training/sign-in/privileged-apps">Privileged apps</a>
+     * to learn how to make WebAuthn calls for any website.
+     */
+    public static final int WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER =
+            WebSettingsBoundaryInterface.WebauthnSupport.BROWSER;
+
+    /**
+     * Sets the support level for the given {@link WebSettings}.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#WEB_AUTHENTICATION}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @param support  The new support level which this WebView will use.
+     * @see #WEB_AUTHENTICATION_SUPPORT_NONE
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_APP
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_AUTHENTICATION,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setWebAuthenticationSupport(@NonNull WebSettings settings,
+            @WebAuthenticationSupport int support) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEB_AUTHENTICATION;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setWebAuthenticationSupport(support);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Returns the support level for the given {@link WebSettings}
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#WEB_AUTHENTICATION}.
+     *
+     * @param settings Settings retrieved from {@link WebView#getSettings()}.
+     * @return the current support level.
+     * @see #setWebAuthenticationSupport(WebSettings, int)
+     * @see #WEB_AUTHENTICATION_SUPPORT_NONE
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_APP
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_AUTHENTICATION,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @WebAuthenticationSupport
+    public static int getWebAuthenticationSupport(@NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEB_AUTHENTICATION;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getWebAuthenticationSupport();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

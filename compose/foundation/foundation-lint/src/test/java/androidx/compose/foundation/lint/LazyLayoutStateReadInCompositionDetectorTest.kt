@@ -37,7 +37,7 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
     private val lazyGridStateStub = bytecodeStub(
         filename = "LazyGridState.kt",
         filepath = "androidx/compose/foundation/lazy/grid",
-        checksum = 0xd5891ae4,
+        checksum = 0x1f30c0f3,
         source = """
                     package androidx.compose.foundation.lazy.grid
 
@@ -51,59 +51,59 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
                         val layoutInfo: LazyGridLayoutInfo get() = object : LazyGridLayoutInfo {}
                     }
         """,
-        """
+"""
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGI2Bijg0uSST8xLKcrPTKnQS87PLcgvTtVL
-        yy/NS0ksyczPAzLzhdhCUotLvEuUGLQYAJ1f4slDAAAA
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uSST8xLKcrPTKnQS87PLcgvTtVL
+        yy/NS0ksyczPAzLzhdhCUotLvEuUGLQYAAC6oXVDAAAA
         """,
         """
         androidx/compose/foundation/lazy/grid/LazyGridLayoutInfo.class:
-        H4sIAAAAAAAAAJ2OzU7CQBSFzx2UYv0rKgm+hAPEhdGVG02TGhNJ3LAa2ikZ
-        KDOGTgm44rlcGNY+lPEW4ws4Nznz3bmTc8/X98cngGt0CDfKZgtnspVM3fzN
-        lVrmrrKZ8sZZWaj3tZwsTCYTpkeGRK1d5WObuwBEiKZqqfibncjn8VSnPkCD
-        0E5mzhfGyiftFVupO4KYLxu8k2pp1gICzfh9Zequx5T1CZ3tphWKrghFxJR3
-        t5uB6FE9HBBuk/+G5QC8L/obDL3y+mrmCeHQVYtUP5hCEy5fKuvNXL+a0owL
-        fW+t8zvvsskJsIffI3C+0zNc8N1n432u5giNGEGMVowDhIw4jHGE4xGoxAlO
-        RxAlohLtH5JfRp1/AQAA
+        H4sIAAAAAAAA/52OzU4CMRSFzy3Kz/g3qCT4EhaIC4MrN5pJxphI4oZVmemQ
+        wtAapkPAFc/lwrD2oYx3ML6Avcnpd3ubc8/X98cngBt0CLfKpktn0rVM3OLN
+        FVpmrrSp8sZZmav3jZwuTSpjpkeGWG1c6SObuQaIEM7USvE3O5XPk5lOfAM1
+        QjueO58bK5+0V2yl7ghisarxTqqkVQkINOf3tam6HlPaJ3R222YguiIQIVPW
+        3W0HokfVcEAYxv8NywF4X/g3GHnl9fXcE4KRK5eJfjC5Jly9lNabhX41hZnk
+        +t5a5/feRZ0T4AC/R+Bir+e45LvPxodc9TFqERoRmhFaCBhxFOEYJ2NQgVOc
+        jSEKhAXaP+1d5AJ/AQAA
         """,
         """
         androidx/compose/foundation/lazy/grid/LazyGridState＄layoutInfo＄1.class:
-        H4sIAAAAAAAAAKVSTW/TQBB946R1a1zSlo8mfBcCanvATeGAoEJABciSAYlW
-        ueS0sbfpNs4ustdVyyl/iRMSB5QzPwoxGxAVx5bLzJu3M7Oz++bHz2/fATzG
-        A8ILobPCqOw4Ss3okylltG8qnQmrjI5y8fkkGhQqixJGbxnsWmFlOxcnprKx
-        3jftjg8iLB6KI8HpehB96B/K1PqoEZ6crXfyt6uPGcLsttLKPifU1ta7IXzM
-        BahjnlC3B6okvEr+d/RnhKVkaGyudPROWsGlgjlvdFTj7yFnZp0BgYbMHysX
-        bTLKOoSVyXg+mIwDr+lt0GQ8FzQn4y1vk9zxFuHpGcc7fT2P8OgcT/PRIiwM
-        pD3tRNheWz//HCGu4waL+881D4eWJdgxmSQ0EqXl+2rUl8We6OfMLCcmFXlX
-        FMrFf8gw1loWO7koS8nCNV7rNDel0gP+9AOTEYJdUxWpfKNcdutjpa0aya4q
-        FZe/1NrY6bAlOvB4BXg1pprA7QT724wipxH7mY2vCL4w8HDHyTclL2CVbfg7
-        gaOQfR132QbMeU5htHBvyl7DTbSn9bdwn32HMxa46mIPtRiNGIsxlrDMEJdi
-        XMaVHqjEVaz04JUONn8B8d9xtF4DAAA=
+        H4sIAAAAAAAA/6VSTW/TQBB946R1Y1zSlo8mfH8E1PaAm8IBQYWACpAlAxJF
+        ueS0sbfpNs4ustdVyyl/iRMSB5QzPwoxGxAVx5bLzJu3M7Oz++bHz2/fATzC
+        fcJzobPCqOwoSs34kylltGcqnQmrjI5y8fk4GhYqixJGbxjsWmFlJxfHprKx
+        3jOdrg8iLB2IQ8Hpehi9HxzI1PqoER6frnfyt6uPOcL8ttLKPiPU1tZ7IXws
+        BKijQajbfVUSXib/O/pTwnIyMjZXOnorreBSwZw3Pqzx95AzDWdAoBHzR8pF
+        m4yyLmF1OmkE00ngtbwNmk4WgtZ0suVtkjveIjw55Xgnr+cRHp7haT7ahMWh
+        tCedCNtr62efI8RVXGNx/7nmwciyBDsmk4RmorR8V40HsvgoBjkzK4lJRd4T
+        hXLxHzKMtZbFTi7KUrJwzVc6zU2p9JA/fd9khGDXVEUqXyuX3f5QaavGsqdK
+        xeUvtDZ2NmyJLjxeAV6NmSZwO8H+JqPIacR+buMrgi8MPNxiOz8jz+E22/B3
+        Akch+zrusA2Y85zCaOPujL2C6+jM6m/gHvsuZyxy1fk+ajGaMZZiLGOFIS7E
+        uIhLfVCJy1jtwysdbP0CBEAxIl4DAAA=
         """,
         """
         androidx/compose/foundation/lazy/grid/LazyGridState.class:
-        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
+        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
         """
     )
 
     private val lazyListStateStub = bytecodeStub(
         filename = "LazyListState.kt",
         filepath = "androidx/compose/foundation/lazy",
-        checksum = 0xb9a80c68,
+        checksum = 0x4e68cddf,
         source = """
                     package androidx.compose.foundation.lazy
 
@@ -117,52 +117,52 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
                         val layoutInfo: LazyListLayoutInfo get() = object : LazyListLayoutInfo {}
                     }
         """,
-        """
+"""
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAAAGNgYGBmYGBgBGI2Bijg0uSST8xLKcrPTKnQS87PLcgvTtVL
-        yy/NS0ksyczPAzLzhdhCUotLvEuUGLQYAJ1f4slDAAAA
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uSST8xLKcrPTKnQS87PLcgvTtVL
+        yy/NS0ksyczPAzLzhdhCUotLvEuUGLQYAAC6oXVDAAAA
         """,
         """
         androidx/compose/foundation/lazy/LazyListLayoutInfo.class:
-        H4sIAAAAAAAAAJ1OTU/CQBB9s9WC9auoJPgnLKCePHkxaVJjIokXTku7NQtl
-        17BbAp74XR4MZ3+UcYrxDziTvHnzkffm6/vjE8ANuoRraYqF1cUqye38zTqV
-        lLY2hfTamqSS7+skY8i085lc29qnprQtECGeyqXkC/OaPE2mKvctBIRONrO+
-        0iZ5VF6yirwjiPkyYDtqIGwABJrxfKWbrs+sGBC62007Ej0RiZhZ2dtuhqJP
-        zXJIuM3+8Sd7s1X8txh56dXVzBOika0XuXrQlSJcPtfG67l60U5PKnVvjPU7
-        WReyOfbwGwLnOzzDBdcBC+9zhmMEKVop2ikOEDHFYYojHI9BDic4HUM4xA6d
-        H5nueFN1AQAA
+        H4sIAAAAAAAA/51OTU/CQBB9syiF+lVUEvwTFlBOnryYNKkxkcRLT0u7mIWy
+        a9gtAU/8Lg+Gsz/KOMX4B5xJ3rz5yHvz9f3xCeAWXcKNNMXS6mId53bxZp2K
+        p7YyhfTamriU75s4ZUi186nc2MonZmoDECGayZXkC/MaP01mKvcBGoROOre+
+        1CZ+VF6yirwjiMWqwXZUQ7sGEGjO87Wuuz6zYkDo7ratUPREKCJm095uOxR9
+        qpdDwij9x5/szVbR32LspVfXc08Ix7Za5upBl4pw9VwZrxfqRTs9KdW9Mdbv
+        ZV2TzXGA3xC42OM5LrkOWPiQs5mhkSBI0ErQRsgURwmOcZKBHE5xlkE4RA6d
+        H25NYfx1AQAA
         """,
         """
         androidx/compose/foundation/lazy/LazyListState＄layoutInfo＄1.class:
-        H4sIAAAAAAAAAKVSS2/TQBD+xknr1rikLY8mvKEpanuomwLiUEBCFUiWDJUo
-        yiWnjb1Nt3F2kb2uWk75S5yQOKCc+VGI2YB43Apcvpn5PK+dz1++fvoM4CHu
-        E3aFzgqjstMoNaN3ppTRoal0JqwyOsrF+7MoYUhUaQ+ssLKdizNT2VgfmnbH
-        BxEWj8WJ4Ew9iPb7xzK1PmqEB+dum/xs6GOGMPtEaWWfEWrrG90QPuYC1DFP
-        qNsjVRKeJv+x8C5hKRkamysdvZJWcJVgzhud1Pge5GDWAQg0ZP5UuWibvaxD
-        WJmM54PJOPCa3iZNxnNBczLe8bbJfd4hPDr/Zr/ezNO3/u5BPlqEhYH8rQnh
-        8frGP00PcR03WMM/JmwNLZ97z2SS0EiUlq+rUV8Wb0U/Z2Y5ManIu6JQLv5B
-        hrHWstjLRVlKFqnxQqe5KZUe8JWPTEYIDkxVpPKlctmtN5W2aiS7qlRc/lxr
-        Y6d7lujAY7n5N5iKAKc/29vsRU4UtjObHxF8YMfDHafXlLyAu4zh9wSOQrZ1
-        3GMMmPOcpGhhdcpew020p/W3sMa2wxkLXHWxh1qMRozFGEtYZheXYlzGlR6o
-        xFWs9OCVzm1+A4nVJzVAAwAA
+        H4sIAAAAAAAA/6VSS2/TQBD+xknrxqSkLY8mvB8BtT3UTQFxKCChCiRLhkoU
+        5ZLTxt6m2zi7yF5XLaf8JU5IHFDO/CjErEE8bgUu38x8ntfO5y9fP30G8BD3
+        CTtCp7lR6UmYmMk7U8jwwJQ6FVYZHWbi/WkYM8SqsPtWWNnNxKkpbaQPTLfn
+        gwhLR+JYcKYehXvDI5lYHzXCgzO3jX829DFHmH+itLLPCLW19X4TPhYC1NEg
+        1O2hKghP4/9YeIewHI+NzZQOX0kruEow502Oa3wPctBwAAKNmT9RLtpiL+0R
+        VmfTRjCbBl7b26DZdCFoz6bb3ha5z9uER2ff7Nebefrm3z3IR4ewOJK/NSE8
+        Xlv/p+lNXMU11vCPCZtjy+feNakktGKl5etyMpT5WzHMmFmJTSKyvsiVi3+Q
+        zUhrme9moigki9R6oZPMFEqP+MqHJiUE+6bME/lSuezOm1JbNZF9VSguf661
+        sdWeBXrwWG7+DSoR4PRne5O90InCdm7jI4IP7Hi4xThfkedwm7H5PYGjJts6
+        7jAGzHlOUnRwt2Kv4Dq6Vf0N3GPb44xFrjo/QC1CK8JShGWssIsLES7i0gBU
+        4DJWB/AK57a/AQF0+xNAAwAA
         """,
         """
         androidx/compose/foundation/lazy/LazyListState.class:
-        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
+        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
         """
     )
 

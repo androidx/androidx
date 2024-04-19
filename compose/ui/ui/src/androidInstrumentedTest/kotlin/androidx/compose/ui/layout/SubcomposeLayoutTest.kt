@@ -52,6 +52,7 @@ import androidx.compose.ui.background
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.assertColor
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.isExactly
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -62,6 +63,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -70,6 +72,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -2406,6 +2409,47 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    fun deactivatingDeeplyNestedLayoutDoesNotCauseRemeasure() {
+        var showContent by mutableStateOf(true)
+        val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        rule.setContent {
+            SubcomposeLayout(
+                state = state,
+                modifier = Modifier.fillMaxSize()
+            ) { constraints ->
+                val content = if (showContent) {
+                    subcompose(0) {
+                        Box {
+                            var disposed by remember { mutableStateOf(false) }
+                            DisposableEffect(Unit) {
+                                onDispose { disposed = true }
+                            }
+                            Box(
+                                Modifier.layout { measurable, constraints ->
+                                    assertThat(disposed).isFalse()
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                } else emptyList()
+
+                val placeables = measure(content, constraints)
+                layout(100, 100) {
+                    placeables.placeChildren()
+                }
+            }
+        }
+
+        rule.runOnIdle { showContent = false }
+        rule.runOnIdle { showContent = true }
+        rule.waitForIdle()
+    }
+
+    @Test
     fun reusingNestedSubcompose_nestedChildrenAreResetAndReused() {
         val slotState = mutableStateOf(0)
 
@@ -2631,6 +2675,135 @@ class SubcomposeLayoutTest {
         }
     }
 
+    @Test
+    fun precomposeOnDetachedStateIsNoOp() {
+        var needSubcomposeLayout by mutableStateOf(true)
+        val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        rule.setContent {
+            if (needSubcomposeLayout) {
+                SubcomposeLayout(state) { _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            needSubcomposeLayout = false
+        }
+
+        rule.runOnIdle {
+            val handle = state.precompose(Unit) { Box(Modifier) }
+            assertThat(handle.placeablesCount).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun deactivatedNodesAreNotPartOfChildrenSemantics() {
+        val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
+        val needChild = mutableStateOf(true)
+
+        rule.setContent {
+            SubcomposeLayout(
+                modifier = Modifier.testTag("layout"),
+                state = layoutState.value
+            ) { constraints ->
+                val node = if (needChild.value) {
+                    subcompose(Unit) {
+                        Box(Modifier.testTag("child"))
+                    }.first().measure(constraints)
+                } else {
+                    null
+                }
+                layout(10, 10) {
+                    node?.place(0, 0)
+                }
+            }
+        }
+
+        rule.onNodeWithTag("layout")
+            .onChildren().assertCountEquals(1)
+
+        needChild.value = false
+
+        rule.onNodeWithTag("layout")
+            .onChildren().assertCountEquals(0)
+    }
+
+    @Test
+    fun measureWidthTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(1 shl 24, 100) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun measureHeightTooLarge() {
+        var exception: IllegalStateException? = null
+        rule.setContent {
+            SubcomposeLayout {
+                try {
+                    layout(100, 1 shl 24) {}
+                } catch (e: IllegalStateException) {
+                    exception = e
+                    layout(0, 0) {}
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun nestedDisposeIsCalledInOrder() {
+        val disposeOrder = mutableListOf<String>()
+        var active by mutableStateOf(true)
+        rule.setContent {
+            if (active) {
+                BoxWithConstraints {
+                    BoxWithConstraints {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposeOrder += "inner 1"
+                            }
+                        }
+                    }
+
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            disposeOrder += "outer"
+                        }
+                    }
+
+                    BoxWithConstraints {
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                disposeOrder += "inner 2"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(disposeOrder).isExactly("inner 2", "outer", "inner 1")
+        }
+    }
+
     private fun SubcomposeMeasureScope.measure(
         slotId: Any,
         constraints: Constraints,
@@ -2686,7 +2859,7 @@ class SubcomposeLayoutTest {
     private fun SemanticsNodeInteraction.assertIsDetached() {
         assertDoesNotExist()
         // we want to verify the node is not deactivated, but such API does not exist yet
-        expectAssertionError(true) {
+        expectAssertionError {
             assertIsDeactivated()
         }
     }

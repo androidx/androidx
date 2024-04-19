@@ -19,19 +19,15 @@ package androidx.room.integration.testapp.migration;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.database.sqlite.SQLiteConstraintException;
-import android.database.sqlite.SQLiteException;
-import android.os.Build;
+import android.database.SQLException;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
 import androidx.room.migration.Migration;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
@@ -45,7 +41,6 @@ import java.io.IOException;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // Due to FTS table migrations
 public class AutoMigrationTest {
     private static final String TEST_DB = "auto-migration-test";
     @Rule
@@ -89,7 +84,7 @@ public class AutoMigrationTest {
                     3,
                     true
             );
-        } catch (SQLiteConstraintException e) {
+        } catch (SQLException e) {
             assertThat(e.getMessage()).isEqualTo("Foreign key violation(s) detected in 'Entity9'."
                     + "\nNumber of different violations discovered: 1"
                     + "\nNumber of rows in violation: 2"
@@ -134,7 +129,7 @@ public class AutoMigrationTest {
                     true,
                     MIGRATION_1_2
             );
-        } catch (SQLiteException e) {
+        } catch (SQLException e) {
             assertThat(e.getMessage()).containsMatch("no such table: Entity0");
         }
     }
@@ -149,10 +144,6 @@ public class AutoMigrationTest {
                 true,
                 MIGRATION_1_0
         );
-        DatabaseConfiguration config = helper.databaseConfiguration;
-        assertThat(config).isNotNull();
-        assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotNull();
-        assertThat(config.migrationContainer.findMigrationPath(1, 2)).isNotEmpty();
     }
 
     private static final Migration MIGRATION_1_2 = new Migration(1, 2) {

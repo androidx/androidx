@@ -21,11 +21,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.tokens.ElevatedButtonTokens
+import androidx.compose.material3.tokens.FilledButtonTokens
+import androidx.compose.material3.tokens.FilledTonalButtonTokens
+import androidx.compose.material3.tokens.OutlinedButtonTokens
+import androidx.compose.material3.tokens.TextButtonTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -296,6 +302,119 @@ class ButtonTest {
             16.dp,
             "padding between end of text and end of text button."
         )
+    }
+
+    @Test
+    fun button_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.Unspecified,
+                    contentColor = Color.Unspecified,
+                    disabledContainerColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified,
+                )
+            ).isEqualTo(
+                ButtonColors(
+                    containerColor = FilledButtonTokens.ContainerColor.value,
+                    contentColor = FilledButtonTokens.LabelTextColor.value,
+                    disabledContainerColor = FilledButtonTokens.DisabledContainerColor.value
+                        .copy(FilledButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = FilledButtonTokens.DisabledLabelTextColor.value
+                        .copy(alpha = FilledButtonTokens.DisabledLabelTextOpacity),
+                )
+            )
+        }
+    }
+
+    @Test
+    fun filledTonalButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                ButtonDefaults.filledTonalButtonColors(
+                    containerColor = Color.Unspecified,
+                    contentColor = Color.Unspecified,
+                    disabledContainerColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified,
+                )
+            ).isEqualTo(
+                ButtonColors(
+                    containerColor = FilledTonalButtonTokens.ContainerColor.value,
+                    contentColor = FilledTonalButtonTokens.LabelTextColor.value,
+                    disabledContainerColor = FilledTonalButtonTokens.DisabledContainerColor.value
+                        .copy(alpha = FilledTonalButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = FilledTonalButtonTokens.DisabledLabelTextColor.value
+                        .copy(alpha = FilledTonalButtonTokens.DisabledLabelTextOpacity),
+                )
+            )
+        }
+    }
+
+    @Test
+    fun elevatedButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                ButtonDefaults.elevatedButtonColors(
+                    containerColor = Color.Unspecified,
+                    contentColor = Color.Unspecified,
+                    disabledContainerColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified,
+                )
+            ).isEqualTo(
+                ButtonColors(
+                    containerColor = ElevatedButtonTokens.ContainerColor.value,
+                    contentColor = ElevatedButtonTokens.LabelTextColor.value,
+                    disabledContainerColor = ElevatedButtonTokens.DisabledContainerColor.value
+                        .copy(alpha = ElevatedButtonTokens.DisabledContainerOpacity),
+                    disabledContentColor = ElevatedButtonTokens.DisabledLabelTextColor.value
+                        .copy(alpha = ElevatedButtonTokens.DisabledLabelTextOpacity),
+                )
+            )
+        }
+    }
+
+    @Test
+    fun outlinedButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.Unspecified,
+                    contentColor = Color.Unspecified,
+                    disabledContainerColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified,
+                )
+            ).isEqualTo(
+                ButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = OutlinedButtonTokens.LabelTextColor.value,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = OutlinedButtonTokens.DisabledLabelTextColor.value
+                        .copy(alpha = OutlinedButtonTokens.DisabledLabelTextOpacity),
+                )
+            )
+        }
+    }
+
+    @Test
+    fun textButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(
+                ButtonDefaults.textButtonColors(
+                    containerColor = Color.Unspecified,
+                    contentColor = Color.Unspecified,
+                    disabledContainerColor = Color.Unspecified,
+                    disabledContentColor = Color.Unspecified,
+                )
+            ).isEqualTo(
+                ButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = TextButtonTokens.LabelTextColor.value,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = TextButtonTokens.DisabledLabelTextColor.value
+                        .copy(alpha = TextButtonTokens.DisabledLabelTextOpacity),
+                )
+            )
+        }
     }
 }
 

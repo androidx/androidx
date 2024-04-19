@@ -21,8 +21,12 @@ import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.TypeBuilders
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
+import androidx.wear.protolayout.expression.PlatformDataValues
+import androidx.wear.protolayout.expression.PlatformHealthSources
 import androidx.wear.tiles.TileBuilders
-import androidx.wear.tiles.tooling.preview.TilePreview
+import androidx.wear.tiles.tooling.preview.Preview
 import androidx.wear.tiles.tooling.preview.TilePreviewData
 import androidx.wear.tiles.tooling.preview.TilePreviewHelper.singleTimelineEntryTileBuilder
 
@@ -51,42 +55,89 @@ private fun tile() = TileBuilders.Tile.Builder()
         ).build()
     ).build()
 
-@TilePreview
+@Preview
 fun tilePreview() = TilePreviewData(
     onTileResourceRequest = { resources },
     onTileRequest = { tile() },
 )
 
-@TilePreview
+@Preview
 fun tileLayoutPreview() = TilePreviewData {
     singleTimelineEntryTileBuilder(layout()).build()
 }
 
-@TilePreview
+@Preview
 fun tileLayoutElementPreview() = TilePreviewData {
     singleTimelineEntryTileBuilder(layoutElement()).build()
 }
 
-@TilePreview
+@Preview
 private fun tilePreviewWithPrivateVisibility() = TilePreviewData { tile() }
 
 fun duplicateFunctionName(x: Int) = x
 
-@TilePreview
+@Preview
 fun duplicateFunctionName() = TilePreviewData { tile() }
 
-@TilePreview
+@Preview
 fun tilePreviewWithContextParameter(@Suppress("UNUSED_PARAMETER") context: Context) =
     TilePreviewData { tile() }
 
-@TilePreview
+@Preview
 fun tilePreviewWithWrongReturnType() = Unit
 
-@TilePreview
+@Preview
 fun tilePreviewWithNonContextParameter(@Suppress("UNUSED_PARAMETER") i: Int) =
     TilePreviewData { tile() }
 
 class SomeClass {
-    @TilePreview
+    @Preview
     fun nonStaticMethod() = TilePreviewData { tile() }
 }
+
+private fun heartRateText() = LayoutElementBuilders.Text.Builder()
+    .setText(
+        TypeBuilders.StringProp.Builder("--")
+            .setDynamicValue(PlatformHealthSources.heartRateBpm().format())
+            .build()
+    )
+    .setLayoutConstraintsForDynamicText(
+        TypeBuilders.StringLayoutConstraint.Builder("XX")
+            .setAlignment(LayoutElementBuilders.TEXT_ALIGN_CENTER)
+            .build()
+    )
+    .setFontStyle(
+        LayoutElementBuilders.FontStyle.Builder()
+            .setColor(argb(0xFF000000.toInt()))
+            .build()
+    )
+    .build()
+
+private fun tileWithPlatformData() =
+    TileBuilders.Tile.Builder()
+        .setResourcesVersion(RESOURCES_VERSION)
+        .setTileTimeline(
+            TimelineBuilders.Timeline.Builder()
+                .addTimelineEntry(
+                    TimelineBuilders.TimelineEntry.Builder()
+                        .setLayout(
+                            LayoutElementBuilders.Layout.Builder()
+                                .setRoot(heartRateText())
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        )
+        .build()
+
+@Preview
+fun tilePreviewWithDefaultPlatformData() = TilePreviewData { tileWithPlatformData() }
+
+@Preview
+fun tilePreviewWithOverriddenPlatformData() = TilePreviewData(
+    platformDataValues = PlatformDataValues.of(
+        PlatformHealthSources.Keys.HEART_RATE_BPM,
+        DynamicDataValue.fromFloat(180f)
+    )
+) { tileWithPlatformData() }

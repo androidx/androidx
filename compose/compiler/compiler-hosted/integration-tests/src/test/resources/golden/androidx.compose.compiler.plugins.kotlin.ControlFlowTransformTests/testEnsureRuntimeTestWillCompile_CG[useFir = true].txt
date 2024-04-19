@@ -25,16 +25,16 @@ fun test_CM1_RetFun(condition: Boolean, %composer: Composer?, %changed: Int) {
   sourceInformation(%composer, "C(test_CM1_RetFun)<Text("...>,<M1>,<Text("...>:Test.kt")
   val tmp0_marker = %composer.currentMarker
   val %dirty = %changed
-  if (%changed and 0b1110 == 0) {
+  if (%changed and 0b0110 == 0) {
     %dirty = %dirty or if (%composer.changed(condition)) 0b0100 else 0b0010
   }
-  if (%dirty and 0b1011 != 0b0010 || !%composer.skipping) {
+  if (%dirty and 0b0011 != 0b0010 || !%composer.skipping) {
     if (isTraceInProgress()) {
       traceEventStart(<>, %dirty, -1, <>)
     }
     Text("Root - before", %composer, 0b0110)
     M1({ %composer: Composer?, %changed: Int ->
-      %composer.startReplaceableGroup(<>)
+      %composer.startReplaceGroup(<>)
       sourceInformation(%composer, "C<Text("...>,<Text("...>:Test.kt")
       Text("M1 - before", %composer, 0b0110)
       if (condition) {
@@ -48,7 +48,7 @@ fun test_CM1_RetFun(condition: Boolean, %composer: Composer?, %changed: Int) {
         return
       }
       Text("M1 - after", %composer, 0b0110)
-      %composer.endReplaceableGroup()
+      %composer.endReplaceGroup()
     }, %composer, 0)
     Text("Root - after", %composer, 0b0110)
     if (isTraceInProgress()) {

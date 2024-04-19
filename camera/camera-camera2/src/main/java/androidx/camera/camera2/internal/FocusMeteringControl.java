@@ -39,6 +39,7 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -409,14 +410,16 @@ class FocusMeteringControl {
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
-            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
                 if (completer != null) {
                     completer.set(cameraCaptureResult);
                 }
             }
 
             @Override
-            public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+            public void onCaptureFailed(int captureConfigId,
+                    @NonNull CameraCaptureFailure failure) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControlInternal.CameraControlException(failure));
@@ -424,7 +427,7 @@ class FocusMeteringControl {
             }
 
             @Override
-            public void onCaptureCancelled() {
+            public void onCaptureCancelled(int captureConfigId) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControl.OperationCanceledException("Camera is closed"));
@@ -472,7 +475,8 @@ class FocusMeteringControl {
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
-            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
                 if (completer != null) {
                     Logger.d(TAG, "triggerAePrecapture: triggering capture request completed");
                     completer.set(null);
@@ -480,7 +484,8 @@ class FocusMeteringControl {
             }
 
             @Override
-            public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+            public void onCaptureFailed(int captureConfigId,
+                    @NonNull CameraCaptureFailure failure) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControlInternal.CameraControlException(failure));
@@ -488,7 +493,7 @@ class FocusMeteringControl {
             }
 
             @Override
-            public void onCaptureCancelled() {
+            public void onCaptureCancelled(int captureConfigId) {
                 if (completer != null) {
                     completer.setException(
                             new CameraControl.OperationCanceledException("Camera is closed"));
@@ -535,7 +540,11 @@ class FocusMeteringControl {
      * Enables or disables AE_MODE_ON_EXTERNAL_FLASH.
      *
      * <p> It will be enabled only if the AE mode is supported i.e. API >= 28 and available in
-     * {@link CameraCharacteristics#CONTROL_AE_AVAILABLE_MODES}.
+     * {@link CameraCharacteristics#CONTROL_AE_AVAILABLE_MODES}, and the flash mode is actually
+     * external (i.e. not the usual physical flash unit attached near camera) which is only
+     * {@link ImageCapture#FLASH_MODE_SCREEN} as of now. In case of other flash modes, the AE mode
+     * may get overwritten in {@link Camera2CameraControlImpl#getSessionOptions} and the future
+     * will never complete.
      *
      * @param enable Whether to enable or disable the AE mode.
      * @return A {@link ListenableFuture} that is completed when the capture request to set the
@@ -595,7 +604,11 @@ class FocusMeteringControl {
                     Logger.d(TAG, "enableExternalFlashAeMode: "
                             + "isAeModeExternalFlash = " + isAeModeExternalFlash);
 
-                    // Check if the lock values are as desired
+                    // Check if the AE mode is as desired
+                    // TODO: Currently this check will never pass if AE mode request is overwritten
+                    //  due to other flash mode in Camera2CameraControlImpl#getSessionOptions. To
+                    //  handle this gracefully, we should have a central code controlling the AE
+                    //  mode value to set to capture requests and we can compare with that instead.
                     if (isAeModeExternalFlash == mIsExternalFlashAeModeEnabled) {
                         // Ensure the session is actually updated
                         if (Camera2CameraControlImpl.isSessionUpdated(result, sessionUpdateId)) {

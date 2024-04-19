@@ -494,12 +494,3 @@ class AverageDurationMeasurer(private val capacity: Int = 600 /*60 fps * 10 seco
         if (index % 60 == 0) value else null
     }.filterNotNull()
 }
-
-private val RainbowColors = listOf(
-    Color(0xff9c4f96),
-    Color(0xffff6355),
-    Color(0xfffba949),
-    Color(0xfffae442),
-    Color(0xff8bd448),
-    Color(0xff2aa8f2)
-)

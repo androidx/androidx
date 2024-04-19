@@ -19,7 +19,6 @@ package androidx.leanback.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.core.view.ViewCompat;
 import androidx.leanback.transition.LeanbackTransitionHelper;
 import androidx.leanback.transition.TransitionHelper;
 
@@ -46,8 +45,7 @@ public class TitleHelper {
             if (focused != mTitleView && direction == View.FOCUS_UP) {
                 return mTitleView;
             }
-            final boolean isRtl = ViewCompat.getLayoutDirection(focused)
-                    == ViewCompat.LAYOUT_DIRECTION_RTL;
+            final boolean isRtl = focused.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             final int forward = isRtl ? View.FOCUS_LEFT : View.FOCUS_RIGHT;
             if (mTitleView.hasFocus() && (direction == View.FOCUS_DOWN || direction == forward)) {
                 return mSceneRoot;

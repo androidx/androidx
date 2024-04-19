@@ -27,13 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Checkbox
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
@@ -44,13 +41,14 @@ import androidx.wear.compose.material.ToggleChipDefaults
 @Composable
 fun ToggleChipWithSwitch() {
     var checked by remember { mutableStateOf(true) }
-    // When we have both label and secondary label present limit both to 1 line of text
+    // The primary label should have a maximum 3 lines of text
+    // and the secondary label should have max 2 lines of text.
     ToggleChip(
         label = {
-            Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("SwitchIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         secondaryLabel = {
-            Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
         // For Switch  toggle controls the Wear Material UX guidance is to set the
@@ -63,10 +61,6 @@ fun ToggleChipWithSwitch() {
             Switch(
                 checked = checked,
                 enabled = true,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (checked) "On" else "Off"
-                }
             )
         },
         onCheckedChange = { checked = it },
@@ -83,57 +77,19 @@ fun ToggleChipWithSwitch() {
 
 @Sampled
 @Composable
-fun ToggleChipWithRadioButton() {
-    var selected by remember { mutableStateOf(true) }
-    // When we have both label and secondary label present limit both to 1 line of text
-    ToggleChip(
-        label = {
-            Text("RadioIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        secondaryLabel = {
-            Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        checked = selected,
-        toggleControl = {
-            RadioButton(
-                selected = selected,
-                enabled = true,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (selected) "On" else "Off"
-                }
-            )
-        },
-        onCheckedChange = { selected = it },
-        appIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
-                contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
-            )
-        },
-        enabled = true,
-    )
-}
-
-@Sampled
-@Composable
 fun SplitToggleChipWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
-    // When we have no secondary label we can have up to 2 lines of text
+    // The primary label should have a maximum 3 lines of text
+    // and the secondary label should have max 2 lines of text.
     SplitToggleChip(
         label = {
-            Text("Split with CheckboxIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
         toggleControl = {
             Checkbox(
                 checked = checked,
                 enabled = true,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (checked) "Checked" else "Unchecked"
-                }
             )
         },
         onCheckedChange = { checked = it },

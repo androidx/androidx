@@ -39,8 +39,7 @@ class FactTest {
                 emptyList(),
                 listOf(fact("foo", "bar"))
             )
-        )
-            .isEqualTo("foo: bar")
+        ).isEqualTo("foo: bar")
     }
 
     @Test
@@ -50,8 +49,7 @@ class FactTest {
                 emptyList(),
                 listOf(fact("foo", "bar"), fact("longer name", "other value"))
             )
-        )
-            .isEqualTo("foo        : bar\nlonger name: other value")
+        ).isEqualTo("foo        : bar\nlonger name: other value")
     }
 
     @Test
@@ -61,8 +59,7 @@ class FactTest {
                 emptyList(),
                 listOf(simpleFact("foo"))
             )
-        )
-            .isEqualTo("foo")
+        ).isEqualTo("foo")
     }
 
     @Test
@@ -72,8 +69,7 @@ class FactTest {
                 emptyList(),
                 listOf(fact("hello", "there"), simpleFact("foo"))
             )
-        )
-            .isEqualTo("hello: there\nfoo")
+        ).isEqualTo("hello: there\nfoo")
     }
 
     @Test
@@ -83,8 +79,7 @@ class FactTest {
                 emptyList(),
                 listOf(fact("foo", "bar\nbaz"))
             )
-        )
-            .isEqualTo("foo:\n    bar\n    baz")
+        ).isEqualTo("foo:\n    bar\n    baz")
     }
 
     @Test
@@ -94,8 +89,7 @@ class FactTest {
                 emptyList(),
                 listOf(fact("hello", "there\neveryone"), simpleFact("xyz"))
             )
-        )
-            .isEqualTo("hello:\n    there\n    everyone\nxyz")
+        ).isEqualTo("hello:\n    there\n    everyone\nxyz")
     }
 
     @Test
@@ -105,20 +99,16 @@ class FactTest {
                 listOf("hello"),
                 listOf(fact("foo", "bar"))
             )
-        )
-            .isEqualTo("hello\nfoo: bar")
+        ).isEqualTo("hello\nfoo: bar")
     }
 
     @Test
     fun failWithActual_simpleFact() {
-        val subject =
-            object : Subject<Int>(
-                actual = 0,
-            ) {
-                fun fail() {
-                    failWithActual(simpleFact("Expected something else"))
-                }
+        val subject = object : Subject<Int>(actual = 0, metadata = FailureMetadata()) {
+            fun fail() {
+                failWithActual(simpleFact("Expected something else"))
             }
+        }
 
         assertFailsWithMessage(
             """
@@ -130,17 +120,14 @@ class FactTest {
 
     @Test
     fun failWithActual_multipleFacts() {
-        val subject =
-            object : Subject<Int>(
-                actual = 0,
-            ) {
-                fun fail() {
-                    failWithActual(
-                        simpleFact("Expected something else"),
-                        fact("expected", "1"),
-                    )
-                }
+        val subject = object : Subject<Int>(actual = 0, metadata = FailureMetadata()) {
+            fun fail() {
+                failWithActual(
+                    simpleFact("Expected something else"),
+                    fact("expected", "1"),
+                )
             }
+        }
 
         assertFailsWithMessage(
             """
@@ -153,14 +140,11 @@ class FactTest {
 
     @Test
     fun failWithoutActual_simpleFact() {
-        val subject =
-            object : Subject<Int>(
-                actual = 0,
-            ) {
-                fun fail() {
-                    failWithoutActual(simpleFact("Expected something else"))
-                }
+        val subject = object : Subject<Int>(actual = 0, metadata = FailureMetadata()) {
+            fun fail() {
+                failWithoutActual(simpleFact("Expected something else"))
             }
+        }
 
         assertFailsWithMessage(
             """
@@ -172,9 +156,7 @@ class FactTest {
     @Test
     fun failWithoutActual_multipleFacts() {
         val subject =
-            object : Subject<Int>(
-                actual = 0,
-            ) {
+            object : Subject<Int>(actual = 0, metadata = FailureMetadata()) {
                 fun fail() {
                     failWithoutActual(
                         simpleFact("Expected something else"),

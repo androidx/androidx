@@ -176,7 +176,7 @@ class Animatable<T, V : AnimationVector>(
 
         for (i in 0 until lowerBoundVector.size) {
             // TODO: is this check too aggressive?
-            check(lowerBoundVector[i] <= upperBoundVector[i]) {
+            checkPrecondition(lowerBoundVector[i] <= upperBoundVector[i]) {
                 "Lower bound must be no greater than upper bound on *all* dimensions. The " +
                     "provided lower bound: $lowerBoundVector is greater than upper bound " +
                     "$upperBoundVector on index $i"

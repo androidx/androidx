@@ -25,7 +25,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.view.View
-import android.view.animation.OvershootInterpolator
+import android.view.animation.AccelerateInterpolator
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.toPath
 import kotlin.math.max
@@ -35,14 +35,14 @@ class MorphView(context: Context, morph: Morph) : View(context) {
     val paint = Paint()
     val path = Path()
     private var pathBounds = RectF()
-    val overshooter = OvershootInterpolator()
+    val accelerateInterpolator = AccelerateInterpolator(3f)
 
     var morph = morph
         set(value) {
             field = value
             val animator = ObjectAnimator.ofFloat(this, "progress", 0f, 1f)
             animator.duration = 500
-            animator.interpolator = overshooter
+            animator.interpolator = accelerateInterpolator
             animator.start()
         }
 
@@ -77,6 +77,11 @@ class MorphView(context: Context, morph: Morph) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
+        /*
+        // For debugging - it's good to check how stroking the paths looks occasionally
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = width / 10f
+        */
         canvas.drawPath(path, paint)
     }
 }

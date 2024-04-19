@@ -23,9 +23,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
+import androidx.wear.protolayout.expression.pipeline.InstantNodes.StateInstantSourceNode;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
+import androidx.wear.protolayout.expression.proto.FixedProto;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInstant;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,8 +86,8 @@ public class InstantNodesTest {
         DynamicTypeValueReceiverWithPreUpdate<Instant> downstream =
                 mock(DynamicTypeValueReceiverWithPreUpdate.class);
 
-        PlatformTimeSourceNode node = new PlatformTimeSourceNode(
-                /* epochTimePlatformDataSource= */ null, downstream);
+        PlatformTimeSourceNode node =
+                new PlatformTimeSourceNode(/* epochTimePlatformDataSource= */ null, downstream);
 
         node.preInit();
         verify(downstream).onPreUpdate();
@@ -88,5 +96,30 @@ public class InstantNodesTest {
         verify(downstream).onInvalidated();
 
         node.destroy();
+    }
+
+    @Test
+    public void testStateInstant() {
+        long seconds = 1234567L;
+        String KEY_FOO = "foo";
+        List<Instant> results = new ArrayList<>();
+        StateStore oss =
+                new StateStore(
+                        ImmutableMap.of(
+                                new AppDataKey<DynamicBuilders.DynamicInstant>(KEY_FOO),
+                                DynamicDataProto.DynamicDataValue.newBuilder()
+                                        .setInstantVal(
+                                                FixedProto.FixedInstant.newBuilder()
+                                                        .setEpochSeconds(seconds))
+                                        .build()));
+        DynamicProto.StateInstantSource protoNode =
+                DynamicProto.StateInstantSource.newBuilder().setSourceKey(KEY_FOO).build();
+        StateInstantSourceNode node =
+                new StateInstantSourceNode(oss, protoNode, new AddToListCallback<>(results));
+
+        node.preInit();
+        node.init();
+
+        assertThat(results).containsExactly(Instant.ofEpochSecond(seconds));
     }
 }

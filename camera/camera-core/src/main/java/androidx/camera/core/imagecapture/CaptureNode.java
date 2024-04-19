@@ -56,9 +56,6 @@ import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * A {@link Node} that calls back when all the images for one capture are received.
  *
@@ -70,7 +67,7 @@ import java.util.Set;
  * queue is not overflowed.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
+class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
 
     private static final String TAG = "CaptureNode";
 
@@ -80,20 +77,23 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     @VisibleForTesting
     static final int MAX_IMAGES = 4;
 
-    @NonNull
-    private final Set<Integer> mPendingStageIds = new HashSet<>();
     ProcessingRequest mCurrentRequest = null;
 
     @Nullable
     SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
+
     @Nullable
-    private Out mOutputEdge;
+    SafeCloseImageReaderProxy mSafeCloseImageReaderForPostview;
+
+    @Nullable
+    private ProcessingNode.In  mOutputEdge;
     @Nullable
     private In mInputEdge;
-
+    @Nullable
+    private NoMetadataImageReader mNoMetadataImageReader = null;
     @NonNull
     @Override
-    public Out transform(@NonNull In inputEdge) {
+    public ProcessingNode.In transform(@NonNull In inputEdge) {
         checkState(mInputEdge == null && mSafeCloseImageReaderProxy == null,
                 "CaptureNode does not support recreation yet.");
         mInputEdge = inputEdge;
@@ -104,38 +104,49 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         Consumer<ProcessingRequest> requestConsumer;
         ImageReaderProxy wrappedImageReader;
         boolean hasMetadata = !inputEdge.isVirtualCamera();
+        CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
+            @Override
+            public void onCaptureStarted(int captureConfigId) {
+                mainThreadExecutor().execute(() -> {
+                    if (mCurrentRequest != null) {
+                        mCurrentRequest.onCaptureStarted();
+                    }
+                });
+            }
+
+            @Override
+            public void onCaptureProcessProgressed(int captureConfigId, int progress) {
+                mainThreadExecutor().execute(() -> {
+                    if (mCurrentRequest != null) {
+                        mCurrentRequest.onCaptureProcessProgressed(progress);
+                    }
+                });
+            }
+        };
+        CameraCaptureCallback cameraCaptureCallbacks;
         if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
-            CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
-                @Override
-                public void onCaptureStarted() {
-                    mainThreadExecutor().execute(() -> {
-                        if (mCurrentRequest != null) {
-                            mCurrentRequest.onCaptureStarted();
-                        }
-                    });
-                }
-            };
             // Use MetadataImageReader if the input edge expects metadata.
             MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
                     size.getHeight(), format, MAX_IMAGES);
-            CameraCaptureCallback cameraCaptureCallbacks =
+            cameraCaptureCallbacks =
                     CameraCaptureCallbacks.createComboCallback(
                             progressCallback, metadataImageReader.getCameraCaptureCallback());
-            inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
             wrappedImageReader = metadataImageReader;
             requestConsumer = this::onRequestAvailable;
         } else {
+            cameraCaptureCallbacks = progressCallback;
             // Use NoMetadataImageReader if the input edge does not expect metadata.
-            NoMetadataImageReader noMetadataImageReader = new NoMetadataImageReader(
+            mNoMetadataImageReader = new NoMetadataImageReader(
                     createImageReaderProxy(inputEdge.getImageReaderProxyProvider(),
                             size.getWidth(), size.getHeight(), format));
-            wrappedImageReader = noMetadataImageReader;
+            wrappedImageReader = mNoMetadataImageReader;
             // Forward the request to the NoMetadataImageReader to create fake metadata.
             requestConsumer = request -> {
                 onRequestAvailable(request);
-                noMetadataImageReader.acceptProcessingRequest(request);
+                mNoMetadataImageReader.acceptProcessingRequest(request);
             };
         }
+        inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
         inputEdge.setSurface(requireNonNull(wrappedImageReader.getSurface()));
         mSafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(wrappedImageReader);
 
@@ -146,18 +157,53 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                 if (image != null) {
                     onImageProxyAvailable(image);
                 } else {
-                    sendCaptureError(new ImageCaptureException(ERROR_CAPTURE_FAILED, "Failed to "
-                            + "acquire latest image", null));
+                    if (mCurrentRequest != null) {
+                        sendCaptureError(
+                                TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
+                                        new ImageCaptureException(ERROR_CAPTURE_FAILED,
+                                                "Failed to acquire latest image", null)));
+                    }
                 }
             } catch (IllegalStateException e) {
-                sendCaptureError(new ImageCaptureException(ERROR_CAPTURE_FAILED, "Failed to "
-                        + "acquire latest image", e));
+                if (mCurrentRequest != null) {
+                    sendCaptureError(
+                            TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
+                                    new ImageCaptureException(
+                                            ERROR_CAPTURE_FAILED, "Failed to acquire latest image",
+                                            e)));
+                }
             }
         }, mainThreadExecutor());
+
+        // Postview
+        if (inputEdge.getPostviewSize() != null) {
+            ImageReaderProxy postviewImageReader =
+                    createImageReaderProxy(inputEdge.getImageReaderProxyProvider(),
+                            inputEdge.getPostviewSize().getWidth(),
+                            inputEdge.getPostviewSize().getHeight(),
+                            inputEdge.getPostviewImageFormat());
+            postviewImageReader.setOnImageAvailableListener(imageReader -> {
+                try {
+                    ImageProxy image = imageReader.acquireLatestImage();
+                    if (image != null) {
+                        propagatePostviewImage(image);
+                    }
+                } catch (IllegalStateException e) {
+                    Logger.e(TAG, "Failed to acquire latest image of postview", e);
+                }
+            }, mainThreadExecutor());
+
+            mSafeCloseImageReaderForPostview = new SafeCloseImageReaderProxy(postviewImageReader);
+            inputEdge.setPostviewSurface(
+                    postviewImageReader.getSurface(),
+                    inputEdge.getPostviewSize(), inputEdge.getPostviewImageFormat());
+        }
+
         inputEdge.getRequestEdge().setListener(requestConsumer);
         inputEdge.getErrorEdge().setListener(this::sendCaptureError);
 
-        mOutputEdge = Out.of(inputEdge.getInputFormat(), inputEdge.getOutputFormat());
+        mOutputEdge = ProcessingNode.In.of(inputEdge.getInputFormat(), inputEdge.getOutputFormat());
+
         return mOutputEdge;
     }
 
@@ -177,50 +223,59 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     void onImageProxyAvailable(@NonNull ImageProxy imageProxy) {
         checkMainThread();
         if (mCurrentRequest == null) {
-            Logger.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + imageProxy);
+            // When aborted request still generates image, close the image and do nothing.
+            Logger.w(TAG, "Discarding ImageProxy which was inadvertently acquired: " + imageProxy);
             imageProxy.close();
         } else {
+            // If new request arrives but the previous aborted request still generates Image,
+            // close the image and do nothing.
+            Integer stageId = (Integer) imageProxy.getImageInfo().getTagBundle()
+                    .getTag(mCurrentRequest.getTagBundleKey());
+            if (stageId == null) {
+                Logger.w(TAG, "Discarding ImageProxy which was acquired for aborted request");
+                imageProxy.close();
+                return;
+            }
             // Match image and send it downstream.
             matchAndPropagateImage(imageProxy);
         }
     }
 
+    @MainThread
     private void matchAndPropagateImage(@NonNull ImageProxy imageProxy) {
-        // Check if the capture is complete.
-        int stageId = (Integer) requireNonNull(
-                imageProxy.getImageInfo().getTagBundle().getTag(mCurrentRequest.getTagBundleKey()));
-        checkState(mPendingStageIds.contains(stageId),
-                "Received an unexpected stage id" + stageId);
-        mPendingStageIds.remove(stageId);
-
+        checkMainThread();
         // Send the image downstream.
-        requireNonNull(mOutputEdge).getImageEdge().accept(imageProxy);
+        requireNonNull(mOutputEdge).getEdge().accept(
+                ProcessingNode.InputPacket.of(mCurrentRequest, imageProxy));
 
-        if (mPendingStageIds.isEmpty()) {
-            // The capture is complete. Let the pipeline know it can take another picture.
-            ProcessingRequest request = mCurrentRequest;
-            mCurrentRequest = null;
-            request.onImageCaptured();
+        // The capture is complete. Let the pipeline know it can take another picture.
+        ProcessingRequest request = mCurrentRequest;
+        mCurrentRequest = null;
+        request.onImageCaptured();
+    }
+
+    private void propagatePostviewImage(@NonNull ImageProxy imageProxy) {
+        if (mCurrentRequest == null) {
+            imageProxy.close();
+            return;
         }
+        requireNonNull(mOutputEdge).getPostviewEdge().accept(
+                ProcessingNode.InputPacket.of(mCurrentRequest, imageProxy));
     }
 
     @VisibleForTesting
     @MainThread
     void onRequestAvailable(@NonNull ProcessingRequest request) {
         checkMainThread();
+        checkState(request.getStageIds().size() == 1,
+                "only one capture stage is supported.");
         // Unable to issue request if the queue has no capacity.
         checkState(getCapacity() > 0,
                 "Too many acquire images. Close image to be able to process next.");
-        // Check if there is already a current request. Only one concurrent request is allowed.
-        checkState(mCurrentRequest == null || mPendingStageIds.isEmpty(),
-                "The previous request is not complete");
 
         // Track the request and its stage IDs.
         mCurrentRequest = request;
-        mPendingStageIds.addAll(request.getStageIds());
 
-        // Send the request downstream.
-        requireNonNull(mOutputEdge).getRequestEdge().accept(request);
         Futures.addCallback(request.getCaptureFuture(), new FutureCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void result) {
@@ -231,6 +286,10 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
             public void onFailure(@NonNull Throwable t) {
                 checkMainThread();
                 if (request == mCurrentRequest) {
+                    Logger.w(TAG, "request aborted, id=" + mCurrentRequest.getRequestId());
+                    if (mNoMetadataImageReader != null) {
+                        mNoMetadataImageReader.clearProcessingRequest();
+                    }
                     mCurrentRequest = null;
                 }
             }
@@ -238,10 +297,11 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     }
 
     @MainThread
-    void sendCaptureError(@NonNull ImageCaptureException e) {
+    void sendCaptureError(@NonNull TakePictureManager.CaptureError error) {
         checkMainThread();
-        if (mCurrentRequest != null) {
-            mCurrentRequest.onCaptureFailure(e);
+        if (mCurrentRequest != null
+                && mCurrentRequest.getRequestId() == error.getRequestId()) {
+            mCurrentRequest.onCaptureFailure(error.getImageCaptureException());
         }
     }
 
@@ -250,16 +310,29 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     public void release() {
         checkMainThread();
         releaseInputResources(requireNonNull(mInputEdge),
-                requireNonNull(mSafeCloseImageReaderProxy));
+                requireNonNull(mSafeCloseImageReaderProxy),
+                mSafeCloseImageReaderForPostview);
+
     }
 
     private void releaseInputResources(@NonNull CaptureNode.In inputEdge,
-            @NonNull SafeCloseImageReaderProxy imageReader) {
+            @NonNull SafeCloseImageReaderProxy imageReader,
+            @Nullable SafeCloseImageReaderProxy imageReaderForPostview) {
         inputEdge.getSurface().close();
         // Wait for the termination to close the ImageReader or the Surface may be released
         // prematurely before it can be used by camera2.
-        inputEdge.getSurface().getTerminationFuture().addListener(
-                imageReader::safeClose, mainThreadExecutor());
+        inputEdge.getSurface().getTerminationFuture().addListener(() -> {
+            imageReader.safeClose();
+        }, mainThreadExecutor());
+
+        if (inputEdge.getPostviewSurface() != null) {
+            inputEdge.getPostviewSurface().close();
+            inputEdge.getPostviewSurface().getTerminationFuture().addListener(() -> {
+                if (imageReaderForPostview != null) {
+                    imageReaderForPostview.safeClose();
+                }
+            }, mainThreadExecutor());
+        }
     }
 
     @VisibleForTesting
@@ -303,6 +376,9 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         @Nullable
         private DeferrableSurface mSurface;
 
+        @Nullable
+        private DeferrableSurface mPostviewSurface = null;
+
         /**
          * Size of the {@link ImageReader} buffer.
          */
@@ -316,8 +392,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         /**
          * The output format of the pipeline.
          *
-         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
-         * only used by in-memory capture in tests.
+         * <p> For public users, only {@link ImageFormat#JPEG} and {@link ImageFormat#JPEG_R} are
+         * supported. Other formats are only used by in-memory capture in tests.
          */
         abstract int getOutputFormat();
 
@@ -327,10 +403,23 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         abstract boolean isVirtualCamera();
 
         /**
-         * Whether the pipeline is connected to a virtual camera.
+         * The {@link ImageReaderProxyProvider} associated with the node. When the value exists,
+         * the node will use it to create the {@link ImageReaderProxy} that connects to
+         * the camera.
          */
         @Nullable
         abstract ImageReaderProxyProvider getImageReaderProxyProvider();
+
+        /**
+         * The size of the postview. Postview is configured if not null.
+         */
+        @Nullable
+        abstract Size getPostviewSize();
+
+        /**
+         * The image format of the postview.
+         */
+        abstract int getPostviewImageFormat();
 
         /**
          * Edge that accepts {@link ProcessingRequest}.
@@ -342,7 +431,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
          * Edge that accepts {@link ImageCaptureException}.
          */
         @NonNull
-        abstract Edge<ImageCaptureException> getErrorEdge();
+        abstract Edge<TakePictureManager.CaptureError> getErrorEdge();
 
         /**
          * Edge that accepts the image frames.
@@ -354,9 +443,22 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
             return requireNonNull(mSurface);
         }
 
+        /**
+         * Edge that accepts the postview image frame.
+         */
+        @Nullable
+        DeferrableSurface getPostviewSurface() {
+            return mPostviewSurface;
+        }
+
+
         void setSurface(@NonNull Surface surface) {
             checkState(mSurface == null, "The surface is already set.");
             mSurface = new ImmediateSurface(surface, getSize(), getInputFormat());
+        }
+
+        void setPostviewSurface(@NonNull Surface surface, @NonNull Size size, int imageFormat) {
+            mPostviewSurface = new ImmediateSurface(surface, size, imageFormat);
         }
 
         /**
@@ -377,44 +479,17 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
                 @Nullable ImageReaderProxyProvider imageReaderProxyProvider) {
             return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
-                    imageReaderProxyProvider, new Edge<>(), new Edge<>());
+                    imageReaderProxyProvider, null, ImageFormat.YUV_420_888,
+                    new Edge<>(), new Edge<>());
         }
-    }
 
-    /**
-     * Output edges of a {@link CaptureNode}.
-     */
-    @AutoValue
-    abstract static class Out {
-
-        /**
-         * Edge that omits {@link ImageProxy}s.
-         *
-         * <p>The frames will be closed by downstream nodes.
-         */
-        abstract Edge<ImageProxy> getImageEdge();
-
-        /**
-         * Edge that omits {@link ProcessingRequest}.
-         */
-        abstract Edge<ProcessingRequest> getRequestEdge();
-
-        /**
-         * Format of the {@link ImageProxy} in {@link #getImageEdge()}.
-         */
-        abstract int getInputFormat();
-
-        /**
-         * Output format of the pipeline.
-         *
-         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
-         * only used by in-memory capture in tests.
-         */
-        abstract int getOutputFormat();
-
-        static Out of(int inputFormat, int outputFormat) {
-            return new AutoValue_CaptureNode_Out(new Edge<>(), new Edge<>(), inputFormat,
-                    outputFormat);
+        @NonNull
+        static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
+                @Nullable ImageReaderProxyProvider imageReaderProxyProvider,
+                @Nullable Size postviewSize, int postviewImageFormat) {
+            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
+                    imageReaderProxyProvider, postviewSize, postviewImageFormat,
+                    new Edge<>(), new Edge<>());
         }
     }
 }

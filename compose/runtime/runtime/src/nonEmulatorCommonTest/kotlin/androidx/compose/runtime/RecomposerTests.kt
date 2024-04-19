@@ -23,16 +23,19 @@ import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -437,6 +440,41 @@ class RecomposerTests {
         assertEquals<List<Set<Any>>>(listOf(setOf(countFromEffect)), applications)
     }
 
+    @Ignore // b/329682091
+    @OptIn(DelicateCoroutinesApi::class)
+    @Test // b/329011032
+    fun validatePotentialDeadlock() = compositionTest {
+        var state by mutableIntStateOf(0)
+        compose {
+            repeat(1000) {
+                Text("This is some text: $state")
+            }
+            LaunchedEffect(Unit) {
+                newSingleThreadContext("other thread").use {
+                    while (true) {
+                        withContext(it) {
+                            state++
+                            Snapshot.registerGlobalWriteObserver { }.dispose()
+                        }
+                    }
+                }
+            }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    withFrameNanos {
+                        state++
+                        Snapshot.sendApplyNotifications()
+                    }
+                }
+            }
+        }
+
+        repeat(10) {
+            state++
+            advance(ignorePendingWork = true)
+        }
+    }
+
     @Test
     fun pausingTheFrameClockStopShouldBlockWithFrameNanos() {
         val dispatcher = StandardTestDispatcher()
@@ -584,6 +622,7 @@ class Counter {
 }
 
 @Composable
+@NonSkippableComposable
 private fun RecomposeTestComponentsA(counter: Counter, triggers: Map<Int, Trigger>) {
     counter.inc("A")
     triggers[99]?.subscribe()
@@ -600,6 +639,7 @@ private fun RecomposeTestComponentsA(counter: Counter, triggers: Map<Int, Trigge
     }
 }
 
+@NonSkippableComposable
 @Composable
 private fun RecomposeTestComponentsB(
     counter: Counter,
@@ -612,6 +652,6 @@ private fun RecomposeTestComponentsB(
 }
 
 @Composable
-private fun Wrapper(content: @Composable () -> Unit) {
+internal fun Wrapper(content: @Composable () -> Unit) {
     content()
 }

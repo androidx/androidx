@@ -22,6 +22,9 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.fastMaxOf
+import androidx.compose.ui.util.fastMinOf
 
 /**
  * A holder of the measured bounds for the [Layout].
@@ -55,6 +58,31 @@ interface LayoutCoordinates {
     val isAttached: Boolean
 
     /**
+     * Whether the coordinates were placed under direct manipulation.
+     *
+     * When true, reading [localPositionOf] coordinates with `excludeDirectManipulation = true` will
+     * exclude the offset set by its parent. This also applies when reading coordinates from a
+     * parent further up the tree, meaning, all the layouts which have this flag as `true` will not
+     * report the offset from their parent.
+     *
+     * @see Placeable.PlacementScope.withDirectManipulationPlacement
+     * @see localPositionOf
+     */
+    val isPositionedByParentWithDirectManipulation: Boolean get() = false
+
+    /**
+     * Converts [relativeToScreen] relative to the device's screen's origin into an [Offset]
+     * relative to this layout. Returns [Offset.Unspecified] if the conversion cannot be performed.
+     */
+    fun screenToLocal(relativeToScreen: Offset): Offset = Offset.Unspecified
+
+    /**
+     * Converts [relativeToLocal] position within this layout into an [Offset] relative to the
+     * device's screen. Returns [Offset.Unspecified] if the conversion cannot be performed.
+     */
+    fun localToScreen(relativeToLocal: Offset): Offset = Offset.Unspecified
+
+    /**
      * Converts [relativeToWindow] relative to the window's origin into an [Offset] relative to
      * this layout.
      */
@@ -77,6 +105,28 @@ interface LayoutCoordinates {
      * compose layout hierarchy.
      */
     fun localPositionOf(sourceCoordinates: LayoutCoordinates, relativeToSource: Offset): Offset
+
+    /**
+     * Converts an [relativeToSource] in [sourceCoordinates] space into local coordinates.
+     * [sourceCoordinates] may be any [LayoutCoordinates] that belong to the same
+     * compose layout hierarchy.
+     *
+     * If [excludeDirectManipulationOffset] is true, the offset provided by layouts using
+     * [Placeable.PlacementScope.withDirectManipulationPlacement] will be ignored.
+     *
+     * You can query if a [LayoutCoordinates] was placed with
+     * [Placeable.PlacementScope.withDirectManipulationPlacement] through
+     * [LayoutCoordinates.isPositionedByParentWithDirectManipulation].
+     */
+    fun localPositionOf(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset,
+        excludeDirectManipulationOffset: Boolean
+    ): Offset {
+        throw UnsupportedOperationException(
+            "localPositionOf is not implemented on this LayoutCoordinates"
+        )
+    }
 
     /**
      * Returns the bounding box of [sourceCoordinates] in the local coordinates.
@@ -105,6 +155,17 @@ interface LayoutCoordinates {
     }
 
     /**
+     * Takes a [matrix] which transforms some coordinate system `C` to local coordinates, and
+     * updates the matrix to transform from `C` to screen coordinates instead.
+     */
+    @Suppress("DocumentExceptions")
+    fun transformToScreen(matrix: Matrix) {
+        throw UnsupportedOperationException(
+            "transformToScreen is not implemented on this LayoutCoordinates"
+        )
+    }
+
+    /**
      * Returns the position in pixels of an [alignment line][AlignmentLine],
      * or [AlignmentLine.Unspecified] if the line is not provided.
      */
@@ -122,6 +183,12 @@ fun LayoutCoordinates.positionInRoot(): Offset = localToRoot(Offset.Zero)
 fun LayoutCoordinates.positionInWindow(): Offset = localToWindow(Offset.Zero)
 
 /**
+ * The position of this layout on the device's screen.
+ * Returns [Offset.Unspecified] if the conversion cannot be performed.
+ */
+fun LayoutCoordinates.positionOnScreen(): Offset = localToScreen(Offset.Zero)
+
+/**
  * The boundaries of this layout inside the root composable.
  */
 fun LayoutCoordinates.boundsInRoot(): Rect =
@@ -132,24 +199,40 @@ fun LayoutCoordinates.boundsInRoot(): Rect =
  */
 fun LayoutCoordinates.boundsInWindow(): Rect {
     val root = findRootCoordinates()
-    val bounds = boundsInRoot()
     val rootWidth = root.size.width.toFloat()
     val rootHeight = root.size.height.toFloat()
-    val boundsLeft = bounds.left.coerceIn(0f, rootWidth)
-    val boundsTop = bounds.top.coerceIn(0f, rootHeight)
-    val boundsRight = bounds.right.coerceIn(0f, rootWidth)
-    val boundsBottom = bounds.bottom.coerceIn(0f, rootHeight)
+
+    val bounds = boundsInRoot()
+    val boundsLeft = bounds.left.fastCoerceIn(0f, rootWidth)
+    val boundsTop = bounds.top.fastCoerceIn(0f, rootHeight)
+    val boundsRight = bounds.right.fastCoerceIn(0f, rootWidth)
+    val boundsBottom = bounds.bottom.fastCoerceIn(0f, rootHeight)
+
     if (boundsLeft == boundsRight || boundsTop == boundsBottom) {
         return Rect.Zero
     }
+
     val topLeft = root.localToWindow(Offset(boundsLeft, boundsTop))
     val topRight = root.localToWindow(Offset(boundsRight, boundsTop))
     val bottomRight = root.localToWindow(Offset(boundsRight, boundsBottom))
     val bottomLeft = root.localToWindow(Offset(boundsLeft, boundsBottom))
-    val left = minOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
-    val top = minOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
-    val right = maxOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
-    val bottom = maxOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
+
+    val topLeftX = topLeft.x
+    val topRightX = topRight.x
+    val bottomLeftX = bottomLeft.x
+    val bottomRightX = bottomRight.x
+
+    val left = fastMinOf(topLeftX, topRightX, bottomLeftX, bottomRightX)
+    val right = fastMaxOf(topLeftX, topRightX, bottomLeftX, bottomRightX)
+
+    val topLeftY = topLeft.y
+    val topRightY = topRight.y
+    val bottomLeftY = bottomLeft.y
+    val bottomRightY = bottomRight.y
+
+    val top = fastMinOf(topLeftY, topRightY, bottomLeftY, bottomRightY)
+    val bottom = fastMaxOf(topLeftY, topRightY, bottomLeftY, bottomRightY)
+
     return Rect(left, top, right, bottom)
 }
 

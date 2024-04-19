@@ -21,7 +21,8 @@
     <application
             android:label="Jetpack Compose Demos"
             android:supportsRtl="true" tools:ignore="GoogleAppIndexingWarning"
-            android:allowBackup="false" android:icon="@mipmap/ic_launcher">
+            android:allowBackup="false" android:icon="@mipmap/ic_launcher"
+            android:enableOnBackInvokedCallback="true">
 
         <activity
             android:name=".DemoActivity"

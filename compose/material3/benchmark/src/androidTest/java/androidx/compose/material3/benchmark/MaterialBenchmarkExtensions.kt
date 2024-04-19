@@ -30,10 +30,10 @@ import org.junit.Assert
 
 internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
     caseFactory: () -> LayeredComposeTestCase,
-    maxSteps: Int = 10,
+    maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
@@ -75,7 +75,7 @@ internal fun ComposeBenchmarkRule.benchmarkMeasureUntilStable(
     maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
@@ -117,7 +117,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
     maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
@@ -159,7 +159,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstRenderUntilStable(
     maxSteps: Int = MaxSteps,
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark

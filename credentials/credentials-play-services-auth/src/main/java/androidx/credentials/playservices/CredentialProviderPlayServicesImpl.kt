@@ -122,7 +122,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     // be useful to retry that one because our connection to GMSCore is a static variable
     // (see GoogleApiAvailability.getInstance()) so we cannot recreate the connection to retry.
     private fun isGooglePlayServicesAvailable(context: Context): Int {
-        return googleApiAvailability.isGooglePlayServicesAvailable(context)
+        return googleApiAvailability.isGooglePlayServicesAvailable(
+            context, /*minApkVersion=*/ MIN_GMS_APK_VERSION)
     }
 
     override fun onClearCredential(
@@ -154,6 +155,11 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
 
     companion object {
         private const val TAG = "PlayServicesImpl"
+
+        // This points to the min APK version of GMS that contains required changes
+        // to make passkeys work well
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val MIN_GMS_APK_VERSION = 230815045
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,

@@ -47,7 +47,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.app.BundleCompat;
 import androidx.core.content.ContextCompat;
 
 import java.lang.annotation.Retention;
@@ -724,7 +723,7 @@ public final class CustomTabsIntent {
          * Overrides the effect of {@link #setSession}.
          *
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @ExperimentalPendingSession
         @NonNull
         public Builder setPendingSession(@NonNull CustomTabsSession.PendingSession session) {
             setSessionParameters(null, session.getId());
@@ -734,7 +733,7 @@ public final class CustomTabsIntent {
         private void setSessionParameters(@Nullable IBinder binder,
                 @Nullable PendingIntent sessionId) {
             Bundle bundle = new Bundle();
-            BundleCompat.putBinder(bundle, EXTRA_SESSION, binder);
+            bundle.putBinder(EXTRA_SESSION, binder);
             if (sessionId != null) {
                 bundle.putParcelable(EXTRA_SESSION_ID, sessionId);
             }
@@ -1258,7 +1257,8 @@ public final class CustomTabsIntent {
          * @param enabled Whether the maximization button is enabled.
          * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION
          */
-        @NonNull Builder setActivitySideSheetEnableMaximization(boolean enabled) {
+        @NonNull
+        public Builder setActivitySideSheetMaximizationEnabled(boolean enabled) {
             mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION, enabled);
             return this;
         }

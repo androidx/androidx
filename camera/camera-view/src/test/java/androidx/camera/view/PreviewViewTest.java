@@ -25,7 +25,7 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
+import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -155,13 +155,13 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void canCreateValidScreenFlashUiControlImpl() {
-        ScreenFlashUiControl uiControl = createScreenFlashUiControl(false);
-        assertThat(uiControl).isNotNull();
+    public void canCreateValidScreenFlashImpl() {
+        ScreenFlash screenFlash = createScreenFlash(false);
+        assertThat(screenFlash).isNotNull();
     }
 
     @Test
-    public void validScreenFlashUiControlSetToCameraController_whenWindowSetAndThenControllerSet() {
+    public void validScreenFlashSetToCameraController_whenWindowSetAndThenControllerSet() {
         CameraController cameraController = new LifecycleCameraController(mAppContext);
 
         mPreviewView.setScreenFlashWindow(mWindow);
@@ -169,12 +169,12 @@ public class PreviewViewTest {
 
         assertThat(cameraController.getScreenFlashUiInfoByPriority()).isNotNull();
         assertThat(
-                cameraController.getScreenFlashUiInfoByPriority().getScreenFlashUiControl()
+                cameraController.getScreenFlashUiInfoByPriority().getScreenFlash()
         ).isNotNull();
     }
 
     @Test
-    public void validScreenFlashUiControlSetToCameraController_whenControllerSetAndThenWindowSet() {
+    public void validScreenFlashSetToCameraController_whenControllerSetAndThenWindowSet() {
         CameraController cameraController = new LifecycleCameraController(mAppContext);
 
         mPreviewView.setController(cameraController);
@@ -182,19 +182,19 @@ public class PreviewViewTest {
 
         assertThat(cameraController.getScreenFlashUiInfoByPriority()).isNotNull();
         assertThat(
-                cameraController.getScreenFlashUiInfoByPriority().getScreenFlashUiControl()
+                cameraController.getScreenFlashUiInfoByPriority().getScreenFlash()
         ).isNotNull();
     }
 
     @Test
-    public void nullScreenFlashUiControlSetToCameraController_whenControllerSetButNoWindowSet() {
+    public void nullScreenFlashSetToCameraController_whenControllerSetButNoWindowSet() {
         CameraController cameraController = new LifecycleCameraController(mAppContext);
 
         mPreviewView.setController(cameraController);
 
         if (cameraController.getScreenFlashUiInfoByPriority() != null) {
             assertThat(
-                    cameraController.getScreenFlashUiInfoByPriority().getScreenFlashUiControl()
+                    cameraController.getScreenFlashUiInfoByPriority().getScreenFlash()
             ).isNull();
         }
     }
@@ -206,12 +206,12 @@ public class PreviewViewTest {
                 new FakeCamera(null, cameraInfoInternal), () -> {});
     }
 
-    private ScreenFlashUiControl createScreenFlashUiControl(boolean assumeNoFailure) {
+    private ScreenFlash createScreenFlash(boolean assumeNoFailure) {
         mPreviewView.setScreenFlashWindow(mWindow);
-        ScreenFlashUiControl uiControl = mPreviewView.getScreenFlashUiControl();
+        ScreenFlash screenFlash = mPreviewView.getScreenFlash();
         if (assumeNoFailure) {
-            Assume.assumeTrue("Failed to create ScreenFlashUiControl", uiControl != null);
+            Assume.assumeTrue("Failed to create ScreenFlash", screenFlash != null);
         }
-        return uiControl;
+        return screenFlash;
     }
 }

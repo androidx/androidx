@@ -155,6 +155,15 @@ class DesktopParagraphTest {
     }
 
     @Test
+    fun getLineBaseline() {
+        val text = "abc\nabc\nabc"
+        val paragraph = simpleParagraph(text = text)
+
+        Truth.assertThat(paragraph.getLineBaseline(0)).isEqualTo(paragraph.firstBaseline)
+        Truth.assertThat(paragraph.getLineBaseline(2)).isEqualTo(paragraph.lastBaseline)
+    }
+
+    @Test
     fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionDefault() {
         with(defaultDensity) {
             val ltrText = "abc"

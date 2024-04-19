@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -25,7 +32,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api(projectOrArtifact(":activity:activity-ktx")) {
+    api("androidx.activity:activity-ktx:1.8.1") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
     api("androidx.core:core-ktx:1.2.0") {

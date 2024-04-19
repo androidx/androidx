@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -25,8 +31,18 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    // Add dependencies here
+    api(project(':camera:camera-viewfinder-core'))
+    implementation("androidx.compose.foundation:foundation-layout:1.6.1")
+    implementation("androidx.compose.foundation:foundation:1.6.1")
+    implementation("androidx.compose.runtime:runtime:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation(libs.kotlinStdlib)
+
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 android {
@@ -35,8 +51,7 @@ android {
 
 androidx {
     name = "androidx.camera:camera-viewfinder-compose"
-    type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
     inceptionYear = "2023"
     description = "Composable ViewFinder implementation for CameraX"
     metalavaK2UastEnabled = true

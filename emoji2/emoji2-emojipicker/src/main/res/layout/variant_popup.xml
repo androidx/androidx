@@ -14,13 +14,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<GridLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/variant_popup"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:background="@drawable/popup_view_rounded_background"
+    android:orientation="vertical"
     android:padding="@dimen/emoji_picker_popup_view_holder_padding_vertical"
     android:paddingStart="@dimen/emoji_picker_popup_view_holder_padding_start"
     android:paddingEnd="@dimen/emoji_picker_popup_view_holder_padding_end">
-</GridLayout>
+</LinearLayout>

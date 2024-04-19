@@ -17,12 +17,13 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -37,9 +38,10 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.InspectableValue
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -60,7 +62,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -1497,7 +1498,9 @@ class SizeTest : LayoutTest() {
         val childSize = Array(3) { Ref<IntSize>() }
         val childPosition = Array(3) { Ref<Offset>() }
         show {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl)
+            ) {
                 Box(Modifier.fillMaxSize()) {
                     Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
                         Box(
@@ -1837,23 +1840,30 @@ class SizeTest : LayoutTest() {
         )
     }
 
-    @Ignore // b/281171119
     @Test
     fun testModifiers_doNotCauseUnnecessaryRemeasure() {
+        var drawLatch = CountDownLatch(1)
         var first by mutableStateOf(true)
         var totalMeasures = 0
         @Composable fun CountMeasures(modifier: Modifier) {
             Layout(
                 content = {},
                 modifier = modifier,
-                measurePolicy = { _, _ ->
-                    ++totalMeasures
-                    layout(0, 0) {}
+                // remember the measurePolicy so it doesn't change and cause a relayout when
+                // recomposed
+                measurePolicy = remember {
+                    { _, _ ->
+                        ++totalMeasures
+                        layout(0, 0) {}
+                    }
                 }
             )
         }
+        val drawLatchModifier = Modifier.drawBehind {
+            drawLatch.countDown()
+        }
         show {
-            Box {
+            Box(drawLatchModifier) {
                 if (first) Box {} else Row {}
                 CountMeasures(Modifier.size(10.dp))
                 CountMeasures(Modifier.requiredSize(10.dp))
@@ -1863,13 +1873,15 @@ class SizeTest : LayoutTest() {
             }
         }
 
-        val root = findComposeView()
-        waitForDraw(root)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         activityTestRule.runOnUiThread {
             assertEquals(5, totalMeasures)
+            drawLatch = CountDownLatch(1)
             first = false
         }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         activityTestRule.runOnUiThread {
             assertEquals(5, totalMeasures)

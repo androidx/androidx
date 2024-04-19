@@ -51,7 +51,7 @@ abstract class UpdateApiTask : DefaultTask() {
     @PathSensitive(PathSensitivity.RELATIVE)
     fun getTaskInputs(): List<File> {
         val inputApi = inputApiLocation.get()
-        return listOf(inputApi.publicApiFile, inputApi.restrictedApiFile, inputApi.removedApiFile)
+        return listOf(inputApi.publicApiFile, inputApi.restrictedApiFile)
     }
 
     @Suppress("unused")
@@ -61,7 +61,6 @@ abstract class UpdateApiTask : DefaultTask() {
             listOf(
                 outputApiLocation.publicApiFile,
                 outputApiLocation.restrictedApiFile,
-                outputApiLocation.removedApiFile
             )
         }
     }
@@ -71,7 +70,6 @@ abstract class UpdateApiTask : DefaultTask() {
         for (outputApi in outputApiLocations.get()) {
             val inputApi = inputApiLocation.get()
             copy(source = inputApi.publicApiFile, dest = outputApi.publicApiFile, logger = logger)
-            copy(source = inputApi.removedApiFile, dest = outputApi.removedApiFile, logger = logger)
             copy(
                 source = inputApi.restrictedApiFile,
                 dest = outputApi.restrictedApiFile,

@@ -18,8 +18,6 @@ package androidx.graphics.lowlatency
 
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.FrameBufferRenderer
 import androidx.graphics.opengl.SyncStrategy
 import androidx.graphics.opengl.egl.EGLSpec
@@ -65,7 +63,6 @@ class FrontBufferSyncStrategy(
      * If front buffer usage is not supported, then a fence is created and destroyed to flush
      * contents to screen.
      */
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
         return if (!isVisible) {
             SyncFenceCompat.createNativeSyncFence()

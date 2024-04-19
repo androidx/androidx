@@ -81,6 +81,7 @@ public abstract class TestDatabase extends RoomDatabase {
     public abstract UserHouseDao getUserHouseDao();
     public abstract RobotsDao getRobotsDao();
     public abstract LibraryItemDao getLibraryItemDao();
+//    public abstract RecordEntityDao getRecordEntityDao();
 
     @SuppressWarnings("unused")
     public static class Converters {

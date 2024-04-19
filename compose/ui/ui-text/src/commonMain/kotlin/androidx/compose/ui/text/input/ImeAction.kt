@@ -23,10 +23,11 @@ import androidx.compose.runtime.Stable
  * the keyboard will show the requested action.
  */
 @kotlin.jvm.JvmInline
-value class ImeAction internal constructor(@Suppress("unused") private val value: Int) {
+value class ImeAction private constructor(@Suppress("unused") private val value: Int) {
 
     override fun toString(): String {
         return when (this) {
+            Unspecified -> "Unspecified"
             None -> "None"
             Default -> "Default"
             Go -> "Go"
@@ -41,17 +42,26 @@ value class ImeAction internal constructor(@Suppress("unused") private val value
 
     companion object {
         /**
-         * Use the platform and keyboard defaults and let the keyboard to decide the action. The
-         * keyboards will mostly show one of [Done] or [None] actions based on the single/multi
-         * line configuration.
+         * The action is not specified. This defaults to [Default], which explicitly requests
+         * the platform and keyboard to make the decision, but [Default] will take precedence when
+         * merging [ImeAction]s.
+         */
+        @Stable
+        val Unspecified: ImeAction = ImeAction(-1)
+
+        /**
+         * Use the platform and keyboard defaults and let the keyboard decide the action it is
+         * going to show. The keyboards will mostly show one of [Done] or [None] actions based on
+         * the single/multi line configuration. This action will never be sent as the performed
+         * action to IME action callbacks.
          */
         @Stable
         val Default: ImeAction = ImeAction(1)
 
         /**
          * Represents that no action is expected from the keyboard. Keyboard might choose to show an
-         * action which mostly will be newline, however this action is not carried into the app via
-         * any [Keyboard Action][androidx.compose.foundation.text.KeyboardAction].
+         * action which mostly will be newline, however this action will never be sent as the
+         * performed action to IME action callbacks.
          */
         @Stable
         val None: ImeAction = ImeAction(0)

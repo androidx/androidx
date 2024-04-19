@@ -19,12 +19,13 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
+import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -89,7 +90,9 @@ class HorizontalPageIndicatorScreenshotTest {
         layoutDirection: LayoutDirection
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(layoutDirection)
+            ) {
                 defaultHorizontalPageIndicator(isRound)
             }
         }
@@ -102,7 +105,7 @@ class HorizontalPageIndicatorScreenshotTest {
 
     private fun between_pages(isRound: Boolean) {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
                 HorizontalPageIndicator(
                     modifier = Modifier
                         .testTag(TEST_TAG)
@@ -123,7 +126,7 @@ class HorizontalPageIndicatorScreenshotTest {
 
     @Composable
     private fun defaultHorizontalPageIndicator(isRound: Boolean) {
-        ConfiguredShapeScreen(isRound) {
+        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
             HorizontalPageIndicator(
                 modifier = Modifier
                     .testTag(TEST_TAG)

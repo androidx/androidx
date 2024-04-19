@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
@@ -65,7 +66,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
-import kotlin.math.roundToInt
 
 /**
  * Properties used to customize the behavior of a [Dialog].
@@ -85,14 +85,26 @@ import kotlin.math.roundToInt
  * set to `false` for Android [R][Build.VERSION_CODES.R] and earlier.
  */
 @Immutable
-class DialogProperties constructor(
-    val dismissOnBackPress: Boolean = true,
-    val dismissOnClickOutside: Boolean = true,
+actual class DialogProperties constructor(
+    actual val dismissOnBackPress: Boolean = true,
+    actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-    val usePlatformDefaultWidth: Boolean = true,
+    actual val usePlatformDefaultWidth: Boolean = true,
     val decorFitsSystemWindows: Boolean = true
 ) {
+    actual constructor(
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+        usePlatformDefaultWidth: Boolean,
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        decorFitsSystemWindows = true
+    )
 
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     constructor(
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -148,9 +160,9 @@ class DialogProperties constructor(
  * @param content The content to be displayed inside the dialog.
  */
 @Composable
-fun Dialog(
+actual fun Dialog(
     onDismissRequest: () -> Unit,
-    properties: DialogProperties = DialogProperties(),
+    properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
@@ -256,13 +268,13 @@ private class DialogLayout(
     private val displayWidth: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
+            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
         }
 
     private val displayHeight: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).roundToInt()
+            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
         }
 
     @Composable

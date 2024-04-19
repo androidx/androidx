@@ -22,6 +22,7 @@ import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkProviderV1
 import androidx.privacysandbox.sdkruntime.client.loader.storage.CachedLocalSdkStorage
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
 
 /**
  * Load SDK bundled with App.
@@ -50,30 +51,36 @@ internal class SdkLoader internal constructor(
      *  4. Select [LocalSdkProvider] implementation that could work with that api version.
      *
      * @param sdkConfig sdk to load
+     * @param overrideVersionHandshake (optional) override internal api level handshake
      * @return LocalSdk implementation for loaded SDK
      */
-    fun loadSdk(sdkConfig: LocalSdkConfig): LocalSdkProvider {
+    fun loadSdk(
+        sdkConfig: LocalSdkConfig,
+        overrideVersionHandshake: VersionHandshake? = null
+    ): LocalSdkProvider {
         val classLoader = classLoaderFactory.createClassLoaderFor(
             sdkConfig,
             getParentClassLoader()
         )
-        return createLocalSdk(classLoader, sdkConfig)
+        val versionHandshake = overrideVersionHandshake ?: VersionHandshake.DEFAULT
+        return createLocalSdk(classLoader, sdkConfig, versionHandshake)
     }
 
     private fun getParentClassLoader(): ClassLoader = appContext.classLoader.parent!!
 
     private fun createLocalSdk(
-        classLoader: ClassLoader,
-        sdkConfig: LocalSdkConfig
+        sdkClassLoader: ClassLoader,
+        sdkConfig: LocalSdkConfig,
+        versionHandshake: VersionHandshake
     ): LocalSdkProvider {
         try {
-            val apiVersion = VersionHandshake.perform(classLoader)
-            ResourceRemapping.apply(classLoader, sdkConfig.resourceRemapping)
-            if (apiVersion >= 2) {
-                return createSdkProviderV2(classLoader, apiVersion, sdkConfig)
-            } else if (apiVersion >= 1) {
-                return createSdkProviderV1(classLoader, sdkConfig)
+            val sdkApiVersion = versionHandshake.perform(sdkClassLoader)
+            ResourceRemapping.apply(sdkClassLoader, sdkConfig.resourceRemapping)
+            if (ClientFeature.SDK_SANDBOX_CONTROLLER.isAvailable(sdkApiVersion)) {
+                val controller = controllerFactory.createControllerFor(sdkConfig)
+                SandboxControllerInjector.inject(sdkClassLoader, sdkApiVersion, controller)
             }
+            return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
         } catch (ex: Exception) {
             throw LoadSdkCompatException(
                 LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
@@ -81,28 +88,6 @@ internal class SdkLoader internal constructor(
                 ex
             )
         }
-
-        throw LoadSdkCompatException(
-            LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-            "Incorrect Api version"
-        )
-    }
-
-    private fun createSdkProviderV1(
-        sdkClassLoader: ClassLoader,
-        sdkConfig: LocalSdkConfig
-    ): LocalSdkProvider {
-        return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
-    }
-
-    private fun createSdkProviderV2(
-        sdkClassLoader: ClassLoader,
-        sdkVersion: Int,
-        sdkConfig: LocalSdkConfig
-    ): LocalSdkProvider {
-        val controller = controllerFactory.createControllerFor(sdkConfig)
-        SandboxControllerInjector.inject(sdkClassLoader, sdkVersion, controller)
-        return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
     }
 
     companion object {

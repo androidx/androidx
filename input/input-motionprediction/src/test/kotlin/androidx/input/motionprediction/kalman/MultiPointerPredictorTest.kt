@@ -16,7 +16,9 @@
 
 package androidx.input.motionprediction.kalman
 
+import android.view.MotionEvent
 import androidx.input.motionprediction.MotionEventGenerator
+import androidx.input.motionprediction.common.Configuration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -30,12 +32,14 @@ class MultiPointerPredictorTest {
     // Ensures that the historical time is properly populated (b/302300930)
     @Test
     fun historicalTime() {
-        val predictor = MultiPointerPredictor()
+        val predictor = MultiPointerPredictor(Configuration.STRATEGY_BALANCED)
         val generator = MotionEventGenerator(
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
+                null,
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
+                null,
         )
         for (i in 1..INITIAL_FEED) {
             predictor.onTouchEvent(generator.next())
@@ -44,10 +48,35 @@ class MultiPointerPredictorTest {
         val predicted = predictor.predict(PREDICT_SAMPLE * generator.getRateMs().toInt())!!
         assertThat(predicted.getPointerCount()).isEqualTo(2)
         var historicalTime = predicted.getEventTime()
-        for (i in (PREDICT_SAMPLE - 2) downTo 1) {
+        for (i in (PREDICT_SAMPLE - 2) downTo 0) {
             historicalTime -= generator.getRateMs().toInt();
             assertThat(predicted.getHistoricalEventTime(i)).isEqualTo(historicalTime)
         }
+    }
+
+    // Ensures that the down time is properly populated
+    @Test
+    fun downTime() {
+        val predictor = MultiPointerPredictor(Configuration.STRATEGY_BALANCED)
+        val generator = MotionEventGenerator(
+                { delta: Long -> delta.toFloat() },
+                { delta: Long -> delta.toFloat() },
+                null,
+                { delta: Long -> delta.toFloat() },
+                { delta: Long -> delta.toFloat() },
+                null,
+        )
+        var firstEvent: MotionEvent? = null
+        for (i in 1..INITIAL_FEED) {
+            val nextEvent = generator.next()
+            if (firstEvent == null) {
+                firstEvent = nextEvent
+            }
+            predictor.onTouchEvent(nextEvent)
+        }
+        val predicted = predictor.predict(PREDICT_SAMPLE * generator.getRateMs().toInt())!!
+        assertThat(predicted.getPointerCount()).isEqualTo(2)
+        assertThat(predicted.getDownTime()).isEqualTo(firstEvent?.getEventTime())
     }
 }
 

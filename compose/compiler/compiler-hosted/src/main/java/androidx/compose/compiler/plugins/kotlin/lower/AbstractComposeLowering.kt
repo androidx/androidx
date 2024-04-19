@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.ir.builders.declarations.buildProperty
 import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
 import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationContainer
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -60,6 +61,7 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrExternalPackageFragmentImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.declarations.inlineClassRepresentation
 import org.jetbrains.kotlin.ir.declarations.name
+import org.jetbrains.kotlin.ir.expressions.IrBlock
 import org.jetbrains.kotlin.ir.expressions.IrBranch
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
@@ -122,13 +124,14 @@ import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
+import org.jetbrains.kotlin.ir.util.addChild
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.fqNameForIrSerialization
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
+import org.jetbrains.kotlin.ir.util.getPackageFragment
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.isFalseConst
 import org.jetbrains.kotlin.ir.util.isFunction
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
@@ -367,7 +370,7 @@ abstract class AbstractComposeLowering(
 
         is Stability.Parameter -> resolve(parameter)
         is Stability.Runtime -> {
-            val stableField = makeStabilityField().also { it.parent = declaration }
+            val stableField = declaration.makeStabilityField()
             IrGetFieldImpl(
                 UNDEFINED_OFFSET,
                 UNDEFINED_OFFSET,
@@ -453,7 +456,9 @@ abstract class AbstractComposeLowering(
         )
     }
 
-    protected fun irOr(lhs: IrExpression, rhs: IrExpression): IrCallImpl {
+    protected fun irOr(lhs: IrExpression, rhs: IrExpression): IrExpression {
+        if (rhs is IrConst<*> && rhs.value == 0) return lhs
+        if (lhs is IrConst<*> && lhs.value == 0) return rhs
         val int = context.irBuiltIns.intType
         return irCall(
             int.binaryOperator(OperatorNameConventions.OR, int),
@@ -875,24 +880,68 @@ abstract class AbstractComposeLowering(
         )
     }
 
-    fun makeStabilityField(): IrField {
+    private fun IrClass.uniqueStabilityFieldName(): Name = Name.identifier(
+        kotlinFqName.asString().replace(".", "_") + KtxNameConventions.STABILITY_FLAG
+    )
+
+    private fun IrClass.uniqueStabilityPropertyName(): Name = Name.identifier(
+        kotlinFqName.asString().replace(".", "_") + KtxNameConventions.STABILITY_PROP_FLAG
+    )
+
+    fun IrClass.makeStabilityField(): IrField {
+        return if (context.platform.isJvm()) {
+            this.makeStabilityFieldJvm()
+        } else {
+            this.makeStabilityFieldNonJvm()
+        }
+    }
+
+    private fun IrClass.makeStabilityFieldJvm(): IrField {
         return context.irFactory.buildField {
             startOffset = SYNTHETIC_OFFSET
             endOffset = SYNTHETIC_OFFSET
             name = KtxNameConventions.STABILITY_FLAG
-            isStatic = context.platform.isJvm()
+            isStatic = true
             isFinal = true
             type = context.irBuiltIns.intType
             visibility = DescriptorVisibilities.PUBLIC
+        }.also { stabilityField ->
+            stabilityField.parent = this@makeStabilityFieldJvm
         }
     }
 
-    protected fun makeStabilityProp(): IrProperty {
+    private fun IrClass.makeStabilityFieldNonJvm(): IrField {
+        val stabilityFieldName = this.uniqueStabilityFieldName()
+        val fieldParent = this.getPackageFragment()
+
+        return context.irFactory.buildField {
+            startOffset = SYNTHETIC_OFFSET
+            endOffset = SYNTHETIC_OFFSET
+            name = stabilityFieldName
+            isStatic = true
+            isFinal = true
+            type = context.irBuiltIns.intType
+            visibility = DescriptorVisibilities.PUBLIC
+        }.also { stabilityField ->
+            stabilityField.parent = fieldParent
+            makeStabilityProp(stabilityField, fieldParent)
+        }
+    }
+
+    private fun IrClass.makeStabilityProp(
+        stabilityField: IrField,
+        fieldParent: IrDeclarationContainer
+    ): IrProperty {
         return context.irFactory.buildProperty {
             startOffset = SYNTHETIC_OFFSET
             endOffset = SYNTHETIC_OFFSET
-            name = KtxNameConventions.STABILITY_PROP_FLAG
-            visibility = DescriptorVisibilities.PRIVATE
+            name = this@makeStabilityProp.uniqueStabilityPropertyName()
+            visibility = DescriptorVisibilities.PUBLIC
+        }.also { property ->
+            property.parent = fieldParent
+            stabilityField.correspondingPropertySymbol = property.symbol
+            property.backingField = stabilityField
+            fieldParent.addChild(property)
         }
     }
 
@@ -931,6 +980,11 @@ abstract class AbstractComposeLowering(
                 // K2 sometimes produces `IrGetField` for reads from constant properties
                 symbol.owner.correspondingPropertySymbol?.owner?.isConst == true
 
+            is IrBlock -> {
+                // Check the slice in case the block was generated as expression
+                // (e.g. inlined intrinsic remember call)
+                context.irTrace[ComposeWritableSlices.IS_STATIC_EXPRESSION, this] ?: false
+            }
             else -> false
         }
     }
@@ -1036,13 +1090,10 @@ abstract class AbstractComposeLowering(
                     ) {
                         return true
                     }
-                } else if (fqName == ComposeFqNames.cache) {
-                    // If it is a call to cache then it is a transformed intrinsic call to
-                    // remember and we need to
-                    return valueArgumentsCount == 2 &&
-                        getValueArgument(0)?.isFalseConst() == true &&
-                        stabilityInferencer.stabilityOf(type).knownStable()
-                } else if (fqName == ComposeFqNames.composableLambda) {
+                } else if (
+                    fqName == ComposeFqNames.composableLambda ||
+                    fqName == ComposeFqNames.rememberComposableLambda
+                ) {
                     // calls to this function are generated by the compiler, and this
                     // function behaves similar to a remember call in that the result will
                     // _always_ be the same and the resulting type is _always_ stable, so
@@ -1184,7 +1235,7 @@ abstract class AbstractComposeLowering(
         returnType: IrType,
         invalid: IrExpression,
         calculation: IrExpression
-    ): IrExpression {
+    ): IrCall {
         val symbol = referenceFunction(cacheFunction.symbol)
         return IrCallImpl(
             startOffset,
@@ -1205,7 +1256,8 @@ abstract class AbstractComposeLowering(
         currentComposer: IrExpression,
         value: IrExpression,
         inferredStable: Boolean,
-        strongSkippingEnabled: Boolean
+        compareInstanceForFunctionTypes: Boolean,
+        compareInstanceForUnstableValues: Boolean
     ): IrExpression {
         // compose has a unique opportunity to avoid inline class boxing for changed calls, since
         // we know that the only thing that we are detecting here is "changed or not", we can
@@ -1223,16 +1275,20 @@ abstract class AbstractComposeLowering(
         val primitiveDescriptor = type.toPrimitiveType()
             .let { changedPrimitiveFunctions[it] }
 
-        return if (!strongSkippingEnabled) {
+        return if (!compareInstanceForUnstableValues) {
             val descriptor = primitiveDescriptor
-                ?: if (type.isFunction()) changedInstanceFunction else changedFunction
+                ?: if (type.isFunction() && compareInstanceForFunctionTypes) {
+                    changedInstanceFunction
+                } else {
+                    changedFunction
+                }
             irMethodCall(currentComposer, descriptor).also {
                 it.putValueArgument(0, expr)
             }
         } else {
             val descriptor = when {
                 primitiveDescriptor != null -> primitiveDescriptor
-                type.isFunction() -> changedInstanceFunction
+                compareInstanceForFunctionTypes && type.isFunction() -> changedInstanceFunction
                 stability.knownStable() -> changedFunction
                 inferredStable -> changedFunction
                 stability.knownUnstable() -> changedInstanceFunction
@@ -1245,7 +1301,7 @@ abstract class AbstractComposeLowering(
         }
     }
 
-    fun irStartReplaceableGroup(
+    fun irStartReplaceGroup(
         currentComposer: IrExpression,
         key: IrExpression,
         startOffset: Int = UNDEFINED_OFFSET,
@@ -1253,7 +1309,7 @@ abstract class AbstractComposeLowering(
     ): IrExpression {
         return irMethodCall(
             currentComposer,
-            startReplaceableFunction,
+            startReplaceFunction,
             startOffset,
             endOffset
         ).also {
@@ -1261,14 +1317,14 @@ abstract class AbstractComposeLowering(
         }
     }
 
-    fun irEndReplaceableGroup(
+    fun irEndReplaceGroup(
         currentComposer: IrExpression,
         startOffset: Int = UNDEFINED_OFFSET,
         endOffset: Int = UNDEFINED_OFFSET,
     ): IrExpression {
         return irMethodCall(
             currentComposer,
-            endReplaceableFunction,
+            endReplaceFunction,
             startOffset,
             endOffset
         )
@@ -1278,8 +1334,8 @@ abstract class AbstractComposeLowering(
         startOffset: Int = this.startOffset,
         endOffset: Int = this.endOffset,
         type: IrType,
-        before: List<IrExpression> = emptyList(),
-        after: List<IrExpression> = emptyList()
+        before: List<IrStatement> = emptyList(),
+        after: List<IrStatement> = emptyList()
     ): IrContainerExpression {
         return IrBlockImpl(
             startOffset,
@@ -1301,17 +1357,21 @@ abstract class AbstractComposeLowering(
                 it.valueParameters.first().type.isNullableAny()
         } ?: changedFunction
 
-    val startReplaceableFunction by guardedLazy {
-        composerIrClass.functions
+    private val startReplaceFunction by guardedLazy {
+        composerIrClass.functions.firstOrNull {
+            it.name.identifier == "startReplaceGroup" && it.valueParameters.size == 1
+        } ?: composerIrClass.functions
             .first {
                 it.name.identifier == "startReplaceableGroup" && it.valueParameters.size == 1
             }
     }
 
-    val endReplaceableFunction by guardedLazy {
-        composerIrClass.functions
+    private val endReplaceFunction by guardedLazy {
+        composerIrClass.functions.firstOrNull {
+            it.name.identifier == "endReplaceGroup" && it.valueParameters.isEmpty()
+        } ?: composerIrClass.functions
             .first {
-                it.name.identifier == "endReplaceableGroup" && it.valueParameters.size == 0
+                it.name.identifier == "endReplaceableGroup" && it.valueParameters.isEmpty()
             }
     }
 

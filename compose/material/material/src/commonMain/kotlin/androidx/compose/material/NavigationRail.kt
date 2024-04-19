@@ -37,11 +37,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -192,10 +190,10 @@ fun NavigationRail(
  * @param label optional text label for this item
  * @param alwaysShowLabel whether to always show the label for this item. If false, the label will
  * only be shown when this item is selected.
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this NavigationRailItem. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this NavigationRailItem in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this item. You can use this to change the item's
+ * appearance or preview the item in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param selectedContentColor the color of the text label and icon when this item is selected,
  * and the color of the ripple.
  * @param unselectedContentColor the color of the text label and icon when this item is not selected
@@ -209,7 +207,7 @@ fun NavigationRailItem(
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     selectedContentColor: Color = MaterialTheme.colors.primary,
     unselectedContentColor: Color = LocalContentColor.current.copy(alpha = ContentAlpha.medium)
 ) {
@@ -226,7 +224,7 @@ fun NavigationRailItem(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by NavigationRailTransition.
-    val ripple = rememberRipple(
+    val ripple = rippleOrFallbackImplementation(
         bounded = false,
         color = selectedContentColor
     )

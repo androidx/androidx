@@ -1,14 +1,6 @@
 // Baseline format: 1.0
-MissingGetterMatchingBuilder: androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder#addInitializer(kotlin.reflect.KClass<T>, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T>):
-    androidx.lifecycle.ViewModelProvider.Factory does not declare a `getInitializers()` method matching method androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder.addInitializer(kotlin.reflect.KClass<T>,kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T>)
-
-
 MissingJvmstatic: androidx.lifecycle.ViewModelProvider.NewInstanceFactory#instance:
     Companion object constants like instance should be using @JvmField, not @JvmStatic; see https://developer.android.com/kotlin/interop#companion_constants
-
-
-SetterReturnsThis: androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder#addInitializer(kotlin.reflect.KClass<T>, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T>):
-    Methods must return the builder object (return type androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder instead of void): method androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder.addInitializer(kotlin.reflect.KClass<T>,kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends T>)
 
 
 TopLevelBuilder: androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder:

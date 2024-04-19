@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
@@ -108,7 +109,7 @@ fun LinearProgressIndicator(
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity),
     strokeCap: StrokeCap = StrokeCap.Butt,
 ) {
-    val coercedProgress = progress.coerceIn(0f, 1f)
+    val coercedProgress = progress.fastCoerceIn(0f, 1f)
     Canvas(
         modifier
             .increaseSemanticsBounds()
@@ -324,7 +325,7 @@ fun CircularProgressIndicator(
     backgroundColor: Color = Color.Transparent,
     strokeCap: StrokeCap = StrokeCap.Butt,
 ) {
-    val coercedProgress = progress.coerceIn(0f, 1f)
+    val coercedProgress = progress.fastCoerceIn(0f, 1f)
     val stroke = with(LocalDensity.current) {
         Stroke(width = strokeWidth.toPx(), cap = strokeCap)
     }

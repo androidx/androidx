@@ -24,46 +24,66 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -76,15 +96,20 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import kotlin.reflect.KClass
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,6 +121,11 @@ class ClickableTest {
 
     @get:Rule
     val rule = createComposeRule()
+
+    private val InstanceOf = Correspondence.from<Any, KClass<*>>(
+        { obj, clazz -> clazz?.isInstance(obj) ?: false },
+        "is an instance of"
+    )
 
     @Before
     fun before() {
@@ -119,7 +149,9 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable {}
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable {}
                 )
             }
         }
@@ -136,7 +168,9 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable(enabled = false) {}
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(enabled = false) {}
                 )
             }
         }
@@ -144,6 +178,45 @@ class ClickableTest {
         rule.onNodeWithTag("myClickable")
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .assertIsNotEnabled()
+            .assertHasClickAction()
+    }
+
+    @Test
+    fun semanticsInvalidation() {
+        var enabled by mutableStateOf(true)
+        var role by mutableStateOf<Role?>(Role.Button)
+        rule.setContent {
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(enabled = enabled, role = role) {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+
+        rule.runOnIdle {
+            role = null
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+            .assertHasClickAction()
+
+        rule.runOnIdle {
+            enabled = false
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsNotEnabled()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
             .assertHasClickAction()
     }
 
@@ -158,7 +231,9 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable(onClick = onClick)
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(onClick = onClick)
                 )
             }
         }
@@ -294,6 +369,116 @@ class ClickableTest {
         rule.runOnIdle {
             assertThat(counter).isEqualTo(2)
         }
+    }
+
+    @Test
+    fun requestFocus_touchMode() {
+        // Arrange.
+        val tag = "testClickable"
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .size(10.dp)
+                    .focusRequester(focusRequester)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Touch)
+        }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsNotFocused()
+    }
+
+    @Test
+    fun requestFocus_keyboardMode() {
+        // Arrange.
+        val tag = "testClickable"
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .size(10.dp)
+                    .focusRequester(focusRequester)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Keyboard)
+        }
+
+        // Act.
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsFocused()
+    }
+
+    @Test
+    fun requestFocus_withTestApi_touchMode() {
+        // Arrange.
+        val tag = "testClickable"
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .testTag(tag)
+                    .size(10.dp)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Touch)
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).requestFocus()
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsNotFocused()
+    }
+
+    @Test
+    fun requestFocus_withTestApi_keyboardMode() {
+        // Arrange.
+        val tag = "testClickable"
+        lateinit var inputModeManager: InputModeManager
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier
+                    .focusRequester(focusRequester)
+                    .testTag(tag)
+                    .size(10.dp)
+                    .clickable {}
+            )
+        }
+        rule.runOnIdle {
+            @OptIn(ExperimentalComposeUiApi::class)
+            inputModeManager.requestInputMode(Keyboard)
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).requestFocus()
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsFocused()
     }
 
     @Test
@@ -1054,22 +1239,19 @@ class ClickableTest {
         val focusRequester = FocusRequester()
         lateinit var focusManager: FocusManager
         lateinit var inputModeManager: InputModeManager
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current
-                Box {
-                    BasicText(
-                        "ClickableText",
-                        modifier = Modifier
-                            .testTag("myClickable")
-                            .focusRequester(focusRequester)
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
-                    )
-                }
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .clickable(interactionSource = interactionSource, indication = null) {}
+                )
+            }
         }
         rule.runOnIdle {
             @OptIn(ExperimentalComposeUiApi::class)
@@ -1092,8 +1274,9 @@ class ClickableTest {
 
         // Keyboard mode, so we should now be focused and see an interaction
         rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions)
+                .comparingElementsUsing(InstanceOf)
+                .containsExactly(FocusInteraction.Focus::class)
         }
 
         rule.runOnIdle {
@@ -1101,12 +1284,12 @@ class ClickableTest {
         }
 
         rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
-            assertThat(interactions[1])
-                .isInstanceOf(FocusInteraction.Unfocus::class.java)
-            assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
-                .isEqualTo(interactions[0])
+            // TODO(b/308811852): Simplify the other assertions in FocusableTest, ClickableTest and
+            //  CombinedClickable by using InstanceOf (like we do here).
+            assertThat(interactions)
+                .comparingElementsUsing(InstanceOf)
+                .containsExactly(FocusInteraction.Focus::class, FocusInteraction.Unfocus::class)
+                .inOrder()
         }
     }
 
@@ -1148,6 +1331,865 @@ class ClickableTest {
         }
     }
 
+    // Helper functions for next several tests
+    private fun Modifier.dynamicPointerInputModifier(
+        enabled: Boolean,
+        key: Any? = Unit,
+        onPress: () -> Unit = { },
+        onMove: () -> Unit = { },
+        onRelease: () -> Unit = { },
+    ) = if (enabled) {
+        pointerInput(key) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    if (event.type == PointerEventType.Press) {
+                        onPress()
+                    } else if (event.type == PointerEventType.Move) {
+                        onMove()
+                    } else if (event.type == PointerEventType.Release) {
+                        onRelease()
+                    }
+                }
+            }
+        }
+    } else this
+
+    private fun Modifier.dynamicClickableModifier(
+        enabled: Boolean,
+        onClick: () -> Unit
+    ) = if (enabled) {
+        clickable(
+            interactionSource = null,
+            indication = null
+        ) { onClick() }
+    } else this
+
+    @Test
+    fun dynamicClickableModifierTouch_addsAbovePointerInputWithKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput("unique_key_123") {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @Test
+    fun dynamicClickableModifierTouch_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicClickableModifierMouse_addsAbovePointerInputWithKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput("unique_key_123") {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicClickableModifierMouse_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+        // This is part of a dynamic modifier
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var pointerInputPressCounter by mutableStateOf(0)
+        var activateDynamicClickable by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicClickableModifier(activateDynamicClickable) {
+                    clickableClickCounter++
+                }
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Press) {
+                                pointerInputPressCounter++
+                            } else if (event.type == PointerEventType.Release) {
+                                activateDynamicClickable = true
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, pointerInputPressCounter)
+            assertEquals(0, clickableClickCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, pointerInputPressCounter)
+            assertEquals(1, clickableClickCounter)
+        }
+    }
+
+    @Test
+    fun dynamicInputModifierTouch_addsAboveClickableWithKey_triggersBothModifiers() {
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var dynamicPressCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    key = "unique_key_123",
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
+                .clickable {
+                    clickableClickCounter++
+                    activateDynamicPointerInput = true
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, clickableClickCounter)
+            assertEquals(0, dynamicPressCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(2, clickableClickCounter)
+            assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    @Test
+    fun dynamicInputModifierTouch_addsAboveClickableWithUnitKey_triggersInBothModifiers() {
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var dynamicPressCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
+                .clickable {
+                    clickableClickCounter++
+                    activateDynamicPointerInput = true
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, clickableClickCounter)
+            assertEquals(0, dynamicPressCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(2, clickableClickCounter)
+            assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    // Tests a dynamic pointer input AND a dynamic clickable{} above an existing pointer input.
+    @Test
+    fun dynamicInputModifiersInTouchStream_addsAboveClickableWithUnitKey_triggersAllModifiers() {
+        var activeDynamicClickable by mutableStateOf(false)
+        var dynamicClickableCounter by mutableStateOf(0)
+
+        var activeDynamicPointerInput by mutableStateOf(false)
+        var dynamicPointerInputPressCounter by mutableStateOf(0)
+        var dynamicPointerInputMoveCounter by mutableStateOf(0)
+        var dynamicPointerInputReleaseCounter by mutableStateOf(0)
+
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activeDynamicPointerInput,
+                    onPress = {
+                        dynamicPointerInputPressCounter++
+                    },
+                    onMove = {
+                        dynamicPointerInputMoveCounter++
+                    },
+                    onRelease = {
+                        dynamicPointerInputReleaseCounter++
+                        activeDynamicClickable = true
+                    }
+                )
+                .dynamicClickableModifier(activeDynamicClickable) {
+                    dynamicClickableCounter++
+                }
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activeDynamicPointerInput = true
+                        }
+                    }
+                }
+            )
+        }
+
+        // Even though we are enabling the dynamic pointer input, it will NOT receive events until
+        // the next event stream (after the click is over) which is why you see zeros below.
+        // Only two events are triggered for click (down/up)
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // With these events, we enable the dynamic pointer input
+            assertEquals(2, originalPointerInputEventCounter)
+
+            assertEquals(0, dynamicPointerInputPressCounter)
+            assertEquals(0, dynamicPointerInputMoveCounter)
+            assertEquals(0, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            down(Offset(0f, 0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+
+            assertEquals(1, dynamicPointerInputPressCounter)
+            assertEquals(0, dynamicPointerInputMoveCounter)
+            assertEquals(0, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            moveTo(Offset(1f, 1f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(4, originalPointerInputEventCounter)
+
+            assertEquals(1, dynamicPointerInputPressCounter)
+            assertEquals(1, dynamicPointerInputMoveCounter)
+            assertEquals(0, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            up()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(5, originalPointerInputEventCounter)
+
+            assertEquals(1, dynamicPointerInputPressCounter)
+            assertEquals(1, dynamicPointerInputMoveCounter)
+            // With this release counter, we enable the dynamic clickable{}
+            assertEquals(1, dynamicPointerInputReleaseCounter)
+
+            assertEquals(0, dynamicClickableCounter)
+        }
+
+        // Only two events are triggered for click (down/up)
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(7, originalPointerInputEventCounter)
+
+            assertEquals(2, dynamicPointerInputPressCounter)
+            assertEquals(1, dynamicPointerInputMoveCounter)
+            assertEquals(2, dynamicPointerInputReleaseCounter)
+
+            assertEquals(1, dynamicClickableCounter)
+        }
+    }
+
+    /*
+     * Tests adding dynamic modifier with COMPLETE mouse events, that is, the expected events from
+     * using a hardware device with an Android device.
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierMouse_addsAboveClickableWithKey_triggersBothModifiers() {
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var dynamicPressCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    key = "unique_key_123",
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
+                .clickable {
+                    clickableClickCounter++
+                    activateDynamicPointerInput = true
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, clickableClickCounter)
+            assertEquals(0, dynamicPressCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+        rule.runOnIdle {
+            assertEquals(2, clickableClickCounter)
+            assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    /*
+     * Tests adding dynamic modifier with COMPLETE mouse events, that is, the expected events from
+     * using a hardware device with an Android device.
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierMouse_addsAboveClickableWithUnitKey_triggersInBothModifiers() {
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var dynamicPressCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
+                .clickable {
+                    clickableClickCounter++
+                    activateDynamicPointerInput = true
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, clickableClickCounter)
+            assertEquals(0, dynamicPressCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+            click()
+            exit()
+        }
+        rule.runOnIdle {
+            assertEquals(2, clickableClickCounter)
+            assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    /* Tests dynamically adding a pointer input DURING an event stream (specifically, Hover).
+     * Hover is the only scenario where you can add a new pointer input modifier during the event
+     * stream AND receive events in the same active stream from that new pointer input modifier.
+     * It isn't possible in the down/up scenario because you add the new modifier during the down
+     * but you don't get another down until the next event stream.
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierHoverMouse_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    },
+                    onRelease = {
+                        dynamicReleaseCounter++
+                    }
+                )
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            press()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            release()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(4, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* This is the same as the test above, but
+     *   1. Using clickable{}
+     *   2. It enables the dynamic pointer input and starts the hover event stream in a more
+     * hacky way (using mouse click without hover which triggers hover enter on release).
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifierIncompleteMouse_addsAboveClickableHackyEvents_triggersBothModifiers() {
+        var clickableClickCounter by mutableStateOf(0)
+        // Note: I'm tracking press instead of release because clickable{} consumes release
+        var dynamicPressCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    }
+                )
+                .clickable {
+                    clickableClickCounter++
+                    activateDynamicPointerInput = true
+                }
+            )
+        }
+
+        // Usually, a proper event stream from hardware for mouse input would be:
+        // - enter() (hover enter)
+        // - click()
+        // - exit()
+        // However, in this case, I'm just calling click() which triggers actions:
+        // - press
+        // - release
+        // - hover enter
+        // This starts a hover event stream (in a more hacky way) and also enables the dynamic
+        // pointer input to start recording events.
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, clickableClickCounter)
+            assertEquals(0, dynamicPressCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertEquals(2, clickableClickCounter)
+            assertEquals(1, dynamicPressCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun noHover_whenDisabled() {
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+        val enabled = mutableStateOf(true)
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicText(
+            "ClickableText",
+                modifier = Modifier
+                    .testTag("myClickable")
+                    .clickable(
+                        enabled = enabled.value,
+                        onClick = {},
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
+            )
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+
+        rule.runOnIdle {
+            interactions.clear()
+            enabled.value = false
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+
+        rule.runOnIdle {
+            enabled.value = true
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noFocus_whenDisabled() {
+        val requester = FocusRequester()
+        // Force clickable to always be in non-touch mode, so it should be focusable
+        val keyboardMockManager = object : InputModeManager {
+            override val inputMode = Keyboard
+            override fun requestInputMode(inputMode: InputMode) = true
+        }
+
+        val enabled = mutableStateOf(true)
+        lateinit var focusState: FocusState
+
+        rule.setContent {
+            CompositionLocalProvider(LocalInputModeManager provides keyboardMockManager) {
+                Box {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("myClickable")
+                            .focusRequester(requester)
+                            .onFocusEvent { focusState = it }
+                            .clickable(enabled = enabled.value) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isTrue()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            assertThat(focusState.isFocused).isFalse()
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+    }
+
+    /**
+     * Test for b/269319898
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noFocusPropertiesSet_whenDisabled() {
+        val requester = FocusRequester()
+        // Force clickable to always be in non-touch mode, so it should be focusable
+        val keyboardMockManager = object : InputModeManager {
+            override val inputMode = Keyboard
+            override fun requestInputMode(inputMode: InputMode) = true
+        }
+
+        val enabled = mutableStateOf(true)
+        lateinit var focusState: FocusState
+
+        rule.setContent {
+            CompositionLocalProvider(LocalInputModeManager provides keyboardMockManager) {
+                Box(Modifier.clickable(enabled = enabled.value, onClick = {})) {
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            // If clickable is setting canFocus to true without a focus target, then
+                            // that would override this property
+                            .focusProperties { canFocus = false }
+                            .focusRequester(requester)
+                            .onFocusEvent { focusState = it }
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        // b/314129026 we can't read canFocus, so instead try and request focus and make sure
+        // that we are not focused
+        rule.runOnIdle {
+            // Clickable is enabled, it should correctly apply properties to its focus node
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            // Clickable is disabled, it should not apply properties down the tree
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+    }
+
     @Test
     fun testInspectorValue_noIndicationOverload() {
         val onClick: () -> Unit = { }
@@ -1180,7 +2222,7 @@ class ClickableTest {
                 "onClickLabel",
                 "onClick",
                 "role",
-                "indication",
+                "indicationNodeFactory",
                 "interactionSource"
             )
         }
@@ -1297,7 +2339,7 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun enterKey_emitsIndication() {
+    fun enterKey_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
@@ -1345,7 +2387,7 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun numPadEnterKey_emitsIndication() {
+    fun numPadEnterKey_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
@@ -1393,7 +2435,7 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun dpadCenter_emitsIndication() {
+    fun dpadCenter_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
@@ -1442,7 +2484,7 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun otherKey_doesNotEmitIndication() {
+    fun otherKey_doesNotEmitInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         lateinit var scope: CoroutineScope
@@ -1603,7 +2645,7 @@ class ClickableTest {
 
     @Test
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun interruptedClick_emitsCancelIndication() {
+    fun interruptedClick_emitsCancelInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
         val enabled = mutableStateOf(true)
@@ -1667,4 +2709,929 @@ class ClickableTest {
             assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
         }
     }
+
+    @Test
+    fun indication_interactionSource_eagerlyCreated() {
+        val interactionSource = MutableInteractionSource()
+        var created = false
+        val indication = TestIndication { created = true }
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+        }
+    }
+
+    @Test
+    fun indicationNodeFactory_interactionSource_eagerlyCreated() {
+        val interactionSource = MutableInteractionSource()
+        var created = false
+        val indication = TestIndicationNodeFactory { _, _ -> created = true }
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+        }
+    }
+
+    // Indication (not IndicationNodeFactory) is always eagerly created
+    @Test
+    fun indication_noInteractionSource_eagerlyCreated() {
+        var created = false
+        lateinit var interactionSource: InteractionSource
+        lateinit var scope: CoroutineScope
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndication {
+            interactionSource = it
+            created = true
+            scope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun indicationNodeFactory_noInteractionSource_lazilyCreated_pointerInput() {
+        var created = false
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun indicationNodeFactory_noInteractionSource_lazilyCreated_focus() {
+        var created = false
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .focusRequester(focusRequester)
+                        .clickable(
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        rule.runOnIdle {
+            // Clickable is only focusable in non-touch mode
+            inputModeManager.requestInputMode(Keyboard)
+            // The focus event should cause the indication node to be created
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+    }
+
+    /**
+     * Test case for initializing indication when a KeyEvent is received. Focus is required for key
+     * events, so normally just focusing the clickable will cause indication to be initialized via
+     * focus logic, but if a focused child receives a key event and doesn't consume it, it will
+     * still be passed up to a non-focused parent, so we test this scenario here and make sure that
+     * this key event bubbling up causes indication to be created.
+     */
+    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @Test
+    fun indicationNodeFactory_noInteractionSource_lazilyCreated_keyInput() {
+        var created = false
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            // Add focusable to the top so that when initial focus is dispatched, the clickable
+            // doesn't become focused
+            Box(
+                Modifier
+                    .padding(10.dp)
+                    .focusable()) {
+                Box(
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                ) {
+                    Box(
+                        Modifier
+                            .focusRequester(focusRequester)
+                            .focusable())
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            // We are focusing the child, not the clickable, so we shouldn't create indication yet
+            assertThat(created).isFalse()
+        }
+
+        // The key input event should cause the indication node to be created
+        rule.onNodeWithTag("clickable").performKeyInput { keyDown(Key.Enter) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    /**
+     * Test case for changing from an Indication instance to an IndicationNodeFactory instance with
+     * a provided InteractionSource - the IndicationNodeFactory should be immediately created.
+     */
+    @Test
+    fun indicationNodeFactory_changingIndicationToIndicationNodeFactory_interactionSource() {
+        var indicationCreated = false
+        var nodeCreated = false
+        val interactionSource = MutableInteractionSource()
+        val interactions = mutableListOf<Interaction>()
+        val testIndication = TestIndication { indicationCreated = true }
+        val testIndicationNodeFactory = TestIndicationNodeFactory { _, coroutineScope ->
+            nodeCreated = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var indication: Indication by mutableStateOf(testIndication)
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(indicationCreated).isTrue()
+            indication = testIndicationNodeFactory
+        }
+
+        rule.runOnIdle {
+            assertThat(nodeCreated).isTrue()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    /**
+     * Test case for null InteractionSource with a provided indication: the indication should be
+     * lazily created. If we change indication before creation, the new indication should be created
+     * lazily too.
+     */
+    @Test
+    fun indicationNodeFactory_changingIndication_beforeCreation() {
+        var created1 = false
+        var created2 = false
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication1 = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created1 = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+        val indication2 = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created2 = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                        interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var indication by mutableStateOf(indication1)
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created1).isFalse()
+        }
+
+        rule.runOnIdle {
+            indication = indication2
+        }
+
+        rule.runOnIdle {
+            // We should still not be created
+            assertThat(created2).isFalse()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created2).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    /**
+     * Test case for null InteractionSource with a provided indication: the indication should be
+     * lazily created, but then if we change indication after creation, the new indication should
+     * be created immediately
+     */
+    @Test
+    fun indicationNodeFactory_changingIndication_afterCreation() {
+        var created1 = false
+        var detached1 = false
+        var created2 = false
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication1 = TestIndicationNodeFactory(
+            onDetach = { detached1 = true }
+        ) { source, coroutineScope ->
+            interactionSource = source
+            created1 = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+        val indication2 = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created2 = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var indication by mutableStateOf(indication1)
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created1).isFalse()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created1).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { up() }
+
+        rule.runOnIdle {
+            interactions.clear()
+            indication = indication2
+        }
+
+        rule.runOnIdle {
+            // We should be created because we created the previous node already
+            assertThat(created2).isTrue()
+            // The previous node should be detached
+            assertThat(detached1).isTrue()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    /**
+     * Test case for a provided InteractionSource with a provided indication, and changing the
+     * InteractionSource to a new one. This should cause the indication to be recreated immediately.
+     */
+    @Test
+    fun indicationNodeFactory_changingInteractionSourceToAnotherInteractionSource() {
+        var created = false
+        var detached = false
+        var interactionSource: MutableInteractionSource by mutableStateOf(
+            MutableInteractionSource()
+        )
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detached = true }
+        ) { _, coroutineScope ->
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            // We should be eagerly created
+            assertThat(created).isTrue()
+            interactionSource = MutableInteractionSource()
+        }
+
+        rule.runOnIdle {
+            // Changing InteractionSource should cause the node to be detached, and a new one
+            // created
+            assertThat(detached).isTrue()
+            assertThat(created).isTrue()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    /**
+     * Test case for null InteractionSource with a provided indication, and changing the
+     * InteractionSource to non-null. This should cause the indication to be created immediately.
+     */
+    @Test
+    fun indicationNodeFactory_changingInteractionSourceFromNull() {
+        var created = false
+        var interactionSource: MutableInteractionSource? by mutableStateOf(null)
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { _, coroutineScope ->
+            created = true
+            coroutineScope.launch {
+                interactionSource!!.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+            interactionSource = MutableInteractionSource()
+        }
+
+        rule.runOnIdle {
+            // Changing InteractionSource should cause us to be created
+            assertThat(created).isTrue()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    /**
+     * Test case for a provided InteractionSource with a provided indication, and changing the
+     * InteractionSource to null. This should cause the indication to be recreated immediately.
+     */
+    @Test
+    fun indicationNodeFactory_changingInteractionSourceToNull() {
+        var created = false
+        var detached = false
+        var interactionSource: MutableInteractionSource? by mutableStateOf(
+            MutableInteractionSource()
+        )
+        var internalInteractionSource: InteractionSource?
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detached = true }
+        ) { source, coroutineScope ->
+            internalInteractionSource = source
+            created = true
+            coroutineScope.launch {
+                internalInteractionSource?.interactions?.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ClickableText",
+                    modifier = Modifier
+                        .testTag("clickable")
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            // We should be eagerly created
+            assertThat(created).isTrue()
+            interactionSource = null
+        }
+
+        rule.runOnIdle {
+            // Changing InteractionSource should cause the node to be detached, and a new one
+            // created
+            assertThat(detached).isTrue()
+            assertThat(created).isTrue()
+        }
+
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun composedOverload_nonEquality() {
+        val onClick = {}
+        val modifier1 = Modifier.clickable(onClick = onClick)
+        val modifier2 = Modifier.clickable(onClick = onClick)
+
+        // The composed overload can never compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun nullInteractionSourceNullIndication_equality() {
+        val onClick = {}
+        assertModifierIsPure { toggleInput ->
+            Modifier.clickable(
+                interactionSource = null,
+                indication = null,
+                enabled = toggleInput,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nonNullInteractionSourceNullIndication_equality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        assertModifierIsPure { toggleInput ->
+            Modifier.clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = toggleInput,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onClick = {}
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.clickable(
+                interactionSource = null,
+                indication = indication,
+                enabled = toggleInput,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nullInteractionSourceNonNullIndication_nonEquality() {
+        val onClick = {}
+        val indication = TestIndication {}
+        val modifier1 = Modifier.clickable(
+            interactionSource = null,
+            indication = indication,
+            onClick = onClick
+        )
+        val modifier2 = Modifier.clickable(
+            interactionSource = null,
+            indication = indication,
+            onClick = onClick
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun nonNullInteractionSourceNonNullIndicationNodeFactory_equality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndicationNodeFactory({}, { _, _ -> })
+        assertModifierIsPure { toggleInput ->
+            Modifier.clickable(
+                interactionSource = interactionSource,
+                indication = indication,
+                enabled = toggleInput,
+                onClick = onClick
+            )
+        }
+    }
+
+    @Test
+    fun nonNullInteractionSourceNonNullIndication_nonEquality() {
+        val onClick = {}
+        val interactionSource = MutableInteractionSource()
+        val indication = TestIndication {}
+        val modifier1 = Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = indication,
+            onClick = onClick
+        )
+        val modifier2 = Modifier.clickable(
+            interactionSource = interactionSource,
+            indication = indication,
+            onClick = onClick
+        )
+
+        // Indication requires composed, so cannot compare equal
+        assertThat(modifier1).isNotEqualTo(modifier2)
+    }
+
+    @Test
+    fun focusUsingSemanticAction() {
+        // Arrange.
+        val tag = "testClickable"
+        rule.setContent {
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .focusProperties { canFocus = true }
+                    .clickable {}
+            )
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).requestFocus()
+
+        // Assert.
+        rule.onNodeWithTag(tag).assertIsFocused()
+    }
+
+    @Test
+    fun focusUsingSemanticActionWhenNotEnabled() {
+        // Arrange.
+        val tag = "testClickable"
+        rule.setContent {
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .focusProperties { canFocus = true }
+                    .clickable(enabled = false) {}
+            )
+        }
+
+        // Act.
+        assertFailsWith(
+            exceptionClass = AssertionError::class,
+            message = "Failed to perform action RequestFocus, the node is missing [RequestFocus]"
+        ) {
+            rule.onNodeWithTag(tag).requestFocus()
+        }
+    }
+
+    @Test
+    fun focusUsingSemanticActionWhileChangingEnabledParam() {
+        // Arrange.
+        val tag = "testClickable"
+        lateinit var focusManager: FocusManager
+        var enabled by mutableStateOf(true)
+        rule.setContent {
+            focusManager = LocalFocusManager.current
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .testTag(tag)
+                    .focusProperties { canFocus = true }
+                    .clickable(enabled = enabled) {}
+            )
+        }
+
+        // Request focus succeeds when enabled = true.
+        rule.onNodeWithTag(tag).requestFocus()
+        rule.onNodeWithTag(tag).assertIsFocused()
+
+        // Request focus fails when enabled = false.
+        rule.runOnIdle {
+            enabled = false
+            focusManager.clearFocus()
+        }
+        assertFailsWith(
+            exceptionClass = AssertionError::class,
+            message = "Failed to perform action RequestFocus, the node is missing [RequestFocus]"
+        ) {
+            rule.onNodeWithTag(tag).requestFocus()
+        }
+        assertFailsWith(
+            exceptionClass = AssertionError::class,
+            message = "Failed to assert the following: (Focused = 'false')"
+        ) {
+            rule.onNodeWithTag(tag).assertIsNotFocused()
+        }
+
+        // Request focus succeeds when enabled = true.
+        rule.runOnIdle {
+            enabled = true
+            focusManager.clearFocus()
+        }
+        rule.onNodeWithTag(tag).requestFocus()
+        rule.onNodeWithTag(tag).assertIsFocused()
+    }
+
+    // Regression test for b/332814226
+    @Test
+    fun movableContentWithSubcomposition_updatingSemanticsShouldNotCrash() {
+        var moveContent by mutableStateOf(false)
+        rule.setContent {
+            val content = remember {
+                movableContentOf {
+                    BoxWithConstraints {
+                        BasicText("ClickableText",
+                            modifier = Modifier
+                                .testTag("clickable")
+                                .clickable(
+                                    role = if (moveContent) Role.Button else Role.Checkbox,
+                                    onClickLabel = moveContent.toString()
+                                ) {}
+                        )
+                    }
+                }
+            }
+
+            key(moveContent) {
+                content()
+            }
+        }
+
+        rule.onNodeWithTag("clickable")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
+            .assertOnClickLabelMatches("false")
+
+        rule.runOnIdle {
+            moveContent = true
+        }
+
+        rule.onNodeWithTag("clickable")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertOnClickLabelMatches("true")
+    }
 }
+
+/**
+ * No-op [Indication] for testing purposes.
+ *
+ * @param onCreate lambda executed when the instance is created with [rememberUpdatedInstance]
+ */
+@Suppress("DEPRECATION_ERROR")
+internal class TestIndication(val onCreate: (InteractionSource) -> Unit) : Indication {
+    @Deprecated("Super method is deprecated")
+    @Composable
+    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
+        onCreate(interactionSource)
+        return Instance
+    }
+
+    object Instance : IndicationInstance {
+        override fun ContentDrawScope.drawIndication() {
+            drawContent()
+        }
+    }
+}
+
+/**
+ * No-op [IndicationNodeFactory] for testing purposes.
+ *
+ * @param onDetach lambda executed when the instance is detached
+ * @param onAttach lambda executed when the instance is created with [create]
+ */
+internal class TestIndicationNodeFactory(
+    val onDetach: () -> Unit = {},
+    val onAttach: ((InteractionSource, CoroutineScope) -> Unit)
+) : IndicationNodeFactory {
+    override fun create(interactionSource: InteractionSource): DelegatableNode {
+        return object : Modifier.Node() {
+            override fun onAttach() {
+                onAttach(interactionSource, coroutineScope)
+            }
+
+            override fun onDetach() {
+                this@TestIndicationNodeFactory.onDetach()
+            }
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TestIndicationNodeFactory) return false
+
+        if (onAttach != other.onAttach) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return onAttach.hashCode()
+    }
+}
+
+internal fun SemanticsNodeInteraction.assertOnClickLabelMatches(expectedValue: String):
+    SemanticsNodeInteraction {
+        return assert(SemanticsMatcher("onClickLabel = '$expectedValue'") {
+            it.config.getOrElseNullable(SemanticsActions.OnClick) { null }?.label == expectedValue
+        })
+    }

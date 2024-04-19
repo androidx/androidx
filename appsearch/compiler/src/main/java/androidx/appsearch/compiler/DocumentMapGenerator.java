@@ -16,6 +16,9 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_ANNOTATION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_SCOPE_CLASS;
+
 import androidx.annotation.NonNull;
 
 import com.google.auto.common.GeneratedAnnotationSpecs;
@@ -47,14 +50,22 @@ public class DocumentMapGenerator {
      * Returns the generated {@link androidx.appsearch.app.AppSearchDocumentClassMap}, based on
      * the provided document class map.
      *
-     * @param documentClassMap The map from schema type names to the list of the fully qualified
-     *                         names of the corresponding document classes, so that the
-     *                         {@code getMap} method of the generated class can return this map.
+     * @param documentClassMap                 The map from schema type names to the list of the
+     *                                         fully qualified
+     *                                         names of the corresponding document classes, so
+     *                                         that the
+     *                                         {@code getMap} method of the generated class can
+     *                                         return this map.
+     * @param restrictGeneratedCodeToLib Whether to annotate the generated class with
+     *                                   {@code RestrictTo(LIBRARY)}.
      */
     @NonNull
-    public static JavaFile generate(@NonNull ProcessingEnvironment processingEnv,
-            @NonNull String packageName, @NonNull String classSuffix,
-            @NonNull Map<String, List<String>> documentClassMap) {
+    public static JavaFile generate(
+            @NonNull ProcessingEnvironment processingEnv,
+            @NonNull String packageName,
+            @NonNull String classSuffix,
+            @NonNull Map<String, List<String>> documentClassMap,
+            boolean restrictGeneratedCodeToLib) {
         ClassName superClassName = ClassName.get(
                 IntrospectionHelper.APPSEARCH_PKG, "AppSearchDocumentClassMap");
         TypeSpec.Builder genClass = TypeSpec
@@ -65,6 +76,14 @@ public class DocumentMapGenerator {
                 .addAnnotation(AnnotationSpec.builder(AutoService.class)
                         .addMember("value", "$T.class", superClassName)
                         .build());
+
+        if (restrictGeneratedCodeToLib) {
+            // Add @RestrictTo(LIBRARY_GROUP) to the generated class
+            genClass.addAnnotation(
+                    AnnotationSpec.builder(RESTRICT_TO_ANNOTATION_CLASS)
+                            .addMember(/* name= */"value", "$T.LIBRARY", RESTRICT_TO_SCOPE_CLASS)
+                            .build());
+        }
 
         // Add the @Generated annotation to avoid static analysis running on these files
         GeneratedAnnotationSpecs.generatedAnnotationSpec(
@@ -104,5 +123,6 @@ public class DocumentMapGenerator {
         return mapContentBuilder.build();
     }
 
-    private DocumentMapGenerator() {}
+    private DocumentMapGenerator() {
+    }
 }

@@ -105,17 +105,15 @@ public class TypefaceCompat {
      */
     private static String createResourceUid(final Resources resources, int id, String path,
             int cookie, int style) {
-        return new StringBuilder(
-                resources.getResourcePackageName(id))
-                .append('-')
-                .append(path)
-                .append('-')
-                .append(cookie)
-                .append('-')
-                .append(id)
-                .append('-')
-                .append(style)
-                .toString();
+        return resources.getResourcePackageName(id)
+                + '-'
+                + path
+                + '-'
+                + cookie
+                + '-'
+                + id
+                + '-'
+                + style;
     }
 
     /**

@@ -32,7 +32,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -135,14 +134,14 @@ class RecomposerTestsJvm {
     }
 
     @Test
-    @OptIn(ExperimentalComposeApi::class, ObsoleteCoroutinesApi::class)
+    @OptIn(ExperimentalComposeApi::class)
     fun concurrentRecompositionOnCompositionSpecificContext() = runBlocking(AutoTestFrameClock()) {
         val recomposer = Recomposer(coroutineContext)
         launch {
             recomposer.runRecomposeConcurrentlyAndApplyChanges(Dispatchers.Default)
         }
 
-        @OptIn(DelicateCoroutinesApi::class)
+        @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
         newSingleThreadContext("specialThreadPool").use { pool ->
             val composition = Composition(UnitApplier(), recomposer, pool)
             var recomposition by mutableStateOf(false)

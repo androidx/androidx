@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -21,7 +28,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("AndroidXComposePlugin")
     id("dagger.hilt.android.plugin")
 }
@@ -49,7 +56,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.hiltAndroid)
     androidTestImplementation(libs.hiltAndroidTesting)
-    kaptAndroidTest(libs.hiltCompiler)
+    kspAndroidTest(libs.hiltCompiler)
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
@@ -57,8 +64,6 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-
-    samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }
 
 hilt {
@@ -74,4 +79,5 @@ androidx {
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }

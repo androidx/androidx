@@ -32,7 +32,7 @@ import javax.tools.Diagnostic;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-final class ProcessingException extends Exception {
+public final class ProcessingException extends Exception {
     @Nullable
     private final Element mCulprit;
 
@@ -41,7 +41,7 @@ final class ProcessingException extends Exception {
      */
     private final List<ProcessingException> mWarnings = new ArrayList<>();
 
-    ProcessingException(@NonNull String message, @Nullable Element culprit) {
+    public ProcessingException(@NonNull String message, @Nullable Element culprit) {
         super(message);
         mCulprit = culprit;
     }

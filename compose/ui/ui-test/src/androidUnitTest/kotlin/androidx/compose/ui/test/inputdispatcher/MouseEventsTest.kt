@@ -473,6 +473,7 @@ class MouseEventsTest : InputDispatcherTest() {
 
     @Test
     fun scroll_vertically() {
+        // Scroll delta is inverted before sending off to align platforms, see b/224992993
         scrollTest(ScrollWheel.Vertical) { Pair(AXIS_VSCROLL, -it) }
     }
 

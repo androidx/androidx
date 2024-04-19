@@ -53,7 +53,10 @@ public final class ParcelCompat {
      *
      * <p>Note: This method currently delegates to {@link Parcel#writeInt} with a value of 1 or 0
      * for true or false, respectively, but may change in the future.
+     * @deprecated Call {@link Parcel#writeInt()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "out.writeInt(value ? 1 : 0)")
     public static void writeBoolean(@NonNull Parcel out, boolean value) {
         out.writeInt(value ? 1 : 0);
     }

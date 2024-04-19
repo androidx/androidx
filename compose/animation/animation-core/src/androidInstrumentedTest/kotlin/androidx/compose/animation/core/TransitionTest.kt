@@ -23,6 +23,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.Color
@@ -32,7 +33,9 @@ import androidx.test.filters.LargeTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -282,7 +285,7 @@ class TransitionTest {
         var playTime by mutableStateOf(0L)
         var floatAnim: State<Float>? = null
         rule.setContent {
-            val transition = updateTransition(target)
+            val transition = rememberTransition(target)
             floatAnim = transition.animateFloat(
                 transitionSpec = { tween(800) }
             ) {
@@ -310,7 +313,7 @@ class TransitionTest {
         rule.setContent {
             var target by remember { mutableStateOf(MutableTransitionState(AnimStates.From)) }
             target.targetState = AnimStates.To
-            val transition = updateTransition(target)
+            val transition = rememberTransition(target)
             val floatAnim = transition.animateFloat(
                 transitionSpec = { tween(800) }
             ) {
@@ -349,7 +352,7 @@ class TransitionTest {
         val mutableTransitionState = MutableTransitionState(false)
         var transition: Transition<Boolean>? = null
         rule.setContent {
-            transition = updateTransition(mutableTransitionState).apply {
+            transition = rememberTransition(mutableTransitionState).apply {
                 animateFloat {
                     if (it) 1f else 0f
                 }
@@ -444,6 +447,92 @@ class TransitionTest {
         rule.runOnIdle {
             assertEquals(2f, parentTransitionFloat.value)
             assertEquals(0f, childTransitionFloat.value)
+        }
+    }
+
+    @OptIn(ExperimentalTransitionApi::class)
+    @Test
+    fun addAnimationToCompletedChildTransition() {
+        rule.mainClock.autoAdvance = false
+        var value1 = 0f
+        var value2 = 0f
+        var value3 = 0f
+        lateinit var coroutineScope: CoroutineScope
+        val state = MutableTransitionState(false)
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            val parent = rememberTransition(state)
+            value1 = parent.animateFloat({ tween(1600, easing = LinearEasing) }) {
+                if (it) 1000f else 0f
+            }.value
+
+            val child = parent.createChildTransition { it }
+            value2 = child.animateFloat({ tween(160, easing = LinearEasing) }) {
+                if (it) 1000f else 0f
+            }.value
+
+            value3 = if (!parent.targetState) {
+                child.animateFloat({ tween(160, easing = LinearEasing) }) {
+                    if (it) 0f else 1000f
+                }.value
+            } else {
+                0f
+            }
+        }
+        coroutineScope.launch {
+            state.targetState = true
+        }
+        rule.mainClock.advanceTimeByFrame() // wait for composition
+        rule.runOnIdle {
+            assertEquals(0f, value1, 0f)
+            assertEquals(0f, value2, 0f)
+            assertEquals(0f, value3, 0f)
+        }
+        rule.mainClock.advanceTimeByFrame() // latch the animation start value
+        rule.runOnIdle {
+            assertEquals(0f, value1, 0f)
+            assertEquals(0f, value2, 0f)
+            assertEquals(0f, value3, 0f)
+        }
+        rule.mainClock.advanceTimeByFrame() // first frame of animation
+        rule.runOnIdle {
+            assertEquals(10f, value1, 0.1f)
+            assertEquals(100f, value2, 0.1f)
+            assertEquals(0f, value3, 0f) // hasn't started yet
+        }
+        rule.mainClock.advanceTimeBy(160)
+        rule.runOnIdle {
+            assertEquals(110f, value1, 0.1f)
+            assertEquals(1000f, value2, 0f)
+            assertEquals(0f, value3, 0f) // hasn't started yet
+        }
+        coroutineScope.launch {
+            state.targetState = false
+        }
+        rule.mainClock.advanceTimeByFrame() // compose the change
+        rule.runOnIdle {
+            assertEquals(120f, value1, 0.1f)
+            assertEquals(1000f, value2, 0f)
+            assertEquals(0f, value3, 0f)
+        }
+        rule.mainClock.advanceTimeByFrame()
+        var prevValue1 = 120f
+        var prevValue2 = 1000f
+        rule.runOnIdle {
+            // value1 and value2 have spring interrupted values, so we can't
+            // easily know their exact values
+            assertTrue(value1 < prevValue1)
+            prevValue1 = value1
+            assertTrue(value2 < prevValue2)
+            prevValue2 = value2
+            assertEquals(100f, value3, 0.1f)
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.runOnIdle {
+            assertTrue(value1 < prevValue1)
+            assertTrue(value2 < prevValue2)
+            assertEquals(200f, value3, 0.1f)
         }
     }
 }

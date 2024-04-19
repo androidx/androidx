@@ -96,6 +96,23 @@ class QualityExploredEncoderProfilesProviderTest {
     }
 
     @Test
+    fun canNotExploreQualities_whenCannotFindEncoderInfo() {
+        // Arrange: SD is not a target quality.
+        val targetQualities = setOf(UHD, FHD, HD)
+
+        // Act: EncoderFinder always return null
+        val provider = QualityExploredEncoderProfilesProvider(
+            providerSupportOnlySdrFhd,
+            targetQualities,
+            setOf(SDR),
+            defaultCameraResolutions,
+        ) { null }
+
+        // Assert.
+        verifyQualitiesAreNotSupported(provider, SDR, QUALITY_2160P, QUALITY_720P)
+    }
+
+    @Test
     fun canNotExploreQualities_whenNoBaseProfile() {
         // Arrange: a provider doesn't have any supported qualities.
         val emptyProvider = FakeEncoderProfilesProvider.Builder().build()

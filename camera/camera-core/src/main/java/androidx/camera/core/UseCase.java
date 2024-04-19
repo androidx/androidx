@@ -152,6 +152,9 @@ public abstract class UseCase {
     @Nullable
     private CameraEffect mEffect;
 
+    @Nullable
+    private String mPhysicalCameraId;
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -360,6 +363,17 @@ public abstract class UseCase {
         } else {
             return Surface.ROTATION_270;
         }
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setPhysicalCameraId(@NonNull String physicalCameraId) {
+        mPhysicalCameraId = physicalCameraId;
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public String getPhysicalCameraId() {
+        return mPhysicalCameraId;
     }
 
     /**
@@ -631,6 +645,15 @@ public abstract class UseCase {
     public String getName() {
         return Objects.requireNonNull(
                 mCurrentConfig.getTargetName("<UnknownUseCase-" + hashCode() + ">"));
+    }
+
+    /**
+     * Retrieves the configuration set by applications.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    protected UseCaseConfig<?> getAppConfig() {
+        return mUseCaseConfig;
     }
 
     /**

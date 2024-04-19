@@ -18,16 +18,26 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
 import androidx.compose.ui.util.makeDisplayable
@@ -42,6 +52,113 @@ import java.awt.event.ComponentEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.swing.JDialog
+
+/**
+ * Properties used to customize the behavior of a [Dialog].
+ *
+ * @property dismissOnBackPress whether the popup can be dismissed by pressing the back button
+ *  * on Android or escape key on desktop.
+ * If true, pressing the back button will call onDismissRequest.
+ * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
+ * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
+ * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
+ * the platform default, which is smaller than the screen width.
+ */
+@Immutable
+actual class DialogProperties actual constructor(
+    actual val dismissOnBackPress: Boolean,
+    actual val dismissOnClickOutside: Boolean,
+    actual val usePlatformDefaultWidth: Boolean,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DialogProperties) return false
+
+        if (dismissOnBackPress != other.dismissOnBackPress) return false
+        if (dismissOnClickOutside != other.dismissOnClickOutside) return false
+        if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = dismissOnBackPress.hashCode()
+        result = 31 * result + dismissOnClickOutside.hashCode()
+        result = 31 * result + usePlatformDefaultWidth.hashCode()
+        return result
+    }
+}
+
+@Composable
+actual fun Dialog(
+    onDismissRequest: () -> Unit,
+    properties: DialogProperties,
+    content: @Composable () -> Unit
+) {
+    val popupPositioner = remember {
+        AlignmentOffsetPositionProvider(
+            alignment = Alignment.Center,
+            offset = IntOffset(0, 0)
+        )
+    }
+    PopupLayout(
+        popupPositionProvider = popupPositioner,
+        focusable = true,
+        if (properties.dismissOnClickOutside) onDismissRequest else null,
+        modifier = Modifier.drawBehind {
+            drawRect(Color.Black.copy(alpha = 0.6f))
+        },
+        onKeyEvent = {
+            if (properties.dismissOnBackPress &&
+                it.type == KeyEventType.KeyDown && it.key == Key.Escape
+            ) {
+                onDismissRequest()
+                true
+            } else {
+                false
+            }
+        },
+        content = content
+    )
+}
+
+@Deprecated(
+    message = "Replaced by DialogWindow",
+    replaceWith = ReplaceWith("DialogWindow(" +
+        "onCloseRequest, state, visible, title, icon, undecorated, transparent, resizable, " +
+        "enabled, focusable, onPreviewKeyEvent, onKeyEvent, content" +
+        ")")
+)
+@Composable
+fun Dialog(
+    onCloseRequest: () -> Unit,
+    state: DialogState = rememberDialogState(),
+    visible: Boolean = true,
+    title: String = "Untitled",
+    icon: Painter? = null,
+    undecorated: Boolean = false,
+    transparent: Boolean = false,
+    resizable: Boolean = true,
+    enabled: Boolean = true,
+    focusable: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    content: @Composable DialogWindowScope.() -> Unit
+) = DialogWindow(
+    onCloseRequest,
+    state,
+    visible,
+    title,
+    icon,
+    undecorated,
+    transparent,
+    resizable,
+    enabled,
+    focusable,
+    onPreviewKeyEvent,
+    onKeyEvent,
+    content
+)
 
 /**
  * Composes platform dialog in the current composition. When Dialog enters the composition,
@@ -101,7 +218,7 @@ import javax.swing.JDialog
  * @param content content of the dialog
  */
 @Composable
-fun Dialog(
+fun DialogWindow(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
     visible: Boolean = true,
@@ -130,7 +247,7 @@ fun Dialog(
 
     val updater = remember(::ComponentUpdater)
 
-    Dialog(
+    DialogWindow(
         visible = visible,
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
@@ -171,6 +288,31 @@ fun Dialog(
         content = content
     )
 }
+
+@Deprecated(
+    message = "Replaced by DialogWindow",
+    replaceWith = ReplaceWith("DialogWindow(" +
+        "visible, onPreviewKeyEvent, onKeyEvent, create, dispose, update, contents" +
+        ")")
+)
+@Composable
+fun Dialog(
+    visible: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    create: () -> ComposeDialog,
+    dispose: (ComposeDialog) -> Unit,
+    update: (ComposeDialog) -> Unit = {},
+    content: @Composable DialogWindowScope.() -> Unit
+) = DialogWindow(
+    visible,
+    onPreviewKeyEvent,
+    onKeyEvent,
+    create,
+    dispose,
+    update,
+    content
+)
 
 // TODO(demin): fix mouse hover after opening a dialog.
 //  When we open a modal dialog, ComposeLayer/mouseExited will
@@ -217,7 +359,7 @@ fun Dialog(
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("unused")
 @Composable
-fun Dialog(
+fun DialogWindow(
     visible: Boolean = true,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },

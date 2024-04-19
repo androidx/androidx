@@ -94,7 +94,7 @@ fun OverscrollSample() {
             val consumedByScroll = performScroll(leftForScroll)
             val overscrollDelta = leftForScroll - consumedByScroll
             // if it is a drag, not a fling, add the delta left to our over scroll value
-            if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.Drag) {
+            if (abs(overscrollDelta.y) > 0.5 && source == NestedScrollSource.UserInput) {
                 scope.launch {
                     // multiply by 0.1 for the sake of parallax effect
                     overscrollOffset.snapTo(overscrollOffset.value + overscrollDelta.y * 0.1f)
@@ -197,7 +197,10 @@ fun OverscrollWithDraggable_After() {
         // Horizontal, so convert the delta to a horizontal offset
         val deltaAsOffset = Offset(delta, 0f)
         // Wrap the original logic inside applyToScroll
-        overscrollEffect.applyToScroll(deltaAsOffset, NestedScrollSource.Drag) { remainingOffset ->
+        overscrollEffect.applyToScroll(
+            deltaAsOffset,
+            NestedScrollSource.UserInput
+        ) { remainingOffset ->
             val remainingDelta = remainingOffset.x
             val newPosition = (dragPosition + remainingDelta).coerceIn(minPosition, maxPosition)
             // Calculate how much delta we have consumed

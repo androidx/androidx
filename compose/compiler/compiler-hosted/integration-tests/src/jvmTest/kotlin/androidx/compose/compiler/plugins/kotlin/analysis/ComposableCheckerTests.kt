@@ -1259,10 +1259,19 @@ class ComposableCheckerTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 val x = object {
                   val b = remember { mutableStateOf(3) }
                 }
+                val y = run {
+                    object {
+                      val b = remember { mutableStateOf(3) }
+                      val a = object {
+                        val b = remember { mutableStateOf(3) }
+                      }
+                    }
+                }
                 class Bar {
                   val a = <!COMPOSABLE_INVOCATION!>remember<!> { mutableStateOf(5) }
                 }
                 print(x)
+                print(y)
             }
         """
         )
@@ -1533,6 +1542,103 @@ class ComposableCheckerTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
 
                 @Composable
                 fun Test(any: Any): List<Any> = TODO(any.toString())
+            """
+        )
+    }
+
+    @Test
+    fun classDelegateToComposablePropertyInComposable() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                interface A
+
+                interface B {
+                    val property: A @Composable get() = TODO()
+                }
+
+                @Composable fun Test(b: B) {
+                    val a = object : A by b.property {}
+                    println(a)
+                }
+            """
+        )
+    }
+
+    @Test
+    fun classDelegateToComposablePropertyInNonComposable() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                interface A
+
+                interface B {
+                    val property: A @Composable get() = TODO()
+                }
+
+                fun <!COMPOSABLE_EXPECTED!>Test<!>(b: B) {
+                    val a = object : A by b.<!COMPOSABLE_INVOCATION!>property<!> {}
+                    println(a)
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testErrorInAnonymousFunctionPropertyInitializer() {
+        assumeTrue(!useFir)
+        check(
+            """
+                  import androidx.compose.runtime.Composable
+                  @Composable fun ComposableFunction() {}
+                  fun getMyClass(): Any {
+                      class MyClass {
+                          val property = <!COMPOSABLE_EXPECTED!>fun() {
+                              <!COMPOSABLE_INVOCATION!>ComposableFunction<!>()  // invocation
+                          }<!>
+                      }
+                      return MyClass()
+                  }
+            """
+        )
+    }
+
+    @Test
+    fun testErrorInAnonymousFunctionPropertyInitializerForK2() {
+        assumeTrue(useFir)
+        check(
+            """
+                  import androidx.compose.runtime.Composable
+                  @Composable fun ComposableFunction() {}
+                  fun getMyClass(): Any {
+                      class MyClass {
+                          val property = <!COMPOSABLE_EXPECTED!>fun()<!> {
+                              <!COMPOSABLE_INVOCATION!>ComposableFunction<!>()  // invocation
+                          }
+                      }
+                      return MyClass()
+                  }
+            """
+        )
+    }
+
+    @Test
+    fun testComposableCallInsideNonComposableNonInlinedLambda() {
+        check(
+            """
+                import androidx.compose.runtime.Composable
+
+                @Composable fun ComposableFunction() {}
+
+                fun functionThatTakesALambda(content: () -> Unit) { content() }
+
+                fun NonComposableFunction() {
+                    functionThatTakesALambda {
+                        <!COMPOSABLE_INVOCATION!>ComposableFunction<!>()  // invocation
+                    }
+                }
             """
         )
     }

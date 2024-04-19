@@ -65,13 +65,13 @@ public class FragmentContextMenuSupport extends FragmentActivity {
 
         @Override
         public boolean onContextItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.a_item:
-                    Log.i("ContextMenu", "Item 1a was chosen");
-                    return true;
-                case R.id.b_item:
-                    Log.i("ContextMenu", "Item 1b was chosen");
-                    return true;
+            int itemId = item.getItemId();
+            if (itemId == R.id.a_item) {
+                Log.i("ContextMenu", "Item 1a was chosen");
+                return true;
+            } else if (itemId == R.id.b_item) {
+                Log.i("ContextMenu", "Item 1b was chosen");
+                return true;
             }
             return super.onContextItemSelected(item);
         }

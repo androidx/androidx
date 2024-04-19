@@ -16,6 +16,12 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.IntIntMap
+import androidx.collection.IntList
+import androidx.collection.MutableIntIntMap
+import androidx.collection.MutableIntList
+import androidx.collection.MutableIntSet
+import androidx.compose.runtime.mock.CompositionTestScope
 import androidx.compose.runtime.mock.NonReusableText
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
@@ -107,6 +113,87 @@ class CompoundHashKeyTests {
 
         assertEquals(keyOnEnter, keyOnExit)
     }
+
+    @Test // b/287537290
+    fun adjacentCallsProduceUniqueKeys() = compositionTest {
+        expectUniqueHashCodes {
+            A()
+            A()
+        }
+    }
+
+    @Test // b/287537290
+    fun indirectConditionalCallsProduceUniqueKeys() = compositionTest {
+        expectUniqueHashCodes {
+            C(condition = true)
+            C(condition = true)
+        }
+    }
+
+    @Test // b/287537290
+    fun repeatedCallsProduceUniqueKeys() = compositionTest {
+        expectUniqueHashCodes {
+            repeat(10) {
+                A()
+            }
+        }
+    }
+
+    @Test
+    fun uniqueKeysGenerateUniqueCompositeKeys() = compositionTest {
+        expectUniqueHashCodes {
+            key(1) {
+                A()
+            }
+            key(2) {
+                A()
+            }
+        }
+    }
+
+    @Test
+    fun duplicateKeysGenerateDuplicateCompositeKeys() = compositionTest {
+        expectHashCodes(duplicateCount = 4) {
+            listOf(1, 2, 1, 2, 1, 2).forEach {
+                key(it) {
+                    A()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun compositeKeysAreConsistentBetweenOnRecreate() = compositionTest {
+        val state = mutableStateOf(true)
+        var markers = expectUniqueHashCodes {
+            C(state.value)
+            C(!state.value)
+        }
+        repeat(4) {
+            state.value = !state.value
+            markers = retraceConsistentWith(markers)
+        }
+    }
+
+    @Test
+    fun compositeKeysMoveWithKeys() = compositionTest {
+        val list = mutableStateListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        var markers = expectUniqueHashCodes {
+            for (item in list) {
+                key(item) {
+                    A()
+                }
+            }
+        }
+        list.reverse()
+        markers = retraceConsistentWith(markers)
+        list.reverse()
+        markers = retraceConsistentWith(markers)
+        list.shuffle()
+        markers = retraceConsistentWith(markers)
+        list.shuffle()
+        retraceConsistentWith(markers)
+    }
 }
 
 private class EnumTestClass {
@@ -130,5 +217,135 @@ private class EnumTestClass {
 
     enum class Config {
         A, B
+    }
+}
+
+private var hashTraceRecomposeState = mutableStateOf(0)
+private var hashTrace = MutableIntList()
+private var markerToHash = MutableIntIntMap()
+
+private var marker = 100
+private fun newMarker() = marker++
+
+private data class TraceResult(
+    val trace: IntList,
+    val markers: IntIntMap
+)
+
+private fun CompositionTestScope.composeTrace(content: @Composable () -> Unit): TraceResult {
+    hashTrace = MutableIntList()
+    markerToHash = MutableIntIntMap()
+    compose(content)
+    val result = TraceResult(hashTrace, markerToHash)
+    hashTrace = MutableIntList()
+    markerToHash = MutableIntIntMap()
+    return result
+}
+
+private fun CompositionTestScope.retrace(): TraceResult {
+    hashTraceRecomposeState.value++
+    hashTrace = MutableIntList()
+    markerToHash = MutableIntIntMap()
+    advance()
+    val result = TraceResult(hashTrace, markerToHash)
+    hashTrace = MutableIntList()
+    markerToHash = MutableIntIntMap()
+    return result
+}
+
+private fun CompositionTestScope.retraceConsistentWith(markers: IntIntMap): IntIntMap {
+    val recomposeMarkers = retrace().markers
+    return markers.mergedWith(recomposeMarkers) { key, existing, merged ->
+        error("Inconsistent marker $key expected hash $existing but found $merged")
+    }
+}
+
+private fun CompositionTestScope.expectUniqueHashCodes(content: @Composable () -> Unit) =
+    expectHashCodes(duplicateCount = 0, content)
+
+private fun CompositionTestScope.expectHashCodes(
+    duplicateCount: Int,
+    content: @Composable () -> Unit
+): IntIntMap {
+    val (hashCodes, markers) = composeTrace(content)
+    val uniqueCodes = hashCodes.unique()
+    assertEquals(
+        hashCodes.size,
+        uniqueCodes.size + duplicateCount,
+        if (duplicateCount == 0)
+            "Non-unique codes detected. " +
+                "Count of unique hash codes doesn't match the number of codes collected"
+        else "Expected $duplicateCount keys but found but found ${
+            hashCodes.size - uniqueCodes.size
+        }"
+    )
+    val (recomposeTrace, recomposeMarkers) = retrace()
+    assertEquals(hashCodes.size, recomposeTrace.size)
+    hashCodes.forEachIndexed { index, code ->
+        assertEquals(code, recomposeTrace[index], "Unexpected hash code at $index")
+    }
+
+    return markers.mergedWith(recomposeMarkers) { key, existing, merged ->
+        error("Inconsistent marker $key expected hash $existing but found $merged")
+    }
+}
+
+private fun IntList.unique(): IntList {
+    val result = MutableIntList()
+    val set = MutableIntSet()
+    forEach {
+        if (it !in set) {
+            set.add(it)
+            result.add(it)
+        }
+    }
+    return result
+}
+
+private fun IntIntMap.mergedWith(
+    other: IntIntMap,
+    inconsistent: (key: Int, existingValue: Int, mergedValue: Int) -> Int
+): IntIntMap {
+    val result = MutableIntIntMap()
+    forEach { key, value ->
+        var mergedValue = value
+        if (key in other) {
+            val otherValue = other[key]
+            if (otherValue != value) mergedValue = inconsistent(key, value, otherValue)
+        }
+        result[key] = mergedValue
+    }
+    other.forEach { key, value ->
+        if (key !in this) {
+            result[key] = value
+        }
+    }
+    return result
+}
+
+@Composable
+private fun A(marker: Int = remember { newMarker() }) {
+    hashTraceRecomposeState.value
+    val hash = currentCompositeKeyHash
+    hashTrace.add(hash)
+    markerToHash[marker] = hash
+}
+
+@Composable
+private fun B() {
+    A()
+    A()
+    A()
+}
+
+@Composable
+private fun C(condition: Boolean) {
+    val one = remember { newMarker() }
+    val two = remember { newMarker() }
+    val three = remember { newMarker() }
+    if (condition) {
+        A(one)
+        A(two)
+        A(three)
     }
 }

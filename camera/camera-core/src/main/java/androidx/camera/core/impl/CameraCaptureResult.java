@@ -22,16 +22,17 @@ import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.CameraCaptureMetaData.AeMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.camera.core.impl.utils.ExifData;
 
 /**
  * The result of a single image capture.
- *
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraCaptureResult {
@@ -48,7 +49,7 @@ public interface CameraCaptureResult {
     @NonNull
     AeState getAeState();
 
-    /** Returns the current auto white balance state.*/
+    /** Returns the current auto white balance state. */
     @NonNull
     AwbState getAwbState();
 
@@ -56,6 +57,13 @@ public interface CameraCaptureResult {
     @NonNull
     FlashState getFlashState();
 
+    /** Returns the current auto exposure mode. */
+    @NonNull
+    AeMode getAeMode();
+
+    /** Returns the current auto white balance mode. */
+    @NonNull
+    AwbMode getAwbMode();
     /**
      * Returns the timestamp in nanoseconds.
      *
@@ -74,8 +82,8 @@ public interface CameraCaptureResult {
 
     /**
      * Returns the {@link CaptureResult} for reprocessable capture request.
-     * @return The {@link CaptureResult}.
      *
+     * @return The {@link CaptureResult}.
      * @see CameraDevice#createReprocessCaptureRequest(TotalCaptureResult)
      */
     @NonNull
@@ -119,6 +127,18 @@ public interface CameraCaptureResult {
         @Override
         public FlashState getFlashState() {
             return FlashState.UNKNOWN;
+        }
+
+        @NonNull
+        @Override
+        public AeMode getAeMode() {
+            return AeMode.UNKNOWN;
+        }
+
+        @NonNull
+        @Override
+        public AwbMode getAwbMode() {
+            return AwbMode.UNKNOWN;
         }
 
         @Override

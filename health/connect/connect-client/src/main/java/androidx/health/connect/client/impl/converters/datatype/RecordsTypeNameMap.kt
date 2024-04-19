@@ -50,7 +50,6 @@ import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -93,7 +92,6 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "RestingHeartRate" to RestingHeartRateRecord::class,
         "SexualActivity" to SexualActivityRecord::class,
         "SleepSession" to SleepSessionRecord::class,
-        "SleepStage" to SleepStageRecord::class,
         "SpeedSeries" to SpeedRecord::class, // Keep legacy Series suffix
         "IntermenstrualBleeding" to IntermenstrualBleedingRecord::class,
         "Steps" to StepsRecord::class,

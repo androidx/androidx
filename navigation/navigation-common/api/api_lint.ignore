@@ -1,16 +1,16 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#get(android.os.Bundle, String):
-    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<Parcelable> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#parseValue(String):
-    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<Parcelable> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#put(android.os.Bundle, String, D[]) parameter #2:
-    Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
+    Method parameter should be Collection<Parcelable> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.SerializableArrayType#get(android.os.Bundle, String):
-    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<Serializable> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.SerializableArrayType#parseValue(String):
-    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<Serializable> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.SerializableArrayType#put(android.os.Bundle, String, D[]) parameter #2:
-    Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
+    Method parameter should be Collection<Serializable> (or subclass) instead of raw array; was `D[]`
 
 
 BuilderSetStyle: androidx.navigation.NavActionBuilder#navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit>):
@@ -89,11 +89,11 @@ GetterOnBuilder: androidx.navigation.PopUpToBuilder#getInclusive():
     Getter should be on the built object, not the builder: method androidx.navigation.PopUpToBuilder.getInclusive()
 
 
-GetterSetterNames: field NavArgumentBuilder.nullable:
+GetterSetterNames: androidx.navigation.NavArgumentBuilder#nullable:
     Invalid name for boolean property `nullable`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field NavOptionsBuilder.launchSingleTop:
+GetterSetterNames: androidx.navigation.NavOptionsBuilder#launchSingleTop:
     Invalid name for boolean property `launchSingleTop`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PopUpToBuilder.inclusive:
+GetterSetterNames: androidx.navigation.PopUpToBuilder#inclusive:
     Invalid name for boolean property `inclusive`. Should start with one of `has`, `can`, `should`, `is`.
 
 

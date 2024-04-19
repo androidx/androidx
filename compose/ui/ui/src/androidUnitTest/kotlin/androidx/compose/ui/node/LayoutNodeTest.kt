@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.node
 
 import androidx.compose.testutils.TestViewConfiguration
@@ -28,11 +30,13 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -54,6 +58,7 @@ import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -76,6 +81,7 @@ import androidx.compose.ui.zIndex
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.assertNotSame
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -690,6 +696,40 @@ class LayoutNodeTest {
         assertEquals(0, node.children.size)
     }
 
+    // Modifiers set before the layout node is attached should not be applied until after attach
+    @Test
+    fun modifierSetBeforeLayoutNodeAttached() {
+        val layoutNode = LayoutNode()
+        val layoutModifier = Modifier.graphicsLayer { }
+
+        layoutNode.modifier = layoutModifier
+        // Changes should not be applied yet
+        assertNotSame(layoutNode.modifier, layoutModifier)
+        assertFalse(layoutNode.outerCoordinator.isAttached)
+        assertFalse(layoutNode.nodes.has(Nodes.Any))
+
+        layoutNode.attach(MockOwner())
+        // Changes should now be applied
+        assertSame(layoutNode.modifier, layoutModifier)
+        assertTrue(layoutNode.outerCoordinator.isAttached)
+        assertTrue(layoutNode.nodes.has(Nodes.Any))
+    }
+
+    // Modifiers set after the layout node is attached should be applied immediately
+    @Test
+    fun modifierSetAfterLayoutNodeAttached() {
+        val layoutNode = LayoutNode()
+        val layoutModifier = Modifier.graphicsLayer { }
+        layoutNode.attach(MockOwner())
+
+        layoutNode.modifier = layoutModifier
+
+        // Changes should be applied
+        assertSame(layoutNode.modifier, layoutModifier)
+        assertTrue(layoutNode.outerCoordinator.isAttached)
+        assertTrue(layoutNode.nodes.has(Nodes.Any))
+    }
+
     // The layout coordinates of a LayoutNode should be attached when
     // the layout node is attached.
     @Test
@@ -711,13 +751,11 @@ class LayoutNodeTest {
     @Test
     fun nodeCoordinatorSameWithReplacementModifier() {
         val layoutNode = LayoutNode()
+        layoutNode.attach(MockOwner())
         val layoutModifier = Modifier.graphicsLayer { }
 
         layoutNode.modifier = layoutModifier
         val oldNodeCoordinator = layoutNode.outerCoordinator
-        assertFalse(oldNodeCoordinator.isAttached)
-
-        layoutNode.attach(MockOwner())
         assertTrue(oldNodeCoordinator.isAttached)
 
         layoutNode.modifier = Modifier.graphicsLayer { }
@@ -762,14 +800,17 @@ class LayoutNodeTest {
             .graphicsLayer { }
 
         layoutNode.modifier = layoutModifier
-        val oldNodeCoordinator = layoutNode.outerCoordinator
-        val oldInnerNodeCoordinator = oldNodeCoordinator.wrapped
+        var oldNodeCoordinator = layoutNode.outerCoordinator
+        var oldInnerNodeCoordinator = oldNodeCoordinator.wrapped
         assertFalse(oldNodeCoordinator.isAttached)
-        assertNotNull(oldInnerNodeCoordinator)
-        assertFalse(oldInnerNodeCoordinator!!.isAttached)
+        assertNull(oldInnerNodeCoordinator)
 
         layoutNode.attach(MockOwner())
+        oldNodeCoordinator = layoutNode.outerCoordinator
+        oldInnerNodeCoordinator = oldNodeCoordinator.wrapped
         assertTrue(oldNodeCoordinator.isAttached)
+        assertNotNull(oldInnerNodeCoordinator)
+        assertTrue(oldInnerNodeCoordinator!!.isAttached)
 
         // only 1 modifier now, so one should be detached and the other can be reused
         layoutNode.modifier = Modifier.graphicsLayer()
@@ -2344,6 +2385,7 @@ class LayoutNodeTest {
         val modifier2 = Modifier.layout(measureLambda2)
 
         val root = LayoutNode()
+        root.attach(MockOwner())
         root.modifier = modifier1.then(modifier2)
 
         assertEquals(
@@ -2513,6 +2555,8 @@ internal class MockOwner(
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
 
@@ -2526,6 +2570,8 @@ internal class MockOwner(
     override val density: Density
         get() = Density(1f)
     override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val softwareKeyboardController: SoftwareKeyboardController
         get() = TODO("Not yet implemented")
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
@@ -2620,11 +2666,24 @@ internal class MockOwner(
         TODO("Not yet implemented")
     }
 
+    override fun screenToLocal(positionOnScreen: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localPosition: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localTransform: Matrix) {
+        TODO("Not yet implemented")
+    }
+
     val invalidatedLayers = mutableListOf<OwnedLayer>()
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         val transform = Matrix()
         val inverseTransform = Matrix()
@@ -2650,8 +2709,8 @@ internal class MockOwner(
             override fun resize(size: IntSize) {
             }
 
-            override fun drawLayer(canvas: Canvas) {
-                drawBlock(canvas)
+            override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
+                drawBlock(canvas, null)
             }
 
             override fun updateDisplayList() {
@@ -2668,7 +2727,7 @@ internal class MockOwner(
             }
 
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {
             }

@@ -528,6 +528,9 @@ class QueryController {
      * @param timeout in milliseconds
      */
     public void waitForIdle(long timeout) {
+        if (mDevice.isInWatcherContext()) {
+            return; // Skip in watcher context, assuming already idle prior to running watchers.
+        }
         try {
             mDevice.getUiAutomation().waitForIdle(QUIET_TIME_TO_BE_CONSIDERED_IDLE_STATE, timeout);
         } catch (TimeoutException e) {

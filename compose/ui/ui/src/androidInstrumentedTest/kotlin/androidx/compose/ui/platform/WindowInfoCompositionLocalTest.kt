@@ -18,9 +18,11 @@ package androidx.compose.ui.platform
 
 import android.view.KeyEvent
 import android.view.View
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
@@ -29,11 +31,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +46,7 @@ class WindowInfoCompositionLocalTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @Ignore("Flaky Test b/173088588")
+    @FlakyTest(bugId = 173088588)
     @Test
     fun windowIsFocused_onLaunch() {
         // Arrange.
@@ -53,7 +55,6 @@ class WindowInfoCompositionLocalTest {
         rule.setContent {
             BasicText("Main Window")
             windowInfo = LocalWindowInfo.current
-            @Suppress("DEPRECATION")
             WindowFocusObserver { if (it) windowFocusGain.countDown() }
         }
 
@@ -201,21 +202,16 @@ class WindowInfoCompositionLocalTest {
         assertThat(mainWindowInfo.isWindowFocused).isTrue()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun windowInfo_providesKeyModifiers() {
-        lateinit var mainWindowInfo: WindowInfo
         lateinit var ownerView: View
-
         var keyModifiers = PointerKeyboardModifiers(0)
 
         rule.setFocusableContent {
             ownerView = LocalView.current
-            mainWindowInfo = LocalWindowInfo.current
-
-            keyModifiers = mainWindowInfo.keyboardModifiers
+            keyModifiers = LocalWindowInfo.current.keyboardModifiers
+            Box(Modifier.focusTarget())
         }
-
         assertThat(keyModifiers.packedValue).isEqualTo(0)
 
         (rule as AndroidComposeTestRule<*, *>).runOnUiThread {

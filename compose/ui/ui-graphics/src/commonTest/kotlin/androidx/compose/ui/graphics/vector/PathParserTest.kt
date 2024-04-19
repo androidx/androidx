@@ -63,6 +63,44 @@ class PathParserTest {
     }
 
     @Test
+    fun relativeMoveToBecomesRelativeLineTo() {
+        val linePath = object : TestPath() {
+            var lineToPoints = ArrayList<Offset>()
+
+            override fun relativeLineTo(dx: Float, dy: Float) {
+                lineToPoints.add(Offset(dx, dy))
+            }
+        }
+
+        val parser = PathParser()
+        parser.parsePathString("m0 0 2 5").toPath(linePath)
+
+        assertEquals(1, linePath.lineToPoints.size)
+        assertEquals(2.0f, linePath.lineToPoints[0].x)
+        assertEquals(5.0f, linePath.lineToPoints[0].y)
+    }
+
+    @Test
+    fun moveToBecomesLineTo() {
+        val linePath = object : TestPath() {
+            var lineToPoints = ArrayList<Offset>()
+
+            override fun lineTo(x: Float, y: Float) {
+                lineToPoints.add(Offset(x, y))
+            }
+        }
+
+        val parser = PathParser()
+        parser.parsePathString("M0 0 2 5 6 7").toPath(linePath)
+
+        assertEquals(2, linePath.lineToPoints.size)
+        assertEquals(2.0f, linePath.lineToPoints[0].x)
+        assertEquals(5.0f, linePath.lineToPoints[0].y)
+        assertEquals(6.0f, linePath.lineToPoints[1].x)
+        assertEquals(7.0f, linePath.lineToPoints[1].y)
+    }
+
+    @Test
     fun relativeQuadToTest() {
         val quadPath = object : TestPath() {
             var lineToPoints = ArrayList<Offset>()
@@ -94,6 +132,7 @@ class PathParserTest {
      * Path that implements the Path interface with stubs to allow for simple implementations
      * to override individual methods for testing
      */
+    @Suppress("OVERRIDE_DEPRECATION")
     open class TestPath : Path {
         override var fillType: PathFillType = PathFillType.EvenOdd
         override val isConvex: Boolean = false
@@ -120,7 +159,15 @@ class PathParserTest {
             // NO-OP
         }
 
+        override fun quadraticTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+            // NO-OP
+        }
+
         override fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
+            // NO-OP
+        }
+
+        override fun relativeQuadraticTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
             // NO-OP
         }
 
@@ -152,7 +199,23 @@ class PathParserTest {
             // NO-OP
         }
 
+        override fun addRect(rect: Rect, direction: Path.Direction) {
+            // NO-OP
+        }
+
         override fun addOval(oval: Rect) {
+            // NO-OP
+        }
+
+        override fun addOval(oval: Rect, direction: Path.Direction) {
+            // NO-OP
+        }
+
+        override fun addRoundRect(roundRect: RoundRect) {
+            // NO-OP
+        }
+
+        override fun addRoundRect(roundRect: RoundRect, direction: Path.Direction) {
             // NO-OP
         }
 
@@ -161,10 +224,6 @@ class PathParserTest {
         }
 
         override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-            // NO-OP
-        }
-
-        override fun addRoundRect(roundRect: RoundRect) {
             // NO-OP
         }
 

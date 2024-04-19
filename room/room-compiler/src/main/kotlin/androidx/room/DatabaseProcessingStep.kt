@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingEnvConfig
@@ -31,6 +32,7 @@ import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
+import androidx.room.writer.InstantiateImplWriter
 import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
@@ -50,6 +52,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 "configuration: ${env.config}"
         }
         val context = Context(env)
+        validateLanguageAndTarget(context)
 
         val rejectedElements = mutableSetOf<XTypeElement>()
         val databases = elementsByAnnotation[Database::class.qualifiedName]
@@ -131,9 +134,21 @@ class DatabaseProcessingStep : XProcessingStep {
                 AutoMigrationWriter(db.element, autoMigration, context.codeLanguage)
                     .write(context.processingEnv)
             }
+
+            if (context.codeLanguage == CodeLanguage.KOTLIN) {
+                InstantiateImplWriter(db).write(context.processingEnv)
+            }
         }
 
         return rejectedElements
+    }
+
+    private fun validateLanguageAndTarget(context: Context) {
+        val onlyAndroidInTargets = context.isAndroidOnlyTarget()
+        if (context.codeLanguage == CodeLanguage.JAVA && !onlyAndroidInTargets) {
+            // The list of target platforms should only contain Android if we're generating Java.
+            context.logger.e(ProcessorErrors.JAVA_CODEGEN_ON_NON_ANDROID_TARGET)
+        }
     }
 
     /**

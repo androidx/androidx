@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
@@ -49,12 +50,32 @@ class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>>
         //packet.getData().recycle();
         return Packet.of(outputStream.toByteArray(),
                 requireNonNull(packet.getExif()),
-                ImageFormat.JPEG,
+                getOutputFormat(packet.getData()),
                 packet.getSize(),
                 packet.getCropRect(),
                 packet.getRotationDegrees(),
                 packet.getSensorToBufferTransform(),
                 packet.getCameraCaptureResult());
+    }
+
+    private static int getOutputFormat(@NonNull Bitmap bitmap) {
+        if (Build.VERSION.SDK_INT >= 34 && Api34Impl.hasGainmap(bitmap)) {
+            return ImageFormat.JPEG_R;
+        } else {
+            return ImageFormat.JPEG;
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        @DoNotInline
+        static boolean hasGainmap(@NonNull Bitmap bitmap) {
+            return bitmap.hasGainmap();
+        }
+
+        // This class is not instantiable.
+        private Api34Impl() {
+        }
     }
 
     /**

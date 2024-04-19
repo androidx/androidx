@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -70,6 +77,16 @@ tasks.named("compileTestKotlin", KotlinCompile.class).configure {
         freeCompilerArgs += [
                 "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"
         ]
+    }
+}
+
+afterEvaluate {
+    lint {
+        lintOptions {
+            // Until fully switch to K2, existing FE1.0 usages are legitimate
+            // TODO(b/314151707)
+            disable("KotlincFE10")
+        }
     }
 }
 

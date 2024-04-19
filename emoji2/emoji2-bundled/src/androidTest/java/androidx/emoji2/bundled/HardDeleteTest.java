@@ -30,7 +30,6 @@ import androidx.emoji2.bundled.util.KeyboardUtil;
 import androidx.emoji2.bundled.util.TestString;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.hamcrest.MatcherAssert;
@@ -42,7 +41,6 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 19)
 public class HardDeleteTest {
 
     private TestString mTestString;

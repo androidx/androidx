@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import kotlin.math.max
 
 /**
  * Lays out and renders multiple paragraphs at once. Unlike [Paragraph], supports multiple
@@ -465,11 +464,7 @@ class MultiParagraph(
      * beyond the last line, you get the last line.
      */
     fun getLineForVerticalPosition(vertical: Float): Int {
-        val paragraphIndex = when {
-            vertical <= 0f -> 0
-            vertical >= height -> paragraphInfoList.lastIndex
-            else -> findParagraphByY(paragraphInfoList, vertical)
-        }
+        val paragraphIndex = findParagraphByY(paragraphInfoList, vertical)
         return with(paragraphInfoList[paragraphIndex]) {
             if (length == 0) {
                 startLineIndex
@@ -483,11 +478,7 @@ class MultiParagraph(
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: Offset): Int {
-        val paragraphIndex = when {
-            position.y <= 0f -> 0
-            position.y >= height -> paragraphInfoList.lastIndex
-            else -> findParagraphByY(paragraphInfoList, position.y)
-        }
+        val paragraphIndex = findParagraphByY(paragraphInfoList, position.y)
         return with(paragraphInfoList[paragraphIndex]) {
             if (length == 0) {
                 startIndex
@@ -495,6 +486,77 @@ class MultiParagraph(
                 paragraph.getOffsetForPosition(position.toLocal()).toGlobalIndex()
             }
         }
+    }
+
+    /**
+     * Find the range of text which is inside the specified [rect].
+     * This method will break text into small text segments based on the given [granularity] such as
+     * character or word. It also support different [inclusionStrategy], which determines when a
+     * small text segments is considered as inside the [rect].
+     * Note that the word/character breaking is both operating system and language dependent.
+     * In the certain cases, the text may be break into smaller segments than the specified the
+     * [granularity].
+     * If a text segment spans multiple lines or multiple directional runs (e.g. a hyphenated word),
+     * the text segment is divided into pieces at the line and run breaks, then the text segment is
+     * considered to be inside the area if any of its pieces are inside the area.
+     *
+     * @param rect the rectangle area in which the text range will be found.
+     * @param granularity the granularity of the text, it controls how text is segmented.
+     * @param inclusionStrategy the strategy that determines whether a range of text's bounds is
+     * inside the given [rect] or not.
+     * @return the [TextRange] that is inside the given [rect], or [TextRange.Zero] if no text is
+     * found.
+     */
+    fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange {
+        var firstParagraph = findParagraphByY(paragraphInfoList, rect.top)
+        // The first paragraph contains the entire rect, return early in this case.
+        if (paragraphInfoList[firstParagraph].bottom >= rect.bottom ||
+            firstParagraph == paragraphInfoList.lastIndex) {
+            return with(paragraphInfoList[firstParagraph]) {
+                paragraph.getRangeForRect(
+                    rect.toLocal(),
+                    granularity,
+                    inclusionStrategy
+                ).toGlobal()
+            }
+        }
+
+        var lastParagraph = findParagraphByY(paragraphInfoList, rect.bottom)
+
+        var startRange: TextRange = TextRange.Zero
+        while (startRange == TextRange.Zero && firstParagraph <= lastParagraph) {
+            startRange = with(paragraphInfoList[firstParagraph]) {
+                paragraph.getRangeForRect(
+                    rect.toLocal(),
+                    granularity,
+                    inclusionStrategy
+                ).toGlobal()
+            }
+            ++firstParagraph
+        }
+
+        if (startRange == TextRange.Zero) {
+            return TextRange.Zero
+        }
+
+        var endRange: TextRange = TextRange.Zero
+        while (endRange == TextRange.Zero && firstParagraph <= lastParagraph) {
+            endRange = with(paragraphInfoList[lastParagraph]) {
+                paragraph.getRangeForRect(
+                    rect.toLocal(),
+                    granularity,
+                    inclusionStrategy
+                ).toGlobal()
+            }
+            --lastParagraph
+        }
+
+        if (endRange == TextRange.Zero) return startRange
+        return TextRange(startRange.start, endRange.end)
     }
 
     /**
@@ -677,7 +739,7 @@ class MultiParagraph(
         }
 
         return with(paragraphInfoList[paragraphIndex]) {
-            paragraph.getWordBoundary(offset.toLocalIndex()).toGlobal()
+            paragraph.getWordBoundary(offset.toLocalIndex()).toGlobal(treatZeroAsNull = false)
         }
     }
 
@@ -744,6 +806,20 @@ class MultiParagraph(
 
         return with(paragraphInfoList[paragraphIndex]) {
             paragraph.getLineTop(lineIndex.toLocalLineIndex()).toGlobalYPosition()
+        }
+    }
+
+    /**
+     * Returns the distance from the top of the [MultiParagraph] to the alphabetic
+     * baseline of the given line.
+     */
+    fun getLineBaseline(lineIndex: Int): Float {
+        requireLineIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineBaseline(lineIndex.toLocalLineIndex()).toGlobalYPosition()
         }
     }
 
@@ -872,11 +948,12 @@ internal fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index:
  *
  * @param paragraphInfoList The list of [ParagraphInfo] containing the information of each
  *  paragraph in the [MultiParagraph].
- * @param y The y coordinate position relative to the [MultiParagraph]. It should be in the range
- *  of [0, [MultiParagraph.height]].
+ * @param y The y coordinate position relative to the [MultiParagraph].
  * @return The index of the target [ParagraphInfo] in [paragraphInfoList].
  */
 internal fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Float): Int {
+    if (y <= 0) return 0
+    if (y >= paragraphInfoList.last().bottom) return paragraphInfoList.lastIndex
     return paragraphInfoList.fastBinarySearch { paragraphInfo ->
         when {
             paragraphInfo.top > y -> 1
@@ -1034,6 +1111,14 @@ internal data class ParagraphInfo(
     }
 
     /**
+     * Convert a [Rect] relative to the parent [MultiParagraph] to the local [Rect] relative to
+     * this [paragraph].
+     */
+    fun Rect.toLocal(): Rect {
+        return translate(Offset(0f, -this@ParagraphInfo.top))
+    }
+
+    /**
      * Convert a [Path] relative to the [paragraph] to the [Path] relative to the parent
      * [MultiParagraph].
      *
@@ -1047,8 +1132,13 @@ internal data class ParagraphInfo(
     /**
      * Convert a [TextRange] in to the [paragraph] to the [TextRange] in the parent
      * [MultiParagraph].
+     * @param treatZeroAsNull whether [TextRange.Zero] is used represents `null`. When it's true,
+     * [TextRange.Zero] is not mapped to global index and is returned directly.
      */
-    fun TextRange.toGlobal(): TextRange {
+    fun TextRange.toGlobal(treatZeroAsNull: Boolean = true): TextRange {
+        if (treatZeroAsNull && this == TextRange.Zero) {
+            return TextRange.Zero
+        }
         return TextRange(start = start.toGlobalIndex(), end = end.toGlobalIndex())
     }
 }

@@ -21,19 +21,19 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.core.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Test
 
 @SmallTest
@@ -138,7 +138,6 @@ class ViewTest {
         assertEquals(40, view.paddingBottom)
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     fun updatePaddingRelative() {
         view.updatePaddingRelative(start = 10, end = 20)
@@ -148,7 +147,6 @@ class ViewTest {
         assertEquals(0, view.paddingBottom)
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     fun updatePaddingRelativeNoOp() {
         view.setPaddingRelative(10, 20, 30, 40)
@@ -238,32 +236,57 @@ class ViewTest {
     }
 
     @Test fun updateLayoutParams() {
-        view.layoutParams = ViewGroup.LayoutParams(0, 0)
+        val layoutParams = ViewGroup.LayoutParams(0, 0)
+        view.layoutParams = layoutParams
+
         view.updateLayoutParams {
-            assertSame(view.layoutParams, this)
+            assertSame(layoutParams, this)
 
             width = 500
             height = 1000
         }
 
+        assertSame(layoutParams, view.layoutParams)
         assertEquals(500, view.layoutParams.width)
         assertEquals(1000, view.layoutParams.height)
     }
 
+    @Test fun updateLayoutParamsMissing() {
+        assertNull(view.layoutParams)
+        assertThrows<NullPointerException> {
+            view.updateLayoutParams {
+                fail()
+            }
+        }
+    }
+
     @Test fun updateLayoutParamsAsType() {
-        view.layoutParams = LinearLayout.LayoutParams(0, 0)
+        val layoutParams = LinearLayout.LayoutParams(0, 0)
+        view.layoutParams = layoutParams
+
         view.updateLayoutParams<LinearLayout.LayoutParams> {
-            assertSame(view.layoutParams, this)
+            assertSame(layoutParams, this)
 
             weight = 2f
         }
 
+        assertSame(layoutParams, view.layoutParams)
         assertEquals(2f, (view.layoutParams as LinearLayout.LayoutParams).weight)
     }
 
-    @Ignore("Failing due to Kotlin 1.4 upgrade")
+    @Test fun updateLayoutParamsAsTypeMissing() {
+        assertNull(view.layoutParams)
+        assertThrows<NullPointerException> {
+            view.updateLayoutParams<RelativeLayout.LayoutParams> {
+                fail()
+            }
+        }
+    }
+
     @Test
     fun updateLayoutParamsWrongType() {
+        view.layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+
         assertThrows<ClassCastException> {
             view.updateLayoutParams<RelativeLayout.LayoutParams> {
                 fail()
@@ -301,14 +324,14 @@ class ViewTest {
 
     @Test fun marginStart() {
         view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            MarginLayoutParamsCompat.setMarginStart(this, 10)
+            marginStart = 10
         }
         assertEquals(10, view.marginStart)
     }
 
     @Test fun marginEnd() {
         view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            MarginLayoutParamsCompat.setMarginEnd(this, 10)
+            marginEnd = 10
         }
         assertEquals(10, view.marginEnd)
     }

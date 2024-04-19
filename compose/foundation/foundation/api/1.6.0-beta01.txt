@@ -300,7 +300,7 @@ package androidx.compose.foundation.draganddrop {
   }
 
   public final class DragAndDropTargetKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropTarget(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget> acceptDragAndDropTransfer);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.ui.Modifier dragAndDropTarget(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> shouldStartDragAndDrop, androidx.compose.ui.draganddrop.DragAndDropTarget target);
   }
 
 }

@@ -21,9 +21,12 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination
 import androidx.navigation.get
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
@@ -114,6 +117,96 @@ public inline fun DynamicNavGraphBuilder.navigation(
 )
 
 /**
+ * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
+ * respective NavDestination must be added with route from a [KClass] in order to match.
+ * @param route the graph's unique route as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
+ * [route] does not use custom NavTypes.
+ * @param builder Another builder for chaining.
+ */
+public inline fun NavigatorProvider.navigation(
+    startDestination: KClass<*>,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicNavGraphBuilder.() -> Unit
+): NavGraph = DynamicNavGraphBuilder(
+    this,
+    startDestination,
+    route,
+    typeMap
+).apply(builder).build()
+
+/**
+ * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param startDestination the starting destination's route from an Object for this NavGraph. The
+ * respective NavDestination must be added with route from a [KClass] in order to match.
+ * @param route the graph's unique route as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
+ * [route] does not use custom NavTypes.
+ * @param builder Another builder for chaining.
+ */
+public inline fun NavigatorProvider.navigation(
+    startDestination: Any,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicNavGraphBuilder.() -> Unit
+): NavGraph = DynamicNavGraphBuilder(
+    this,
+    startDestination,
+    route,
+    typeMap
+).apply(builder).build()
+
+/**
+ * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
+ * respective NavDestination must be added with route from a [KClass] in order to match.
+ * @param T the graph's unique route as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if
+ * [T] does not use custom NavTypes.
+ * @param builder Another builder for chaining.
+ */
+public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
+    startDestination: KClass<*>,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicNavGraphBuilder.() -> Unit
+): Unit = destination(
+    DynamicNavGraphBuilder(
+        provider,
+        startDestination,
+        T::class,
+        typeMap
+    ).apply(builder)
+)
+
+/**
+ * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param startDestination the starting destination's route from an Object for this NavGraph. The
+ * respective NavDestination must be added with route from a [KClass] in order to match.
+ * @param T the graph's unique route as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if
+ * [T] does not use custom NavTypes.
+ * @param builder Another builder for chaining.
+ */
+public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
+    startDestination: Any,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicNavGraphBuilder.() -> Unit
+): Unit = destination(
+    DynamicNavGraphBuilder(
+        provider,
+        startDestination,
+        T::class,
+        typeMap
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
  */
 @NavDestinationDsl
@@ -144,6 +237,44 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
     ) : super(provider, startDestination, route) {
         this.startDestinationRoute = startDestination
     }
+
+    /**
+     * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
+     *
+     * @param provider navigator used to create the destination
+     * @param startDestination the starting destination's route as a [KClass] for this NavGraph. The
+     * respective NavDestination must be added with route from a [KClass] in order to match.
+     * @param route the graph's unique route as a [KClass]
+     * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
+     * [route] does not use custom NavTypes.
+     *
+     * @return the newly created NavGraph
+     */
+    public constructor(
+        provider: NavigatorProvider,
+        startDestination: KClass<*>,
+        route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+    ) : super(provider, startDestination, route, typeMap)
+
+    /**
+     * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
+     *
+     * @param provider navigator used to create the destination
+     * @param startDestination the starting destination's route as an Object for this NavGraph. The
+     * respective NavDestination must be added with route from a [KClass] in order to match.
+     * @param route the graph's unique route as a [KClass]
+     * @param typeMap A mapping of KType to custom NavType<*> in the [route].  May be empty if
+     * [route] does not use custom NavTypes.
+     *
+     * @return the newly created NavGraph
+     */
+    public constructor(
+        provider: NavigatorProvider,
+        startDestination: Any,
+        route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+    ) : super(provider, startDestination, route, typeMap)
 
     /**
      * The module name of this [Destination]'s dynamic feature module. This has to be the

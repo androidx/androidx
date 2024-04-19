@@ -173,18 +173,20 @@ interface MouseInjectionScope : InjectionScope {
     fun cancel(delayMillis: Long = eventPeriodMillis)
 
     /**
-     * Sends a hover enter event at the given [position], [delayMillis] after the last sent event.
-     *
-     * Note that it is discouraged to manually send a hover enter event followed by a [moveTo]
-     * event. [moveTo] does this for you automatically, making sure the event times of the two
-     * events are in sync. Only use this method for special scenarios where the hover enter event
-     * is not sent as a side effect of another event.
+     * Sends a hover enter event at the given [position], [delayMillis] after the last sent event,
+     * without sending a hover move event.
      *
      * An [IllegalStateException] will be thrown when mouse buttons are down, or if the mouse is
      * already hovering.
      *
      * The [position] is in the node's local coordinate system, where (0, 0) is the top left
      * corner of the node.
+     *
+     * __Note__: enter and exit events are already sent as a side effect of [movement][moveTo]
+     * when necessary. Whether or not this is part of the contract of mouse events is platform
+     * dependent, so it is highly discouraged to manually send enter or exit events.
+     * Only use this method for tests that need to make assertions about a component's state
+     * _in between_ the enter/exit and move event.
      *
      * @param position The new position of the mouse, in the node's local coordinate system.
      * [currentPosition] by default.
@@ -194,18 +196,19 @@ interface MouseInjectionScope : InjectionScope {
     fun enter(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
-     * Sends a hover exit event at the given [position], [delayMillis] after the last sent event.
-     *
-     * Note that it is discouraged to manually send a hover exit event followed by a [moveTo]
-     * that is outside the boundaries of the Compose root or [press]ing a button. These methods
-     * do this for you automatically, making sure the event times of the two events are in sync.
-     * Only use this method for special scenarios where the hover exit event is not sent as a
-     * side effect of another event.
+     * Sends a hover exit event at the given [position], [delayMillis] after the last sent event,
+     * without sending a hover move event.
      *
      * An [IllegalStateException] will be thrown if the mouse was not hovering.
      *
      * The [position] is in the node's local coordinate system, where (0, 0) is the top left
      * corner of the node.
+     *
+     * __Note__: enter and exit events are already sent as a side effect of [movement][moveTo]
+     * when necessary. Whether or not this is part of the contract of mouse events is platform
+     * dependent, so it is highly discouraged to manually send enter or exit events.
+     * Only use this method for tests that need to make assertions about a component's state
+     * _in between_ the enter/exit and move event.
      *
      * @param position The new position of the mouse, in the node's local coordinate system
      * [currentPosition] by default.
@@ -216,9 +219,19 @@ interface MouseInjectionScope : InjectionScope {
 
     /**
      * Sends a scroll event with the given [delta] on the given [scrollWheel]. The event will be
-     * sent at the current event time. Negative [delta] values correspond to rotating the scroll
-     * wheel leftward or upward, positive values correspond to rotating the scroll wheel
-     * rightward or downward.
+     * sent at the current event time.
+     *
+     * Positive [delta] values correspond to scrolling forward (new content appears at the bottom
+     * of a column, or at the end of a row), negative values correspond to scrolling backward
+     * (new content appears at the top of a column, or at the start of a row).
+     *
+     * Note that the correlation between scroll [delta] and pixels scrolled is platform
+     * specific. For example, on Android a scroll delta of `1f` corresponds to a scroll
+     * of `64.dp`. However, on any platform, this conversion factor could change in the
+     * future to improve the mouse scroll experience.
+     *
+     * Example of how scroll could be used:
+     * @sample androidx.compose.ui.test.samples.mouseInputScrollWhileDown
      *
      * @param delta The amount of scroll
      * @param scrollWheel Which scroll wheel to rotate. Can be either [ScrollWheel.Vertical] (the
@@ -278,23 +291,37 @@ internal class MouseInjectionScopeImpl(
     }
 }
 
+@Deprecated(
+    message = "Replaced by an overload that takes a button parameter",
+    replaceWith = ReplaceWith("click(position)"),
+    level = DeprecationLevel.HIDDEN
+)
+@ExperimentalTestApi
+fun MouseInjectionScope.click(position: Offset = center) = click(position)
+
 /**
- * Click on [position], or on the current mouse position if [position] is
+ * Use [button] to click on [position], or on the current mouse position if [position] is
  * [unspecified][Offset.Unspecified]. The [position] is in the node's local coordinate system,
- * where (0, 0) is the top left corner of the node.
+ * where (0, 0) is the top left corner of the node. The default [button] is the
+ * [primary][MouseButton.Primary] button. There is a small 60ms delay between the press and
+ * release events to have a realistic simulation.
  *
  * @param position The position where to click, in the node's local coordinate system. If
  * omitted, the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks
  * on the current mouse position.
+ * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
 @ExperimentalTestApi
-fun MouseInjectionScope.click(position: Offset = center) {
+fun MouseInjectionScope.click(
+    position: Offset = center,
+    button: MouseButton = MouseButton.Primary
+) {
     if (position.isSpecified) {
         updatePointerTo(position)
     }
-    press(MouseButton.Primary)
+    press(button)
     advanceEventTime(SingleClickDelayMillis)
-    release(MouseButton.Primary)
+    release(button)
 }
 
 /**
@@ -309,70 +336,103 @@ fun MouseInjectionScope.click(position: Offset = center) {
  * on the current mouse position.
  */
 @ExperimentalTestApi
-fun MouseInjectionScope.rightClick(position: Offset = center) {
-    if (position.isSpecified) {
-        updatePointerTo(position)
-    }
-    press(MouseButton.Secondary)
-    advanceEventTime(SingleClickDelayMillis)
-    release(MouseButton.Secondary)
-}
+fun MouseInjectionScope.rightClick(position: Offset = center) =
+    click(position, MouseButton.Secondary)
 
 // The average of min and max is a safe default
 private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
     get() = (doubleTapMinTimeMillis + doubleTapTimeoutMillis) / 2
 
-/**
- * Double-click on [position], or on the current mouse position if [position] is
- * [unspecified][Offset.Unspecified]. The [position] is in the node's local coordinate system,
- * where (0, 0) is the top left corner of the node.
- *
- * @param position The position where to click, in the node's local coordinate system. If
- * omitted, the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks
- * on the current mouse position.
- */
+@Deprecated(
+    message = "Replaced by an overload that takes a button parameter",
+    replaceWith = ReplaceWith("doubleClick(position)"),
+    level = DeprecationLevel.HIDDEN
+)
 @ExperimentalTestApi
-fun MouseInjectionScope.doubleClick(position: Offset = center) {
-    click(position)
-    advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
-    click(position)
-}
+fun MouseInjectionScope.doubleClick(position: Offset = center) = doubleClick(position)
 
 /**
- * Triple-click on [position], or on the current mouse position if [position] is
+ * Use [button] to double-click on [position], or on the current mouse position if [position] is
  * [unspecified][Offset.Unspecified]. The [position] is in the node's local coordinate system,
- * where (0, 0) is the top left corner of the node.
+ * where (0, 0) is the top left corner of the node. The default [button] is the
+ * [primary][MouseButton.Primary] button.
  *
  * @param position The position where to click, in the node's local coordinate system. If
  * omitted, the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks
  * on the current mouse position.
+ * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
 @ExperimentalTestApi
-fun MouseInjectionScope.tripleClick(position: Offset = center) {
-    click(position)
+fun MouseInjectionScope.doubleClick(
+    position: Offset = center,
+    button: MouseButton = MouseButton.Primary
+) {
+    click(position, button)
     advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
-    click(position)
-    advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
-    click(position)
+    click(position, button)
 }
 
+@Deprecated(
+    message = "Replaced by an overload that takes a button parameter",
+    replaceWith = ReplaceWith("tripleClick(position)"),
+    level = DeprecationLevel.HIDDEN
+)
+@ExperimentalTestApi
+fun MouseInjectionScope.tripleClick(position: Offset = center) = tripleClick(position)
+
 /**
- * Long-click on [position], or on the current mouse position if [position] is
+ * Use [button] to triple-click on [position], or on the current mouse position if [position] is
  * [unspecified][Offset.Unspecified]. The [position] is in the node's local coordinate system,
- * where (0, 0) is the top left corner of the node.
+ * where (0, 0) is the top left corner of the node. The default [button] is the
+ * [primary][MouseButton.Primary] button.
  *
  * @param position The position where to click, in the node's local coordinate system. If
  * omitted, the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks
  * on the current mouse position.
+ * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
  */
 @ExperimentalTestApi
-fun MouseInjectionScope.longClick(position: Offset = center) {
+fun MouseInjectionScope.tripleClick(
+    position: Offset = center,
+    button: MouseButton = MouseButton.Primary
+) {
+    click(position, button)
+    advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
+    click(position, button)
+    advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
+    click(position, button)
+}
+
+@Deprecated(
+    message = "Replaced by an overload that takes a button parameter",
+    replaceWith = ReplaceWith("longClick(position)"),
+    level = DeprecationLevel.HIDDEN
+)
+@ExperimentalTestApi
+fun MouseInjectionScope.longClick(position: Offset = center) = longClick(position)
+
+/**
+ * Use [button] to long-click on [position], or on the current mouse position if [position] is
+ * [unspecified][Offset.Unspecified]. The [position] is in the node's local coordinate system,
+ * where (0, 0) is the top left corner of the node. The default [button] is the
+ * [primary][MouseButton.Primary] button.
+ *
+ * @param position The position where to click, in the node's local coordinate system. If
+ * omitted, the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks
+ * on the current mouse position.
+ * @param button The button to click with. Uses the [primary][MouseButton.Primary] by default.
+ */
+@ExperimentalTestApi
+fun MouseInjectionScope.longClick(
+    position: Offset = center,
+    button: MouseButton = MouseButton.Primary
+) {
     if (position.isSpecified) {
         updatePointerTo(position)
     }
-    press(MouseButton.Primary)
+    press(button)
     advanceEventTime(viewConfiguration.longPressTimeoutMillis + 100L)
-    release(MouseButton.Primary)
+    release(button)
 }
 
 /**
@@ -381,6 +441,9 @@ fun MouseInjectionScope.longClick(position: Offset = center) {
  * milliseconds. [Move][moveTo] the mouse to the desired start position if you want to start from
  * a different position. The [position] is in the node's local coordinate system, where (0, 0) is
  * the top left corner of the node.
+ *
+ * Example of moving the mouse along a line:
+ * @sample androidx.compose.ui.test.samples.mouseInputAnimateTo
  *
  * @param position The position where to move the mouse to, in the node's local coordinate system
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
@@ -422,6 +485,9 @@ fun MouseInjectionScope.animateBy(
  * path, `curve(0)`, if it is not already there. The positions defined by the [curve] are in the
  * node's local coordinate system, where (0, 0) is the top left corner of the node.
  *
+ * Example of moving the mouse along a curve:
+ * @sample androidx.compose.ui.test.samples.mouseInputAnimateAlong
+ *
  * @param curve The function that defines the position of the mouse over time for this gesture,
  * in the node's local coordinate system.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
@@ -454,41 +520,60 @@ fun MouseInjectionScope.animateAlong(
     }
 }
 
+@Deprecated(
+    message = "Replaced by an overload that takes a button parameter",
+    replaceWith = ReplaceWith("dragAndDrop(start, end, durationMillis = durationMillis)"),
+    level = DeprecationLevel.HIDDEN
+)
+@ExperimentalTestApi
+fun MouseInjectionScope.dragAndDrop(
+    start: Offset,
+    end: Offset,
+    durationMillis: Long = DefaultMouseGestureDurationMillis
+) = dragAndDrop(start, end, durationMillis = durationMillis)
+
 /**
- * Drag and drop something from [start] to [end] in [durationMillis] milliseconds. This gesture
- * uses the primary mouse button to drag with, and does not reset any mouse buttons prior to
- * starting the gesture. The mouse position is [updated][MouseInjectionScope.updatePointerTo] to
- * the start position before starting the gesture. The positions defined by the [start] and [end]
- * are in the node's local coordinate system, where (0, 0) is the top left corner of the node.
+ * Use [button] to drag and drop something from [start] to [end] in [durationMillis] milliseconds.
+ * The mouse position is [updated][MouseInjectionScope.updatePointerTo] to the start position
+ * before starting the gesture. The positions defined by the [start] and [end] are in the node's
+ * local coordinate system, where (0, 0) is the top left corner of the node.
  *
  * @param start The position where to press the primary mouse button and initiate the drag, in
  * the node's local coordinate system.
  * @param end The position where to release the primary mouse button and end the drag, in the
  * node's local coordinate system.
+ * @param button The button to drag with. Uses the [primary][MouseButton.Primary] by default.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
 @ExperimentalTestApi
 fun MouseInjectionScope.dragAndDrop(
     start: Offset,
     end: Offset,
+    button: MouseButton = MouseButton.Primary,
     durationMillis: Long = DefaultMouseGestureDurationMillis
 ) {
     updatePointerTo(start)
-    press(MouseButton.Primary)
+    press(button)
     animateTo(end, durationMillis)
-    release(MouseButton.Primary)
+    release(button)
 }
 
 /**
  * Rotate the mouse's [scrollWheel] by the given [scrollAmount]. The total scroll delta is
- * linearly smoothed out over a stream of scroll events with roughly the
- * [InjectionScope.eventPeriodMillis] between each scroll event. Negative [scrollAmount] values
- * correspond to rotating the scroll wheel leftward or downward, positive values correspond to
- * rotating the scroll wheel rightward or upward.
+ * linearly smoothed out over a stream of scroll events between each scroll event.
+ *
+ * Positive [scrollAmount] values correspond to scrolling forward (new content appears at the
+ * bottom of a column, or at the end of a row), negative values correspond to scrolling backward
+ * (new content appears at the top of a column, or at the start of a row).
+ *
+ * Example of a horizontal smooth scroll:
+ * @sample androidx.compose.ui.test.samples.mouseInputSmoothScroll
  *
  * @param scrollAmount The total delta to scroll the [scrollWheel] by
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  * @param scrollWheel Which scroll wheel will be rotated. By default [ScrollWheel.Vertical].
+ *
+ * @see MouseInjectionScope.scroll
  */
 @ExperimentalTestApi
 fun MouseInjectionScope.smoothScroll(

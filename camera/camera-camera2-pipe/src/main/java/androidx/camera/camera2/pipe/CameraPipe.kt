@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraDevice
 import android.os.HandlerThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.CameraPipeComponent
 import androidx.camera.camera2.pipe.config.CameraPipeConfigModule
@@ -114,6 +115,16 @@ class CameraPipe(config: Config) {
     fun cameraSurfaceManager(): CameraSurfaceManager {
         return component.cameraSurfaceManager()
     }
+
+    /**
+     * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
+     */
+    var globalAudioRestrictionMode: AudioRestrictionMode
+        get(): AudioRestrictionMode =
+            component.cameraAudioRestrictionController().globalAudioRestrictionMode
+        set(value: AudioRestrictionMode) {
+            component.cameraAudioRestrictionController().globalAudioRestrictionMode = value
+        }
 
     /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable

@@ -46,7 +46,7 @@ object FakeState3AControlCreator {
                     )
                 )
             )
-        )
+        ),
     ).apply {
         this.useCaseCamera = useCaseCamera
     }

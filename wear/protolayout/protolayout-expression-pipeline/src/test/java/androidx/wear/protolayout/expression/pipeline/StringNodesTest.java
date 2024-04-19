@@ -188,11 +188,11 @@ public class StringNodesTest {
         FixedStringNode lhsNode =
                 new FixedStringNode(
                         FixedString.newBuilder().setValue(string300chars).build(),
-                        node.getLhsIncomingCallback());
+                        node.getLhsUpstreamCallback());
         FixedStringNode rhsNode =
                 new FixedStringNode(
                         FixedString.newBuilder().setValue(string300chars).build(),
-                        node.getRhsIncomingCallback());
+                        node.getRhsUpstreamCallback());
         lhsNode.preInit();
         lhsNode.init();
         rhsNode.preInit();

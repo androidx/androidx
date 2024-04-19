@@ -27,12 +27,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
+import androidx.navigation.toRoute
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.serialization.Serializable
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -282,6 +284,210 @@ class NavHostControllerTest {
     }
 
     @Test
+    fun testNavigateKClass() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass> { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass()) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @Test
+    fun testNavigateKClassArgs() {
+        lateinit var args: TestClassArg
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClassArg> {
+                    args = it.toRoute<TestClassArg>()
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClassArg(0)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(args.arg).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testNavigateKClassMultipleArgs() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: Boolean)
+
+        lateinit var args: TestClass
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass> {
+                    args = it.toRoute<TestClass>()
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(0, false)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateKClassMultipleArgs.TestClass/{arg}/{arg2}"
+            )
+            assertThat(args.arg).isEqualTo(0)
+            assertThat(args.arg2).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun testNavigateKClassArgsNullValue() {
+        @Serializable
+        class TestClass(val arg: String?)
+
+        lateinit var args: TestClass
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass> {
+                    args = it.toRoute<TestClass>()
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(null)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateKClassArgsNullValue.TestClass/{arg}"
+            )
+            assertThat(args.arg).isNull()
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClass() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClass> { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass()) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ROUTE)
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClassArgs() {
+        lateinit var args: TestClassArg
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClassArg> {
+                    args = it.toRoute<TestClassArg>()
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClassArg(0)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(args.arg).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClassMultipleArgs() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: Boolean)
+
+        lateinit var args: TestClass
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClass> {
+                    args = it.toRoute<TestClass>()
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(0, false)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateDialogKClassMultipleArgs.TestClass/{arg}/{arg2}"
+            )
+            assertThat(args.arg).isEqualTo(0)
+            assertThat(args.arg2).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClassArgsNullValue() {
+        @Serializable
+        class TestClass(val arg: String?)
+
+        lateinit var args: TestClass
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClass> {
+                    args = it.toRoute<TestClass>()
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(null)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateDialogKClassArgsNullValue.TestClass/{arg}"
+            )
+            assertThat(args.arg).isNull()
+        }
+    }
+
+    @Test
     fun testGetBackStackEntry() {
         lateinit var navController: NavController
         composeTestRule.setContent {
@@ -335,6 +541,26 @@ class NavHostControllerTest {
                         "back stack. The current destination is " +
                         navController.currentBackStackEntry?.destination
                 )
+        }
+    }
+
+    @Test
+    fun testGetBackStackEntryKClass() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass> { }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass()) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.getBackStackEntry<TestClass>().destination.route)
+                .isEqualTo(TEST_CLASS_ROUTE)
         }
     }
 }

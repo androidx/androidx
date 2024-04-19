@@ -151,7 +151,7 @@ abstract class AbstractComposeView @JvmOverloads constructor(
 
     /**
      * Enables the display of visual layout bounds for the Compose UI content of this view.
-     * This is typically managed
+     * This is typically configured using the system developer setting for "Show layout bounds."
      */
     @OptIn(InternalCoreApi::class)
     @InternalComposeUiApi

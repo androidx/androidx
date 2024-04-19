@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 if [ ! -e .git ]; then
@@ -21,6 +22,7 @@ ownersFiles="$(find -name OWNERS)"
 ownedDirs="$(echo "$ownersFiles" | sed 's|/OWNERS||' | sort -r)"
 
 for d in $ownedDirs; do
+  echo "Checking $d"
   git add "$d"
   if git status | grep -i "changes to be committed" >/dev/null; then
     echo making commit for "$d"

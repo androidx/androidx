@@ -21,15 +21,15 @@ import static android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_TO
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.RemoteException;
-import android.support.v4.BaseInstrumentationTestCase;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import androidx.core.view.WindowInsetsCompat;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -41,13 +41,20 @@ import androidx.test.uiautomator.Until;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 30)
-public class ImeViewCompatMultiWindowTest extends BaseInstrumentationTestCase<ImeBaseSplitTestActivity> {
+public class ImeViewCompatMultiWindowTest {
+
+    @Rule
+    public final ActivityScenarioRule<ImeBaseSplitTestActivity> mActivityScenarioRule =
+            new ActivityScenarioRule<>(ImeBaseSplitTestActivity.class);
 
     private static final long ACTIVITY_LAUNCH_TIMEOUT_MS = 10000;
     private static final long VISIBILITY_TIMEOUT_MS = 2000;
@@ -56,19 +63,12 @@ public class ImeViewCompatMultiWindowTest extends BaseInstrumentationTestCase<Im
 
     private static final String TEST_APP = "androidx.core.test";
 
-    private Activity mActivity;
-
     private UiDevice mDevice;
-
-    public ImeViewCompatMultiWindowTest() {
-        super(ImeBaseSplitTestActivity.class);
-    }
 
     @Before
     public void setup() throws RemoteException {
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         mDevice.wakeUp();
-        mActivity = mActivityTestRule.getActivity();
     }
 
     /**
@@ -79,7 +79,7 @@ public class ImeViewCompatMultiWindowTest extends BaseInstrumentationTestCase<Im
      * b/280532442
      */
     @Test(expected = AssertionError.class)
-    @SdkSuppress(minSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 30, excludedSdks = { 30 }) // Excluded due to flakes (b/324889554)
     public void testImeShowAndHide_splitScreen() {
         if (Build.VERSION.SDK_INT < 32) {
             // FLAG_ACTIVITY_LAUNCH_ADJACENT is not support before Sdk 32, using the
@@ -88,11 +88,14 @@ public class ImeViewCompatMultiWindowTest extends BaseInstrumentationTestCase<Im
                     .performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN);
         }
 
-        // Launch ime test activity in secondary split.
-        Intent intent = new Intent(mActivity, ImeSecondarySplitViewCompatTestActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT | Intent.FLAG_ACTIVITY_NEW_TASK
-                        | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        mActivity.startActivity(intent);
+        ActivityScenario<ImeBaseSplitTestActivity> scenario = mActivityScenarioRule.getScenario();
+        scenario.onActivity(activity -> {
+            // Launch ime test activity in secondary split.
+            Intent intent = new Intent(activity, ImeSecondarySplitViewCompatTestActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT | Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            activity.startActivity(intent);
+        });
 
         assertTrue("Test app is not visible after launching activity",
                 mDevice.wait(Until.hasObject(By.pkg(TEST_APP)), ACTIVITY_LAUNCH_TIMEOUT_MS));
@@ -100,7 +103,12 @@ public class ImeViewCompatMultiWindowTest extends BaseInstrumentationTestCase<Im
         UiObject2 editText = waitForFindObject("edit_text_id");
         editText.click(CLICK_DURATION_MS);
 
-        WindowManager wm = mActivity.getSystemService(WindowManager.class);
+        AtomicReference<WindowManager> wmRef = new AtomicReference<>();
+        scenario.onActivity(activity -> {
+            wmRef.set(activity.getSystemService(WindowManager.class));
+        });
+
+        WindowManager wm = wmRef.get();
         PollingCheck.waitFor(VISIBILITY_TIMEOUT_MS, () -> {
             WindowInsets insets = wm.getCurrentWindowMetrics().getWindowInsets();
             return insets.isVisible(WindowInsetsCompat.Type.ime());

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -124,10 +123,6 @@ interface FocusProperties {
      *
      * @sample androidx.compose.ui.samples.CustomFocusEnterSample
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
-    @set:ExperimentalComposeUiApi
-    @ExperimentalComposeUiApi
     var enter: (FocusDirection) -> FocusRequester
         get() = { FocusRequester.Default }
         set(_) {}
@@ -146,10 +141,6 @@ interface FocusProperties {
      *
      * @sample androidx.compose.ui.samples.CustomFocusExitSample
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
-    @set:ExperimentalComposeUiApi
-    @ExperimentalComposeUiApi
     var exit: (FocusDirection) -> FocusRequester
         get() = { FocusRequester.Default }
         set(_) {}
@@ -165,9 +156,7 @@ internal class FocusPropertiesImpl : FocusProperties {
     override var right: FocusRequester = FocusRequester.Default
     override var start: FocusRequester = FocusRequester.Default
     override var end: FocusRequester = FocusRequester.Default
-    @OptIn(ExperimentalComposeUiApi::class)
     override var enter: (FocusDirection) -> FocusRequester = { FocusRequester.Default }
-    @OptIn(ExperimentalComposeUiApi::class)
     override var exit: (FocusDirection) -> FocusRequester = { FocusRequester.Default }
 }
 

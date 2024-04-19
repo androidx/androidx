@@ -18,7 +18,6 @@ package androidx.privacysandbox.activity.provider
 
 import android.os.Bundle
 import android.os.IBinder
-import androidx.core.os.BundleCompat
 import androidx.privacysandbox.activity.core.ISdkActivityLauncher
 import androidx.privacysandbox.activity.core.ISdkActivityLauncherCallback
 import androidx.privacysandbox.activity.core.ProtocolConstants.SDK_ACTIVITY_LAUNCHER_BINDER_KEY
@@ -39,7 +38,7 @@ object SdkActivityLauncherFactory {
     @JvmStatic
     fun fromLauncherInfo(launcherInfo: Bundle): SdkActivityLauncher {
         val remote: ISdkActivityLauncher? = ISdkActivityLauncher.Stub.asInterface(
-            BundleCompat.getBinder(launcherInfo, SDK_ACTIVITY_LAUNCHER_BINDER_KEY)
+            launcherInfo.getBinder(SDK_ACTIVITY_LAUNCHER_BINDER_KEY)
         )
         requireNotNull(remote) { "Invalid SdkActivityLauncher info bundle." }
         return SdkActivityLauncherProxy(remote)

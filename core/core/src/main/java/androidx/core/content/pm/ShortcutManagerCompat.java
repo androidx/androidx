@@ -831,8 +831,7 @@ public class ShortcutManagerCompat {
             final boolean isHorizontal) {
         final ActivityManager am = (ActivityManager)
                 context.getSystemService(Context.ACTIVITY_SERVICE);
-        final boolean isLowRamDevice =
-                Build.VERSION.SDK_INT < 19 || am == null || am.isLowRamDevice();
+        final boolean isLowRamDevice = am == null || am.isLowRamDevice();
         final int iconDimensionDp = Math.max(1, isLowRamDevice
                 ? DEFAULT_MAX_ICON_DIMENSION_LOWRAM_DP : DEFAULT_MAX_ICON_DIMENSION_DP);
         final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();

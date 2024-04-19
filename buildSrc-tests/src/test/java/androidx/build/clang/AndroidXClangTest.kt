@@ -16,43 +16,14 @@
 
 package androidx.build.clang
 
-import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
-import java.io.File
-import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.plugins.ExtraPropertiesExtension
-import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.AssumptionViolatedException
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 
-class AndroidXClangTest {
-    @get:Rule
-    val projectSetup = ProjectSetupRule()
-
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
-    private lateinit var project: Project
-    private lateinit var clangExtension: AndroidXClang
-
-    @Before
-    fun init() {
-        project = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
-        val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
-        // build service needs prebuilts location to "download" clang and targets.
-        extension.set(
-            "prebuiltsRoot", File(projectSetup.props.rootProjectPath).resolve("../../prebuilts")
-        )
-        // register components required by NativeCompilerDownloader
-        project.pluginManager.apply(KotlinPluginWrapper::class.java)
-        clangExtension = AndroidXClang(project)
-    }
+class AndroidXClangTest : BaseClangTest() {
 
     @Test
     fun addJniHeaders() {
@@ -131,10 +102,10 @@ class AndroidXClangTest {
             it.freeArgs.addAll("androidArg2")
         }
 
-        // configurations are done lazily when needed
-        assertThat(project.tasks.withType(
-            ClangCompileTask::class.java
-        ).toList()).isEmpty()
+        // Add this check if we can re-enable lazy evaluation b/325518502
+//        assertThat(project.tasks.withType(
+//            ClangCompileTask::class.java
+//        ).toList()).isEmpty()
 
         // trigger configuration of targets
         multiTargetNativeCompilation.targetProvider(KonanTarget.LINUX_X64).get()

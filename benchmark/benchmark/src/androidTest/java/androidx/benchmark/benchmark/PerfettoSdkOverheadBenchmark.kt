@@ -51,7 +51,7 @@ class PerfettoSdkOverheadBenchmark {
         InstrumentationRegistry.getInstrumentation().targetContext.packageName
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(shouldEnableTraceAppTag = true))
+    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
     private val testData = Array(50_000) { UUID.randomUUID().toString() }
 

@@ -120,7 +120,7 @@ class LocalesUpdateTestCase() {
     }
 
     @Ignore("b/262902574")
-    @SdkSuppress(minSdkVersion = 17, maxSdkVersion = 33)
+    @SdkSuppress(maxSdkVersion = 33)
     @Test
     @FlakyTest(bugId = 255765202)
     fun testLayoutDirectionAfterRecreating() {

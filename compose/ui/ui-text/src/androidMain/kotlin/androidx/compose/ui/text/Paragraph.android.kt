@@ -45,6 +45,7 @@ actual sealed interface Paragraph {
     actual fun getLineLeft(lineIndex: Int): Float
     actual fun getLineRight(lineIndex: Int): Float
     actual fun getLineTop(lineIndex: Int): Float
+    actual fun getLineBaseline(lineIndex: Int): Float
     actual fun getLineBottom(lineIndex: Int): Float
     actual fun getLineHeight(lineIndex: Int): Float
     actual fun getLineWidth(lineIndex: Int): Float
@@ -57,6 +58,11 @@ actual sealed interface Paragraph {
     actual fun getBidiRunDirection(offset: Int): ResolvedTextDirection
     actual fun getLineForVerticalPosition(vertical: Float): Int
     actual fun getOffsetForPosition(position: Offset): Int
+    actual fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange
     actual fun getBoundingBox(offset: Int): Rect
     actual fun fillBoundingBoxes(
         range: TextRange,

@@ -16,15 +16,13 @@
 
 package androidx.privacysandbox.sdkruntime.provider
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SandboxedSdkProvider
 import android.content.Context
 import android.os.Bundle
-import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
-import androidx.annotation.RequiresExtension
+import androidx.annotation.RequiresApi
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 
@@ -33,8 +31,7 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  *
  */
-@RequiresExtension(extension = AD_SERVICES, version = 4)
-@SuppressLint("ClassVerificationFailure")
+@RequiresApi(34)
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
 ) : SandboxedSdkProvider() {

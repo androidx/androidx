@@ -394,7 +394,7 @@ public final class MediaDescriptionCompat implements Parcelable {
             bob.setIconUri(Api21Impl.getIconUri(description));
             Bundle extras = Api21Impl.getExtras(description);
             if (extras != null) {
-                extras = MediaSessionCompat.unparcelWithClassLoader(extras);
+                extras = new Bundle(MediaSessionCompat.unparcelWithClassLoader(extras));
             }
             Uri mediaUri = null;
             if (extras != null) {

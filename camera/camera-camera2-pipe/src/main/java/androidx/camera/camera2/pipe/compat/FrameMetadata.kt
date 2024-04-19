@@ -29,12 +29,15 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.camera2.pipe.core.Debug
 import kotlin.reflect.KClass
 
 /** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-internal class AndroidFrameMetadata
-constructor(private val captureResult: CaptureResult, override val camera: CameraId) :
+internal class AndroidFrameMetadata(
+    private val captureResult: CaptureResult,
+    override val camera: CameraId
+) :
     FrameMetadata {
     override fun <T> get(key: Metadata.Key<T>): T? = null
 
@@ -55,8 +58,12 @@ constructor(private val captureResult: CaptureResult, override val camera: Camer
     override fun <T : Any> unwrapAs(type: KClass<T>): T? =
         when (type) {
             CaptureResult::class -> captureResult as T
+            TotalCaptureResult::class -> captureResult as? T
             else -> null
         }
+
+    override fun toString(): String =
+        "FrameMetadata(camera: $camera, frameNumber: ${captureResult.frameNumber})"
 }
 
 /** A version of [FrameMetadata] that can override (fix) metadata. */
@@ -82,7 +89,6 @@ internal class CorrectedFrameMetadata(
     override val frameNumber: FrameNumber
         get() = frameMetadata.frameNumber
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = frameMetadata.unwrapAs(type)
 }
 
@@ -95,27 +101,32 @@ internal class AndroidFrameInfo(
 ) : FrameInfo {
 
     private val result = AndroidFrameMetadata(totalCaptureResult, camera)
-    private val physicalResults: Map<CameraId, FrameMetadata>
+    private val physicalResults: Map<CameraId, FrameMetadata> =
+        Debug.trace("physicalCaptureResults") {
+            // Compute a Map<String, CaptureResult> by calling the appropriate compat method and
+            // by treating everything as a CaptureResult. Internally, AndroidFrameMetadata will
+            // unwrap the object as a TotalCaptureResult instead.
+            val physicalResults = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Api31Compat.getPhysicalCameraTotalResults(totalCaptureResult)
+                    as Map<String, CaptureResult>
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // Android P only supports Map<String, CaptureResult>
+                Api28Compat.getPhysicalCaptureResults(totalCaptureResult)
+            } else {
+                emptyMap()
+            }
 
-    init {
-        // Metadata for physical cameras was introduced in Android P so that it can be used to
-        // determine state of the physical lens and sensor in a multi-camera configuration.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val physicalResults = Api28Compat.getPhysicalCaptureResults(totalCaptureResult)
-            if (physicalResults != null && physicalResults.isNotEmpty()) {
+            // Wrap the results using AndroidFrameMetadata.
+            if (!physicalResults.isNullOrEmpty()) {
                 val map = ArrayMap<CameraId, AndroidFrameMetadata>(physicalResults.size)
                 for (entry in physicalResults) {
                     val physicalCamera = CameraId(entry.key)
                     map[physicalCamera] = AndroidFrameMetadata(entry.value, physicalCamera)
                 }
-                this.physicalResults = map
-            } else {
-                this.physicalResults = emptyMap()
+                return@trace map
             }
-        } else {
-            physicalResults = emptyMap()
+            emptyMap()
         }
-    }
 
     override val metadata: FrameMetadata
         get() = result
@@ -126,5 +137,13 @@ internal class AndroidFrameInfo(
         get() = result.frameNumber
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = totalCaptureResult as? T?
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            CaptureResult::class -> totalCaptureResult as T
+            TotalCaptureResult::class -> totalCaptureResult as? T
+            else -> null
+        }
+
+    override fun toString(): String =
+        "FrameInfo(camera: ${result.camera}, frameNumber: ${result.frameNumber.value})"
 }

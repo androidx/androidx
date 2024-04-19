@@ -181,8 +181,8 @@ class SavedStateViewModelFactory : ViewModelProvider.OnRequeryFactory, ViewModel
         } else {
             newInstance(modelClass, constructor, controller.handle)
         }
-        viewModel.setTagIfAbsent(
-            AbstractSavedStateViewModelFactory.TAG_SAVED_STATE_HANDLE_CONTROLLER, controller
+        viewModel.addCloseable(
+            LegacySavedStateHandleController.TAG_SAVED_STATE_HANDLE_CONTROLLER, controller
         )
         return viewModel
     }

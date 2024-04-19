@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * A density of the screen. Used for convert [Dp] to pixels.
@@ -66,7 +66,7 @@ interface Density : FontScaling {
     @Stable
     fun Dp.roundToPx(): Int {
         val px = toPx()
-        return if (px.isInfinite()) Constraints.Infinity else px.roundToInt()
+        return if (px.isInfinite()) Constraints.Infinity else px.fastRoundToInt()
     }
 
     /**
@@ -83,7 +83,7 @@ interface Density : FontScaling {
      * Convert Sp to [Int] by rounding
      */
     @Stable
-    fun TextUnit.roundToPx(): Int = toPx().roundToInt()
+    fun TextUnit.roundToPx(): Int = toPx().fastRoundToInt()
 
     /**
      * Convert an [Int] pixel value to [Dp].

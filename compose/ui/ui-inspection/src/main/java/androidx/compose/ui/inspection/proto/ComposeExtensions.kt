@@ -262,7 +262,7 @@ fun NodeParameterReference.convert(): ParameterReference {
         composableId = reference.nodeId
         anchorHash = reference.anchorId
         parameterIndex = reference.parameterIndex
-        addAllCompositeIndex(reference.indices.asIterable())
+        reference.indices.forEach { addCompositeIndex(it) }
     }.build()
 }
 
@@ -272,7 +272,7 @@ internal fun CacheTree.toComposableRoot(context: ConversionContext): ComposableR
         root.addAllNodes(nodes.map {
             it.toComposableNode(context)
         })
-        root.addAllViewsToSkip(viewsToSkip)
+        viewsToSkip.forEach { root.addViewsToSkip(it) }
     }.build()
 
 fun Iterable<NodeParameter>.convertAll(stringTable: StringTable): List<Parameter> {

@@ -23,10 +23,10 @@ import kotlin.math.hypot
  * time is an array of all positions and y is a list of arrays each with the values at each point
  */
 @ExperimentalAnimationSpecApi
-internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
+internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: Float) {
     private val timePoints: FloatArray
-    private val values: ArrayList<FloatArray>
-    private val tangents: ArrayList<FloatArray>
+    private val values: Array<FloatArray>
+    private val tangents: Array<FloatArray>
     private val isExtrapolate = true
     private val slopeTemp: FloatArray
 
@@ -48,6 +48,17 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
             }
             tangent[n - 1][j] = slope[n - 2][j]
         }
+        if (!periodicBias.isNaN()) {
+            for (j in 0 until dim) {
+                // Slope indicated by bias, where 0.0f is the last slope and 1f is the initial slope
+                val adjustedSlope =
+                    (slope[n - 2][j] * (1 - periodicBias)) + (slope[0][j] * periodicBias)
+                slope[0][j] = adjustedSlope
+                slope[n - 2][j] = adjustedSlope
+                tangent[n - 1][j] = adjustedSlope
+                tangent[0][j] = adjustedSlope
+            }
+        }
         for (i in 0 until n - 1) {
             for (j in 0 until dim) {
                 if (slope[i][j] == 0.0f) {
@@ -66,7 +77,7 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
             }
         }
         timePoints = time
-        values = copyData(y)
+        values = y
         tangents = tangent
     }
 
@@ -74,76 +85,7 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
      * @param a number of arrays
      * @param b dimension of Float arrays
      */
-    private fun makeFloatArray(a: Int, b: Int): ArrayList<FloatArray> {
-        val ret = ArrayList<FloatArray>() // new Float[a][b];
-        for (i in 0 until a) {
-            ret.add(FloatArray(b))
-        }
-        return ret
-    }
-
-    private fun copyData(y: List<FloatArray>): ArrayList<FloatArray> {
-        val ret = ArrayList<FloatArray>()
-        ret.addAll(y)
-        return ret
-    }
-
-    /**
-     * Get the values of the splines at t.
-     * v is an array of all values
-     */
-    fun getPos(t: Float, v: FloatArray) {
-        val n = timePoints.size
-        val dim = values[0].size
-        if (isExtrapolate) {
-            if (t <= timePoints[0]) {
-                getSlope(timePoints[0], slopeTemp)
-                for (j in 0 until dim) {
-                    v[j] = values[0][j] + (t - timePoints[0]) * slopeTemp[j]
-                }
-                return
-            }
-            if (t >= timePoints[n - 1]) {
-                getSlope(timePoints[n - 1], slopeTemp)
-                for (j in 0 until dim) {
-                    v[j] = values[n - 1][j] + (t - timePoints[n - 1]) * slopeTemp[j]
-                }
-                return
-            }
-        } else {
-            if (t <= timePoints[0]) {
-                for (j in 0 until dim) {
-                    v[j] = values[0][j]
-                }
-                return
-            }
-            if (t >= timePoints[n - 1]) {
-                for (j in 0 until dim) {
-                    v[j] = values[n - 1][j]
-                }
-                return
-            }
-        }
-        for (i in 0 until n - 1) {
-            if (t == timePoints[i]) {
-                for (j in 0 until dim) {
-                    v[j] = values[i][j]
-                }
-            }
-            if (t < timePoints[i + 1]) {
-                val h = timePoints[i + 1] - timePoints[i]
-                val x = (t - timePoints[i]) / h
-                for (j in 0 until dim) {
-                    val y1 = values[i][j]
-                    val y2 = values[i + 1][j]
-                    val t1 = tangents[i][j]
-                    val t2 = tangents[i + 1][j]
-                    v[j] = interpolate(h, x, y1, y2, t1, t2)
-                }
-                return
-            }
-        }
-    }
+    private fun makeFloatArray(a: Int, b: Int): Array<FloatArray> = Array(a) { FloatArray(b) }
 
     /**
      * get the value of the j'th spline at time t
@@ -183,49 +125,51 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
     }
 
     /**
-     * Populate the values of the spline at time [t] into the given AnimationVector [v].
+     * Populate the values of the spline at time [time] into the given AnimationVector [v].
+     *
+     * You may provide [index] to simplify searching for the correct keyframe for the given [time].
      */
-    fun getPos(t: Float, v: AnimationVector) {
+    fun getPos(time: Float, v: AnimationVector, index: Int = 0) {
         val n = timePoints.size
         val dim = values[0].size
         if (isExtrapolate) {
-            if (t <= timePoints[0]) {
+            if (time <= timePoints[0]) {
                 getSlope(timePoints[0], slopeTemp)
                 for (j in 0 until dim) {
-                    v[j] = values[0][j] + (t - timePoints[0]) * slopeTemp[j]
+                    v[j] = values[0][j] + (time - timePoints[0]) * slopeTemp[j]
                 }
                 return
             }
-            if (t >= timePoints[n - 1]) {
+            if (time >= timePoints[n - 1]) {
                 getSlope(timePoints[n - 1], slopeTemp)
                 for (j in 0 until dim) {
-                    v[j] = values[n - 1][j] + (t - timePoints[n - 1]) * slopeTemp[j]
+                    v[j] = values[n - 1][j] + (time - timePoints[n - 1]) * slopeTemp[j]
                 }
                 return
             }
         } else {
-            if (t <= timePoints[0]) {
+            if (time <= timePoints[0]) {
                 for (j in 0 until dim) {
                     v[j] = values[0][j]
                 }
                 return
             }
-            if (t >= timePoints[n - 1]) {
+            if (time >= timePoints[n - 1]) {
                 for (j in 0 until dim) {
                     v[j] = values[n - 1][j]
                 }
                 return
             }
         }
-        for (i in 0 until n - 1) {
-            if (t == timePoints[i]) {
+        for (i in index until n - 1) {
+            if (time == timePoints[i]) {
                 for (j in 0 until dim) {
                     v[j] = values[i][j]
                 }
             }
-            if (t < timePoints[i + 1]) {
+            if (time < timePoints[i + 1]) {
                 val h = timePoints[i + 1] - timePoints[i]
-                val x = (t - timePoints[i]) / h
+                val x = (time - timePoints[i]) / h
                 for (j in 0 until dim) {
                     val y1 = values[i][j]
                     val y2 = values[i + 1][j]
@@ -271,17 +215,29 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
     /**
      * Populate the differential values of the spline at the given [time] in to the given
      * AnimationVector [v].
+     *
+     * You may provide [index] to simplify searching for the correct keyframe for the given [time].
      */
-    fun getSlope(time: Float, v: AnimationVector) {
-        var t = time
+    fun getSlope(time: Float, v: AnimationVector, index: Int = 0) {
+        val t = time
         val n = timePoints.size
         val dim = values[0].size
+
+        // If time is 0, max or out of range we directly return the corresponding slope value
         if (t <= timePoints[0]) {
-            t = timePoints[0]
+            for (j in 0 until dim) {
+                v[j] = tangents[0][j]
+            }
+            return
         } else if (t >= timePoints[n - 1]) {
-            t = timePoints[n - 1]
+            for (j in 0 until dim) {
+                v[j] = tangents[n - 1][j]
+            }
+            return
         }
-        for (i in 0 until n - 1) {
+
+        // Otherwise, calculate interpolated velocity
+        for (i in index until n - 1) {
             if (t <= timePoints[i + 1]) {
                 val h = timePoints[i + 1] - timePoints[i]
                 val x = (t - timePoints[i]) / h

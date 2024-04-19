@@ -1,13 +1,11 @@
 // Baseline format: 1.0
-GetterSetterNames: field ComplicationSlot.enabled:
+GetterSetterNames: androidx.wear.watchface.ComplicationSlot#enabled:
     Invalid name for boolean property `enabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ComplicationSlot.fixedComplicationDataSource:
+GetterSetterNames: androidx.wear.watchface.ComplicationSlot#fixedComplicationDataSource:
     Invalid name for boolean property `fixedComplicationDataSource`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field ComplicationSlot.initiallyEnabled:
+GetterSetterNames: androidx.wear.watchface.ComplicationSlot#initiallyEnabled:
     Invalid name for boolean property `initiallyEnabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field Renderer.CanvasRenderer.clearWithBackgroundTintBeforeRenderingHighlightLayer:
-    Invalid name for boolean property `clearWithBackgroundTintBeforeRenderingHighlightLayer`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field WatchFace.LegacyWatchFaceOverlayStyle.tapEventsAccepted:
+GetterSetterNames: androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle#tapEventsAccepted:
     Invalid name for boolean property `tapEventsAccepted`. Should start with one of `has`, `can`, `should`, `is`.
 
 

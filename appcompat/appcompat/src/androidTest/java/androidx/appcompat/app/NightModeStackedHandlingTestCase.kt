@@ -31,7 +31,6 @@ import androidx.appcompat.testutils.NightModeUtils
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import junit.framework.Assert.assertNotNull
@@ -62,7 +61,6 @@ public class NightModeStackedHandlingTestCase {
      * and/or B were not recreated.
      */
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     public fun testDefaultNightModeWithStackedActivities() {
         val instr = InstrumentationRegistry.getInstrumentation()
         val result = Instrumentation.ActivityResult(0, Intent())
@@ -163,7 +161,6 @@ public class NightModeStackedHandlingTestCase {
      * 3. repeat (YES/NO/YES/NO...)
      */
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     public fun testDefaultNightModeWithStackedActivitiesAndNavigation() {
         val instr = InstrumentationRegistry.getInstrumentation()
         val result = Instrumentation.ActivityResult(0, Intent())

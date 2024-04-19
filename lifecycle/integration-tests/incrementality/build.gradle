@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.SdkResourceGenerator
 
 plugins {
@@ -32,11 +39,13 @@ dependencies {
 SdkResourceGenerator.generateForHostTest(project)
 
 // lifecycle-common and annotation are the dependencies of lifecycle-compiler
-tasks.findByPath("test").configure {
-    dependsOn(":lifecycle:lifecycle-compiler:publish")
-    dependsOn(":lifecycle:lifecycle-common:publish")
-    dependsOn(":lifecycle:lifecycle-runtime:publish")
-    dependsOn(":annotation:annotation:publish")
-    dependsOn(":arch:core:core-common:publish")
-    dependsOn(":arch:core:core-runtime:publish")
+tasks.withType(Test).configureEach { test ->
+    test.dependsOn(
+            ":lifecycle:lifecycle-compiler:publish",
+            ":lifecycle:lifecycle-common:publish",
+            ":lifecycle:lifecycle-runtime:publish",
+            ":annotation:annotation:publish",
+            ":arch:core:core-common:publish",
+            ":arch:core:core-runtime:publish"
+    )
 }

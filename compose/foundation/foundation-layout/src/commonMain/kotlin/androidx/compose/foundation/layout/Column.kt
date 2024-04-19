@@ -23,10 +23,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Measured
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.VerticalAlignmentLine
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A layout composable that places its children in a vertical sequence. For a layout composable
@@ -84,13 +92,9 @@ inline fun Column(
 }
 
 @PublishedApi
-internal val DefaultColumnMeasurePolicy: MeasurePolicy = RowColumnMeasurePolicy(
-    orientation = LayoutOrientation.Vertical,
+internal val DefaultColumnMeasurePolicy: MeasurePolicy = ColumnMeasurePolicy(
     verticalArrangement = Arrangement.Top,
-    horizontalArrangement = null,
-    arrangementSpacing = Arrangement.Top.spacing,
-    crossAxisAlignment = CrossAxisAlignment.horizontal(Alignment.Start),
-    crossAxisSize = SizeMode.Wrap
+    horizontalAlignment = Alignment.Start,
 )
 
 @PublishedApi
@@ -103,16 +107,177 @@ internal fun columnMeasurePolicy(
         DefaultColumnMeasurePolicy
     } else {
         remember(verticalArrangement, horizontalAlignment) {
-            RowColumnMeasurePolicy(
-                orientation = LayoutOrientation.Vertical,
+            ColumnMeasurePolicy(
                 verticalArrangement = verticalArrangement,
-                horizontalArrangement = null,
-                arrangementSpacing = verticalArrangement.spacing,
-                crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalAlignment),
-                crossAxisSize = SizeMode.Wrap
+                horizontalAlignment = horizontalAlignment,
             )
         }
     }
+
+internal data class ColumnMeasurePolicy(
+    private val verticalArrangement: Arrangement.Vertical,
+    private val horizontalAlignment: Alignment.Horizontal
+) : MeasurePolicy, RowColumnMeasurePolicy {
+
+    override fun Placeable.mainAxisSize(): Int = height
+    override fun Placeable.crossAxisSize(): Int = width
+    override fun populateMainAxisPositions(
+        mainAxisLayoutSize: Int,
+        childrenMainAxisSize: IntArray,
+        mainAxisPositions: IntArray,
+        measureScope: MeasureScope
+    ) {
+        with(verticalArrangement) {
+            measureScope.arrange(
+                mainAxisLayoutSize,
+                childrenMainAxisSize,
+                mainAxisPositions
+            )
+        }
+    }
+
+    override fun placeHelper(
+        placeables: Array<Placeable?>,
+        measureScope: MeasureScope,
+        beforeCrossAxisAlignmentLine: Int,
+        mainAxisPositions: IntArray,
+        mainAxisLayoutSize: Int,
+        crossAxisLayoutSize: Int,
+        crossAxisOffset: IntArray?,
+        currentLineIndex: Int,
+        startIndex: Int,
+        endIndex: Int
+    ): MeasureResult {
+        return with(measureScope) {
+            layout(crossAxisLayoutSize, mainAxisLayoutSize) {
+                placeables.forEachIndexed { i, placeable ->
+                    val crossAxisPosition = getCrossAxisPosition(
+                        placeable!!,
+                        placeable.rowColumnParentData,
+                        crossAxisLayoutSize,
+                        beforeCrossAxisAlignmentLine,
+                        measureScope.layoutDirection
+                    )
+                    placeable.place(
+                        crossAxisPosition,
+                        mainAxisPositions[i],
+                 )
+                }
+            }
+        }
+    }
+
+    private fun getCrossAxisPosition(
+        placeable: Placeable,
+        parentData: RowColumnParentData?,
+        crossAxisLayoutSize: Int,
+        beforeCrossAxisAlignmentLine: Int,
+        layoutDirection: LayoutDirection
+    ): Int {
+        val childCrossAlignment = parentData?.crossAxisAlignment
+        return childCrossAlignment?.align(
+            size = crossAxisLayoutSize - placeable.width,
+            layoutDirection = layoutDirection,
+            placeable = placeable,
+            beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine
+        ) ?: horizontalAlignment.align(0, crossAxisLayoutSize - placeable.width,
+            layoutDirection)
+    }
+
+    override fun createConstraints(
+        mainAxisMin: Int,
+        crossAxisMin: Int,
+        mainAxisMax: Int,
+        crossAxisMax: Int,
+        isPrioritizing: Boolean
+    ): Constraints {
+        return createColumnConstraints(
+            isPrioritizing,
+            mainAxisMin,
+            crossAxisMin,
+            mainAxisMax,
+            crossAxisMax
+        )
+    }
+
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
+        return measure(
+            constraints.minHeight,
+            constraints.minWidth,
+            constraints.maxHeight,
+            constraints.maxWidth,
+            verticalArrangement.spacing.roundToPx(),
+            this,
+            measurables,
+            arrayOfNulls(measurables.size),
+            0,
+            measurables.size
+        )
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int
+    ) = IntrinsicMeasureBlocks.VerticalMinWidth(
+        measurables,
+        height,
+        verticalArrangement.spacing.roundToPx(),
+    )
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int
+    ) = IntrinsicMeasureBlocks.VerticalMinHeight(
+        measurables,
+        width,
+        verticalArrangement.spacing.roundToPx(),
+    )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int
+    ) = IntrinsicMeasureBlocks.VerticalMaxWidth(
+        measurables,
+        height,
+        verticalArrangement.spacing.roundToPx(),
+    )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int
+    ) = IntrinsicMeasureBlocks.VerticalMaxHeight(
+        measurables,
+        width,
+        verticalArrangement.spacing.roundToPx(),
+    )
+}
+
+internal fun createColumnConstraints(
+    isPrioritizing: Boolean,
+    mainAxisMin: Int,
+    crossAxisMin: Int,
+    mainAxisMax: Int,
+    crossAxisMax: Int,
+): Constraints {
+    return if (!isPrioritizing) {
+        Constraints(
+            minHeight = mainAxisMin,
+            minWidth = crossAxisMin,
+            maxHeight = mainAxisMax,
+            maxWidth = crossAxisMax
+        )
+    } else {
+        Constraints.fitPrioritizingHeight(
+            minHeight = mainAxisMin,
+            minWidth = crossAxisMin,
+            maxHeight = mainAxisMax,
+            maxWidth = crossAxisMax
+        )
+    }
+}
 
 /**
  * Scope for the children of [Column].

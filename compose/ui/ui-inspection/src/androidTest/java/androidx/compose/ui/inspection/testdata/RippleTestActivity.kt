@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.ripple
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -57,7 +57,7 @@ class RippleTestActivity : ComponentActivity() {
                     modifier = Modifier
                         .clickable(
                             interactionSource = interactionSource,
-                            indication = rememberRipple()
+                            indication = ripple()
                         ) { /* do something */ }
                         .padding(10.dp)
                 )

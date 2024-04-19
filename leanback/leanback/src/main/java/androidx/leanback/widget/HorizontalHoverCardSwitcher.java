@@ -19,8 +19,6 @@ import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 
-import androidx.core.view.ViewCompat;
-
 /**
  * A helper class for showing a hover card view below a {@link HorizontalGridView}.  The hover card
  * is aligned to the starting edge of the selected child view.  If there is no space when scrolling
@@ -48,7 +46,7 @@ public final class HorizontalHoverCardSwitcher extends PresenterSwitcher {
         // end edge with row view's end edge, otherwise align start edges.
         view.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
         MarginLayoutParams params = (MarginLayoutParams) view.getLayoutParams();
-        boolean isRtl = ViewCompat.getLayoutDirection(view) == ViewCompat.LAYOUT_DIRECTION_RTL;
+        boolean isRtl = view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
         if (!isRtl && mCardLeft + view.getMeasuredWidth() > rightLimit) {
             params.leftMargin = rightLimit  - view.getMeasuredWidth();
         } else if (isRtl && mCardLeft < leftLimit) {

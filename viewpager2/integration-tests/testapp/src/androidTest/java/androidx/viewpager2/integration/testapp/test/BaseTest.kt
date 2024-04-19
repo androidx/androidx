@@ -19,7 +19,6 @@ package androidx.viewpager2.integration.testapp.test
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.core.text.TextUtilsCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onIdle
@@ -67,7 +66,7 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     lateinit var idleWatcher: ViewPagerIdleWatcher
     lateinit var viewPager: ViewPager2
     val isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) ==
-        ViewCompat.LAYOUT_DIRECTION_RTL
+        View.LAYOUT_DIRECTION_RTL
 
     @Before
     open fun setUp() {

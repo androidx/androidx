@@ -119,6 +119,22 @@ var AbstractComposeView.consumeWindowInsets: Boolean
     }
 
 /**
+ * Indicates whether access to [WindowInsets] within the [content][ComposeView.setContent]
+ * should consume the Android  [android.view.WindowInsets]. The default value is `true`, meaning
+ * that access to [WindowInsets.Companion] will consume the Android WindowInsets.
+ *
+ * This property should be set prior to first composition.
+ */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Please use AbstractComposeView.consumeWindowInsets")
+var ComposeView.consumeWindowInsets: Boolean
+    get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: true
+    set(value) {
+        setTag(R.id.consume_window_insets_tag, value)
+    }
+
+/**
  * For the [WindowInsetsCompat.Type.captionBar].
  */
 actual val WindowInsets.Companion.captionBar: WindowInsets

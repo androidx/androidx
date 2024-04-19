@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -69,14 +70,28 @@ class HoverableTest {
     }
 
     @Test
-    fun hoverableText_testInspectorValue() {
+    fun hoverableTest_testInspectorValue() {
         rule.setContent {
             val interactionSource = remember { MutableInteractionSource() }
             val modifier = Modifier.hoverable(interactionSource) as InspectableValue
             Truth.assertThat(modifier.nameFallback).isEqualTo("hoverable")
             Truth.assertThat(modifier.valueOverride).isNull()
             Truth.assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly("interactionSource")
+                .containsExactly(
+                    "interactionSource",
+                    "enabled"
+                )
+        }
+    }
+
+    @Test
+    fun hoverableTest_equality() {
+        val interactionSource = MutableInteractionSource()
+        assertModifierIsPure { toggleInput ->
+            Modifier.hoverable(
+                interactionSource = interactionSource,
+                enabled = toggleInput,
+            )
         }
     }
 

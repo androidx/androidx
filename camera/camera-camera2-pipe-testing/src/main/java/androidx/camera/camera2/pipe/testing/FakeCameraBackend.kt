@@ -86,6 +86,25 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
         return cameraController
     }
 
+    override fun prewarm(cameraId: CameraId) {
+        _cameraControllers.find { it.cameraId == cameraId }?.simulateCameraStarted()
+    }
+
+    override fun disconnect(cameraId: CameraId) {
+        _cameraControllers.find { it.cameraId == cameraId }?.simulateCameraStopped()
+    }
+
+    override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
+        _cameraControllers.find { it.cameraId == cameraId }?.simulateCameraStopped()
+        return CompletableDeferred(Unit)
+    }
+
+    override fun disconnectAll() {
+        _cameraControllers.forEach {
+            it.simulateCameraStopped()
+        }
+    }
+
     companion object {
         val FAKE_CAMERA_BACKEND_ID =
             CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraBackend")

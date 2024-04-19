@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.integration.config
 
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
+import android.os.Build
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -32,6 +33,9 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInternalAdapter
+import androidx.camera.camera2.pipe.integration.adapter.ZslControl
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlImpl
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
 import androidx.camera.camera2.pipe.integration.compat.CameraCompatModule
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
@@ -56,6 +60,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.Quirks
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -167,6 +172,23 @@ abstract class CameraModule {
             return CameraGraph.Flags(
                 quirkFinalizeSessionOnCloseBehavior = quirkFinalizeSessionOnCloseBehavior,
             )
+        }
+
+        @CameraScope
+        @Provides
+        @Named("cameraQuirksValues")
+        fun provideCameraQuirksValues(cameraQuirks: CameraQuirks): Quirks = cameraQuirks.quirks
+
+        @CameraScope
+        @Provides
+        fun provideZslControl(
+            cameraProperties: CameraProperties
+        ): ZslControl {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return ZslControlImpl(cameraProperties)
+            } else {
+                return ZslControlNoOpImpl()
+            }
         }
     }
 

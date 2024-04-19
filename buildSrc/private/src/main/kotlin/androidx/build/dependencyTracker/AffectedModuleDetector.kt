@@ -521,20 +521,12 @@ class AffectedModuleDetectorImpl(
                     // Making a change in :media:version-compat-tests makes
                     // mediaGenerateTestConfiguration run (an unfortunate but low priority bug). To
                     // prevent failures from missing apks, we make sure to build the
-                    // version-compat-tests projects in that case. Same with media2-session below.
+                    // version-compat-tests projects in that case.
                     ":media:version-compat-tests",
                     ":media:version-compat-tests:client",
                     ":media:version-compat-tests:service",
                     ":media:version-compat-tests:client-previous",
                     ":media:version-compat-tests:service-previous"
-                ),
-                setOf(
-                    ":media2:media2-session",
-                    ":media2:media2-session:version-compat-tests",
-                    ":media2:media2-session:version-compat-tests:client",
-                    ":media2:media2-session:version-compat-tests:service",
-                    ":media2:media2-session:version-compat-tests:client-previous",
-                    ":media2:media2-session:version-compat-tests:service-previous"
                 ), // Link material and material-ripple
                 setOf(":compose:material:material-ripple", ":compose:material:material"),
                 setOf(

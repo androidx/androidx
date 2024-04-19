@@ -26,6 +26,7 @@ import android.graphics.Typeface;
 import android.util.TypedValue;
 
 import androidx.annotation.AttrRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.annotation.StyleableRes;
@@ -190,5 +191,11 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
     @AttrRes
     public int getFallbackTextAppearanceResId() {
         return mFallbackTextAppearanceAttrId;
+    }
+
+    @Override
+    @DrawableRes
+    public int getRippleResId() {
+        return 0;
     }
 }

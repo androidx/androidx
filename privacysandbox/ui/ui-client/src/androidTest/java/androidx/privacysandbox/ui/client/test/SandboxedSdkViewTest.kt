@@ -53,6 +53,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -548,6 +549,7 @@ class SandboxedSdkViewTest {
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
     }
 
+    @Ignore("b/307829956")
     @Test
     fun requestSizeWithMeasureSpecAtMost_withinParentBounds() {
         view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)

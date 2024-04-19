@@ -20,12 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class TypeBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final TypeBuilders.StringProp STRING_PROP =
@@ -38,18 +41,10 @@ public class TypeBuildersTest {
             new TypeBuilders.FloatProp.Builder(12f)
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
-
-    @SuppressWarnings("deprecation")
-    private static final TypeBuilders.FloatProp.Builder FLOAT_PROP_WITHOUT_STATIC_VALUE =
-            new TypeBuilders.FloatProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)));
-
-    @SuppressWarnings("deprecation")
-    private static final TypeBuilders.StringProp.Builder STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE =
-            new TypeBuilders.StringProp.Builder()
-                    .setDynamicValue(
-                            DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)));
+    private static final TypeBuilders.BoolProp BOOL_PROP =
+            new TypeBuilders.BoolProp.Builder(true)
+                    .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))
+                    .build();
 
     @Test
     public void stringPropSupportsDynamicString() {
@@ -60,9 +55,12 @@ public class TypeBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void stringProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, STRING_PROP_BUILDER_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new TypeBuilders.StringProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 
     @Test
@@ -88,8 +86,28 @@ public class TypeBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
+    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void floatProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, FLOAT_PROP_WITHOUT_STATIC_VALUE::build);
+        assertThrows(IllegalStateException.class, new TypeBuilders.FloatProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
+    }
+
+    @Test
+    public void boolPropSupportsDynamicBool() {
+        TypesProto.BoolProp boolPropProto = BOOL_PROP.toProto();
+
+        assertThat(boolPropProto.getValue()).isEqualTo(BOOL_PROP.getValue());
+        assertThat(boolPropProto.getDynamicValue().getStateSource().getSourceKey())
+                .isEqualTo(STATE_KEY);
+    }
+
+    @SuppressWarnings("deprecation") // Intentionally no static value.
+    @Test
+    public void boolProp_withoutStaticValue_throws() {
+        assertThrows(IllegalStateException.class, new TypeBuilders.BoolProp.Builder()
+                .setDynamicValue(
+                        DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))::build);
     }
 }

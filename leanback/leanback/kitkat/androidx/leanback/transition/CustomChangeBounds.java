@@ -23,14 +23,11 @@ import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.RequiresApi;
-
 import java.util.HashMap;
 
 /**
  * change bounds that support customized start delay.
  */
-@RequiresApi(19)
 class CustomChangeBounds extends ChangeBounds {
 
     int mDefaultStartDelay;

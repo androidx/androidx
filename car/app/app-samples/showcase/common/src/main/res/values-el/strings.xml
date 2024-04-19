@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Μη διαθέσιμο"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Τύποι σύνδεσης ΕΟ"</string>
     <string name="example_title" msgid="530257630320010494">"Παράδειγμα %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Αυτό το κείμενο έχει κόκκινο χρώμα"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Αυτό το κείμενο έχει πράσινο χρώμα"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Αυτό το κείμενο έχει μπλε χρώμα"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Αυτό το κείμενο έχει κίτρινο χρώμα"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Αυτό το κείμενο έχει "<annotation color="red">"κόκκινο"</annotation>" χρώμα"</string>
+    <string name="example_2_text" msgid="1359373957397219102">"Αυτό το κείμενο έχει "<annotation color="green">"πράσινο"</annotation>" χρώμα"</string>
+    <string name="example_3_text" msgid="2409207170762049673">"Αυτό το κείμενο έχει "<annotation color="blue">"μπλε"</annotation>" χρώμα"</string>
+    <string name="example_4_text" msgid="9055989886645433000">"Αυτό το κείμενο έχει "<annotation color="yellow">"κίτρινο"</annotation>" χρώμα"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Αυτό το κείμενο χρησιμοποιεί το κύριο χρώμα"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Αυτό το κείμενο χρησιμοποιεί το δευτερεύον χρώμα"</string>
     <string name="color_demo" msgid="1822427636476178993">"Επίδειξη χρωμάτων"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Περιήγηση σε μέρη"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Επίδειξη προτύπου αναζήτησης"</string>
     <string name="search_hint" msgid="978495498991026792">"Αναζήτηση εδώ"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Ελέγξτε τους Όρους Παροχής Υπηρεσιών μας"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Ελέγξτε τους "<annotation link="terms_of_service">"Όρους Παροχής Υπηρεσιών"</annotation>" μας"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Σύνδεση μέσω Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Χρήση PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Κωδικός QR"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Επιλογές διαδρομής"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Αποφυγή κεντρικών αυτοκινητοδρόμων"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Αποφυγή επιβατικών πλοίων"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Επιδείξεις χάρτη"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Επιδείξεις χάρτη με περιεχόμενο"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Επιδείξεις χάρτη με πρότυπο μηνύματος"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Επιδείξεις χάρτη με πρότυπο πλέγματος"</string>
 </resources>

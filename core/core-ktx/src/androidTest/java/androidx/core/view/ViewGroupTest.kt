@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
@@ -346,7 +345,6 @@ class ViewGroupTest {
         assertEquals(40, layoutParams.bottomMargin)
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test fun updateMarginsRelative() {
         val layoutParams = ViewGroup.MarginLayoutParams(100, 200)
         layoutParams.updateMarginsRelative(start = 10, end = 20)
@@ -359,7 +357,6 @@ class ViewGroupTest {
         assertTrue(layoutParams.isMarginRelative)
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test fun updateMarginsRelativeNoOp() {
         val layoutParams = ViewGroup.MarginLayoutParams(100, 200)
         layoutParams.setMargins(10, 20, 30, 40)

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import android.view.View
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.BasicText
@@ -29,7 +28,6 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Left
 import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.MediumTest
@@ -54,7 +52,6 @@ class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
     }
 
     private val focusDirection = param.focusDirection
-    lateinit var view: View
     private lateinit var focusManager: FocusManager
 
     companion object {
@@ -214,11 +211,9 @@ class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
 
     private fun ComposeContentTestRule.setContentForTest(composable: @Composable () -> Unit) {
         setContent {
-            view = LocalView.current
             focusManager = LocalFocusManager.current
             composable()
         }
-        rule.runOnIdle { view.requestFocus() }
     }
 }
 

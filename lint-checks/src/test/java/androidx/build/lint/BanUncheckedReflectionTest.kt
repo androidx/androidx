@@ -39,10 +39,10 @@ class BanUncheckedReflectionTest : AbstractLintDetectorTest(
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                         performStopActivity3ParamsMethod.invoke(activityThread,
                         ^
-src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                         performStopActivity2ParamsMethod.invoke(activityThread,
                         ^
 2 errors, 0 warnings
@@ -61,10 +61,10 @@ src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Calling Method.i
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/sample/core/app/ActivityRecreatorKt.kt:176: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:176: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                         performStopActivity3ParamsMethod!!.invoke(
                         ^
-src/androidx/sample/core/app/ActivityRecreatorKt.kt:181: Error: Calling Method.invoke without an SDK check [BanUncheckedReflection]
+src/androidx/sample/core/app/ActivityRecreatorKt.kt:181: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
                         performStopActivity2ParamsMethod!!.invoke(
                         ^
 2 errors, 0 warnings

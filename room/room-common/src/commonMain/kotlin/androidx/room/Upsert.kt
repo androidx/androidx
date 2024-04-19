@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.annotation.RequiresApi
 import kotlin.reflect.KClass
 
 /**
@@ -83,7 +82,6 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-@RequiresApi(16)
 public annotation class Upsert(
 
     /**

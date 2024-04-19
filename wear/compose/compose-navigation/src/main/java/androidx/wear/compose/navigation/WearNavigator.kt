@@ -17,6 +17,7 @@
 package androidx.wear.compose.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -39,20 +40,27 @@ public class WearNavigator : Navigator<WearNavigator.Destination>() {
      */
     internal val backStack get() = state.backStack
 
+    /**
+     * Indicates if an entry is being popped from [backStack].
+     */
+    internal val isPop = mutableStateOf(false)
+
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) {
         entries.forEach { entry ->
-            state.push(entry)
+            state.pushWithTransition(entry)
         }
+        isPop.value = false
     }
 
     override fun createDestination() = Destination(this) {}
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         state.popWithTransition(popUpTo, savedState)
+        isPop.value = true
     }
 
     /**

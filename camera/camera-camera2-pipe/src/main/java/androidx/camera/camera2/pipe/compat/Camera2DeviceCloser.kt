@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
@@ -37,6 +38,7 @@ internal interface Camera2DeviceCloser {
         cameraDevice: CameraDevice? = null,
         closeUnderError: Boolean = false,
         androidCameraState: AndroidCameraState,
+        audioRestrictionController: AudioRestrictionController
     )
 }
 
@@ -51,24 +53,42 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
         cameraDevice: CameraDevice?,
         closeUnderError: Boolean,
         androidCameraState: AndroidCameraState,
+        audioRestrictionController: AudioRestrictionController
     ) {
-        Log.debug { "Closing $cameraDeviceWrapper and/or $cameraDevice" }
         val unwrappedCameraDevice = cameraDeviceWrapper?.unwrapAs(CameraDevice::class)
         if (unwrappedCameraDevice != null) {
             cameraDevice?.let {
                 check(unwrappedCameraDevice.id == it.id) {
-                    "Unwrapped camera device has camera ID ${unwrappedCameraDevice.id}, " + "" +
-                        "but the accompanied camera device has camera ID ${it.id}"
+                    "Unwrapped camera device has camera ID ${unwrappedCameraDevice.id}, " +
+                        "but the wrapped camera device has camera ID ${it.id}!"
                 }
             }
-            closeCameraDevice(unwrappedCameraDevice, closeUnderError, androidCameraState)
+            closeCameraDevice(
+                unwrappedCameraDevice,
+                closeUnderError,
+                androidCameraState
+            )
             cameraDeviceWrapper.onDeviceClosed()
+            /**
+             * Only remove the audio restriction when CameraDeviceWrapper is present.
+             * When closeCamera is called without a CameraDeviceWrapper, that means a wrapper
+             * hadn't been created for the opened camera.
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                audioRestrictionController.removeListener(cameraDeviceWrapper)
+            }
 
             // We only need to close the device once (don't want to create another capture session).
             // Return here.
             return
         }
-        cameraDevice?.let { closeCameraDevice(it, closeUnderError, androidCameraState) }
+        cameraDevice?.let {
+            closeCameraDevice(
+                it,
+                closeUnderError,
+                androidCameraState
+            )
+        }
     }
 
     private fun closeCameraDevice(
@@ -84,16 +104,15 @@ internal class Camera2DeviceCloserImpl @Inject constructor(
                 Log.debug { "Empty capture session quirk completed" }
             }
         }
-        Log.debug { "Closing $cameraDevice" }
         Threading.runBlockingWithTimeout(threads.backgroundDispatcher, 5000L) {
             cameraDevice.closeWithTrace()
         }
         if (camera2Quirks.shouldWaitForCameraDeviceOnClosed(cameraId)) {
-            Log.debug { "Waiting for camera device to be completely closed" }
+            Log.debug { "Waiting for OnClosed from $cameraId" }
             if (androidCameraState.awaitCameraDeviceClosed(timeoutMillis = 5000)) {
-                Log.debug { "Camera device is closed" }
+                Log.debug { "Received OnClosed for $cameraId" }
             } else {
-                Log.warn { "Failed to wait for camera device to close after 5000ms" }
+                Log.warn { "Failed to close $cameraId after 500ms" }
             }
         }
     }

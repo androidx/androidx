@@ -26,10 +26,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * NavUtils provides helper functionality for applications implementing
@@ -56,15 +54,13 @@ public final class NavUtils {
      * @param targetIntent An intent representing the target destination for up navigation
      * @return true if navigating up should recreate a new task stack, false if the same task
      *         should be used for the destination
+     * @deprecated Call {@link Activity#shouldUpRecreateTask()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "sourceActivity.shouldUpRecreateTask(targetIntent)")
     public static boolean shouldUpRecreateTask(@NonNull Activity sourceActivity,
             @NonNull Intent targetIntent) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.shouldUpRecreateTask(sourceActivity, targetIntent);
-        } else {
-            String action = sourceActivity.getIntent().getAction();
-            return action != null && !action.equals(Intent.ACTION_MAIN);
-        }
+        return sourceActivity.shouldUpRecreateTask(targetIntent);
     }
 
     /**
@@ -105,37 +101,31 @@ public final class NavUtils {
      *
      * @param sourceActivity The current activity from which the user is attempting to navigate up
      * @param upIntent An intent representing the target destination for up navigation
+     * @deprecated Call {@link Activity#navigateUpTo()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "sourceActivity.navigateUpTo(upIntent)")
     public static void navigateUpTo(@NonNull Activity sourceActivity, @NonNull Intent upIntent) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.navigateUpTo(sourceActivity, upIntent);
-        } else {
-            upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            sourceActivity.startActivity(upIntent);
-            sourceActivity.finish();
-        }
+        sourceActivity.navigateUpTo(upIntent);
     }
 
     /**
      * Obtain an {@link Intent} that will launch an explicit target activity
      * specified by sourceActivity's {@link #PARENT_ACTIVITY} &lt;meta-data&gt;
-     * element in the application's manifest. If the device is running
-     * Jellybean or newer, the android:parentActivityName attribute will be preferred
-     * if it is present.
+     * element in the application's manifest. The android:parentActivityName
+     * attribute will be preferred if it is present.
      *
      * @param sourceActivity Activity to fetch a parent intent for
      * @return a new Intent targeting the defined parent activity of sourceActivity
      */
     @Nullable
     public static Intent getParentActivityIntent(@NonNull Activity sourceActivity) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            // Prefer the "real" JB definition if available,
-            // else fall back to the meta-data element.
-            Intent result = Api16Impl.getParentActivityIntent(sourceActivity);
-            if (result != null) {
-                return result;
-            }
+        // Prefer the "real" JB definition, else fall back to the meta-data element.
+        Intent result = sourceActivity.getParentActivityIntent();
+        if (result != null) {
+            return result;
         }
+
         String parentName = NavUtils.getParentActivityName(sourceActivity);
         if (parentName == null) return null;
 
@@ -261,11 +251,9 @@ public final class NavUtils {
         }
 
         ActivityInfo info = pm.getActivityInfo(componentName, flags);
-        if (Build.VERSION.SDK_INT >= 16) {
-            String result = info.parentActivityName;
-            if (result != null) {
-                return result;
-            }
+        String result = info.parentActivityName;
+        if (result != null) {
+            return result;
         }
         if (info.metaData == null) {
             return null;
@@ -282,27 +270,5 @@ public final class NavUtils {
 
     /** No instances! */
     private NavUtils() {
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
-            return activity.shouldUpRecreateTask(targetIntent);
-        }
-
-        @DoNotInline
-        static boolean navigateUpTo(Activity activity, Intent upIntent) {
-            return activity.navigateUpTo(upIntent);
-        }
-
-        @DoNotInline
-        static Intent getParentActivityIntent(Activity activity) {
-            return activity.getParentActivityIntent();
-        }
     }
 }

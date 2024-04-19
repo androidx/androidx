@@ -29,11 +29,10 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import kotlin.reflect.KClass
 
 internal class KspRoundEnv(
-    private val env: KspProcessingEnv,
-    override val isProcessingOver: Boolean
+    private val env: KspProcessingEnv?, // null on last round (i.e. isProcessingOver == true)
 ) : XRoundEnv {
-    override val rootElements: Set<XElement>
-        get() = TODO("not supported")
+    override val isProcessingOver: Boolean
+        get() = env == null
 
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         return getElementsAnnotatedWith(
@@ -46,6 +45,10 @@ internal class KspRoundEnv(
         if (annotationQualifiedName == "*") {
             return emptySet()
         }
+        if (isProcessingOver) {
+            return emptySet()
+        }
+        checkNotNull(env)
         return buildSet {
             env.resolver.getSymbolsWithAnnotation(annotationQualifiedName)
                 .forEach { symbol ->
@@ -63,7 +66,7 @@ internal class KspRoundEnv(
                         }
 
                         is KSFunctionDeclaration -> {
-                            add(KspExecutableElement.create(env, symbol))
+                            add(env.wrapFunctionDeclaration(symbol))
                         }
 
                         is KSPropertyAccessor -> {

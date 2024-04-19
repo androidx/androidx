@@ -31,12 +31,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalDrawer
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -60,17 +63,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.inspection.compose.flatten
 import androidx.compose.ui.inspection.testdata.TestActivity
+import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -974,7 +981,60 @@ class LayoutInspectorTreeTest {
         val builder = LayoutInspectorTree()
         builder.hideSystemNodes = false
         builder.includeAllParameters = false
-        builder.convert(androidComposeView)
+    }
+
+    @Test // regression test for b/311436726
+    fun testLazyColumn() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                LazyColumn(modifier = Modifier.testTag("LazyColumn")) {
+                    items(100) { index ->
+                        Text(text = "Item: $index")
+                    }
+                }
+            }
+        }
+
+        val androidComposeView = findAndroidComposeView()
+        androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        builder.hideSystemNodes = false
+        builder.includeAllParameters = true
+        ThreadUtils.runOnMainThread {
+            builder.convert(androidComposeView)
+        }
+        for (index in 20..40) {
+            composeTestRule.onNodeWithTag("LazyColumn").performScrollToIndex(index)
+        }
+        ThreadUtils.runOnMainThread {
+            builder.convert(androidComposeView)
+        }
+    }
+
+    @Test
+    fun testScaffold() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Scaffold {
+                    Column {
+                        LinearProgressIndicator(progress = 0.3F)
+                    }
+                }
+            }
+        }
+        val androidComposeView = findAndroidComposeView()
+        androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        builder.hideSystemNodes = false
+        builder.includeAllParameters = true
+        val linearProgressIndicator = builder.convert(androidComposeView)
+            .flatMap { flatten(it) }
+            .firstOrNull { it.name == "LinearProgressIndicator" }
+        assertThat(linearProgressIndicator).isNotNull()
     }
 
     @Suppress("SameParameterValue")

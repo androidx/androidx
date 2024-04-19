@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.isIncorrectImplicitReturnInLambda
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
@@ -44,7 +45,8 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
         if (!method.isInPackageName(Names.Ui.Pointer.PackageName)) return
         val methodParent = skipParenthesizedExprUp(node.uastParent)
         val isAssignedToVariable = methodParent is ULocalVariable
-        val isReturnExpression = methodParent is UReturnExpression
+        val isReturnExpression = methodParent is UReturnExpression &&
+            !methodParent.isIncorrectImplicitReturnInLambda()
 
         if (isAssignedToVariable || isReturnExpression) {
             context.report(

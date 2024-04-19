@@ -16,10 +16,13 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts;
 
+import static android.text.Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+
 import static androidx.car.app.CarToast.LENGTH_LONG;
 
 import android.graphics.Color;
 import android.net.Uri;
+import android.text.SpannableStringBuilder;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -30,6 +33,8 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.ForegroundCarColorSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.InputCallback;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -40,10 +45,12 @@ import androidx.car.app.model.signin.ProviderSignInMethod;
 import androidx.car.app.model.signin.QRCodeSignInMethod;
 import androidx.car.app.model.signin.SignInTemplate;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.common.Utils;
+import androidx.car.app.sample.showcase.common.common.SpannableStringBuilderAnnotationExtensions;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.messagetemplates.LongMessageTemplateDemoScreen;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
+
+import kotlin.Unit;
 
 /** A screen that demonstrates the sign-in template. */
 public class SignInTemplateDemoScreen extends Screen {
@@ -83,9 +90,19 @@ public class SignInTemplateDemoScreen extends Screen {
         };
         carContext.getOnBackPressedDispatcher().addCallback(this, callback);
 
-        mAdditionalText = Utils.clickable(getCarContext().getString(R.string.additional_text), 18,
-                16,
-                () -> getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext())));
+        SpannableStringBuilder additionalText =
+                SpannableStringBuilderAnnotationExtensions.getSpannableStringBuilder(
+                        getCarContext(), R.string.additional_text);
+        SpannableStringBuilderAnnotationExtensions.addSpanToAnnotatedPosition(
+                additionalText,
+                "link",
+                "terms_of_service",
+                () -> {
+                    getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext()));
+                    return Unit.INSTANCE;
+                }
+        );
+        mAdditionalText = additionalText;
 
         mProviderSignInAction = new Action.Builder()
                 .setTitle(getCarContext().getString(R.string.google_sign_in))
@@ -118,9 +135,9 @@ public class SignInTemplateDemoScreen extends Screen {
         if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.sign_in_template_not_supported_text))
-                    .setTitle(getCarContext().getString(
-                            R.string.sign_in_template_not_supported_title))
-                    .setHeaderAction(Action.BACK)
+                    .setHeader(new Header.Builder().setTitle(getCarContext().getString(
+                                    R.string.sign_in_template_not_supported_title))
+                            .setStartHeaderAction(Action.BACK).build())
                     .build();
         }
         switch (mState) {
@@ -286,11 +303,17 @@ public class SignInTemplateDemoScreen extends Screen {
                 R.drawable.ic_googleg);
         CarColor noTint = CarColor.createCustom(Color.TRANSPARENT, Color.TRANSPARENT);
 
+        SpannableStringBuilder title = new SpannableStringBuilder()
+                .append(
+                        getCarContext().getString(R.string.sign_in_with_google_title),
+                        ForegroundCarColorSpan.create(
+                                CarColor.createCustom(Color.BLACK, Color.BLACK)),
+                        SPAN_INCLUSIVE_INCLUSIVE
+                );
+
         ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod(
                 new Action.Builder()
-                        .setTitle(Utils.colorize(
-                                getCarContext().getString(R.string.sign_in_with_google_title),
-                                CarColor.createCustom(Color.BLACK, Color.BLACK), 0, 19))
+                        .setTitle(title)
                         .setBackgroundColor(CarColor.createCustom(Color.WHITE, Color.WHITE))
                         .setIcon(new CarIcon.Builder(providerIcon)
                                 .setTint(noTint)
@@ -338,8 +361,9 @@ public class SignInTemplateDemoScreen extends Screen {
     private MessageTemplate getSignInCompletedMessageTemplate() {
         return new MessageTemplate.Builder(
                 getCarContext().getString(R.string.sign_in_complete_text))
-                .setTitle(getCarContext().getString(R.string.sign_in_complete_title))
-                .setHeaderAction(Action.BACK)
+                .setHeader(new Header.Builder().setStartHeaderAction(Action.BACK)
+                        .setTitle(getCarContext().getString(R.string.sign_in_complete_title))
+                        .build())
                 .addAction(new Action.Builder()
                         .setTitle(getCarContext().getString(R.string.sign_out_action_title))
                         .setOnClickListener(() -> {

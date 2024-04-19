@@ -115,6 +115,7 @@ public final class AccessibilityManagerCompat {
      *
      * @deprecated Use {@link AccessibilityManager#getInstalledAccessibilityServiceList()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "manager.getInstalledAccessibilityServiceList()")
     @Deprecated
     public static List<AccessibilityServiceInfo> getInstalledAccessibilityServiceList(
             AccessibilityManager manager) {
@@ -138,6 +139,7 @@ public final class AccessibilityManagerCompat {
      * @deprecated Use {@link AccessibilityManager#getEnabledAccessibilityServiceList(int)}
      * directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "manager.getEnabledAccessibilityServiceList(feedbackTypeFlags)")
     @Deprecated
     public static List<AccessibilityServiceInfo> getEnabledAccessibilityServiceList(
             AccessibilityManager manager, int feedbackTypeFlags) {
@@ -152,6 +154,7 @@ public final class AccessibilityManagerCompat {
      *
      * @deprecated Use {@link AccessibilityManager#isTouchExplorationEnabled()} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "manager.isTouchExplorationEnabled()")
     @Deprecated
     public static boolean isTouchExplorationEnabled(AccessibilityManager manager) {
         return manager.isTouchExplorationEnabled();
@@ -164,15 +167,15 @@ public final class AccessibilityManagerCompat {
      * @param manager AccessibilityManager for which to add the listener.
      * @param listener The listener.
      * @return True if successfully registered.
+     * @deprecated Call {@link AccessibilityManager#addTouchExplorationStateChangeListener(AccessibilityManager.TouchExplorationStateChangeListener)} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "manager.addTouchExplorationStateChangeListener(listener)")
     public static boolean addTouchExplorationStateChangeListener(
             @NonNull AccessibilityManager manager,
             @NonNull TouchExplorationStateChangeListener listener) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.addTouchExplorationStateChangeListenerWrapper(manager, listener);
-        } else {
-            return false;
-        }
+        return manager.addTouchExplorationStateChangeListener(
+                new TouchExplorationStateChangeListenerWrapper(listener));
     }
 
     /**
@@ -181,15 +184,15 @@ public final class AccessibilityManagerCompat {
      * @param manager AccessibilityManager for which to remove the listener.
      * @param listener The listener.
      * @return True if successfully unregistered.
+     * @deprecated Call {@link AccessibilityManager#removeTouchExplorationStateChangeListener(AccessibilityManager.TouchExplorationStateChangeListener)} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "manager.removeTouchExplorationStateChangeListener(listener)")
     public static boolean removeTouchExplorationStateChangeListener(
             @NonNull AccessibilityManager manager,
             @NonNull TouchExplorationStateChangeListener listener) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.removeTouchExplorationStateChangeListenerWrapper(manager, listener);
-        } else {
-            return false;
-        }
+        return manager.removeTouchExplorationStateChangeListener(
+                new TouchExplorationStateChangeListenerWrapper(listener));
     }
 
 
@@ -222,7 +225,6 @@ public final class AccessibilityManagerCompat {
         }
     }
 
-    @RequiresApi(19)
     private static final class TouchExplorationStateChangeListenerWrapper
             implements AccessibilityManager.TouchExplorationStateChangeListener {
         final TouchExplorationStateChangeListener mListener;
@@ -314,28 +316,6 @@ public final class AccessibilityManagerCompat {
         @DoNotInline
         static boolean isRequestFromAccessibilityTool(AccessibilityManager accessibilityManager) {
             return accessibilityManager.isRequestFromAccessibilityTool();
-        }
-    }
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean addTouchExplorationStateChangeListenerWrapper(
-                AccessibilityManager accessibilityManager,
-                TouchExplorationStateChangeListener listener) {
-            return accessibilityManager.addTouchExplorationStateChangeListener(
-                    new TouchExplorationStateChangeListenerWrapper(listener));
-        }
-
-        @DoNotInline
-        static boolean removeTouchExplorationStateChangeListenerWrapper(
-                AccessibilityManager accessibilityManager,
-                TouchExplorationStateChangeListener listener) {
-            return accessibilityManager.removeTouchExplorationStateChangeListener(
-                    new TouchExplorationStateChangeListenerWrapper(listener));
         }
     }
 }

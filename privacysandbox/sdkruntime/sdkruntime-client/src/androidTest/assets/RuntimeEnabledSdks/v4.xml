@@ -14,6 +14,6 @@
   limitations under the License.
   -->
 <compat-config>
-    <compat-entrypoint>androidx.privacysandbox.sdkruntime.testsdk.v4.CompatProvider</compat-entrypoint>
+    <compat-entrypoint>androidx.privacysandbox.sdkruntime.testsdk.CompatProvider</compat-entrypoint>
     <dex-path>test-sdks/v4/classes.dex</dex-path>
 </compat-config>

@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import androidx.collection.MutableIntList
+import androidx.collection.intListOf
+import androidx.collection.mutableIntListOf
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,6 +56,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.inspection.util.removeLast
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -713,6 +717,7 @@ class ParameterFactoryTest {
 
     @Test
     fun testWrappedModifier() {
+        @Suppress("DEPRECATION")
         fun Modifier.frame(color: Color) = inspectable(
             debugInspectorInfo {
                 name = "frame"
@@ -982,7 +987,7 @@ class ParameterFactoryTest {
             parameter,
             parameter.name,
             value,
-            mutableListOf(),
+            mutableIntListOf(),
             maxRecursions,
             maxInitialIterableSize
         )
@@ -1019,7 +1024,9 @@ class ParameterFactoryTest {
     }
 
     private fun ref(vararg reference: Int): NodeParameterReference =
-        NodeParameterReference(NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, reference)
+        NodeParameterReference(
+            NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, intListOf(*reference)
+        )
 
     private fun validate(
         parameter: NodeParameter,
@@ -1034,7 +1041,7 @@ class ParameterFactoryTest {
         parameter: NodeParameter,
         name: String,
         value: Any,
-        indices: MutableList<Int>,
+        indices: MutableIntList,
         maxRecursions: Int,
         maxInitialIterableSize: Int
     ) {

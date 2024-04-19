@@ -27,13 +27,21 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.impl.source.PsiClassReferenceType
+import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.calls.KtSimpleFunctionCall
+import org.jetbrains.kotlin.analysis.api.calls.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.types.KtFunctionalType
+import org.jetbrains.kotlin.psi.KtCallElement
+import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.util.OperatorNameConventions
+import org.jetbrains.uast.UBlockExpression
+import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UElement
 import org.jetbrains.uast.ULambdaExpression
+import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.UVariable
-import org.jetbrains.uast.kotlin.KotlinUBlockExpression
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
-import org.jetbrains.uast.kotlin.KotlinUImplicitReturnExpression
-import org.jetbrains.uast.kotlin.UnknownKotlinExpression
 import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
@@ -65,30 +73,28 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
      * This handler visits every lambda expression and reports an issue if the following criteria
      * (in order) hold true:
      *
-     * 1. There is only one expression inside the lambda.
-     * 2. The expression is a function call
-     * 3. The lambda is being invoked as part of a function call, and not as a property assignment
+     * 1. There is only one expression inside the lambda
+     * 2. The lambda literal is created as part of a function call, and not as a property assignment
      *    such as val foo = @Composable {}
-     * 4. The receiver type of the function call is `Function0` (i.e, we are invoking something
-     *    that matches `() -> Unit` - this both avoids non-lambda invocations but also makes sure
-     *    that we don't warn for lambdas that have parameters, such as @Composable (Int) -> Unit
-     *    - this cannot be inlined.)
-     * 5. The outer function call that contains this lambda is not a call to a `LayoutNode`
-     *    (because these are technically constructor invocations that we just intercept calls to
-     *    there is no way to avoid using a trailing lambda for this)
-     * 6. The lambda is not being passed as a parameter, for example `Foo { lambda -> lambda() }`
+     * 3. The expression is an invoke() call
+     * 4. The receiver type of the invoke call is a functional type, and it is a subtype of (i.e
+     * compatible to cast to) the lambda parameter functional type
+     * 5. The lambda parameter and literal have matching composability
      */
     class UnnecessaryLambdaCreationHandler(private val context: JavaContext) : UElementHandler() {
 
         override fun visitLambdaExpression(node: ULambdaExpression) {
-            val expressions = (node.body as? KotlinUBlockExpression)?.expressions ?: return
+            val expressions = (node.body as? UBlockExpression)?.expressions ?: return
 
             if (expressions.size != 1) return
 
             val expression = when (val expr = expressions.first().skipParenthesizedExprDown()) {
-                is KotlinUFunctionCallExpression -> expr
-                is KotlinUImplicitReturnExpression ->
-                    expr.returnExpression as? KotlinUFunctionCallExpression
+                is UCallExpression -> expr
+                is UReturnExpression -> {
+                    if (expr.sourcePsi == null) { // implicit return
+                        expr.returnExpression?.skipParenthesizedExprDown() as? UCallExpression
+                    } else null
+                }
                 else -> null
             } ?: return
 
@@ -97,42 +103,51 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // We want to make sure this lambda is being invoked in the context of a function call,
             // and not as a property assignment - so we cast to KotlinUFunctionCallExpression to
             // filter out such cases.
-            val parentExpression = (node.uastParent as? KotlinUFunctionCallExpression) ?: return
+            val parentExpression = (node.uastParent as? UCallExpression) ?: return
 
             // If we can't resolve the parent call, then the parent function is defined in a
             // separate module, so we don't have the right metadata - and hence the argumentType
             // below will be Function0 even if in the actual source it has a scope. Return early to
             // avoid false positives.
             parentExpression.resolve() ?: return
-
-            // If the expression has no receiver, it is not a lambda invocation
-            val functionType = expression.receiverType as? PsiClassReferenceType ?: return
-
-            // Find the functional type of the parent argument, for example () -> Unit (Function0)
-            val argumentType = node.getExpressionType() as? PsiClassReferenceType ?: return
+            val resolved = expression.resolve() ?: return
+            if (resolved.name != OperatorNameConventions.INVOKE.identifier) return
 
             // Return if the receiver of the lambda argument and the lambda itself don't match. This
             // happens if the functional types are different, for example a lambda with 0 parameters
             // (Function0) and a lambda with 1 parameter (Function1). Similarly for two lambdas
             // with 0 parameters, but one that has a receiver scope (SomeScope.() -> Unit).
-            if (functionType != argumentType) return
+            val expressionSourcePsi = expression.sourcePsi as? KtCallElement ?: return
+            analyze(expressionSourcePsi) {
+                val functionType = dispatchReceiverType(expressionSourcePsi) ?: return
+                val argumentType = toLambdaFunctionalType(node) ?: return
+                if (!(functionType isSubTypeOf argumentType)) return
+            }
 
             val expectedComposable = node.isComposable
 
             // Try and get the UElement for the source of the lambda
-            val resolvedLambdaSource = expression.sourcePsi.calleeExpression?.toUElement()
+            val sourcePsi = expression.sourcePsi as? KtCallElement ?: return
+            val resolvedLambdaSource = sourcePsi.calleeExpression?.toUElement()
                 ?.tryResolve()?.toUElement()
-                // Sometimes the above will give us a method (representing the getter for a
+                // Sometimes the above will give us a method (representing the getter for a`
                 // property), when the actual backing element is a property. Going to the source
                 // and back should give us the actual UVariable we are looking for.
                 ?.sourcePsi.toUElement()
 
             val isComposable = when (resolvedLambdaSource) {
                 is UVariable -> resolvedLambdaSource.isComposable
-                // TODO: if the resolved source is a parameter in a local function, it
-                //  incorrectly returns an UnknownKotlinExpression instead of a UParameter
-                //  https://youtrack.jetbrains.com/issue/KTIJ-19125
-                is UnknownKotlinExpression -> return
+                // If the source is a method, then the lambda is the return type of the method, so
+                // check the return type
+                is UMethod -> resolvedLambdaSource.returnTypeReference?.isComposable == true
+                // Safe return if we failed to resolve. This can happen for implicit `it` parameters
+                // that are lambdas, but this should only happen exceptionally for lambdas with
+                // an `Any` parameter, such as { any: Any -> }.let { it(Any()) }, since this passes
+                // the isSubTypeOf check above. In this case it isn't possible to inline this call,
+                // so no need to handle these implicit parameters.
+                null -> return
+                // Throw since this is an internal check, and we want to fix this for unknown types.
+                // If making this check public, it's safer to return instead without throwing.
                 else -> error(parentExpression.asSourceString())
             }
 
@@ -141,7 +156,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             context.report(
                 ISSUE,
                 node,
-                context.getNameLocation(expression),
+                context.getNameLocation(expression as UElement),
                 "Creating an unnecessary lambda to emit a captured lambda"
             )
         }
@@ -165,4 +180,19 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             )
         )
     }
+}
+
+private fun KtAnalysisSession.dispatchReceiverType(callElement: KtCallElement): KtFunctionalType? =
+    callElement.resolveCall()
+        ?.singleFunctionCallOrNull()
+        ?.takeIf { it is KtSimpleFunctionCall && it.isImplicitInvoke }
+        ?.partiallyAppliedSymbol
+        ?.dispatchReceiver
+        ?.type as? KtFunctionalType
+
+private fun KtAnalysisSession.toLambdaFunctionalType(
+    lambdaExpression: ULambdaExpression
+): KtFunctionalType? {
+    val sourcePsi = lambdaExpression.sourcePsi as? KtLambdaExpression ?: return null
+    return sourcePsi.getKtType() as? KtFunctionalType
 }

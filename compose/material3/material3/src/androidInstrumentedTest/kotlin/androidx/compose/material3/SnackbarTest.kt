@@ -18,6 +18,8 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertIsNotEqualTo
 import androidx.compose.ui.Modifier

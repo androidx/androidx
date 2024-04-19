@@ -32,15 +32,16 @@ class StringColumnTypeAdapter private constructor(
         indexVarName: String,
         scope: CodeGenScope
     ) {
+        val getter = if (scope.useDriverApi) "getText" else "getString"
         scope.builder.apply {
             if (out.nullability == XNullability.NONNULL) {
-                addStatement("%L = %L.getString(%L)", outVarName, cursorVarName, indexVarName)
+                addStatement("%L = %L.$getter(%L)", outVarName, cursorVarName, indexVarName)
             } else {
                 beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName).apply {
                     addStatement("%L = null", outVarName)
                 }
                 nextControlFlow("else").apply {
-                    addStatement("%L = %L.getString(%L)", outVarName, cursorVarName, indexVarName)
+                    addStatement("%L = %L.$getter(%L)", outVarName, cursorVarName, indexVarName)
                 }
                 endControlFlow()
             }
@@ -53,14 +54,15 @@ class StringColumnTypeAdapter private constructor(
         valueVarName: String,
         scope: CodeGenScope
     ) {
+        val setter = if (scope.useDriverApi) "bindText" else "bindString"
         scope.builder.apply {
             if (out.nullability == XNullability.NONNULL) {
-                addStatement("%L.bindString(%L, %L)", stmtName, indexVarName, valueVarName)
+                addStatement("%L.$setter(%L, %L)", stmtName, indexVarName, valueVarName)
             } else {
                 beginControlFlow("if (%L == null)", valueVarName)
                     .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
                 nextControlFlow("else")
-                    .addStatement("%L.bindString(%L, %L)", stmtName, indexVarName, valueVarName)
+                    .addStatement("%L.$setter(%L, %L)", stmtName, indexVarName, valueVarName)
                 endControlFlow()
             }
         }

@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -84,10 +85,12 @@ public final class SettingsScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle(getCarContext().getString(R.string.settings_action_title) + " ("
-                        + getCarContext().getString(R.string.cal_api_level_prefix,
-                        getCarContext().getCarAppApiLevel()) + ")")
-                .setHeaderAction(BACK)
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext().getString(R.string.settings_action_title) + " ("
+                                + getCarContext().getString(R.string.cal_api_level_prefix,
+                                getCarContext().getCarAppApiLevel()) + ")")
+                        .setStartHeaderAction(BACK)
+                        .build())
                 .build();
     }
 

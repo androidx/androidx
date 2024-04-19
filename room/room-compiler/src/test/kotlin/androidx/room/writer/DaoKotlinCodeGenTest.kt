@@ -908,6 +908,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
               @Query("DELETE FROM MyEntity")
               fun deleteEntityReturnInt(): Int
+
+              @Query("DELETE FROM MyEntity WHERE id IN (:ids)")
+              fun deleteEntitiesIn(ids: List<Long>)
             }
 
             @Entity
@@ -1237,6 +1240,38 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun queryResultAdapter_singleColumn() {
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT count(*) FROM MyEntity")
+              fun count(): Int
+
+              @Query("SELECT 'Tom' FROM MyEntity LIMIT 1")
+              fun text(): String
+
+              @Query("SELECT 'Tom' FROM MyEntity LIMIT 1")
+              fun nullableText(): String?
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
     fun queryResultAdapter_list() {
         val dbSource = Source.kotlin(
             "MyDatabase.kt",
@@ -1304,13 +1339,21 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Query("SELECT * FROM MyEntity")
               fun queryOfArray(): Array<MyEntity>
 
+              @Suppress(RoomWarnings.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE)
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableArray(): Array<MyEntity?>
+
               @Query("SELECT pk FROM MyEntity")
               fun queryOfArrayWithLong(): Array<Long>
 
-              @Query("SELECT * FROM MyEntity")
+              @Suppress(RoomWarnings.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE)
+              @Query("SELECT pk FROM MyEntity")
+              fun queryOfArrayWithNullableLong(): Array<Long?>
+
+              @Query("SELECT pk FROM MyEntity")
               fun queryOfLongArray(): LongArray
 
-              @Query("SELECT * FROM MyEntity")
+              @Query("SELECT pk FROM MyEntity")
               fun queryOfShortArray(): ShortArray
             }
 
@@ -2044,6 +2087,30 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 suspend fun getSuspendList(vararg arg: String?): List<MyEntity>
+
+                @Query("SELECT count(*) FROM MyEntity")
+                suspend fun getCount(): Int
+
+                @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                suspend fun insertEntity(pk: Long)
+
+                @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                suspend fun insertEntityReturnLong(pk: Long): Long
+
+                @Query("UPDATE MyEntity SET other = :text")
+                suspend fun updateEntity(text: String)
+
+                @Query("UPDATE MyEntity SET other = :text WHERE pk = :pk")
+                suspend fun updateEntityReturnInt(pk: Long, text: String): Int
+
+                @Query("DELETE FROM MyEntity")
+                suspend fun deleteEntity()
+
+                @Query("DELETE FROM MyEntity")
+                suspend fun deleteEntityReturnInt(): Int
+
+                @Query("DELETE FROM MyEntity WHERE pk IN (:pks)")
+                suspend fun deleteEntitiesIn(pks: List<Long>)
             }
 
             @Entity

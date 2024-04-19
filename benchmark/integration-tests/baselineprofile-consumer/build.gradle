@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import com.android.build.api.artifact.SingleArtifact
 
 /*
@@ -70,7 +77,7 @@ configurations {
     }
 }
 androidComponents {
-    onVariants(selector().all().withBuildType("release"), { variant ->
+    onVariants(selector().all(), { variant ->
         artifacts {
             apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
         }

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -28,22 +35,10 @@ dependencies {
 
     implementation("androidx.appcompat:appcompat:1.6.1")
 
-    implementation(project(":activity:activity-compose"))
     implementation(project(":compose:material3:material3"))
     implementation(project(":navigation:navigation-compose"))
-    implementation(project(":profileinstaller:profileinstaller"))
-    implementation(project(":compose:material:material-icons-core"))
-    implementation(project(":compose:material:material-icons-extended"))
-
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
-
-    // pull latest compose (if build fails in future, just comment the following compose deps until
-    // we fix this package)
-    implementation(project(":compose:animation:animation"))
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:foundation:foundation-layout"))
 }
 
 androidx {
@@ -79,8 +74,12 @@ configurations.all {
                 using project(":lifecycle:lifecycle-livedata-core")
         substitute(module("androidx.lifecycle:lifecycle-runtime:")).
                 using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
+                using project(":lifecycle:lifecycle-runtime-ktx")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
                 using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
+                using project(":lifecycle:lifecycle-viewmodel-ktx")
         substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
                 using project(":lifecycle:lifecycle-viewmodel-savedstate")
     }

@@ -38,6 +38,9 @@ import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -70,6 +73,7 @@ class CameraControlAdapter @Inject constructor(
     private val torchControl: TorchControl,
     private val threads: UseCaseThreads,
     private val zoomControl: ZoomControl,
+    private val zslControl: ZslControl,
     val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
     override fun getSensorRect(): Rect {
@@ -124,8 +128,16 @@ class CameraControlAdapter @Inject constructor(
         return flashControl.flashMode
     }
 
-    override fun setFlashMode(flashMode: Int) {
+    override fun setFlashMode(@ImageCapture.FlashMode flashMode: Int) {
         flashControl.setFlashAsync(flashMode)
+        zslControl.setZslDisabledByFlashMode(
+            flashMode == FLASH_MODE_ON ||
+                flashMode == FLASH_MODE_AUTO
+        )
+    }
+
+    override fun setScreenFlash(screenFlash: ImageCapture.ScreenFlash?) {
+        flashControl.setScreenFlash(screenFlash)
     }
 
     override fun setExposureCompensationIndex(exposure: Int): ListenableFuture<Int> =
@@ -134,22 +146,21 @@ class CameraControlAdapter @Inject constructor(
         )
 
     override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
-        // Override if Zero-Shutter Lag needs to be disabled by user case config.
+        zslControl.setZslDisabledByUserCaseConfig(disabled)
     }
 
     override fun isZslDisabledByByUserCaseConfig(): Boolean {
-        // Override if Zero-Shutter Lag needs to be disabled by user case config.
-        return false
+        return zslControl.isZslDisabledByUserCaseConfig()
     }
 
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
-        // Override if Zero-Shutter Lag needs to add config to session config.
+        zslControl.addZslConfig(sessionConfigBuilder)
     }
 
     override fun submitStillCaptureRequests(
         captureConfigs: List<CaptureConfig>,
-        captureMode: Int,
-        flashType: Int,
+        @ImageCapture.CaptureMode captureMode: Int,
+        @ImageCapture.FlashType flashType: Int,
     ) = stillCaptureRequestControl.issueCaptureRequests(
         captureConfigs,
         captureMode,

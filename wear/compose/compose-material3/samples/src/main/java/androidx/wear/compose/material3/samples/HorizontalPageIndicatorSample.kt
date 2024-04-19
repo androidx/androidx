@@ -41,7 +41,7 @@ import androidx.wear.compose.material3.rememberPageIndicatorState
 @Sampled
 @Composable
 fun HorizontalPageIndicatorSample() {
-    val maxPages = 9
+    val pageCount = 9
     var selectedPage by remember { mutableStateOf(0) }
     var finalValue by remember { mutableStateOf(0) }
 
@@ -52,7 +52,7 @@ fun HorizontalPageIndicatorSample() {
     }
 
     val pageIndicatorState: PageIndicatorState =
-        rememberPageIndicatorState(maxPages) { animatedSelectedPage }
+        rememberPageIndicatorState(pageCount) { animatedSelectedPage }
 
     Box(
         modifier = Modifier
@@ -64,7 +64,7 @@ fun HorizontalPageIndicatorSample() {
             value = selectedPage,
             increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
             decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-            valueProgression = 0 until maxPages,
+            valueProgression = 0 until pageCount,
             onValueChange = { selectedPage = it }
         )
         HorizontalPageIndicator(

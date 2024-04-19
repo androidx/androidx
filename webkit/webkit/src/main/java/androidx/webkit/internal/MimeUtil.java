@@ -105,7 +105,7 @@ class MimeUtil {
                 return "text/html";
             case "js":
             case "mjs":
-                return "application/javascript";
+                return "text/javascript";
             case "xml":
                 return "text/xml";
             case "mp4":

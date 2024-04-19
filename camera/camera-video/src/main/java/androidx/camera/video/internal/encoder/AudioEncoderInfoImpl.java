@@ -16,6 +16,8 @@
 
 package androidx.camera.video.internal.encoder;
 
+import static androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo;
+
 import android.media.MediaCodecInfo;
 import android.util.Range;
 

@@ -210,7 +210,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     @Override
     public void setSweepAngleDegrees(
             @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true) float angleDegrees) {
-        /** We need to be careful because this is also set by {@link #onMeasure} below. */
+        /* We need to be careful because this is also set by {@link #onMeasure} below. */
         mBackgroundSweepDegrees = angleDegrees;
     }
 

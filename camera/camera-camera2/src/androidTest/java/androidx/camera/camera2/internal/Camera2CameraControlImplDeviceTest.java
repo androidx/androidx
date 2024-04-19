@@ -38,6 +38,7 @@ import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -345,6 +346,9 @@ public final class Camera2CameraControlImplDeviceTest {
         assumeThat("CONTROL_AE_MODE_ON_EXTERNAL_FLASH not supported",
                 mCamera2CameraControlImpl.getSupportedAeMode(CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
                 equalTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH));
+        // Other flash modes may override the external flash AE mode
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+        Mockito.reset(mControlUpdateCallback);
 
         mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(true);
 
@@ -367,6 +371,8 @@ public final class Camera2CameraControlImplDeviceTest {
         assumeThat("CONTROL_AE_MODE_ON_EXTERNAL_FLASH not supported",
                 mCamera2CameraControlImpl.getSupportedAeMode(CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
                 equalTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH));
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+        Mockito.reset(mControlUpdateCallback);
 
         mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(true);
         HandlerUtil.waitForLooperToIdle(mHandler);
@@ -501,7 +507,7 @@ public final class Camera2CameraControlImplDeviceTest {
         future.get(10, TimeUnit.SECONDS);
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(captureCallback, timeout(3000).times(1))
-                .onCaptureCompleted(any(CameraCaptureResult.class));
+                .onCaptureCompleted(anyInt(), any(CameraCaptureResult.class));
     }
 
     private Camera2CameraControlImpl createCamera2CameraControlWithPhysicalCamera() {
@@ -1039,7 +1045,8 @@ public final class Camera2CameraControlImplDeviceTest {
         private CountDownLatch mLatchForOnCaptureCompleted;
 
         @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+        public void onCaptureCompleted(int captureConfigId,
+                @NonNull CameraCaptureResult cameraCaptureResult) {
             synchronized (this) {
                 if (mLatchForOnCaptureCompleted != null) {
                     mLatchForOnCaptureCompleted.countDown();

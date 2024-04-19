@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -31,7 +30,6 @@ import android.widget.ToggleButton;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
@@ -207,7 +205,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void setCompoundDrawablesRelative(@Nullable Drawable start, @Nullable Drawable top,
             @Nullable Drawable end, @Nullable Drawable bottom) {

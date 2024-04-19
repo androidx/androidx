@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Nuk ofrohet"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Llojet e bashkuesve për automjete elektrike"</string>
     <string name="example_title" msgid="530257630320010494">"Shembull: %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Ky tekst ka ngjyrë të kuqe"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Ky tekst ka ngjyrë të gjelbër"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Ky tekst ka ngjyrë blu"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Ky tekst ka ngjyrë të verdhë"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Ky tekst ka ngjyrë "<annotation color="red">"të kuqe"</annotation></string>
+    <string name="example_2_text" msgid="1359373957397219102">"Ky tekst ka ngjyrë "<annotation color="green">"të gjelbër"</annotation></string>
+    <string name="example_3_text" msgid="2409207170762049673">"Ky tekst ka ngjyrë "<annotation color="blue">"blu"</annotation></string>
+    <string name="example_4_text" msgid="9055989886645433000">"Ky tekst ka ngjyrë "<annotation color="yellow">"të verdhë"</annotation></string>
     <string name="example_5_text" msgid="8828804968749423500">"Ky tekst përdor ngjyrën kryesore"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Ky tekst përdor ngjyrën dytësore"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demonstrimi i ngjyrës"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Shfleto vendet"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demonstrimi i shabllonit të kërkimit"</string>
     <string name="search_hint" msgid="978495498991026792">"Kërko këtu"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Shqyrto kushtet tona të shërbimit"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Rishiko "<annotation link="terms_of_service">"kushtet tona të shërbimit"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Identifikimi në Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Përdor kodin PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Kodi QR"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opsionet e itinerarit"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Shmang autostradat"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Shmang tragetet"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Demonstrimet e hartës"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demonstrimet e hartës me përmbajtje"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demonstrimi i shabllonit të hartës me mesazhe"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demonstrimi i shabllonit të hartës me rrjetë"</string>
 </resources>

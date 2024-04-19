@@ -29,7 +29,8 @@ class AnimationCoreIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         TransitionDetector.UnusedTransitionTargetStateParameter,
-        UnrememberedAnimatableDetector.UnrememberedAnimatable
+        UnrememberedAnimatableDetector.UnrememberedAnimatable,
+        ArcAnimationSpecTypeDetector.ArcAnimationSpecTypeIssue
     )
     override val vendor = Vendor(
         vendorName = "Jetpack Compose",

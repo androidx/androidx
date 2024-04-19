@@ -218,7 +218,7 @@ internal class OkioWriteScope<T>(
 /**
  * Create a coordinator for single process use cases.
  *
- * @param path The canonical path of the file managed by [SingleProcessCoordinator]
+ * @param path The canonical path of the file managed by [createSingleProcessCoordinator]
  */
 public fun createSingleProcessCoordinator(path: Path): InterProcessCoordinator =
     createSingleProcessCoordinator(path.normalized().toString())

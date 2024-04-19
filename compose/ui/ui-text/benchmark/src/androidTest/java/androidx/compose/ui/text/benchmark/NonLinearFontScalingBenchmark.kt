@@ -49,13 +49,12 @@ import org.junit.runners.Parameterized
 class NonLinearFontScalingBenchmark(
     private val textLength: Int,
     fontSizeSp: Int,
-    private val isLineHeightSp: Boolean,
-    private val lineHeightStyle: LineHeightStyle?
+    private val isLineHeightSp: Boolean
 ) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(
-            name = "length={0} fontSize={1} isLineHeightSp={2} lineHeightStyle={3}"
+            name = "length={0} fontSize={1} isLineHeightSp={2}"
         )
         fun initParameters(): List<Array<Any?>> = cartesian(
             arrayOf(512),
@@ -63,8 +62,7 @@ class NonLinearFontScalingBenchmark(
             arrayOf(8, 30),
             // isLineHeightSp. This helps us verify that the calculation to keep line heights
             // proportional doesn't affect performance too much. (see b/273326061)
-            arrayOf(false, true),
-            arrayOf(LineHeightStyle.Default)
+            arrayOf(false, true)
         )
     }
 
@@ -113,14 +111,14 @@ class NonLinearFontScalingBenchmark(
             TextStyle(
                 fontSize = fontSize,
                 lineHeight = fontSize * 2,
-                lineHeightStyle = lineHeightStyle,
+                lineHeightStyle = LineHeightStyle.Default,
                 platformStyle = PlatformTextStyle(includeFontPadding = false)
             )
         } else {
             TextStyle(
                 fontSize = fontSize,
                 lineHeight = 2.em,
-                lineHeightStyle = lineHeightStyle,
+                lineHeightStyle = LineHeightStyle.Default,
                 platformStyle = PlatformTextStyle(includeFontPadding = false)
             )
         }

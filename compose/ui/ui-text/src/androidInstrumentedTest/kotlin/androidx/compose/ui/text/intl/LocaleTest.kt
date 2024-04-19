@@ -59,4 +59,13 @@ class LocaleTest {
         assertThat(Locale("sr-Latn-SR")).isEqualTo(Locale("sr-Latn-SR"))
         assertThat(Locale("sr-Latn-SR")).isNotEqualTo(Locale("sr-Cyrl-SR"))
     }
+
+    @Test
+    fun platformLocale_sharesTheAttributes() {
+        val locale = Locale("en-US")
+        val platformLocale = locale.platformLocale
+        assertThat(locale.language).isEqualTo(platformLocale.language)
+        assertThat(locale.script).isEqualTo(platformLocale.script)
+        assertThat(locale.region).isEqualTo(platformLocale.country)
+    }
 }

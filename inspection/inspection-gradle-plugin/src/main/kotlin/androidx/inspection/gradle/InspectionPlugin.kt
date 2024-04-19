@@ -96,13 +96,15 @@ class InspectionPlugin : Plugin<Project> {
                     }
                 }
             }
-            libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
-                File(project.rootDir, "src/main/proto")
-            )
+            libExtension.sourceSets.named("main").configure {
+                it.resources.srcDirs(
+                    File(project.rootDir, "src/main/proto")
+                )
+            }
         }
 
         project.apply(plugin = "com.google.protobuf")
-        project.plugins.all {
+        project.plugins.configureEach {
             if (it is ProtobufPlugin) {
                 val protobufExtension = project.extensions.getByType(ProtobufExtension::class.java)
                 protobufExtension.apply {
@@ -189,7 +191,7 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
 
     generateProguardDetectionFile(libraryProject)
     val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
-    libExtension.libraryVariants.all { variant ->
+    libExtension.libraryVariants.configureEach { variant ->
         variant.packageLibraryProvider.configure { zip ->
             zip.from(consumeInspectorFiles)
             zip.rename {
@@ -211,6 +213,18 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
             )
         )
     )
+
+    // When adding package inspector to a new project, add the artifactId here
+    // to ensure inspector.jar is packaged in the correct location
+    val artifactId = when (libraryProject.name) {
+        "ui" -> "ui-android"
+        "work-runtime" -> "work-runtime"
+        else -> throw GradleException(
+            "Project ${libraryProject.name} does not have artifactId defined " +
+                "for packaging the inspector.jar file"
+        )
+    }
+    libraryProject.createVerifyInspectorJarPresentTask(artifactId)
 }
 
 fun Project.createConsumeInspectionConfiguration(): Configuration =
@@ -259,7 +273,7 @@ private fun Configuration.setupReleaseAttribute() {
 @ExperimentalStdlibApi
 private fun generateProguardDetectionFile(libraryProject: Project) {
     val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
-    libExtension.libraryVariants.all { variant ->
+    libExtension.libraryVariants.configureEach { variant ->
         libraryProject.registerGenerateProguardDetectionFileTask(variant)
     }
 }

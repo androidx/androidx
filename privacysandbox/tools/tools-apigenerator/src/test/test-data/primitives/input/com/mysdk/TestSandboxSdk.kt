@@ -1,5 +1,6 @@
 package com.mysdk
 
+import android.os.Bundle
 import androidx.privacysandbox.tools.PrivacySandboxService
 
 @PrivacySandboxService
@@ -24,6 +25,8 @@ interface TestSandboxSdk {
 
     suspend fun doSomethingAsync(first: Int, second: String, third: Long): Boolean
 
+    suspend fun doSomethingWithBundlesAsync(first: Int, second: Bundle): Bundle
+
     suspend fun receiveAndReturnNothingAsync()
 
     suspend fun processIntList(x: List<Int>): List<Int>
@@ -41,6 +44,8 @@ interface TestSandboxSdk {
     suspend fun processShortList(x: List<Short>): List<Short>
 
     suspend fun processStringList(x: List<String>): List<String>
+
+    suspend fun processBundleList(x: List<Bundle>): List<Bundle>
 
     suspend fun processNullableInt(x: Int?): Int?
 }

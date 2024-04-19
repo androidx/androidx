@@ -422,8 +422,8 @@ open class AsyncPagedListDiffer<T : Any> {
         val recordingCallback = RecordingCallback()
         pagedList.addWeakCallback(recordingCallback)
         config.backgroundThreadExecutor.execute {
-            val result = oldSnapshot.getNullPaddedList().computeDiff(
-                newSnapshot.getNullPaddedList(),
+            val result = oldSnapshot.getPlaceholderPaddedList().computeDiff(
+                newSnapshot.getPlaceholderPaddedList(),
                 config.diffCallback
             )
 
@@ -446,7 +446,7 @@ open class AsyncPagedListDiffer<T : Any> {
     internal fun latchPagedList(
         @Suppress("DEPRECATION") newList: PagedList<T>,
         @Suppress("DEPRECATION") diffSnapshot: PagedList<T>,
-        diffResult: NullPaddedDiffResult,
+        diffResult: PlaceholderPaddedDiffResult,
         recordingCallback: RecordingCallback,
         lastAccessIndex: Int,
         commitCallback: Runnable?
@@ -461,9 +461,9 @@ open class AsyncPagedListDiffer<T : Any> {
         snapshot = null
 
         // dispatch updates to UI from previousSnapshot -> newSnapshot
-        previousSnapshot.getNullPaddedList().dispatchDiff(
+        previousSnapshot.getPlaceholderPaddedList().dispatchDiff(
             callback = updateCallback,
-            newList = diffSnapshot.getNullPaddedList(),
+            newList = diffSnapshot.getPlaceholderPaddedList(),
             diffResult = diffResult
         )
 
@@ -481,9 +481,9 @@ open class AsyncPagedListDiffer<T : Any> {
             // Note: we don't take into account loads between new list snapshot and new list, but
             // this is only a problem in rare cases when placeholders are disabled, and a load
             // starts (for some reason) and finishes before diff completes.
-            val newPosition = previousSnapshot.getNullPaddedList().transformAnchorIndex(
+            val newPosition = previousSnapshot.getPlaceholderPaddedList().transformAnchorIndex(
                 diffResult,
-                diffSnapshot.getNullPaddedList(),
+                diffSnapshot.getPlaceholderPaddedList(),
                 lastAccessIndex
             )
 

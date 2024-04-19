@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import android.net.Uri
+import androidx.navigation.NavControllerRouteTest.TestClass
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -213,6 +214,96 @@ class ActivityNavigatorDestinationBuilderTest {
             .isTrue()
         assertWithMessage("Destination should have data pattern set")
             .that((graph[DESTINATION_ROUTE] as ActivityNavigator.Destination).dataPattern)
+            .isEqualTo(DATA_PATTERN)
+    }
+
+    @Test
+    fun activityKClass() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity<TestClass> {
+                label = LABEL
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Destination should have label set")
+            .that(graph[TestClass::class].label)
+            .isEqualTo(LABEL)
+    }
+
+    @Test
+    fun activityPackageKClass() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity<TestClass> {
+                targetPackage = PACKAGE_NAME
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Destination should have package name set")
+            .that((graph[TestClass::class] as ActivityNavigator.Destination).targetPackage)
+            .isEqualTo(PACKAGE_NAME)
+    }
+
+    @Test
+    fun activityClassKClass() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity<TestClass> {
+                activityClass = TestActivity::class
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Destination should have ComponentName set")
+            .that((graph[TestClass::class] as ActivityNavigator.Destination).component?.className)
+            .isEqualTo(TestActivity::class.java.name)
+    }
+
+    @Test
+    fun actionKClass() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity<TestClass> {
+                action = ACTION
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Destination should have action set")
+            .that((graph[TestClass::class] as ActivityNavigator.Destination).action)
+            .isEqualTo(ACTION)
+    }
+
+    @Test
+    fun dataKClass() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity<TestClass> {
+                data = DATA
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Destination should have data set")
+            .that((graph[TestClass::class] as ActivityNavigator.Destination).data)
+            .isEqualTo(DATA)
+    }
+
+    @Test
+    fun dataPatternKClass() {
+        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
+            activity<TestClass> {
+                dataPattern = DATA_PATTERN
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Destination should have data pattern set")
+            .that((graph[TestClass::class] as ActivityNavigator.Destination).dataPattern)
             .isEqualTo(DATA_PATTERN)
     }
 }

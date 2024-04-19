@@ -21,14 +21,14 @@ import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardActionScope
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.TextFieldLineLimits
-import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Snackbar
 import androidx.compose.material.SnackbarDefaults
@@ -53,27 +53,17 @@ import kotlinx.coroutines.launch
 fun KeyboardActionsDemos() {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
-    Box {
+    Box(Modifier.imePadding()) {
         var executeDefaultActions by remember { mutableStateOf(true) }
-        val onImeAction: KeyboardActionScope.(ImeAction) -> Unit = remember(executeDefaultActions) {
-            {
+        val onKeyboardAction: KeyboardActionHandler = remember(executeDefaultActions) {
+            KeyboardActionHandler { performDefaultAction ->
                 coroutineScope.launch {
-                    snackbarHostState.showSnackbar("ImeAction $it is executed")
+                    snackbarHostState.showSnackbar("Keyboard action is executed")
                 }
                 if (executeDefaultActions) {
-                    defaultKeyboardAction(it)
+                    performDefaultAction()
                 }
             }
-        }
-        val keyboardActions = remember(onImeAction) {
-            KeyboardActions(
-                onDone = { onImeAction(ImeAction.Done) },
-                onGo = { onImeAction(ImeAction.Go) },
-                onSearch = { onImeAction(ImeAction.Search) },
-                onSend = { onImeAction(ImeAction.Send) },
-                onPrevious = { onImeAction(ImeAction.Previous) },
-                onNext = { onImeAction(ImeAction.Next) },
-            )
         }
         LazyColumn {
             item {
@@ -89,7 +79,7 @@ fun KeyboardActionsDemos() {
                 item {
                     KeyboardActionDemoItem(
                         imeAction = it,
-                        keyboardActions = keyboardActions,
+                        onKeyboardAction = onKeyboardAction,
                         singleLine = true
                     )
                 }
@@ -97,7 +87,7 @@ fun KeyboardActionsDemos() {
                 item {
                     KeyboardActionDemoItem(
                         imeAction = it,
-                        keyboardActions = keyboardActions,
+                        onKeyboardAction = onKeyboardAction,
                         singleLine = false
                     )
                 }
@@ -125,12 +115,12 @@ private val imeActions = listOf(
 @Composable
 private fun KeyboardActionDemoItem(
     imeAction: ImeAction,
-    keyboardActions: KeyboardActions,
+    onKeyboardAction: KeyboardActionHandler,
     singleLine: Boolean
 ) {
     TagLine(tag = "Ime Action: $imeAction, singleLine: $singleLine")
     val state = remember { TextFieldState() }
-    BasicTextField2(
+    BasicTextField(
         modifier = demoTextFieldModifiers,
         state = state,
         keyboardOptions = KeyboardOptions(
@@ -141,7 +131,7 @@ private fun KeyboardActionDemoItem(
         } else {
             TextFieldLineLimits.Default
         },
-        keyboardActions = keyboardActions,
+        onKeyboardAction = onKeyboardAction,
         textStyle = TextStyle(fontSize = fontSize8),
     )
 }

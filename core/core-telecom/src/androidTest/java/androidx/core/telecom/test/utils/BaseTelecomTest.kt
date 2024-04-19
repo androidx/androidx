@@ -84,14 +84,14 @@ abstract class BaseTelecomTest {
     fun setUpV2Test() {
         Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs")
         Utils.setUtils(TestUtils.mV2Build)
-        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
         logTelecomState()
     }
 
     fun setUpBackwardsCompatTest() {
         Log.i(L_TAG, "setUpBackwardsCompatTest: core-telecom w/ [ConnectionService] APIs")
         Utils.setUtils(TestUtils.mBackwardsCompatBuild)
-        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
         logTelecomState()
     }
 

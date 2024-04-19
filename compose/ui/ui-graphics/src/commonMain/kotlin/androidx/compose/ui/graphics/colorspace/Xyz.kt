@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
 
 /**
@@ -73,7 +74,8 @@ internal class Xyz(
         return v
     }
 
-    private fun clamp(x: Float): Float {
-        return x.coerceIn(-2f, 2f)
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun clamp(x: Float): Float {
+        return x.fastCoerceIn(-2f, 2f)
     }
 }

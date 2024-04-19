@@ -35,7 +35,11 @@ fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon {
 }
 
 /**
- * Gets a [Path] representation for a [RoundedPolygon] shape.
+ * Gets a [Path] representation for a [RoundedPolygon] shape. Note that there is some rounding
+ * happening (to the nearest thousandth), to work around rendering artifacts introduced by some
+ * points being just slightly off from each other (far less than a pixel). This also allows for
+ * a more optimal path, as redundant curves (usually a single point) can be detected and
+ * not added to the resulting path.
  *
  * @param path an optional [Path] object which, if supplied, will avoid the function having
  * to create a new [Path] object
@@ -63,11 +67,8 @@ private fun pathFromCubics(
             path.moveTo(cubic.anchor0X, cubic.anchor0Y)
             first = false
         }
-        path.cubicTo(
-            cubic.control0X, cubic.control0Y,
-            cubic.control1X, cubic.control1Y,
-            cubic.anchor1X, cubic.anchor1Y
-        )
+        path.cubicTo(cubic.control0X, cubic.control0Y, cubic.control1X, cubic.control1Y,
+            cubic.anchor1X, cubic.anchor1Y)
     }
     path.close()
 }

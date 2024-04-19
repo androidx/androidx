@@ -93,6 +93,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY, Car.PERMISSION_CAR_INFO);
             append(VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE, Car.PERMISSION_CAR_INFO);
             append(VehiclePropertyIds.INFO_DRIVER_SEAT, Car.PERMISSION_CAR_INFO);
+            // VehiclePropertyId added in SDK 31
             append(AutomotiveCarInfo.TOLL_CARD_STATUS_ID, Car.PERMISSION_CAR_INFO);
             append(AutomotiveCarInfo.SPEED_DISPLAY_UNIT_ID, Car.PERMISSION_READ_DISPLAY_UNITS);
             append(VehiclePropertyIds.DISTANCE_DISPLAY_UNITS, Car.PERMISSION_READ_DISPLAY_UNITS);
@@ -132,6 +133,8 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.HVAC_DEFROSTER, CAR_PERMISSION_CLIMATE_CONTROL);
             append(VehiclePropertyIds.HVAC_MAX_DEFROST_ON, CAR_PERMISSION_CLIMATE_CONTROL);
             append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);
+            // VehiclePropertyId added in SDK 30
+            append(AutomotiveCarInfo.INFO_EXTERIOR_DIMENSIONS_ID, Car.PERMISSION_CAR_INFO);
         }
     };
 

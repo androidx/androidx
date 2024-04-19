@@ -32,7 +32,7 @@ import org.junit.Test
 /**
  * This is one approach to customize Activity's configuration that's used in google3.
  */
-@SdkSuppress(minSdkVersion = 17, maxSdkVersion = 32)
+@SdkSuppress(maxSdkVersion = 32)
 class LocalesCustomApplyOverrideConfigurationTestCase() {
 
     @get:Rule

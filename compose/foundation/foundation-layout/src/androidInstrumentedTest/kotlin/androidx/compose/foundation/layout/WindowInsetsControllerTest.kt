@@ -150,6 +150,7 @@ class WindowInsetsControllerTest {
             } else {
                 view.windowInsetsController?.hide(insetType)
             }
+            rule.activity.finish()
         }
     }
 
@@ -182,7 +183,7 @@ class WindowInsetsControllerTest {
             val consumed = connection.onPostScroll(
                 consumed = Offset.Zero,
                 available = Offset(3f, directionMultiplier),
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             )
             assertThat(consumed).isEqualTo(Offset(0f, directionMultiplier))
         }
@@ -195,7 +196,7 @@ class WindowInsetsControllerTest {
                 connection.onPostScroll(
                     consumed = Offset.Zero,
                     available = Offset(3f, directionMultiplier * 5f),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 )
                 coordinates.size
             }
@@ -235,7 +236,7 @@ class WindowInsetsControllerTest {
             // The first scroll triggers the animation controller to be requested
             val consumed = connection.onPreScroll(
                 available = Offset(3f, -directionMultiplier),
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             )
             assertThat(consumed).isEqualTo(Offset(0f, -directionMultiplier))
         }
@@ -247,7 +248,7 @@ class WindowInsetsControllerTest {
             val size = rule.runOnUiThread {
                 connection.onPreScroll(
                     available = Offset(3f, directionMultiplier * -5f),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 )
                 coordinates.size
             }
@@ -446,7 +447,7 @@ class WindowInsetsControllerTest {
                 connection.onPostScroll(
                     consumed = Offset.Zero,
                     available = Offset(0f, directionMultiplier),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 )
             }
         } while (!isVisible)
@@ -457,7 +458,7 @@ class WindowInsetsControllerTest {
             connection.onPostScroll(
                 consumed = Offset.Zero,
                 available = Offset(0f, directionMultiplier * sizeDifference),
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             )
         }
 
@@ -508,7 +509,7 @@ class WindowInsetsControllerTest {
             rule.runOnIdle {
                 connection.onPreScroll(
                     available = Offset(0f, directionMultiplier * -1f),
-                    source = NestedScrollSource.Drag
+                    source = NestedScrollSource.UserInput
                 )
             }
         } while (insetsSize != shownSize)
@@ -518,7 +519,7 @@ class WindowInsetsControllerTest {
             val sizeDifference = shownSize / 2f + 1f - insetsSize
             connection.onPreScroll(
                 available = Offset(0f, directionMultiplier * sizeDifference),
-                source = NestedScrollSource.Drag
+                source = NestedScrollSource.UserInput
             )
         }
 

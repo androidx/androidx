@@ -82,7 +82,8 @@ internal class ExerciseUpdateListenerStub internal constructor(
 
     /**
      * A class that stores unique active instances of [ExerciseUpdateCallback] to ensure same binder
-     * object is passed by framework to service side of the IPC.
+     * object is passed by framework to service side of the IPC. This is required because the same
+     * stub object that is set as the listener needs to be used to clear it.
      */
     public class ExerciseUpdateListenerCache private constructor() {
         private val listenerLock = Any()
@@ -91,15 +92,20 @@ internal class ExerciseUpdateListenerStub internal constructor(
         private val listeners: MutableMap<ExerciseUpdateCallback, ExerciseUpdateListenerStub> =
             HashMap()
 
-        public fun getOrCreate(
+        public fun create(
             listener: ExerciseUpdateCallback,
             executor: Executor,
             requestedDataTypesProvider: () -> Set<DataType<*, *>>
         ): ExerciseUpdateListenerStub {
             synchronized(listenerLock) {
-                return listeners.getOrPut(listener) {
-                    ExerciseUpdateListenerStub(listener, executor, requestedDataTypesProvider)
-                }
+                // Each client can only have one listener at a time, if a new
+                // listener is being registered we should clear out the old stub.
+                // It's okay if we end up re-registering an equivalent stub.
+                listeners.clear()
+                val stub = ExerciseUpdateListenerStub(
+                    listener, executor, requestedDataTypesProvider)
+                listeners.put(listener, stub)
+                return stub
             }
         }
 

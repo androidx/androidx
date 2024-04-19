@@ -18,9 +18,11 @@ package androidx.compose.material3
 
 import android.os.Build
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
@@ -32,12 +34,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -99,16 +104,44 @@ class MenuScreenshotTest {
         assertAgainstGolden(goldenIdentifier = "dropdownMenu_disabled_darkTheme")
     }
 
+    @Test
+    fun dropdownMenu_customAppearance() {
+        composeTestRule.setMaterialContent(lightColorScheme()) {
+            TestMenu(
+                enabledItems = true,
+                shape = CutCornerShape(12.dp),
+                containerColor = Color.Yellow,
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp,
+                border = BorderStroke(1.dp, Color.Black),
+            )
+        }
+        assertAgainstGolden(goldenIdentifier = "dropdownMenu_customAppearance")
+    }
+
     @Composable
-    private fun TestMenu(enabledItems: Boolean) {
+    private fun TestMenu(
+        enabledItems: Boolean,
+        shape: Shape = MenuDefaults.shape,
+        containerColor: Color = MenuDefaults.containerColor,
+        tonalElevation: Dp = MenuDefaults.TonalElevation,
+        shadowElevation: Dp = MenuDefaults.ShadowElevation,
+        border: BorderStroke? = null,
+    ) {
         Box(
             Modifier
                 .testTag(testTag)
                 .padding(20.dp), contentAlignment = Alignment.Center) {
             DropdownMenuContent(
+                modifier = Modifier,
                 expandedState = MutableTransitionState(initialState = true),
                 transformOriginState = remember { mutableStateOf(TransformOrigin.Center) },
-                scrollState = rememberScrollState()
+                scrollState = rememberScrollState(),
+                shape = shape,
+                containerColor = containerColor,
+                tonalElevation = tonalElevation,
+                shadowElevation = shadowElevation,
+                border = border,
             ) {
                 DropdownMenuItem(
                     text = { Text("Edit") },

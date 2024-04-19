@@ -18,7 +18,6 @@ package androidx.constraintlayout.helper.widget;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 
@@ -234,13 +233,9 @@ public class Flow extends VirtualLayout {
                 } else if (attr == R.styleable.ConstraintLayout_Layout_android_padding) {
                     mFlow.setPadding(a.getDimensionPixelSize(attr, 0));
                 } else if (attr == R.styleable.ConstraintLayout_Layout_android_paddingStart) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        mFlow.setPaddingStart(a.getDimensionPixelSize(attr, 0));
-                    }
+                    mFlow.setPaddingStart(a.getDimensionPixelSize(attr, 0));
                 } else if (attr == R.styleable.ConstraintLayout_Layout_android_paddingEnd) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        mFlow.setPaddingEnd(a.getDimensionPixelSize(attr, 0));
-                    }
+                    mFlow.setPaddingEnd(a.getDimensionPixelSize(attr, 0));
                 } else if (attr == R.styleable.ConstraintLayout_Layout_android_paddingLeft) {
                     mFlow.setPaddingLeft(a.getDimensionPixelSize(attr, 0));
                 } else if (attr == R.styleable.ConstraintLayout_Layout_android_paddingTop) {

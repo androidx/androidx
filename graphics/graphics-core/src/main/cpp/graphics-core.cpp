@@ -460,6 +460,15 @@ jstring JniBindings_nGetDisplayOrientation(JNIEnv *env, jclass) {
     return (*env).NewStringUTF(name);
 }
 
+jboolean JniBindings_nIsHwuiUsingVulkanRenderer(JNIEnv*, jclass) {
+    char value[PROP_VALUE_MAX];
+    __system_property_get("ro.hwui.use_vulkan", value);
+    bool device_is_vulkan = strcmp(value, "true") == 0;
+    __system_property_get("debug.hwui.renderer", value);
+    bool is_debug_vulkan = strcmp(value, "skiavk") == 0;
+    return device_is_vulkan || is_debug_vulkan;
+}
+
 jint JniBindings_nGetPreviousReleaseFenceFd(JNIEnv *env, jclass,
                                             jlong surfaceControl,
                                             jlong transactionStats) {
@@ -648,6 +657,11 @@ static const JNINativeMethod JNI_METHOD_TABLE[] = {
             "nSetFrameRate",
                 "(JJFII)V",
                 (void *) JniBindings_nSetFrameRate
+        },
+        {
+            "nIsHwuiUsingVulkanRenderer",
+                "()Z",
+                (void *) JniBindings_nIsHwuiUsingVulkanRenderer
         }
 };
 

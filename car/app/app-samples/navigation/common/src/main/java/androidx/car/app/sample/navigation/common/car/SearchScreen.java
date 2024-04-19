@@ -104,7 +104,6 @@ public final class SearchScreen extends Screen {
         }
         mItemList = builder.build();
         invalidate();
-        return;
     }
 
     void onClickSearch(@NonNull String searchText) {

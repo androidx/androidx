@@ -73,13 +73,13 @@ import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UInstanceExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParenthesizedExpression
+import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.UastBinaryOperator
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.getParentOfType
-import org.jetbrains.uast.kotlin.KotlinUImplicitReturnExpression
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
@@ -677,7 +677,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             if (psi == null) {
                 // If there is no psi, test for the one known case where there should be an
                 // expected type, an implicit Kotlin return.
-                if (element is KotlinUImplicitReturnExpression) {
+                if (element is UReturnExpression && isKotlin(element.lang)) {
                     return (element.getParentOfType<UMethod>())?.returnType
                 }
                 return null

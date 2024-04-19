@@ -394,7 +394,7 @@ public fun rememberPlaceholderState(
  * @param shape the shape to apply to the placeholder
  * @param color the color of the placeholder.
  */
-@Suppress("ComposableModifierFactory")
+@Suppress("ComposableModifierFactory", "DEPRECATION")
 @ExperimentalWearMaterialApi
 @Composable
 public fun Modifier.placeholder(
@@ -445,7 +445,7 @@ public fun Modifier.placeholder(
  * @param color the color to use in the shimmer.
  */
 
-@Suppress("ComposableModifierFactory")
+@Suppress("ComposableModifierFactory", "DEPRECATION")
 @ExperimentalWearMaterialApi
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable

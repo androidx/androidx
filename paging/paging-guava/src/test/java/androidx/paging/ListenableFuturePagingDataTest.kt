@@ -35,7 +35,7 @@ class ListenableFuturePagingDataTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(testDispatcher)
-    private val differ = TestPagingDataDiffer<String>(testDispatcher)
+    private val presenter = TestPagingDataPresenter<String>(testDispatcher)
 
     @Test
     fun map() = testScope.runTest {
@@ -45,8 +45,8 @@ class ListenableFuturePagingDataTest {
             },
             testDispatcher.asExecutor()
         )
-        differ.collectFrom(transformed)
-        assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
+        presenter.collectFrom(transformed)
+        assertEquals(listOf("aa", "bb", "cc"), presenter.currentList)
     }
 
     @Test
@@ -57,8 +57,8 @@ class ListenableFuturePagingDataTest {
             },
             testDispatcher.asExecutor()
         )
-        differ.collectFrom(transformed)
-        assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
+        presenter.collectFrom(transformed)
+        assertEquals(listOf("a", "a", "b", "b", "c", "c"), presenter.currentList)
     }
 
     @Test
@@ -69,8 +69,8 @@ class ListenableFuturePagingDataTest {
             },
             testDispatcher.asExecutor()
         )
-        differ.collectFrom(filtered)
-        assertEquals(listOf("a", "c"), differ.currentList)
+        presenter.collectFrom(filtered)
+        assertEquals(listOf("a", "c"), presenter.currentList)
     }
 
     @Test
@@ -82,7 +82,7 @@ class ListenableFuturePagingDataTest {
             },
             testDispatcher.asExecutor()
         )
-        differ.collectFrom(separated)
-        assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
+        presenter.collectFrom(separated)
+        assertEquals(listOf("a", "|", "b", "|", "c"), presenter.currentList)
     }
 }

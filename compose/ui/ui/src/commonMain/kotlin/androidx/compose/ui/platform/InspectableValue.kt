@@ -140,6 +140,14 @@ inline fun debugInspectorInfo(
  *
  * @sample androidx.compose.ui.samples.InspectableModifierSample
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated(
+    "This API will create more invalidations of your modifier than necessary, so it's " +
+        "use is discouraged. Implementing the inspectableProperties method on " +
+        "ModifierNodeElement is the recommended zero-cost alternative to exposing properties " +
+        "on a Modifier to tooling.",
+    level = DeprecationLevel.WARNING,
+)
 inline fun Modifier.inspectable(
     noinline inspectorInfo: InspectorInfo.() -> Unit,
     factory: Modifier.() -> Modifier

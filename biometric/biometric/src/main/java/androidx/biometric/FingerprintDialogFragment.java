@@ -149,7 +149,6 @@ public class FingerprintDialogFragment extends DialogFragment {
      *
      * @return A {@link FingerprintDialogFragment}.
      */
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     @NonNull
     static FingerprintDialogFragment newInstance(boolean hostedInActivity) {
         final FingerprintDialogFragment fragment = new FingerprintDialogFragment();

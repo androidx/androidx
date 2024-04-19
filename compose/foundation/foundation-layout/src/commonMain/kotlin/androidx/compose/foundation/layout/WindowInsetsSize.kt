@@ -161,7 +161,7 @@ private class DerivedWidthModifier(
         if (other !is DerivedWidthModifier) {
             return false
         }
-        return insets == other.insets && widthCalc == other.widthCalc
+        return insets == other.insets && widthCalc === other.widthCalc
     }
 
     override fun hashCode(): Int = 31 * insets.hashCode() + widthCalc.hashCode()
@@ -206,7 +206,7 @@ private class DerivedHeightModifier(
         if (other !is DerivedHeightModifier) {
             return false
         }
-        return insets == other.insets && heightCalc == other.heightCalc
+        return insets == other.insets && heightCalc === other.heightCalc
     }
 
     override fun hashCode(): Int = 31 * insets.hashCode() + heightCalc.hashCode()

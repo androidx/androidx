@@ -34,6 +34,8 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
     private boolean mOnResizedReceived;
     private boolean mOnWarmupCompleted;
     private boolean mOnActivityLayout;
+    private boolean mOnMinimized;
+    private boolean mOnUnminimized;
 
     private ICustomTabsCallback.Stub mWrapper = new ICustomTabsCallback.Stub() {
         @Override
@@ -88,6 +90,16 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
                 @NonNull Bundle extras) throws RemoteException {
             TestCustomTabsCallback.this.onActivityLayout(left, top, right, bottom, state, extras);
         }
+
+        @Override
+        public void onMinimized(@NonNull Bundle extras) throws RemoteException {
+            TestCustomTabsCallback.this.onMinimized(extras);
+        }
+
+        @Override
+        public void onUnminimized(@NonNull Bundle extras) throws RemoteException {
+            TestCustomTabsCallback.this.onUnminimized(extras);
+        }
     };
 
     /* package */ ICustomTabsCallback getStub() {
@@ -139,6 +151,16 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
         mOnWarmupCompleted = true;
     }
 
+    @Override
+    public void onMinimized(Bundle extras) {
+        mOnMinimized = true;
+    }
+
+    @Override
+    public void onUnminimized(Bundle extras) {
+        mOnUnminimized = true;
+    }
+
     /**
      * @return Whether warmup process is finished.
      */
@@ -151,5 +173,19 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
      */
     public boolean hasActivityBeenLaidOut() {
         return mOnActivityLayout;
+    }
+
+    /**
+     * @return Whether the activity was minimized.
+     */
+    public boolean wasMinimized() {
+        return mOnMinimized;
+    }
+
+    /**
+     * @return Whether the minimized activity was unminimized to its original state.
+     */
+    public boolean wasUnminimized() {
+        return mOnUnminimized;
     }
 }

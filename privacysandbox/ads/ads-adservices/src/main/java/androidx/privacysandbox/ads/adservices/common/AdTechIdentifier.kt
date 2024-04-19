@@ -16,11 +16,18 @@
 
 package androidx.privacysandbox.ads.adservices.common
 
+import android.annotation.SuppressLint
+import android.os.Build
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
+
 /**
  * An Identifier representing an ad buyer or seller.
  *
  * @param identifier The identifier.
  */
+@SuppressLint("ClassVerificationFailure")
 class AdTechIdentifier public constructor(val identifier: String) {
 
     /**
@@ -56,5 +63,12 @@ class AdTechIdentifier public constructor(val identifier: String) {
      */
     override fun toString(): String {
         return "$identifier"
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    internal fun convertToAdServices(): android.adservices.common.AdTechIdentifier {
+        return android.adservices.common.AdTechIdentifier.fromString(identifier)
     }
 }

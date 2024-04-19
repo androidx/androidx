@@ -19,11 +19,11 @@ package androidx.compose.ui.input
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.AndroidImeOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.update
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -544,7 +544,7 @@ class EditorInfoTest {
         val privateImeOptions = "testOptions"
         info.update(
             ImeOptions(
-                platformImeOptions = AndroidImeOptions(privateImeOptions)
+                platformImeOptions = PlatformImeOptions(privateImeOptions)
             )
         )
 

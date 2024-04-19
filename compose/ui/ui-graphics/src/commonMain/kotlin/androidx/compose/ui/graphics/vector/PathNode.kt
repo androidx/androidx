@@ -151,18 +151,9 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
     when (this) {
         RelativeCloseKey, CloseKey -> nodes.add(PathNode.Close)
 
-        RelativeMoveToKey -> pathNodesFromArgs(
-            nodes,
-            args,
-            count,
-            NUM_MOVE_TO_ARGS
-        ) { array, start ->
-            PathNode.RelativeMoveTo(dx = array[start], dy = array[start + 1])
-        }
+        RelativeMoveToKey -> pathRelativeMoveNodeFromArgs(nodes, args, count)
 
-        MoveToKey -> pathNodesFromArgs(nodes, args, count, NUM_MOVE_TO_ARGS) { array, start ->
-            PathNode.MoveTo(x = array[start], y = array[start + 1])
-        }
+        MoveToKey -> pathMoveNodeFromArgs(nodes, args, count)
 
         RelativeLineToKey -> pathNodesFromArgs(
             nodes,
@@ -347,16 +338,44 @@ private inline fun pathNodesFromArgs(
     val end = count - numArgs
     var index = 0
     while (index <= end) {
-        val node = nodeFor(args, index)
-        nodes.add(when {
-            // According to the spec, if a MoveTo is followed by multiple pairs of coordinates,
-            // the subsequent pairs are treated as implicit corresponding LineTo commands.
-            node is PathNode.MoveTo && index > 0 -> PathNode.LineTo(args[index], args[index + 1])
-            node is PathNode.RelativeMoveTo && index > 0 ->
-                PathNode.RelativeLineTo(args[index], args[index + 1])
-            else -> node
-        })
+        nodes.add(nodeFor(args, index))
         index += numArgs
+    }
+}
+
+// According to the spec, if a MoveTo is followed by multiple pairs of coordinates,
+// the subsequent pairs are treated as implicit corresponding LineTo commands.
+private fun pathMoveNodeFromArgs(
+    nodes: MutableList<PathNode>,
+    args: FloatArray,
+    count: Int
+) {
+    val end = count - NUM_MOVE_TO_ARGS
+    if (end >= 0) {
+        nodes.add(PathNode.MoveTo(args[0], args[1]))
+        var index = NUM_MOVE_TO_ARGS
+        while (index <= end) {
+            nodes.add(PathNode.LineTo(args[index], args[index + 1]))
+            index += NUM_MOVE_TO_ARGS
+        }
+    }
+}
+
+// According to the spec, if a RelativeMoveTo is followed by multiple pairs of coordinates,
+// the subsequent pairs are treated as implicit corresponding RelativeLineTo commands.
+private fun pathRelativeMoveNodeFromArgs(
+    nodes: MutableList<PathNode>,
+    args: FloatArray,
+    count: Int
+) {
+    val end = count - NUM_MOVE_TO_ARGS
+    if (end >= 0) {
+        nodes.add(PathNode.RelativeMoveTo(args[0], args[1]))
+        var index = NUM_MOVE_TO_ARGS
+        while (index <= end) {
+            nodes.add(PathNode.RelativeLineTo(args[index], args[index + 1]))
+            index += NUM_MOVE_TO_ARGS
+        }
     }
 }
 

@@ -18,15 +18,12 @@
 
 package androidx.core.view
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewParent
-import androidx.annotation.DoNotInline
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
 
 /**
@@ -65,7 +62,7 @@ public inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) 
  * @see doOnNextLayout
  */
 public inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
-    if (ViewCompat.isLaidOut(this) && !isLayoutRequested) {
+    if (isLaidOut && !isLayoutRequested) {
         action(this)
     } else {
         doOnNextLayout {
@@ -93,7 +90,7 @@ public inline fun View.doOnPreDraw(
  * @see doOnDetach
  */
 public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
-    if (ViewCompat.isAttachedToWindow(this)) {
+    if (isAttachedToWindow) {
         action(this)
     } else {
         addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -117,7 +114,7 @@ public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
  * @see doOnAttach
  */
 public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
-    if (!ViewCompat.isAttachedToWindow(this)) {
+    if (!isAttachedToWindow) {
         action(this)
     } else {
         addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -142,8 +139,6 @@ public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
  *
  * @see View.setPaddingRelative
  */
-@SuppressLint("ClassVerificationFailure") // Can't work around this for default arguments.
-@RequiresApi(17)
 public inline fun View.updatePaddingRelative(
     @Px start: Int = paddingStart,
     @Px top: Int = paddingTop,
@@ -207,13 +202,12 @@ public inline fun View.postDelayed(delayInMillis: Long, crossinline action: () -
  *
  * @return the created Runnable
  */
-@RequiresApi(16)
 public fun View.postOnAnimationDelayed(
     delayInMillis: Long,
     action: () -> Unit
 ): Runnable {
     val runnable = Runnable { action() }
-    Api16Impl.postOnAnimationDelayed(this, runnable, delayInMillis)
+    postOnAnimationDelayed(runnable, delayInMillis)
     return runnable
 }
 
@@ -232,7 +226,7 @@ public fun View.postOnAnimationDelayed(
  * @param config Bitmap config of the desired bitmap. Defaults to [Bitmap.Config.ARGB_8888].
  */
 public fun View.drawToBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
-    if (!ViewCompat.isLaidOut(this)) {
+    if (!isLaidOut) {
         throw IllegalStateException("View needs to be laid out before calling drawToBitmap()")
     }
     return Bitmap.createBitmap(width, height, config).applyCanvas {
@@ -308,6 +302,7 @@ public inline var View.isGone: Boolean
  * Executes [block] with the View's layoutParams and reassigns the layoutParams with the
  * updated version.
  *
+ * @throws NullPointerException If no `LayoutParams` is set on the view.
  * @see View.getLayoutParams
  * @see View.setLayoutParams
  */
@@ -319,6 +314,8 @@ public inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Un
  * Executes [block] with a typed version of the View's layoutParams and reassigns the
  * layoutParams with the updated version.
  *
+ * @throws NullPointerException If no `LayoutParams` is set on the view.
+ * @throws ClassCastException If the `LayoutParams` type is not `T` or a subtype of `T`.
  * @see View.getLayoutParams
  * @see View.setLayoutParams
  */
@@ -371,26 +368,24 @@ public inline val View.marginBottom: Int
  * Returns the start margin if this view's [ViewGroup.LayoutParams] is a
  * [ViewGroup.MarginLayoutParams], otherwise 0.
  *
- * @see ViewGroup.MarginLayoutParams
- * @see MarginLayoutParamsCompat.getMarginStart
+ * @see ViewGroup.MarginLayoutParams.getMarginStart
  */
 public inline val View.marginStart: Int
     get() {
         val lp = layoutParams
-        return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginStart(lp) else 0
+        return if (lp is MarginLayoutParams) lp.marginStart else 0
     }
 
 /**
  * Returns the end margin if this view's [ViewGroup.LayoutParams] is a
  * [ViewGroup.MarginLayoutParams], otherwise 0.
  *
- * @see ViewGroup.MarginLayoutParams
- * @see MarginLayoutParamsCompat.getMarginEnd
+ * @see ViewGroup.MarginLayoutParams.getMarginEnd
  */
 public inline val View.marginEnd: Int
     get() {
         val lp = layoutParams
-        return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginEnd(lp) else 0
+        return if (lp is MarginLayoutParams) lp.marginEnd else 0
     }
 
 /**
@@ -416,16 +411,3 @@ public val View.allViews: Sequence<View>
             yieldAll(this@allViews.descendants)
         }
     }
-
-@RequiresApi(16)
-private object Api16Impl {
-    @JvmStatic
-    @DoNotInline
-    fun postOnAnimationDelayed(
-        view: View,
-        action: Runnable,
-        delayInMillis: Long
-    ) {
-        view.postOnAnimationDelayed(action, delayInMillis)
-    }
-}

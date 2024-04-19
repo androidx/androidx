@@ -52,7 +52,7 @@ object CameraCompatibilityFilter {
     }
 
     @JvmStatic
-    private fun isBackwardCompatible(cameraId: String, cameraDevices: CameraDevices): Boolean {
+    fun isBackwardCompatible(cameraId: String, cameraDevices: CameraDevices): Boolean {
         // Always returns true to not break robolectric tests because the cameras setup in
         // robolectric don't have REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE capability
         // by default.

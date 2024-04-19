@@ -19,5 +19,18 @@
         <activity android:name="androidx.compose.ui.test.ActivityWithActionBar" />
         <activity android:name="androidx.compose.ui.test.ClickCounterActivity" />
         <activity android:name="androidx.compose.ui.test.EmptyActivity" />
+
+        <activity android:name="androidx.compose.ui.test.junit4.CustomActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesFindTest$Activity1" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesFindTest$Activity2" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesClickTest$Activity1" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesClickTest$Activity2" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesFirstDrawTest$Activity1" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesFirstDrawTest$Activity2" />
+        <activity android:name="androidx.compose.ui.test.junit4.LateSetContentTest$Activity" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesWithoutComposeTest$Activity1" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesWithoutComposeTest$Activity2" />
+        <activity android:name="androidx.compose.ui.test.junit4.MultipleActivitiesWithoutComposeTest$Activity3" />
     </application>
 </manifest>

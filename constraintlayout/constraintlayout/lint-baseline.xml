@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanTargetApiAnnotation"
@@ -11,17 +11,8 @@
     </issue>
 
     <issue
-        id="BanTargetApiAnnotation"
-        message="Use `@RequiresApi` instead of `@TargetApi`"
-        errorLine1="        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    Object val = method.invoke(view);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,7 +21,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mIntegerValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -39,7 +30,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mFloatValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +39,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, drawable);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -57,7 +48,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mColorValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -66,7 +57,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mStringValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -75,7 +66,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mBooleanValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -84,7 +75,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mFloatValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +84,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, constraintAttribute.mIntegerValue);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +93,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mIntegerValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -111,7 +102,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mFloatValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -120,7 +111,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, drawable);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -129,7 +120,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mColorValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -138,7 +129,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mStringValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -147,7 +138,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mBooleanValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -156,7 +147,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, this.mFloatValue);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -165,7 +156,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, (int) value[0]);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -174,7 +165,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, value[0]);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -183,7 +174,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, drawable);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -192,7 +183,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, color);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -201,7 +192,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, value[0] > 0.5f);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -210,7 +201,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                    method.invoke(view, value[0]);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -219,7 +210,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="            method.invoke(call);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -228,7 +219,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, get(t));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -237,7 +228,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, get(t));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -246,7 +237,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        method.invoke(view, get(t, time, view, cache));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -310,24 +301,6 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        constraint.transform.translationZ = view.getTranslationZ();"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            constraint.transform.elevation = view.getElevation();"
-        errorLine2="                                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    constraint.transform.translationZ = view.getTranslationZ();"
         errorLine2="                                                             ~~~~~~~~~~~~~~~">
         <location
@@ -346,8 +319,8 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        view.setTranslationZ(constraint.transform.translationZ);"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
+        errorLine1="                constraint.transform.translationZ = view.getTranslationZ();"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
@@ -355,8 +328,26 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            view.setElevation(constraint.transform.elevation);"
-        errorLine2="                                 ~~~~~~~~~~~~">
+        errorLine1="                    constraint.transform.elevation = view.getElevation();"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    view.setTranslationZ(constraint.transform.translationZ);"
+        errorLine2="                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                        view.setElevation(constraint.transform.elevation);"
+        errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
@@ -890,285 +881,6 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/TransitionBuilder.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 19"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/Barrier.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 17"
-        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 19"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 19"
-        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 17"
-        errorLine1="        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Flow.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Flow.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Grid.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 19"
-        errorLine1="                if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.KITKAT || isAttachedToWindow()) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 17"
-        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 19"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue

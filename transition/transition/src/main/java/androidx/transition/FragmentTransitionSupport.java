@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransitionImpl;
 
@@ -40,8 +39,6 @@ import java.util.List;
 // This is instantiated in androidx.fragment.app.FragmentTransition
 @SuppressWarnings("unused")
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@SuppressLint("RestrictedApi") // remove once fragment lib would be released with the new
-// LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
 public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
     @Override
@@ -317,30 +314,32 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
      * {@link Transition.TransitionListener#onTransitionEnd} listener is added that calls
      * {@link Runnable#run()} once the Transition ends.
      *
-     * If {@link CancellationSignal#cancel()} is called on the given signal, the transition calls
+     * If {@link androidx.core.os.CancellationSignal#cancel()} is called on the given signal, the
+     * transition calls
      * {@link Transition#cancel()}.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull final Object transition, @NonNull final CancellationSignal signal,
+            @NonNull final Object transition,
+            @NonNull final androidx.core.os.CancellationSignal signal,
             @NonNull final Runnable transitionCompleteRunnable) {
         setListenerForTransitionEnd(outFragment, transition, signal,
                 null, transitionCompleteRunnable);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setListenerForTransitionEnd(@NonNull Fragment outFragment,
-            @NonNull Object transition, @NonNull CancellationSignal signal,
+            @NonNull Object transition, @NonNull androidx.core.os.CancellationSignal signal,
             @Nullable Runnable cancelRunnable, @NonNull Runnable transitionCompleteRunnable) {
         final Transition realTransition = ((Transition) transition);
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                if (cancelRunnable == null) {
-                    realTransition.cancel();
-                } else {
-                    cancelRunnable.run();
-                }
+        signal.setOnCancelListener(() -> {
+            if (cancelRunnable == null) {
+                realTransition.cancel();
+                transitionCompleteRunnable.run();
+            } else {
+                cancelRunnable.run();
             }
         });
         realTransition.addListener(new Transition.TransitionListener() {

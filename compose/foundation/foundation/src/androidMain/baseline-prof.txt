@@ -2,21 +2,25 @@
 # =============================================
 #
 # Include all methods in common top level classes
-HSPLandroidx/compose/foundation/Background;->**(**)**
-HSPLandroidx/compose/foundation/BackgroundKt;->**(**)**
+HSPLandroidx/compose/foundation/AbstractClickable**->**(**)**
+HSPLandroidx/compose/foundation/AndroidEdgeEffectOverscrollEffect**->**(**)**
+HSPLandroidx/compose/foundation/AndroidOverscroll_**->**(**)**
+HSPLandroidx/compose/foundation/BackgroundElement;->**(**)**
+HSPLandroidx/compose/foundation/BackgroundNode;->**(**)**
 HSPLandroidx/compose/foundation/BorderKt**->**(**)**
 HSPLandroidx/compose/foundation/BorderStroke;->**(**)**
-HSPLandroidx/compose/foundation/CanvasKt;->**(**)**
+HSPLandroidx/compose/foundation/CanvasKt**->**(**)**
 HSPLandroidx/compose/foundation/Clickable**->**(**)**
+HSPLandroidx/compose/foundation/DrawOverscrollModifier;->**(**)**
+HSPLandroidx/compose/foundation/EdgeEffectWrapper;->**(**)**
 HSPLandroidx/compose/foundation/Focusable**->**(**)**
-HSPLandroidx/compose/foundation/FocusedBoundsKt**->**(**)**
-HSPLandroidx/compose/foundation/FocusedBoundsObserverModifier**->**(**)**
-HSPLandroidx/compose/foundation/HoverableKt**->**(**)**
+HSPLandroidx/compose/foundation/FocusedBounds**->**(**)**
+HSPLandroidx/compose/foundation/Hoverable**->**(**)**
 HSPLandroidx/compose/foundation/ImageKt**->**(**)**
 HSPLandroidx/compose/foundation/IndicationKt**->**(**)**
 HSPLandroidx/compose/foundation/IndicationModifier;->**(**)**
 HSPLandroidx/compose/foundation/MutatePriority;->**(**)**
-HSPLandroidx/compose/foundation/MutatorMutex;->**(**)**
+HSPLandroidx/compose/foundation/MutatorMutex**->**(**)**
 HSPLandroidx/compose/foundation/PinnableParentConsumer;->**(**)**
 HSPLandroidx/compose/foundation/ScrollKt**->**(**)**
 HSPLandroidx/compose/foundation/ScrollState**->**(**)**
@@ -27,9 +31,6 @@ HSPLandroidx/compose/foundation/gestures/**->**(**)**
 #
 # Include everything inside of the interaction namespace
 HSPLandroidx/compose/foundation/interaction/*;->**(**)**
-#
-# Include everything inside of the layout namespaces
-HSPLandroidx/compose/foundation/layout/**->**(**)**
 
 # Include everything inside of the lazy namespaces
 HSPLandroidx/compose/foundation/lazy/**->**(**)**

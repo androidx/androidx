@@ -83,6 +83,7 @@ class UseCaseCameraStateTest {
     private val useCaseCameraState = UseCaseCameraState(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
         threads = useCaseThreads,
+        sessionProcessorManager = null,
     )
 
     @Before

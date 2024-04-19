@@ -53,7 +53,8 @@ private fun PsiClass.getKmDeclarationContainer(): KmDeclarationContainer? {
         it.qualifiedName == KotlinMetadataFqn
     } ?: return null
 
-    val metadata = KotlinClassMetadata.read(classKotlinMetadataPsiAnnotation.toMetadataAnnotation())
+    val metadata =
+        KotlinClassMetadata.readStrict(classKotlinMetadataPsiAnnotation.toMetadataAnnotation())
 
     return when (metadata) {
         is KotlinClassMetadata.Class -> metadata.kmClass

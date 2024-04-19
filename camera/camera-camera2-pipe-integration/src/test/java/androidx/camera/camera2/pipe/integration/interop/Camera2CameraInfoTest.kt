@@ -108,6 +108,14 @@ class Camera2CameraInfoTest {
                 throw NotImplementedError("Not used in testing")
             }
 
+            override fun getCameraCharacteristics(): Any {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getPhysicalCameraCharacteristics(physicalCameraId: String): Any? {
+                throw NotImplementedError("Not used in testing")
+            }
+
             override fun hasFlashUnit(): Boolean {
                 throw NotImplementedError("Not used in testing")
             }
@@ -176,6 +184,10 @@ class Camera2CameraInfoTest {
             }
 
             override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
+                throw NotImplementedError("Not used in testing")
+            }
+
+            override fun getSupportedOutputFormats(): MutableSet<Int> {
                 throw NotImplementedError("Not used in testing")
             }
 

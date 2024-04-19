@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -36,7 +43,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation("androidx.compose.ui:ui:1.2.1")
     implementation("androidx.compose.ui:ui-text:1.2.1")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.4.0-beta02")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.0")
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 

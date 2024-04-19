@@ -23,6 +23,7 @@ import android.os.HandlerThread;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -94,8 +95,10 @@ public final class MetadataImageReaderTest {
     @Test
     public void canBindImageToImageInfoWithSameTimestamp() throws InterruptedException {
         // Triggers CaptureCompleted with two different CaptureResult.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult0);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult1);
 
         final AtomicReference<ImageProxy> firstReceivedImageProxy = new AtomicReference<>();
 
@@ -162,7 +165,8 @@ public final class MetadataImageReaderTest {
         triggerImageAvailable(TIMESTAMP_1);
 
         // Triggers CaptureCompleted with one CaptureResult.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult0);
         mSemaphore.acquire();
 
         outputListener =
@@ -178,7 +182,8 @@ public final class MetadataImageReaderTest {
                 };
         mMetadataImageReader.setOnImageAvailableListener(outputListener, mBackgroundExecutor);
         // Triggers CaptureCompleted with another CaptureResult.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult1);
         mSemaphore.acquire();
     }
 
@@ -200,14 +205,16 @@ public final class MetadataImageReaderTest {
         triggerImageAvailable(TIMESTAMP_1);
 
         // Triggers CaptureCompleted with one CaptureResult.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult0);
 
         // Make sure the first image has been received before clearing the listener
         HandlerUtil.waitForLooperToIdle(mBackgroundHandler);
         mMetadataImageReader.clearOnImageAvailableListener();
 
         // Triggers CaptureCompleted with another CaptureResult.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult1);
 
         HandlerUtil.waitForLooperToIdle(mBackgroundHandler);
 
@@ -218,8 +225,10 @@ public final class MetadataImageReaderTest {
     @Test
     public void canNotFindAMatch() throws InterruptedException {
         // Triggers CaptureCompleted with two different CaptureResult.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult0);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult1);
 
         final AtomicBoolean receivedImage = new AtomicBoolean(false);
 
@@ -248,8 +257,10 @@ public final class MetadataImageReaderTest {
         createMetadataImageReaderWithCapacity(1);
 
         // Feeds two CaptureResult into it.
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult0);
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(mCameraCaptureResult1);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult0);
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                mCameraCaptureResult1);
 
         final AtomicReference<ImageProxy> receivedImage = new AtomicReference<>();
 
@@ -323,6 +334,7 @@ public final class MetadataImageReaderTest {
     private void triggerImageInfoAvailable(long timestamp) {
         FakeCameraCaptureResult.Builder builder = new FakeCameraCaptureResult.Builder();
         builder.setTimestamp(timestamp);
-        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(builder.build());
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                builder.build());
     }
 }

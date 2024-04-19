@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.InspectorInfo
 
 internal expect fun areObjectsOfSameType(a: Any, b: Any): Boolean
 
+internal expect fun classKeyForObject(a: Any): Any
+
 /**
  * Reflectively resolves the properties and name of [element], and populates it in the receiver.
  * This function is used by [ModifierNodeElement] as a default implementation to provide inspection

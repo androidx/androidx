@@ -18,7 +18,6 @@ package androidx.compose.material3
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +26,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.internal.CalendarDate
+import androidx.compose.material3.internal.CalendarModel
+import androidx.compose.material3.internal.CalendarMonth
+import androidx.compose.material3.internal.DaysInWeek
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.createCalendarModel
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -121,12 +127,10 @@ fun DateRangePicker(
         } else {
             null
         },
-        headlineTextStyle = MaterialTheme.typography.fromToken(
-            DatePickerModalTokens.RangeSelectionHeaderHeadlineFont
-        ),
+        headlineTextStyle = DatePickerModalTokens.RangeSelectionHeaderHeadlineFont.value,
         headerMinHeight = DatePickerModalTokens.RangeSelectionHeaderContainerHeight -
             HeaderHeightOffset,
-        colors = colors
+        colors = colors,
     ) {
         SwitchableDateEntryContent(
             selectedStartDateMillis = state.selectedStartDateMillis,
@@ -776,7 +780,7 @@ private fun VerticalMonthsList(
         )
     }
     ProvideTextStyle(
-        MaterialTheme.typography.fromToken(DatePickerModalTokens.DateLabelTextFont)
+        DatePickerModalTokens.DateLabelTextFont.value
     ) {
         val coroutineScope = rememberCoroutineScope()
         val scrollToPreviousMonthLabel = getString(Strings.DateRangePickerScrollToShowPreviousMonth)
@@ -819,9 +823,7 @@ private fun VerticalMonthsList(
                     modifier = Modifier.fillParentMaxWidth()
                 ) {
                     ProvideTextStyle(
-                        MaterialTheme.typography.fromToken(
-                            DatePickerModalTokens.RangeSelectionMonthSubheadFont
-                        )
+                        DatePickerModalTokens.RangeSelectionMonthSubheadFont.value
                     ) {
                         Text(
                             text = dateFormatter.formatMonthYear(
@@ -830,7 +832,6 @@ private fun VerticalMonthsList(
                             ) ?: "-",
                             modifier = Modifier
                                 .padding(paddingValues = CalendarMonthSubheadPadding)
-                                .clickable { /* no-op (needed for customActions to operate */ }
                                 .semantics {
                                     customActions = customAccessibilityAction
                                 },

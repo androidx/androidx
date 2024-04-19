@@ -42,7 +42,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Preview
 @Composable
-fun LookaheadWithLAnimateItemPlacement() {
+fun LookaheadWithAnimateItem() {
     val visible by produceState(true) {
         while (true) {
             delay(2000)
@@ -54,7 +54,7 @@ fun LookaheadWithLAnimateItemPlacement() {
             items(3, key = { it }) {
                 Column(
                     Modifier
-                        .animateItemPlacement()
+                        .animateItem()
                         .clip(RoundedCornerShape(15.dp))
                         .background(turquoiseColors[it])
 

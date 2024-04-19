@@ -17,7 +17,6 @@
 package androidx.core.app;
 
 import android.app.ActivityManager;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 
@@ -35,11 +34,11 @@ public final class ActivityManagerCompat {
      * something in the class of a 512MB device with about a 800x480 or less screen.
      * This is mostly intended to be used by apps to determine whether they should turn
      * off certain features that require more RAM.
+     * @deprecated Call {@link ActivityManager#isLowRamDevice()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "activityManager.isLowRamDevice()")
     public static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return activityManager.isLowRamDevice();
-        }
-        return false;
+        return activityManager.isLowRamDevice();
     }
 }

@@ -244,14 +244,13 @@ class SelectionHandlePopupPositionTest {
                     SimpleLayout {
                         Spacer(Modifier.size(parentSizeWidth, parentSizeHeight))
                         SelectionHandle(
-                            position = offset,
+                            offsetProvider = { offset },
                             isStartHandle = isStartHandle,
                             direction = ResolvedTextDirection.Ltr,
                             handlesCrossed = false,
                             modifier = Modifier.onGloballyPositioned {
                                 measureLatch.countDown()
                             },
-                            content = null
                         )
                     }
                 }

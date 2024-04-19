@@ -18,11 +18,20 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.Handle
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.takeOrElse
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.window.PopupPositionProvider
 
 internal val HandleWidth = 25.dp
 internal val HandleHeight = 25.dp
@@ -41,11 +50,14 @@ internal val SelectionHandleInfoKey =
  * @param position The position that the handle is anchored to relative to the selectable content.
  * This position is not necessarily the position of the popup itself, it's the position that the
  * handle "points" to (so e.g. top-middle for [Handle.Cursor]).
+ * @param anchor How the selection handle is anchored to its position
+ * @param visible Whether the icon of the handle is actually shown
  */
 internal data class SelectionHandleInfo(
     val handle: Handle,
     val position: Offset,
-    val anchor: SelectionHandleAnchor
+    val anchor: SelectionHandleAnchor,
+    val visible: Boolean,
 )
 
 /**
@@ -63,13 +75,20 @@ internal enum class SelectionHandleAnchor {
 
 @Composable
 internal expect fun SelectionHandle(
-    position: Offset,
+    offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
+    minTouchTargetSize: DpSize = DpSize.Unspecified,
     modifier: Modifier,
-    content: @Composable (() -> Unit)?
 )
+
+/**
+ * Avoids boxing of [Offset] which is an inline value class.
+ */
+internal fun interface OffsetProvider {
+    fun provide(): Offset
+}
 
 /**
  * Adjust coordinates for given text offset.
@@ -80,4 +99,70 @@ internal expect fun SelectionHandle(
  */
 internal fun getAdjustedCoordinates(position: Offset): Offset {
     return Offset(position.x, position.y - 1f)
+}
+
+/**
+ * This [PopupPositionProvider] for a selection handle. It will position the selection handle
+ * to the result of [positionProvider] in its anchor layout.
+ */
+internal class HandlePositionProvider(
+    private val handleReferencePoint: Alignment,
+    private val positionProvider: OffsetProvider,
+) : PopupPositionProvider {
+
+    /**
+     * When Handle disappears, it starts reporting its position as [Offset.Unspecified]. Normally,
+     * Popup is dismissed immediately when its position becomes unspecified, but for one frame a
+     * position update might be requested by soon-to-be-destroyed Popup. In this case, report the
+     * last known position as there are no more updates. If the first ever position is provided as
+     * unspecified, start with [Offset.Zero] default.
+     */
+    private var prevPosition: Offset = Offset.Zero
+
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        val position = positionProvider.provide().takeOrElse { prevPosition }
+        prevPosition = position
+
+        val adjustment = handleReferencePoint.align(popupContentSize, IntSize.Zero, layoutDirection)
+        return anchorBounds.topLeft + position.round() + adjustment
+    }
+}
+
+/**
+ * Computes whether the handle's appearance should be left-pointing or right-pointing.
+ */
+internal fun isLeftSelectionHandle(
+    isStartHandle: Boolean,
+    direction: ResolvedTextDirection,
+    handlesCrossed: Boolean
+): Boolean {
+    return if (isStartHandle) {
+        isHandleLtrDirection(direction, handlesCrossed)
+    } else {
+        !isHandleLtrDirection(direction, handlesCrossed)
+    }
+}
+
+/**
+ * This method is to check if the selection handles should use the natural Ltr pointing
+ * direction.
+ * If the context is Ltr and the handles are not crossed, or if the context is Rtl and the handles
+ * are crossed, return true.
+ *
+ * In Ltr context, the start handle should point to the left, and the end handle should point to
+ * the right. However, in Rtl context or when handles are crossed, the start handle should point to
+ * the right, and the end handle should point to left.
+ */
+/*@VisibleForTesting*/
+internal fun isHandleLtrDirection(
+    direction: ResolvedTextDirection,
+    areHandlesCrossed: Boolean
+): Boolean {
+    return direction == ResolvedTextDirection.Ltr && !areHandlesCrossed ||
+        direction == ResolvedTextDirection.Rtl && areHandlesCrossed
 }

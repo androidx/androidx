@@ -42,7 +42,6 @@ import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
@@ -171,7 +170,6 @@ public class SearchView_CursorTest {
 
     // ViewTreeObserver.OnDrawListener (used for waiting for the redraw pass on
     // emulating a tap) is only available on 16+
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testSuggestionSelection() throws Throwable {
         final SearchView.OnSuggestionListener mockSuggestionListener =

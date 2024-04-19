@@ -55,8 +55,6 @@ import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
-import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_TYPE_AWAKE
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -835,22 +833,6 @@ class AllRecordsConverterTest {
     fun testSleepSessionWithEmptyStageList() {
         val data =
             SleepSessionRecord(
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testSleepStage() {
-        val data =
-            SleepStageRecord(
-                stage = STAGE_TYPE_AWAKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

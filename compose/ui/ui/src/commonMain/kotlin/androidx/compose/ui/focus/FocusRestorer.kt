@@ -26,7 +26,6 @@ import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import androidx.compose.ui.platform.InspectorInfo
 
-@Suppress("ConstPropertyName")
 private const val PrevFocusedChild = "previouslyFocusedChildHash"
 
 @ExperimentalComposeUiApi
@@ -53,7 +52,10 @@ internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
     }
     if (previouslyFocusedChildHash == 0) return false
     visitChildren(Nodes.FocusTarget) {
-        if (it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash) {
+        // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
+        if (it.isAttached &&
+            it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
+        ) {
             return it.restoreFocusedChild() || it.requestFocus()
         }
     }
@@ -87,7 +89,6 @@ internal class FocusRestorerNode(
         FocusRequester.Default
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private val onEnter: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
         if (restoreFocusedChild()) {
@@ -98,9 +99,7 @@ internal class FocusRestorerNode(
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.enter = onEnter
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.exit = onExit
     }
 }

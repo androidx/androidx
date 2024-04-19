@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
 import androidx.camera.camera2.pipe.OutputStream.OutputType
+import androidx.camera.camera2.pipe.OutputStream.SensorPixelMode
 import androidx.camera.camera2.pipe.OutputStream.StreamUseCase
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase
 import androidx.camera.camera2.pipe.UnsafeWrapper
@@ -53,15 +54,30 @@ internal data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
     val sessionTemplateId: Int,
     val sessionParameters: Map<*, Any?>,
+)
+
+/**
+ * A data class that mirrors the fields in
+ * [android.hardware.camera2.params.ExtensionSessionConfiguration] so
+ * that a real instance can be constructed when creating a
+ * [android.hardware.camera2.CameraExtensionSession] on newer versions of the OS.
+ */
+internal data class ExtensionSessionConfigData(
+    val sessionType: Int,
+    val outputConfigurations: List<OutputConfigurationWrapper>,
+    val executor: Executor,
+    val stateCallback: CameraCaptureSessionWrapper.StateCallback,
+    val sessionTemplateId: Int,
+    val sessionParameters: Map<*, Any?>,
     val extensionMode: Int? = null,
-    val extensionStateCallback: CameraExtensionSessionWrapper.StateCallback? = null
-) {
-    companion object {
-        /* NOTE: These must keep in sync with their SessionConfiguration values. */
-        const val SESSION_TYPE_REGULAR = 0
-        const val SESSION_TYPE_HIGH_SPEED = 1
-        const val SESSION_TYPE_EXTENSION = 2
-    }
+    val extensionStateCallback: CameraExtensionSessionWrapper.StateCallback? = null,
+    val postviewOutputConfiguration: OutputConfigurationWrapper? = null
+)
+
+internal object Camera2SessionTypes {
+    const val SESSION_TYPE_REGULAR = 0
+    const val SESSION_TYPE_HIGH_SPEED = 1
+    const val SESSION_TYPE_EXTENSION = 2
 }
 
 /**
@@ -142,6 +158,7 @@ internal class AndroidOutputConfiguration(
             timestampBase: TimestampBase? = null,
             dynamicRangeProfile: DynamicRangeProfile? = null,
             streamUseCase: StreamUseCase? = null,
+            sensorPixelModes: List<SensorPixelMode> = emptyList(),
             size: Size? = null,
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
@@ -253,6 +270,19 @@ internal class AndroidOutputConfiguration(
                         Api33Compat.getAvailableStreamUseCases(cameraMetadata)
                     if (availableStreamUseCases?.contains(streamUseCase.value) == true) {
                         Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
+                    }
+                }
+            }
+
+            if (sensorPixelModes.isNotEmpty()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    for (sensorPixelMode in sensorPixelModes) {
+                        Api31Compat.addSensorPixelModeUsed(configuration, sensorPixelMode.value)
+                    }
+                } else {
+                    Log.warn {
+                        "Cannot add sensorPixelModeUsed value on API ${Build.VERSION.SDK_INT}. " +
+                            "This may result in unexpected behavior. Requested $sensorPixelModes"
                     }
                 }
             }

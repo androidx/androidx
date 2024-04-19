@@ -16,7 +16,6 @@
 package androidx.slice;
 
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.core.util.ObjectsCompat;
@@ -26,7 +25,6 @@ import java.lang.reflect.Array;
 /**
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-@RequiresApi(19)
 @Deprecated
 class ArrayUtils {
 

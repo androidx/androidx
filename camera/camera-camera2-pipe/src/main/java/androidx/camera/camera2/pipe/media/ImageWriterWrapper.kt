@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.media
 import android.media.ImageWriter
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.InputId
+import androidx.camera.camera2.pipe.InputStreamId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 
 /**
@@ -66,7 +66,7 @@ interface ImageWriterWrapper : UnsafeWrapper, AutoCloseable {
         /**
          * Handle the [ImageWrapper] that has been released back to [ImageWriterWrapper].
          */
-        fun onImageReleased(inputId: InputId)
+        fun onImageReleased(inputStreamId: InputStreamId)
     }
 
     interface Builder {

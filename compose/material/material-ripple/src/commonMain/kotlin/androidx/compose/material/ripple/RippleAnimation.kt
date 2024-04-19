@@ -29,9 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlinx.coroutines.CompletableDeferred
@@ -59,11 +57,10 @@ import kotlinx.coroutines.launch
  */
 internal class RippleAnimation(
     private var origin: Offset?,
-    private val radius: Dp,
+    private val radius: Float,
     private val bounded: Boolean
 ) {
     private var startRadius: Float? = null
-    private var targetRadius: Float? = null
 
     private var targetCenter: Offset? = null
 
@@ -126,13 +123,6 @@ internal class RippleAnimation(
         if (startRadius == null) {
             startRadius = getRippleStartRadius(size)
         }
-        if (targetRadius == null) {
-            targetRadius = if (radius.isUnspecified) {
-                getRippleEndRadius(bounded, size)
-            } else {
-                radius.toPx()
-            }
-        }
         if (origin == null) {
             origin = center
         }
@@ -147,7 +137,7 @@ internal class RippleAnimation(
             animatedAlpha.value
         }
 
-        val radius = lerp(startRadius!!, targetRadius!!, animatedRadiusPercent.value)
+        val radius = lerp(startRadius!!, radius, animatedRadiusPercent.value)
         val centerOffset = Offset(
             lerp(origin!!.x, targetCenter!!.x, animatedCenterPercent.value),
             lerp(origin!!.y, targetCenter!!.y, animatedCenterPercent.value),

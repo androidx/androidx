@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -142,9 +143,28 @@ fun BasicSwipeToDismissBox(
         val contentScrimColor = LocalSwipeToDismissContentScrimColor.current
 
         val progress by remember(state) {
-            derivedStateOf { ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f) }
+            derivedStateOf {
+                if (state.swipeableState.offset?.isNaN() == true || maxWidthPx == 0f) {
+                    0f
+                } else {
+                    ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f)
+                }
+            }
         }
         val isSwiping by remember { derivedStateOf { progress > 0 } }
+        var squeezeMode by remember {
+            mutableStateOf(true)
+        }
+        LaunchedEffect(state.isAnimationRunning) {
+            if (state.targetValue == SwipeToDismissValue.Dismissed) {
+                squeezeMode = false
+            }
+        }
+        LaunchedEffect(state.targetValue) {
+            if (!squeezeMode && state.targetValue == SwipeToDismissValue.Default) {
+                squeezeMode = true
+            }
+        }
 
         repeat(2) {
             val isBackground = it == 0
@@ -164,9 +184,7 @@ fun BasicSwipeToDismissBox(
                                                 max(0f, (1f - scale) * maxWidthPx / 2f)
 
                                             val translationX =
-                                                if (state.targetValue
-                                                    != SwipeToDismissValue.Dismissed
-                                                ) {
+                                                if (squeezeMode) {
                                                     // Squeeze
                                                     squeezeOffset
                                                 } else {
@@ -197,10 +215,16 @@ fun BasicSwipeToDismissBox(
                             Canvas(Modifier.fillMaxSize()) {
                                 val color = if (isBackground) {
                                     backgroundScrimColor
-                                        .copy(alpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                        .copy(
+                                            alpha = (MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                                .coerceIn(0f, 1f)
+                                        )
                                 } else {
                                     contentScrimColor
-                                        .copy(alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f))
+                                        .copy(
+                                            alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
+                                                .coerceIn(0f, 1f)
+                                        )
                                 }
                                 drawRect(color = color)
                             }
@@ -329,6 +353,7 @@ class SwipeToDismissBoxState(
             edgeSwipeState: State<EdgeSwipeState>
         ): NestedScrollConnection =
             object : NestedScrollConnection {
+                @Suppress("DEPRECATION") // b/327155912
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     val delta = available.x
                     // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss

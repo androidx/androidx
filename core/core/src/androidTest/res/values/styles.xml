@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="TestActivityTheme" parent="@android:style/Theme.Holo">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
@@ -37,5 +37,15 @@
 
     <style name="ThemeOverlay.Core.ColorStateListInflaterCompat" parent="">
         <item name="android:textColorPrimary">@color/text_color</item>
+    </style>
+
+    <style name="LightSystemBarsTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+    <style name="DarkSystemBarsTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
     </style>
 </resources>

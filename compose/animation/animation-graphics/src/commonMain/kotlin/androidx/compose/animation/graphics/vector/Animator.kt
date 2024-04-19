@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.graphics.vector
 
+import androidx.collection.MutableScatterMap
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -36,6 +38,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorConfig
 import androidx.compose.ui.graphics.vector.VectorProperty
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
@@ -65,11 +68,11 @@ internal sealed class Animator {
         overallDuration: Int
     ) {
         val propertyValuesMap = remember(overallDuration) {
-            mutableMapOf<String, PropertyValues<*>>().also {
+            mutableScatterMapOf<String, PropertyValues<*>>().also {
                 collectPropertyValues(it, overallDuration, 0)
             }
         }
-        for ((propertyName, values) in propertyValuesMap) {
+        propertyValuesMap.forEach { propertyName, values ->
             values.timestamps.sortBy { it.timeMillis }
             val state = values.createState(transition, propertyName, overallDuration)
             @Suppress("UNCHECKED_CAST")
@@ -96,7 +99,7 @@ internal sealed class Animator {
     }
 
     abstract fun collectPropertyValues(
-        propertyValuesMap: MutableMap<String, PropertyValues<*>>,
+        propertyValuesMap: MutableScatterMap<String, PropertyValues<*>>,
         overallDuration: Int,
         parentDelay: Int
     )
@@ -133,7 +136,6 @@ internal class Timestamp<T>(
 }
 
 internal sealed class PropertyValues<T> {
-
     val timestamps = mutableListOf<Timestamp<T>>()
 
     @Composable
@@ -147,7 +149,6 @@ internal sealed class PropertyValues<T> {
         overallDuration: Int
     ): @Composable Transition.Segment<Boolean>.() -> FiniteAnimationSpec<T> {
         return {
-            @Suppress("UNCHECKED_CAST")
             val spec = combined(timestamps.fastMap { timestamp ->
                 timestamp.timeMillis to timestamp.asAnimationSpec()
             })
@@ -257,7 +258,7 @@ internal data class ObjectAnimator(
     }
 
     override fun collectPropertyValues(
-        propertyValuesMap: MutableMap<String, PropertyValues<*>>,
+        propertyValuesMap: MutableScatterMap<String, PropertyValues<*>>,
         overallDuration: Int,
         parentDelay: Int
     ) {
@@ -330,7 +331,7 @@ internal data class AnimatorSet(
     }
 
     override fun collectPropertyValues(
-        propertyValuesMap: MutableMap<String, PropertyValues<*>>,
+        propertyValuesMap: MutableScatterMap<String, PropertyValues<*>>,
         overallDuration: Int,
         parentDelay: Int
     ) {
@@ -422,7 +423,7 @@ internal class PropertyValuesHolderPath(
         val innerFraction = easing.transform(
             ((fraction - animatorKeyframes[index].fraction) /
                 (animatorKeyframes[index + 1].fraction - animatorKeyframes[index].fraction))
-                .coerceIn(0f, 1f)
+                .fastCoerceIn(0f, 1f)
         )
         return lerp(
             animatorKeyframes[index].value,

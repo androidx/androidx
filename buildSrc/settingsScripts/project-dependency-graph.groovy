@@ -31,18 +31,28 @@ import java.util.regex.Pattern
 class ProjectDependencyGraph {
     private Settings settings;
     private boolean isPlayground;
+    private boolean constraintsEnabled
     /**
      * A map of project path to a set of project paths referenced directly by this project.
      */
     private Map<String, Set<String>> projectReferences = new HashMap<String, Set<String>>()
+
+    /**
+     * A map of project path to a set of project paths that directly depend on the key project.
+     */
+    private Map<String, Set<String>> projectConsumers = new HashMap<String, Set<String>>()
+
+    private Set<String> publishedLibraryProjects = new HashSet<>()
+
     /**
      * A map of all project paths to their project directory.
      */
     private Map<String, File> allProjects = new HashMap<String, File>()
 
-    ProjectDependencyGraph(Settings settings, boolean isPlayground) {
+    ProjectDependencyGraph(Settings settings, boolean isPlayground, boolean constraintsEnabled) {
         this.settings = settings
         this.isPlayground = isPlayground
+        this.constraintsEnabled = constraintsEnabled
     }
 
     Set<String> allProjectPaths() {
@@ -63,6 +73,31 @@ class ProjectDependencyGraph {
         allProjects[projectPath] = projectDir
         Set<String> parsedDependencies = extractReferencesFromBuildFile(projectPath, projectDir)
         projectReferences[projectPath] = parsedDependencies
+        parsedDependencies.forEach { dependency ->
+            def reverseLookupSet = projectConsumers[dependency] ?: new HashSet<String>()
+            reverseLookupSet.add(projectPath)
+            projectConsumers[dependency] = reverseLookupSet
+        }
+    }
+
+    /**
+     * Returns a set of project path that includes the given `projectPath` as well as any other project
+     * that directly or indirectly depends on `projectPath`
+     */
+    Set<String> findAllProjectsDependingOn(String projectPath) {
+        Set<String> result = new HashSet<String>()
+        ArrayDeque<String> toBeTraversed = new ArrayDeque<String>()
+        toBeTraversed.add(projectPath)
+        while (toBeTraversed.size() > 0) {
+            def path = toBeTraversed.removeFirst()
+            if (result.add(path)) {
+                def dependants = projectConsumers[path]
+                if (dependants != null) {
+                    toBeTraversed.addAll(dependants)
+                }
+            }
+        }
+        return result
     }
 
     /**
@@ -105,7 +140,30 @@ class ProjectDependencyGraph {
                     "and update the project dependencies.")
         }
         def implicitReferences = findImplicitReferences(projectPath)
-        return references + implicitReferences
+        def constraintReferences = findConstraintReferences(projectPath)
+        return references + implicitReferences + constraintReferences
+    }
+
+    /**
+     * Finds sibling projects that will be needed for constraint publishing. This is necessary
+     * for when androidx.constraints=true is set and automatic atomic group constraints are enabled
+     * meaning that :foo:foo and :foo:foo-bar projects are required even if they don't reference
+     * each other.
+     *
+     * @param projectPath The project path whose sibling projects will be found
+     * @return The set of sibling projects that will be needed for constraint publishing
+     */
+    private Set<String> findConstraintReferences(String projectPath) {
+        Set<String> constraintReferences = new HashSet()
+        if (!constraintsEnabled || !publishedLibraryProjects.contains(projectPath)) return constraintReferences
+        def lastColon = projectPath.lastIndexOf(":")
+        if (lastColon == -1) return constraintReferences
+        allProjectPaths().forEach {
+            if (it.startsWith(projectPath.substring(0, lastColon)) && publishedLibraryProjects.contains(it)) {
+                constraintReferences.add(it)
+            }
+        }
+        return constraintReferences
     }
 
 
@@ -208,12 +266,11 @@ class ProjectDependencyGraph {
                     links.add(":compose:compiler:compiler")
                     links.add(":compose:lint:internal-lint-checks")
                 }
-                if (paparazziPlugin.matcher(line).find()) {
-                    links.add(":test:screenshot:screenshot-proto")
-                    links.add(":internal-testutils-paparazzi")
-                }
                 if (iconGenerator.matcher(line).find()) {
                     links.add(":compose:material:material:icons:generator")
+                }
+                if (publishedLibrary.matcher(line).find()) {
+                    publishedLibraryProjects.add(projectPath)
                 }
             }
         } else if (!projectDir.exists()) {
@@ -236,12 +293,15 @@ class ProjectDependencyGraph {
     private static Pattern multilineProjectReference = Pattern.compile("project\\(\$")
     private static Pattern inspection = Pattern.compile("packageInspector\\(project, \"(.*)\"\\)")
     private static Pattern composePlugin = Pattern.compile("id\\(\"AndroidXComposePlugin\"\\)")
-    private static Pattern paparazziPlugin = Pattern.compile("id\\(\"AndroidXPaparazziPlugin\"\\)")
     private static Pattern iconGenerator = Pattern.compile("IconGenerationTask\\.register")
+    private static Pattern publishedLibrary = Pattern.compile(
+            "(type = LibraryType\\.(PUBLISHED_LIBRARY|GRADLE_PLUGIN|ANNOTATION_PROCESSOR|PUBLISHED_KOTLIN_ONLY_LIBRARY)|" +
+                    "publish = Publish\\.SNAPSHOT_AND_RELEASE)"
+    )
 }
 
-ProjectDependencyGraph createProjectDependencyGraph(Settings settings) {
-    return new ProjectDependencyGraph(settings, false /** isPlayground **/)
+ProjectDependencyGraph createProjectDependencyGraph(Settings settings, boolean constraintsEnabled) {
+    return new ProjectDependencyGraph(settings, false /** isPlayground **/, constraintsEnabled)
 }
 // export a function to create ProjectDependencyGraph
 ext.createProjectDependencyGraph = this.&createProjectDependencyGraph

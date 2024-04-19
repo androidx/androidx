@@ -198,6 +198,8 @@ class AudioVideoSyncTest(
         assertThat(timeDiff).isLessThan(diffThresholdUs)
 
         recording.stopSafely()
+        inOrder.verify(videoRecordEventListener, Mockito.timeout(5000L))
+            .accept(ArgumentMatchers.any(VideoRecordEvent.Finalize::class.java))
         file.delete()
     }
 

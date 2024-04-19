@@ -233,7 +233,7 @@ internal class SnapshotIdSet private constructor(
                 this.belowBound
             )
         } else {
-            bits.fold(this) { previous, index -> previous.clear(index) }
+            bits.fastFold(this) { previous, index -> previous.clear(index) }
         }
     }
 
@@ -254,11 +254,11 @@ internal class SnapshotIdSet private constructor(
                 )
         } else {
             if (this.belowBound == null)
-                this.fold(EMPTY) { previous, index ->
+                this.fastFold(EMPTY) { previous, index ->
                     if (bits.get(index)) previous.set(index) else previous
                 }
             else
-                bits.fold(EMPTY) { previous, index ->
+                bits.fastFold(EMPTY) { previous, index ->
                     if (this.get(index)) previous.set(index) else previous
                 }
         }
@@ -280,10 +280,10 @@ internal class SnapshotIdSet private constructor(
         } else {
             if (this.belowBound == null) {
                 // We are probably smaller than bits, or at least, small enough
-                this.fold(bits) { previous, index -> previous.set(index) }
+                this.fastFold(bits) { previous, index -> previous.set(index) }
             } else {
                 // Otherwise assume bits is smaller than this.
-                bits.fold(this) { previous, index -> previous.set(index) }
+                bits.fastFold(this) { previous, index -> previous.set(index) }
             }
         }
     }
@@ -310,6 +310,17 @@ internal class SnapshotIdSet private constructor(
         }
     }.iterator()
 
+    inline fun fastFold(
+        initial: SnapshotIdSet,
+        operation: (acc: SnapshotIdSet, Int) -> SnapshotIdSet
+    ): SnapshotIdSet {
+        var accumulator = initial
+        fastForEach { element ->
+            accumulator = operation(accumulator, element)
+        }
+        return accumulator
+    }
+
     inline fun fastForEach(block: (Int) -> Unit) {
         val belowBound = belowBound
         if (belowBound != null)
@@ -335,8 +346,8 @@ internal class SnapshotIdSet private constructor(
     fun lowest(default: Int): Int {
         val belowBound = belowBound
         if (belowBound != null) return belowBound[0]
-        if (lowerSet != 0L) return lowerBound + lowestBitOf(lowerSet)
-        if (upperSet != 0L) return lowerBound + Long.SIZE_BITS + lowestBitOf(upperSet)
+        if (lowerSet != 0L) return lowerBound + lowerSet.countTrailingZeroBits()
+        if (upperSet != 0L) return lowerBound + Long.SIZE_BITS + upperSet.countTrailingZeroBits()
         return default
     }
 
@@ -350,32 +361,6 @@ internal class SnapshotIdSet private constructor(
          */
         val EMPTY = SnapshotIdSet(0, 0, 0, null)
     }
-}
-
-private fun lowestBitOf(bits: Long): Int {
-    var b = bits
-    var base = 0
-    if (b and 0xFFFF_FFFFL == 0L) {
-        base += 32
-        b = b shr 32
-    }
-    if (b and 0xFFFF == 0L) {
-        base += 16
-        b = b shr 16
-    }
-    if (b and 0xFF == 0L) {
-        base += 8
-        b = b shr 8
-    }
-    if (b and 0xF == 0L) {
-        base += 4
-        b = b shr 4
-    }
-    if (b and 0x1 != 0L) return base
-    if (b and 0x2 != 0L) return base + 1
-    if (b and 0x4 != 0L) return base + 2
-    if (b and 0x8 != 0L) return base + 3
-    return -1
 }
 
 internal fun IntArray.binarySearch(value: Int): Int {

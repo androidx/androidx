@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.Trace;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,6 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.TraceCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -1121,7 +1121,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     protected boolean isLayoutRTL() {
-        return getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     void ensureLayoutState() {
@@ -1677,17 +1677,17 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         while ((layoutState.mInfinite || remainingSpace > 0) && layoutState.hasMore(state)) {
             layoutChunkResult.resetInternal();
             if (RecyclerView.VERBOSE_TRACING) {
-                TraceCompat.beginSection("LLM LayoutChunk");
+                Trace.beginSection("LLM LayoutChunk");
             }
             layoutChunk(recycler, state, layoutState, layoutChunkResult);
             if (RecyclerView.VERBOSE_TRACING) {
-                TraceCompat.endSection();
+                Trace.endSection();
             }
             if (layoutChunkResult.mFinished) {
                 break;
             }
             layoutState.mOffset += layoutChunkResult.mConsumed * layoutState.mLayoutDirection;
-            /**
+            /*
              * Consume the available space if:
              * * layoutChunk did not request to be ignored
              * * OR we are laying out scrap children

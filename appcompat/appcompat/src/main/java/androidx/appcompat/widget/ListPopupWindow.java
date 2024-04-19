@@ -53,7 +53,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
 import androidx.appcompat.view.menu.ShowableListMenu;
-import androidx.core.view.ViewCompat;
 import androidx.core.widget.PopupWindowCompat;
 
 import java.lang.reflect.Method;
@@ -666,7 +665,7 @@ public class ListPopupWindow implements ShowableListMenu {
         PopupWindowCompat.setWindowLayoutType(mPopup, mDropDownWindowLayoutType);
 
         if (mPopup.isShowing()) {
-            if (!ViewCompat.isAttachedToWindow(getAnchorView())) {
+            if (!getAnchorView().isAttachedToWindow()) {
                 //Don't update position if the anchor view is detached from window.
                 return;
             }
@@ -1158,7 +1157,7 @@ public class ListPopupWindow implements ShowableListMenu {
         if (mDropDownList == null) {
             Context context = mContext;
 
-            /**
+            /*
              * This Runnable exists for the sole purpose of checking if the view layout has got
              * completed and if so call showDropDown to display the drop down. This is used to show
              * the drop down as soon as possible after user opens up the search dialog, without
@@ -1372,7 +1371,7 @@ public class ListPopupWindow implements ShowableListMenu {
 
         @Override
         public void run() {
-            if (mDropDownList != null && ViewCompat.isAttachedToWindow(mDropDownList)
+            if (mDropDownList != null && mDropDownList.isAttachedToWindow()
                     && mDropDownList.getCount() > mDropDownList.getChildCount()
                     && mDropDownList.getChildCount() <= mListItemExpandMaximum) {
                 mPopup.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);

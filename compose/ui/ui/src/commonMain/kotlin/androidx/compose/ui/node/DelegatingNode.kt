@@ -17,6 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.checkPrecondition
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -55,6 +56,16 @@ abstract class DelegatingNode : Modifier.Node() {
     @TestOnly
     internal fun undelegateUnprotected(instance: DelegatableNode) = undelegate(instance)
 
+    override fun setAsDelegateTo(owner: Modifier.Node) {
+        super.setAsDelegateTo(owner)
+        // At this point _this_ node is being delegated to, however _this_ node may also
+        // have delegates of its own, and their current `node` pointers need to be updated
+        // so that they point to the right node in the tree.
+        forEachImmediateDelegate {
+            it.setAsDelegateTo(owner)
+        }
+    }
+
     /**
      * In order to properly delegate work to another [Modifier.Node], the delegated instance must
      * be created and returned inside of a [delegate] call. Doing this will
@@ -81,7 +92,7 @@ abstract class DelegatingNode : Modifier.Node() {
                 error("Cannot delegate to an already delegated node")
             }
         }
-        check(!delegateNode.isAttached) {
+        checkPrecondition(!delegateNode.isAttached) {
             "Cannot delegate to an already attached node"
         }
         // this could be a delegate itself, so we make sure to setAsDelegateTo(node) instead of
@@ -178,7 +189,7 @@ abstract class DelegatingNode : Modifier.Node() {
             // delegating to another layout modifier. In order to properly handle this, we need
             // to require that the delegating node is itself a LayoutModifierNode to ensure that
             // they are explicitly handling the combination. If not, we throw, since
-            check(this is LayoutModifierNode) {
+            checkPrecondition(this is LayoutModifierNode) {
                 "Delegating to multiple LayoutModifierNodes without the delegating node " +
                     "implementing LayoutModifierNode itself is not allowed." +
                     "\nDelegating Node: $this" +

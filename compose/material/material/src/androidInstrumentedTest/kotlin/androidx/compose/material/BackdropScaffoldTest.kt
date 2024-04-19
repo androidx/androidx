@@ -16,6 +16,8 @@
 
 package androidx.compose.material
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,9 +64,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalMaterialApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterialApi::class)
 class BackdropScaffoldTest {
 
     @get:Rule
@@ -344,16 +346,43 @@ class BackdropScaffoldTest {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun backdropScaffold_deprecateScaffoldState_doesNotCrash() {
+        lateinit var scaffoldState: BackdropScaffoldState
+        rule.setContent {
+            scaffoldState = BackdropScaffoldState(
+                initialValue = Revealed
+            )
+            BackdropScaffold(
+                scaffoldState = scaffoldState,
+                peekHeight = peekHeight,
+                headerHeight = headerHeight,
+                appBar = { Box(Modifier.height(peekHeight)) },
+                backLayerContent = { Box(Modifier.height(contentHeight)) },
+                frontLayerContent = { Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(frontLayer)) }
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(scaffoldState.currentValue).isEqualTo(Revealed)
+        }
+    }
+
     /**
      * Tests that the state and offset of [swipeable] are updated when swiping.
      */
     @Test
     fun backdropScaffold_syncThresholdUpdate() {
         val increasedAnchor = mutableStateOf(false)
-        val scaffoldState = BackdropScaffoldState(Revealed)
+        var scaffoldState: BackdropScaffoldState? = null
         rule.setContent {
+            scaffoldState = rememberBackdropScaffoldState(initialValue = Revealed)
             BackdropScaffold(
-                scaffoldState = scaffoldState,
+                scaffoldState = scaffoldState!!,
                 frontLayerScrimColor = Color.Red,
                 appBar = { },
                 backLayerContent = {
@@ -374,21 +403,21 @@ class BackdropScaffoldTest {
         }
 
         val revealedOffset = rule.runOnIdle {
-            assertThat(scaffoldState.currentValue).isEqualTo(BackdropValue.Revealed)
+            assertThat(scaffoldState?.currentValue).isEqualTo(Revealed)
             // state change changes the anchors, causing the recalculation
             increasedAnchor.value = true
-            scaffoldState.offset.value
+            scaffoldState?.requireOffset()
         }
 
         rule.runOnIdle {
-            assertThat(scaffoldState.offset.value).isNotEqualTo(revealedOffset)
+            assertThat(scaffoldState?.requireOffset()).isNotEqualTo(revealedOffset)
             // swap back, causing threshold update during update-caused settle
             increasedAnchor.value = false
         }
 
         rule.runOnIdle {
             // no crash and assert passes
-            assertThat(scaffoldState.offset.value).isEqualTo(revealedOffset)
+            assertThat(scaffoldState?.requireOffset()).isEqualTo(revealedOffset)
         }
     }
 
@@ -694,6 +723,77 @@ class BackdropScaffoldTest {
         rule.runOnIdle {
             // still revealed
             assertThat(scaffoldState.currentValue).isEqualTo(Revealed)
+        }
+    }
+
+    @Test
+    fun backdropScaffold_progress() {
+        rule.mainClock.autoAdvance = false
+        lateinit var backdropScaffoldState: BackdropScaffoldState
+        lateinit var scope: CoroutineScope
+        val animationLengthMillis = 192
+        val amountOfFramesForAnimation = animationLengthMillis / 16
+        rule.setContent {
+            backdropScaffoldState = rememberBackdropScaffoldState(
+                initialValue = Concealed,
+                animationSpec = tween(animationLengthMillis, easing = LinearEasing)
+            )
+            scope = rememberCoroutineScope()
+            BackdropScaffold(
+                scaffoldState = backdropScaffoldState,
+                peekHeight = peekHeight,
+                headerHeight = headerHeight,
+                appBar = { Box(Modifier.height(peekHeight)) },
+                backLayerContent = { Box(Modifier.height(contentHeight)) },
+                frontLayerContent = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(frontLayer)
+                    )
+                }
+            )
+        }
+
+        assertThat(backdropScaffoldState.currentValue).isEqualTo(Concealed)
+        assertThat(backdropScaffoldState.targetValue).isEqualTo(Concealed)
+        assertThat(backdropScaffoldState.progress(from = Concealed, to = Revealed))
+            .isEqualTo(0f)
+
+        scope.launch { backdropScaffoldState.reveal() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val concealedToRevealedProgress = backdropScaffoldState.progress(
+                from = Concealed, to = Revealed
+            )
+            val revealedToConcealedProgress = backdropScaffoldState.progress(
+                from = Revealed, to = Concealed
+            )
+            assertThat(concealedToRevealedProgress).isWithin(0.001f).of(frameFraction)
+            assertThat(revealedToConcealedProgress).isWithin(0.001f).of(1 - frameFraction)
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        scope.launch { backdropScaffoldState.conceal() }
+        rule.mainClock.advanceTimeByFrame() // Start dispatching and running the animation
+
+        repeat(amountOfFramesForAnimation) { frame ->
+            val frameFraction = (frame / amountOfFramesForAnimation.toFloat())
+            val concealedToRevealedProgress = backdropScaffoldState.progress(
+                from = Concealed, to = Revealed
+            )
+            val revealedToConcealedProgress = backdropScaffoldState.progress(
+                from = Revealed, to = Concealed
+            )
+            assertThat(concealedToRevealedProgress).isWithin(0.001f).of(1 - frameFraction)
+            assertThat(revealedToConcealedProgress).isWithin(0.001f).of(frameFraction)
+            rule.mainClock.advanceTimeByFrame()
         }
     }
 }

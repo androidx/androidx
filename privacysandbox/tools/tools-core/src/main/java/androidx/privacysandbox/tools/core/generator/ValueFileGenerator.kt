@@ -16,6 +16,8 @@
 
 package androidx.privacysandbox.tools.core.generator
 
+import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
+import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
@@ -33,12 +35,20 @@ class ValueFileGenerator {
         }
 
     private fun generateValue(value: AnnotatedValue) =
-        TypeSpec.classBuilder(value.type.poetClassName()).build {
-            addModifiers(KModifier.DATA)
-            primaryConstructor(value.properties.map {
-                PropertySpec.builder(it.name, it.type.poetTypeName())
-                    .mutable(false)
-                    .build()
-            })
+        when (value) {
+            is AnnotatedDataClass ->
+                TypeSpec.classBuilder(value.type.poetClassName()).build {
+                    addModifiers(KModifier.DATA)
+                    primaryConstructor(value.properties.map {
+                        PropertySpec.builder(it.name, it.type.poetTypeName())
+                            .mutable(false)
+                            .build()
+                    })
+                }
+
+            is AnnotatedEnumClass ->
+                TypeSpec.enumBuilder(value.type.poetClassName()).build {
+                    value.variants.forEach(::addEnumConstant)
+                }
         }
 }

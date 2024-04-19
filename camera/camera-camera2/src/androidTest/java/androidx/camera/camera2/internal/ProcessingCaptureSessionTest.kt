@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.graphics.ImageFormat.JPEG
 import android.graphics.ImageFormat.PRIVATE
 import android.graphics.ImageFormat.YUV_420_888
@@ -41,6 +42,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -71,6 +73,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -323,6 +326,36 @@ class ProcessingCaptureSessionTest(
     }
 
     @Test
+    fun canConfigurePostviewSurfaceAndEnablePostviewInStillCapture():
+        Unit = runBlocking(Dispatchers.Main) {
+        // 1.Arrange
+        val cameraDevice = cameraDeviceHolder.get()!!
+        val captureSession = createProcessingCaptureSession()
+
+        // 2. Act
+        // This will set postview surface to the SessionConfig for opening and enable the postview
+        // in the CaptureConfig for still capture.
+        sessionConfigParameters.enablePostview()
+        captureSession.open(
+            sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
+            captureSessionOpenerBuilder.build()
+        ).awaitWithTimeout(3000)
+
+        captureSession.sessionConfig =
+            sessionConfigParameters.getActiveSessionConfigForRepeating()
+
+        captureSession.issueCaptureRequests(
+            listOf(sessionConfigParameters.getStillCaptureCaptureConfig())
+        )
+
+        // 3. Assert
+        assertThat(sessionProcessor.awaitInitSessionOutputSurfaceConfiguration()
+            .postviewOutputSurface!!.surface)
+            .isSameInstanceAs(sessionConfigParameters.getPostviewSurface())
+        sessionProcessor.assertStartCapturePostviewEnabled()
+    }
+
+    @Test
     fun canIssueStillCapture(): Unit = runBlocking(Dispatchers.Main) {
         // Arrange
         val cameraDevice = cameraDeviceHolder.get()!!
@@ -341,8 +374,11 @@ class ProcessingCaptureSessionTest(
         )
 
         // Assert
+        val expectCaptureConfigId = sessionConfigParameters.getStillCaptureCaptureConfig().id
         sessionProcessor.assertStartCaptureInvoked()
-        sessionConfigParameters.assertStillCaptureCompleted()
+        sessionConfigParameters.assertStillCaptureStarted(expectCaptureConfigId)
+        sessionConfigParameters.assertStillCaptureProcessProgressed(expectCaptureConfigId)
+        sessionConfigParameters.assertStillCaptureCompleted(expectCaptureConfigId)
         sessionConfigParameters.assertCaptureImageReceived()
 
         val parametersConfig = sessionProcessor.getLatestParameters()
@@ -354,6 +390,27 @@ class ProcessingCaptureSessionTest(
         assertThat(
             parametersConfig.isParameterSet(CaptureRequest.JPEG_QUALITY, JPEG_QUALITY_VALUE)
         ).isTrue()
+    }
+
+    @Test
+    fun stillCaptureFailed(): Unit = runBlocking(Dispatchers.Main) {
+        // Arrange
+        val cameraDevice = cameraDeviceHolder.get()!!
+        val captureSession = createProcessingCaptureSession()
+        captureSession.open(
+            sessionConfigParameters.getSessionConfigForOpen(), cameraDevice,
+            captureSessionOpenerBuilder.build()
+        ).awaitWithTimeout(3000)
+
+        // Act
+        sessionProcessor.setStillCaptureFailedImmediately(true)
+        captureSession.issueCaptureRequests(
+            listOf(sessionConfigParameters.getStillCaptureCaptureConfig())
+        )
+
+        // Assert
+        val expectCaptureConfigId = sessionConfigParameters.getStillCaptureCaptureConfig().id
+        sessionConfigParameters.assertStillCaptureFailed(expectCaptureConfigId)
     }
 
     @Test
@@ -476,7 +533,7 @@ class ProcessingCaptureSessionTest(
         val captureConfig = CaptureConfig.Builder().apply {
             templateType = CameraDevice.TEMPLATE_PREVIEW
             addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCancelled() {
+                override fun onCaptureCancelled(captureConfigId: Int) {
                     cancelCountLatch.countDown()
                 }
             })
@@ -514,7 +571,10 @@ class ProcessingCaptureSessionTest(
         val captureConfig = CaptureConfig.Builder().apply {
             templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
             addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+                override fun onCaptureCompleted(
+                    captureConfigId: Int,
+                    cameraCaptureResult: CameraCaptureResult
+                ) {
                     deferredRequestCompleted.complete(Unit)
                 }
             })
@@ -530,12 +590,14 @@ class ProcessingCaptureSessionTest(
         // Arrange
         val captureSession = createProcessingCaptureSession()
 
-        val deferredRequestCancelled = CompletableDeferred<Unit>()
+        val deferredRequestCancelled = CompletableDeferred<Int>()
+        val captureConfigId = 101
         val captureConfig = CaptureConfig.Builder().apply {
             templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+            setId(captureConfigId)
             addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCancelled() {
-                    deferredRequestCancelled.complete(Unit)
+                override fun onCaptureCancelled(captureConfigId: Int) {
+                    deferredRequestCancelled.complete(captureConfigId)
                 }
             })
         }.build()
@@ -545,7 +607,9 @@ class ProcessingCaptureSessionTest(
         captureSession.cancelIssuedCaptureRequests()
 
         // Assert
-        deferredRequestCancelled.awaitWithTimeout(3000)
+        assertThat(
+            withTimeoutOrNull(3000) { deferredRequestCancelled.await() }
+        ).isEqualTo(captureConfigId)
     }
 
     @Test
@@ -756,20 +820,26 @@ class ProcessingCaptureSessionTest(
     private inner class SessionConfigParameters {
         private var previewOutputDeferrableSurface: DeferrableSurface
         private var captureOutputDeferrableSurface: DeferrableSurface
+        private var postviewOutputDeferrableSurface: DeferrableSurface? = null
         // Use SurfaceTexture for preview if PRIVATE format, use ImageReader if YUV format.
         private var previewSurfaceTexture: SurfaceTexture? = null
         private var previewImageReader: ImageReader? = null
         private var captureImageReader: ImageReader
+        private var postviewImageReader: ImageReader? = null
         private val sessionConfigured = CompletableDeferred<Unit>()
         private val repeatingRequestCompletedWithTags = CompletableDeferred<Unit>()
         private val previewImageReady = CompletableDeferred<Unit>()
         private val captureImageReady = CompletableDeferred<Unit>()
-        private val stillCaptureCompleted = CompletableDeferred<Unit>()
+        private val stillCaptureStarted = CompletableDeferred<Int>()
+        private val stillCaptureCompleted = CompletableDeferred<Int>()
+        private val stillCaptureFailed = CompletableDeferred<Int>()
+        private val stillCaptureProcessProgressed = CompletableDeferred<Int>()
         private val triggerRequestCompleted = CompletableDeferred<Unit>()
         private val tagKey1 = "KEY1"
         private val tagKey2 = "KEY2"
         private val tagValue1 = "Value1"
         private val tagValue2 = 99
+        private val captureConfigId = 100
 
         init {
             // Preview
@@ -829,11 +899,23 @@ class ProcessingCaptureSessionTest(
             )
         }
 
+        fun enablePostview() {
+            postviewImageReader = ImageReader.newInstance(640, 480, ImageFormat.JPEG, 2);
+            postviewOutputDeferrableSurface = ImmediateSurface(postviewImageReader!!.surface)
+        }
+
+        fun getPostviewSurface() = postviewImageReader!!.surface
+
+        fun isPostviewEnabled() = postviewImageReader != null
+
         fun getSessionConfigForOpen(): SessionConfig {
             val sessionBuilder = SessionConfig.Builder()
             sessionBuilder.addSurface(captureOutputDeferrableSurface)
             sessionBuilder.addSurface(previewOutputDeferrableSurface)
             sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+            postviewOutputDeferrableSurface?.let {
+                sessionBuilder.setPostviewSurface(it)
+            }
             sessionBuilder.addSessionStateCallback(
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
@@ -887,14 +969,34 @@ class ProcessingCaptureSessionTest(
 
         fun getStillCaptureCaptureConfig(): CaptureConfig {
             return CaptureConfig.Builder().apply {
+                setId(captureConfigId)
                 templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+                setPostviewEnabled(isPostviewEnabled())
                 implementationOptions = CaptureRequestOptions.Builder().apply {
                     setCaptureRequestOption(CaptureRequest.JPEG_ORIENTATION, JPEG_ORIENTATION_VALUE)
                     setCaptureRequestOption(CaptureRequest.JPEG_QUALITY, JPEG_QUALITY_VALUE)
                 }.build()
                 addCameraCaptureCallback(object : CameraCaptureCallback() {
-                    override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
-                        stillCaptureCompleted.complete(Unit)
+                    override fun onCaptureStarted(captureConfigId: Int) {
+                        stillCaptureStarted.complete(captureConfigId)
+                    }
+
+                    override fun onCaptureCompleted(
+                        captureConfigId: Int,
+                        cameraCaptureResult: CameraCaptureResult
+                    ) {
+                        stillCaptureCompleted.complete(captureConfigId)
+                    }
+
+                    override fun onCaptureFailed(
+                        captureConfigId: Int,
+                        failure: CameraCaptureFailure
+                    ) {
+                        stillCaptureFailed.complete(captureConfigId)
+                    }
+
+                    override fun onCaptureProcessProgressed(captureConfigId: Int, progress: Int) {
+                        stillCaptureProcessProgressed.complete(captureConfigId)
                     }
                 })
             }.build()
@@ -910,7 +1012,10 @@ class ProcessingCaptureSessionTest(
                     setCaptureRequestOption(triggerKey, triggerValue)
                 }.build()
                 addCameraCaptureCallback(object : CameraCaptureCallback() {
-                    override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+                    override fun onCaptureCompleted(
+                        captureConfigId: Int,
+                        cameraCaptureResult: CameraCaptureResult
+                    ) {
                         triggerRequestCompleted.complete(Unit)
                     }
                 })
@@ -920,12 +1025,14 @@ class ProcessingCaptureSessionTest(
         fun closeOutputSurfaces() {
             previewOutputDeferrableSurface.close()
             captureOutputDeferrableSurface.close()
+            postviewOutputDeferrableSurface?.close()
         }
 
         fun releaseSurfaces() {
             captureImageReader.close()
             previewImageReader?.close()
             previewSurfaceTexture?.release()
+            postviewImageReader?.close();
         }
 
         suspend fun assertSessionOnConfigured() {
@@ -940,8 +1047,36 @@ class ProcessingCaptureSessionTest(
             previewImageReady.awaitWithTimeout(3000)
         }
 
-        suspend fun assertStillCaptureCompleted() {
-            stillCaptureCompleted.awaitWithTimeout(3000)
+        suspend fun assertStillCaptureCompleted(captureConfigId: Int? = null) {
+            val fetchedCaptureConfigId =
+                withTimeoutOrNull(3000) { stillCaptureCompleted.await() }
+            captureConfigId?.let {
+                assertThat(it).isEqualTo(fetchedCaptureConfigId)
+            }
+        }
+
+        suspend fun assertStillCaptureStarted(captureConfigId: Int? = null) {
+            val fetchedCaptureConfigId =
+                withTimeoutOrNull(3000) { stillCaptureStarted.await() }
+            captureConfigId?.let {
+                assertThat(it).isEqualTo(fetchedCaptureConfigId)
+            }
+        }
+
+        suspend fun assertStillCaptureFailed(captureConfigId: Int? = null) {
+            val fetchedCaptureConfigId =
+                withTimeoutOrNull(3000) { stillCaptureFailed.await() }
+            captureConfigId?.let {
+                assertThat(it).isEqualTo(fetchedCaptureConfigId)
+            }
+        }
+
+        suspend fun assertStillCaptureProcessProgressed(captureConfigId: Int? = null) {
+            val fetchedCaptureConfigId =
+                withTimeoutOrNull(3000) { stillCaptureProcessProgressed.await() }
+            captureConfigId?.let {
+                assertThat(it).isEqualTo(fetchedCaptureConfigId)
+            }
         }
 
         suspend fun assertCaptureImageReceived() {

@@ -68,10 +68,12 @@ public class CarHardwareHostDispatcher {
      * @param result     the callback where the result is returned
      * @throws NullPointerException if {@code result} is {@code null}
      */
+    @SuppressWarnings("NullAway") // b/316639429
     public void dispatchGetCarHardwareResult(int resultType, @Nullable Bundleable bundle,
             @NonNull ICarHardwareResult result) {
         requireNonNull(result);
         RemoteUtils.dispatchCallToHost("getCarHardwareResult",
+
                 () -> {
                     getHost().getCarHardwareResult(
                             resultType,
@@ -90,6 +92,7 @@ public class CarHardwareHostDispatcher {
      * @param callback   the callback where the result is returned
      * @throws NullPointerException if {@code callback} is {@code null}
      */
+    @SuppressWarnings("NullAway") // b/316639429
     public void dispatchSubscribeCarHardwareResult(int resultType, @Nullable Bundleable bundle,
             @NonNull ICarHardwareResult callback) {
         requireNonNull(callback);
@@ -110,6 +113,7 @@ public class CarHardwareHostDispatcher {
      * @param resultType the result type to fetch
      * @throws NullPointerException if {@code callback} is {@code null}
      */
+    @SuppressWarnings("NullAway") // b/316639429
     public void dispatchUnsubscribeCarHardwareResult(int resultType, @Nullable Bundleable bundle) {
         RemoteUtils.dispatchCallToHost("unsubscribeCarHardwareResult",
                 () -> {

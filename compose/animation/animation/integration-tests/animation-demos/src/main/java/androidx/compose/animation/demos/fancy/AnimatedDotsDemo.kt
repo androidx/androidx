@@ -134,12 +134,12 @@ private fun getBridgePath(
 ): Path {
     return Path().apply {
         moveTo(startX, startYTop)
-        quadraticBezierTo(bezierX, bezierYTop, endX, endYTop)
+        quadraticTo(bezierX, bezierYTop, endX, endYTop)
         lineTo(endX, midY)
         lineTo(startX, midY)
         moveTo(startX, startYTop)
         lineTo(startX, startYBottom)
-        quadraticBezierTo(bezierX, bezierYBottom, endX, endYBottom)
+        quadraticTo(bezierX, bezierYBottom, endX, endYBottom)
         lineTo(endX, midY)
         lineTo(startX, midY)
     }

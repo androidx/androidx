@@ -1,107 +1,96 @@
-import android.database.Cursor
-import androidx.room.EntityInsertionAdapter
+import androidx.room.EntityInsertAdapter
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
-import androidx.sqlite.db.SupportSQLiteStatement
-import java.lang.Class
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
-import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
-    __db: RoomDatabase,
+  __db: RoomDatabase,
 ) : MyDao {
-    private val __db: RoomDatabase
+  private val __db: RoomDatabase
 
-    private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
-    init {
-        this.__db = __db
-        this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            protected override fun createQuery(): String =
-                "INSERT OR ABORT INTO `MyEntity` (`pk`,`numberData`,`stringData`,`nullablenumberData`,`nullablestringData`) VALUES (?,?,?,?,?)"
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
+  init {
+    this.__db = __db
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
+      protected override fun createQuery(): String =
+          "INSERT OR ABORT INTO `MyEntity` (`pk`,`numberData`,`stringData`,`nullablenumberData`,`nullablestringData`) VALUES (?,?,?,?,?)"
 
-            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
-                statement.bindLong(1, entity.pk.toLong())
-                val _tmpFoo: Foo = entity.foo
-                statement.bindLong(2, _tmpFoo.numberData)
-                statement.bindString(3, _tmpFoo.stringData)
-                val _tmpNullableFoo: Foo? = entity.nullableFoo
-                if (_tmpNullableFoo != null) {
-                    statement.bindLong(4, _tmpNullableFoo.numberData)
-                    statement.bindString(5, _tmpNullableFoo.stringData)
-                } else {
-                    statement.bindNull(4)
-                    statement.bindNull(5)
-                }
-            }
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
+        statement.bindLong(1, entity.pk.toLong())
+        val _tmpFoo: Foo = entity.foo
+        statement.bindLong(2, _tmpFoo.numberData)
+        statement.bindText(3, _tmpFoo.stringData)
+        val _tmpNullableFoo: Foo? = entity.nullableFoo
+        if (_tmpNullableFoo != null) {
+          statement.bindLong(4, _tmpNullableFoo.numberData)
+          statement.bindText(5, _tmpNullableFoo.stringData)
+        } else {
+          statement.bindNull(4)
+          statement.bindNull(5)
         }
+      }
     }
+  }
 
-    public override fun addEntity(item: MyEntity) {
-        __db.assertNotSuspendingTransaction()
-        __db.beginTransaction()
-        try {
-            __insertionAdapterOfMyEntity.insert(item)
-            __db.setTransactionSuccessful()
-        } finally {
-            __db.endTransaction()
+  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
+      _connection ->
+    __insertAdapterOfMyEntity.insert(_connection, item)
+  }
+
+  public override fun getEntity(): MyEntity {
+    val _sql: String = "SELECT * FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfNumberData: Int = getColumnIndexOrThrow(_stmt, "numberData")
+        val _cursorIndexOfStringData: Int = getColumnIndexOrThrow(_stmt, "stringData")
+        val _cursorIndexOfNumberData_1: Int = getColumnIndexOrThrow(_stmt, "nullablenumberData")
+        val _cursorIndexOfStringData_1: Int = getColumnIndexOrThrow(_stmt, "nullablestringData")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpFoo: Foo
+          val _tmpNumberData: Long
+          _tmpNumberData = _stmt.getLong(_cursorIndexOfNumberData)
+          val _tmpStringData: String
+          _tmpStringData = _stmt.getText(_cursorIndexOfStringData)
+          _tmpFoo = Foo(_tmpNumberData,_tmpStringData)
+          val _tmpNullableFoo: Foo?
+          if (!(_stmt.isNull(_cursorIndexOfNumberData_1) &&
+              _stmt.isNull(_cursorIndexOfStringData_1))) {
+            val _tmpNumberData_1: Long
+            _tmpNumberData_1 = _stmt.getLong(_cursorIndexOfNumberData_1)
+            val _tmpStringData_1: String
+            _tmpStringData_1 = _stmt.getText(_cursorIndexOfStringData_1)
+            _tmpNullableFoo = Foo(_tmpNumberData_1,_tmpStringData_1)
+          } else {
+            _tmpNullableFoo = null
+          }
+          _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
         }
+        _result
+      } finally {
+        _stmt.close()
+      }
     }
+  }
 
-    public override fun getEntity(): MyEntity {
-        val _sql: String = "SELECT * FROM MyEntity"
-        val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-        __db.assertNotSuspendingTransaction()
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-            val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-            val _cursorIndexOfNumberData: Int = getColumnIndexOrThrow(_cursor, "numberData")
-            val _cursorIndexOfStringData: Int = getColumnIndexOrThrow(_cursor, "stringData")
-            val _cursorIndexOfNumberData_1: Int = getColumnIndexOrThrow(_cursor, "nullablenumberData")
-            val _cursorIndexOfStringData_1: Int = getColumnIndexOrThrow(_cursor, "nullablestringData")
-            val _result: MyEntity
-            if (_cursor.moveToFirst()) {
-                val _tmpPk: Int
-                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-                val _tmpFoo: Foo
-                val _tmpNumberData: Long
-                _tmpNumberData = _cursor.getLong(_cursorIndexOfNumberData)
-                val _tmpStringData: String
-                _tmpStringData = _cursor.getString(_cursorIndexOfStringData)
-                _tmpFoo = Foo(_tmpNumberData,_tmpStringData)
-                val _tmpNullableFoo: Foo?
-                if (!(_cursor.isNull(_cursorIndexOfNumberData_1) &&
-                        _cursor.isNull(_cursorIndexOfStringData_1))) {
-                    val _tmpNumberData_1: Long
-                    _tmpNumberData_1 = _cursor.getLong(_cursorIndexOfNumberData_1)
-                    val _tmpStringData_1: String
-                    _tmpStringData_1 = _cursor.getString(_cursorIndexOfStringData_1)
-                    _tmpNullableFoo = Foo(_tmpNumberData_1,_tmpStringData_1)
-                } else {
-                    _tmpNullableFoo = null
-                }
-                _result = MyEntity(_tmpPk,_tmpFoo,_tmpNullableFoo)
-            } else {
-                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
-            }
-            return _result
-        } finally {
-            _cursor.close()
-            _statement.release()
-        }
-    }
-
-    public companion object {
-        @JvmStatic
-        public fun getRequiredConverters(): List<Class<*>> = emptyList()
-    }
+  public companion object {
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
+  }
 }

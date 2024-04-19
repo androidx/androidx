@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
-import androidx.core.app.BundleCompat;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
@@ -96,7 +95,7 @@ public class TrustedWebUtils {
         intent.setData(uri);
 
         Bundle bundle = new Bundle();
-        BundleCompat.putBinder(bundle, CustomTabsIntent.EXTRA_SESSION, session.getBinder());
+        bundle.putBinder(CustomTabsIntent.EXTRA_SESSION, session.getBinder());
         intent.putExtras(bundle);
         PendingIntent id = session.getId();
         if (id != null) {
@@ -173,8 +172,8 @@ public class TrustedWebUtils {
     @Deprecated
     public static void launchAsTrustedWebActivity(@NonNull Context context,
             @NonNull CustomTabsIntent customTabsIntent, @NonNull Uri uri) {
-        if (BundleCompat.getBinder(
-                customTabsIntent.intent.getExtras(), CustomTabsIntent.EXTRA_SESSION) == null) {
+        if (customTabsIntent.intent.getExtras().getBinder(
+                CustomTabsIntent.EXTRA_SESSION) == null) {
             throw new IllegalArgumentException(
                     "Given CustomTabsIntent should be associated with a valid CustomTabsSession");
         }

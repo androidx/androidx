@@ -31,9 +31,12 @@ package androidx.compose.ui.unit {
   }
 
   public static final class Constraints.Companion {
+    method @androidx.compose.runtime.Stable public long fitPrioritizingHeight(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method @androidx.compose.runtime.Stable public long fitPrioritizingWidth(int minWidth, int maxWidth, int minHeight, int maxHeight);
     method @androidx.compose.runtime.Stable public long fixed(int width, int height);
     method @androidx.compose.runtime.Stable public long fixedHeight(int height);
     method @androidx.compose.runtime.Stable public long fixedWidth(int width);
+    method @Deprecated @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.compose.ui.ExperimentalComposeUiApi public long restrictConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
   }
 
   public final class ConstraintsKt {
@@ -199,15 +202,9 @@ package androidx.compose.ui.unit {
     property public abstract float fontScale;
   }
 
-  public final class FontScalingKt {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableNonLinearFontScalingInCompose();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableNonLinearFontScalingInCompose(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean DisableNonLinearFontScalingInCompose;
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
-    method @androidx.compose.runtime.Stable public operator int component1();
-    method @androidx.compose.runtime.Stable public operator int component2();
+    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @androidx.compose.runtime.Stable public inline operator int component2();
     method public long copy(optional int x, optional int y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method public int getX();
@@ -327,14 +324,14 @@ package androidx.compose.ui.unit {
   public final class IntSizeKt {
     method @androidx.compose.runtime.Stable public static long IntSize(int width, int height);
     method public static long getCenter(long);
+    method @androidx.compose.runtime.Stable public static long roundToIntSize(long);
     method @androidx.compose.runtime.Stable public static operator long times(int, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect toIntRect(long);
+    method @androidx.compose.runtime.Stable public static long toIntSize(long);
     method @androidx.compose.runtime.Stable public static long toSize(long);
   }
 
   public enum LayoutDirection {
-    method public static androidx.compose.ui.unit.LayoutDirection valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.unit.LayoutDirection[] values();
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Ltr;
     enum_constant public static final androidx.compose.ui.unit.LayoutDirection Rtl;
   }

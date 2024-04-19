@@ -27,37 +27,39 @@ private fun Test(param: String?): String? {
 
 @Composable
 private fun Test(param: String?, %composer: Composer?, %changed: Int): String? {
-  %composer.startReplaceableGroup(<>)
-  sourceInformation(%composer, "C(Test)<Test(>:Test.kt")
+  sourceInformationMarkerStart(%composer, <>, "C(Test)<Test(>:Test.kt")
   if (isTraceInProgress()) {
     traceEventStart(<>, %changed, -1, <>)
   }
   val tmp0 = Test(<block>{
-    %composer.startReplaceableGroup(<>)
+    %composer.startReplaceGroup(<>)
     sourceInformation(%composer, "<Test(>")
-    val tmp2_group = if (param == null) {
+    val tmp3_group = if (param == null) {
       Test(<block>{
-        %composer.startReplaceableGroup(<>)
+        %composer.startReplaceGroup(<>)
         sourceInformation(%composer, "<rememb...>")
-        val tmp1_group = if (param == null) {
-          remember({
+        val tmp2_group = if (param == null) {
+          sourceInformationMarkerStart(%composer, <>, "CC(remember):Test.kt#9igjgp")
+          val tmp1_group = %composer.cache(false) {
             ""
-          }, %composer, 0)
+          }
+          sourceInformationMarkerEnd(%composer)
+          tmp1_group
         } else {
           null
         }
-        %composer.endReplaceableGroup()
-        tmp1_group
+        %composer.endReplaceGroup()
+        tmp2_group
       }, %composer, 0)
     } else {
       null
     }
-    %composer.endReplaceableGroup()
-    tmp2_group
+    %composer.endReplaceGroup()
+    tmp3_group
   }, %composer, 0)
   if (isTraceInProgress()) {
     traceEventEnd()
   }
-  %composer.endReplaceableGroup()
+  sourceInformationMarkerEnd(%composer)
   return tmp0
 }

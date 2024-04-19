@@ -222,6 +222,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -256,6 +261,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -291,6 +301,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     vararg keys: Any?,
@@ -315,11 +330,11 @@ internal class SuspendPointerInputElement(
     }
 
     override fun create(): SuspendingPointerInputModifierNodeImpl {
-        return SuspendingPointerInputModifierNodeImpl(pointerInputHandler)
+        return SuspendingPointerInputModifierNodeImpl(key1, key2, keys, pointerInputHandler)
     }
 
     override fun update(node: SuspendingPointerInputModifierNodeImpl) {
-        node.pointerInputHandler = pointerInputHandler
+        node.update(key1, key2, keys, pointerInputHandler)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -333,13 +348,14 @@ internal class SuspendPointerInputElement(
             if (!keys.contentEquals(other.keys)) return false
         } else if (other.keys != null) return false
 
-        return true
+        return pointerInputHandler === other.pointerInputHandler
     }
 
     override fun hashCode(): Int {
         var result = key1?.hashCode() ?: 0
         result = 31 * result + (key2?.hashCode() ?: 0)
         result = 31 * result + (keys?.contentHashCode() ?: 0)
+        result = 31 * result + pointerInputHandler.hashCode()
         return result
     }
 }
@@ -355,7 +371,7 @@ private val EmptyPointerEvent = PointerEvent(emptyList())
 fun SuspendingPointerInputModifierNode(
     pointerInputHandler: suspend PointerInputScope.() -> Unit
 ): SuspendingPointerInputModifierNode {
-    return SuspendingPointerInputModifierNodeImpl(pointerInputHandler)
+    return SuspendingPointerInputModifierNodeImpl(null, null, null, pointerInputHandler)
 }
 
 /**
@@ -397,17 +413,55 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
  * first event is fired (making it more efficient) and is cancelled via resetPointerInputHandler().
  */
 internal class SuspendingPointerInputModifierNodeImpl(
+    private var key1: Any? = null,
+    private var key2: Any? = null,
+    private var keys: Array<out Any?>? = null,
     pointerInputHandler: suspend PointerInputScope.() -> Unit
 ) : Modifier.Node(),
     SuspendingPointerInputModifierNode,
     PointerInputScope,
     Density {
 
-    override var pointerInputHandler = pointerInputHandler
+    internal fun update(
+        key1: Any?,
+        key2: Any?,
+        keys: Array<out Any?>?,
+        pointerInputHandler: suspend PointerInputScope.() -> Unit
+    ) {
+        var needsReset = false
+        if (this.key1 != key1) {
+            needsReset = true
+        }
+        this.key1 = key1
+        if (this.key2 != key2) {
+            needsReset = true
+        }
+        this.key2 = key2
+        if (this.keys != null && keys == null) {
+            needsReset = true
+        }
+        if (this.keys == null && keys != null) {
+            needsReset = true
+        }
+        if (this.keys != null && keys != null && !keys.contentEquals(this.keys)) {
+            needsReset = true
+        }
+        this.keys = keys
+        if (needsReset) {
+            resetPointerInputHandler()
+        }
+        // Avoids calling resetPointerInputHandler when setting this if no keys have changed
+        _pointerInputHandler = pointerInputHandler
+    }
+
+    private var _pointerInputHandler = pointerInputHandler
+
+    override var pointerInputHandler
         set(value) {
             resetPointerInputHandler()
-            field = value
+            _pointerInputHandler = value
         }
+        get() = _pointerInputHandler
 
     override val density: Float
         get() = requireLayoutNode().density.density
@@ -733,6 +787,8 @@ internal class SuspendingPointerInputModifierNodeImpl(
     }
 }
 
+private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
+
 /**
  * An exception thrown from [AwaitPointerEventScope.withTimeout] when the execution time
  * of the coroutine is too long.
@@ -742,7 +798,7 @@ class PointerEventTimeoutCancellationException(
 ) : CancellationException("Timed out waiting for $time ms") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
@@ -755,7 +811,7 @@ class PointerEventTimeoutCancellationException(
 private class PointerInputResetException : CancellationException("Pointer input was reset") {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }
@@ -768,7 +824,7 @@ private class PointerInputResetException : CancellationException("Pointer input 
 private object CancelTimeoutCancellationException : CancellationException() {
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = emptyArray()
+        stackTrace = EmptyStackTraceElements
         return this
     }
 }

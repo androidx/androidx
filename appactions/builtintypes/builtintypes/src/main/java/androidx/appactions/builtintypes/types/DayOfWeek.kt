@@ -54,7 +54,7 @@ private constructor(
       else -> mapper.orElse()
     }
 
-  public override fun toString(): String = """DayOfWeek($canonicalUrl)"""
+  override fun toString(): String = """DayOfWeek($canonicalUrl)"""
 
   public companion object {
     /** The day of the week between Thursday and Saturday. */

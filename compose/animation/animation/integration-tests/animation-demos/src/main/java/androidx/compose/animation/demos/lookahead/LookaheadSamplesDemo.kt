@@ -18,13 +18,15 @@ package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.samples.IntermediateLayoutSample
 import androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
+import androidx.compose.ui.samples.approachLayoutSample
+import androidx.compose.ui.tooling.preview.Preview
 
+@Preview
 @Composable
 fun LookaheadSamplesDemo() {
     Column {
-        IntermediateLayoutSample()
+        approachLayoutSample()
         LookaheadLayoutCoordinatesSample()
     }
 }

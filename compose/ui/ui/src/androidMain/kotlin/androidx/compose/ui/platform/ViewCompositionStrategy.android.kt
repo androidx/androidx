@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import android.view.View
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.platform.ViewCompositionStrategy.Companion.Default
 import androidx.customview.poolingcontainer.PoolingContainerListener
 import androidx.customview.poolingcontainer.addPoolingContainerListener
@@ -151,7 +152,7 @@ interface ViewCompositionStrategy {
     object DisposeOnViewTreeLifecycleDestroyed : ViewCompositionStrategy {
         override fun installFor(view: AbstractComposeView): () -> Unit {
             if (view.isAttachedToWindow) {
-                val lco = checkNotNull(view.findViewTreeLifecycleOwner()) {
+                val lco = checkPreconditionNotNull(view.findViewTreeLifecycleOwner()) {
                     "View tree for $view has no ViewTreeLifecycleOwner"
                 }
                 return installForLifecycle(view, lco.lifecycle)
@@ -160,7 +161,7 @@ interface ViewCompositionStrategy {
                 var disposer: () -> Unit
                 val listener = object : View.OnAttachStateChangeListener {
                     override fun onViewAttachedToWindow(v: View) {
-                        val lco = checkNotNull(view.findViewTreeLifecycleOwner()) {
+                        val lco = checkPreconditionNotNull(view.findViewTreeLifecycleOwner()) {
                             "View tree for $view has no ViewTreeLifecycleOwner"
                         }
                         disposer = installForLifecycle(view, lco.lifecycle)

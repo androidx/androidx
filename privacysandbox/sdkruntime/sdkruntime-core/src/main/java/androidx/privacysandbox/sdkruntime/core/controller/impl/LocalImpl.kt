@@ -16,11 +16,18 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
+import android.content.Context
+import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
+import java.util.concurrent.Executor
 
 /**
  * Wrapper for client provided implementation of [SdkSandboxControllerCompat].
@@ -28,14 +35,36 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  */
 internal class LocalImpl(
     private val implFromClient: SdkSandboxControllerCompat.SandboxControllerImpl,
+    private val sdkContext: Context,
     private val clientVersion: Int
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
+
+    override fun loadSdk(
+        sdkName: String,
+        params: Bundle,
+        executor: Executor,
+        callback: LoadSdkCallback
+    ) {
+        if (ClientFeature.LOAD_SDK.isAvailable(clientVersion)) {
+            implFromClient.loadSdk(sdkName, params, executor, callback)
+        } else {
+            executor.execute {
+                callback.onError(
+                    LoadSdkCompatException(
+                        LOAD_SDK_NOT_FOUND,
+                        "Client library version doesn't support locally loaded SDKs"
+                    )
+                )
+            }
+        }
+    }
+
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return implFromClient.getSandboxedSdks()
     }
 
     override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-        return if (clientVersion >= 4) {
+        return if (ClientFeature.APP_OWNED_INTERFACES.isAvailable(clientVersion)) {
             implFromClient.getAppOwnedSdkSandboxInterfaces()
         } else {
             emptyList()
@@ -45,22 +74,40 @@ internal class LocalImpl(
     override fun registerSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
     ): IBinder {
-        if (clientVersion < 3) {
+        if (ClientFeature.SDK_ACTIVITY_HANDLER.isAvailable(clientVersion)) {
+            return implFromClient.registerSdkSandboxActivityHandler(handlerCompat)
+        } else {
             throw UnsupportedOperationException(
                 "Client library version doesn't support SdkActivities"
             )
         }
-        return implFromClient.registerSdkSandboxActivityHandler(handlerCompat)
     }
 
     override fun unregisterSdkSandboxActivityHandler(
         handlerCompat: SdkSandboxActivityHandlerCompat
     ) {
-        if (clientVersion < 3) {
+        if (ClientFeature.SDK_ACTIVITY_HANDLER.isAvailable(clientVersion)) {
+            implFromClient.unregisterSdkSandboxActivityHandler(handlerCompat)
+        } else {
             throw UnsupportedOperationException(
                 "Client library version doesn't support SdkActivities"
             )
         }
-        implFromClient.unregisterSdkSandboxActivityHandler(handlerCompat)
+    }
+
+    override fun getClientPackageName(): String {
+        if (ClientFeature.GET_CLIENT_PACKAGE_NAME.isAvailable(clientVersion)) {
+            return implFromClient.getClientPackageName()
+        } else {
+            /**
+             * When loaded locally sdkContext is wrapped Application context.
+             * All previously released client library versions returns client app package name.
+             *
+             * After supporting [ClientFeature.GET_CLIENT_PACKAGE_NAME] it will work correctly for
+             * future versions, even if getPackageName() behaviour will be changed for sdk context
+             * wrapper.
+             */
+            return sdkContext.getPackageName()
+        }
     }
 }

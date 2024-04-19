@@ -173,6 +173,7 @@ class LiveDataReactiveStreamsTest {
         val liveData = MutableLiveData<String>()
         liveData.value = "foo"
         assertThat(liveData.value, `is`("foo"))
+        @Suppress("DEPRECATION")
         fromPublisher(toPublisher(lifecycleOwner, liveData))
             .subscribe(outputProcessor)
         liveData.value = "bar"
@@ -188,6 +189,7 @@ class LiveDataReactiveStreamsTest {
         val liveData = MutableLiveData<String>()
         liveData.value = "foo"
         assertThat(liveData.value, `is`("foo"))
+        @Suppress("DEPRECATION")
         val disposable = fromPublisher(toPublisher(lifecycleOwner, liveData))
             .subscribe { s -> liveDataOutput.add(s) }
         liveData.value = "bar"
@@ -205,6 +207,7 @@ class LiveDataReactiveStreamsTest {
     fun convertsToPublisherWithBackpressure() {
         val liveData = MutableLiveData<String>()
         val subscriptionSubject = AsyncSubject.create<Subscription>()
+        @Suppress("DEPRECATION")
         fromPublisher(toPublisher<String>(lifecycleOwner, liveData))
             .subscribe(object : Subscriber<String> {
                 override fun onSubscribe(s: Subscription) {
@@ -256,6 +259,7 @@ class LiveDataReactiveStreamsTest {
     @Test
     fun convertsToPublisherWithAsyncData() {
         val liveData = MutableLiveData<String>()
+        @Suppress("DEPRECATION")
         fromPublisher(toPublisher(lifecycleOwner, liveData))
             .observeOn(backgroundScheduler)
             .subscribe(outputProcessor)

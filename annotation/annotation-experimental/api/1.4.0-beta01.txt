@@ -1,0 +1,43 @@
+// Signature format: 4.0
+package androidx.annotation {
+
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface OptIn {
+    method public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass;
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS) public @interface RequiresOptIn {
+    method public abstract androidx.annotation.RequiresOptIn.Level level() default androidx.annotation.RequiresOptIn.Level.ERROR;
+    property public abstract androidx.annotation.RequiresOptIn.Level level;
+  }
+
+  public enum RequiresOptIn.Level {
+    method public static androidx.annotation.RequiresOptIn.Level valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.annotation.RequiresOptIn.Level[] values();
+    enum_constant public static final androidx.annotation.RequiresOptIn.Level ERROR;
+    enum_constant public static final androidx.annotation.RequiresOptIn.Level WARNING;
+  }
+
+}
+
+package androidx.annotation.experimental {
+
+  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS) public @interface Experimental {
+    method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level() default androidx.annotation.experimental.Experimental.Level.ERROR;
+    property @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level;
+  }
+
+  @Deprecated public enum Experimental.Level {
+    method @Deprecated public static androidx.annotation.experimental.Experimental.Level valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method @Deprecated public static androidx.annotation.experimental.Experimental.Level[] values();
+    enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level ERROR;
+    enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level WARNING;
+  }
+
+  @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface UseExperimental {
+    method @Deprecated public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
+    property @Deprecated public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass;
+  }
+
+}
+

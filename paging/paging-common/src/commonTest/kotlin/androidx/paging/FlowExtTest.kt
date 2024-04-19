@@ -21,6 +21,7 @@ import androidx.paging.CombineSource.INITIAL
 import androidx.paging.CombineSource.OTHER
 import androidx.paging.CombineSource.RECEIVER
 import kotlin.random.Random
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -255,6 +256,7 @@ class FlowExtTest {
         assertThat(result.size).isIn(1..2)
     }
 
+    @Ignore // b/329157121
     @Test
     fun combineWithoutBatching_stressTest() = testScope.runTest {
         val flow1 = flow {

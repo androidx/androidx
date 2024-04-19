@@ -20,7 +20,10 @@ import static android.app.PendingIntent.FLAG_MUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.text.TextUtils.isEmpty;
 
+import static androidx.work.ListenableFutureKt.executeAsync;
+import static androidx.work.impl.UnfinishedWorkListenerKt.maybeLaunchUnfinishedWorkListener;
 import static androidx.work.impl.WorkManagerImplExtKt.createWorkManager;
+import static androidx.work.impl.WorkManagerImplExtKt.createWorkManagerScope;
 import static androidx.work.impl.WorkerUpdater.enqueueUniquelyNamedPeriodic;
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 import static androidx.work.impl.model.RawWorkInfoDaoKt.getWorkInfoPojosFlow;
@@ -68,7 +71,6 @@ import androidx.work.impl.utils.PruneWorkRunnableKt;
 import androidx.work.impl.utils.RawQueries;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
-import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -78,6 +80,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.flow.Flow;
 
 /**
@@ -105,10 +108,13 @@ public class WorkManagerImpl extends WorkManager {
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
     private volatile RemoteWorkManager mRemoteWorkManager;
     private final Trackers mTrackers;
+    /**
+     * Job for the scope of the whole WorkManager
+     */
+    private final CoroutineScope mWorkManagerScope;
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
     private static final Object sLock = new Object();
-
 
     /**
      * @param delegate The delegate for {@link WorkManagerImpl} for testing; {@code null} to use the
@@ -244,12 +250,13 @@ public class WorkManagerImpl extends WorkManager {
         mTrackers = trackers;
         mConfiguration = configuration;
         mSchedulers = schedulers;
+        mWorkManagerScope = createWorkManagerScope(mWorkTaskExecutor);
         mPreferenceUtils = new PreferenceUtils(mWorkDatabase);
         Schedulers.registerRescheduling(schedulers, mProcessor,
                 workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
-
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
+        maybeLaunchUnfinishedWorkListener(mWorkManagerScope, mContext, configuration, workDatabase);
     }
 
     /**
@@ -268,6 +275,14 @@ public class WorkManagerImpl extends WorkManager {
     @NonNull
     public WorkDatabase getWorkDatabase() {
         return mWorkDatabase;
+    }
+
+    /**
+     * @return workmanager's CoroutineScope
+     */
+    @NonNull
+    CoroutineScope getWorkManagerScope() {
+        return mWorkManagerScope;
     }
 
     /**
@@ -336,32 +351,33 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
-        if (work.isEmpty()) {
+    public @NonNull WorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> requests) {
+        if (requests.isEmpty()) {
             throw new IllegalArgumentException(
                     "beginWith needs at least one OneTimeWorkRequest.");
         }
-        return new WorkContinuationImpl(this, work);
+        return new WorkContinuationImpl(this, requests);
     }
 
     @Override
     public @NonNull WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<OneTimeWorkRequest> work) {
-        if (work.isEmpty()) {
+            @NonNull List<OneTimeWorkRequest> requests) {
+        if (requests.isEmpty()) {
             throw new IllegalArgumentException(
                     "beginUniqueWork needs at least one OneTimeWorkRequest.");
         }
-        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
+        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, requests);
     }
 
     @NonNull
     @Override
     public Operation enqueueUniqueWork(@NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull List<OneTimeWorkRequest> work) {
-        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work).enqueue();
+            @NonNull List<OneTimeWorkRequest> requests) {
+        return new WorkContinuationImpl(this, uniqueWorkName,
+                existingWorkPolicy, requests).enqueue();
     }
 
     @Override
@@ -369,14 +385,14 @@ public class WorkManagerImpl extends WorkManager {
     public Operation enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
-            @NonNull PeriodicWorkRequest periodicWork) {
+            @NonNull PeriodicWorkRequest request) {
         if (existingPeriodicWorkPolicy == ExistingPeriodicWorkPolicy.UPDATE) {
-            return enqueueUniquelyNamedPeriodic(this, uniqueWorkName, periodicWork);
+            return enqueueUniquelyNamedPeriodic(this, uniqueWorkName, request);
         }
         return createWorkContinuationForUniquePeriodicWork(
                 uniqueWorkName,
                 existingPeriodicWorkPolicy,
-                periodicWork)
+                request)
                 .enqueue();
     }
 
@@ -440,20 +456,9 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull ListenableFuture<Long> getLastCancelAllTimeMillis() {
-        final SettableFuture<Long> future = SettableFuture.create();
-        // Avoiding synthetic accessors.
         final PreferenceUtils preferenceUtils = mPreferenceUtils;
-        mWorkTaskExecutor.executeOnTaskThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.set(preferenceUtils.getLastCancelAllTimeMillis());
-                } catch (Throwable throwable) {
-                    future.setException(throwable);
-                }
-            }
-        });
-        return future;
+        return executeAsync(mWorkTaskExecutor.getSerialTaskExecutor(),
+                "getLastCancelAllTimeMillis", preferenceUtils::getLastCancelAllTimeMillis);
     }
 
     @Override
@@ -627,7 +632,7 @@ public class WorkManagerImpl extends WorkManager {
     public void rescheduleEligibleWork() {
         // TODO (rahulrav@) Make every scheduler do its own cancelAll().
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            SystemJobScheduler.cancelAll(getApplicationContext());
+            SystemJobScheduler.cancelAllInAllNamespaces(getApplicationContext());
         }
 
         // Reset scheduled state.
@@ -675,6 +680,13 @@ public class WorkManagerImpl extends WorkManager {
                 mRescheduleReceiverResult = null;
             }
         }
+    }
+
+    /**
+     * Cancels workmanager's scope and closes the database
+     */
+    public void closeDatabase() {
+        WorkManagerImplExtKt.close(this);
     }
 
     /**

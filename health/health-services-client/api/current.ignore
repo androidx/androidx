@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.health.services.client.data.PassiveListenerConfig#getShouldUserActivityInfoBeRequested():
+    Removed method androidx.health.services.client.data.PassiveListenerConfig.getShouldUserActivityInfoBeRequested()

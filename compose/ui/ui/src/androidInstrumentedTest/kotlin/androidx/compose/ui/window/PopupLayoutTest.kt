@@ -275,6 +275,31 @@ class PopupLayoutTest {
         }
     }
 
+    @Test
+    fun positionNotUpdated_whenDetached() {
+        val coordinates = MutableLayoutCoordinates(isAttached = false)
+        val layout = createPopupLayout(
+            positionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset = anchorBounds.topLeft
+            },
+        )
+        layout.popupContentSize = IntSize.Zero
+
+        assertThat(layout.params.x).isEqualTo(0)
+        assertThat(layout.params.y).isEqualTo(0)
+
+        coordinates.windowOffset = Offset(50f, 50f)
+        layout.updateParentLayoutCoordinates(coordinates)
+
+        assertThat(layout.params.x).isEqualTo(0)
+        assertThat(layout.params.y).isEqualTo(0)
+    }
+
     private fun createPopupLayout(
         onDismissRequest: (() -> Unit)? = null,
         properties: PopupProperties = PopupProperties(),
@@ -329,12 +354,13 @@ class PopupLayoutTest {
          * An implementation of [LayoutCoordinates] that allows explicitly setting values but only
          * supports the minimum required subset of operations that [PopupLayout] uses.
          */
-        private class MutableLayoutCoordinates : LayoutCoordinates {
+        private class MutableLayoutCoordinates(
+            override var isAttached: Boolean = true
+        ) : LayoutCoordinates {
             override var size: IntSize = IntSize.Zero
             override val providedAlignmentLines: Set<AlignmentLine> = emptySet()
             override var parentLayoutCoordinates: LayoutCoordinates? = null
             override var parentCoordinates: LayoutCoordinates? = null
-            override var isAttached: Boolean = false
 
             var windowOffset: Offset = Offset.Zero
 

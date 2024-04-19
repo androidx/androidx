@@ -4,10 +4,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.os.Build
 import android.util.AttributeSet
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.metrics.performance.PerformanceMetricsState
 
 class DelayedView(context: Context?, attrs: AttributeSet?) :
@@ -23,7 +21,6 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
        textPaint.textSize = 50f
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onDraw(canvas: Canvas) {
         repetitions++
         if (delayMs > 0) {
@@ -54,11 +51,7 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             }
         }
         if (repetitions < maxReps) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                postInvalidateOnAnimation()
-            } else {
-                postInvalidate()
-            }
+            postInvalidateOnAnimation()
         }
     }
 }

@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"មិនមានទេ"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"ប្រភេទក្បាលតសាក​អាគុយរថយន្តអគ្គិសនី (EV)"</string>
     <string name="example_title" msgid="530257630320010494">"ឧទាហរណ៍ %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"អត្ថបទនេះមានពណ៌ក្រហម"</string>
-    <string name="example_2_text" msgid="718820705318661440">"អត្ថបទនេះមានពណ៌បៃតង"</string>
-    <string name="example_3_text" msgid="977269832109695627">"អត្ថបទនេះមានពណ៌ខៀវ"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"អត្ថបទនេះមានពណ៌លឿង"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"អក្សរនេះមានពណ៌"<annotation color="red">"ក្រហម"</annotation></string>
+    <string name="example_2_text" msgid="1359373957397219102">"អក្សរនេះមានពណ៌"<annotation color="green">"បៃតង"</annotation></string>
+    <string name="example_3_text" msgid="2409207170762049673">"អក្សរនេះមានពណ៌"<annotation color="blue">"ខៀវ"</annotation></string>
+    <string name="example_4_text" msgid="9055989886645433000">"អក្សរនេះមានពណ៌"<annotation color="yellow">"លឿង"</annotation></string>
     <string name="example_5_text" msgid="8828804968749423500">"អក្សរនេះប្រើប្រាស់ពណ៌ចម្បង"</string>
     <string name="example_6_text" msgid="7991523168517599600">"អត្ថបទនេះ​ប្រើពណ៌បន្ទាប់បន្សំ"</string>
     <string name="color_demo" msgid="1822427636476178993">"គំរូបង្ហាញពណ៌"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"រុករក​ទីកន្លែង"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"ស្វែងរកគំរូបង្ហាញទម្រង់គំរូ"</string>
     <string name="search_hint" msgid="978495498991026792">"ស្វែងរក​នៅទីនេះ"</string>
-    <string name="additional_text" msgid="8410289578276941586">"សូមពិនិត្យមើល​លក្ខខណ្ឌប្រើប្រាស់​របស់យើង"</string>
+    <string name="additional_text" msgid="5755100726890686184">"សូមពិនិត្យមើល​"<annotation link="terms_of_service">"លក្ខខណ្ឌប្រើប្រាស់"</annotation>"​របស់យើង"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"ការចូលគណនី Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"ប្រើកូដ PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"កូដ QR"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"ជម្រើស​ផ្លូវ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"ជៀសវាង​ផ្លូវហាយវ៉េ"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ជៀសវាង​ឆ្លងស្រឡាង"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"គំរូបង្ហាញផែនទី"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ផែនទីដែលមានគំរូបង្ហាញខ្លឹមសារ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"ផែនទីដែលមានគំរូបង្ហាញទម្រង់គំរូសារ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ផែនទីដែលមានគំរូបង្ហាញទម្រង់គំរូក្រឡា"</string>
 </resources>

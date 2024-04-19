@@ -62,6 +62,7 @@ public final class ViewParentCompat {
      * @deprecated Use {@link ViewParent#requestSendAccessibilityEvent(View, AccessibilityEvent)}
      * directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "parent.requestSendAccessibilityEvent(child, event)")
     @Deprecated
     public static boolean requestSendAccessibilityEvent(
             ViewParent parent, View child, AccessibilityEvent event) {
@@ -504,12 +505,13 @@ public final class ViewParentCompat {
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_TEXT}
      *            <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *            </ul>
+     * @deprecated Call {@link ViewParent#notifySubtreeAccessibilityStateChanged()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "parent.notifySubtreeAccessibilityStateChanged(child, source, changeType)")
     public static void notifySubtreeAccessibilityStateChanged(@NonNull ViewParent parent,
             @NonNull View child, @NonNull View source, int changeType) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.notifySubtreeAccessibilityStateChanged(parent, child, source, changeType);
-        }
+        parent.notifySubtreeAccessibilityStateChanged(child, source, changeType);
     }
 
     private static int[] getTempNestedScrollConsumed() {
@@ -520,19 +522,6 @@ public final class ViewParentCompat {
             sTempNestedScrollConsumed[1] = 0;
         }
         return sTempNestedScrollConsumed;
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void notifySubtreeAccessibilityStateChanged(ViewParent viewParent, View view,
-                View view1, int i) {
-            viewParent.notifySubtreeAccessibilityStateChanged(view, view1, i);
-        }
     }
 
     @RequiresApi(21)

@@ -42,22 +42,31 @@ object SupportDbTypeNames {
     val QUERY = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
+object SQLiteDriverTypeNames {
+    val SQLITE_KT = XClassName.get(SQLITE_PACKAGE, "SQLiteKt")
+    val DRIVER = XClassName.get(SQLITE_PACKAGE, "SQLiteDriver")
+    val CONNECTION = XClassName.get(SQLITE_PACKAGE, "SQLiteConnection")
+    val STATEMENT = XClassName.get(SQLITE_PACKAGE, "SQLiteStatement")
+}
+
 object RoomTypeNames {
     val STRING_UTIL = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
     val ROOM_DB = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
     val ROOM_DB_KT = XClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CALLBACK = XClassName.get(ROOM_PACKAGE, "RoomDatabase", "Callback")
     val ROOM_DB_CONFIG = XClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
-    val INSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
-    val UPSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
-    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
+    val INSERT_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertAdapter")
+    val UPSERT_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertAdapter")
+    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeleteOrUpdateAdapter")
+    val INSERT_ADAPTER_COMPAT = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERT_ADAPTER_COMPAT = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
+    val DELETE_OR_UPDATE_ADAPTER_COMPAT = XClassName.get(
+        ROOM_PACKAGE,
+        "EntityDeletionOrUpdateAdapter"
+    )
     val SHARED_SQLITE_STMT = XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER = XClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val ROOM_SQL_QUERY = XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
-    val OPEN_HELPER = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
-    val OPEN_HELPER_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "Delegate")
-    val OPEN_HELPER_VALIDATION_RESULT =
-        XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "ValidationResult")
     val TABLE_INFO = XClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN = XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "Column")
     val TABLE_INFO_FOREIGN_KEY = XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "ForeignKey")
@@ -73,6 +82,12 @@ object RoomTypeNames {
     val UUID_UTIL = XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER = XClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
     val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
+    val ROOM_OPEN_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate")
+    val ROOM_OPEN_DELEGATE_VALIDATION_RESULT =
+        XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate", "ValidationResult")
+    val STATEMENT_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteStatementUtil")
+    val CONNECTION_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteConnectionUtil")
+    val FLOW_UTIL = XClassName.get("$ROOM_PACKAGE.coroutines", "FlowUtil")
 }
 
 object RoomAnnotationTypeNames {
@@ -121,6 +136,9 @@ object CollectionTypeNames {
 object KotlinCollectionMemberNames {
     val ARRAY_OF_NULLS = XClassName.get("kotlin", "LibraryKt")
         .packageMember("arrayOfNulls")
+    val MUTABLE_LIST_OF = KotlinTypeNames.COLLECTIONS_KT.packageMember("mutableListOf")
+    val MUTABLE_SET_OF = KotlinTypeNames.SETS_KT.packageMember("mutableSetOf")
+    val MUTABLE_MAP_OF = KotlinTypeNames.MAPS_KT.packageMember("mutableMapOf")
 }
 
 object CommonTypeNames {
@@ -145,13 +163,16 @@ object CommonTypeNames {
     val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
+    val KOTLIN_CLASS = XClassName.get("kotlin.reflect", "KClass")
     val CALLABLE = Callable::class.asClassName()
     val DATE = XClassName.get("java.util", "Date")
 }
 
 object ExceptionTypeNames {
-    val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
-    val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
+    val JAVA_ILLEGAL_STATE_EXCEPTION = XClassName.get("java.lang", "IllegalStateException")
+    val JAVA_ILLEGAL_ARG_EXCEPTION = XClassName.get("java.lang", "IllegalArgumentException")
+    val KOTLIN_ILLEGAL_STATE_EXCEPTION = XClassName.get("kotlin", "IllegalStateException")
+    val KOTLIN_ILLEGAL_ARG_EXCEPTION = XClassName.get("kotlin", "IllegalArgumentException")
 }
 
 object GuavaTypeNames {
@@ -271,6 +292,11 @@ object KotlinTypeNames {
     val SEND_CHANNEL = XClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = XClassName.get("kotlinx.coroutines.flow", "Flow")
     val LAZY = XClassName.get("kotlin", "Lazy")
+    val COLLECTIONS_KT = XClassName.get("kotlin.collections", "CollectionsKt")
+    val SETS_KT = XClassName.get("kotlin.collections", "SetsKt")
+    val MAPS_KT = XClassName.get("kotlin.collections", "MapsKt")
+    val STRING_BUILDER = XClassName.get("kotlin.text", "StringBuilder")
+    val LINKED_HASH_MAP = XClassName.get("kotlin.collections", "LinkedHashMap")
 }
 
 object RoomMemberNames {
@@ -292,6 +318,10 @@ object RoomMemberNames {
         RoomTypeNames.FTS_TABLE_INFO.companionMember("read", isJvmStatic = true)
     val VIEW_INFO_READ =
         RoomTypeNames.VIEW_INFO.companionMember("read", isJvmStatic = true)
+}
+
+object SQLiteDriverMemberNames {
+    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE_KT.packageMember("execSQL")
 }
 
 val DEFERRED_TYPES = listOf(

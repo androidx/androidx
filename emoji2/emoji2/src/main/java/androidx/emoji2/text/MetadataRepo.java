@@ -23,7 +23,6 @@ import android.util.SparseArray;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.os.TraceCompat;
@@ -38,7 +37,6 @@ import java.nio.ByteBuffer;
  * Class to hold the emoji metadata required to process and draw emojis.
  */
 @AnyThread
-@RequiresApi(19)
 public final class MetadataRepo {
     /**
      * The default children size of the root node.

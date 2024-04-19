@@ -36,3 +36,4 @@ configure_file($ENV{JAVA_HOME}/include/jvmti.h external_jvmti/jvmti.h COPYONLY)
 target_include_directories(compose_inspection_jni
         PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/external_jvmti)
 target_link_libraries(compose_inspection_jni ${android-lib} ${log-lib})
+target_link_options(compose_inspection_jni PRIVATE "-Wl,-z,max-page-size=16384")

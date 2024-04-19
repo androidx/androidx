@@ -24,6 +24,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import org.intellij.lang.annotations.Language
 
 /**
  * Creates a directory representing a stub (essentially empty) .aar
@@ -32,6 +33,7 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class UnpackedStubAarTask : DefaultTask() {
     @get:Input abstract val aarPackage: Property<String>
+    @get:Input abstract val minSdkVersion: Property<Int>
     @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @TaskAction
@@ -43,7 +45,13 @@ abstract class UnpackedStubAarTask : DefaultTask() {
         // write AndroidManifest.xml
         val manifestFile = File("$outputDir/AndroidManifest.xml")
         val aarPackage = aarPackage.get()
-        val manifestText = """<manifest package="$aarPackage"></manifest>"""
+        @Language("xml")
+        val manifestText = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="$aarPackage">
+                <uses-sdk android:minSdkVersion="${minSdkVersion.get()}"/>
+            </manifest>""".trimIndent()
         manifestFile.writeText(manifestText)
     }
 }

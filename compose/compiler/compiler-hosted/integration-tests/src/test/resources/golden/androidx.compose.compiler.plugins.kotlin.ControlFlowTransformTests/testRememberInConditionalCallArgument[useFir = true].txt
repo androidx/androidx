@@ -24,25 +24,28 @@ private fun Test(param: String?, %composer: Composer?, %changed: Int) {
   %composer = %composer.startRestartGroup(<>)
   sourceInformation(%composer, "C(Test)<Test(>:Test.kt")
   val %dirty = %changed
-  if (%changed and 0b1110 == 0) {
+  if (%changed and 0b0110 == 0) {
     %dirty = %dirty or if (%composer.changed(param)) 0b0100 else 0b0010
   }
-  if (%dirty and 0b1011 != 0b0010 || !%composer.skipping) {
+  if (%dirty and 0b0011 != 0b0010 || !%composer.skipping) {
     if (isTraceInProgress()) {
       traceEventStart(<>, %dirty, -1, <>)
     }
     Test(<block>{
-      %composer.startReplaceableGroup(<>)
+      %composer.startReplaceGroup(<>)
       sourceInformation(%composer, "<rememb...>")
-      val tmp0_group = if (param == null) {
-        remember({
+      val tmp1_group = if (param == null) {
+        sourceInformationMarkerStart(%composer, <>, "CC(remember):Test.kt#9igjgp")
+        val tmp0_group = %composer.cache(false) {
           ""
-        }, %composer, 0)
+        }
+        sourceInformationMarkerEnd(%composer)
+        tmp0_group
       } else {
         null
       }
-      %composer.endReplaceableGroup()
-      tmp0_group
+      %composer.endReplaceGroup()
+      tmp1_group
     }, %composer, 0)
     if (isTraceInProgress()) {
       traceEventEnd()

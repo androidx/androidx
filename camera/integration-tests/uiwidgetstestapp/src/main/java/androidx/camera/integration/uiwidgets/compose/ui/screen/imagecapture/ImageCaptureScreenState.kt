@@ -45,6 +45,8 @@ import androidx.compose.material.icons.sharp.FlashOff
 import androidx.compose.material.icons.sharp.FlashOn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -75,7 +77,7 @@ class ImageCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING,
     initialFlashMode: Int = DEFAULT_FLASH_MODE
 ) {
-    var lensFacing by mutableStateOf(initialLensFacing)
+    var lensFacing by mutableIntStateOf(initialLensFacing)
         private set
 
     var hasFlashUnit by mutableStateOf(false)
@@ -84,17 +86,17 @@ class ImageCaptureScreenState(
     var isCameraReady by mutableStateOf(false)
         private set
 
-    var flashMode: Int by mutableStateOf(getValidInitialFlashMode(initialFlashMode))
+    var flashMode: Int by mutableIntStateOf(getValidInitialFlashMode(initialFlashMode))
         private set
 
     var flashModeIcon: ImageVector = getFlashModeImageVector()
         private set
         get() = getFlashModeImageVector()
 
-    var linearZoom by mutableStateOf(0f)
+    var linearZoom by mutableFloatStateOf(0f)
         private set
 
-    var zoomRatio by mutableStateOf(1f)
+    var zoomRatio by mutableFloatStateOf(1f)
         private set
 
     var qrCodeBoundingBox by mutableStateOf<Rect?>(null)
@@ -112,7 +114,7 @@ class ImageCaptureScreenState(
     // We need to acquire OutputTransform from PreviewView for this to work
     private val mlKitAnalyzer = MlKitAnalyzer(
         listOf(barcodeScanner),
-        COORDINATE_SYSTEM_VIEW_REFERENCED,
+        ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
         Dispatchers.Main.asExecutor()
     ) { result ->
         val barcodes = result.getValue(barcodeScanner)
