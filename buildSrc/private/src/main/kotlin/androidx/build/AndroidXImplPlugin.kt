@@ -847,17 +847,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 (variant as HasUnitTestBuilder).enableUnitTest = false
             }
             onVariants { variant ->
-                // Make sure the main Kotlin source set doesn't contain anything under
-                // src/main/kotlin.
-                val mainKotlinSrcDir = variant.sources.kotlin?.static?.get()?.map { it.asFile }
-                    ?.filter { it.path.contains("src/main/kotlin") }?.getOrNull(0)
-                if (mainKotlinSrcDir?.isDirectory == true) {
-                    throw GradleException(
-                        "Invalid project structure! AndroidX does not support \"kotlin\" as a " +
-                            "top-level source directory for libraries, use \"java\" instead: " +
-                            mainKotlinSrcDir.path
-                    )
-                }
                 variant.configureTests()
                 variant.aotCompileMicrobenchmarks(project)
                 variant.enableLongMethodTracingInMicrobenchmark(project)
