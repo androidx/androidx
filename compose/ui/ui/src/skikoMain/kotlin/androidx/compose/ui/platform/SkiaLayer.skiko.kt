@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.SkiaBackedCanvas
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.asSkiaPath
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkiaRRect
@@ -58,7 +59,7 @@ import org.jetbrains.skia.ShadowUtils
 internal class SkiaLayer(
     private var density: Density,
     private val invalidateParentLayer: () -> Unit,
-    private val drawBlock: (Canvas) -> Unit,
+    private val drawBlock: (Canvas, GraphicsLayer?) -> Unit,
     private val onDestroy: () -> Unit = {}
 ) : OwnedLayer {
     private var size = IntSize.Zero
@@ -94,7 +95,10 @@ internal class SkiaLayer(
         onDestroy()
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
+    override fun reuseLayer(
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
         // TODO: in destroy, call recycle, and reconfigure this layer to be ready to use here.
     }
 
@@ -212,7 +216,7 @@ internal class SkiaLayer(
         }
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         if (picture == null) {
             val bounds = size.toSize().toRect()
             val pictureCanvas = pictureRecorder.beginRecording(bounds.toSkiaRect())
@@ -273,7 +277,7 @@ internal class SkiaLayer(
                 skiaCanvas.alphaMultiplier = 1.0f
             }
 
-            drawBlock(canvas)
+            drawBlock(canvas, null)
             canvas.restore()
             if (clip) {
                 canvas.restore()

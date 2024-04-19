@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
+import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -197,6 +198,7 @@ class DateTimeFormatterTest {
 
     @Test @SmallTest
     @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
+    @androidx.core.os.BuildCompat.PrereleaseSdkCheck
     // Without `Locale.forLanguageTag` we can't even build a locale with `-u-` extension.
     fun testSystemSupportForExtensionU() {
         val enUsForceH11 = Locale.forLanguageTag("en-US-u-hc-h11")
@@ -207,12 +209,15 @@ class DateTimeFormatterTest {
         val expectedUs: String = "9:42:12 PM"
         val expectedUs11: String = expectedUs
         val expectedUs12: String = expectedUs
-        // TODO: check this. Is `-u-hc-` not honored at all?
+        // The `-u-hc-` option is not honored for the predefined formats
+        // (`DateFormat.MEDIUM` and so on). Works for patterns generated from skeletons.
+        // Fixed in ICU 74.
         // Official bug: https://unicode-org.atlassian.net/browse/ICU-11870
-        // It only manifests for the predefined formats (`DateFormat.MEDIUM` and so on),
-        // not for patterns generated from skeletons.
-        val expectedUs23: String = expectedUs
-        val expectedUs24: String = expectedUs
+        val expectedUs23 = when {
+            BuildCompat.isAtLeastV() -> "21:42:12"
+            else -> expectedUs
+        }
+        val expectedUs24: String = expectedUs23
 
         var formatter: java.text.DateFormat
 

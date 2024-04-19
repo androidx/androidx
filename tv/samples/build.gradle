@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -27,15 +33,15 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
-    implementation("androidx.compose.material3:material3:1.0.0")
+    implementation("androidx.compose.material3:material3:1.1.2")
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
     name = "Samples library for TV packages"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.TV_MATERIAL
     inceptionYear = "2022"
     description = "Contains the sample code for the APIs in the androidx.tv libraries"
 }

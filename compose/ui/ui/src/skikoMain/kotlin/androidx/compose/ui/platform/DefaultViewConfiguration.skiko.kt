@@ -31,4 +31,10 @@ class DefaultViewConfiguration(private val density: Density) : ViewConfiguration
 
     override val touchSlop: Float
         get() = with(density) { 18.dp.toPx() }
+
+    override val handwritingSlop: Float
+        get() = with(density) { 2.dp.toPx() }
+
+    override val handwritingGestureLineMargin: Float
+        get() = with(density) { 16.dp.toPx() }
 }

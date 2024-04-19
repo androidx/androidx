@@ -208,13 +208,13 @@ interface TextFieldColorsWithIcons : TextFieldColors
 @Immutable
 object TextFieldDefaults {
     /**
-     * The default min width applied for a [TextField] and [OutlinedTextField].
+     * The default min height applied to a [TextField] and [OutlinedTextField].
      * Note that you can override it by applying Modifier.heightIn directly on a text field.
      */
     val MinHeight = 56.dp
 
     /**
-     * The default min width applied for a [TextField] and [OutlinedTextField].
+     * The default min width applied to a [TextField] and [OutlinedTextField].
      * Note that you can override it by applying Modifier.widthIn directly on a text field.
      */
     val MinWidth = 280.dp

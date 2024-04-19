@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.ui.text.input
 
 import androidx.compose.runtime.saveable.SaverScope
@@ -21,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -39,6 +42,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -177,6 +181,10 @@ class TextFieldValueTest {
             withAnnotation(VerbatimTtsAnnotation("verbatim2")) { append("6") }
             withAnnotation(UrlAnnotation("url1")) { append("7") }
             withAnnotation(UrlAnnotation("url2")) { append("8") }
+            withLink(LinkAnnotation.Url("url3")) { append("9") }
+            withLink(LinkAnnotation.Clickable("tag3", linkInteractionListener = null)) {
+                append("10")
+            }
             withStyle(
                 SpanStyle(
                     color = Color.Red,

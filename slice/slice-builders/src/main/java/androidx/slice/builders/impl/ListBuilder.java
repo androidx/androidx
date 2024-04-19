@@ -41,7 +41,6 @@ import java.util.Set;
 /**
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
 @Deprecated
 public interface ListBuilder {
 

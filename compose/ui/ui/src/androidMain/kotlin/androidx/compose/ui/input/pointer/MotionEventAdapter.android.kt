@@ -25,6 +25,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_HOVER_MOVE
+import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
@@ -53,7 +54,8 @@ internal class MotionEventAdapter {
      */
     @VisibleForTesting
     internal val motionEventToComposePointerIdMap = SparseLongArray()
-    private val canHover = SparseBooleanArray()
+
+    private val activeHoverIds = SparseBooleanArray()
 
     private val pointers = mutableListOf<PointerInputEventData>()
 
@@ -85,22 +87,23 @@ internal class MotionEventAdapter {
         positionCalculator: PositionCalculator
     ): PointerInputEvent? {
         val action = motionEvent.actionMasked
-        if (action == ACTION_CANCEL) {
+        if (action == ACTION_CANCEL || action == ACTION_OUTSIDE) {
             motionEventToComposePointerIdMap.clear()
-            canHover.clear()
+            activeHoverIds.clear()
             return null
         }
         clearOnDeviceChange(motionEvent)
 
         addFreshIds(motionEvent)
 
-        val isHover = action == ACTION_HOVER_EXIT || action == ACTION_HOVER_MOVE ||
-            action == ACTION_HOVER_ENTER
+        val isHover = action == ACTION_HOVER_ENTER ||
+            action == ACTION_HOVER_MOVE || action == ACTION_HOVER_EXIT
+
         val isScroll = action == ACTION_SCROLL
 
         if (isHover) {
             val hoverId = motionEvent.getPointerId(motionEvent.actionIndex)
-            canHover.put(hoverId, true)
+            activeHoverIds.put(hoverId, true)
         }
 
         val upIndex = when (action) {
@@ -142,7 +145,7 @@ internal class MotionEventAdapter {
      * be considered ended.
      */
     fun endStream(pointerId: Int) {
-        canHover.delete(pointerId)
+        activeHoverIds.delete(pointerId)
         motionEventToComposePointerIdMap.delete(pointerId)
     }
 
@@ -165,7 +168,7 @@ internal class MotionEventAdapter {
                 if (motionEventToComposePointerIdMap.indexOfKey(pointerId) < 0) {
                     motionEventToComposePointerIdMap.put(pointerId, nextId++)
                     if (motionEvent.getToolType(actionIndex) == TOOL_TYPE_MOUSE) {
-                        canHover.put(pointerId, true)
+                        activeHoverIds.put(pointerId, true)
                     }
                 }
             }
@@ -182,9 +185,9 @@ internal class MotionEventAdapter {
             ACTION_UP -> {
                 val actionIndex = motionEvent.actionIndex
                 val pointerId = motionEvent.getPointerId(actionIndex)
-                if (!canHover.get(pointerId, false)) {
+                if (!activeHoverIds.get(pointerId, false)) {
                     motionEventToComposePointerIdMap.delete(pointerId)
-                    canHover.delete(pointerId)
+                    activeHoverIds.delete(pointerId)
                 }
             }
         }
@@ -197,7 +200,7 @@ internal class MotionEventAdapter {
                 val pointerId = motionEventToComposePointerIdMap.keyAt(i)
                 if (!motionEvent.hasPointerId(pointerId)) {
                     motionEventToComposePointerIdMap.removeAt(i)
-                    canHover.delete(pointerId)
+                    activeHoverIds.delete(pointerId)
                 }
             }
         }
@@ -239,7 +242,7 @@ internal class MotionEventAdapter {
         if (toolType != previousToolType || source != previousSource) {
             previousToolType = toolType
             previousSource = source
-            canHover.clear()
+            activeHoverIds.clear()
             motionEventToComposePointerIdMap.clear()
         }
     }
@@ -322,7 +325,7 @@ internal class MotionEventAdapter {
             Offset.Zero
         }
 
-        val issuesEnterExit = canHover.get(motionEvent.getPointerId(index), false)
+        val activeHover = activeHoverIds.get(motionEvent.getPointerId(index), false)
         return PointerInputEventData(
             pointerId,
             motionEvent.eventTime,
@@ -331,7 +334,7 @@ internal class MotionEventAdapter {
             pressed,
             pressure,
             toolType,
-            issuesEnterExit,
+            activeHover,
             historical,
             scrollDelta,
             originalPositionEventPosition,

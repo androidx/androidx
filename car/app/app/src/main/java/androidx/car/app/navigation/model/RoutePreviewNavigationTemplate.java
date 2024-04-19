@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -44,7 +45,6 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -81,10 +81,56 @@ import java.util.Objects;
  * refresh the routes as the car moves.
  *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
- * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
+ * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.</p>
+ *
+ * <br>For instance, using the deprecated {@link RoutePreviewNavigationTemplate}, if the template
+ * was:
+ *
+ *  <pre><code>RoutePreviewNavigationTemplate template = new RoutePreviewNavigationTemplate
+ *  .Builder()
+ *          .setItemList(new ItemList.Builder()
+ *                  .addItem(new Row.Builder()
+ *                      .setTitle(title))
+ *                      .build())
+ *                  .build())
+ *          .setHeader(header)
+ *          .setNavigateAction(new Action.Builder()
+ *                  .setTitle("drive")
+ *                  .setOnClickListener(() -> {})
+ *                  .build())
+ *          .setActionStrip(actionStrip)
+ *          .setMapActionStrip(mapActionStrip)
+ *          .build();
+ * </code></pre>
+ * <br>The Navigate Action in RoutePreview is added as a secondary action for each row. Using
+ * the new {@link MapWithContentTemplate}, the template would be:
+ * <pre>
+ * <code>MapWithContentTemplate template = new MapWithContentTemplate.Builder()
+ *              .setContentTemplate(new ListTemplate.Builder()
+ *                     .setSingleList(new ItemList.Builder()
+ *                          .addItem(new Row.Builder()
+ *                               .setTitle(title))
+ *                               .addAction(new Action.Builder()
+ *                                      .setTitle("drive")
+ *                                      .setOnClickListener(() -> {})
+ *                                      .build())
+ *                               .build())
+ *                          .build()))
+ *                     .setHeader(header)
+ *                     .build())
+ *              .setActionStrip(actionStrip)
+ *              .setMapController(new MapController.Builder()
+ *                    .setMapActionStrip(mapActionStrip)
+ *                    .build())
+ *              .build();
+ * </code>
+ * </pre>
+ *
+ * <br>@deprecated with API 7. Use the {@link MapWithContentTemplate} API instead.
  */
 @CarProtocol
 @KeepFields
+@Deprecated
 public final class RoutePreviewNavigationTemplate implements Template {
     private final boolean mIsLoading;
     /**

@@ -16,6 +16,8 @@
 
 package androidx.camera.core.imagecapture;
 
+import android.graphics.Bitmap;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageCapture;
@@ -34,6 +36,13 @@ interface TakePictureCallback {
      * Invoked when the capture is started.
      */
     void onCaptureStarted();
+
+    /**
+     * Invoked when there is some progress in the processing stage.
+     *
+     * @param progress the progress ranging from 0 to 100.
+     */
+    void onCaptureProcessProgressed(int progress);
 
     /**
      * Invoked when the capture is complete.
@@ -61,6 +70,11 @@ interface TakePictureCallback {
      */
     @MainThread
     void onFinalResult(@NonNull ImageProxy imageProxy);
+
+    /**
+     * Invoked when the postview bitmap is available.
+     */
+    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap);
 
     /**
      * Invoked when camera fails to return the image.

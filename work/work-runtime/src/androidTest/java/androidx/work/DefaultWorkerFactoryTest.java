@@ -16,9 +16,10 @@
 
 package androidx.work;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -37,6 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.Executor;
+
+import kotlinx.coroutines.Dispatchers;
 
 @RunWith(AndroidJUnit4.class)
 public class DefaultWorkerFactoryTest extends DatabaseTest {
@@ -72,6 +75,7 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         1,
                         0,
                         executor,
+                        Dispatchers.getDefault(),
                         new WorkManagerTaskExecutor(executor),
                         mDefaultWorkerFactory,
                         mProgressUpdater,
@@ -87,23 +91,30 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
     public void testCreateWorker_throwsException() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-
         Executor executor = new SynchronousExecutor();
-        ListenableWorker worker = mDefaultWorkerFactory.createWorkerWithDefaultFallback(
-                mContext.getApplicationContext(),
-                DefaultWorkerFactoryTest.class.getName(),
-                new WorkerParameters(
-                        work.getId(),
-                        Data.EMPTY,
-                        work.getTags(),
-                        new WorkerParameters.RuntimeExtras(),
-                        1,
-                        0,
-                        executor,
-                        new WorkManagerTaskExecutor(executor),
-                        mDefaultWorkerFactory,
-                        mProgressUpdater,
-                        mForegroundUpdater));
-        assertThat(worker, is(nullValue()));
+        try {
+            mDefaultWorkerFactory.createWorkerWithDefaultFallback(
+                    mContext.getApplicationContext(),
+                    DefaultWorkerFactoryTest.class.getName(),
+                    new WorkerParameters(
+                            work.getId(),
+                            Data.EMPTY,
+                            work.getTags(),
+                            new WorkerParameters.RuntimeExtras(),
+                            1,
+                            0,
+                            executor,
+                            Dispatchers.getDefault(),
+                            new WorkManagerTaskExecutor(executor),
+                            mDefaultWorkerFactory,
+                            mProgressUpdater,
+                            mForegroundUpdater));
+            throw new AssertionError("Expected to fail");
+        } catch (Throwable throwable) {
+            assertThat(throwable, is(instanceOf(ClassCastException.class)));
+            assertThat(throwable.getMessage(), containsString(
+                    "androidx.work.DefaultWorkerFactoryTest cannot be cast "
+                            + "to androidx.work.ListenableWorker"));
+        }
     }
 }

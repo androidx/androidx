@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.credentials.CredentialOption.Companion.BUNDLE_KEY_TYPE_PRIORITY_VALUE
 import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -30,9 +31,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class GetPublicKeyCredentialOptionTest {
-    companion object Constant {
-        private const val TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-    }
 
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
@@ -50,9 +48,17 @@ class GetPublicKeyCredentialOptionTest {
     @Test
     fun getter_requestJson_success() {
         val testJsonExpected = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        val createPublicKeyCredentialReq = GetPublicKeyCredentialOption(testJsonExpected)
-        val testJsonActual = createPublicKeyCredentialReq.requestJson
+        val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(testJsonExpected)
+        val testJsonActual = getPublicKeyCredentialOption.requestJson
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
+    }
+
+    @Test
+    fun getter_defaultPriorityHint_success() {
+        val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(TEST_REQUEST_JSON)
+
+        assertThat(getPublicKeyCredentialOption.typePriorityHint)
+            .isEqualTo(EXPECTED_PASSKEY_PRIORITY);
     }
 
     @Test
@@ -65,6 +71,7 @@ class GetPublicKeyCredentialOptionTest {
         )
         val clientDataHash = "hash".toByteArray()
         val expectedData = Bundle()
+        val expectedPriorityInt = EXPECTED_PASSKEY_PRIORITY
         expectedData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
             GetPublicKeyCredentialOption.BUNDLE_VALUE_SUBTYPE_GET_PUBLIC_KEY_CREDENTIAL_OPTION
@@ -73,6 +80,7 @@ class GetPublicKeyCredentialOptionTest {
             GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON,
             requestJsonExpected
         )
+        expectedData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, expectedPriorityInt)
         expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
             clientDataHash)
         expectedData.putBoolean(
@@ -90,6 +98,7 @@ class GetPublicKeyCredentialOptionTest {
         assertThat(option.isSystemProviderRequired).isFalse()
         assertThat(option.isAutoSelectAllowed).isTrue()
         assertThat(option.allowedProviders).containsAtLeastElementsIn(expectedAllowedProviders)
+        assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PASSKEY_PRIORITY)
     }
 
     @Test
@@ -131,5 +140,11 @@ class GetPublicKeyCredentialOptionTest {
             .isEqualTo(customRequestDataValue)
         assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
             .isEqualTo(customCandidateQueryDataValue)
+    }
+
+    companion object Constant {
+        private const val TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+        const val EXPECTED_PASSKEY_PRIORITY: @PriorityHints Int = PriorityHints
+            .PRIORITY_PASSKEY_OR_SIMILAR
     }
 }

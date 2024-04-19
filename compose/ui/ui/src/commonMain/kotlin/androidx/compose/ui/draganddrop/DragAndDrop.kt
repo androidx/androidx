@@ -36,76 +36,9 @@ expect class DragAndDropEvent
 internal expect val DragAndDropEvent.positionInRoot: Offset
 
 /**
- * A factory method for creating a [DragAndDropTarget] to receive transfer data from a
- * drag and drop session.
- *
- * @param onDropped The item has been dropped inside this [DragAndDropTarget].
- * returning true indicates that the [DragAndDropEvent] was consumed, false indicates it was
- * rejected.
- * @see [DragAndDropTarget.onDropped]
- *
- * @param onStarted The drag and drop session has begun. This gives this [DragAndDropTarget]
- * an opportunity to present itself in a way to indicate it is capable of receiving a
- * drag and drop gesture.
- * @see [DragAndDropTarget.onStarted]
- *
- * @param onEntered The item being dropped has entered into the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onEntered]
- *
- * @param onMoved The item being dropped has moved within the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onMoved]
- *
- * @param onChanged The event in the current drag and drop session has changed within
- * the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onChanged]
- *
- * @param onExited The item being dropped has moved outside the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onExited]
- *
- * @param onEnded The drag and drop gesture is complete.
- * @see [DragAndDropTarget.onEnded]
- */
-fun DragAndDropTarget(
-    onDropped: (event: DragAndDropEvent) -> Boolean,
-    onStarted: (event: DragAndDropEvent) -> Unit = {},
-    onEntered: (event: DragAndDropEvent) -> Unit = {},
-    onMoved: (event: DragAndDropEvent) -> Unit = {},
-    onChanged: (event: DragAndDropEvent) -> Unit = {},
-    onExited: (event: DragAndDropEvent) -> Unit = {},
-    onEnded: (event: DragAndDropEvent) -> Unit = {},
-): DragAndDropTarget = object : DragAndDropTarget {
-    override fun onStarted(event: DragAndDropEvent) =
-        onStarted.invoke(event)
-
-    override fun onDropped(event: DragAndDropEvent): Boolean =
-        onDropped.invoke(event)
-
-    override fun onEntered(event: DragAndDropEvent) =
-        onEntered.invoke(event)
-
-    override fun onMoved(event: DragAndDropEvent) =
-        onMoved.invoke(event)
-
-    override fun onExited(event: DragAndDropEvent) =
-        onExited.invoke(event)
-
-    override fun onChanged(event: DragAndDropEvent) =
-        onChanged.invoke(event)
-
-    override fun onEnded(event: DragAndDropEvent) =
-        onEnded.invoke(event)
-}
-
-/**
  * Provides a means of receiving a transfer data from a drag and drop session.
  */
 interface DragAndDropTarget {
-
-    /** A drag and drop session has just been started and this [DragAndDropTarget] is eligible
-     * to receive it. This gives an opportunity to set the state for a [DragAndDropTarget] in
-     * preparation for consuming a drag and drop session.
-     */
-    fun onStarted(event: DragAndDropEvent)
 
     /**
      * An item has been dropped inside this [DragAndDropTarget].
@@ -113,33 +46,39 @@ interface DragAndDropTarget {
      * @return true to indicate that the [DragAndDropEvent] was consumed; false indicates it was
      * rejected.
      */
-    fun onDropped(event: DragAndDropEvent): Boolean
+    fun onDrop(event: DragAndDropEvent): Boolean
+
+    /** A drag and drop session has just been started and this [DragAndDropTarget] is eligible
+     * to receive it. This gives an opportunity to set the state for a [DragAndDropTarget] in
+     * preparation for consuming a drag and drop session.
+     */
+    fun onStarted(event: DragAndDropEvent) = Unit
 
     /**
      * An item being dropped has entered into the bounds of this [DragAndDropTarget].
      */
-    fun onEntered(event: DragAndDropEvent)
+    fun onEntered(event: DragAndDropEvent) = Unit
 
     /**
      * An item being dropped has moved within the bounds of this [DragAndDropTarget].
      */
-    fun onMoved(event: DragAndDropEvent)
+    fun onMoved(event: DragAndDropEvent) = Unit
 
     /**
      * An item being dropped has moved outside the bounds of this [DragAndDropTarget].
      */
-    fun onExited(event: DragAndDropEvent)
+    fun onExited(event: DragAndDropEvent) = Unit
 
     /**
      * An event in the current drag and drop session has changed within this [DragAndDropTarget]
      * bounds. Perhaps a modifier key has been pressed or released.
      */
-    fun onChanged(event: DragAndDropEvent)
+    fun onChanged(event: DragAndDropEvent) = Unit
 
     /**
      * The drag and drop session has been completed. All [DragAndDropTarget] instances in the
      * hierarchy that previously received an [onStarted] event will receive this event. This gives
      * an opportunity to reset the state for a [DragAndDropTarget].
      */
-    fun onEnded(event: DragAndDropEvent)
+    fun onEnded(event: DragAndDropEvent) = Unit
 }

@@ -471,6 +471,7 @@ public class SwipeableV2State<T>(
      *
      * @return The delta the consumed by the [SwipeableV2State]
      */
+    @Suppress("DEPRECATION") // b/327155912
     fun dispatchRawDelta(delta: Float): Float {
         var remainingDelta = delta
 

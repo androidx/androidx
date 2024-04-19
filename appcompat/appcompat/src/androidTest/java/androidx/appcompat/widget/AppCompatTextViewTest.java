@@ -236,7 +236,6 @@ public class AppCompatTextViewTest
 
     @Test
     @UiThreadTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void testTextSize_canBeZero() {
         final TextView textView = mContainer.findViewById(R.id.textview_zero_text_size);
         // text size should be 0 as set in xml, rather than the text view default (15.0)
@@ -463,7 +462,6 @@ public class AppCompatTextViewTest
         assertEquals(Typeface.SERIF, textView.getTypeface());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     @UiThreadTest
     public void testfontFamilyNamespaceHierarchy() {
@@ -774,7 +772,6 @@ public class AppCompatTextViewTest
         assertNotNull(compoundDrawables[3]);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawablesCompat_relative() {
         // Given an ACTV with both drawableStartCompat and drawableEndCompat set
@@ -786,19 +783,6 @@ public class AppCompatTextViewTest
         assertNotNull(compoundDrawablesRelative[2]);
     }
 
-    @SdkSuppress(maxSdkVersion = 16)
-    @Test
-    public void testCompoundDrawablesCompat_relativeIgnoredPre17() {
-        // Given an ACTV with both drawableStartCompat and drawableEndCompat set
-        final AppCompatTextView textView = mActivity.findViewById(
-                R.id.text_view_compound_drawables_compat_relative);
-        // Then both should be ignored before API17
-        final Drawable[] compoundDrawables = textView.getCompoundDrawables();
-        assertNull(compoundDrawables[0]);
-        assertNull(compoundDrawables[2]);
-    }
-
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawablesCompat_relativeAndAbsolute() {
         // Given an ACTV with both drawableStartCompat and drawableRightCompat set
@@ -839,7 +823,6 @@ public class AppCompatTextViewTest
         assertNotNull(compoundDrawables[3]);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawablesRelative_platformCompatCoexist() {
         // Given an ACTV with app:drawableStartCompat & android:drawableEnd set
@@ -851,7 +834,6 @@ public class AppCompatTextViewTest
         assertNotNull(compoundDrawables[2]);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawables_relativePlatform_ignoresCompatAbsolute() {
         // Given an ACTV with app:drawableLeftCompat & android:drawableEnd set
@@ -863,7 +845,6 @@ public class AppCompatTextViewTest
         assertNull(textView.getCompoundDrawablesRelative()[0]);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawables_relativeCompat_ignoresPlatformAbsolute() {
         // Given an ACTV with app:drawableStartCompat & android:drawableRight set
@@ -1033,7 +1014,6 @@ public class AppCompatTextViewTest
                 TextViewCompat.getCompoundDrawableTintList(textView));
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawableRelativeTint() {
         // Given an ACTV with a white drawableStartCompat set and a #f0f drawableTint

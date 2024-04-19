@@ -63,7 +63,7 @@ message FlushRequest {
 message HealthEventsRegistrationRequest {
   optional string package_name = 1;
   optional string receiver_class_name = 2;
-  repeated HealthEvent.HealthEventType event_types = 3;
+  repeated int32 event_types = 3;
   reserved 4 to max;  // Next ID
 }
 
@@ -126,5 +126,11 @@ message StartExerciseRequest {
 message UpdateExerciseTypeConfigRequest {
   optional string package_name = 1;
   optional ExerciseTypeConfig config = 2;
+  reserved 3 to max;  // Next ID
+}
+
+message DebouncedGoalRequest {
+  optional string package_name = 1;
+  optional DebouncedGoal debounced_goal = 2;
   reserved 3 to max;  // Next ID
 }

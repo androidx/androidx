@@ -24,12 +24,10 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
 
-import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiSpan;
 import androidx.emoji2.text.SpannableBuilder;
 import androidx.emoji2.text.TypefaceEmojiRasterizer;
@@ -60,7 +58,6 @@ public class EmojiEditableFactoryTest {
         assertThat(editable, instanceOf(Editable.class));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void testNewEditable_preservesCharSequenceData() {
         final String string = "abc";

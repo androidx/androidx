@@ -38,7 +38,7 @@ public class Shapes(
     /**
      * Cards use this shape
      */
-    public val large: CornerBasedShape = RoundedCornerShape(24.dp),
+    public val large: CornerBasedShape = RoundedCornerShape(26.dp),
 ) {
 
     /**

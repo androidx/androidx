@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
@@ -143,7 +144,7 @@ fun StandardChips() {
                 style = chipStyle,
                 label = "Long label to show truncation which does not fit into" +
                     " 1 line",
-                secondaryLabel = "Secondary Label",
+                secondaryLabel = "Long Secondary Label that will fit over multiple lines",
                 colors = chipColors(chipStyle),
                 enabled = enabled,
             )
@@ -161,7 +162,7 @@ fun StandardChips() {
             DemoIconChip(
                 style = chipStyle,
                 colors = chipColors(chipStyle),
-                label = "Long label with truncation",
+                label = "Long label that will span multiple lines and more than 2 lines",
                 secondaryLabel = "Long secondary label to show truncation which does not fit into" +
                     "1 line",
                 enabled = enabled,
@@ -792,10 +793,9 @@ internal fun DemoIconChip(
     secondaryLabelColor: Color? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     content: @Composable (BoxScope.() -> Unit)? = null
 ) {
-    val maxLabelLines = if (secondaryLabel != null) 1 else 2
     if (style != ChipStyle.Outlined) {
         Chip(
             onClick = onClick,
@@ -803,7 +803,7 @@ internal fun DemoIconChip(
             colors = colors,
             label = {
                 Text(
-                    text = label, maxLines = maxLabelLines,
+                    text = label, maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -815,7 +815,8 @@ internal fun DemoIconChip(
                     ) {
                         Text(
                             text = secondaryLabel,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -831,7 +832,8 @@ internal fun DemoIconChip(
             colors = colors,
             label = {
                 Text(
-                    text = label, maxLines = maxLabelLines,
+                    text = label,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
             },
@@ -843,7 +845,8 @@ internal fun DemoIconChip(
                     ) {
                         Text(
                             text = secondaryLabel,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -863,7 +866,7 @@ private fun DemoLabelChip(
     secondaryLabel: String? = null,
     onClick: (() -> Unit) = {},
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     style: ChipStyle
 ) {
     DemoIconChip(

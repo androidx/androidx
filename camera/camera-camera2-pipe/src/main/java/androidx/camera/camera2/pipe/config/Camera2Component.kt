@@ -22,6 +22,8 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamGraph
+import androidx.camera.camera2.pipe.compat.AudioRestrictionController
+import androidx.camera.camera2.pipe.compat.AudioRestrictionControllerImpl
 import androidx.camera.camera2.pipe.compat.Camera2Backend
 import androidx.camera.camera2.pipe.compat.Camera2CameraAvailabilityMonitor
 import androidx.camera.camera2.pipe.compat.Camera2CameraController
@@ -83,6 +85,11 @@ internal abstract class Camera2Module {
     abstract fun bindCamera2DeviceCloser(
         camera2CameraDeviceCloser: Camera2DeviceCloserImpl
     ): Camera2DeviceCloser
+
+    @Binds
+    abstract fun bindAudioRestrictionController(
+        audioRestrictionController: AudioRestrictionControllerImpl
+    ): AudioRestrictionController
 }
 
 @Scope

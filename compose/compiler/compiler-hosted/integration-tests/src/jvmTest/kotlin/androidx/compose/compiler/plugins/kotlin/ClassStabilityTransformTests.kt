@@ -1088,6 +1088,40 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         "Runtime(A)"
     )
 
+    // b/327643787
+    @Test
+    fun testNestedExternalTypesAreStable() = assertStability(
+        externalSrc = "",
+        localSrc = """
+            data class B(val list: List<Int>)
+            data class A(val list: List<B>)
+        """.trimIndent(),
+        expression = "A(listOf())",
+        externalTypes = setOf("kotlin.collections.List"),
+        stability = "Stable"
+    )
+
+    @Test
+    fun testNestedGenericsAreRuntimeStable() = assertStability(
+        externalSrc = "",
+        localSrc = """
+            class A(val child: List<A>?)
+        """.trimIndent(),
+        expression = "A(null)",
+        externalTypes = setOf("kotlin.collections.List"),
+        stability = "Unstable"
+    )
+
+    @Test
+    fun testNestedEqualTypesAreUnstable() = assertStability(
+        externalSrc = "",
+        localSrc = """
+            class A(val child: A?)
+        """.trimIndent(),
+        expression = "A(A(null))",
+        stability = "Unstable"
+    )
+
     @Test
     fun testEmptyClass() = assertTransform(
         """
@@ -1465,6 +1499,9 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
                 A(X(listOf(StableClass())))
                 A(StableDelegateProp())
                 A(UnstableDelegateProp())
+                A(SingleParamProp(0))
+                A(SingleParamNonProp(0))
+                A(SingleParamProp(Any()))
             }
         """
         )
@@ -1590,7 +1627,9 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         """.trimIndent()
 
         val files = listOf(SourceFile("Test.kt", source))
-        val irModule = compileToIr(files)
+        val irModule = compileToIr(files, registerExtensions = {
+            it.put(ComposeConfiguration.TEST_STABILITY_CONFIG_KEY, externalTypes)
+        })
         val irClass = irModule.files.last().declarations.first() as IrClass
         val externalTypeMatchers = externalTypes.map { FqNameMatcher(it) }.toSet()
         val stabilityInferencer = StabilityInferencer(irModule.descriptor, externalTypeMatchers)
@@ -1612,7 +1651,13 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         externalTypes: Set<String> = emptySet(),
         packageName: String = "dependency"
     ) {
-        val irModule = buildModule(externalSrc, classDefSrc, dumpClasses, packageName)
+        val irModule = buildModule(
+            externalSrc,
+            classDefSrc,
+            dumpClasses,
+            packageName,
+            externalTypes = externalTypes
+        )
         val irClass = irModule.files.last().declarations.first() as IrClass
         val externalTypeMatchers = externalTypes.map { FqNameMatcher(it) }.toSet()
         val classStability =
@@ -1638,7 +1683,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             expectedTransformed = """
                 @StabilityInferred(parameters = 1)
                 class CombinedUnstable<T> (val first: T, val second: ParametrizedFoo<SomeFoo>) {
-                  static val %stable: Int = ParametrizedFoo.%stable or 0
+                  static val %stable: Int = ParametrizedFoo.%stable
                 }
             """
         )
@@ -1657,7 +1702,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             expectedTransformed = """
             @StabilityInferred(parameters = 1)
             class CombinedStable<T> (val first: T, val second: ParametrizedFoo<SomeFoo>) {
-              static val %stable: Int = SomeFoo.%stable or ParametrizedFoo.%stable or 0
+              static val %stable: Int = SomeFoo.%stable or ParametrizedFoo.%stable
             }
         """
         )
@@ -1676,7 +1721,7 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
             expectedTransformed = """
             @StabilityInferred(parameters = 3)
             class CombinedStable<T, K> (val first: T, val second: ParametrizedFoo<K>) {
-              static val %stable: Int = 0 or ParametrizedFoo.%stable or 0
+              static val %stable: Int = ParametrizedFoo.%stable
             }
         """
         )
@@ -1697,7 +1742,8 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
 
                 fun TestFunction() = $expression
             """.trimIndent(),
-            dumpClasses
+            dumpClasses,
+            externalTypes = externalTypes
         )
         val irTestFn = irModule
             .files
@@ -1728,7 +1774,8 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         @Language("kotlin")
         localSrc: String,
         dumpClasses: Boolean = false,
-        packageName: String = "dependency"
+        packageName: String = "dependency",
+        externalTypes: Set<String>
     ): IrModuleFragment {
         val dependencyFileName = "Test_REPLACEME_${uniqueNumber++}"
         val dependencySrc = """
@@ -1768,7 +1815,10 @@ class ClassStabilityTransformTests(useFir: Boolean) : AbstractIrTransformTest(us
         """.trimIndent()
 
         val files = listOf(SourceFile("Test.kt", source))
-        return compileToIr(files, listOf(classesDirectory.root))
+        return compileToIr(files, listOf(classesDirectory.root), registerExtensions = {
+            it.put(ComposeConfiguration.TEST_STABILITY_CONFIG_KEY, externalTypes)
+            it.updateConfiguration()
+        })
     }
 
     private fun assertTransform(

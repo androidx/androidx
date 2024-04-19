@@ -16,16 +16,13 @@
 
 package androidx.window.area.utils
 
-import android.os.Build
 import android.util.DisplayMetrics
-import androidx.annotation.RequiresApi
 import java.util.Locale
 
 /**
  * Utility object to provide information about specific devices that may not be available
  * through the extensions API at a certain vendor API level
  */
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 internal object DeviceUtils {
 
     private val deviceList = listOf(DeviceMetrics("google", "pixel fold",

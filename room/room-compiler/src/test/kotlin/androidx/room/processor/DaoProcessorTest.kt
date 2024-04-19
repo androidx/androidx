@@ -192,8 +192,8 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.element.jvmName, `is`("getIds"))
-            assertThat(dao.insertionMethods.size, `is`(1))
-            val insertMethod = dao.insertionMethods.first()
+            assertThat(dao.insertMethods.size, `is`(1))
+            val insertMethod = dao.insertMethods.first()
             assertThat(insertMethod.element.jvmName, `is`("insert"))
         }
     }
@@ -764,6 +764,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 ),
                 COMMON.USER
             ),
+            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             classpath = classpathFiles
         ) { invocation: XTestInvocation ->
             val dao = invocation.roundEnv

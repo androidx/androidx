@@ -16,6 +16,10 @@
 
 package androidx.camera.viewfinder;
 
+import static androidx.camera.viewfinder.CameraViewfinder.shouldUseTextureView;
+import static androidx.camera.viewfinder.surface.ImplementationMode.COMPATIBLE;
+import static androidx.camera.viewfinder.surface.ImplementationMode.PERFORMANCE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
@@ -45,8 +49,7 @@ public class CameraViewfinderTest {
     @Config(minSdk = Build.VERSION_CODES.N_MR1)
     public void surfaceViewNormal_useSurfaceView() {
         // Assert: SurfaceView is used.
-        assertThat(CameraViewfinder.shouldUseTextureView(
-                CameraViewfinder.ImplementationMode.PERFORMANCE)).isFalse();
+        assertThat(shouldUseTextureView(PERFORMANCE)).isFalse();
     }
 
     @Test
@@ -55,8 +58,7 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewStretchedQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(CameraViewfinder.shouldUseTextureView(
-                CameraViewfinder.ImplementationMode.PERFORMANCE)).isTrue();
+        assertThat(shouldUseTextureView(PERFORMANCE)).isTrue();
     }
 
     @Test
@@ -65,8 +67,7 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(CameraViewfinder.shouldUseTextureView(
-                CameraViewfinder.ImplementationMode.PERFORMANCE)).isTrue();
+        assertThat(shouldUseTextureView(PERFORMANCE)).isTrue();
     }
 
     @Test
@@ -75,7 +76,6 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(CameraViewfinder.shouldUseTextureView(
-                CameraViewfinder.ImplementationMode.COMPATIBLE)).isTrue();
+        assertThat(shouldUseTextureView(COMPATIBLE)).isTrue();
     }
 }

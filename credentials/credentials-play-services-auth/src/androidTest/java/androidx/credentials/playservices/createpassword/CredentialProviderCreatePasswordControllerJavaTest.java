@@ -111,7 +111,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
     }
 
     @Test
-    public void duplicateGetInstance_shouldBeEqual() {
+    public void duplicateGetInstance_shouldBeUnequal() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(
@@ -120,7 +120,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
                             CredentialProviderCreatePasswordController.getInstance(activity);
                     CredentialProviderCreatePasswordController secondInstance =
                             CredentialProviderCreatePasswordController.getInstance(activity);
-                    assertThat(firstInstance).isEqualTo(secondInstance);
+                    assertThat(firstInstance).isNotEqualTo(secondInstance);
                 });
     }
 }

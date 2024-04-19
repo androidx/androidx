@@ -25,18 +25,20 @@ import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.HandlerCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /**
  * CompositionLocal for global reduce-motion setting, which turns off animations and
@@ -48,7 +50,8 @@ import kotlinx.coroutines.flow.stateIn
 val LocalReduceMotion: ProvidableCompositionLocal<ReduceMotion> = staticCompositionLocalOf {
     ReduceMotion {
         val context = LocalContext.current.applicationContext
-        getReduceMotionFlowFor(context).value
+        val flow = getReduceMotionFlowFor(context)
+        flow.collectAsStateWithLifecycle().value
     }
 }
 
@@ -82,30 +85,40 @@ private val reduceMotionCache = AtomicReference<StateFlow<Boolean>>()
 
 // Callers of this function should pass an application context. Passing an activity context might
 // result in activity leaks.
+@Composable
 private fun getReduceMotionFlowFor(applicationContext: Context): StateFlow<Boolean> {
     val resolver = applicationContext.contentResolver
     val reduceMotionUri = Settings.Global.getUriFor(REDUCE_MOTION)
-    val channel = Channel<Unit>(CONFLATED)
-    val contentObserver =
-        object : ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean, uri: Uri?) {
-                channel.trySend(Unit)
-            }
-        }
+    val coroutineScope = rememberCoroutineScope()
+
     return reduceMotionCache.updateAndGet {
-        it ?: flow {
-            resolver.registerContentObserver(reduceMotionUri, false, contentObserver)
-            try {
-                for (value in channel) {
-                    val newValue = getReducedMotionSettingValue(resolver)
-                    emit(newValue)
+        it ?: callbackFlow {
+            val contentObserver =
+                object : ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
+                    override fun deliverSelfNotifications(): Boolean {
+                        // Returning true to receive change notification so that
+                        // the flow sends new value after it is initialized.
+                        return true
+                    }
+
+                    override fun onChange(selfChange: Boolean, uri: Uri?) {
+                        super.onChange(selfChange, uri)
+                        trySend(getReducedMotionSettingValue(resolver))
+                    }
                 }
-            } finally {
+
+            coroutineScope.launch {
+                resolver.registerContentObserver(reduceMotionUri, false, contentObserver)
+                // Force send value when flow is initialized
+                resolver.notifyChange(reduceMotionUri, contentObserver)
+            }
+
+            awaitClose {
                 resolver.unregisterContentObserver(contentObserver)
             }
         }.stateIn(
             MainScope(),
-            SharingStarted.WhileSubscribed(),
+            SharingStarted.WhileSubscribed(5000),
             getReducedMotionSettingValue(resolver)
         )
     }

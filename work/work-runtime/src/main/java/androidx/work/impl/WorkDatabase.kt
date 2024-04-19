@@ -30,6 +30,8 @@ import androidx.work.Data
 import androidx.work.impl.WorkDatabaseVersions.VERSION_10
 import androidx.work.impl.WorkDatabaseVersions.VERSION_11
 import androidx.work.impl.WorkDatabaseVersions.VERSION_2
+import androidx.work.impl.WorkDatabaseVersions.VERSION_21
+import androidx.work.impl.WorkDatabaseVersions.VERSION_22
 import androidx.work.impl.WorkDatabaseVersions.VERSION_3
 import androidx.work.impl.WorkDatabaseVersions.VERSION_5
 import androidx.work.impl.WorkDatabaseVersions.VERSION_6
@@ -68,8 +70,10 @@ import java.util.concurrent.TimeUnit
         AutoMigration(from = 17, to = 18),
         AutoMigration(from = 18, to = 19),
         AutoMigration(from = 19, to = 20, spec = AutoMigration_19_20::class),
+        AutoMigration(from = 20, to = 21),
+        AutoMigration(from = 22, to = 23),
     ],
-    version = 20
+    version = 23
 )
 @TypeConverters(value = [Data::class, WorkTypeConverters::class])
 abstract class WorkDatabase : RoomDatabase() {
@@ -146,6 +150,7 @@ abstract class WorkDatabase : RoomDatabase() {
                         FrameworkSQLiteOpenHelperFactory().create(configBuilder.build())
                     }
             }
+            @Suppress("DEPRECATION") // b/310884421 for fallbackToDestructiveMigration()
             return builder.setQueryExecutor(queryExecutor)
                 .addCallback(CleanupCallback(clock))
                 .addMigrations(Migration_1_2)
@@ -162,6 +167,7 @@ abstract class WorkDatabase : RoomDatabase() {
                 .addMigrations(Migration_12_13)
                 .addMigrations(Migration_15_16)
                 .addMigrations(Migration_16_17)
+                .addMigrations(RescheduleMigration(context, VERSION_21, VERSION_22))
                 .fallbackToDestructiveMigration()
                 .build()
         }

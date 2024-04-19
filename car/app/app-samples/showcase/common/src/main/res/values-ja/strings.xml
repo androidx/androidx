@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"使用不可"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"EV のコネクタのタイプ"</string>
     <string name="example_title" msgid="530257630320010494">"例 %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"このテキストの色は赤です"</string>
-    <string name="example_2_text" msgid="718820705318661440">"このテキストの色は緑です"</string>
-    <string name="example_3_text" msgid="977269832109695627">"このテキストの色は青です"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"このテキストの色は黄色です"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"このテキストの色は"<annotation color="red">"赤"</annotation>"です"</string>
+    <string name="example_2_text" msgid="1359373957397219102">"このテキストの色は"<annotation color="green">"緑"</annotation>"です"</string>
+    <string name="example_3_text" msgid="2409207170762049673">"このテキストの色は"<annotation color="blue">"青"</annotation>"です"</string>
+    <string name="example_4_text" msgid="9055989886645433000">"このテキストの色は"<annotation color="yellow">"黄色"</annotation>"です"</string>
     <string name="example_5_text" msgid="8828804968749423500">"このテキストはプライマリ カラーを使用しています"</string>
     <string name="example_6_text" msgid="7991523168517599600">"このテキストはセカンダリ カラーを使用しています"</string>
     <string name="color_demo" msgid="1822427636476178993">"色のデモ"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"場所を見る"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"テンプレート デモの検索"</string>
     <string name="search_hint" msgid="978495498991026792">"ここで検索"</string>
-    <string name="additional_text" msgid="8410289578276941586">"利用規約をご確認ください"</string>
+    <string name="additional_text" msgid="5755100726890686184"><annotation link="terms_of_service">"利用規約"</annotation>"をご確認ください"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google ログイン"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN を使用"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR コード"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"ルートのオプション"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"高速道路を使わない"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"フェリーを使わない"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"地図のデモ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"地図およびコンテンツのデモ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"地図およびメッセージ テンプレートのデモ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"地図およびグリッド テンプレートのデモ"</string>
 </resources>

@@ -19,9 +19,3 @@ AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#submitStillCa
 
 NotCloseable: androidx.camera.testing.fakes.FakeCamera:
     Classes that release resources (close(), release()) should implement AutoCloseable and CloseGuard: class androidx.camera.testing.fakes.FakeCamera
-
-
-RegistrationName: androidx.camera.testing.fakes.FakeCameraInfoInternal#addSessionCaptureCallback(java.util.concurrent.Executor, androidx.camera.core.impl.CameraCaptureCallback):
-    Callback methods should be named register/unregister; was addSessionCaptureCallback
-RegistrationName: androidx.camera.testing.fakes.FakeCameraInfoInternal#removeSessionCaptureCallback(androidx.camera.core.impl.CameraCaptureCallback):
-    Callback methods should be named register/unregister; was removeSessionCaptureCallback

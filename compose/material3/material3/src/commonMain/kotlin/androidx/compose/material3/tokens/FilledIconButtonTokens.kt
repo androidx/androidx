@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,13 +22,15 @@ import androidx.compose.ui.unit.dp
 
 internal object FilledIconButtonTokens {
     val ContainerColor = ColorSchemeKeyTokens.Primary
+    val ContainerHeight = 40.0.dp
     val ContainerShape = ShapeKeyTokens.CornerFull
-    val ContainerSize = 40.0.dp
+    val ContainerWidth = 40.0.dp
     val DisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledContainerOpacity = 0.12f
+    val DisabledContainerOpacity = 0.12f
     val DisabledColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledOpacity = 0.38f
+    val DisabledOpacity = 0.38f
     val FocusColor = ColorSchemeKeyTokens.OnPrimary
+    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
     val HoverColor = ColorSchemeKeyTokens.OnPrimary
     val Color = ColorSchemeKeyTokens.OnPrimary
     val Size = 24.0.dp
@@ -42,5 +44,5 @@ internal object FilledIconButtonTokens {
     val ToggleUnselectedHoverColor = ColorSchemeKeyTokens.Primary
     val ToggleUnselectedColor = ColorSchemeKeyTokens.Primary
     val ToggleUnselectedPressedColor = ColorSchemeKeyTokens.Primary
-    val UnselectedContainerColor = ColorSchemeKeyTokens.SurfaceVariant
+    val UnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
 }

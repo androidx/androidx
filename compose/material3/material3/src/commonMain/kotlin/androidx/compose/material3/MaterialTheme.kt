@@ -19,14 +19,8 @@ package androidx.compose.material3
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 
@@ -61,12 +55,14 @@ fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
-    val rippleIndication = rememberRipple()
+    val rippleIndication = rippleOrFallbackImplementation()
     val selectionColors = rememberTextSelectionColors(colorScheme)
+    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColorScheme provides colorScheme,
         LocalIndication provides rippleIndication,
-        LocalRippleTheme provides MaterialRippleTheme,
+        // TODO: b/304985887 - remove after one stable release
+        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
@@ -104,22 +100,6 @@ object MaterialTheme {
         @ReadOnlyComposable
         get() = LocalShapes.current
 }
-
-@Immutable
-private object MaterialRippleTheme : RippleTheme {
-    @Composable
-    override fun defaultColor() = LocalContentColor.current
-
-    @Composable
-    override fun rippleAlpha() = DefaultRippleAlpha
-}
-
-private val DefaultRippleAlpha = RippleAlpha(
-    pressedAlpha = StateTokens.PressedStateLayerOpacity,
-    focusedAlpha = StateTokens.FocusStateLayerOpacity,
-    draggedAlpha = StateTokens.DraggedStateLayerOpacity,
-    hoveredAlpha = StateTokens.HoverStateLayerOpacity
-)
 
 @Composable
 /*@VisibleForTesting*/

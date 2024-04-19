@@ -32,7 +32,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.view.ViewCompat;
 
 /**
  */
@@ -88,7 +87,7 @@ public class ContentFrameLayout extends FrameLayout {
     @RestrictTo(LIBRARY)
     public void setDecorPadding(int left, int top, int right, int bottom) {
         mDecorPadding.set(left, top, right, bottom);
-        if (ViewCompat.isLaidOut(this)) {
+        if (isLaidOut()) {
             requestLayout();
         }
     }

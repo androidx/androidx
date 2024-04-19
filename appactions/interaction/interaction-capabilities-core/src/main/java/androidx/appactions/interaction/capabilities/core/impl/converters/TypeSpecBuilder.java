@@ -166,7 +166,7 @@ public final class TypeSpecBuilder<T, BuilderT> {
             CheckedInterfaces.Function<Value, V> fromValue) {
         return bindFieldInternal(
                 name,
-                /** valueGetter= */
+                /* valueGetter= */
                 object -> {
                     List<V> valueList = valueGetter.apply(object);
                     if (valueList == null) {
@@ -178,7 +178,7 @@ public final class TypeSpecBuilder<T, BuilderT> {
                                     .filter(Objects::nonNull)
                                     .collect(toImmutableList()));
                 },
-                /** valueSetter= */
+                /* valueSetter= */
                 (builder, repeatedValue) -> {
                     if (repeatedValue.getListValue() == null) {
                         return;

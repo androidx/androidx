@@ -30,7 +30,6 @@ import android.app.PendingIntent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
@@ -44,7 +43,6 @@ import java.util.List;
 /**
  */
 @RestrictTo(LIBRARY)
-@RequiresApi(19)
 @Deprecated
 public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 

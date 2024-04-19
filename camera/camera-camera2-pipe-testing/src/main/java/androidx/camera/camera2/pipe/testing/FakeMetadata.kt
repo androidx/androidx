@@ -112,6 +112,9 @@ class FakeCameraMetadata(
     }
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    override fun toString(): String =
+        "FakeCameraMetadata(camera: ${camera.value})"
 }
 
 /**
@@ -131,6 +134,29 @@ class FakeRequestMetadata(
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    companion object {
+        /**
+         * Initialize FakeRequestMetadata based on a specific [Request] object.
+         */
+        fun from(
+            request: Request,
+            streamToSurfaces: Map<StreamId, Surface>,
+            repeating: Boolean = false
+        ): FakeRequestMetadata {
+            check(streamToSurfaces.keys.containsAll(request.streams))
+            return FakeRequestMetadata(
+                requestParameters = request.parameters,
+                template = request.template ?: RequestTemplate(0),
+                streams = request.streams.map { it to streamToSurfaces[it]!! }.toMap(),
+                repeating = repeating,
+                request = request
+            )
+        }
+    }
+
+    override fun toString(): String =
+        "FakeRequestMetadata(requestNumber: ${requestNumber.value}, request: $request)"
 }
 
 /**
@@ -150,6 +176,9 @@ class FakeFrameMetadata(
     override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    override fun toString(): String =
+        "FakeFrameMetadata(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }
 
 /**
@@ -169,4 +198,7 @@ class FakeFrameInfo(
         get() = metadata.frameNumber
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    override fun toString(): String =
+        "FakeFrameInfo(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }

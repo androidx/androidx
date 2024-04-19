@@ -33,14 +33,11 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
-
 import java.util.Date;
 
 /**
  * Responds to actions performed on slices and notifies slices of updates in state changes.
  */
-@RequiresApi(19)
 public class SliceBroadcastReceiver extends BroadcastReceiver {
     @SuppressWarnings("deprecation")
     @Override

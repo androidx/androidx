@@ -15,16 +15,40 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Glance.AppWidget.TextAppearance.Bold" parent="">
+
+    <!-- Create a base style that inherits the from the DeviceDefault text appearance to set the
+         fontFamily to the device default one. Then null out all of the other attributes that
+         TextAppearanceSpan reads so only the font family is preserved. This is needed because
+         setting the fontWeight requires the fontFamily to be set, and there isn't anywhere that
+         the default fontFamily can be read directly. -->
+    <style name="Glance.AppWidget.TextAppearance.DeviceDefaultFontFamily"
+        parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:elegantTextHeight">@null</item>
+        <item name="android:fontFeatureSettings">@null</item>
+        <item name="android:fontVariationSettings">@null</item>
+        <item name="android:letterSpacing">@null</item>
+        <item name="android:shadowColor">@null</item>
+        <item name="android:shadowDx">@null</item>
+        <item name="android:shadowDy">@null</item>
+        <item name="android:shadowRadius">@null</item>
+        <item name="android:textColor">@null</item>
+        <item name="android:textColorLink">@null</item>
+        <item name="android:textSize">@null</item>
+        <item name="android:typeface">@null</item>
+    </style>
+
+    <style name="Glance.AppWidget.TextAppearance.Bold"
+        parent="Glance.AppWidget.TextAppearance.DeviceDefaultFontFamily">
         <item name="android:textFontWeight">700</item>
-        <item name="android:fontFamily">sans-serif</item>
     </style>
-    <style name="Glance.AppWidget.TextAppearance.Medium" parent="">
+
+    <style name="Glance.AppWidget.TextAppearance.Medium"
+        parent="Glance.AppWidget.TextAppearance.DeviceDefaultFontFamily">
         <item name="android:textFontWeight">500</item>
-        <item name="android:fontFamily">sans-serif</item>
     </style>
-    <style name="Glance.AppWidget.TextAppearance.Normal" parent="">
+
+    <style name="Glance.AppWidget.TextAppearance.Normal"
+        parent="Glance.AppWidget.TextAppearance.DeviceDefaultFontFamily">
         <item name="android:textFontWeight">400</item>
-        <item name="android:fontFamily">sans-serif</item>
     </style>
 </resources>

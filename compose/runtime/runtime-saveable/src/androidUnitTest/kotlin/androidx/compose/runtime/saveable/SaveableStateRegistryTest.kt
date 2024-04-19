@@ -92,6 +92,17 @@ class SaveableStateRegistryTest {
         }
     }
 
+    @Test
+    fun singleCharacterKeysAreAllowed() {
+        val registry = createRegistry()
+
+        registry.registerProvider("a") { 1 }
+
+        registry.performSave().apply {
+            assertThat(get("a")).isEqualTo(listOf(1))
+        }
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun emptyKeysAreNotAllowed() {
         val registry = createRegistry()

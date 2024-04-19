@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -33,8 +40,10 @@ dependencies {
     // because compose:ui-inspector can be run only in app with compose:ui:ui
     // thus all its transitive dependencies will be present too.
     compileOnly(libs.kotlinStdlib)
+    compileOnly("androidx.collection:collection:1.4.0")
     compileOnly("androidx.inspection:inspection:1.0.0")
     compileOnly("androidx.compose.runtime:runtime:1.2.1")
+    compileOnly(project(":compose:ui:ui-graphics"))
     compileOnly(project(":compose:ui:ui"))
     // we ignore its transitive dependencies, because ui-inspection should
     // depend on them as "compile-only" deps.

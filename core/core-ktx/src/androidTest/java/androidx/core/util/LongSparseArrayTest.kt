@@ -17,7 +17,6 @@
 package androidx.core.util
 
 import android.util.LongSparseArray
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
@@ -27,7 +26,6 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@SdkSuppress(minSdkVersion = 16)
 @SmallTest
 class LongSparseArrayTest {
     @Test fun sizeProperty() {

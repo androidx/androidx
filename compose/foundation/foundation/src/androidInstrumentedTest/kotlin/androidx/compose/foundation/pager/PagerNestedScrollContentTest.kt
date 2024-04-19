@@ -45,6 +45,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -163,8 +164,18 @@ class PagerNestedScrollContentTest(
     @Test
     fun nestedScrollContent_shouldPropagateCrossAxisUnconsumedFlings() {
         // Arrange
+        var scrollAvailable = Offset.Zero
         var postFlingVelocity = Velocity.Zero
         val dataCapturingConnection = object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                scrollAvailable += available
+                return Offset.Zero
+            }
+
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 postFlingVelocity = available
                 return Velocity.Zero
@@ -207,6 +218,11 @@ class PagerNestedScrollContentTest(
         val crossAxisVelocity = if (vertical) postFlingVelocity.x else postFlingVelocity.y
         assertThat(mainAxisVelocity.absoluteValue).isEqualTo(0f)
         assertThat(crossAxisVelocity.absoluteValue).isNotEqualTo(0f)
+
+        val mainAxisScrollAvailable = if (vertical) scrollAvailable.y else scrollAvailable.x
+        val crossAxisScrollAvailable = if (vertical) scrollAvailable.x else scrollAvailable.y
+        assertThat(crossAxisScrollAvailable.absoluteValue).isNotEqualTo(0f)
+        assertThat(mainAxisScrollAvailable.absoluteValue).isEqualTo(0f)
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -305,10 +321,13 @@ class PagerNestedScrollContentTest(
         }
 
         // Assert: Inner list won't consume scroll and pager moved
-        assertThat(abs(pagerState.currentPageOffsetFraction - 0.4f)).isLessThan(0.001f)
-        assertThat(lazyListState.firstVisibleItemScrollOffset).isEqualTo(firstLazyListItemOffset)
-        assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
-
+        rule.runOnIdle {
+            assertThat(abs(pagerState.currentPageOffsetFraction - 0.4f)).isLessThan(0.001f)
+            assertThat(
+                lazyListState.firstVisibleItemScrollOffset
+            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        }
         rule.onNodeWithTag(TestTag).performTouchInput {
             moveBy(
                 if (vertical) Offset(x = 0f, y = -forwardDelta / 2)
@@ -317,9 +336,13 @@ class PagerNestedScrollContentTest(
         }
 
         // assert: pager moved, but list is still at 0 after direction change
-        assertThat(abs(pagerState.currentPageOffsetFraction - 0.2f)).isLessThan(0.001f)
-        assertThat(lazyListState.firstVisibleItemScrollOffset).isEqualTo(firstLazyListItemOffset)
-        assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        rule.runOnIdle {
+            assertThat(abs(pagerState.currentPageOffsetFraction - 0.2f)).isLessThan(0.001f)
+            assertThat(
+                lazyListState.firstVisibleItemScrollOffset
+            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        }
 
         rule.onNodeWithTag(TestTag).performTouchInput {
             up()

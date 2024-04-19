@@ -16,14 +16,13 @@
 
 package androidx.camera.core.imagecapture;
 
-import static android.graphics.ImageFormat.JPEG;
-
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
 import static androidx.camera.core.imagecapture.ImagePipeline.EXIF_ROTATION_AVAILABILITY;
 import static androidx.camera.core.impl.utils.Exif.createFromImageProxy;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
+import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.graphics.Matrix;
@@ -65,7 +64,7 @@ final class ProcessingInput2Packet implements
 
         // Extracts Exif data from JPEG.
         Exif exif = null;
-        if (image.getFormat() == JPEG) {
+        if (isJpegFormats(image.getFormat())) {
             try {
                 exif = createFromImageProxy(image);
                 // Rewind the buffer after reading.
@@ -122,7 +121,11 @@ final class ProcessingInput2Packet implements
     }
 
     private static CameraCaptureResult getCameraCaptureResult(@NonNull ImageProxy image) {
-        return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
+        if (image.getImageInfo() instanceof CameraCaptureResultImageInfo) {
+            return ((CameraCaptureResultImageInfo) image.getImageInfo()).getCameraCaptureResult();
+        } else {
+            return CameraCaptureResult.EmptyCameraCaptureResult.create();
+        }
     }
 
     /**

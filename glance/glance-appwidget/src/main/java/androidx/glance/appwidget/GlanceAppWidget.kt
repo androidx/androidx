@@ -31,6 +31,7 @@ import androidx.glance.GlanceId
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
+import androidx.glance.session.SessionManagerScope
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
@@ -120,7 +121,9 @@ abstract class GlanceAppWidget(
      */
     internal suspend fun deleted(context: Context, appWidgetId: Int) {
         val glanceId = AppWidgetId(appWidgetId)
-        sessionManager.closeSession(glanceId.toSessionKey())
+        sessionManager.runWithLock {
+            closeSession(glanceId.toSessionKey())
+        }
         try {
             onDelete(context, glanceId)
         } catch (cancelled: CancellationException) {
@@ -144,10 +147,12 @@ abstract class GlanceAppWidget(
     ) {
         Tracing.beginGlanceAppWidgetUpdate()
         val glanceId = AppWidgetId(appWidgetId)
-        if (!sessionManager.isSessionRunning(context, glanceId.toSessionKey())) {
-            sessionManager.startSession(context, AppWidgetSession(this, glanceId, options))
-        } else {
-            val session = sessionManager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+        sessionManager.runWithLock {
+            if (!isSessionRunning(context, glanceId.toSessionKey())) {
+                startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+                return@runWithLock
+            }
+            val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
             session.updateGlance()
         }
     }
@@ -163,14 +168,9 @@ abstract class GlanceAppWidget(
         options: Bundle? = null,
     ) {
         val glanceId = AppWidgetId(appWidgetId)
-        val session = if (!sessionManager.isSessionRunning(context, glanceId.toSessionKey())) {
-            AppWidgetSession(this, glanceId, options).also { session ->
-                sessionManager.startSession(context, session)
-            }
-        } else {
-            sessionManager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+        sessionManager.getOrCreateAppWidgetSession(context, glanceId, options) { session ->
+            session.runLambda(actionKey)
         }
-        session.runLambda(actionKey)
     }
 
     /**
@@ -189,10 +189,7 @@ abstract class GlanceAppWidget(
             return
         }
         val glanceId = AppWidgetId(appWidgetId)
-        if (!sessionManager.isSessionRunning(context, glanceId.toSessionKey())) {
-            sessionManager.startSession(context, AppWidgetSession(this, glanceId, options))
-        } else {
-            val session = sessionManager.getSession(glanceId.toSessionKey()) as AppWidgetSession
+        sessionManager.getOrCreateAppWidgetSession(context, glanceId, options) { session ->
             session.updateAppWidgetOptions(options)
         }
     }
@@ -229,6 +226,19 @@ abstract class GlanceAppWidget(
             ) // default impl: inflate the error layout
             AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, rv)
         }
+    }
+
+    private suspend fun SessionManager.getOrCreateAppWidgetSession(
+        context: Context,
+        glanceId: AppWidgetId,
+        options: Bundle? = null,
+        block: suspend SessionManagerScope.(AppWidgetSession) -> Unit
+    ) = runWithLock {
+        if (!isSessionRunning(context, glanceId.toSessionKey())) {
+            startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+        }
+        val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
+        block(session)
     }
 }
 

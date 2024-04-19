@@ -16,6 +16,10 @@
 
 package androidx.camera.integration.core;
 
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -62,6 +66,7 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private static final String INTENT_EXTRA_DURATION = "recording_duration";
     // Launch the activity with the specified camera switching time.
     private static final String INTENT_EXTRA_SWITCH_TIME = "recording_switch_time";
+    private static final String INTENT_EXTRA_MIRROR_MODE = "mirror_mode";
     private static final long INVALID_TIME_VALUE = -1;
     private static final int REQUEST_CODE_PERMISSIONS = 1001;
     private static final String[] REQUIRED_PERMISSIONS = new String[] {
@@ -96,6 +101,7 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private boolean mNotYetSwitched = true;
     private Integer mDeviceOrientation = null;
     private OrientationEventListener mOrientationEventListener;
+    private int mMirrorMode = MIRROR_MODE_OFF;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,7 +114,7 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         if (bundle != null) {
             String extraCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
             if (extraCameraDirection != null) {
-                if (extraCameraDirection.equals("FORWARD")) {
+                if (extraCameraDirection.equalsIgnoreCase("FORWARD")) {
                     mCameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
                 } else {
                     mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -116,6 +122,14 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
             }
             extraDurationMillis = bundle.getLong(INTENT_EXTRA_DURATION, INVALID_TIME_VALUE);
             extraSwitchTimeMillis = bundle.getLong(INTENT_EXTRA_SWITCH_TIME, INVALID_TIME_VALUE);
+            String mirrorMode = bundle.getString(INTENT_EXTRA_MIRROR_MODE, "OFF");
+            if (mirrorMode.equalsIgnoreCase("ON")) {
+                mMirrorMode = MIRROR_MODE_ON;
+            } else if (mirrorMode.equalsIgnoreCase("FRONT_ONLY")) {
+                mMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
+            } else {
+                mMirrorMode = MIRROR_MODE_OFF;
+            }
         }
 
         mOrientationEventListener = new OrientationEventListener(this) {
@@ -185,7 +199,8 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreview = new Preview.Builder().build();
         mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-        mVideoCapture = VideoCapture.withOutput(new Recorder.Builder().build());
+        mVideoCapture = new VideoCapture.Builder<>(new Recorder.Builder().build()).setMirrorMode(
+                mMirrorMode).build();
         mCamera = cameraProvider.bindToLifecycle(this, mCameraSelector, mPreview, mVideoCapture);
     }
 

@@ -587,14 +587,14 @@ private data class BottomAppBarCutoutShape(
         val roundedEdgeEndX = appBarInterceptEndX + roundedEdgeRadius
 
         moveTo(roundedEdgeStartX, 0f)
-        quadraticBezierTo(
+        quadraticTo(
             appBarInterceptStartX - controlPointOffset,
             0f,
             curveInterceptStartX,
             curveInterceptY
         )
         lineTo(curveInterceptEndX, curveInterceptY)
-        quadraticBezierTo(appBarInterceptEndX + controlPointOffset, 0f, roundedEdgeEndX, 0f)
+        quadraticTo(appBarInterceptEndX + controlPointOffset, 0f, roundedEdgeEndX, 0f)
         close()
     }
 }

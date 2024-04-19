@@ -27,8 +27,7 @@ fun Test(condition: Boolean) {
 @Composable
 @NonRestartableComposable
 fun Test(condition: Boolean, %composer: Composer?, %changed: Int) {
-  %composer.startReplaceableGroup(<>)
-  sourceInformation(%composer, "C(Test)<Text("...>,<Inline...>,<Text("...>:Test.kt")
+  sourceInformationMarkerStart(%composer, <>, "C(Test)<Text("...>,<Inline...>,<Text("...>:Test.kt")
   if (isTraceInProgress()) {
     traceEventStart(<>, %changed, -1, <>)
   }
@@ -37,15 +36,15 @@ fun Test(condition: Boolean, %composer: Composer?, %changed: Int) {
     sourceInformationMarkerStart(%composer, <>, "C<Text("...>,<Inline...>,<Text("...>:Test.kt")
     Text("Before inner", %composer, 0b0110)
     InlineLinearB({ %composer: Composer?, %changed: Int ->
-      %composer.startReplaceableGroup(<>)
+      %composer.startReplaceGroup(<>)
       sourceInformation(%composer, "C<Text("...>,<Text("...>:Test.kt")
       Text("Before return", %composer, 0b0110)
       if (condition) {
-        %composer.endReplaceableGroup()
+        %composer.endReplaceGroup()
         return@InlineLinearB
       }
       Text("After return", %composer, 0b0110)
-      %composer.endReplaceableGroup()
+      %composer.endReplaceGroup()
     }, %composer, 0)
     Text("After inner", %composer, 0b0110)
     sourceInformationMarkerEnd(%composer)
@@ -54,5 +53,5 @@ fun Test(condition: Boolean, %composer: Composer?, %changed: Int) {
   if (isTraceInProgress()) {
     traceEventEnd()
   }
-  %composer.endReplaceableGroup()
+  sourceInformationMarkerEnd(%composer)
 }

@@ -18,7 +18,6 @@ package androidx.viewpager2.widget
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
@@ -77,7 +76,6 @@ class CanScrollTest : BaseTest() {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun test_canScrollHorizontallyVertically_horizontal_rtl() {
         // given RTL locale
         localeUtil.resetLocale()

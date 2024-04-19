@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -34,9 +33,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+private const val UseOnFocusEvent = "onFocusEvent"
+private const val UseFocusEventModifier = "FocusEventModifier"
+
 @MediumTest
 @RunWith(Parameterized::class)
-class FocusEventCountTest(focusEventType: String) {
+class FocusEventCountTest(private val focusEventType: String) {
     private val onFocusEvent = if (focusEventType == UseOnFocusEvent) {
         OnFocusEventCall
     } else {
@@ -53,8 +55,6 @@ class FocusEventCountTest(focusEventType: String) {
         val FocusEventModifierCall: Modifier.((FocusState) -> Unit) -> Modifier = {
             focusEventModifier(it)
         }
-        private const val UseOnFocusEvent = "onFocusEvent"
-        private const val UseFocusEventModifier = "FocusEventModifier"
 
         @JvmStatic
         @Parameterized.Parameters(name = "onFocusEvent = {0}")
@@ -120,7 +120,6 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun whenFocusMovesWithinParent_onFocusEventIsNotCalled() {
         // Arrange.
@@ -310,10 +309,16 @@ class FocusEventCountTest(focusEventType: String) {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusStates).isExactly(
-                Inactive, // triggered by clearFocus() of the active node.
-                Inactive, // triggered by onFocusEvent node's attach().
-            )
+            if (focusEventType == UseOnFocusEvent) {
+                assertThat(focusStates).isExactly(
+                    Inactive
+                )
+            } else {
+                assertThat(focusStates).isExactly(
+                    Inactive, // triggered by clearFocus() of the active node.
+                    Inactive, // triggered by onFocusEvent node's attach().
+                )
+            }
         }
     }
 
@@ -335,7 +340,11 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { addFocusTarget = false }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        if (focusEventType == UseOnFocusEvent) {
+            rule.runOnIdle { assertThat(focusStates).isEmpty() }
+        } else {
+            rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        }
     }
 
     @Test
@@ -362,7 +371,11 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { addFocusTarget = false }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
+        if (focusEventType == UseOnFocusEvent) {
+            rule.runOnIdle { assertThat(focusStates).isEmpty() }
+        } else {
+            rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
+        }
     }
 
     @Test
@@ -391,7 +404,11 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { addFocusTarget = false }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
+        if (focusEventType == UseOnFocusEvent) {
+            rule.runOnIdle { assertThat(focusStates).isEmpty() }
+        } else {
+            rule.runOnIdle { assertThat(focusStates).isExactly(Active) }
+        }
     }
 
     @Test
@@ -412,7 +429,13 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { addFocusTarget = true }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        rule.runOnIdle {
+            if (focusEventType == UseOnFocusEvent) {
+                assertThat(focusStates).isEmpty()
+            } else {
+                assertThat(focusStates).isExactly(Inactive)
+            }
+        }
     }
 
     @Test
@@ -434,7 +457,13 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { addFocusProperties = true }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        rule.runOnIdle {
+            if (focusEventType == UseOnFocusEvent) {
+                assertThat(focusStates).isEmpty() // The new focus event isn't triggered on empty
+            } else {
+                assertThat(focusStates).isExactly(Inactive)
+            }
+        }
     }
 
     @Test
@@ -462,7 +491,13 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { addFocusProperties = true }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        rule.runOnIdle {
+            if (focusEventType == UseOnFocusEvent) {
+                assertThat(focusStates).isEmpty()
+            } else {
+                assertThat(focusStates).isExactly(Inactive)
+            }
+        }
     }
 
     @Test
@@ -484,7 +519,13 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { add = true }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        rule.runOnIdle {
+            if (focusEventType == UseOnFocusEvent) {
+                assertThat(focusStates).isEmpty()
+            } else {
+                assertThat(focusStates).isExactly(Inactive)
+            }
+        }
     }
 
     @Test
@@ -492,10 +533,11 @@ class FocusEventCountTest(focusEventType: String) {
         // Arrange.
         val focusStates = mutableListOf<FocusState>()
         var remove by mutableStateOf(false)
+        val lambda: (FocusState) -> Unit = { focusStates.add(it) }
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .onFocusEvent { focusStates.add(it) }
+                    .onFocusEvent(lambda)
                     .then(if (remove) Modifier else Modifier.focusProperties { canFocus = true })
                     .focusTarget()
             )
@@ -506,18 +548,27 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { remove = true }
 
         // Assert.
-        rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+        rule.runOnIdle {
+            if (focusEventType == UseOnFocusEvent) {
+                assertThat(focusStates).isEmpty()
+            } else {
+                assertThat(focusStates).isExactly(Inactive)
+            }
+        }
     }
 
+    // TODO: b/296477841
     @Test
     fun removingCantFocusProperty_onFocusEventIsTriggered() {
         // Arrange.
         val focusStates = mutableListOf<FocusState>()
         var remove by mutableStateOf(false)
+        val focusEventHandler: (FocusState) -> Unit = { focusStates.add(it) }
+
         rule.setFocusableContent {
             Box(
                 modifier = Modifier
-                    .onFocusEvent { focusStates.add(it) }
+                    .onFocusEvent(focusEventHandler)
                     .then(if (remove) Modifier else Modifier.focusProperties { canFocus = false })
                     .focusTarget()
             )
@@ -528,7 +579,13 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { remove = true }
 
         // Assert.
-         rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
+         rule.runOnIdle {
+             if (focusEventType == UseOnFocusEvent) {
+                 assertThat(focusStates).isEmpty()
+             } else {
+                 assertThat(focusStates).isExactly(Inactive)
+             }
+         }
     }
 
     @Test
@@ -553,7 +610,6 @@ class FocusEventCountTest(focusEventType: String) {
         rule.runOnIdle { assertThat(focusStates).isEmpty() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun changingFocusProperty_onFocusEventIsNotCalled() {
         // Arrange.

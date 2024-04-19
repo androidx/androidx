@@ -16,10 +16,14 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.util.Log;
 
+import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -53,7 +57,9 @@ import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi;
 import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.AlignmentProto;
+import androidx.wear.protolayout.proto.ColorProto;
 import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
@@ -76,84 +82,59 @@ import java.util.List;
 public final class LayoutElementBuilders {
     private LayoutElementBuilders() {}
 
-    /**
-     * The weight to be applied to the font.
-     *
-     * @since 1.0
-     */
+    /** The weight to be applied to the font. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_WEIGHT_UNDEFINED, FONT_WEIGHT_NORMAL, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_BOLD})
     @Retention(RetentionPolicy.SOURCE)
     @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontWeight {}
 
-    /**
-     * Font weight is undefined.
-     *
-     * @since 1.0
-     */
+    /** Font weight is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int FONT_WEIGHT_UNDEFINED = 0;
 
-    /**
-     * Normal font weight.
-     *
-     * @since 1.0
-     */
+    /** Normal font weight. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int FONT_WEIGHT_NORMAL = 400;
 
-    /**
-     * Medium font weight.
-     *
-     * @since 1.0
-     */
-    @ProtoLayoutExperimental public static final int FONT_WEIGHT_MEDIUM = 500;
+    /** Medium font weight. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
+    @ProtoLayoutExperimental
+    public static final int FONT_WEIGHT_MEDIUM = 500;
 
-    /**
-     * Bold font weight.
-     *
-     * @since 1.0
-     */
+    /** Bold font weight. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int FONT_WEIGHT_BOLD = 700;
 
     /**
      * The variant of a font. Some renderers may use different fonts for title and body text, which
      * can be selected using this field.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({FONT_VARIANT_UNDEFINED, FONT_VARIANT_TITLE, FONT_VARIANT_BODY, FONT_VARIANT_CUSTOM_1})
     @Retention(RetentionPolicy.SOURCE)
     @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface FontVariant {}
 
-    /**
-     * Font variant is undefined.
-     *
-     * @since 1.0
-     */
+    /** Font variant is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int FONT_VARIANT_UNDEFINED = 0;
 
-    /**
-     * Font variant suited for title text.
-     *
-     * @since 1.0
-     */
+    /** Font variant suited for title text. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int FONT_VARIANT_TITLE = 1;
 
-    /**
-     * Font variant suited for body text.
-     *
-     * @since 1.0
-     */
+    /** Font variant suited for body text. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int FONT_VARIANT_BODY = 2;
 
     /**
      * Renderer dependent Font variant. If not supported, will behave similar to {@link
      * #FONT_VARIANT_UNDEFINED}.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     @ProtoLayoutExperimental
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final int FONT_VARIANT_CUSTOM_1 = 3;
@@ -161,9 +142,8 @@ public final class LayoutElementBuilders {
     /**
      * The alignment of a {@link SpanImage} within the line height of the surrounding {@link
      * Spannable}.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         SPAN_VERTICAL_ALIGN_UNDEFINED,
@@ -173,85 +153,87 @@ public final class LayoutElementBuilders {
     @Retention(RetentionPolicy.SOURCE)
     public @interface SpanVerticalAlignment {}
 
-    /**
-     * Alignment is undefined.
-     *
-     * @since 1.0
-     */
+    /** Alignment is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int SPAN_VERTICAL_ALIGN_UNDEFINED = 0;
 
     /**
      * Align to the bottom of the line (descent of the largest text in this line). If there is no
      * text in the line containing this image, this will align to the bottom of the line, where the
      * line height is defined as the height of the largest image in the line.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int SPAN_VERTICAL_ALIGN_BOTTOM = 1;
 
     /**
      * Align to the baseline of the text. Note that if the line in the {@link Spannable} which
      * contains this image does not contain any text, the effects of using this alignment are
      * undefined.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int SPAN_VERTICAL_ALIGN_TEXT_BASELINE = 2;
 
-    /**
-     * How text that will not fit inside the bounds of a {@link Text} element will be handled.
-     *
-     * @since 1.0
-     */
+    /** How text that will not fit inside the bounds of a {@link Text} element will be handled. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         TEXT_OVERFLOW_UNDEFINED,
         TEXT_OVERFLOW_TRUNCATE,
         TEXT_OVERFLOW_ELLIPSIZE_END,
-        TEXT_OVERFLOW_MARQUEE
+        TEXT_OVERFLOW_MARQUEE,
+        TEXT_OVERFLOW_ELLIPSIZE
     })
     @Retention(RetentionPolicy.SOURCE)
     @OptIn(markerClass = ProtoLayoutExperimental.class)
     public @interface TextOverflow {}
 
-    /**
-     * Overflow behavior is undefined.
-     *
-     * @since 1.0
-     */
+    /** Overflow behavior is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_OVERFLOW_UNDEFINED = 0;
 
     /**
      * Truncate the text to fit inside of the {@link Text} element's bounds. If text is truncated,
      * it will be truncated on a word boundary.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_OVERFLOW_TRUNCATE = 1;
 
     /**
-     * Truncate the text to fit in the {@link Text} element's bounds, but add an ellipsis (i.e. ...)
-     * to the end of the text if it has been truncated.
+     * Truncate the text at the last line defined by {@code setMaxLines} in {@link Text} to fit in
+     * the {@link Text} element's bounds, but add an ellipsis (i.e. ...) to the end of the text if
+     * it has been truncated. Note that this will not add an ellipsis if the number of lines that
+     * fits into the available space is less than the {@code setMaxLines} in {@link Text}.
      *
-     * @since 1.0
+     * @deprecated Use {@link #TEXT_OVERFLOW_ELLIPSIZE} instead.
      */
+    @Deprecated
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2;
 
     /**
      * Enable marquee animation for texts that don't fit inside the {@link Text} element. This is
      * only applicable for single line texts; if the text has multiple lines, the behavior is
      * equivalent to TEXT_OVERFLOW_TRUNCATE.
-     *
-     * @since 1.2
      */
-    @ProtoLayoutExperimental public static final int TEXT_OVERFLOW_MARQUEE = 3;
+    @RequiresSchemaVersion(major = 1, minor = 200)
+    @ProtoLayoutExperimental
+    public static final int TEXT_OVERFLOW_MARQUEE = 3;
+
+    /**
+     * Truncate the text to fit in the {@link Text} element's parent bounds, but add an ellipsis
+     * (i.e. ...) to the end of the text if it has been truncated.
+     *
+     * <p>Note that, when this is used, the parent of the {@link Text} element this corresponds to
+     * shouldn't have its width and height set to wrapped, as it can lead to unexpected results.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    public static final int TEXT_OVERFLOW_ELLIPSIZE = 4;
 
     /**
      * How content which does not match the dimensions of its bounds (e.g. an image resource being
      * drawn inside an {@link Image}) will be resized to fit its bounds.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         CONTENT_SCALE_MODE_UNDEFINED,
@@ -262,20 +244,16 @@ public final class LayoutElementBuilders {
     @Retention(RetentionPolicy.SOURCE)
     public @interface ContentScaleMode {}
 
-    /**
-     * Content scaling is undefined.
-     *
-     * @since 1.0
-     */
+    /** Content scaling is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int CONTENT_SCALE_MODE_UNDEFINED = 0;
 
     /**
      * Content will be scaled to fit inside its bounds, proportionally. As an example, If a 10x5
      * image was going to be drawn inside a 50x50 {@link Image} element, the actual image resource
      * would be drawn as a 50x25 image, centered within the 50x50 bounds.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int CONTENT_SCALE_MODE_FIT = 1;
 
     /**
@@ -283,65 +261,74 @@ public final class LayoutElementBuilders {
      * outside of the bounds will be cropped. As an example, if a 10x5 image was going to be drawn
      * inside a 50x50 {@link Image} element, the image resource would be drawn as a 100x50 image,
      * centered within its bounds (and with 25px cropped from both the left and right sides).
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int CONTENT_SCALE_MODE_CROP = 2;
 
     /**
      * Content will be resized to fill its bounds, without taking into account the aspect ratio. If
      * a 10x5 image was going to be drawn inside a 50x50 {@link Image} element, the image would be
      * drawn as a 50x50 image, stretched vertically.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int CONTENT_SCALE_MODE_FILL_BOUNDS = 3;
 
-    /**
-     * Styles to use for path endings.
-     *
-     * @since 1.2
-     */
+    /** Styles to use for path endings. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({STROKE_CAP_UNDEFINED, STROKE_CAP_BUTT, STROKE_CAP_ROUND, STROKE_CAP_SQUARE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface StrokeCap {}
 
-    /**
-     * {@code StrokeCap} is undefined.
-     *
-     * @since 1.2
-     */
+    /** {@code StrokeCap} is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int STROKE_CAP_UNDEFINED = 0;
 
-    /**
-     * Begin and end contours with a flat edge and no extension.
-     *
-     * @since 1.2
-     */
+    /** Begin and end contours with a flat edge and no extension. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int STROKE_CAP_BUTT = 1;
 
     /**
      * Begin and end contours with a semi-circle extension. The extension size is proportional to
      * the thickness of the path.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int STROKE_CAP_ROUND = 2;
 
     /**
      * Begin and end contours with a half square extension. The extension size is proportional to
      * the thickness of the path.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int STROKE_CAP_SQUARE = 3;
 
+    /** Direction of drawing for any curved element. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ARC_DIRECTION_NORMAL, ARC_DIRECTION_CLOCKWISE, ARC_DIRECTION_COUNTER_CLOCKWISE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ArcDirection {}
+
     /**
-     * An extensible {@code FontWeight} property.
-     *
-     * @since 1.0
+     * Draws an element in Clockwise direction for LTR layout direction and Counter Clockwise for
+     * RTL.
      */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int ARC_DIRECTION_NORMAL = 0;
+
+    /** Draws an element in Clockwise direction, independently of layout direction. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int ARC_DIRECTION_CLOCKWISE = 1;
+
+    /** Draws an element in Counter Clockwise direction, independently of layout direction. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int ARC_DIRECTION_COUNTER_CLOCKWISE = 2;
+
+    /** An extensible {@code FontWeight} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class FontWeightProp {
         private final LayoutElementProto.FontWeightProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -351,11 +338,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @FontWeight
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -404,11 +387,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@FontWeight int value) {
                 mImpl.setValue(LayoutElementProto.FontWeight.forNumber(value));
@@ -424,11 +404,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code FontVariant} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code FontVariant} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @ProtoLayoutExperimental
     public static final class FontVariantProp {
         private final LayoutElementProto.FontVariantProp mImpl;
@@ -440,11 +417,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @FontVariant
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -493,11 +466,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@FontVariant int value) {
                 mImpl.setValue(LayoutElementProto.FontVariant.forNumber(value));
@@ -513,11 +483,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code SpanVerticalAlignment} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code SpanVerticalAlignment} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class SpanVerticalAlignmentProp {
         private final LayoutElementProto.SpanVerticalAlignmentProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -529,11 +496,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @SpanVerticalAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -583,11 +546,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@SpanVerticalAlignment int value) {
                 mImpl.setValue(LayoutElementProto.SpanVerticalAlignment.forNumber(value));
@@ -603,11 +563,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * The styling of a font (e.g. font size, and metrics).
-     *
-     * @since 1.0
-     */
+    /** The styling of a font (e.g. font size, and metrics). */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class FontStyle {
         private final LayoutElementProto.FontStyle mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -620,8 +577,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets whether the text should be rendered in a italic typeface. If not specified, defaults
          * to "false".
-         *
-         * @since 1.0
          */
         @Nullable
         public BoolProp getItalic() {
@@ -635,8 +590,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets whether the text should be rendered with an underline. If not specified, defaults to
          * "false".
-         *
-         * @since 1.0
          */
         @Nullable
         public BoolProp getUnderline() {
@@ -652,8 +605,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public ColorProp getColor() {
@@ -668,8 +619,6 @@ public final class LayoutElementBuilders {
          * Gets the weight of the font. If the provided value is not supported on a platform, the
          * nearest supported value will be used. If not defined, or when set to an invalid value,
          * defaults to "normal".
-         *
-         * @since 1.0
          */
         @Nullable
         public FontWeightProp getWeight() {
@@ -683,8 +632,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the text letter-spacing. Positive numbers increase the space between letters while
          * negative numbers tighten the space. If not specified, defaults to 0.
-         *
-         * @since 1.0
          */
         @Nullable
         public EmProp getLetterSpacing() {
@@ -698,8 +645,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the variant of a font. Some renderers may use different fonts for title and body
          * text, which can be selected using this field. If not specified, defaults to "body".
-         *
-         * @since 1.0
          */
         @ProtoLayoutExperimental
         @Nullable
@@ -714,8 +659,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the size of the font, in scaled pixels (sp). If more than one size was originally
          * added, it will return the last one.
-         *
-         * @since 1.0
          */
         @Nullable
         public SpProp getSize() {
@@ -723,11 +666,7 @@ public final class LayoutElementBuilders {
             return !sizes.isEmpty() ? SpProp.fromProto(sizes.get(sizes.size() - 1)) : null;
         }
 
-        /**
-         * Gets the available sizes of the font, in scaled pixels (sp).
-         *
-         * @since 1.3
-         */
+        /** Gets the available sizes of the font, in scaled pixels (sp). */
         @NonNull
         @ProtoLayoutExperimental
         public List<SpProp> getSizes() {
@@ -801,49 +740,60 @@ public final class LayoutElementBuilders {
              * Sets whether the text should be rendered in a italic typeface. If not specified,
              * defaults to "false".
              *
-             * @since 1.0
+             * <p>Note that this field only supports static values.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setItalic(@NonNull BoolProp italic) {
+                if (italic.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "FontStyle.Builder.setItalic doesn't support dynamic values.");
+                }
                 mImpl.setItalic(italic.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(italic.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets whether the text should be rendered in a italic typeface. If not specified,
              * defaults to "false".
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setItalic(boolean italic) {
-                return setItalic(new BoolProp.Builder().setValue(italic).build());
+                return setItalic(new BoolProp.Builder(italic).build());
             }
+
             /**
              * Sets whether the text should be rendered with an underline. If not specified,
              * defaults to "false".
              *
-             * @since 1.0
+             * <p>Note that this field only supports static values.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setUnderline(@NonNull BoolProp underline) {
+                if (underline.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "FontStyle.Builder.setUnderline doesn't support dynamic values.");
+                }
                 mImpl.setUnderline(underline.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(underline.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
+
             /**
              * Sets whether the text should be rendered with an underline. If not specified,
              * defaults to "false".
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setUnderline(boolean underline) {
-                return setUnderline(new BoolProp.Builder().setValue(underline).build());
+                return setUnderline(new BoolProp.Builder(underline).build());
             }
 
             /**
@@ -851,9 +801,8 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
@@ -866,9 +815,8 @@ public final class LayoutElementBuilders {
              * Sets the weight of the font. If the provided value is not supported on a platform,
              * the nearest supported value will be used. If not defined, or when set to an invalid
              * value, defaults to "normal".
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWeight(@NonNull FontWeightProp weight) {
                 mImpl.setWeight(weight.toProto());
@@ -881,9 +829,8 @@ public final class LayoutElementBuilders {
              * Sets the weight of the font. If the provided value is not supported on a platform,
              * the nearest supported value will be used. If not defined, or when set to an invalid
              * value, defaults to "normal".
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWeight(@FontWeight int weight) {
                 return setWeight(new FontWeightProp.Builder().setValue(weight).build());
@@ -892,9 +839,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the text letter-spacing. Positive numbers increase the space between letters
              * while negative numbers tighten the space. If not specified, defaults to 0.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setLetterSpacing(@NonNull EmProp letterSpacing) {
                 mImpl.setLetterSpacing(letterSpacing.toProto());
@@ -906,9 +852,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the variant of a font. Some renderers may use different fonts for title and body
              * text, which can be selected using this field. If not specified, defaults to "body".
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @ProtoLayoutExperimental
             @NonNull
             public Builder setVariant(@NonNull FontVariantProp variant) {
@@ -921,9 +866,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the variant of a font. Some renderers may use different fonts for title and body
              * text, which can be selected using this field. If not specified, defaults to "body".
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @ProtoLayoutExperimental
             @NonNull
             public Builder setVariant(@FontVariant int variant) {
@@ -935,7 +879,7 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the available sizes of the font, in scaled  pixels (sp). If not specified,
+             * Sets the available sizes of the font, in scaled pixels (sp). If not specified,
              * defaults to the size of the system's "body" font.
              *
              * <p>If more than one size is specified and this {@link FontStyle} is applied to a
@@ -944,45 +888,49 @@ public final class LayoutElementBuilders {
              * words, the largest size from the specified preset sizes that can fit the most text
              * within the parent bounds will be used.
              *
-             * <p>The specified sizes don't have to be sorted, but they need to contain at least
-             * one positive value. The maximum number of sizes used is limited to 10.
+             * <p>The specified sizes don't have to be sorted, but they need to contain only
+             * positive values. The maximum number of sizes used is limited to 10.
              *
              * <p>Note that, if multiple sizes are set, the parent of the {@link Text} element this
              * corresponds to shouldn't have its width and height set to wrapped, as it can lead to
              * unexpected results.
              *
-             * <p>If this {@link FontStyle} is set to any other element besides {@link Text} or
-             * that {@link Text} element has dynamic field, only the last added size will be use.
+             * <p>If this {@link FontStyle} is set to any other element besides {@link Text} or that
+             * {@link Text} element has dynamic field, only the last added size will be used.
              *
              * <p>Any previously added values with this method or {@link #setSize} will be cleared.
              *
              * <p>While this field is accessible from 1.0 as singular, it only accepts multiple
              * values since version 1.3 and renderers supporting version 1.3 will use the multiple
-             * values to automatically scale text. Renderers who don't support this version will
-             * use the last size among multiple values.
+             * values to automatically scale text. Renderers who don't support this version will use
+             * the last size among multiple values.
              *
-             * @throws IllegalArgumentException if the number of available sizes is larger than 10.
-             * @since 1.3
+             * @throws IllegalArgumentException if the number of available sizes is larger than 10
+             * or one of the sizes is not a positive value.
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             @ProtoLayoutExperimental
-            public Builder setSizes(@NonNull SpProp... sizes) {
+            public Builder setSizes(
+                    @NonNull @IntRange(from = 1) @Dimension(unit = Dimension.SP) int... sizes) {
                 if (sizes.length > TEXT_SIZES_LIMIT) {
                     throw new IllegalArgumentException(
                             "Number of available sizes of the font style can't be larger than 10.");
                 }
 
                 mImpl.clearSize();
-                for (SpProp size: sizes) {
-                    if (size.getValue() <= 0) {
+                for (int size : sizes) {
+                    if (size <= 0) {
                         throw new IllegalArgumentException(
                                 "Available sizes of the font style must contain only positive "
                                         + "value.");
                     }
 
-                    mImpl.addSize(size.toProto());
+                    SpProp spPropSize = sp(size);
+                    mImpl.addSize(spPropSize.toProto());
                     mFingerprint.recordPropertyUpdate(
-                            1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
+                            1,
+                            checkNotNull(spPropSize.getFingerprint()).aggregateValueAsInt());
                 }
                 return this;
             }
@@ -992,9 +940,8 @@ public final class LayoutElementBuilders {
              * size of the system's "body" font.
              *
              * <p>Any previously added values with this method or {@link #setSizes} will be cleared.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setSize(@NonNull SpProp size) {
                 mImpl.clearSize();
@@ -1012,11 +959,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code TextOverflow} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code TextOverflow} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TextOverflowProp {
         private final LayoutElementProto.TextOverflowProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1027,11 +971,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @TextOverflow
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -1080,11 +1020,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@TextOverflow int value) {
                 mImpl.setValue(LayoutElementProto.TextOverflow.forNumber(value));
@@ -1100,11 +1037,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * Parameters for Marquee animation. Only applies for TEXT_OVERFLOW_MARQUEE.
-     *
-     * @since 1.2
-     */
+    /** Parameters for Marquee animation. Only applies for TEXT_OVERFLOW_MARQUEE. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     @ProtoLayoutExperimental
     static final class MarqueeParameters {
         private final LayoutElementProto.MarqueeParameters mImpl;
@@ -1119,8 +1053,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the number of times to repeat the Marquee animation. Set to -1 to repeat
          * indefinitely. Defaults to repeat indefinitely.
-         *
-         * @since 1.2
          */
         @ProtoLayoutExperimental
         public int getIterations() {
@@ -1173,9 +1105,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the number of times to repeat the Marquee animation. Set to -1 to repeat
              * indefinitely. Defaults to repeat indefinitely.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             @NonNull
             public Builder setIterations(int iterations) {
@@ -1192,102 +1123,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An Android platform specific text style configuration options for styling and compatibility.
-     *
-     * @since 1.2
-     */
-    @ProtoLayoutExperimental
-    public static final class AndroidTextStyle {
-        private final LayoutElementProto.AndroidTextStyle mImpl;
-        @Nullable private final Fingerprint mFingerprint;
-
-        AndroidTextStyle(
-                LayoutElementProto.AndroidTextStyle impl, @Nullable Fingerprint fingerprint) {
-            this.mImpl = impl;
-            this.mFingerprint = fingerprint;
-        }
-
-        /**
-         * Gets whether the {@link Text} excludes padding specified by the font, i.e. extra top and
-         * bottom padding above the normal ascent and descent. The default is false.
-         *
-         * @since 1.2
-         */
-        public boolean getExcludeFontPadding() {
-            return mImpl.getExcludeFontPadding();
-        }
-
-        /** Get the fingerprint for this object, or null if unknown. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Nullable
-        public Fingerprint getFingerprint() {
-            return mFingerprint;
-        }
-
-        /** Creates a new wrapper instance from the proto. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static AndroidTextStyle fromProto(
-                @NonNull LayoutElementProto.AndroidTextStyle proto,
-                @Nullable Fingerprint fingerprint) {
-            return new AndroidTextStyle(proto, fingerprint);
-        }
-
-        @NonNull
-        static AndroidTextStyle fromProto(@NonNull LayoutElementProto.AndroidTextStyle proto) {
-            return fromProto(proto, null);
-        }
-
-        /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public LayoutElementProto.AndroidTextStyle toProto() {
-            return mImpl;
-        }
-
-        @Override
-        @NonNull
-        public String toString() {
-            return "AndroidTextStyle{" + "excludeFontPadding=" + getExcludeFontPadding() + "}";
-        }
-
-        /** Builder for {@link AndroidTextStyle} */
-        public static final class Builder {
-            private final LayoutElementProto.AndroidTextStyle.Builder mImpl =
-                    LayoutElementProto.AndroidTextStyle.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(408674745);
-
-            /** Creates an instance of {@link Builder}. */
-            public Builder() {}
-
-            /**
-             * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra top
-             * and bottom padding above the normal ascent and descent. The default is false.
-             *
-             * @since 1.2
-             */
-            @SuppressLint("MissingGetterMatchingBuilder")
-            @NonNull
-            public Builder setExcludeFontPadding(boolean excludeFontPadding) {
-                mImpl.setExcludeFontPadding(excludeFontPadding);
-                mFingerprint.recordPropertyUpdate(1, Boolean.hashCode(excludeFontPadding));
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @NonNull
-            public AndroidTextStyle build() {
-                return new AndroidTextStyle(mImpl.build(), mFingerprint);
-            }
-        }
-    }
-
-    /**
-     * A text string.
-     *
-     * @since 1.0
-     */
+    /** A text string. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Text implements LayoutElement {
         private final LayoutElementProto.Text mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1302,8 +1139,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public StringProp getText() {
@@ -1317,8 +1152,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font.
-         *
-         * @since 1.0
          */
         @Nullable
         public FontStyle getFontStyle() {
@@ -1329,11 +1162,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -1346,8 +1175,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the maximum number of lines that can be represented by the {@link Text} element. If
          * not defined, the {@link Text} element will be treated as a single-line element.
-         *
-         * @since 1.0
          */
         @Nullable
         public Int32Prop getMaxLines() {
@@ -1364,8 +1191,6 @@ public final class LayoutElementBuilders {
          * that, use alignment of the outer container). For multi-line text, however, this will set
          * the alignment of lines relative to the {@link Text} element bounds. If not defined,
          * defaults to TEXT_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public TextAlignmentProp getMultilineAlignment() {
@@ -1382,8 +1207,6 @@ public final class LayoutElementBuilders {
          * respecting max_lines); if it cannot grow large enough to render all of its text, the text
          * which cannot fit inside its container will be truncated. If not defined, defaults to
          * TEXT_OVERFLOW_TRUNCATE.
-         *
-         * @since 1.0
          */
         @Nullable
         public TextOverflowProp getOverflow() {
@@ -1398,8 +1221,6 @@ public final class LayoutElementBuilders {
          * Gets the explicit height between lines of text. This is equivalent to the vertical
          * distance between subsequent baselines. If not specified, defaults the font's recommended
          * interline spacing.
-         *
-         * @since 1.0
          */
         @Nullable
         public SpProp getLineHeight() {
@@ -1411,26 +1232,8 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets an Android platform specific text style configuration options for styling and
-         * compatibility.
-         *
-         * @since 1.2
-         */
-        @ProtoLayoutExperimental
-        @Nullable
-        public AndroidTextStyle getAndroidTextStyle() {
-            if (mImpl.hasAndroidTextStyle()) {
-                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
-            } else {
-                return null;
-            }
-        }
-
-        /**
          * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
          * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
-         *
-         * @since 1.2
          */
         @ProtoLayoutExperimental
         @IntRange(from = -1)
@@ -1441,8 +1244,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getText()}.
-         *
-         * @since 1.2
          */
         @Nullable
         public StringLayoutConstraint getLayoutConstraintsForDynamicText() {
@@ -1506,19 +1307,22 @@ public final class LayoutElementBuilders {
                     + getOverflow()
                     + ", lineHeight="
                     + getLineHeight()
-                    + ", androidTextStyle="
-                    + getAndroidTextStyle()
                     + "}";
         }
 
         /** Builder for {@link Text}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Text.Builder mImpl =
                     LayoutElementProto.Text.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(814133697);
 
             /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            public Builder() {
+                mImpl.setAndroidTextStyle(
+                        LayoutElementProto.AndroidTextStyle.newBuilder()
+                                .setExcludeFontPadding(true));
+            }
 
             /**
              * Sets the text to render.
@@ -1530,9 +1334,8 @@ public final class LayoutElementBuilders {
              * affected layout element through {@code
              * setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise {@code build()}
              * fails.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setText(@NonNull StringProp text) {
                 mImpl.mergeText(text.toProto());
@@ -1544,9 +1347,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the style of font to use (size, bold etc). If not specified, defaults to the
              * platform's default body font.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
                 mImpl.setFontStyle(fontStyle.toProto());
@@ -1557,9 +1359,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -1571,9 +1372,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the maximum number of lines that can be represented by the {@link Text} element.
              * If not defined, the {@link Text} element will be treated as a single-line element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMaxLines(@NonNull Int32Prop maxLines) {
                 mImpl.setMaxLines(maxLines.toProto());
@@ -1597,9 +1397,8 @@ public final class LayoutElementBuilders {
              * (for that, use alignment of the outer container). For multi-line text, however, this
              * will set the alignment of lines relative to the {@link Text} element bounds. If not
              * defined, defaults to TEXT_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMultilineAlignment(@NonNull TextAlignmentProp multilineAlignment) {
                 mImpl.setMultilineAlignment(multilineAlignment.toProto());
@@ -1614,9 +1413,8 @@ public final class LayoutElementBuilders {
              * (for that, use alignment of the outer container). For multi-line text, however, this
              * will set the alignment of lines relative to the {@link Text} element bounds. If not
              * defined, defaults to TEXT_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMultilineAlignment(@TextAlignment int multilineAlignment) {
                 return setMultilineAlignment(
@@ -1629,9 +1427,8 @@ public final class LayoutElementBuilders {
              * (while still respecting max_lines); if it cannot grow large enough to render all of
              * its text, the text which cannot fit inside its container will be truncated. If not
              * defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setOverflow(@NonNull TextOverflowProp overflow) {
                 mImpl.setOverflow(overflow.toProto());
@@ -1646,9 +1443,8 @@ public final class LayoutElementBuilders {
              * (while still respecting max_lines); if it cannot grow large enough to render all of
              * its text, the text which cannot fit inside its container will be truncated. If not
              * defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setOverflow(@TextOverflow int overflow) {
                 return setOverflow(new TextOverflowProp.Builder().setValue(overflow).build());
@@ -1658,9 +1454,8 @@ public final class LayoutElementBuilders {
              * Sets the explicit height between lines of text. This is equivalent to the vertical
              * distance between subsequent baselines. If not specified, defaults the font's
              * recommended interline spacing.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setLineHeight(@NonNull SpProp lineHeight) {
                 mImpl.setLineHeight(lineHeight.toProto());
@@ -1670,27 +1465,11 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets an Android platform specific text style configuration options for styling and
-             * compatibility.
-             *
-             * @since 1.2
-             */
-            @ProtoLayoutExperimental
-            @NonNull
-            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
-                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        8, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /**
              * Sets the number of times to repeat the Marquee animation. Only applies when overflow
              * is TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat
              * indefinitely.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             @NonNull
             public Builder setMarqueeIterations(@IntRange(from = -1) int marqueeIterations) {
@@ -1704,9 +1483,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the bounding constraints for the layout affected by the dynamic value from
              * {@link #setText(StringProp)}}.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setLayoutConstraintsForDynamicText(
                     @NonNull StringLayoutConstraint stringLayoutConstraint) {
@@ -1718,11 +1496,8 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the static text to render.
-             *
-             * @since 1.0
-             */
+            /** Sets the static text to render. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setText(@NonNull String text) {
                 return setText(new StringProp.Builder(text).build());
@@ -1742,11 +1517,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code ContentScaleMode} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code ContentScaleMode} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ContentScaleModeProp {
         private final LayoutElementProto.ContentScaleModeProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1757,11 +1529,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @ContentScaleMode
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -1811,11 +1579,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@ContentScaleMode int value) {
                 mImpl.setValue(LayoutElementProto.ContentScaleMode.forNumber(value));
@@ -1831,11 +1596,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * Filtering parameters used for images. This can be used to apply a color tint to images.
-     *
-     * @since 1.0
-     */
+    /** Filtering parameters used for images. This can be used to apply a color tint to images. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ColorFilter {
         private final LayoutElementProto.ColorFilter mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1855,8 +1617,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public ColorProp getTint() {
@@ -1919,9 +1679,8 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setTint(@NonNull ColorProp tint) {
                 mImpl.setTint(tint.toProto());
@@ -1944,9 +1703,8 @@ public final class LayoutElementBuilders {
      * <p>Images used in this element must exist in the resource bundle that corresponds to this
      * layout. Images must have their dimension specified, and will be rendered at this width and
      * height, regardless of their native dimension.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Image implements LayoutElement {
         private final LayoutElementProto.Image mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1959,8 +1717,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the resource_id of the image to render. This must exist in the supplied resource
          * bundle.
-         *
-         * @since 1.0
          */
         @Nullable
         public StringProp getResourceId() {
@@ -1971,11 +1727,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the width of this image. If not defined, the image will not be rendered.
-         *
-         * @since 1.0
-         */
+        /** Gets the width of this image. If not defined, the image will not be rendered. */
         @Nullable
         public ImageDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -1985,11 +1737,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the height of this image. If not defined, the image will not be rendered.
-         *
-         * @since 1.0
-         */
+        /** Gets the height of this image. If not defined, the image will not be rendered. */
         @Nullable
         public ImageDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -2002,8 +1750,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets how to scale the image resource inside the bounds specified by width/height if its
          * size does not match those bounds. Defaults to CONTENT_SCALE_MODE_FIT.
-         *
-         * @since 1.0
          */
         @Nullable
         public ContentScaleModeProp getContentScaleMode() {
@@ -2014,11 +1760,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2028,11 +1770,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets filtering parameters for this image. If not specified, defaults to no filtering.
-         *
-         * @since 1.0
-         */
+        /** Gets filtering parameters for this image. If not specified, defaults to no filtering. */
         @Nullable
         public ColorFilter getColorFilter() {
             if (mImpl.hasColorFilter()) {
@@ -2096,6 +1834,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Image}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Image.Builder mImpl =
                     LayoutElementProto.Image.newBuilder();
@@ -2109,14 +1848,13 @@ public final class LayoutElementBuilders {
              * bundle.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setResourceId(@NonNull StringProp resourceId) {
                 if (resourceId.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setResourceId doesn't support dynamic values.");
+                            "Image.Builder.setResourceId doesn't support dynamic values.");
                 }
                 mImpl.setResourceId(resourceId.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -2127,19 +1865,15 @@ public final class LayoutElementBuilders {
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setResourceId(@NonNull String resourceId) {
                 return setResourceId(new StringProp.Builder(resourceId).build());
             }
 
-            /**
-             * Sets the width of this image. If not defined, the image will not be rendered.
-             *
-             * @since 1.0
-             */
+            /** Sets the width of this image. If not defined, the image will not be rendered. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWidth(@NonNull ImageDimension width) {
                 mImpl.setWidth(width.toImageDimensionProto());
@@ -2148,11 +1882,8 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the height of this image. If not defined, the image will not be rendered.
-             *
-             * @since 1.0
-             */
+            /** Sets the height of this image. If not defined, the image will not be rendered. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHeight(@NonNull ImageDimension height) {
                 mImpl.setHeight(height.toImageDimensionProto());
@@ -2164,9 +1895,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets how to scale the image resource inside the bounds specified by width/height if
              * its size does not match those bounds. Defaults to CONTENT_SCALE_MODE_FIT.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setContentScaleMode(@NonNull ContentScaleModeProp contentScaleMode) {
                 mImpl.setContentScaleMode(contentScaleMode.toProto());
@@ -2178,9 +1908,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets how to scale the image resource inside the bounds specified by width/height if
              * its size does not match those bounds. Defaults to CONTENT_SCALE_MODE_FIT.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setContentScaleMode(@ContentScaleMode int contentScaleMode) {
                 return setContentScaleMode(
@@ -2189,9 +1918,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2202,9 +1930,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets filtering parameters for this image. If not specified, defaults to no filtering.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setColorFilter(@NonNull ColorFilter colorFilter) {
                 mImpl.setColorFilter(colorFilter.toProto());
@@ -2221,11 +1948,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * A simple spacer, typically used to provide padding between adjacent elements.
-     *
-     * @since 1.0
-     */
+    /** A simple spacer, typically used to provide padding between adjacent elements. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Spacer implements LayoutElement {
         private final LayoutElementProto.Spacer mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -2242,8 +1966,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public SpacerDimension getWidth() {
@@ -2259,8 +1981,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public SpacerDimension getHeight() {
@@ -2271,11 +1991,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2288,8 +2004,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getWidth()}.
-         *
-         * @since 1.2
          */
         @Nullable
         public HorizontalLayoutConstraint getLayoutConstraintsForDynamicWidth() {
@@ -2303,8 +2017,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getHeight()}.
-         *
-         * @since 1.2
          */
         @Nullable
         public VerticalLayoutConstraint getLayoutConstraintsForDynamicHeight() {
@@ -2363,6 +2075,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Spacer}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spacer.Builder mImpl =
                     LayoutElementProto.Spacer.newBuilder();
@@ -2383,9 +2096,8 @@ public final class LayoutElementBuilders {
              * affected layout element through {@code
              * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
              * build()} fails.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWidth(@NonNull SpacerDimension width) {
                 mImpl.mergeWidth(width.toSpacerDimensionProto());
@@ -2398,9 +2110,8 @@ public final class LayoutElementBuilders {
              * Sets the bounding constraints for the layout affected by the dynamic value from
              * {@link #setWidth(SpacerDimension)}. If the {@link SpacerDimension} does not have a
              * dynamic value, this will be ignored.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setLayoutConstraintsForDynamicWidth(
                     @NonNull HorizontalLayoutConstraint horizontalLayoutConstraint) {
@@ -2428,9 +2139,8 @@ public final class LayoutElementBuilders {
              * affected layout element through {@code
              * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
              * build()} fails.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHeight(@NonNull SpacerDimension height) {
                 mImpl.setHeight(height.toSpacerDimensionProto());
@@ -2443,9 +2153,8 @@ public final class LayoutElementBuilders {
              * Sets the bounding constraints for the layout affected by the dynamic value from
              * {@link #setHeight(SpacerDimension)}. If the {@link SpacerDimension} does not have a
              * dynamic value, this will be ignored.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setLayoutConstraintsForDynamicHeight(
                     @NonNull VerticalLayoutConstraint verticalLayoutConstraint) {
@@ -2465,9 +2174,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2499,9 +2207,8 @@ public final class LayoutElementBuilders {
     /**
      * A container which stacks all of its children on top of one another. This also allows to add a
      * background color, or to have a border around them with some padding.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Box implements LayoutElement {
         private final LayoutElementProto.Box mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -2511,11 +2218,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the child element(s) to wrap.
-         *
-         * @since 1.0
-         */
+        /** Gets the child element(s) to wrap. */
         @NonNull
         public List<LayoutElement> getContents() {
             List<LayoutElement> list = new ArrayList<>();
@@ -2528,8 +2231,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the height of this {@link Box}. If not defined, this will size itself to fit all of
          * its children (i.e. a WrappedDimension).
-         *
-         * @since 1.0
          */
         @Nullable
         public ContainerDimension getHeight() {
@@ -2543,8 +2244,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the width of this {@link Box}. If not defined, this will size itself to fit all of
          * its children (i.e. a WrappedDimension).
-         *
-         * @since 1.0
          */
         @Nullable
         public ContainerDimension getWidth() {
@@ -2558,8 +2257,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the horizontal alignment of the element inside this {@link Box}. If not defined,
          * defaults to HORIZONTAL_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public HorizontalAlignmentProp getHorizontalAlignment() {
@@ -2573,8 +2270,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the vertical alignment of the element inside this {@link Box}. If not defined,
          * defaults to VERTICAL_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public VerticalAlignmentProp getVerticalAlignment() {
@@ -2585,11 +2280,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2653,6 +2344,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Box}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Box.Builder mImpl =
                     LayoutElementProto.Box.newBuilder();
@@ -2661,11 +2353,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Adds one item to the child element(s) to wrap.
-             *
-             * @since 1.0
-             */
+            /** Adds one item to the child element(s) to wrap. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
@@ -2676,9 +2365,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the height of this {@link Box}. If not defined, this will size itself to fit all
              * of its children (i.e. a WrappedDimension).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHeight(@NonNull ContainerDimension height) {
                 mImpl.setHeight(height.toContainerDimensionProto());
@@ -2690,9 +2378,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the width of this {@link Box}. If not defined, this will size itself to fit all
              * of its children (i.e. a WrappedDimension).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWidth(@NonNull ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
@@ -2704,9 +2391,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the horizontal alignment of the element inside this {@link Box}. If not defined,
              * defaults to HORIZONTAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHorizontalAlignment(
                     @NonNull HorizontalAlignmentProp horizontalAlignment) {
@@ -2720,9 +2406,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the horizontal alignment of the element inside this {@link Box}. If not defined,
              * defaults to HORIZONTAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 return setHorizontalAlignment(
@@ -2734,9 +2419,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the vertical alignment of the element inside this {@link Box}. If not defined,
              * defaults to VERTICAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setVerticalAlignment(@NonNull VerticalAlignmentProp verticalAlignment) {
                 mImpl.setVerticalAlignment(verticalAlignment.toProto());
@@ -2748,9 +2432,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the vertical alignment of the element inside this {@link Box}. If not defined,
              * defaults to VERTICAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
                 return setVerticalAlignment(
@@ -2759,9 +2442,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -2783,9 +2465,8 @@ public final class LayoutElementBuilders {
      * A portion of text which can be added to a {@link Span}. Two different {@link SpanText}
      * elements on the same line will be aligned to the same baseline, regardless of the size of
      * each {@link SpanText}.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class SpanText implements Span {
         private final LayoutElementProto.SpanText mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -2795,11 +2476,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the text to render.
-         *
-         * @since 1.0
-         */
+        /** Gets the text to render. */
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -2812,8 +2489,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font.
-         *
-         * @since 1.0
          */
         @Nullable
         public FontStyle getFontStyle() {
@@ -2824,31 +2499,11 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public SpanModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
                 return SpanModifiers.fromProto(mImpl.getModifiers());
-            } else {
-                return null;
-            }
-        }
-
-        /**
-         * Gets an Android platform specific text style configuration options for styling and
-         * compatibility.
-         *
-         * @since 1.2
-         */
-        @ProtoLayoutExperimental
-        @Nullable
-        public AndroidTextStyle getAndroidTextStyle() {
-            if (mImpl.hasAndroidTextStyle()) {
-                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
             } else {
                 return null;
             }
@@ -2899,27 +2554,29 @@ public final class LayoutElementBuilders {
                     + getFontStyle()
                     + ", modifiers="
                     + getModifiers()
-                    + ", androidTextStyle="
-                    + getAndroidTextStyle()
                     + "}";
         }
 
         /** Builder for {@link SpanText}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanText.Builder mImpl =
                     LayoutElementProto.SpanText.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(266451531);
 
             /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            public Builder() {
+                mImpl.setAndroidTextStyle(
+                        LayoutElementProto.AndroidTextStyle.newBuilder()
+                                .setExcludeFontPadding(true));
+            }
 
             /**
              * Sets the text to render.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setText(@NonNull StringProp text) {
                 if (text.getDynamicValue() != null) {
@@ -2931,11 +2588,8 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the text to render.
-             *
-             * @since 1.0
-             */
+            /** Sets the text to render. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setText(@NonNull String text) {
                 return setText(new StringProp.Builder(text).build());
@@ -2945,10 +2599,9 @@ public final class LayoutElementBuilders {
              * Sets the style of font to use (size, bold etc). If not specified, defaults to the
              * platform's default body font.
              *
-             * DynamicColor is not supported for SpanText.
-             *
-             * @since 1.0
+             * <p>DynamicColor is not supported for SpanText.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
                 ColorProp colorProp = fontStyle.getColor();
@@ -2963,29 +2616,13 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /**
-             * Sets an Android platform specific text style configuration options for styling and
-             * compatibility.
-             *
-             * @since 1.2
-             */
-            @ProtoLayoutExperimental
-            @NonNull
-            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
-                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        4, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2998,11 +2635,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An image which can be added to a {@link Span}.
-     *
-     * @since 1.0
-     */
+    /** An image which can be added to a {@link Span}. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class SpanImage implements Span {
         private final LayoutElementProto.SpanImage mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -3015,8 +2649,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the resource_id of the image to render. This must exist in the supplied resource
          * bundle.
-         *
-         * @since 1.0
          */
         @Nullable
         public StringProp getResourceId() {
@@ -3027,11 +2659,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the width of this image. If not defined, the image will not be rendered.
-         *
-         * @since 1.0
-         */
+        /** Gets the width of this image. If not defined, the image will not be rendered. */
         @Nullable
         public DpProp getWidth() {
             if (mImpl.hasWidth()) {
@@ -3041,11 +2669,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the height of this image. If not defined, the image will not be rendered.
-         *
-         * @since 1.0
-         */
+        /** Gets the height of this image. If not defined, the image will not be rendered. */
         @Nullable
         public DpProp getHeight() {
             if (mImpl.hasHeight()) {
@@ -3055,11 +2679,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public SpanModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -3072,8 +2692,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets alignment of this image within the line height of the surrounding {@link Spannable}.
          * If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
-         *
-         * @since 1.0
          */
         @Nullable
         public SpanVerticalAlignmentProp getAlignment() {
@@ -3136,6 +2754,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link SpanImage}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements Span.Builder {
             private final LayoutElementProto.SpanImage.Builder mImpl =
                     LayoutElementProto.SpanImage.newBuilder();
@@ -3149,14 +2768,13 @@ public final class LayoutElementBuilders {
              * bundle.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setResourceId(@NonNull StringProp resourceId) {
                 if (resourceId.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setResourceId doesn't support dynamic values.");
+                            "SpanImage.Builder.setResourceId doesn't support dynamic values.");
                 }
                 mImpl.setResourceId(resourceId.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3167,9 +2785,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the resource_id of the image to render. This must exist in the supplied resource
              * bundle.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setResourceId(@NonNull String resourceId) {
                 return setResourceId(new StringProp.Builder(resourceId).build());
@@ -3179,13 +2796,13 @@ public final class LayoutElementBuilders {
              * Sets the width of this image. If not defined, the image will not be rendered.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
                 if (width.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setWidth doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "SpanImage.Builder.setWidth doesn't support dynamic values.");
                 }
                 mImpl.setWidth(width.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3197,13 +2814,13 @@ public final class LayoutElementBuilders {
              * Sets the height of this image. If not defined, the image will not be rendered.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHeight(@NonNull DpProp height) {
                 if (height.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setHeight doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "SpanImage.Builder.setHeight doesn't support dynamic values.");
                 }
                 mImpl.setHeight(height.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3213,9 +2830,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull SpanModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3227,9 +2843,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets alignment of this image within the line height of the surrounding {@link
              * Spannable}. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setAlignment(@NonNull SpanVerticalAlignmentProp alignment) {
                 mImpl.setAlignment(alignment.toProto());
@@ -3241,9 +2856,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets alignment of this image within the line height of the surrounding {@link
              * Spannable}. If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setAlignment(@SpanVerticalAlignment int alignment) {
                 return setAlignment(
@@ -3262,9 +2876,8 @@ public final class LayoutElementBuilders {
      * Interface defining a single {@link Span}. Each {@link Span} forms part of a larger {@link
      * Spannable} widget. At the moment, the only widgets which can be added to {@link Spannable}
      * containers are {@link SpanText} and {@link SpanImage} elements.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public interface Span {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -3310,9 +2923,8 @@ public final class LayoutElementBuilders {
      * SpanText} elements, where each individual {@link Span} can have different styling applied to
      * it but the resulting text will flow naturally. This allows sections of a paragraph of text to
      * have different styling applied to it, for example, making one or two words bold or italic.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Spannable implements LayoutElement {
         private final LayoutElementProto.Spannable mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -3322,11 +2934,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the {@link Span} elements that form this {@link Spannable}.
-         *
-         * @since 1.0
-         */
+        /** Gets the {@link Span} elements that form this {@link Spannable}. */
         @NonNull
         public List<Span> getSpans() {
             List<Span> list = new ArrayList<>();
@@ -3336,11 +2944,7 @@ public final class LayoutElementBuilders {
             return Collections.unmodifiableList(list);
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -3354,8 +2958,6 @@ public final class LayoutElementBuilders {
          * Gets the maximum number of lines that can be represented by the {@link Spannable}
          * element. If not defined, the {@link Spannable} element will be treated as a single-line
          * element.
-         *
-         * @since 1.0
          */
         @Nullable
         public Int32Prop getMaxLines() {
@@ -3372,8 +2974,6 @@ public final class LayoutElementBuilders {
          * for single-line content (for that, use alignment of the outer container). For multi-line
          * content, however, this will set the alignment of lines relative to the {@link Spannable}
          * element bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public HorizontalAlignmentProp getMultilineAlignment() {
@@ -3390,8 +2990,6 @@ public final class LayoutElementBuilders {
          * (while still respecting max_lines); if it cannot grow large enough to render all of its
          * content, the content which cannot fit inside its container will be truncated. If not
          * defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-         *
-         * @since 1.0
          */
         @Nullable
         public TextOverflowProp getOverflow() {
@@ -3406,8 +3004,6 @@ public final class LayoutElementBuilders {
          * Gets the explicit height between lines of text. This is equivalent to the vertical
          * distance between subsequent baselines. If not specified, defaults the font's recommended
          * interline spacing.
-         *
-         * @since 1.0
          */
         @Nullable
         public SpProp getLineHeight() {
@@ -3421,8 +3017,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
          * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
-         *
-         * @since 1.2
          */
         @ProtoLayoutExperimental
         @IntRange(from = -1)
@@ -3484,6 +3078,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Spannable}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Spannable.Builder mImpl =
                     LayoutElementProto.Spannable.newBuilder();
@@ -3492,11 +3087,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Adds one item to the {@link Span} elements that form this {@link Spannable}.
-             *
-             * @since 1.0
-             */
+            /** Adds one item to the {@link Span} elements that form this {@link Spannable}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder addSpan(@NonNull Span span) {
                 mImpl.addSpans(span.toSpanProto());
@@ -3507,9 +3099,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3522,9 +3113,8 @@ public final class LayoutElementBuilders {
              * Sets the maximum number of lines that can be represented by the {@link Spannable}
              * element. If not defined, the {@link Spannable} element will be treated as a
              * single-line element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMaxLines(@NonNull Int32Prop maxLines) {
                 mImpl.setMaxLines(maxLines.toProto());
@@ -3549,9 +3139,8 @@ public final class LayoutElementBuilders {
              * meaningless for single-line content (for that, use alignment of the outer container).
              * For multi-line content, however, this will set the alignment of lines relative to the
              * {@link Spannable} element bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMultilineAlignment(
                     @NonNull HorizontalAlignmentProp multilineAlignment) {
@@ -3567,9 +3156,8 @@ public final class LayoutElementBuilders {
              * meaningless for single-line content (for that, use alignment of the outer container).
              * For multi-line content, however, this will set the alignment of lines relative to the
              * {@link Spannable} element bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMultilineAlignment(@HorizontalAlignment int multilineAlignment) {
                 return setMultilineAlignment(
@@ -3582,9 +3170,8 @@ public final class LayoutElementBuilders {
              * container (while still respecting max_lines); if it cannot grow large enough to
              * render all of its content, the content which cannot fit inside its container will be
              * truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setOverflow(@NonNull TextOverflowProp overflow) {
                 mImpl.setOverflow(overflow.toProto());
@@ -3599,9 +3186,8 @@ public final class LayoutElementBuilders {
              * container (while still respecting max_lines); if it cannot grow large enough to
              * render all of its content, the content which cannot fit inside its container will be
              * truncated. If not defined, defaults to TEXT_OVERFLOW_TRUNCATE.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setOverflow(@TextOverflow int overflow) {
                 return setOverflow(new TextOverflowProp.Builder().setValue(overflow).build());
@@ -3611,9 +3197,8 @@ public final class LayoutElementBuilders {
              * Sets the explicit height between lines of text. This is equivalent to the vertical
              * distance between subsequent baselines. If not specified, defaults the font's
              * recommended interline spacing.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setLineHeight(@NonNull SpProp lineHeight) {
                 mImpl.setLineHeight(lineHeight.toProto());
@@ -3626,9 +3211,8 @@ public final class LayoutElementBuilders {
              * Sets the number of times to repeat the Marquee animation. Only applies when overflow
              * is TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat
              * indefinitely.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             @NonNull
             public Builder setMarqueeIterations(@IntRange(from = -1) int marqueeIterations) {
@@ -3656,9 +3240,8 @@ public final class LayoutElementBuilders {
      * <p>If specified, horizontal_alignment can be used to control the gravity inside the
      * container, affecting the horizontal placement of children whose width are smaller than the
      * resulting column width.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Column implements LayoutElement {
         private final LayoutElementProto.Column mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -3668,11 +3251,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the list of child elements to place inside this {@link Column}.
-         *
-         * @since 1.0
-         */
+        /** Gets the list of child elements to place inside this {@link Column}. */
         @NonNull
         public List<LayoutElement> getContents() {
             List<LayoutElement> list = new ArrayList<>();
@@ -3685,8 +3264,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the horizontal alignment of elements inside this column, if they are narrower than
          * the resulting width of the column. If not defined, defaults to HORIZONTAL_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public HorizontalAlignmentProp getHorizontalAlignment() {
@@ -3700,8 +3277,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the width of this column. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
-         *
-         * @since 1.0
          */
         @Nullable
         public ContainerDimension getWidth() {
@@ -3715,8 +3290,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the height of this column. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
-         *
-         * @since 1.0
          */
         @Nullable
         public ContainerDimension getHeight() {
@@ -3727,11 +3300,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -3793,6 +3362,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Column}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Column.Builder mImpl =
                     LayoutElementProto.Column.newBuilder();
@@ -3801,11 +3371,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Adds one item to the list of child elements to place inside this {@link Column}.
-             *
-             * @since 1.0
-             */
+            /** Adds one item to the list of child elements to place inside this {@link Column}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
@@ -3817,9 +3384,8 @@ public final class LayoutElementBuilders {
              * Sets the horizontal alignment of elements inside this column, if they are narrower
              * than the resulting width of the column. If not defined, defaults to
              * HORIZONTAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHorizontalAlignment(
                     @NonNull HorizontalAlignmentProp horizontalAlignment) {
@@ -3834,9 +3400,8 @@ public final class LayoutElementBuilders {
              * Sets the horizontal alignment of elements inside this column, if they are narrower
              * than the resulting width of the column. If not defined, defaults to
              * HORIZONTAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHorizontalAlignment(@HorizontalAlignment int horizontalAlignment) {
                 return setHorizontalAlignment(
@@ -3848,9 +3413,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the width of this column. If not defined, this will size itself to fit all of
              * its children (i.e. a WrappedDimension).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWidth(@NonNull ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
@@ -3862,9 +3426,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the height of this column. If not defined, this will size itself to fit all of
              * its children (i.e. a WrappedDimension).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHeight(@NonNull ContainerDimension height) {
                 mImpl.setHeight(height.toContainerDimensionProto());
@@ -3875,9 +3438,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -3904,9 +3466,8 @@ public final class LayoutElementBuilders {
      * <p>If specified, vertical_alignment can be used to control the gravity inside the container,
      * affecting the vertical placement of children whose width are smaller than the resulting row
      * height.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Row implements LayoutElement {
         private final LayoutElementProto.Row mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -3916,11 +3477,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the list of child elements to place inside this {@link Row}.
-         *
-         * @since 1.0
-         */
+        /** Gets the list of child elements to place inside this {@link Row}. */
         @NonNull
         public List<LayoutElement> getContents() {
             List<LayoutElement> list = new ArrayList<>();
@@ -3933,8 +3490,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the vertical alignment of elements inside this row, if they are narrower than the
          * resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public VerticalAlignmentProp getVerticalAlignment() {
@@ -3948,8 +3503,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the width of this row. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
-         *
-         * @since 1.0
          */
         @Nullable
         public ContainerDimension getWidth() {
@@ -3963,8 +3516,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the height of this row. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
-         *
-         * @since 1.0
          */
         @Nullable
         public ContainerDimension getHeight() {
@@ -3975,11 +3526,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -4041,6 +3588,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link Row}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Row.Builder mImpl =
                     LayoutElementProto.Row.newBuilder();
@@ -4049,11 +3597,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Adds one item to the list of child elements to place inside this {@link Row}.
-             *
-             * @since 1.0
-             */
+            /** Adds one item to the list of child elements to place inside this {@link Row}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder addContent(@NonNull LayoutElement content) {
                 mImpl.addContents(content.toLayoutElementProto());
@@ -4064,9 +3609,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the vertical alignment of elements inside this row, if they are narrower than
              * the resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setVerticalAlignment(@NonNull VerticalAlignmentProp verticalAlignment) {
                 mImpl.setVerticalAlignment(verticalAlignment.toProto());
@@ -4078,9 +3622,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the vertical alignment of elements inside this row, if they are narrower than
              * the resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
                 return setVerticalAlignment(
@@ -4090,9 +3633,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the width of this row. If not defined, this will size itself to fit all of its
              * children (i.e. a WrappedDimension).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setWidth(@NonNull ContainerDimension width) {
                 mImpl.setWidth(width.toContainerDimensionProto());
@@ -4104,9 +3646,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the height of this row. If not defined, this will size itself to fit all of its
              * children (i.e. a WrappedDimension).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setHeight(@NonNull ContainerDimension height) {
                 mImpl.setHeight(height.toContainerDimensionProto());
@@ -4117,9 +3658,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -4141,9 +3681,8 @@ public final class LayoutElementBuilders {
      * An arc container. This container will fill itself to a circle, which fits inside its parent
      * container, and all of its children will be placed on that circle. The fields anchor_angle and
      * anchor_type can be used to specify where to draw children within this circle.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Arc implements LayoutElement {
         private final LayoutElementProto.Arc mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -4153,11 +3692,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets contents of this container.
-         *
-         * @since 1.0
-         */
+        /** Gets contents of this container. */
         @NonNull
         public List<ArcLayoutElement> getContents() {
             List<ArcLayoutElement> list = new ArrayList<>();
@@ -4178,8 +3713,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public DegreesProp getAnchorAngle() {
@@ -4193,8 +3726,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets how to align the contents of this container relative to anchor_angle. If not
          * defined, defaults to ARC_ANCHOR_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public ArcAnchorTypeProp getAnchorType() {
@@ -4210,8 +3741,6 @@ public final class LayoutElementBuilders {
          * larger than the thickness of the element being drawn, this controls whether the element
          * should be drawn towards the inner or outer edge of the arc, or drawn in the center. If
          * not defined, defaults to VERTICAL_ALIGN_CENTER.
-         *
-         * @since 1.0
          */
         @Nullable
         public VerticalAlignmentProp getVerticalAlign() {
@@ -4222,15 +3751,21 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
                 return Modifiers.fromProto(mImpl.getModifiers());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets defines the direction in which child elements are laid out. */
+        @Nullable
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
             } else {
                 return null;
             }
@@ -4284,10 +3819,13 @@ public final class LayoutElementBuilders {
                     + getVerticalAlign()
                     + ", modifiers="
                     + getModifiers()
+                    + ", arcDirection="
+                    + getArcDirection()
                     + "}";
         }
 
         /** Builder for {@link Arc}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.Arc.Builder mImpl =
                     LayoutElementProto.Arc.newBuilder();
@@ -4296,11 +3834,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Adds one item to contents of this container.
-             *
-             * @since 1.0
-             */
+            /** Adds one item to contents of this container. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder addContent(@NonNull ArcLayoutElement content) {
                 mImpl.addContents(content.toArcLayoutElementProto());
@@ -4319,9 +3854,8 @@ public final class LayoutElementBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setAnchorAngle(@NonNull DegreesProp anchorAngle) {
                 mImpl.setAnchorAngle(anchorAngle.toProto());
@@ -4333,9 +3867,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets how to align the contents of this container relative to anchor_angle. If not
              * defined, defaults to ARC_ANCHOR_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setAnchorType(@NonNull ArcAnchorTypeProp anchorType) {
                 mImpl.setAnchorType(anchorType.toProto());
@@ -4347,9 +3880,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets how to align the contents of this container relative to anchor_angle. If not
              * defined, defaults to ARC_ANCHOR_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setAnchorType(@ArcAnchorType int anchorType) {
                 return setAnchorType(new ArcAnchorTypeProp.Builder().setValue(anchorType).build());
@@ -4360,9 +3892,8 @@ public final class LayoutElementBuilders {
              * larger than the thickness of the element being drawn, this controls whether the
              * element should be drawn towards the inner or outer edge of the arc, or drawn in the
              * center. If not defined, defaults to VERTICAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setVerticalAlign(@NonNull VerticalAlignmentProp verticalAlign) {
                 mImpl.setVerticalAlign(verticalAlign.toProto());
@@ -4376,9 +3907,8 @@ public final class LayoutElementBuilders {
              * larger than the thickness of the element being drawn, this controls whether the
              * element should be drawn towards the inner or outer edge of the arc, or drawn in the
              * center. If not defined, defaults to VERTICAL_ALIGN_CENTER.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setVerticalAlign(@VerticalAlignment int verticalAlign) {
                 return setVerticalAlign(
@@ -4387,15 +3917,38 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull Modifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 mFingerprint.recordPropertyUpdate(
                         5, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
+            }
+
+            /**
+             * Sets the direction in which child elements are laid out. If not set, defaults to
+             * ARC_DIRECTION_NORMAL.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which child elements are laid out. If not set, defaults to
+             * ARC_DIRECTION_NORMAL.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
             }
 
             /** Builds an instance from accumulated values. */
@@ -4407,11 +3960,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * A text element that can be used in an {@link Arc}.
-     *
-     * @since 1.0
-     */
+    /** A text element that can be used in an {@link Arc}. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ArcText implements ArcLayoutElement {
         private final LayoutElementProto.ArcText mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -4421,11 +3971,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the text to render.
-         *
-         * @since 1.0
-         */
+        /** Gets the text to render. */
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -4438,8 +3984,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font.
-         *
-         * @since 1.0
          */
         @Nullable
         public FontStyle getFontStyle() {
@@ -4450,15 +3994,21 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
                 return ArcModifiers.fromProto(mImpl.getModifiers());
+            } else {
+                return null;
+            }
+        }
+
+        /** Gets defines the direction in which text is drawn.*/
+        @Nullable
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
             } else {
                 return null;
             }
@@ -4508,10 +4058,13 @@ public final class LayoutElementBuilders {
                     + getFontStyle()
                     + ", modifiers="
                     + getModifiers()
+                    + ", arcDirection="
+                    + getArcDirection()
                     + "}";
         }
 
         /** Builder for {@link ArcText}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcText.Builder mImpl =
                     LayoutElementProto.ArcText.newBuilder();
@@ -4524,13 +4077,13 @@ public final class LayoutElementBuilders {
              * Sets the text to render.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setText(@NonNull StringProp text) {
                 if (text.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setText doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "ArcText.Builder.setText doesn't support dynamic values.");
                 }
                 mImpl.setText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -4547,9 +4100,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the style of font to use (size, bold etc). If not specified, defaults to the
              * platform's default body font.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setFontStyle(@NonNull FontStyle fontStyle) {
                 mImpl.setFontStyle(fontStyle.toProto());
@@ -4560,15 +4112,38 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
+            }
+
+            /**
+             * Sets the direction in which this text is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which this text is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
             }
 
             /** Builds an instance from accumulated values. */
@@ -4580,11 +4155,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * A line that can be used in an {@link Arc} and renders as a round progress bar.
-     *
-     * @since 1.0
-     */
+    /** A line that can be used in an {@link Arc} and renders as a round progress bar. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ArcLine implements ArcLayoutElement {
         private final LayoutElementProto.ArcLine mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -4599,8 +4171,6 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         *
-         * @since 1.0
          */
         @Nullable
         public DegreesProp getLength() {
@@ -4611,11 +4181,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the thickness of this line. If not defined, defaults to 0.
-         *
-         * @since 1.0
-         */
+        /** Gets the thickness of this line. If not defined, defaults to 0. */
         @Nullable
         public DpProp getThickness() {
             if (mImpl.hasThickness()) {
@@ -4632,8 +4198,6 @@ public final class LayoutElementBuilders {
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          *
          * <p>If a brush is set, this color will not be used.
-         *
-         * @since 1.0
          */
         @Nullable
         public ColorProp getColor() {
@@ -4647,8 +4211,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets a brush used to draw this line. If set, the brush will be used instead of the color
          * provided in {@code setColor()}.
-         *
-         * @since 1.3
          */
         @Nullable
         public Brush getBrush() {
@@ -4659,11 +4221,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -4673,11 +4231,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
-         *
-         * @since 1.2
-         */
+        /** Gets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND. */
         @Nullable
         public StrokeCapProp getStrokeCap() {
             if (mImpl.hasStrokeCap()) {
@@ -4687,11 +4241,19 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /** Gets defines the direction in which line drawn. */
+        @Nullable
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
+            } else {
+                return null;
+            }
+        }
+
         /**
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getLength()}.
-         *
-         * @since 1.2
          */
         @Nullable
         public AngularLayoutConstraint getLayoutConstraintsForDynamicLength() {
@@ -4752,10 +4314,13 @@ public final class LayoutElementBuilders {
                     + getModifiers()
                     + ", strokeCap="
                     + getStrokeCap()
+                    + ", arcDirection="
+                    + getArcDirection()
                     + "}";
         }
 
         /** Builder for {@link ArcLine}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcLine.Builder mImpl =
                     LayoutElementProto.ArcLine.newBuilder();
@@ -4774,9 +4339,8 @@ public final class LayoutElementBuilders {
              * affected layout element through {@code
              * setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@code
              * build()} fails.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
                 mImpl.mergeLength(length.toProto());
@@ -4788,9 +4352,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the bounding constraints for the layout affected by the dynamic value from
              * {@link #setLength(DegreesProp)}.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setLayoutConstraintsForDynamicLength(
                     @NonNull DimensionBuilders.AngularLayoutConstraint angularLayoutConstraint) {
@@ -4806,14 +4369,13 @@ public final class LayoutElementBuilders {
              * Sets the thickness of this line. If not defined, defaults to 0.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setThickness(@NonNull DpProp thickness) {
                 if (thickness.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setThickness doesn't support dynamic values.");
+                            "ArcLine.Builder.setThickness doesn't support dynamic values.");
                 }
                 mImpl.setThickness(thickness.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -4828,9 +4390,8 @@ public final class LayoutElementBuilders {
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
              *
              * <p>If a brush is set, this color will not be used.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setColor(@NonNull ColorProp color) {
                 mImpl.setColor(color.toProto());
@@ -4842,9 +4403,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets a brush used to draw this line. If set, the brush will be used instead of the
              * color provided in {@code setColor()}.
-             *
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             public Builder setBrush(@NonNull Brush brush) {
                 mImpl.setBrush(brush.toBrushProto());
@@ -4855,9 +4415,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -4866,11 +4425,8 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
-             *
-             * @since 1.2
-             */
+            /** Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setStrokeCap(@NonNull StrokeCapProp strokeCap) {
                 mImpl.setStrokeCap(strokeCap.toProto());
@@ -4880,10 +4436,31 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
-             *
-             * @since 1.2
+             * Sets the direction in which this line is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        8, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which this line is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
+            }
+
+            /** Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setStrokeCap(@StrokeCap int strokeCap) {
                 return setStrokeCap(new StrokeCapProp.Builder().setValue(strokeCap).build());
@@ -4898,16 +4475,31 @@ public final class LayoutElementBuilders {
                             "length with dynamic value requires "
                                     + "layoutConstraintsForDynamicLength to be present.");
                 }
+
+                String onlyOpaqueMsg = "Only opaque colors are supported";
+                String alphaChangeMsg =
+                        "Any transparent colors will have their alpha component set to 0xFF"
+                            + " (opaque).";
+                for (ColorProto.ColorStop colorStop :
+                        mImpl.getBrush().getSweepGradient().getColorStopsList()) {
+                    if (Color.alpha(colorStop.getColor().getArgb()) < 0xFF) {
+                        Log.w("ArcLine", onlyOpaqueMsg + " for SweepGradient. " + alphaChangeMsg);
+                        break;
+                    }
+                }
+                if (mImpl.getStrokeCap().hasShadow()
+                        && Color.alpha(mImpl.getColor().getArgb()) < 0xFF) {
+                    Log.w(
+                            "ArcLine",
+                            onlyOpaqueMsg + " when using StrokeCap Shadow. " + alphaChangeMsg);
+                }
                 return new ArcLine(mImpl.build(), mFingerprint);
             }
         }
     }
 
-    /**
-     * An extensible {@code StrokeCap} property.
-     *
-     * @since 1.2
-     */
+    /** An extensible {@code StrokeCap} property. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final class StrokeCapProp {
         private final LayoutElementProto.StrokeCapProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -4917,11 +4509,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.2
-         */
+        /** Gets the value. */
         @StrokeCap
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -4931,7 +4519,8 @@ public final class LayoutElementBuilders {
          * Gets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow, which
          * allows it to be visible on top of other similarly colored elements.
          *
-         * @since 1.3
+         * <p>Only opaque colors are supported in {@link ArcLine} if a shadow is set. Any
+         * transparent colors will have their alpha component set to 0xFF (opaque).
          */
         @Nullable
         public Shadow getShadow() {
@@ -4985,11 +4574,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.2
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setValue(@StrokeCap int value) {
                 mImpl.setValue(LayoutElementProto.StrokeCap.forNumber(value));
@@ -5001,8 +4587,10 @@ public final class LayoutElementBuilders {
              * Sets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow,
              * which allows it to be visible on top of other similarly colored elements.
              *
-             * @since 1.3
+             * <p>Only opaque colors are supported in {@link ArcLine} if a shadow is set. Any
+             * transparent colors will have their alpha component set to 0xFF (opaque).
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             public Builder setShadow(@NonNull Shadow shadow) {
                 mImpl.setShadow(shadow.toProto());
@@ -5019,11 +4607,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * A simple spacer used to provide padding between adjacent elements in an {@link Arc}.
-     *
-     * @since 1.0
-     */
+    /** A simple spacer used to provide padding between adjacent elements in an {@link Arc}. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ArcSpacer implements ArcLayoutElement {
         private final LayoutElementProto.ArcSpacer mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -5033,11 +4618,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the length of this spacer, in degrees. If not defined, defaults to 0.
-         *
-         * @since 1.0
-         */
+        /** Gets the length of this spacer, in degrees. If not defined, defaults to 0. */
         @Nullable
         public DegreesProp getLength() {
             if (mImpl.hasLength()) {
@@ -5047,11 +4628,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the thickness of this spacer, in DP. If not defined, defaults to 0.
-         *
-         * @since 1.0
-         */
+        /** Gets the thickness of this spacer, in DP. If not defined, defaults to 0. */
         @Nullable
         public DpProp getThickness() {
             if (mImpl.hasThickness()) {
@@ -5061,11 +4638,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-         *
-         * @since 1.0
-         */
+        /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
         @Nullable
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -5123,6 +4696,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcSpacer}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcSpacer.Builder mImpl =
                     LayoutElementProto.ArcSpacer.newBuilder();
@@ -5135,13 +4709,13 @@ public final class LayoutElementBuilders {
              * Sets the length of this spacer, in degrees. If not defined, defaults to 0.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
                 if (length.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setLength doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "ArcSpacer.Builder.setLength doesn't support dynamic values.");
                 }
                 mImpl.setLength(length.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -5153,14 +4727,13 @@ public final class LayoutElementBuilders {
              * Sets the thickness of this spacer, in DP. If not defined, defaults to 0.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setThickness(@NonNull DpProp thickness) {
                 if (thickness.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setThickness doesn't support dynamic values.");
+                            "ArcSpacer.Builder.setThickness doesn't support dynamic values.");
                 }
                 mImpl.setThickness(thickness.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -5170,9 +4743,8 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setModifiers(@NonNull ArcModifiers modifiers) {
                 mImpl.setModifiers(modifiers.toProto());
@@ -5190,11 +4762,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * A container that allows a standard {@link LayoutElement} to be added to an {@link Arc}.
-     *
-     * @since 1.0
-     */
+    /** A container that allows a standard {@link LayoutElement} to be added to an {@link Arc}. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ArcAdapter implements ArcLayoutElement {
         private final LayoutElementProto.ArcAdapter mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -5204,11 +4773,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the element to adapt to an {@link Arc}.
-         *
-         * @since 1.0
-         */
+        /** Gets the element to adapt to an {@link Arc}. */
         @Nullable
         public LayoutElement getContent() {
             if (mImpl.hasContent()) {
@@ -5225,8 +4790,6 @@ public final class LayoutElementBuilders {
          * the 3 o clock position, and will be rotated clockwise through 90 degrees. If
          * rotate_contents = false, the image will be placed at the 3 o clock position, but itself
          * will not be rotated. If not defined, defaults to false.
-         *
-         * @since 1.0
          */
         @Nullable
         public BoolProp getRotateContents() {
@@ -5283,6 +4846,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcAdapter}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ArcLayoutElement.Builder {
             private final LayoutElementProto.ArcAdapter.Builder mImpl =
                     LayoutElementProto.ArcAdapter.newBuilder();
@@ -5292,18 +4856,6 @@ public final class LayoutElementBuilders {
             public Builder() {}
 
             /**
-             * Sets the element to adapt to an {@link Arc}.
-             *
-             * @since 1.0
-             */
-            @NonNull
-            public Builder setContent(@NonNull LayoutElement content) {
-                mImpl.setContent(content.toLayoutElementProto());
-                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
-                return this;
-            }
-
-            /**
              * Sets whether this adapter's contents should be rotated, according to its position in
              * the arc or not. As an example, assume that an {@link Image} has been added to the
              * arc, and ends up at the 3 o clock position. If rotate_contents = true, the image will
@@ -5311,10 +4863,15 @@ public final class LayoutElementBuilders {
              * degrees. If rotate_contents = false, the image will be placed at the 3 o clock
              * position, but itself will not be rotated. If not defined, defaults to false.
              *
-             * @since 1.0
+             * <p>Note that this field only supports static values.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setRotateContents(@NonNull BoolProp rotateContents) {
+                if (rotateContents.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "ArcAdapter.Builder.setRotateContents doesn't support dynamic values.");
+                }
                 mImpl.setRotateContents(rotateContents.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(rotateContents.getFingerprint()).aggregateValueAsInt());
@@ -5332,7 +4889,27 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRotateContents(boolean rotateContents) {
-                return setRotateContents(new BoolProp.Builder().setValue(rotateContents).build());
+                return setRotateContents(new BoolProp.Builder(rotateContents).build());
+            }
+
+            /**
+             * Sets the element to adapt to an {@link Arc}.
+             *
+             * @throws IllegalArgumentException if the provided content has a transformation
+             *     modifier.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 0)
+            @NonNull
+            public Builder setContent(@NonNull LayoutElement content) {
+                LayoutElementProto.LayoutElement contentProto = content.toLayoutElementProto();
+                if (hasTransformation(contentProto)) {
+                    throw new IllegalArgumentException(
+                            "Transformation modifier is not supported for the layout element inside"
+                                    + " an ArcAdapter.");
+                }
+                mImpl.setContent(contentProto);
+                mFingerprint.addChildNode(checkNotNull(content.getFingerprint()));
+                return this;
             }
 
             /** Builds an instance from accumulated values. */
@@ -5340,6 +4917,94 @@ public final class LayoutElementBuilders {
             @NonNull
             public ArcAdapter build() {
                 return new ArcAdapter(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * An extensible {@code ArcDirection} property that can be set to any curved element to
+     * control the drawing direction.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    public static final class ArcDirectionProp {
+        private final LayoutElementProto.ArcDirectionProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ArcDirectionProp(
+                LayoutElementProto.ArcDirectionProp impl,
+                @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /** Gets the value. */
+        @ArcDirection
+        public int getValue() {
+            return mImpl.getValue().getNumber();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcDirectionProp fromProto(
+                @NonNull LayoutElementProto.ArcDirectionProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ArcDirectionProp(proto, fingerprint);
+        }
+
+        @NonNull
+        static ArcDirectionProp fromProto(@NonNull LayoutElementProto.ArcDirectionProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcDirectionProp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcDirectionProp{" + "value=" + getValue() + "}";
+        }
+
+        /** Builder for {@link ArcDirectionProp} */
+        public static final class Builder {
+            private final LayoutElementProto.ArcDirectionProp.Builder mImpl =
+                    LayoutElementProto.ArcDirectionProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-855955608);
+
+            /** Creates an instance of {@link Builder} from the given value. */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            public Builder(@ArcDirection int value) {
+                setValue(value);
+            }
+
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            Builder() {}
+
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            Builder setValue(@ArcDirection int value) {
+                mImpl.setValue(LayoutElementProto.ArcDirection.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public ArcDirectionProp build() {
+                return new ArcDirectionProp(mImpl.build(), mFingerprint);
             }
         }
     }
@@ -5353,9 +5018,8 @@ public final class LayoutElementBuilders {
      * although the specified space will still be occupied. If the payload cannot be parsed by the
      * renderer extension, then still nothing should be rendered, although this behaviour is defined
      * by the renderer extension.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     @ExperimentalProtoLayoutExtensionApi
     public static final class ExtensionLayoutElement implements LayoutElement {
         private final LayoutElementProto.ExtensionLayoutElement mImpl;
@@ -5370,8 +5034,6 @@ public final class LayoutElementBuilders {
         /**
          * Gets the content of the renderer extension element. This can be any data; it is expected
          * that the renderer extension knows how to parse this field.
-         *
-         * @since 1.2
          */
         @NonNull
         public byte[] getPayload() {
@@ -5381,19 +5043,13 @@ public final class LayoutElementBuilders {
         /**
          * Gets the ID of the renderer extension that should be used for rendering this layout
          * element.
-         *
-         * @since 1.2
          */
         @NonNull
         public String getExtensionId() {
             return mImpl.getExtensionId();
         }
 
-        /**
-         * Gets the width of this element.
-         *
-         * @since 1.2
-         */
+        /** Gets the width of this element. */
         @Nullable
         public ExtensionDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -5403,11 +5059,7 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets the height of this element.
-         *
-         * @since 1.2
-         */
+        /** Gets the height of this element. */
         @Nullable
         public ExtensionDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -5469,6 +5121,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ExtensionLayoutElement}. */
+        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements LayoutElement.Builder {
             private final LayoutElementProto.ExtensionLayoutElement.Builder mImpl =
                     LayoutElementProto.ExtensionLayoutElement.newBuilder();
@@ -5480,9 +5133,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the content of the renderer extension element. This can be any data; it is
              * expected that the renderer extension knows how to parse this field.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setPayload(@NonNull byte[] payload) {
                 mImpl.setPayload(ByteString.copyFrom(payload));
@@ -5493,9 +5145,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets the ID of the renderer extension that should be used for rendering this layout
              * element.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setExtensionId(@NonNull String extensionId) {
                 mImpl.setExtensionId(extensionId);
@@ -5503,11 +5154,8 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the width of this element.
-             *
-             * @since 1.2
-             */
+            /** Sets the width of this element. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setWidth(@NonNull ExtensionDimension width) {
                 mImpl.setWidth(width.toExtensionDimensionProto());
@@ -5516,11 +5164,8 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
-            /**
-             * Sets the height of this element.
-             *
-             * @since 1.2
-             */
+            /** Sets the height of this element. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setHeight(@NonNull ExtensionDimension height) {
                 mImpl.setHeight(height.toExtensionDimensionProto());
@@ -5541,9 +5186,8 @@ public final class LayoutElementBuilders {
     /**
      * Interface defining the root of all layout elements. This exists to act as a holder for all of
      * the actual layout elements above.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public interface LayoutElement {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -5609,9 +5253,8 @@ public final class LayoutElementBuilders {
     /**
      * Interface defining the root of all elements that can be used in an {@link Arc}. This exists
      * to act as a holder for all of the actual arc layout elements above.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public interface ArcLayoutElement {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -5659,11 +5302,8 @@ public final class LayoutElementBuilders {
         return arcLayoutElementFromProto(proto, null);
     }
 
-    /**
-     * A complete layout.
-     *
-     * @since 1.0
-     */
+    /** A complete layout. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Layout {
         private final LayoutElementProto.Layout mImpl;
 
@@ -5671,11 +5311,7 @@ public final class LayoutElementBuilders {
             this.mImpl = impl;
         }
 
-        /**
-         * Gets the root element in the layout.
-         *
-         * @since 1.0
-         */
+        /** Gets the root element in the layout. */
         @Nullable
         public LayoutElement getRoot() {
             if (mImpl.hasRoot()) {
@@ -5777,11 +5413,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * The horizontal alignment of an element within its container.
-     *
-     * @since 1.0
-     */
+    /** The horizontal alignment of an element within its container. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         HORIZONTAL_ALIGN_UNDEFINED,
@@ -5794,53 +5427,32 @@ public final class LayoutElementBuilders {
     @Retention(RetentionPolicy.SOURCE)
     public @interface HorizontalAlignment {}
 
-    /**
-     * Horizontal alignment is undefined.
-     *
-     * @since 1.0
-     */
+    /** Horizontal alignment is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int HORIZONTAL_ALIGN_UNDEFINED = 0;
 
-    /**
-     * Horizontally align to the left.
-     *
-     * @since 1.0
-     */
+    /** Horizontally align to the left. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int HORIZONTAL_ALIGN_LEFT = 1;
 
-    /**
-     * Horizontally align to center.
-     *
-     * @since 1.0
-     */
+    /** Horizontally align to center. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int HORIZONTAL_ALIGN_CENTER = 2;
 
-    /**
-     * Horizontally align to the right.
-     *
-     * @since 1.0
-     */
+    /** Horizontally align to the right. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int HORIZONTAL_ALIGN_RIGHT = 3;
 
-    /**
-     * Horizontally align to the content start (left in LTR layouts, right in RTL layouts).
-     *
-     * @since 1.0
-     */
+    /** Horizontally align to the content start (left in LTR layouts, right in RTL layouts). */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int HORIZONTAL_ALIGN_START = 4;
 
-    /**
-     * Horizontally align to the content end (right in LTR layouts, left in RTL layouts).
-     *
-     * @since 1.0
-     */
+    /** Horizontally align to the content end (right in LTR layouts, left in RTL layouts). */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int HORIZONTAL_ALIGN_END = 5;
 
-    /**
-     * The vertical alignment of an element within its container.
-     *
-     * @since 1.0
-     */
+    /** The vertical alignment of an element within its container. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         VERTICAL_ALIGN_UNDEFINED,
@@ -5851,73 +5463,52 @@ public final class LayoutElementBuilders {
     @Retention(RetentionPolicy.SOURCE)
     public @interface VerticalAlignment {}
 
-    /**
-     * Vertical alignment is undefined.
-     *
-     * @since 1.0
-     */
+    /** Vertical alignment is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int VERTICAL_ALIGN_UNDEFINED = 0;
 
-    /**
-     * Vertically align to the top.
-     *
-     * @since 1.0
-     */
+    /** Vertically align to the top. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int VERTICAL_ALIGN_TOP = 1;
 
-    /**
-     * Vertically align to center.
-     *
-     * @since 1.0
-     */
+    /** Vertically align to center. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int VERTICAL_ALIGN_CENTER = 2;
 
-    /**
-     * Vertically align to the bottom.
-     *
-     * @since 1.0
-     */
+    /** Vertically align to the bottom. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int VERTICAL_ALIGN_BOTTOM = 3;
 
-    /**
-     * Alignment of a text element.
-     *
-     * @since 1.0
-     */
+    /** Alignment of a text element. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({TEXT_ALIGN_UNDEFINED, TEXT_ALIGN_START, TEXT_ALIGN_CENTER, TEXT_ALIGN_END})
     @Retention(RetentionPolicy.SOURCE)
     public @interface TextAlignment {}
 
-    /**
-     * Alignment is undefined.
-     *
-     * @since 1.0
-     */
+    /** Alignment is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_ALIGN_UNDEFINED = 0;
 
     /**
      * Align to the "start" of the {@link androidx.wear.protolayout.LayoutElementBuilders.Text}
      * element (left in LTR layouts, right in RTL layouts).
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_ALIGN_START = 1;
 
     /**
      * Align to the center of the {@link androidx.wear.protolayout.LayoutElementBuilders.Text}
      * element.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_ALIGN_CENTER = 2;
 
     /**
      * Align to the "end" of the {@link androidx.wear.protolayout.LayoutElementBuilders.Text}
      * element (right in LTR layouts, left in RTL layouts).
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int TEXT_ALIGN_END = 3;
 
     /**
@@ -5946,43 +5537,36 @@ public final class LayoutElementBuilders {
      * -180                                0                                    180
      *                          Hello World!
      * }</pre>
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({ARC_ANCHOR_UNDEFINED, ARC_ANCHOR_START, ARC_ANCHOR_CENTER, ARC_ANCHOR_END})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ArcAnchorType {}
 
-    /**
-     * Anchor position is undefined.
-     *
-     * @since 1.0
-     */
+    /** Anchor position is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int ARC_ANCHOR_UNDEFINED = 0;
 
     /**
      * Anchor at the start of the elements. This will cause elements added to an arc to begin at the
      * given anchor_angle, and sweep around to the right.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int ARC_ANCHOR_START = 1;
 
     /**
      * Anchor at the center of the elements. This will cause the center of the whole set of elements
      * added to an arc to be pinned at the given anchor_angle.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int ARC_ANCHOR_CENTER = 2;
 
     /**
      * Anchor at the end of the elements. This will cause the set of elements inside the arc to end
      * at the specified anchor_angle, i.e. all elements should be to the left of anchor_angle.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final int ARC_ANCHOR_END = 3;
 
     /**
@@ -5990,9 +5574,8 @@ public final class LayoutElementBuilders {
      * context when they are smaller than their container. This would be similar to {@code
      * HorizontalAlignment} in a {@link androidx.wear.protolayout.LayoutElementBuilders.Box} or
      * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
         ANGULAR_ALIGNMENT_UNDEFINED,
@@ -6003,44 +5586,35 @@ public final class LayoutElementBuilders {
     @Retention(RetentionPolicy.SOURCE)
     public @interface AngularAlignment {}
 
-    /**
-     * Angular alignment is undefined.
-     *
-     * @since 1.2
-     */
+    /** Angular alignment is undefined. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int ANGULAR_ALIGNMENT_UNDEFINED = 0;
 
     /**
      * Align to the start of the container. As an example, if the container starts at 90 degrees and
      * has 180 degrees of sweep, the element within would draw from 90 degrees, clockwise.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int ANGULAR_ALIGNMENT_START = 1;
 
     /**
      * Align to the center of the container. As an example, if the container starts at 90 degrees,
      * and has 180 degrees of sweep, and the contained element has 90 degrees of sweep, the element
      * would draw between 135 and 225 degrees.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int ANGULAR_ALIGNMENT_CENTER = 2;
 
     /**
      * Align to the end of the container. As an example, if the container starts at 90 degrees and
      * has 180 degrees of sweep, and the contained element has 90 degrees of sweep, the element
      * would draw between 180 and 270 degrees.
-     *
-     * @since 1.2
      */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int ANGULAR_ALIGNMENT_END = 3;
 
-    /**
-     * An extensible {@code HorizontalAlignment} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code HorizontalAlignment} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class HorizontalAlignmentProp {
         private final AlignmentProto.HorizontalAlignmentProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -6051,11 +5625,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @HorizontalAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -6105,11 +5675,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@HorizontalAlignment int value) {
                 mImpl.setValue(AlignmentProto.HorizontalAlignment.forNumber(value));
@@ -6125,11 +5692,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code VerticalAlignment} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code VerticalAlignment} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class VerticalAlignmentProp {
         private final AlignmentProto.VerticalAlignmentProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -6140,11 +5704,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @VerticalAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -6194,11 +5754,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@VerticalAlignment int value) {
                 mImpl.setValue(AlignmentProto.VerticalAlignment.forNumber(value));
@@ -6214,11 +5771,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code TextAlignment} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code TextAlignment} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TextAlignmentProp {
         private final AlignmentProto.TextAlignmentProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -6229,11 +5783,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @TextAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -6282,11 +5832,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@TextAlignment int value) {
                 mImpl.setValue(AlignmentProto.TextAlignment.forNumber(value));
@@ -6302,11 +5849,8 @@ public final class LayoutElementBuilders {
         }
     }
 
-    /**
-     * An extensible {@code ArcAnchorType} property.
-     *
-     * @since 1.0
-     */
+    /** An extensible {@code ArcAnchorType} property. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ArcAnchorTypeProp {
         private final AlignmentProto.ArcAnchorTypeProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -6317,11 +5861,7 @@ public final class LayoutElementBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.0
-         */
+        /** Gets the value. */
         @ArcAnchorType
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -6370,11 +5910,8 @@ public final class LayoutElementBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.0
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValue(@ArcAnchorType int value) {
                 mImpl.setValue(AlignmentProto.ArcAnchorType.forNumber(value));
@@ -6416,7 +5953,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder display1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 54 : 50));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 54 : 50));
         }
 
         /**
@@ -6430,7 +5967,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder display2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 44 : 40));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 44 : 40));
         }
 
         /**
@@ -6444,7 +5981,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder display3(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 34 : 30));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 34 : 30));
         }
 
         /**
@@ -6458,7 +5995,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder title1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 26 : 24));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 26 : 24));
         }
 
         /**
@@ -6472,7 +6009,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder title2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 22 : 20));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 22 : 20));
         }
 
         /**
@@ -6486,7 +6023,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder title3(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /**
@@ -6499,7 +6036,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder body1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /**
@@ -6512,7 +6049,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder body2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /**
@@ -6526,7 +6063,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder button(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /**
@@ -6539,7 +6076,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder caption1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /**
@@ -6552,9 +6089,44 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder caption2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 14 : 12));
         }
 
         private FontStyles() {}
     }
+
+  /** Checks whether a layout element has a transformation modifier. */
+  private static boolean hasTransformation(@NonNull LayoutElementProto.LayoutElement content) {
+    switch (content.getInnerCase()) {
+      case IMAGE:
+        return content.getImage().hasModifiers()
+            && content.getImage().getModifiers().hasTransformation();
+      case TEXT:
+        return content.getText().hasModifiers()
+            && content.getText().getModifiers().hasTransformation();
+      case SPACER:
+        return content.getSpacer().hasModifiers()
+            && content.getSpacer().getModifiers().hasTransformation();
+      case BOX:
+        return content.getBox().hasModifiers()
+            && content.getBox().getModifiers().hasTransformation();
+      case ROW:
+        return content.getRow().hasModifiers()
+            && content.getRow().getModifiers().hasTransformation();
+      case COLUMN:
+        return content.getColumn().hasModifiers()
+            && content.getColumn().getModifiers().hasTransformation();
+      case SPANNABLE:
+        return content.getSpannable().hasModifiers()
+            && content.getSpannable().getModifiers().hasTransformation();
+      case ARC:
+        return content.getArc().hasModifiers()
+            && content.getArc().getModifiers().hasTransformation();
+      case EXTENSION:
+        // fall through
+      case INNER_NOT_SET:
+        return false;
+    }
+    return false;
+  }
 }

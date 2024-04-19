@@ -155,7 +155,7 @@ class BeginGetCredentialUtil {
         ): BeginGetCredentialResponse {
             return BeginGetCredentialResponse(
                 credentialEntries = response.credentialEntries.stream()
-                    .map { entry -> CredentialEntry.createFrom(entry.slice) }
+                    .map { entry -> CredentialEntry.fromSlice(entry.slice) }
                     .filter { entry -> entry != null }
                     .map { entry -> entry!! }
                     .collect(Collectors.toList()),

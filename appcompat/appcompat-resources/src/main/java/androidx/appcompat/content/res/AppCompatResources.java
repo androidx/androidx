@@ -16,7 +16,6 @@
 
 package androidx.appcompat.content.res;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
@@ -32,7 +31,6 @@ import androidx.core.content.ContextCompat;
  * Class for accessing an application's resources through AppCompat, and thus any backward
  * compatible functionality.
  */
-@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 public final class AppCompatResources {
 
     private AppCompatResources() {}

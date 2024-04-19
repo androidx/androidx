@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-GetterSetterNames: field ActivityRule.alwaysExpand:
+GetterSetterNames: androidx.window.embedding.ActivityRule#alwaysExpand:
     Invalid name for boolean property `alwaysExpand`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SplitAttributesCalculatorParams.areDefaultConstraintsSatisfied:
+GetterSetterNames: androidx.window.embedding.SplitAttributesCalculatorParams#areDefaultConstraintsSatisfied:
     Invalid name for boolean property `areDefaultConstraintsSatisfied`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field SplitPairRule.clearTop:
+GetterSetterNames: androidx.window.embedding.SplitPairRule#clearTop:
     Invalid name for boolean property `clearTop`. Should start with one of `has`, `can`, `should`, `is`.
 
 

@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import org.junit.Rule
 import org.junit.Test
@@ -40,7 +41,7 @@ class TabRowBenchmark {
 
     @Test
     fun firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(tabRowTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(tabRowTestCaseFactory)
     }
 
     @Test

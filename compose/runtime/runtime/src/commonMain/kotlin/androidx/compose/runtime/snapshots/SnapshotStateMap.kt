@@ -31,9 +31,17 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateMapOf
  */
 @Stable
-class SnapshotStateMap<K, V> : MutableMap<K, V>, StateObject {
+class SnapshotStateMap<K, V> : StateObject, MutableMap<K, V> {
     override var firstStateRecord: StateRecord =
-        StateMapStateRecord<K, V>(persistentHashMapOf())
+        persistentHashMapOf<K, V>().let { map ->
+            StateMapStateRecord(map).also {
+                if (Snapshot.isInSnapshot) {
+                    it.next = StateMapStateRecord(map).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
+                }
+            }
+        }
         private set
 
     override fun prependStateRecord(value: StateRecord) {
@@ -65,6 +73,10 @@ class SnapshotStateMap<K, V> : MutableMap<K, V>, StateObject {
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>> = SnapshotMapEntrySet(this)
     override val keys: MutableSet<K> = SnapshotMapKeySet(this)
     override val values: MutableCollection<V> = SnapshotMapValueSet(this)
+    @Suppress("UNCHECKED_CAST")
+    override fun toString(): String = (firstStateRecord as StateMapStateRecord<K, V>).withCurrent {
+        "SnapshotStateMap(value=${it.map})@${hashCode()}"
+    }
 
     override fun clear() = update { persistentHashMapOf() }
     override fun put(key: K, value: V): V? = mutate { it.put(key, value) }

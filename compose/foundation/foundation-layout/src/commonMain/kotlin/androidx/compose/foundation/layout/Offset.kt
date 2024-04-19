@@ -217,7 +217,7 @@ private class OffsetPxElement(
         if (this === other) return true
         val otherModifier = other as? OffsetPxElement ?: return false
 
-        return offset == otherModifier.offset &&
+        return offset === otherModifier.offset &&
             rtlAware == otherModifier.rtlAware
     }
 

@@ -28,4 +28,8 @@ find_library(android-lib android)
 find_package(libyuv REQUIRED)
 
 target_link_libraries(image_processing_util_jni PRIVATE ${log-lib} ${android-lib} ${jnigraphics-lib} libyuv::yuv)
-
+target_link_options(
+        image_processing_util_jni
+        PRIVATE
+        "-Wl,-z,max-page-size=16384"
+)

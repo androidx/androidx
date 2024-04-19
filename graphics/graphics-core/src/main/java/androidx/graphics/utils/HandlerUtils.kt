@@ -47,8 +47,16 @@ internal class HandlerThreadExecutor(name: String) : Executor {
         mHandler.post(runnable)
     }
 
+    fun postDelayed(runnable: Runnable, delayMillis: Long) {
+        mHandler.postDelayed(runnable, delayMillis)
+    }
+
     fun removeCallbacksAndMessages(token: Any) {
         mHandler.removeCallbacksAndMessages(token)
+    }
+
+    fun removeCallbacks(runnable: Runnable) {
+        mHandler.removeCallbacks(runnable)
     }
 
     override fun execute(runnable: Runnable?) {

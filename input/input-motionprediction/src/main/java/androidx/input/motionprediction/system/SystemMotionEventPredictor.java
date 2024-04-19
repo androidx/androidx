@@ -28,8 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
+import androidx.input.motionprediction.common.PredictionEstimator;
 import androidx.input.motionprediction.kalman.MultiPointerPredictor;
-import androidx.input.motionprediction.utils.PredictionEstimator;
 
 import java.util.concurrent.TimeUnit;
 
@@ -48,10 +48,12 @@ public class SystemMotionEventPredictor implements MotionEventPredictor {
     // at some point, the source is checked first, which means that it will never be read before
     // it has been written with a valid id.
     private int mLastRecordedDeviceId = -2;
+    private final int mStrategy;
 
-    public SystemMotionEventPredictor(@NonNull Context context) {
+    public SystemMotionEventPredictor(@NonNull Context context, int strategy) {
         mPredictionEstimator = new PredictionEstimator(context);
         mSystemPredictor = new MotionPredictor(context);
+        mStrategy = strategy;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class SystemMotionEventPredictor implements MotionEventPredictor {
 
     private MultiPointerPredictor getKalmanPredictor() {
         if (mKalmanPredictor == null) {
-            mKalmanPredictor = new MultiPointerPredictor();
+            mKalmanPredictor = new MultiPointerPredictor(mStrategy);
         }
         return mKalmanPredictor;
     }
@@ -95,11 +97,12 @@ public class SystemMotionEventPredictor implements MotionEventPredictor {
      * Builds a new instance of the system motion event prediction
      *
      * @param context the application context
+     * @param strategy the strategy to use
      * @return the new instance
      */
     @NonNull
-    public static SystemMotionEventPredictor newInstance(@NonNull Context context) {
-        return new SystemMotionEventPredictor(context);
+    public static SystemMotionEventPredictor newInstance(@NonNull Context context, int strategy) {
+        return new SystemMotionEventPredictor(context, strategy);
     }
 }
 

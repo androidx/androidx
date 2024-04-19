@@ -17,6 +17,7 @@ package androidx.lifecycle
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.LegacySavedStateHandleController.TAG_SAVED_STATE_HANDLE_CONTROLLER
 import androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.savedstate.SavedStateRegistry
@@ -40,8 +41,7 @@ public abstract class AbstractSavedStateViewModelFactory :
      * Constructs this factory.
      *
      * When a factory is constructed this way, a component for which [SavedStateHandle] is
-     * scoped must have called
-     * [SavedStateHandleSupport.enableSavedStateHandles].
+     * scoped must have called [enableSavedStateHandles].
      * See [CreationExtras.createSavedStateHandle] docs for more
      * details.
      */
@@ -95,7 +95,7 @@ public abstract class AbstractSavedStateViewModelFactory :
         val controller = LegacySavedStateHandleController
             .create(savedStateRegistry!!, lifecycle!!, key, defaultArgs)
         val viewModel = create(key, modelClass, controller.handle)
-        viewModel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
+        viewModel.addCloseable(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
         return viewModel
     }
 
@@ -147,10 +147,5 @@ public abstract class AbstractSavedStateViewModelFactory :
         if (savedStateRegistry != null) {
             attachHandleIfNeeded(viewModel, savedStateRegistry!!, lifecycle!!)
         }
-    }
-
-    internal companion object {
-        internal const val TAG_SAVED_STATE_HANDLE_CONTROLLER =
-            "androidx.lifecycle.savedstate.vm.tag"
     }
 }

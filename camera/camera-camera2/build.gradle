@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 
 plugins {
@@ -40,11 +46,12 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation("androidx.annotation:annotation-experimental:1.1.0")
+    testImplementation("androidx.annotation:annotation-experimental:1.4.0")
     testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation(project(":camera:camera-video"))
     testImplementation(project(":camera:camera-testing"))
+    testImplementation(project(":internal-testutils-truth"))
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit) // Needed for Assert.assertThrows
     testImplementation("org.codehaus.plexus:plexus-utils:3.4.1")
@@ -65,7 +72,7 @@ dependencies {
     }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.1.0")
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")

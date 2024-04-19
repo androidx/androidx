@@ -36,13 +36,13 @@ public class ButtonDefaults {
     /** The recommended size for extra large {@link Button}. */
     @NonNull public static final DpProp EXTRA_LARGE_SIZE = dp(88);
 
-    /** Returns the recommended icon size for the given size of a {@link Button}. */
+    /** Returns the recommended icon size for the given size of {@link Button}. */
     @NonNull
     public static DpProp recommendedIconSize(@NonNull DpProp buttonSize) {
         return recommendedIconSize(buttonSize.getValue());
     }
 
-    /** Returns the recommended icon size for the given size of a {@link Button}. */
+    /** Returns the recommended icon size for the given size of {@link Button}. */
     @NonNull
     public static DpProp recommendedIconSize(@Dimension(unit = DP) float buttonSize) {
         return dp(buttonSize / 2);

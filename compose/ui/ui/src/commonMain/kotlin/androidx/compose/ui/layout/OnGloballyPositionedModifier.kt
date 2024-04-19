@@ -54,7 +54,7 @@ private class OnGloballyPositionedElement(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is OnGloballyPositionedElement) return false
-        return onGloballyPositioned == other.onGloballyPositioned
+        return onGloballyPositioned === other.onGloballyPositioned
     }
 
     override fun hashCode(): Int {

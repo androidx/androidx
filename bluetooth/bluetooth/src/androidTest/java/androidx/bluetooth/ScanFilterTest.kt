@@ -16,15 +16,16 @@
 
 package androidx.bluetooth
 
+import com.google.common.truth.Truth.assertThat
 import java.util.UUID
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNotNull
-import junit.framework.TestCase.assertNull
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+/**
+ * Test cases for [ScanFilter]
+ */
 @RunWith(JUnit4::class)
 class ScanFilterTest {
 
@@ -32,17 +33,17 @@ class ScanFilterTest {
     fun constructorWithDefaultParams() {
         val scanFilter = ScanFilter()
 
-        assertNull(scanFilter.deviceAddress)
-        assertEquals(ScanFilter.MANUFACTURER_FILTER_NONE, scanFilter.manufacturerId)
-        assertNull(scanFilter.manufacturerData)
-        assertNull(scanFilter.manufacturerDataMask)
-        assertNull(scanFilter.serviceDataUuid)
-        assertNull(scanFilter.serviceData)
-        assertNull(scanFilter.serviceDataMask)
-        assertNull(scanFilter.serviceUuid)
-        assertNull(scanFilter.serviceUuidMask)
-        assertNull(scanFilter.serviceSolicitationUuid)
-        assertNull(scanFilter.serviceSolicitationUuidMask)
+        assertThat(scanFilter.deviceAddress).isNull()
+        assertThat(scanFilter.manufacturerId).isEqualTo(ScanFilter.MANUFACTURER_FILTER_NONE)
+        assertThat(scanFilter.manufacturerData).isNull()
+        assertThat(scanFilter.manufacturerDataMask).isNull()
+        assertThat(scanFilter.serviceDataUuid).isNull()
+        assertThat(scanFilter.serviceData).isNull()
+        assertThat(scanFilter.serviceDataMask).isNull()
+        assertThat(scanFilter.serviceUuid).isNull()
+        assertThat(scanFilter.serviceUuidMask).isNull()
+        assertThat(scanFilter.serviceSolicitationUuid).isNull()
+        assertThat(scanFilter.serviceSolicitationUuidMask).isNull()
     }
 
     @Test
@@ -74,18 +75,18 @@ class ScanFilterTest {
             serviceSolicitationUuidMask = serviceSolicitationUuidMask
         )
 
-        assertEquals(deviceAddress, scanFilter.deviceAddress)
-        assertEquals(manufacturerId, scanFilter.manufacturerId)
-        assertEquals(manufacturerDataMask, scanFilter.manufacturerDataMask)
-        assertEquals(serviceDataUuid, scanFilter.serviceDataUuid)
-        assertEquals(serviceData, scanFilter.serviceData)
-        assertEquals(serviceDataMask, scanFilter.serviceDataMask)
-        assertEquals(serviceUuid, scanFilter.serviceUuid)
-        assertEquals(serviceUuidMask, scanFilter.serviceUuidMask)
-        assertEquals(serviceSolicitationUuid, scanFilter.serviceSolicitationUuid)
-        assertEquals(serviceSolicitationUuidMask, scanFilter.serviceSolicitationUuidMask)
+        assertThat(scanFilter.deviceAddress).isEqualTo(deviceAddress)
+        assertThat(scanFilter.manufacturerId).isEqualTo(manufacturerId)
+        assertThat(scanFilter.manufacturerDataMask).isEqualTo(manufacturerDataMask)
+        assertThat(scanFilter.serviceDataUuid).isEqualTo(serviceDataUuid)
+        assertThat(scanFilter.serviceData).isEqualTo(serviceData)
+        assertThat(scanFilter.serviceDataMask).isEqualTo(serviceDataMask)
+        assertThat(scanFilter.serviceUuid).isEqualTo(serviceUuid)
+        assertThat(scanFilter.serviceUuidMask).isEqualTo(serviceUuidMask)
+        assertThat(scanFilter.serviceSolicitationUuid).isEqualTo(serviceSolicitationUuid)
+        assertThat(scanFilter.serviceSolicitationUuidMask).isEqualTo(serviceSolicitationUuidMask)
 
-        assertNotNull(scanFilter.fwkScanFilter)
+        assertThat(scanFilter.fwkScanFilter).isNotNull()
     }
 
     @Test

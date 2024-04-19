@@ -19,6 +19,7 @@ package androidx.navigation
 import android.os.Bundle
 import androidx.navigation.test.floatArgument
 import androidx.navigation.test.intArgument
+import androidx.navigation.test.intArgumentUnknownDefault
 import androidx.navigation.test.longArgument
 import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.referenceArgument
@@ -38,6 +39,7 @@ private val longArgumentWithDefault = "longArg" to longArgument(123L)
 private val floatArgumentWithDefault = "floatArg" to floatArgument(123f)
 private val referenceArgumentWithDefault = "referenceArg" to referenceArgument(123)
 private val stringArrayArgumentWithDefault = "stringArrayArg" to stringArrayArgument(null)
+private val intArgumentWithUnknownDefault = "intUnknownArg" to intArgumentUnknownDefault()
 
 @SmallTest
 @RunWith(Parameterized::class)
@@ -65,7 +67,11 @@ class AddInDefaultArgsTest(
                 // Test with arguments that have default values (reference)
                 mapOf(stringArgumentWithDefault, referenceArgumentWithDefault),
                 // Test with arguments that have default values (string array)
-                mapOf(stringArgumentWithDefault, stringArrayArgumentWithDefault)
+                mapOf(stringArgumentWithDefault, stringArrayArgumentWithDefault),
+                // Test with argument that only have unknown default value
+                mapOf(intArgumentWithUnknownDefault),
+                // Test with arguments where only some have unknown default values
+                mapOf(intArgumentWithUnknownDefault, stringArgumentWithDefault)
 
             ).forEach { arguments: Map<String, NavArgument> ->
                 // Run with a null Bundle

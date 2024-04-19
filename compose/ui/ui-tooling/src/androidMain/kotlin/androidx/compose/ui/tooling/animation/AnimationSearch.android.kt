@@ -60,6 +60,12 @@ private inline fun <reified T> Collection<Group>.findRememberedData(): List<T> {
 }
 
 @OptIn(UiToolingDataApi::class)
+private inline fun <reified T> Group.findRememberedData(): List<T> {
+    val thisData = data.firstOrNull() { it is T } as? T
+    return (thisData?.let { listOf(it) } ?: emptyList()) + children.findRememberedData<T>()
+}
+
+@OptIn(UiToolingDataApi::class)
 private inline fun <reified T> Group.findData(includeGrandchildren: Boolean = false): T? {
     // Search in self data and children data
     val dataToSearch = data + children.let {
@@ -334,7 +340,7 @@ internal class AnimationSearch(
          * will use the tooling override if this value is not null.
          */
         private fun <T>findToolingOverride(group: Group): MutableState<State<T>?>? {
-            return group.children.findRememberedData<MutableState<State<T>?>>().firstOrNull()
+            return group.findRememberedData<MutableState<State<T>?>>().firstOrNull()
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -347,7 +353,7 @@ internal class AnimationSearch(
         }
 
         private fun <T> findAnimatable(group: CallGroup): Animatable<T, AnimationVector>? {
-            return group.children.findRememberedData<Animatable<T, AnimationVector>>()
+            return group.findRememberedData<Animatable<T, AnimationVector>>()
                 .firstOrNull()
         }
     }

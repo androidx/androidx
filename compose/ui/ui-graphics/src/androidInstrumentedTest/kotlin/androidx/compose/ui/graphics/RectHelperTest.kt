@@ -118,4 +118,22 @@ class RectHelperTest {
             ).toComposeIntRect(),
         )
     }
+
+    @Test
+    fun androidRectFToRectConverts() {
+        assertEquals(
+            Rect(
+                2.1f,
+                3.2f,
+                4.3f,
+                5.4f
+            ),
+            android.graphics.RectF(
+                2.1f,
+                3.2f,
+                4.3f,
+                5.4f
+            ).toComposeRect(),
+        )
+    }
 }

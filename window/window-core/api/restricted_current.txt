@@ -1,4 +1,11 @@
 // Signature format: 4.0
+package androidx.window.core {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowCoreApi {
+  }
+
+}
+
 package androidx.window.core.layout {
 
   public final class WindowHeightSizeClass {
@@ -13,6 +20,7 @@ package androidx.window.core.layout {
 
   public final class WindowSizeClass {
     method public static androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowCoreApi public static androidx.window.core.layout.WindowSizeClass compute(int widthPx, int heightPx, float density);
     method public androidx.window.core.layout.WindowHeightSizeClass getWindowHeightSizeClass();
     method public androidx.window.core.layout.WindowWidthSizeClass getWindowWidthSizeClass();
     property public final androidx.window.core.layout.WindowHeightSizeClass windowHeightSizeClass;
@@ -22,6 +30,7 @@ package androidx.window.core.layout {
 
   public static final class WindowSizeClass.Companion {
     method public androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowCoreApi public androidx.window.core.layout.WindowSizeClass compute(int widthPx, int heightPx, float density);
   }
 
   public final class WindowWidthSizeClass {

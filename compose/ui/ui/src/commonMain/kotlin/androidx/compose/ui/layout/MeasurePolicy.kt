@@ -33,6 +33,7 @@ import androidx.compose.ui.util.fastMap
  * Intrinsic measurement methods define the intrinsic size of the layout. These can be queried
  * by the layout's parent in order to obtain, in specific cases, more information about
  * the size of the layout in the absence of specific constraints:
+ *
  * - [minIntrinsicWidth] defines the minimum width this layout can take, given
  *   a specific height, such that the content of the layout will be painted correctly
  * - [minIntrinsicHeight] defines the minimum height this layout can take, given
@@ -41,12 +42,14 @@ import androidx.compose.ui.util.fastMap
  *   will not decrease the minimum intrinsic height
  * - [maxIntrinsicHeight] defines the minimum height such that increasing it further
  *   will not decrease the minimum intrinsic width
+ *
  * Most layout scenarios do not require querying intrinsic measurements. Therefore, when writing
  * a custom layout, it is common to only define the actual measurement, as most of the times
  * the intrinsic measurements of the layout will not be queried. Moreover, intrinsic measurement
  * methods have default implementations that make a best effort attempt to calculate the intrinsic
  * measurements by reusing the [measure] method. Note this will not be correct for all layouts,
  * but can be a convenient approximation.
+ *
  * Intrinsic measurements can be useful when the layout system enforcement of no more than one
  * measurement per child is limiting. Layouts that use them are the `preferredWidth(IntrinsicSize)`
  * and `preferredHeight(IntrinsicSize)` modifiers. See their samples for when they can be useful.
@@ -61,6 +64,7 @@ fun interface MeasurePolicy {
      * list corresponds to a layout child of the layout, and children can be measured using the
      * [Measurable.measure] method. This method takes the [Constraints] which the child should
      * respect; different children can be measured with different constraints.
+     *
      * Measuring a child returns a [Placeable], which reveals the size chosen by the child as a
      * result of its own measurement. According to the children sizes, the parent defines the
      * position of the children, by [placing][Placeable.PlacementScope.place] the [Placeable]s in

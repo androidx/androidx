@@ -33,6 +33,8 @@ class AutoboxingStateCreationDetectorTest(
 
     private val fqType = typeUnderTest.fqName
     private val type = typeUnderTest.typeName
+    private val jvmType = typeUnderTest.jvmClassName
+    private val fqJvmClass = typeUnderTest.fqJvmName
     private val stateValue = typeUnderTest.sampleValue
 
     private val primitiveStateStub = kotlin(
@@ -79,6 +81,7 @@ class AutoboxingStateCreationDetectorTest(
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -109,12 +112,48 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
         )
     }
 
+    /**
+     * Regression test for b/314093514. Java doesn't allow specifying nullity of the generic type
+     * with either the AndroidX or JetBrains nullity annotations, so we never have enough
+     * information to know whether a mutableState created in Java is capable of being refactored
+     * into the specialized primitive version. Therefore, this inspection should never report
+     * for Java callers.
+     */
+    @Test
+    fun testTrivialMutableStateOf_notReportedInJava() {
+        lint().files(
+            primitiveStateStub,
+            Stubs.Composable,
+            Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
+            java(
+                """
+                    package androidx.compose.runtime.lint.test;
+
+                    import static androidx.compose.runtime.SnapshotStateKt.mutableStateOf;
+                    import static androidx.compose.runtime.SnapshotStateKt.structuralEqualityPolicy;
+
+                    import androidx.compose.runtime.*;
+                    import $fqJvmClass;
+
+                    class Test {
+                        public void valueAssignment() {
+                            MutableState<$jvmType> state = mutableStateOf($stateValue, structuralEqualityPolicy());
+                            state.setValue($stateValue);
+                        }
+                    }
+                """
+            )
+        ).run().expectClean()
+    }
+
     @Test
     fun testInferredMutableStateOf_thatCouldBeMutablePrimitiveStateOf() {
         lint().files(
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -151,6 +190,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -187,6 +227,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -223,6 +264,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -256,37 +298,38 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
     @Test
     fun testStateDelegate_withInferredType_andInternalSetter_thatCouldBeMutablePrimitiveStateOf() {
         lint().files(
-                primitiveStateStub,
-                Stubs.Composable,
-                Stubs.SnapshotState,
-                kotlin(
-                    """
-                    package androidx.compose.runtime.lint.test
+            primitiveStateStub,
+            Stubs.Composable,
+            Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
+            kotlin(
+                """
+                package androidx.compose.runtime.lint.test
 
-                    import androidx.compose.runtime.*
-                    import $fqType
+                import androidx.compose.runtime.*
+                import $fqType
 
-                    class Test(initialValue: $type = $stateValue) {
-                        var state by mutableStateOf(initialValue)
-                            private set
-                    }
-                """
-                )
-            ).run().expect(
-                """
-src/androidx/compose/runtime/lint/test/Test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
-                        var state by mutableStateOf(initialValue)
-                                     ~~~~~~~~~~~~~~
-0 errors, 0 warnings
-            """
-            ).expectFixDiffs(
-                """
-Fix for src/androidx/compose/runtime/lint/test/Test.kt line 7: Replace with mutable${type}StateOf:
-@@ -8 +8
--                         var state by mutableStateOf(initialValue)
-+                         var state by mutable${type}StateOf(initialValue)
+                class Test(initialValue: $type = $stateValue) {
+                    var state by mutableStateOf(initialValue)
+                        private set
+                }
             """
             )
+        ).run().expect(
+                """
+src/androidx/compose/runtime/lint/test/Test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+                    var state by mutableStateOf(initialValue)
+                                 ~~~~~~~~~~~~~~
+0 errors, 0 warnings
+            """
+        ).expectFixDiffs(
+                """
+Fix for src/androidx/compose/runtime/lint/test/Test.kt line 8: Replace with mutable${type}StateOf:
+@@ -8 +8
+-                     var state by mutableStateOf(initialValue)
++                     var state by mutable${type}StateOf(initialValue)
+            """
+        )
     }
 
     @Test
@@ -295,6 +338,7 @@ Fix for src/androidx/compose/runtime/lint/test/Test.kt line 7: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -331,6 +375,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -353,6 +398,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -389,6 +435,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -411,6 +458,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -433,6 +481,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -455,6 +504,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -475,27 +525,30 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun initParameters() = listOf(
-            testCase("kotlin.Int", "42"),
-            testCase("kotlin.Long", "0xABCDEF1234"),
-            testCase("kotlin.Float", "1.5f"),
-            testCase("kotlin.Double", "1.024")
+            testCase("kotlin.Int", "java.lang.Integer", "42"),
+            testCase("kotlin.Long", "java.lang.Long", "0xABCDEF1234"),
+            testCase("kotlin.Float", "java.lang.Float", "1.5f"),
+            testCase("kotlin.Double", "java.lang.Double", "1.024")
         )
 
-        private fun testCase(fqName: String, value: String): TypeUnderTest {
-            val parts = fqName.split('.')
-            return TypeUnderTest(
-                fqName = fqName,
-                typeName = parts.last(),
-                packageName = parts.dropLast(1).joinToString(separator = "."),
-                sampleValue = value
-            )
-        }
+        private fun testCase(
+            fqName: String,
+            jvmFqName: String,
+            value: String
+        ) = TypeUnderTest(
+            fqName = fqName,
+            typeName = fqName.split('.').last(),
+            fqJvmName = jvmFqName,
+            jvmClassName = jvmFqName.split('.').last(),
+            sampleValue = value
+        )
     }
 
     data class TypeUnderTest(
         val fqName: String,
         val typeName: String,
-        val packageName: String,
+        val fqJvmName: String,
+        val jvmClassName: String,
         val sampleValue: String,
     ) {
         // Formatting for test parameter list.

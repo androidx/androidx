@@ -42,10 +42,13 @@ public class ListTemplateTest {
     public void createInstance_emptyList_notLoading_Throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").build());
+                () -> new ListTemplate.Builder()
+                        .setHeader(new Header.Builder().setTitle("Title").build())
+                        .build());
 
         // Positive case
-        new ListTemplate.Builder().setTitle("Title").setLoading(true).build();
+        new ListTemplate.Builder().setHeader(new Header.Builder()
+                .setTitle("Title").build()).setLoading(true).build();
     }
 
     @Test
@@ -54,7 +57,7 @@ public class ListTemplateTest {
                 IllegalStateException.class,
                 () ->
                         new ListTemplate.Builder()
-                                .setTitle("Title")
+                                .setHeader(new Header.Builder().setTitle("Title").build())
                                 .setLoading(true)
                                 .setSingleList(getList())
                                 .build());
@@ -65,8 +68,9 @@ public class ListTemplateTest {
         ItemList emptyList = new ItemList.Builder().build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").addSectionedList(
-                        SectionedItemList.create(emptyList,
+                () -> new ListTemplate.Builder()
+                        .setHeader(new Header.Builder().setTitle("Title").build())
+                        .addSectionedList(SectionedItemList.create(emptyList,
                                 "header")).build());
     }
 
@@ -74,9 +78,10 @@ public class ListTemplateTest {
     public void addSectionedList_emptyHeader_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").addSectionedList(
-                        SectionedItemList.create(getList(),
-                                "")).build());
+                () -> new ListTemplate.Builder()
+                        .setHeader(new Header.Builder().setTitle("Title").build())
+                        .addSectionedList(SectionedItemList.create(getList(), ""))
+                        .build());
     }
 
     @Test
@@ -84,14 +89,14 @@ public class ListTemplateTest {
         ItemList list =
                 new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("Title").build())
-                        .setOnItemsVisibilityChangedListener((start, end) -> {
-                        })
+                        .setOnItemsVisibilityChangedListener((start, end) -> {})
                         .build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle("Title").addSectionedList(
-                        SectionedItemList.create(list,
-                                "header")).build());
+                () -> new ListTemplate.Builder()
+                        .setHeader(new Header.Builder().setTitle("Title").build())
+                        .addSectionedList(SectionedItemList.create(list, "header"))
+                        .build());
     }
 
     @Test
@@ -105,14 +110,14 @@ public class ListTemplateTest {
                 IllegalArgumentException.class,
                 () ->
                         new ListTemplate.Builder()
-                                .setTitle("Title")
+                                .setHeader(new Header.Builder().setTitle("Title").build())
                                 .setSingleList(
                                         new ItemList.Builder().addItem(rowExceedsMaxTexts).build())
                                 .build());
 
         // Positive case.
         new ListTemplate.Builder()
-                .setTitle("Title")
+                .setHeader(new Header.Builder().setTitle("Title").build())
                 .setSingleList(new ItemList.Builder().addItem(rowMeetingMaxTexts).build())
                 .build();
     }
@@ -122,18 +127,22 @@ public class ListTemplateTest {
         CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new ListTemplate.Builder().setTitle(title));
+                () -> new ListTemplate.Builder().setHeader(new Header.Builder()
+                        .setTitle(title).build()));
 
         // DurationSpan and DistanceSpan do not throw
         CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
-        new ListTemplate.Builder().setTitle(title2).setSingleList(getList()).build();
+        new ListTemplate.Builder().setHeader(new Header.Builder().setTitle(title2).build())
+                .setSingleList(getList()).build();
     }
 
     @Test
     public void createInstance_setSingleList() {
         ItemList list = getList();
-        ListTemplate template = new ListTemplate.Builder().setTitle("Title").setSingleList(
-                list).build();
+        ListTemplate template = new ListTemplate.Builder()
+                .setHeader(new Header.Builder().setTitle("Title").build())
+                .setSingleList(list)
+                .build();
         assertThat(template.getSingleList()).isEqualTo(list);
         assertThat(template.getSectionedLists()).isEmpty();
     }
@@ -143,9 +152,7 @@ public class ListTemplateTest {
         ItemList list = getList();
         ListTemplate template = new ListTemplate.Builder().setSingleList(list).build();
 
-        assertThat(template.getHeaderAction()).isNull();
-        assertThat(template.getTitle()).isNull();
-        assertThat(template.getActionStrip()).isNull();
+        assertThat(template.getHeader()).isNull();
     }
 
     @Test
@@ -154,7 +161,7 @@ public class ListTemplateTest {
         ItemList list2 = getList();
         ListTemplate template =
                 new ListTemplate.Builder()
-                        .setTitle("Title")
+                        .setHeader(new Header.Builder().setTitle("Title").build())
                         .addSectionedList(SectionedItemList.create(list1, "header1"))
                         .addSectionedList(SectionedItemList.create(list2, "header2"))
                         .build();
@@ -173,7 +180,7 @@ public class ListTemplateTest {
         ItemList list3 = getList();
         ListTemplate template =
                 new ListTemplate.Builder()
-                        .setTitle("Title")
+                        .setHeader(new Header.Builder().setTitle("Title").build())
                         .addSectionedList(SectionedItemList.create(list1, "header1"))
                         .addSectionedList(SectionedItemList.create(list2, "header2"))
                         .setSingleList(list3)
@@ -189,7 +196,7 @@ public class ListTemplateTest {
         ItemList list3 = getList();
         ListTemplate template =
                 new ListTemplate.Builder()
-                        .setTitle("Title")
+                        .setHeader(new Header.Builder().setTitle("Title").build())
                         .setSingleList(list1)
                         .addSectionedList(SectionedItemList.create(list2, "header1"))
                         .addSectionedList(SectionedItemList.create(list3, "header2"))
@@ -206,7 +213,7 @@ public class ListTemplateTest {
 
         ListTemplate template =
                 new ListTemplate.Builder()
-                        .setTitle("Title")
+                        .setHeader(new Header.Builder().setTitle("Title").build())
                         .addSectionedList(SectionedItemList.create(list1, "header1"))
                         .addSectionedList(SectionedItemList.create(list2, "header2"))
                         .clearSectionedLists()
@@ -223,30 +230,37 @@ public class ListTemplateTest {
                 IllegalArgumentException.class,
                 () ->
                         new ListTemplate.Builder()
-                                .setHeaderAction(
-                                        new Action.Builder().setTitle("Action").setOnClickListener(
-                                                () -> {
-                                                }).build()));
+                                .setHeader(new Header.Builder()
+                                        .setStartHeaderAction(
+                                                new Action.Builder().setTitle("Action")
+                                                        .setOnClickListener(() -> {})
+                                                        .build())
+                                        .build()));
+
     }
 
     @Test
     public void createInstance_setHeaderAction() {
         ListTemplate template =
-                new ListTemplate.Builder().setSingleList(getList()).setHeaderAction(
-                        Action.BACK).build();
-        assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
+                new ListTemplate.Builder().setSingleList(getList())
+                        .setHeader(new Header.Builder()
+                                .setStartHeaderAction(Action.BACK)
+                                .build())
+                        .build();
+        assertThat(template.getHeader().getStartHeaderAction()).isEqualTo(Action.BACK);
     }
 
     @Test
-    public void createInstance_setActionStrip() {
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
+    public void createInstance_setEndHeaderAction() {
         ListTemplate template =
                 new ListTemplate.Builder()
-                        .setTitle("Title")
+                        .setHeader(new Header.Builder()
+                                .setTitle("Title")
+                                .addEndHeaderAction(Action.BACK)
+                                .build())
                         .setSingleList(getList())
-                        .setActionStrip(actionStrip)
                         .build();
-        assertThat(template.getActionStrip()).isEqualTo(actionStrip);
+        assertThat(template.getHeader().getEndHeaderActions().get(0)).isEqualTo(Action.BACK);
     }
 
     @Test
@@ -366,12 +380,18 @@ public class ListTemplateTest {
         ItemList itemList = new ItemList.Builder().build();
 
         ListTemplate template =
-                new ListTemplate.Builder().setTitle("Title").setSingleList(itemList).build();
+                new ListTemplate.Builder()
+                        .setHeader(new Header.Builder()
+                                .setTitle("Title")
+                                .build())
+                        .setSingleList(itemList).build();
 
         assertThat(template)
                 .isNotEqualTo(
                         new ListTemplate.Builder()
-                                .setTitle("Title")
+                                .setHeader(new Header.Builder()
+                                        .setTitle("Title")
+                                        .build())
                                 .setSingleList(
                                         new ItemList.Builder().addItem(
                                                 new Row.Builder().setTitle(
@@ -384,14 +404,19 @@ public class ListTemplateTest {
         ItemList itemList = new ItemList.Builder().build();
 
         ListTemplate template =
-                new ListTemplate.Builder().setSingleList(itemList).setHeaderAction(
-                        Action.BACK).build();
+                new ListTemplate.Builder().setSingleList(itemList)
+                        .setHeader(new Header.Builder()
+                                .setStartHeaderAction(Action.BACK)
+                                .build())
+                        .build();
 
         assertThat(template)
                 .isNotEqualTo(
                         new ListTemplate.Builder()
                                 .setSingleList(itemList)
-                                .setHeaderAction(Action.APP_ICON)
+                                .setHeader(new Header.Builder()
+                                        .setStartHeaderAction(Action.APP_ICON)
+                                        .build())
                                 .build());
     }
 
@@ -402,33 +427,40 @@ public class ListTemplateTest {
 
         ListTemplate template =
                 new ListTemplate.Builder()
-                        .setTitle("Title")
+                        .setHeader(new Header.Builder()
+                                .setTitle("Title")
+                                .addEndHeaderAction(Action.BACK)
+                                .build())
                         .setSingleList(itemList)
-                        .setActionStrip(actionStrip)
                         .build();
 
         assertThat(template)
                 .isNotEqualTo(
                         new ListTemplate.Builder()
-                                .setTitle("Title")
+                                .setHeader(new Header.Builder()
+                                        .setTitle("Title")
+                                        .addEndHeaderAction(Action.APP_ICON)
+                                        .build())
                                 .setSingleList(itemList)
-                                .setActionStrip(
-                                        new ActionStrip.Builder().addAction(
-                                                Action.APP_ICON).build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentTitle() {
         ItemList itemList = new ItemList.Builder().build();
-        String title = "title";
 
-        ListTemplate template = new ListTemplate.Builder().setSingleList(itemList).setTitle(
-                title).build();
+        ListTemplate template = new ListTemplate.Builder().setSingleList(itemList)
+                .setHeader(new Header.Builder()
+                        .setTitle("Title")
+                        .build())
+                .build();
 
         assertThat(template)
-                .isNotEqualTo(new ListTemplate.Builder().setSingleList(itemList).setTitle(
-                        "yo").build());
+                .isNotEqualTo(new ListTemplate.Builder().setSingleList(itemList)
+                        .setHeader(new Header.Builder()
+                                .setTitle("Title2")
+                                .build())
+                        .build());
     }
 
     @Test
@@ -458,28 +490,30 @@ public class ListTemplateTest {
     @Test
     public void toBuilder_fieldsCanBeOverwritten() {
         ItemList itemList = new ItemList.Builder().build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
 
         ListTemplate listTemplate = new ListTemplate.Builder()
                 .setSingleList(itemList)
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .build();
 
         // Verify fields can be overwritten (no crash)
         listTemplate.toBuilder()
                 .setSingleList(itemList)
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .build();
     }
 
     @Test
     public void build_addingMoreThanMaxAllowedItemsInSingleList_truncates() {
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
         ItemList.Builder itemListBuilder = new ItemList.Builder();
         int moreThanMaxAllowedItems = ListTemplate.MAX_ALLOWED_ITEMS + 1;
@@ -488,9 +522,11 @@ public class ListTemplateTest {
         }
         ListTemplate listTemplate = new ListTemplate.Builder()
                 .setSingleList(itemListBuilder.build())
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .build();
 
         assertThat(listTemplate.getSingleList().getItems()).hasSize(ListTemplate.MAX_ALLOWED_ITEMS);
@@ -498,7 +534,6 @@ public class ListTemplateTest {
 
     @Test
     public void build_addingMoreThanMaxAllowedItemsInSectionedList_truncates() {
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
 
         ItemList.Builder firstListBuilder = new ItemList.Builder();
@@ -522,9 +557,11 @@ public class ListTemplateTest {
                 .addSectionedList(firstList)
                 .addSectionedList(secondList)
                 .addSectionedList(thirdList)
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .build();
 
         assertThat(listTemplate.getSectionedLists()).hasSize(2);
@@ -535,7 +572,6 @@ public class ListTemplateTest {
 
     @Test
     public void build_aLotOfConversationMessages_truncates() {
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
         ItemList.Builder builder = new ItemList.Builder();
 
@@ -563,7 +599,12 @@ public class ListTemplateTest {
         // 10 messages, it should truncate it to 7 message to fill 8 spaces.
         messages.clear();
         for (int i = 0; i < 10; i++) {
-            messages.add(TestConversationFactory.createMinimalMessage());
+            // Set received time on a message to be equal to its index as messages should be
+            // ordered from oldest to newest in a conversation. Truncating messages from
+            // a conversation should remove the oldest ones.
+            messages.add(TestConversationFactory.createMinimalMessageBuilder()
+                    .setReceivedTimeEpochMillis(i)
+                    .build());
         }
         builder.addItem(TestConversationFactory.createMinimalConversationItemBuilder()
                 .setMessages(messages)
@@ -575,9 +616,11 @@ public class ListTemplateTest {
         // Build
         ListTemplate listTemplate = new ListTemplate.Builder()
                 .setSingleList(builder.build())
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .build();
 
         // 11 conversations should have been saved with the last 12th being dropped
@@ -589,15 +632,19 @@ public class ListTemplateTest {
                 .hasSize(ListTemplate.MAX_MESSAGES_PER_CONVERSATION);
         // Expect that the last item (which originally had 10 messages), should have its message
         // count truncated to fill the remaining spaces
-        assertThat(((ConversationItem) listTemplate.getSingleList().getItems().get(
-                10)).getMessages())
-                .hasSize(7);
+        ConversationItem lastConversationItem =
+                (ConversationItem) listTemplate.getSingleList().getItems().get(10);
+        assertThat(lastConversationItem.getMessages()).hasSize(7);
+        // Expect that the oldest 3 messages are removed.
+        assertThat(lastConversationItem.getMessages().get(0).getReceivedTimeEpochMillis())
+                .isEqualTo(3);
+        assertThat(lastConversationItem.getMessages().get(6).getReceivedTimeEpochMillis())
+                .isEqualTo(9);
     }
 
     @Test
     public void build_addingConversations_neverResultsInAnEmptyConversation() {
         // Add 10 conversations with 8 messages each to fill 99 items
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
         ItemList.Builder builder = new ItemList.Builder();
 
@@ -618,9 +665,11 @@ public class ListTemplateTest {
         // And try to build
         ListTemplate listTemplate = new ListTemplate.Builder()
                 .setSingleList(builder.build())
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .build();
 
         // Assert that the last conversation was not added despite the item count only being 99
@@ -629,16 +678,17 @@ public class ListTemplateTest {
 
     private static ListTemplate createFullyPopulatedListTemplate() {
         ItemList itemList = new ItemList.Builder().build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         String title = "title";
         CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
 
         return new ListTemplate.Builder()
                 .setSingleList(itemList)
-                .setActionStrip(actionStrip)
-                .setHeaderAction(Action.BACK)
-                .setTitle(title)
+                .setHeader(new Header.Builder()
+                        .setTitle(title)
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(Action.BACK)
+                        .build())
                 .addAction(TestUtils.createAction(icon, CarColor.BLUE))
                 .build();
     }

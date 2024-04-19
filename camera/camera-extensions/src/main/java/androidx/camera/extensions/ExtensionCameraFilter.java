@@ -19,14 +19,12 @@ package androidx.camera.extensions;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Identifier;
+import androidx.camera.extensions.internal.ExtensionsUtils;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.core.util.Preconditions;
 
@@ -54,7 +52,6 @@ final class ExtensionCameraFilter implements CameraFilter {
         return mId;
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     @Override
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
@@ -62,11 +59,10 @@ final class ExtensionCameraFilter implements CameraFilter {
         for (CameraInfo cameraInfo : cameraInfos) {
             Preconditions.checkArgument(cameraInfo instanceof CameraInfoInternal,
                     "The camera info doesn't contain internal implementation.");
-            String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-
+            CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
+            String cameraId = cameraInfoInternal.getCameraId();
             Map<String, CameraCharacteristics> cameraCharacteristicsMap =
-                    Camera2CameraInfo.from(cameraInfo).getCameraCharacteristicsMap();
-
+                    ExtensionsUtils.getCameraCharacteristicsMap(cameraInfoInternal);
             if (mVendorExtender
                     .isExtensionAvailable(cameraId, cameraCharacteristicsMap)) {
                 result.add(cameraInfo);

@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.compose.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -26,6 +27,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 enum class ComposeCameraScreen(
     val icon: ImageVector
 ) {
+    Viewfinder(
+        icon = Icons.Filled.Gradient
+    ),
     ImageCapture(
         icon = Icons.Filled.CameraAlt
     ),
@@ -36,6 +40,7 @@ enum class ComposeCameraScreen(
     companion object {
         fun fromRoute(route: String?, defaultRoute: ComposeCameraScreen): ComposeCameraScreen {
             return when (route?.substringBefore("/")) {
+                Viewfinder.name -> Viewfinder
                 ImageCapture.name -> ImageCapture
                 VideoCapture.name -> VideoCapture
                 null -> defaultRoute

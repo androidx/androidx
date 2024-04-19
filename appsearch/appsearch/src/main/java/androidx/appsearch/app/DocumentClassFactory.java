@@ -17,9 +17,11 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appsearch.exceptions.AppSearchException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An interface for factories which can convert between instances of classes annotated with
@@ -57,8 +59,10 @@ public interface DocumentClassFactory<T> {
 
     /**
      * Converts a {@link androidx.appsearch.app.GenericDocument} into an instance of the document
-     * class.
+     * class. For nested document properties, this method should pass {@code documentClassMap} down
+     * to the nested calls of {@link GenericDocument#toDocumentClass(Class, Map)}.
      */
     @NonNull
-    T fromGenericDocument(@NonNull GenericDocument genericDoc) throws AppSearchException;
+    T fromGenericDocument(@NonNull GenericDocument genericDoc,
+            @Nullable Map<String, List<String>> documentClassMap) throws AppSearchException;
 }

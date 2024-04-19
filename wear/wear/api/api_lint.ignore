@@ -3,16 +3,6 @@ AcronymName: androidx.wear.widget.CurvingLayoutCallback#adjustAnchorOffsetXY(and
     Acronyms should not be capitalized in method names: was `adjustAnchorOffsetXY`, should this be `adjustAnchorOffsetXy`?
 
 
-ActionValue: androidx.wear.ambient.AmbientMode#EXTRA_BURN_IN_PROTECTION:
-    Inconsistent extra value; expected `androidx.wear.ambient.extra.BURN_IN_PROTECTION`, was `com.google.android.wearable.compat.extra.BURN_IN_PROTECTION`
-ActionValue: androidx.wear.ambient.AmbientMode#EXTRA_LOWBIT_AMBIENT:
-    Inconsistent extra value; expected `androidx.wear.ambient.extra.LOWBIT_AMBIENT`, was `com.google.android.wearable.compat.extra.LOWBIT_AMBIENT`
-ActionValue: androidx.wear.ambient.AmbientModeSupport#EXTRA_BURN_IN_PROTECTION:
-    Inconsistent extra value; expected `androidx.wear.ambient.extra.BURN_IN_PROTECTION`, was `com.google.android.wearable.compat.extra.BURN_IN_PROTECTION`
-ActionValue: androidx.wear.ambient.AmbientModeSupport#EXTRA_LOWBIT_AMBIENT:
-    Inconsistent extra value; expected `androidx.wear.ambient.extra.LOWBIT_AMBIENT`, was `com.google.android.wearable.compat.extra.LOWBIT_AMBIENT`
-
-
 CallbackMethodName: androidx.wear.widget.CurvingLayoutCallback#adjustAnchorOffsetXY(android.view.View, float[]):
     Callback method names must follow the on<Something> style: adjustAnchorOffsetXY
 
@@ -21,14 +11,14 @@ ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
     ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+GetterSetterNames: androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails#burnInProtectionRequired:
+    Invalid name for boolean property `burnInProtectionRequired`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.wear.ambient.AmbientLifecycleObserver.AmbientDetails#deviceHasLowBitAmbient:
+    Invalid name for boolean property `deviceHasLowBitAmbient`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsAutoPeekEnabled(boolean):
     Symmetric method for `isAutoPeekEnabled` must be named `setAutoPeekEnabled`; was `setIsAutoPeekEnabled`
 GetterSetterNames: androidx.wear.widget.drawer.WearableDrawerView#setIsLocked(boolean):
     Symmetric method for `isLocked` must be named `setLocked`; was `setIsLocked`
-GetterSetterNames: field AmbientLifecycleObserver.AmbientDetails.burnInProtectionRequired:
-    Invalid name for boolean property `burnInProtectionRequired`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field AmbientLifecycleObserver.AmbientDetails.deviceHasLowBitAmbient:
-    Invalid name for boolean property `deviceHasLowBitAmbient`. Should start with one of `has`, `can`, `should`, `is`.
 
 
 InvalidNullabilityOverride: androidx.wear.widget.ArcLayout#checkLayoutParams(android.view.ViewGroup.LayoutParams) parameter #0:
@@ -77,42 +67,6 @@ InvalidNullabilityOverride: androidx.wear.widget.drawer.WearableDrawerLayout#onS
 
 MissingNullability: androidx.wear.activity.ConfirmationActivity#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.wear.ambient.AmbientMode#attachAmbientSupport(T):
-    Missing nullability on method `attachAmbientSupport` return
-MissingNullability: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Missing nullability on parameter `prefix` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Missing nullability on parameter `fd` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
-    Missing nullability on parameter `writer` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Missing nullability on parameter `args` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientMode#onAttach(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `onAttach`
-MissingNullability: androidx.wear.ambient.AmbientMode#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.wear.ambient.AmbientMode.AmbientCallback#onEnterAmbient(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `ambientDetails` in method `onEnterAmbient`
-MissingNullability: androidx.wear.ambient.AmbientMode.AmbientCallbackProvider#getAmbientCallback():
-    Missing nullability on method `getAmbientCallback` return
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#attach(T):
-    Missing nullability on method `attach` return
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
-    Missing nullability on parameter `prefix` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Missing nullability on parameter `fd` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
-    Missing nullability on parameter `writer` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #3:
-    Missing nullability on parameter `args` in method `dump`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#onAttach(android.content.Context) parameter #0:
-    Missing nullability on parameter `context` in method `onAttach`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport#onCreate(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport.AmbientCallback#onEnterAmbient(android.os.Bundle) parameter #0:
-    Missing nullability on parameter `ambientDetails` in method `onEnterAmbient`
-MissingNullability: androidx.wear.ambient.AmbientModeSupport.AmbientCallbackProvider#getAmbientCallback():
-    Missing nullability on method `getAmbientCallback` return
 MissingNullability: androidx.wear.utils.MetadataConstants#getPreviewDrawableResourceId(android.content.Context, boolean) parameter #0:
     Missing nullability on parameter `context` in method `getPreviewDrawableResourceId`
 MissingNullability: androidx.wear.utils.MetadataConstants#isNotificationBridgingEnabled(android.content.Context) parameter #0:
@@ -331,15 +285,3 @@ MissingNullability: androidx.wear.widget.drawer.WearableNavigationDrawerView.Wea
 
 PublicTypedef: androidx.wear.widget.ConfirmationOverlay.OverlayType:
     Don't expose @IntDef: OverlayType must be hidden.
-
-
-RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
-    Callback methods should be named register/unregister; was addCallback
-RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
-    Callback methods should be named register/unregister; was removeCallback
-
-
-UseParcelFileDescriptor: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientMode.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
-UseParcelFileDescriptor: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
-    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientModeSupport.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)

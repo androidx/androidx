@@ -27,6 +27,11 @@ internal open class StreamConfigurationMapCompatBaseImpl(
     val streamConfigurationMap: StreamConfigurationMap?
 ) :
     StreamConfigurationMapCompat.StreamConfigurationMapCompatImpl {
+
+    override fun getOutputFormats(): Array<Int>? {
+        return streamConfigurationMap?.outputFormats?.toTypedArray()
+    }
+
     override fun getOutputSizes(format: Int): Array<Size>? {
         val sizes: Array<Size> =
             if (format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {

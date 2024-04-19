@@ -28,8 +28,6 @@ import android.window.BackEvent
 import androidx.activity.BackEventCompat
 import androidx.annotation.AnimatorRes
 import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
@@ -148,7 +146,6 @@ class FragmentAnimatorTest {
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     // This tests reordered transactions
-    @RequiresApi(16)
     @Test
     fun showAnimatorsReordered() {
         val fm = activityRule.activity.supportFragmentManager
@@ -192,7 +189,6 @@ class FragmentAnimatorTest {
 
     // Ensure that showing and popping a Fragment uses the enter and popExit animators
     // This tests ordered transactions
-    @RequiresApi(16)
     @Test
     fun showAnimatorsOrdered() {
         val fm = activityRule.activity.supportFragmentManager
@@ -411,7 +407,6 @@ class FragmentAnimatorTest {
 
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators,
     // but the animators are delayed when an entering Fragment is postponed.
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     fun postponedRemoveAnimators() {
         val fm = activityRule.activity.supportFragmentManager
@@ -464,7 +459,7 @@ class FragmentAnimatorTest {
         assertThat(fragment1.requireView()).isNotNull()
         assertThat(fragment1.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment1.requireView().alpha).isWithin(0f).of(1f)
-        assertThat(ViewCompat.isAttachedToWindow(fragment1.requireView())).isTrue()
+        assertThat(fragment1.requireView().isAttachedToWindow()).isTrue()
 
         fragment2.startPostponedEnterTransition()
         activityRule.waitForExecution()
@@ -504,7 +499,7 @@ class FragmentAnimatorTest {
 
         assertThat(fragment1.view).isNotNull()
         assertThat(fragment1.requireView().alpha).isWithin(0f).of(1f)
-        assertThat(ViewCompat.isAttachedToWindow(fragment1.requireView())).isTrue()
+        assertThat(fragment1.requireView().isAttachedToWindow()).isTrue()
         assertThat(fragment1.isAdded).isTrue()
 
         assertThat(fragment2.view).isNull()

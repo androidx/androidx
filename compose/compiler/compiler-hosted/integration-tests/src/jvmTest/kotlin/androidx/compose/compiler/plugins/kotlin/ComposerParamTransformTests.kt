@@ -510,4 +510,82 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 })
             }
         )
+
+    @Test
+    fun composableCallInAnonymousObjectInitializer() =
+        verifyGoldenComposeIrTransform(
+            extra = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Foo(): State<Int> = TODO()
+            """,
+            source = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Test(inputs: List<Int>) {
+                    val objs = inputs.map {
+                        object {
+                            init {
+                                Foo()
+                            }
+
+                            val state = Foo()
+                            val value by Foo()
+                        }
+                    }
+                    objs.forEach {
+                        println(it.state)
+                        println(it.value)
+                    }
+                }
+            """
+        )
+
+    @Test
+    fun composableLocalFunctionInsideLocalClass() =
+        verifyGoldenComposeIrTransform(
+            extra = """
+                import androidx.compose.runtime.*
+
+                abstract class C {
+                    @Composable
+                    abstract fun Render()
+                }
+
+                @Composable fun Button(onClick: () -> Unit, content: @Composable () -> Unit) {}
+            """,
+            source = """
+                import androidx.compose.runtime.*
+
+                fun test() {
+                    object: C() {
+                        @Composable
+                        override fun Render() {
+                            @Composable
+                            fun B() {
+                                Button({}) {}
+                            }
+
+                            B()
+                        }
+                    }
+                }
+            """
+        )
+
+    @Test
+    fun composeValueClassDefaultParameter() =
+        verifyGoldenComposeIrTransform(
+            extra = """
+                @JvmInline
+                value class Data(val string: String)
+                @JvmInline
+                value class IntData(val value: Int)
+            """,
+            source = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Example(data: Data = Data(""), intData: IntData = IntData(0)) {}
+            """
+        )
 }

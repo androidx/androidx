@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 import androidx.build.SdkHelperKt
@@ -46,16 +53,16 @@ dependencies {
 
 // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
 def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/$buildToolsVersion/aidl"
-def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/$compileSdk/framework.aidl"
-test {
-    inputs.files(aidlCompilerPath)
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/android-$compileSdk/framework.aidl"
+tasks.withType(Test).configureEach { test ->
+    test.inputs.files(aidlCompilerPath)
             .withPropertyName("aidl_compiler_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
-    inputs.files(frameworkAidlPath)
+    test.inputs.files(frameworkAidlPath)
             .withPropertyName("framework_aidl_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
-    inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
-    doFirst {
+    test.inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
+    test.doFirst {
         systemProperty "aidl_compiler_path", aidlCompilerPath
         systemProperty "framework_aidl_path", frameworkAidlPath
     }

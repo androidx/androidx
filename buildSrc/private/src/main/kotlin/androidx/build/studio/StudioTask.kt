@@ -272,10 +272,9 @@ abstract class StudioTask : DefaultTask() {
             val userInput = services.get(UserInputHandler::class.java)
             val acceptAgreement =
                 userInput.askYesNoQuestion(
-                    "Do you accept the license agreement at $licensePath?",
-                    /* default answer*/ false
+                    "Do you accept the license agreement at $licensePath?"
                 )
-            if (!acceptAgreement) {
+            if (acceptAgreement == null || !acceptAgreement) {
                 return false
             }
             licenseAcceptedFile.createNewFile()

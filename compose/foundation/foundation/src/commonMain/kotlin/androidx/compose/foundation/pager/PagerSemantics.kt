@@ -16,19 +16,16 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberPagerSemanticState(
     state: PagerState,
-    reverseScrolling: Boolean,
     isVertical: Boolean
 ): LazyLayoutSemanticState {
-    return remember(state, reverseScrolling, isVertical) {
+    return remember(state, isVertical) {
         LazyLayoutSemanticState(state, isVertical)
     }
 }

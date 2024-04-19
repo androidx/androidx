@@ -21,6 +21,8 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.text.format.DateFormat
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
@@ -73,6 +75,7 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn
 import com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession
 import com.android.dx.mockito.inline.extended.MockedMethod
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.PI
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -515,6 +518,32 @@ class TimePickerTest {
             }
 
         assertThat(state.hour).isEqualTo(12)
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun timeInput_writeMinute_updatesCurrentAngle() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeInput(state)
+        }
+
+        rule.onNodeWithText("10")
+            .performKeyInput {
+                pressKey(Key.One)
+                pressKey(Key.Two)
+            }
+
+        rule.onNodeWithText("00")
+            .performKeyInput {
+                pressKey(Key.Four)
+                pressKey(Key.Five)
+            }
+
+        assertThat(state.currentAngle.value)
+            .isWithin(0.0001f)
+            .of(PI.toFloat())
     }
 
     @Test

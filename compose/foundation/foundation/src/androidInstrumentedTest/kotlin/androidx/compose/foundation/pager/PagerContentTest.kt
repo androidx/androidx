@@ -129,10 +129,10 @@ class PagerContentTest {
     @Test
     fun scrollableState_isScrollableWhenChangingPages() {
         val states = mutableMapOf<Int, ScrollState>()
-        val pagerState = PagerStateImpl(
-            initialPage = 0,
-            initialPageOffsetFraction = 0.0f,
-            updatedPageCount = { 2 })
+        val pagerState = PagerState(
+            currentPage = 0,
+            currentPageOffsetFraction = 0.0f,
+            pageCount = { 2 })
         rule.setContent {
             HorizontalPager(
                 state = pagerState,

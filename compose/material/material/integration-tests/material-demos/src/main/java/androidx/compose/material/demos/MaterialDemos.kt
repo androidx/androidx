@@ -19,6 +19,7 @@ package androidx.compose.material.demos
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.material.navigation.samples.BottomSheetNavDemo
 import androidx.compose.material.samples.AlertDialogSample
 import androidx.compose.material.samples.BackdropScaffoldSample
 import androidx.compose.material.samples.BottomDrawerSample
@@ -58,6 +59,7 @@ val MaterialDemos = DemoCategory(
                     BottomSheetScaffoldWithDrawerSample()
                 },
                 ComposableDemo("Modal Bottom Sheet") { ModalBottomSheetSample() },
+                ComposableDemo("Modal Bottom Sheet In Navigation") { BottomSheetNavDemo() },
             )
         ),
         ComposableDemo("Buttons & FABs") { ButtonDemo() },

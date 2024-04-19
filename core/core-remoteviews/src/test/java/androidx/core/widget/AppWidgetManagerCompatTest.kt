@@ -30,7 +30,6 @@ import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.remoteviews.test.R
 import androidx.core.util.SizeFCompat
 import androidx.core.util.component1
@@ -273,7 +272,6 @@ class AppWidgetManagerCompatTest {
     private val RemoteViews.portrait: RemoteViews?
         get() = ReflectionHelpers.getField(this, "mPortrait")
 
-    @RequiresApi(17)
     private fun configurationContext(modifier: Configuration.() -> Unit): Context {
         val configuration = Configuration()
         configuration.apply(modifier)

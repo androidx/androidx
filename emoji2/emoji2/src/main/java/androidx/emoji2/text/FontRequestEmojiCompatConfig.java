@@ -27,7 +27,6 @@ import android.os.SystemClock;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.core.graphics.TypefaceCompatUtil;
@@ -252,7 +251,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         @Override
-        @RequiresApi(19)
         public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             synchronized (mLock) {
@@ -261,7 +259,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
             loadInternal();
         }
 
-        @RequiresApi(19)
         void loadInternal() {
             synchronized (mLock) {
                 if (mCallback == null) {
@@ -295,7 +292,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
             return fonts[0];  // Assuming the GMS Core provides only one font file.
         }
 
-        @RequiresApi(19)
         @WorkerThread
         private void scheduleRetry(Uri uri, long waitMs) {
             synchronized (mLock) {
@@ -342,7 +338,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         // Must be called on the mHandler.
-        @RequiresApi(19)
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @WorkerThread
         void createMetadata() {

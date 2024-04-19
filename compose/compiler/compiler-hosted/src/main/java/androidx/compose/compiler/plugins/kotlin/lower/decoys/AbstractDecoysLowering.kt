@@ -16,10 +16,10 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
-import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
+import androidx.compose.compiler.plugins.kotlin.lower.containsComposableAnnotation
 import androidx.compose.compiler.plugins.kotlin.lower.includeFileNameInExceptionTrace
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.serialization.signature.IdSignatureSerializer
@@ -28,10 +28,7 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
-import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isEnumClass
 import org.jetbrains.kotlin.ir.util.isLocal
 import org.jetbrains.kotlin.ir.util.parentAsClass
@@ -77,20 +74,9 @@ abstract class AbstractDecoysLowering(
         }
 
     private fun IrFunction.hasComposableParameter() =
-        valueParameters.any { it.type.hasComposable() } ||
-            extensionReceiverParameter?.type?.hasComposable() == true
+        valueParameters.any { it.type.containsComposableAnnotation() } ||
+            extensionReceiverParameter?.type.containsComposableAnnotation()
 
     private fun IrFunction.isEnumConstructor() =
         this is IrConstructor && parentAsClass.isEnumClass
-
-    private fun IrType.hasComposable(): Boolean {
-        if (hasAnnotation(ComposeFqNames.Composable)) {
-            return true
-        }
-
-        return when (this) {
-            is IrSimpleType -> arguments.any { (it as? IrType)?.hasComposable() == true }
-            else -> false
-        }
-    }
 }

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends T>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter inputs in androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[] inputs, androidx.compose.runtime.saveable.Saver<T,?> saver, String key, kotlin.jvm.functions.Function0<? extends T> init)
+InvalidNullConversion: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>) parameter #0:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter inputs in androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[] inputs, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, String key, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init)

@@ -9,7 +9,7 @@ AndroidX repo, and our continuous testing / triage process.
 
 This page is for MICRO benchmarks measuring CPU performance of small sections of
 code. If you're looking for measuring startup or jank, see the guide for
-MACRObenchmarks [here](/company/teams/androidx/macrobenchmarking.md).
+MACRObenchmarks [here](/docs/macrobenchmarking.md).
 
 ### Writing the benchmark
 
@@ -200,3 +200,21 @@ profiler:
 If timed correctly, you'll have started and stopped collection around the single
 run of your benchmark loop, and see all allocations in detail with call stacks
 in Studio.
+
+## Minification / R8
+
+As many Android apps don't yet enable R8, the default for microbenchmarks in
+AndroidX is to run with R8 disabled to measure worst-case performance. It may
+still be useful to run your microbenchmarks with R8 enabled locally however, and
+that is supported experimentally. To enable, in your microbench module:
+
+```
+android {
+    buildTypes.release.androidTest.enableMinification = true
+}
+```
+
+Then, if you see any errors from classes not found at runtime, you can add
+proguard rules
+[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/benchmark-utils/proguard-rules.pro),
+or in a similar place for your module.

@@ -16,17 +16,23 @@
 
 package androidx.privacysandbox.sdkruntime.client
 
+import android.annotation.SuppressLint
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
+import android.os.ext.SdkExtensions
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresExtension
 import androidx.core.content.getSystemService
+import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
-import androidx.privacysandbox.sdkruntime.core.AppOwnedInterfaceConverter
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -53,12 +59,13 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         sandboxManagerCompat = SdkSandboxManagerCompat.from(context)
     }
 
+    @SuppressLint("NewApi", "ClassVerificationFailure") // For supporting DP Builds
     @After
     fun tearDown() {
         SdkSandboxManagerCompat.reset()
         if (isAppOwnedInterfacesApiAvailable()) {
-            val registeredInterfaces = getRegisteredInterfaces()
-            unregisterInterfaces(registeredInterfaces)
+            val registeredInterfaces = getRegisteredInterfaces(context)
+            unregisterInterfaces(context, registeredInterfaces)
         }
     }
 
@@ -82,6 +89,9 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     }
 
     @Test
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun registerAppOwnedSdkSandboxInterface_whenApiAvailable_registerInPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
@@ -95,7 +105,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         )
 
         sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
-        val platformRegisteredInterfaces = getRegisteredInterfaces()
+        val platformRegisteredInterfaces = getRegisteredInterfaces(context)
         assertThat(platformRegisteredInterfaces).hasSize(1)
         assertThat(platformRegisteredInterfaces[0].getName()).isEqualTo(appOwnedInterface.getName())
     }
@@ -116,6 +126,9 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     }
 
     @Test
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun unregisterAppOwnedSdkSandboxInterface_whenApiAvailable_unregisterFromPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
@@ -131,7 +144,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         sandboxManagerCompat.registerAppOwnedSdkSandboxInterface(appOwnedInterface)
         sandboxManagerCompat.unregisterAppOwnedSdkSandboxInterface(appOwnedInterface.getName())
 
-        val platformRegisteredInterfaces = getRegisteredInterfaces()
+        val platformRegisteredInterfaces = getRegisteredInterfaces(context)
         assertThat(platformRegisteredInterfaces).isEmpty()
     }
 
@@ -162,28 +175,29 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         assertThat(appOwnedSdkResult.getInterface()).isEqualTo(registeredAppOwnedSdk.getInterface())
     }
 
-    private fun getRegisteredInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-        val converter = AppOwnedInterfaceConverter()
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    companion object AppOwnedInterfacesApi { // to avoid class verification fails
+        @DoNotInline
+        fun getRegisteredInterfaces(
+            context: Context
+        ): List<AppOwnedSdkSandboxInterfaceCompat> {
+            val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
+            val results = sandboxManager.getAppOwnedSdkSandboxInterfaces()
+            return results.map { AppOwnedSdkSandboxInterfaceCompat(it) }
+        }
 
-        val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
-        val getInterfacesMethod = sandboxManager.javaClass.getMethod(
-            "getAppOwnedSdkSandboxInterfaces"
-        )
-
-        val results = getInterfacesMethod.invoke(sandboxManager) as List<*>
-        return results.map { converter.toCompat(it!!) }
-    }
-
-    private fun unregisterInterfaces(appOwnedInterfaces: List<AppOwnedSdkSandboxInterfaceCompat>) {
-        val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
-        val unregisterMethod = sandboxManager.javaClass.getMethod(
-            "unregisterAppOwnedSdkSandboxInterface",
-            /* parameter1 */ String::class.java
-        )
-
-        appOwnedInterfaces.forEach { unregisterMethod.invoke(sandboxManager, it.getName()) }
+        @DoNotInline
+        fun unregisterInterfaces(
+            context: Context,
+            appOwnedInterfaces: List<AppOwnedSdkSandboxInterfaceCompat>
+        ) {
+            val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
+            appOwnedInterfaces.forEach {
+                sandboxManager.unregisterAppOwnedSdkSandboxInterface(it.getName())
+            }
+        }
     }
 
     private fun isAppOwnedInterfacesApiAvailable() =
-        AdServicesInfo.isDeveloperPreview()
+        BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 || AdServicesInfo.isDeveloperPreview()
 }

@@ -24,8 +24,6 @@ package androidx.compose.animation.tooling {
   }
 
   public enum ComposeAnimationType {
-    method public static androidx.compose.animation.tooling.ComposeAnimationType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.animation.tooling.ComposeAnimationType[] values();
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType ANIMATABLE;
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType ANIMATED_CONTENT;
     enum_constant public static final androidx.compose.animation.tooling.ComposeAnimationType ANIMATED_VALUE;
@@ -45,12 +43,12 @@ package androidx.compose.animation.tooling {
     method public String getLabel();
     method public String getSpecType();
     method public long getStartTimeMillis();
-    method public java.util.Map<java.lang.Long,java.lang.Object> getValues();
+    method public java.util.Map<java.lang.Long,java.lang.Object?> getValues();
     property public final long endTimeMillis;
     property public final String label;
     property public final String specType;
     property public final long startTimeMillis;
-    property public final java.util.Map<java.lang.Long,java.lang.Object> values;
+    property public final java.util.Map<java.lang.Long,java.lang.Object?> values;
   }
 
 }

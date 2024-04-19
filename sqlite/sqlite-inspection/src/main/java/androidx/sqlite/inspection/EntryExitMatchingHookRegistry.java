@@ -81,7 +81,7 @@ final class EntryExitMatchingHookRegistry {
     }
 
     private @NonNull Deque<Frame> getFrameStack() {
-        /** It won't be null because of overridden {@link ThreadLocal#initialValue} */
+        /* It won't be null because of overridden {@link ThreadLocal#initialValue} */
         //noinspection ConstantConditions
         return mFrameStack.get();
     }

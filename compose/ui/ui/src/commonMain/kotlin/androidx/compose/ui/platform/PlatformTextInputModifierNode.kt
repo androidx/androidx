@@ -16,16 +16,25 @@
 
 package androidx.compose.ui.platform
 
-import androidx.annotation.RestrictTo
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collectLatest
 
 /**
  * A modifier node that can connect to the platform's text input IME system. To initiate a text
@@ -64,6 +73,35 @@ expect interface PlatformTextInputSession {
 interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineScope
 
 /**
+ * Single-function interface passed to [InterceptPlatformTextInput].
+ */
+@ExperimentalComposeUiApi
+fun interface PlatformTextInputInterceptor {
+
+    /**
+     * Called when a function passed to
+     * [establishTextInputSession][PlatformTextInputModifierNode.establishTextInputSession] calls
+     * [startInputMethod][PlatformTextInputSession.startInputMethod]. The
+     * [PlatformTextInputMethodRequest] from the caller is passed to this function as [request], and
+     * this function can either respond to the request directly (e.g. recording it for a test), or
+     * wrap the request and pass it to [nextHandler]. This function _must_ call into [nextHandler]
+     * if it intends for the system to respond to the request. Not calling into [nextHandler] has
+     * the effect of blocking the request.
+     *
+     * This method has the same ordering guarantees as
+     * [startInputMethod][PlatformTextInputSession.startInputMethod]. That is, for a given text
+     * input modifier, if [startInputMethod][PlatformTextInputSession.startInputMethod] is called
+     * multiple times, only one [interceptStartInputMethod] call will be made at a time, and any
+     * previous call will be allowed to finish running any `finally` blocks before the new session
+     * starts.
+     */
+    suspend fun interceptStartInputMethod(
+        request: PlatformTextInputMethodRequest,
+        nextHandler: PlatformTextInputSession
+    ): Nothing
+}
+
+/**
  * Starts a new text input session and suspends until the session is closed.
  *
  * The [block] function must call [PlatformTextInputSession.startInputMethod] to actually show and
@@ -91,45 +129,123 @@ interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineSco
  * call [PlatformTextInputSession.startInputMethod] to actually show and initiate the connection
  * with the input method.
  */
-@OptIn(InternalComposeUiApi::class)
 suspend fun PlatformTextInputModifierNode.establishTextInputSession(
     block: suspend PlatformTextInputSessionScope.() -> Nothing
 ): Nothing {
     require(node.isAttached) { "establishTextInputSession called from an unattached node" }
-    val override = requireLayoutNode().compositionLocalMap[LocalPlatformTextInputMethodOverride]
-    val handler = override ?: requireOwner()
-    handler.textInputSession(block)
+    val owner = requireOwner()
+    val handler =
+        requireLayoutNode().compositionLocalMap[LocalChainedPlatformTextInputInterceptor]
+    owner.interceptedTextInputSession(handler, block)
 }
 
 /**
- * Composition local used to override the [PlatformTextInputSessionHandler] used by
- * [establishTextInputSession] for tests. Should only be set by
- * `PlatformTextInputMethodTestOverride` in the ui-test module, and only ready by
- * [establishTextInputSession].
+ * Intercept all calls to [PlatformTextInputSession.startInputMethod] from below where this
+ * composition local is provided with the given [PlatformTextInputInterceptor].
+ *
+ * If a different interceptor instance is passed between compositions while a text input session
+ * is active, the upstream session will be torn down and restarted with the new interceptor. The
+ * downstream session (i.e. the call to [PlatformTextInputSession.startInputMethod]) will _not_ be
+ * cancelled and the request will be re-used to pass to the new interceptor.
+ *
+ * @sample androidx.compose.ui.samples.InterceptPlatformTextInputSample
+ * @sample androidx.compose.ui.samples.disableSoftKeyboardSample
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@InternalComposeUiApi
-@get:InternalComposeUiApi
-val LocalPlatformTextInputMethodOverride =
-    staticCompositionLocalOf<PlatformTextInputSessionHandler?> { null }
+@ExperimentalComposeUiApi
+@Composable
+fun InterceptPlatformTextInput(
+    interceptor: PlatformTextInputInterceptor,
+    content: @Composable () -> Unit
+) {
+    val parent = LocalChainedPlatformTextInputInterceptor.current
+    // We don't need to worry about explicitly cancelling the input session if the parent changes:
+    // The only way the parent can change is if the entire subtree of the composition is moved,
+    // which means the PlatformTextInputModifierNode would be detached/reattached, and the node
+    // should cancel its input session when it's detached.
+    val chainedInterceptor = remember(parent) {
+        ChainedPlatformTextInputInterceptor(interceptor, parent)
+    }
+
+    // If the interceptor changes while an input session is active, the upstream session will be
+    // restarted and the downstream one will not be cancelled.
+    chainedInterceptor.updateInterceptor(interceptor)
+
+    CompositionLocalProvider(
+        LocalChainedPlatformTextInputInterceptor provides chainedInterceptor,
+        content = content
+    )
+}
+
+private val LocalChainedPlatformTextInputInterceptor =
+    staticCompositionLocalOf<ChainedPlatformTextInputInterceptor?> { null }
 
 /**
- * SAM interface used by [textInputSession] to start a text input session.
+ * Establishes a new text input session, optionally intercepted by [chainedInterceptor].
  */
-@InternalComposeUiApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface PlatformTextInputSessionHandler {
+private suspend fun Owner.interceptedTextInputSession(
+    chainedInterceptor: ChainedPlatformTextInputInterceptor?,
+    session: suspend PlatformTextInputSessionScope.() -> Nothing
+): Nothing {
+    if (chainedInterceptor == null) {
+        textInputSession(session)
+    } else {
+        chainedInterceptor.textInputSession(this, session)
+    }
+}
+
+/**
+ * A link in a chain of [PlatformTextInputInterceptor]s. Knows about its [parent] and dispatches
+ * [textInputSession] calls up the chain.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+@Stable
+private class ChainedPlatformTextInputInterceptor(
+    initialInterceptor: PlatformTextInputInterceptor,
+    private val parent: ChainedPlatformTextInputInterceptor?
+) {
+    private var interceptor by mutableStateOf(initialInterceptor)
+
+    fun updateInterceptor(interceptor: PlatformTextInputInterceptor) {
+        this.interceptor = interceptor
+    }
+
     /**
-     * Starts a new text input session and suspends until it's closed. For more information see
-     * [PlatformTextInputModifierNode.establishTextInputSession].
+     * Intercepts the text input session with [interceptor] and dispatches up the chain, ultimately
+     * terminating at the [Owner].
      *
-     * Implementations must ensure that new requests cancel any active request. They must also
-     * ensure that the previous request is finished running all cancellation tasks before starting
-     * the new session, to ensure that no session code overlaps (e.g. using [Job.cancelAndJoin]).
+     * Note that the interceptor chain is assembled across the entire composition, including any
+     * subcompositions, but [owner] must be the [Owner] that directly hosts the
+     * [PlatformTextInputModifierNode] establishing the session.
      */
+    @OptIn(InternalComposeUiApi::class)
     suspend fun textInputSession(
+        owner: Owner,
         session: suspend PlatformTextInputSessionScope.() -> Nothing
-    ): Nothing
+    ): Nothing {
+        owner.interceptedTextInputSession(parent) {
+            val parentSession = this
+            val inputMethodMutex = SessionMutex<Unit>()
+
+            // Impl by delegation for platform-specific stuff.
+            val scope = object : PlatformTextInputSessionScope by parentSession {
+                override suspend fun startInputMethod(
+                    request: PlatformTextInputMethodRequest
+                ): Nothing {
+                    // Explicitly synchronize between calls to our startInputMethod.
+                    inputMethodMutex.withSessionCancellingPrevious<Nothing>(
+                        sessionInitializer = {},
+                        session = {
+                            // Restart the upstream session if the interceptor is changed while the
+                            // session is active.
+                            snapshotFlow { interceptor }.collectLatest { interceptor ->
+                                interceptor.interceptStartInputMethod(request, parentSession)
+                            }
+                            error("Interceptors flow should never terminate.")
+                        }
+                    )
+                }
+            }
+            session.invoke(scope)
+        }
+    }
 }

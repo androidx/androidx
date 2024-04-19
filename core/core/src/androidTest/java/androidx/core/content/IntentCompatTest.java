@@ -18,8 +18,6 @@ package androidx.core.content;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.Q;
@@ -81,20 +79,6 @@ public class IntentCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = ICE_CREAM_SANDWICH)
-    public void makeMainSelectorActivity_preApi14() {
-        String selectorAction = Intent.ACTION_MAIN;
-        String selectorCategory = Intent.CATEGORY_APP_BROWSER;
-
-        Intent activityIntent = IntentCompat.makeMainSelectorActivity(selectorAction,
-                selectorCategory);
-
-        assertThat(activityIntent.getAction()).isEqualTo(selectorAction);
-        assertThat(activityIntent.getCategories()).containsExactly(selectorCategory);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = ICE_CREAM_SANDWICH_MR1)
     public void makeMainSelectorActivity() {
         String selectorAction = Intent.ACTION_MAIN;
         String selectorCategory = Intent.CATEGORY_APP_BROWSER;
@@ -311,5 +295,16 @@ public class IntentCompatTest {
         p.setDataPosition(0);
         intent.readFromParcel(p);
         p.recycle();
+    }
+
+    @Test
+    public void getSerializableExtra() {
+        Intent intent = new Intent();
+        String s = "Hello World";
+        intent.putExtra("serializable", s);
+        parcelAndUnparcel(intent);
+
+        assertEquals(s, Objects.requireNonNull(
+                IntentCompat.getSerializableExtra(intent, "serializable", String.class)));
     }
 }

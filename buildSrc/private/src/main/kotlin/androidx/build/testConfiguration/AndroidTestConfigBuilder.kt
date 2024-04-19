@@ -22,6 +22,7 @@ class ConfigBuilder {
     lateinit var configName: String
     var appApkName: String? = null
     var appApkSha256: String? = null
+    val appSplits = mutableListOf<String>()
     lateinit var applicationId: String
     var isMicrobenchmark: Boolean = false
     var isMacrobenchmark: Boolean = false
@@ -32,12 +33,16 @@ class ConfigBuilder {
     lateinit var testApkSha256: String
     lateinit var testRunner: String
     val additionalApkKeys = mutableListOf<String>()
+    val initialSetupApks = mutableListOf<String>()
+    val instrumentationArgsMap = mutableMapOf<String, String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
 
     fun appApkName(appApkName: String) = apply { this.appApkName = appApkName }
 
     fun appApkSha256(appApkSha256: String) = apply { this.appApkSha256 = appApkSha256 }
+
+    fun appSplits(appSplits: List<String>) = apply { this.appSplits.addAll(appSplits) }
 
     fun applicationId(applicationId: String) = apply { this.applicationId = applicationId }
 
@@ -57,6 +62,8 @@ class ConfigBuilder {
 
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
 
+    fun initialSetupApks(apks: List<String>) = apply { initialSetupApks.addAll(apks) }
+
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
 
     fun testApkSha256(testApkSha256: String) = apply { this.testApkSha256 = testApkSha256 }
@@ -65,7 +72,13 @@ class ConfigBuilder {
 
     fun buildJson(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs =
+        val instrumentationArgsList = mutableListOf<InstrumentationArg>()
+        instrumentationArgsMap
+            .filter { it.key !in INST_ARG_BLOCKLIST }
+            .forEach { (key, value) ->
+                instrumentationArgsList.add(InstrumentationArg(key, value))
+            }
+        instrumentationArgsList.addAll(
             if (isMicrobenchmark && !isPostsubmit) {
                 listOf(
                     InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
@@ -74,6 +87,7 @@ class ConfigBuilder {
             } else {
                 listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"))
             }
+        )
         val values =
             mapOf(
                 "name" to configName,
@@ -83,7 +97,7 @@ class ConfigBuilder {
                 "testApkSha256" to testApkSha256,
                 "appApk" to appApkName,
                 "appApkSha256" to appApkSha256,
-                "instrumentationArgs" to instrumentationArgs,
+                "instrumentationArgs" to instrumentationArgsList,
                 "additionalApkKeys" to additionalApkKeys
             )
         return gson.toJson(values)
@@ -98,21 +112,33 @@ class ConfigBuilder {
         sb.append(MODULE_METADATA_TAG_OPTION.replace("APPLICATION_ID", applicationId))
             .append(WIFI_DISABLE_OPTION)
             .append(FLAKY_TEST_OPTION)
-        if (isMicrobenchmark) {
-            if (isPostsubmit) {
-                sb.append(MICROBENCHMARK_POSTSUBMIT_OPTIONS)
-            } else {
-                sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
+        if (!isPostsubmit && (isMicrobenchmark || isMacrobenchmark)) {
+            sb.append(BENCHMARK_PRESUBMIT_INST_ARGS)
+        }
+        instrumentationArgsMap
+            .filter { it.key !in INST_ARG_BLOCKLIST }
+            .forEach { (key, value) ->
+                sb.append(
+                    """
+                    <option name="instrumentation-arg" key="$key" value="$value" />
+
+                    """.trimIndent()
+                )
             }
-        }
-        if (isMacrobenchmark) {
-            sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)
-        }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
-            .append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
-        if (!appApkName.isNullOrEmpty())
-            sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
+        initialSetupApks.forEach { apk ->
+            sb.append(APK_INSTALL_OPTION.replace("APK_NAME", apk))
+        }
+        sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
+        if (!appApkName.isNullOrEmpty()) {
+            if (appSplits.isEmpty()) {
+                sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
+            } else {
+                val apkList = appApkName + "," + appSplits.joinToString(",")
+                sb.append(APK_WITH_SPLITS_INSTALL_OPTION.replace("APK_LIST", apkList))
+            }
+        }
         sb.append(TARGET_PREPARER_CLOSE)
         // Post install commands after SuiteApkInstaller is declared
         if (isMicrobenchmark) {
@@ -121,6 +147,16 @@ class ConfigBuilder {
         sb.append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
+            .apply {
+                if (isPostsubmit) {
+                    // These listeners should be unified eventually (b/331974955)
+                    if (isMicrobenchmark) {
+                        sb.append(MICROBENCHMARK_POSTSUBMIT_LISTENERS)
+                    } else if (isMacrobenchmark) {
+                        sb.append(MACROBENCHMARK_POSTSUBMIT_LISTENERS)
+                    }
+                }
+            }
             .append(TEST_BLOCK_CLOSE)
         sb.append(CONFIGURATION_CLOSE)
         return sb.toString()
@@ -296,6 +332,13 @@ private val APK_INSTALL_OPTION =
 """
         .trimIndent()
 
+private val APK_WITH_SPLITS_INSTALL_OPTION =
+    """
+    <option name="split-apk-file-names" value="APK_LIST" />
+
+"""
+        .trimIndent()
+
 private val TEST_BLOCK_OPEN =
     """
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
@@ -324,25 +367,34 @@ private val PACKAGE_OPTION =
 """
         .trimIndent()
 
-private val MICROBENCHMARK_PRESUBMIT_OPTION =
+private val BENCHMARK_PRESUBMIT_INST_ARGS =
     """
     <option name="instrumentation-arg" key="androidx.benchmark.dryRunMode.enable" value="true" />
 
 """
         .trimIndent()
 
-private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
+/**
+ * These args may never be passed in CI, even if they are set per module
+ */
+private val INST_ARG_BLOCKLIST = listOf(
+    "androidx.benchmark.profiling.skipWhenDurationRisksAnr"
+)
+
+private val MICROBENCHMARK_POSTSUBMIT_LISTENERS =
     """
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()
 
-private val MACROBENCHMARK_POSTSUBMIT_OPTIONS =
+// NOTE: listeners are duplicated in macro package due to no common module w/ junit dependency
+// See b/331974955
+private val MACROBENCHMARK_POSTSUBMIT_LISTENERS =
     """
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
-    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.macro.junit4.InstrumentationResultsRunListener" />
+    <option name="device-listeners" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
 """
         .trimIndent()

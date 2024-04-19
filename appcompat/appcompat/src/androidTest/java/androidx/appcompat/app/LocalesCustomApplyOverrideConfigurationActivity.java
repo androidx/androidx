@@ -19,12 +19,9 @@ package androidx.appcompat.app;
 import android.content.Context;
 import android.content.res.Configuration;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * An activity that has a customized fontScale, set before onCreate().
  */
-@RequiresApi(17)
 public class LocalesCustomApplyOverrideConfigurationActivity extends LocalesUpdateActivity {
     public static final float CUSTOM_FONT_SCALE = 4.24f;
 

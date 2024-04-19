@@ -28,7 +28,6 @@ import androidx.annotation.IntRange;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -154,26 +153,8 @@ public class TimePicker extends Picker {
      * @return The best localized representation of time for the current locale
      */
     String getBestHourMinutePattern() {
-        final String hourPattern;
-        if (PickerUtility.SUPPORTS_BEST_DATE_TIME_PATTERN) {
-            hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale, mIs24hFormat ? "Hma"
-                    : "hma");
-        } else {
-            // Using short style to avoid picking extra fields e.g. time zone in the returned time
-            // format.
-            final java.text.DateFormat dateFormat =
-                    SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT, mConstant.locale);
-            if (dateFormat instanceof SimpleDateFormat) {
-                String defaultPattern = ((SimpleDateFormat) dateFormat).toPattern();
-                defaultPattern = defaultPattern.replace("s", "");
-                if (mIs24hFormat) {
-                    defaultPattern = defaultPattern.replace('h', 'H').replace("a", "");
-                }
-                hourPattern = defaultPattern;
-            } else {
-                hourPattern = mIs24hFormat ? "H:mma" : "h:mma";
-            }
-        }
+        final String hourPattern = DateFormat.getBestDateTimePattern(mConstant.locale,
+                mIs24hFormat ? "Hma" : "hma");
         return TextUtils.isEmpty(hourPattern) ? "h:mma" : hourPattern;
     }
 

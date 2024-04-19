@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.interaction.DragInteraction
@@ -23,10 +24,21 @@ import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.internal.BasicTooltipBox
+import androidx.compose.material3.internal.rememberBasicTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.CacheDrawScope
+import androidx.compose.ui.draw.DrawResult
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.flow.collectLatest
 
 /**
@@ -53,26 +65,47 @@ import kotlinx.coroutines.flow.collectLatest
 @ExperimentalMaterial3Api
 @Composable
 fun Label(
-    label: @Composable () -> Unit,
+    label: @Composable CaretScope.() -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     isPersistent: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // Has the same positioning logic as PlainTooltips
     val positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider()
     val state = if (isPersistent)
         remember { LabelStateImpl() }
     else
         rememberBasicTooltipState(mutatorMutex = MutatorMutex())
+
+    var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
+    val scope = remember {
+        object : CaretScope {
+            override fun Modifier.drawCaret(
+                draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
+            ): Modifier =
+                this.drawWithCache { draw(anchorBounds) }
+        }
+    }
+
+    val wrappedContent: @Composable () -> Unit = {
+        Box(
+            modifier = Modifier.onGloballyPositioned { anchorBounds = it }
+        ) {
+            content()
+        }
+    }
+
     BasicTooltipBox(
         positionProvider = positionProvider,
-        tooltip = label,
+        tooltip = { scope.label() },
         state = state,
         modifier = modifier,
         focusable = false,
         enableUserInput = false,
-        content = content
+        content = wrappedContent
     )
     HandleInteractions(
         enabled = !isPersistent,
@@ -85,7 +118,7 @@ fun Label(
 @Composable
 private fun HandleInteractions(
     enabled: Boolean,
-    state: BasicTooltipState,
+    state: TooltipState,
     interactionSource: MutableInteractionSource
 ) {
     if (enabled) {
@@ -107,8 +140,10 @@ private fun HandleInteractions(
 @OptIn(ExperimentalMaterial3Api::class)
 private class LabelStateImpl(
     override val isVisible: Boolean = true,
-    override val isPersistent: Boolean = true
-) : BasicTooltipState {
+    override val isPersistent: Boolean = true,
+) : TooltipState {
+    override val transition: MutableTransitionState<Boolean> =
+        MutableTransitionState(false)
     override suspend fun show(mutatePriority: MutatePriority) {}
 
     override fun dismiss() {}

@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
@@ -52,9 +53,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.IntermediateMeasureScope
+import androidx.compose.ui.layout.ApproachMeasureScope
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.layout.approachLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -182,6 +184,8 @@ interface ProgressProvider<T> {
     val progress: Float
 }
 
+context(LookaheadScope)
+@SuppressLint("PrimitiveInCollection")
 @OptIn(ExperimentalComposeUiApi::class)
 fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = composed {
     val sizeMap = remember { mutableMapOf<T, IntSize>() }
@@ -196,7 +200,7 @@ fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = c
             IntSize(width.roundToInt(), height.roundToInt())
         }
 
-    val calculateOffset: Placeable.PlacementScope.(IntermediateMeasureScope) -> IntOffset = {
+    val calculateOffset: Placeable.PlacementScope.(ApproachMeasureScope) -> IntOffset = {
         with(it) {
             coordinates?.let {
                 offsetMap[provider.targetState] =
@@ -213,12 +217,12 @@ fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = c
             } ?: IntOffset(0, 0)
         }
     }
-    this.intermediateLayout { measurable, _ ->
+    this.approachLayout({ provider.progress != 1f }) { measurable, _ ->
         val (width, height) = calculateSize(lookaheadSize)
         val animatedConstraints = Constraints.fixed(width, height)
         val placeable = measurable.measure(animatedConstraints)
         layout(placeable.width, placeable.height) {
-            placeable.place(calculateOffset(this@intermediateLayout))
+            placeable.place(calculateOffset(this@approachLayout))
         }
     }
 }

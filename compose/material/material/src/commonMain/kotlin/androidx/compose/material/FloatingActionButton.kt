@@ -64,10 +64,10 @@ import kotlinx.coroutines.launch
  *
  * @param onClick callback invoked when this FAB is clicked
  * @param modifier [Modifier] to be applied to this FAB.
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this FAB. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this FAB in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this FAB. You can use this to change the FAB's
+ * appearance or preview the FAB in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param shape The [Shape] of this FAB
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color for content inside this FAB
@@ -80,13 +80,15 @@ import kotlinx.coroutines.launch
 fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
@@ -94,7 +96,7 @@ fun FloatingActionButton(
         color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation.elevation(interactionSource).value,
-        interactionSource = interactionSource,
+        interactionSource = interactionSource
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(MaterialTheme.typography.button) {
@@ -131,10 +133,10 @@ fun FloatingActionButton(
  * @param modifier [Modifier] to be applied to this FAB
  * @param icon Optional icon for this FAB, typically this will be a
  * [Icon].
- * @param interactionSource the [MutableInteractionSource] representing the stream of
- * [Interaction]s for this FAB. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this FAB in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this FAB. You can use this to change the FAB's
+ * appearance or preview the FAB in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param shape The [Shape] of this FAB
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
@@ -147,7 +149,7 @@ fun ExtendedFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),

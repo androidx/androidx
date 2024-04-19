@@ -42,7 +42,6 @@ import androidx.room.RoomDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -198,7 +197,6 @@ public class ClearAllTablesTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 16)
     public void clearsDataFromDiskWal() throws IOException {
         clearsDataFromDisk(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING);
     }

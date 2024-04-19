@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 class PerfettoOverheadBenchmark {
 
     @get:Rule
-    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(shouldEnableTraceAppTag = true))
+    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
     /**
      * Empty baseline, no tracing. Expect similar results to [TrivialJavaBenchmark.nothing].

@@ -74,14 +74,14 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
 
     private inner class UastHandler(val context: JavaContext) : UElementHandler() {
         override fun visitClass(node: UClass) {
-            if (isKotlin(context.psiFile) &&
+            if (isKotlin(node.lang) &&
                 (node.sourcePsi as? KtClassOrObject)?.getSuperNames()?.firstOrNull() !=
                 DIALOG_FRAGMENT_CLASS
             ) {
                 return
             }
 
-            if (!isKotlin(context.psiFile) &&
+            if (!isKotlin(node.lang) &&
                 (node.uastSuperTypes.firstOrNull()?.type as? PsiClassReferenceType)
                     ?.className != DIALOG_FRAGMENT_CLASS
             ) {

@@ -29,4 +29,14 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"BENDERA"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Tidak ada emoji yang tersedia"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Anda belum menggunakan emoji apa pun"</string>
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"pengalih dua arah emoji"</string>
+    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"arah hadap emoji dialihkan"</string>
+    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"pemilih varian emoji"</string>
+    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s dan %2$s"</string>
+    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"bayangan"</string>
+    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"warna kulit cerah"</string>
+    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"warna kulit kuning langsat"</string>
+    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"warna kulit sawo matang"</string>
+    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"warna kulit cokelat"</string>
+    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"warna kulit gelap"</string>
 </resources>

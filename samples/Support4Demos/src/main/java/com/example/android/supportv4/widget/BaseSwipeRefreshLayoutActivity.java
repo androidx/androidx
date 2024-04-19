@@ -166,11 +166,10 @@ abstract class BaseSwipeRefreshLayoutActivity extends FragmentActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
-        switch(id) {
-            case R.id.force_refresh:
-                mSwipeRefreshWidget.setRefreshing(true);
-                refresh();
-                return true;
+        if (id == R.id.force_refresh) {
+            mSwipeRefreshWidget.setRefreshing(true);
+            refresh();
+            return true;
         }
         return false;
     }

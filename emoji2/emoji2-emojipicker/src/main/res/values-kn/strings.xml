@@ -29,4 +29,14 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"ಫ್ಲ್ಯಾಗ್‌ಗಳು"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"ಯಾವುದೇ ಎಮೊಜಿಗಳು ಲಭ್ಯವಿಲ್ಲ"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಎಮೋಜಿಗಳನ್ನು ಬಳಸಿಲ್ಲ"</string>
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"ಎಮೋಜಿ ಬೈಡೈರೆಕ್ಷನಲ್ ಸ್ವಿಚರ್"</string>
+    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"ಎಮೋಜಿ ಎದುರಿಸುತ್ತಿರುವ ದಿಕ್ಕನ್ನು ಬದಲಾಯಿಸಲಾಗಿದೆ"</string>
+    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"ಎಮೋಜಿ ವೇರಿಯಂಟ್ ಸೆಲೆಕ್ಟರ್"</string>
+    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s ಮತ್ತು %2$s"</string>
+    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"ನೆರಳು"</string>
+    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"ಲೈಟ್ ಸ್ಕಿನ್ ಟೋನ್"</string>
+    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"ಮೀಡಿಯಮ್ ಲೈಟ್ ಸ್ಕಿನ್ ಟೋನ್"</string>
+    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"ಮೀಡಿಯಮ್ ಸ್ಕಿನ್ ಟೋನ್"</string>
+    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"ಮೀಡಿಯಮ್ ಡಾರ್ಕ್ ಸ್ಕಿನ್ ಟೋನ್"</string>
+    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"ಡಾರ್ಕ್ ಸ್ಕಿನ್ ಟೋನ್"</string>
 </resources>

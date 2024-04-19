@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import android.graphics.RectF
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toAndroidRectF
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_CENTER
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_LEFT
@@ -61,8 +64,11 @@ import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_NORMAL
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_STYLE_STRICT
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_WORD_STYLE_NONE
 import androidx.compose.ui.text.android.LayoutCompat.LINE_BREAK_WORD_STYLE_PHRASE
+import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_CHARACTER
+import androidx.compose.ui.text.android.LayoutCompat.TEXT_GRANULARITY_WORD
 import androidx.compose.ui.text.android.TextLayout
-import androidx.compose.ui.text.android.selection.WordBoundary
+import androidx.compose.ui.text.android.selection.getWordEnd
+import androidx.compose.ui.text.android.selection.getWordStart
 import androidx.compose.ui.text.android.style.IndentationFixSpan
 import androidx.compose.ui.text.android.style.PlaceholderSpan
 import androidx.compose.ui.text.font.FontFamily
@@ -202,8 +208,11 @@ internal class AndroidParagraph(
         // Brush is not fully realized on text until layout is complete and size information
         // is known. Brush can now be applied to the overall textpaint and all the spans.
         textPaint.setBrush(style.brush, Size(width, height), style.alpha)
-        layout.getShaderBrushSpans().forEach { shaderBrushSpan ->
-            shaderBrushSpan.size = Size(width, height)
+        val shaderBrushSpans = layout.getShaderBrushSpans()
+        if (shaderBrushSpans != null) {
+            for (shaderBrushSpan in shaderBrushSpans) {
+                shaderBrushSpan.size = Size(width, height)
+            }
         }
     }
 
@@ -306,6 +315,21 @@ internal class AndroidParagraph(
         return layout.getOffsetForHorizontal(line, position.x)
     }
 
+    override fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange {
+        val range = layout.getRangeForRect(
+            rect = rect.toAndroidRectF(),
+            granularity = granularity.toLayoutTextGranularity(),
+            inclusionStrategy = { segmentBounds: RectF, area: RectF ->
+                inclusionStrategy.isIncluded(segmentBounds.toComposeRect(), area.toComposeRect())
+            }
+        ) ?: return TextRange.Zero
+        return TextRange(range[0], range[1])
+    }
+
     /**
      * Returns the bounding box as Rect of the character for given character offset. Rect includes
      * the top, bottom, left and right of a character.
@@ -378,12 +402,9 @@ internal class AndroidParagraph(
         )
     }
 
-    private val wordBoundary: WordBoundary by lazy(LazyThreadSafetyMode.NONE) {
-        WordBoundary(textLocale, layout.text)
-    }
-
     override fun getWordBoundary(offset: Int): TextRange {
-        return TextRange(wordBoundary.getWordStart(offset), wordBoundary.getWordEnd(offset))
+        val wordIterator = layout.wordIterator
+        return TextRange(wordIterator.getWordStart(offset), wordIterator.getWordEnd(offset))
     }
 
     override fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
@@ -394,7 +415,7 @@ internal class AndroidParagraph(
 
     internal fun getLineAscent(lineIndex: Int): Float = layout.getLineAscent(lineIndex)
 
-    internal fun getLineBaseline(lineIndex: Int): Float = layout.getLineBaseline(lineIndex)
+    override fun getLineBaseline(lineIndex: Int): Float = layout.getLineBaseline(lineIndex)
 
     internal fun getLineDescent(lineIndex: Int): Float = layout.getLineDescent(lineIndex)
 
@@ -437,13 +458,17 @@ internal class AndroidParagraph(
             ResolvedTextDirection.Ltr
     }
 
-    private fun TextLayout.getShaderBrushSpans(): Array<ShaderBrushSpan> {
-        if (text !is Spanned) return emptyArray()
+    private fun TextLayout.getShaderBrushSpans(): Array<ShaderBrushSpan>? {
+        if (text !is Spanned) return null
+        if (!(text as Spanned).hasSpan(ShaderBrushSpan::class.java)) return null
         val brushSpans = (text as Spanned).getSpans(
             0, text.length, ShaderBrushSpan::class.java
         )
-        if (brushSpans.isEmpty()) return emptyArray()
         return brushSpans
+    }
+
+    private fun Spanned.hasSpan(clazz: Class<*>): Boolean {
+        return nextSpanTransition(-1, length, clazz) != length
     }
 
     override fun paint(
@@ -619,4 +644,12 @@ private fun CharSequence.attachIndentationFixSpan(): CharSequence {
     val spannable = if (this is Spannable) this else SpannableString(this)
     spannable.setSpan(IndentationFixSpan(), spannable.length - 1, spannable.length - 1)
     return spannable
+}
+
+private fun TextGranularity.toLayoutTextGranularity(): Int {
+    return when (this) {
+        TextGranularity.Character -> TEXT_GRANULARITY_CHARACTER
+        TextGranularity.Word -> TEXT_GRANULARITY_WORD
+        else -> TEXT_GRANULARITY_CHARACTER
+    }
 }

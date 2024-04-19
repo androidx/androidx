@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -695,8 +696,7 @@ class Draggable2DTest {
         rule.setContent {
             val viewConfig = LocalViewConfiguration.current
             val newConfig = object : ViewConfiguration by viewConfig {
-                override val maximumFlingVelocity: Int
-                    get() = maxVelocity.toInt()
+                override val maximumFlingVelocity: Float get() = maxVelocity
             }
             CompositionLocalProvider(LocalViewConfiguration provides newConfig) {
                 Box {
@@ -889,7 +889,6 @@ class Draggable2DTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "enabled",
-                "canDrag",
                 "reverseDirection",
                 "interactionSource",
                 "startDragImmediately",
@@ -897,6 +896,19 @@ class Draggable2DTest {
                 "onDragStopped",
                 "state",
             )
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals() {
+        val state = Draggable2DState { }
+
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.draggable2D(state, enabled = false)
+            } else {
+                Modifier.draggable2D(state, enabled = true)
+            }
         }
     }
 

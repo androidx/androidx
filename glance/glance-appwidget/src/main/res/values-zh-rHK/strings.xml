@@ -19,4 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance 應用程式小工具錯誤"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"使用 "<b><tt>"adb logcat"</tt></b>" 搜尋 "<b><tt>"GlanceAppWidget"</tt></b>"，查看確實的錯誤資料"</string>
+    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"無法顯示內容"</string>
 </resources>

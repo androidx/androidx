@@ -159,7 +159,7 @@ private val PsiParameter.isComposable: Boolean
             } != null
         }
         // The parameter is in a source declaration
-        else -> (toUElement() as UParameter).typeReference!!.isComposable
+        else -> (toUElement() as? UParameter)?.typeReference?.isComposable == true
     }
 
 /**
@@ -263,7 +263,7 @@ private class ComposableBodyVisitor(
 /**
  * Returns whether this type reference is @Composable or not
  */
-private val UTypeReferenceExpression.isComposable: Boolean
+val UTypeReferenceExpression.isComposable: Boolean
     get() {
         if (type.hasAnnotation(Names.Runtime.Composable.javaFqn)) return true
 

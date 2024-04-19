@@ -16,13 +16,12 @@
 -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:versionCode="1"
-    android:versionName="1.0">
+    xmlns:tools="http://schemas.android.com/tools">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
   <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -90,6 +89,7 @@
 
     <service
         android:name=".common.screens.navigationdemos.NavigationNotificationService"
+        android:foregroundServiceType="location"
         android:exported="true">
     </service>
 

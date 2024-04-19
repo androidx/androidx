@@ -38,6 +38,7 @@ import static java.util.Collections.singletonList;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
+import org.junit.Ignore;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.testapp.CollectingLifecycleOwner;
@@ -127,6 +128,7 @@ public class PartiallyCoveredActivityTest {
     }
 
     @Test
+    @Ignore("b/173596006")
     public void coveredWithDialog_fragment() throws Throwable {
         CollectingSupportFragment fragment = new CollectingSupportFragment();
         activityRule.runOnUiThread(() -> activityRule.getActivity().replaceFragment(fragment));

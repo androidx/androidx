@@ -24,7 +24,6 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.camera2.pipe.UnsafeWrapper
 import kotlin.reflect.KClass
 
 /**
@@ -32,10 +31,10 @@ import kotlin.reflect.KClass
  * [CaptureFailure] object.
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-internal class AndroidCaptureFailure(
+class AndroidCaptureFailure(
     override val requestMetadata: RequestMetadata,
-    override val captureFailure: CaptureFailure
-) : RequestFailure, UnsafeWrapper {
+    private val captureFailure: CaptureFailure
+) : RequestFailure {
     override val frameNumber: FrameNumber = FrameNumber(captureFailure.frameNumber)
     override val reason: Int = captureFailure.reason
     override val wasImageCaptured: Boolean = captureFailure.wasImageCaptured()

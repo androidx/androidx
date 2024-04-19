@@ -17,16 +17,22 @@
 package androidx.compose.foundation.text
 
 import android.os.Build
-import android.view.View
+import android.view.PointerIcon.TYPE_CROSSHAIR
+import android.view.PointerIcon.TYPE_DEFAULT
+import android.view.PointerIcon.TYPE_HAND
+import android.view.PointerIcon.TYPE_TEXT
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -37,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,62 +55,99 @@ class CoreTextFieldHoverTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val defaultIcon = android.view.PointerIcon.TYPE_DEFAULT
-    private val defaultSelectableIcon = android.view.PointerIcon.TYPE_TEXT
-
-    /**
-     * Verifies the default [PointerIcon] for [CoreTextField].
-     */
     @Test
-    fun IBeamDefaults() {
-        val parentIconTag = "myParentIcon"
-        val coreTextFieldTag = "myCoreTextField"
-        val value = TextFieldValue("initial text")
-        lateinit var view: View
+    fun whenDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() = runTest(
+        boxIconModifier = Modifier,
+        expectedBoxIcon = TYPE_DEFAULT,
+        textFieldIconModifier = Modifier,
+        expectedTextIcon = TYPE_TEXT
+    )
 
-        rule.setContent {
-            view = LocalView.current
+    @Test
+    fun whenSetIcon_inBoxWithDefaultIcon_textIconIsUsed() = runTest(
+        boxIconModifier = Modifier,
+        expectedBoxIcon = TYPE_DEFAULT,
+        textFieldIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+        expectedTextIcon = TYPE_TEXT
+    )
+
+    @Test
+    fun whenSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() = runTest(
+        boxIconModifier = Modifier,
+        expectedBoxIcon = TYPE_DEFAULT,
+        textFieldIconModifier = Modifier.pointerHoverIcon(
+            icon = PointerIcon.Crosshair,
+            overrideDescendants = true
+        ),
+        expectedTextIcon = TYPE_CROSSHAIR
+    )
+
+    @Test
+    fun whenDefaultIcon_inBoxWithSetIcon_textIconIsUsed() = runTest(
+        boxIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+        expectedBoxIcon = TYPE_HAND,
+        textFieldIconModifier = Modifier,
+        expectedTextIcon = TYPE_TEXT
+    )
+
+    @Test
+    fun whenSetIcon_inBoxWithSetIcon_textIconIsUsed() = runTest(
+        boxIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+        expectedBoxIcon = TYPE_HAND,
+        textFieldIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
+        expectedTextIcon = TYPE_TEXT
+    )
+
+    @Test
+    fun whenSetIcon_withOverride_inBoxWithSetIcon_setIconIsUsed() = runTest(
+        boxIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
+        expectedBoxIcon = TYPE_HAND,
+        textFieldIconModifier = Modifier.pointerHoverIcon(
+            icon = PointerIcon.Crosshair,
+            overrideDescendants = true
+        ),
+        expectedTextIcon = TYPE_CROSSHAIR
+    )
+
+    private fun runTest(
+        boxIconModifier: Modifier,
+        expectedBoxIcon: Int,
+        textFieldIconModifier: Modifier,
+        expectedTextIcon: Int,
+    ) = with(PointerIconTestScope(rule)) {
+        val boxTag = "myParentIcon"
+        val textFieldTag = "myCoreTextField"
+
+        var value by mutableStateOf(TextFieldValue("initial text"))
+        setContent {
             Box(
                 modifier = Modifier
                     .requiredSize(200.dp)
+                    .then(boxIconModifier)
                     .border(BorderStroke(2.dp, SolidColor(Color.Red)))
-                    .testTag(parentIconTag)
+                    .testTag(boxTag)
             ) {
                 CoreTextField(
                     value = value,
-                    onValueChange = {},
+                    onValueChange = { value = it },
                     modifier = Modifier
                         .requiredSize(50.dp)
-                        .testTag(coreTextFieldTag)
+                        .then(textFieldIconModifier)
+                        .testTag(textFieldTag)
                 )
             }
         }
-        // Hover over CoreTextField
-        rule.onNodeWithTag(coreTextFieldTag).performMouseInput {
-            enter(bottomRight)
-        }
-        // Verify CoreTextField has default text icon
-        verifyIcon(defaultSelectableIcon, view)
-        // Move cursor to hover over portion of the parent box not covered by any descendants
-        rule.onNodeWithTag(parentIconTag).performMouseInput {
-            moveTo(bottomRight)
-        }
-        // Verify the current icon is the default arrow icon
-        verifyIcon(defaultIcon, view)
-        // Exit hovering over element
-        rule.onNodeWithTag(parentIconTag).performMouseInput {
-            exit()
-        }
-    }
 
-    private fun verifyIcon(type: Int, view: View) {
-        rule.runOnIdle {
-            assertThat(view.pointerIcon).isEqualTo(
-                android.view.PointerIcon.getSystemIcon(
-                    view.context,
-                    type
-                )
-            )
-        }
+        // Hover over CoreTextField
+        rule.onNodeWithTag(textFieldTag).performMouseInput { enter(bottomRight) }
+        assertIcon(expectedTextIcon)
+
+        // Move cursor to hover over portion of the parent box not covered by any descendants
+        rule.onNodeWithTag(boxTag).performMouseInput { moveTo(bottomRight) }
+        assertIcon(expectedBoxIcon)
+
+        // Exit hovering over element
+        rule.onNodeWithTag(boxTag).performMouseInput { exit() }
+        assertIcon(TYPE_DEFAULT)
     }
 }

@@ -21,7 +21,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.merge
 import androidx.compose.ui.unit.toOffset
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwner) {
     /**
@@ -131,11 +131,11 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
             }
         }
 
-        val positionInContainer = if (alignmentLine is HorizontalAlignmentLine) {
-            position.y.roundToInt()
+        val positionInContainer = (if (alignmentLine is HorizontalAlignmentLine) {
+            position.y
         } else {
-            position.x.roundToInt()
-        }
+            position.x
+        }).fastRoundToInt()
         // If the line was already provided by a previous child, merge the values.
         alignmentLineMap[alignmentLine] = if (alignmentLine in alignmentLineMap) {
             alignmentLine.merge(

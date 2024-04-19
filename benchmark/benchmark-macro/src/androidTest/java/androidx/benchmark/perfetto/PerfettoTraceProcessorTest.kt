@@ -32,11 +32,13 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.time.Duration.Companion.milliseconds
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import perfetto.protos.TraceMetrics
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -163,9 +165,13 @@ class PerfettoTraceProcessorTest {
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             val error = assertFailsWith<IllegalStateException> {
-                query("SYNTAX ERROR, PLEASE!")
+                query("SYNTAX ERROR, PLEASE")
             }
-            assertContains(error.message!!, "syntax error")
+            assertContains(
+                charSequence = error.message!!,
+                other = "syntax error",
+                message = "expected 'syntax error', saw message : '''${error.message}'''"
+            )
         }
     }
 
@@ -180,7 +186,8 @@ class PerfettoTraceProcessorTest {
                     rowOf(
                         "name" to "activityStart",
                         "ts" to 186975009436431L,
-                        "dur" to 29580628L)
+                        "dur" to 29580628L
+                    )
                 ),
                 actual = query(
                     "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
@@ -244,6 +251,63 @@ class PerfettoTraceProcessorTest {
     }
 
     @Test
+    fun query_includeModule() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        val startups = PerfettoTraceProcessor.runServer {
+            loadTrace(PerfettoTrace(traceFile.absolutePath)) {
+                query(
+                    """
+                    INCLUDE PERFETTO MODULE android.startup.startups;
+
+                    SELECT * FROM android_startups;
+                """.trimIndent()
+                ).toList()
+            }
+        }
+        // minimal validation, just verifying query worked
+        assertEquals(1, startups.size)
+        assertEquals(
+            "androidx.benchmark.integration.macrobenchmark.target",
+            startups.single().string("package")
+        )
+    }
+
+    @Test
+    fun queryMetricsJson() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val metrics = queryMetricsJson(listOf("android_startup"))
+            assertTrue(metrics.contains("\"android_startup\": {"))
+            assertTrue(metrics.contains("\"startup_type\": \"cold\","))
+        }
+    }
+
+    @Test
+    fun queryMetricsProtoBinary() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val metrics =
+                TraceMetrics.ADAPTER.decode(queryMetricsProtoBinary(listOf("android_startup")))
+            val startup = metrics.android_startup!!
+            assertEquals(startup.startup.single().startup_type, "cold")
+        }
+    }
+
+    @Test
+    fun queryMetricsProtoText() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val metrics = queryMetricsProtoText(listOf("android_startup"))
+            assertTrue(metrics.contains("android_startup {"))
+            assertTrue(metrics.contains("startup_type: \"cold\""))
+        }
+    }
+
+    @Test
     fun validatePerfettoTraceProcessorBinariesExist() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val suffixes = listOf("aarch64")
@@ -259,17 +323,6 @@ class PerfettoTraceProcessorTest {
     fun runServerShouldHandleStartAndStopServer() {
         assumeTrue(isAbiSupported())
 
-        // This method will return true if the server status endpoint returns 200 (that is also
-        // the only status code being returned).
-        fun isRunning(): Boolean = try {
-            val url = URL("http://localhost:${PerfettoTraceProcessor.PORT}/")
-            with(url.openConnection() as HttpURLConnection) {
-                return@with responseCode == 200
-            }
-        } catch (e: ConnectException) {
-            false
-        }
-
         // Check server is not running
         assertTrue(!isRunning())
 
@@ -280,6 +333,56 @@ class PerfettoTraceProcessorTest {
 
         // Check server is not running
         assertTrue(!isRunning())
+    }
+
+    @Test
+    fun runServerWithNegativeTimeoutShouldStartAndStopServer() {
+        assumeTrue(isAbiSupported())
+
+        // Check server is not running
+        assertTrue(!isRunning())
+
+        PerfettoTraceProcessor.runServer((-1).milliseconds) {
+            // Check server is running
+            assertTrue(isRunning())
+        }
+
+        // Check server is not running
+        assertTrue(!isRunning())
+    }
+
+    @Test
+    fun runServerWithZeroTimeoutShouldStartAndStopServer() {
+        assumeTrue(isAbiSupported())
+
+        // Check server is not running
+        assertTrue(!isRunning())
+
+        PerfettoTraceProcessor.runServer((0).milliseconds) {
+            // Check server is running
+            assertTrue(isRunning())
+        }
+
+        // Check server is not running
+        assertTrue(!isRunning())
+    }
+
+    @Test
+    fun testParseTracesWithProcessTracks() {
+        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            val slices = querySlices("launching:%", packageName = null)
+            assertEquals(
+                expected = listOf(
+                    Slice(
+                        name = "launching: androidx.benchmark.integration.macrobenchmark.target",
+                        ts = 186974946587883,
+                        dur = 137401159
+                    )
+                ), slices
+            )
+        }
     }
 
     @LargeTest
@@ -303,5 +406,18 @@ class PerfettoTraceProcessorTest {
             // This would throw an exception if there is an error in the parsing.
             getTraceMetrics("android_startup")
         }
+    }
+
+    /**
+     * This method will return true if the server status endpoint returns 200 (that is also
+     * the only status code being returned).
+     */
+    private fun isRunning(): Boolean = try {
+        val url = URL("http://localhost:${PerfettoTraceProcessor.PORT}/")
+        with(url.openConnection() as HttpURLConnection) {
+            return@with responseCode == 200
+        }
+    } catch (e: ConnectException) {
+        false
     }
 }

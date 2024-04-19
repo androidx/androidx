@@ -190,4 +190,9 @@ class ConditionalOpNode<T> implements DynamicDataNode<T> {
             mDownstream.onData(mLastFalseValue);
         }
     }
+
+    @Override
+    public int getCost() {
+        return DEFAULT_NODE_COST;
+    }
 }

@@ -2844,7 +2844,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
         int soundEffect;
         if (mOrientation == HORIZONTAL) {
-            boolean rtl = getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+            boolean rtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             if (rtl) {
                 soundEffect = forward ? AudioManager.FX_FOCUS_NAVIGATION_LEFT :
                         AudioManager.FX_FOCUS_NAVIGATION_RIGHT;
@@ -3273,7 +3273,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 result = ff.findNextFocus(mBaseGridView, focused, absDir);
             }
             if (canScrollHorizontally()) {
-                boolean rtl = getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+                boolean rtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                 final int absDir = (direction == View.FOCUS_FORWARD) ^ rtl
                         ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
                 result = ff.findNextFocus(mBaseGridView, focused, absDir);

@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Недоступно"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Типы разъемов для зарядки электромобиля"</string>
     <string name="example_title" msgid="530257630320010494">"Пример: %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Это красный текст"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Это зеленый текст"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Это синий текст"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Это желтый текст"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Это "<annotation color="red">"красный"</annotation>" текст"</string>
+    <string name="example_2_text" msgid="1359373957397219102">"Это "<annotation color="green">"зеленый"</annotation>" текст"</string>
+    <string name="example_3_text" msgid="2409207170762049673">"Это "<annotation color="blue">"синий"</annotation>" текст"</string>
+    <string name="example_4_text" msgid="9055989886645433000">"Это "<annotation color="yellow">"желтый"</annotation>" текст"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Это текст основного цвета"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Это текст дополнительного цвета"</string>
     <string name="color_demo" msgid="1822427636476178993">"Демонстрация цвета"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Просмотр мест"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Демонстрация шаблона поиска"</string>
     <string name="search_hint" msgid="978495498991026792">"Искать здесь"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Ознакомьтесь с Условиями использования"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Ознакомьтесь с "<annotation link="terms_of_service">"условиями использования"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Вход с аккаунтом Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Ввести PIN-код"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR-код"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Варианты маршрута"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Избегать шоссе"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Избегать паромов"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Карта с демонстрацией элементов"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Карта с демонстрацией контента"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Карта с демонстрацией шаблона сообщения"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Карта с демонстрацией шаблона сетки"</string>
 </resources>

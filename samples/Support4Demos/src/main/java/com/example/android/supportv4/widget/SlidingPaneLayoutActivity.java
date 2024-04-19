@@ -18,7 +18,6 @@
 package com.example.android.supportv4.widget;
 
 import android.app.ActionBar;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -108,19 +107,19 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.lock_mode_unlocked:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_UNLOCKED);
-                return true;
-            case R.id.lock_mode_locked_open:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN);
-                return true;
-            case R.id.lock_mode_locked_closed:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_CLOSED);
-                return true;
-            case R.id.lock_mode_locked:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED);
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.lock_mode_unlocked) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_UNLOCKED);
+            return true;
+        } else if (itemId == R.id.lock_mode_locked_open) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN);
+            return true;
+        } else if (itemId == R.id.lock_mode_locked_closed) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_CLOSED);
+            return true;
+        } else if (itemId == R.id.lock_mode_locked) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -199,11 +198,7 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
         @Override
         public void onGlobalLayout() {
             mActionBar.onFirstLayout();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            } else {
-                mSlidingLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-            }
+            mSlidingLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
         }
     }
 

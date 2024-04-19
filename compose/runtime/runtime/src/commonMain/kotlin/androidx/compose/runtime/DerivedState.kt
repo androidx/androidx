@@ -26,6 +26,7 @@ import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.current
 import androidx.compose.runtime.snapshots.newWritableRecord
@@ -80,7 +81,7 @@ private inline fun <T> withCalculationNestedLevel(block: (IntRef) -> T): T {
 private class DerivedSnapshotState<T>(
     private val calculation: () -> T,
     override val policy: SnapshotMutationPolicy<T>?
-) : StateObject, DerivedState<T> {
+) : StateObjectImpl(), DerivedState<T> {
     private var first: ResultRecord<T> = ResultRecord()
 
     class ResultRecord<T> : StateRecord(), DerivedState.Record<T> {
@@ -226,15 +227,11 @@ private class DerivedSnapshotState<T>(
             ) {
                 readable.dependencies = newDependencies
                 readable.resultHash = readable.readableHash(this, currentSnapshot)
-                readable.validSnapshotId = snapshot.id
-                readable.validSnapshotWriteCount = snapshot.writeCount
                 readable
             } else {
                 val writable = first.newWritableRecord(this, currentSnapshot)
                 writable.dependencies = newDependencies
                 writable.resultHash = writable.readableHash(this, currentSnapshot)
-                writable.validSnapshotId = snapshot.id
-                writable.validSnapshotWriteCount = snapshot.writeCount
                 writable.result = result
                 writable
             }
@@ -242,6 +239,12 @@ private class DerivedSnapshotState<T>(
 
         if (calculationBlockNestedLevel.get()?.element == 0) {
             Snapshot.notifyObjectsInitialized()
+
+            sync {
+                val currentSnapshot = Snapshot.current
+                record.validSnapshotId = currentSnapshot.id
+                record.validSnapshotWriteCount = currentSnapshot.writeCount
+            }
         }
 
         return record
@@ -262,17 +265,19 @@ private class DerivedSnapshotState<T>(
             // value is used instead which doesn't notify. This allow the read observer to read the
             // value and only update the cache once.
             Snapshot.current.readObserver?.invoke(this)
-            return first.withCurrent {
-                @Suppress("UNCHECKED_CAST")
-                currentRecord(it, Snapshot.current, true, calculation).result as T
-            }
+            // Read observer could advance the snapshot, so get current snapshot again
+            val snapshot = Snapshot.current
+            val record = current(first, snapshot)
+            @Suppress("UNCHECKED_CAST")
+            return currentRecord(record, snapshot, true, calculation).result as T
         }
 
-    override val currentRecord: DerivedState.Record<T> get() {
-        return first.withCurrent {
-            currentRecord(it, Snapshot.current, false, calculation)
+    override val currentRecord: DerivedState.Record<T>
+        get() {
+            val snapshot = Snapshot.current
+            val record = current(first, snapshot)
+            return currentRecord(record, snapshot, false, calculation)
         }
-    }
 
     override fun toString(): String = first.withCurrent {
         "DerivedState(value=${displayValue()})@${hashCode()}"

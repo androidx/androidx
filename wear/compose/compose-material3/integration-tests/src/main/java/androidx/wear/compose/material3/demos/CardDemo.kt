@@ -30,7 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.ListHeader
@@ -48,7 +48,7 @@ import androidx.wear.compose.material3.samples.TitleCardWithSubtitleAndTimeSampl
 
 @Composable
 fun CardDemo() {
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

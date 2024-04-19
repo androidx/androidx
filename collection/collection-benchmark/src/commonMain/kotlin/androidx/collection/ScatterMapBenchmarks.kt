@@ -29,10 +29,39 @@ internal class ScatterMapInsertBenchmark(
     }
 }
 
+internal class ScatterMapInsertBenchmarkBadHash(
+    private val dataSet: Array<Int?>
+) : CollectionBenchmark {
+    override fun measuredBlock() {
+        val map = MutableScatterMap<Int?, Int?>(dataSet.size)
+        for (testValue in dataSet) {
+            map[testValue] = testValue
+        }
+    }
+}
+
 internal class ScatterHashMapReadBenchmark(
     private val dataSet: Array<String>
 ) : CollectionBenchmark {
     private val map = MutableScatterMap<String, String>()
+
+    init {
+        for (testValue in dataSet) {
+            map[testValue] = testValue
+        }
+    }
+
+    override fun measuredBlock() {
+        for (testValue in dataSet) {
+            map[testValue]
+        }
+    }
+}
+
+internal class ScatterHashMapReadBadHashBenchmark(
+    private val dataSet: Array<Int?>
+) : CollectionBenchmark {
+    private val map = MutableScatterMap<Int?, Int?>()
 
     init {
         for (testValue in dataSet) {
@@ -107,3 +136,7 @@ internal fun createDataSet(
 ): Array<String> = Array(size) { index ->
     (index * Random.Default.nextFloat()).toString()
 }
+
+internal fun createBadHashDataSet(
+    size: Int
+): Array<Int?> = Array(size) { it }

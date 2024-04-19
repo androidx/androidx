@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent.ACTION_HOVER_ENTER
@@ -29,11 +31,14 @@ import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Placeable
@@ -51,6 +56,7 @@ import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -236,6 +242,351 @@ class HitPathTrackerTest {
                             children.add(
                                 Node(pif5).apply {
                                     pointerIds.add(pointerId2)
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    // Inserts a new Node at the top of an existing branch (tests removal of duplicate Nodes too).
+    @Test
+    fun addHitPath_dynamicNodeAddedTopPartiallyMatchingTreeWithOnePointerId_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId1, listOf(pifNew1, pif1, pif2, pif3, pif4))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pifNew1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif1).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif2).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif3).apply {
+                                            pointerIds.add(pointerId1)
+                                            children.add(
+                                                Node(pif4).apply {
+                                                    pointerIds.add(pointerId1)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_dynamicNodeAddedTopPartiallyMatchingTreeWithTwoPointerIds_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pif5 = PointerInputNodeMock()
+        val pif6 = PointerInputNodeMock()
+        val pif7 = PointerInputNodeMock()
+        val pif8 = PointerInputNodeMock()
+
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        val pointerId2 = PointerId(2)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8))
+
+        hitPathTracker.addHitPath(pointerId2, listOf(pifNew1, pif5, pif6, pif7, pif8))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            children.add(
+                Node(pifNew1).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif5).apply {
+                            pointerIds.add(pointerId2)
+                            children.add(
+                                Node(pif6).apply {
+                                    pointerIds.add(pointerId2)
+                                    children.add(
+                                        Node(pif7).apply {
+                                            pointerIds.add(pointerId2)
+                                            children.add(
+                                                Node(pif8).apply {
+                                                    pointerIds.add(pointerId2)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    // Inserts a new Node inside an existing branch (tests removal of duplicate Nodes too).
+    @Test
+    fun addHitPath_dynamicNodeAddedInsidePartiallyMatchingTreeWithOnePointerId_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pifNew1, pif2, pif3, pif4))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pifNew1).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif2).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif3).apply {
+                                            pointerIds.add(pointerId1)
+                                            children.add(
+                                                Node(pif4).apply {
+                                                    pointerIds.add(pointerId1)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_dynamicNodeAddedInsidePartiallyMatchingTreeWithTwoPointerIds_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pif5 = PointerInputNodeMock()
+        val pif6 = PointerInputNodeMock()
+        val pif7 = PointerInputNodeMock()
+        val pif8 = PointerInputNodeMock()
+
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        val pointerId2 = PointerId(2)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8))
+
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pifNew1, pif7, pif8))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            children.add(
+                Node(pif5).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif6).apply {
+                            pointerIds.add(pointerId2)
+                            children.add(
+                                Node(pifNew1).apply {
+                                    pointerIds.add(pointerId2)
+                                    children.add(
+                                        Node(pif7).apply {
+                                            pointerIds.add(pointerId2)
+                                            children.add(
+                                                Node(pif8).apply {
+                                                    pointerIds.add(pointerId2)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    // Inserts a Node in the bottom of an existing branch (tests removal of duplicate Nodes too).
+    @Test
+    fun addHitPath_dynamicNodeAddedBelowPartiallyMatchingTreeWithOnePointerId_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4, pifNew1))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                            children.add(
+                                                Node(pifNew1).apply {
+                                                    pointerIds.add(pointerId1)
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun addHitPath_dynamicNodeAddedBelowPartiallyMatchingTreeWithTwoPointerIds_correctResult() {
+        val pif1 = PointerInputNodeMock()
+        val pif2 = PointerInputNodeMock()
+        val pif3 = PointerInputNodeMock()
+        val pif4 = PointerInputNodeMock()
+        val pif5 = PointerInputNodeMock()
+        val pif6 = PointerInputNodeMock()
+        val pif7 = PointerInputNodeMock()
+        val pif8 = PointerInputNodeMock()
+
+        val pifNew1 = PointerInputNodeMock()
+
+        val pointerId1 = PointerId(1)
+        val pointerId2 = PointerId(2)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3, pif4))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8))
+
+        hitPathTracker.addHitPath(pointerId2, listOf(pif5, pif6, pif7, pif8, pifNew1))
+
+        val expectedRoot = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId1)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId1)
+                            children.add(
+                                Node(pif3).apply {
+                                    pointerIds.add(pointerId1)
+                                    children.add(
+                                        Node(pif4).apply {
+                                            pointerIds.add(pointerId1)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            children.add(
+                Node(pif5).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif6).apply {
+                            pointerIds.add(pointerId2)
+                            children.add(
+                                Node(pif7).apply {
+                                    pointerIds.add(pointerId2)
+                                    children.add(
+                                        Node(pif8).apply {
+                                            pointerIds.add(pointerId2)
+                                            children.add(
+                                                Node(pifNew1).apply {
+                                                    pointerIds.add(pointerId2)
+                                                }
+                                            )
+                                        }
+                                    )
                                 }
                             )
                         }
@@ -3510,6 +3861,55 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
     }
 
+    @Test
+    fun dispatchChangesClearsStaleIdsPartialHitWithInvalidHistory() {
+        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
+        val pif1 = PointerInputNodeMock(
+            coordinator = parentLayoutCoordinates
+        )
+        val pif2 = PointerInputNodeMock(
+            coordinator = parentLayoutCoordinates
+        )
+        val pif3 = PointerInputNodeMock(
+            coordinator = parentLayoutCoordinates
+        )
+        val pointerId1 = PointerId(0)
+        val pointerId2 = PointerId(5)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif1, pif2))
+
+        val internalPointerEventWithBadHistory = internalPointerEventOf(
+            down(
+                id = 5,
+                historicalData = listOf(
+                    HistoricalChange(
+                        uptimeMillis = 1L,
+                        position = Offset.Unspecified
+                    )
+                )
+            )
+        )
+
+        // Bad history should be ignored and not impact test (or crash test). This not only tests
+        // HitPathTracker's dispatchChanges() but buildCache() as well.
+        hitPathTracker.dispatchChanges(internalPointerEventWithBadHistory)
+
+        val expectedAfterDispatch = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId2)
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
+    }
+
     private fun areEqual(actualNode: NodeParent, expectedNode: NodeParent): Boolean {
         var check = true
 
@@ -3603,7 +4003,14 @@ internal class LayoutCoordinatesStub(
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
-    ): Offset = relativeToSource
+    ): Offset {
+        // In normal NodeCoordinator, an invalid Offset will crash the app farther down in the code.
+        // (Specifically, in the Offset class when you try to create a new Offset.)
+        checkPrecondition(relativeToSource.isValid()) {
+            "Offset is unspecified"
+        }
+        return relativeToSource
+    }
 
     override fun localBoundingBoxOf(
         sourceCoordinates: LayoutCoordinates,
@@ -3635,6 +4042,8 @@ private class MockOwner(
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
 
@@ -3649,10 +4058,24 @@ private class MockOwner(
         get() = Density(1f)
     override val textInputService: TextInputService
         get() = TODO("Not yet implemented")
+    override val softwareKeyboardController: SoftwareKeyboardController
+        get() = TODO("Not yet implemented")
 
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing {
+        TODO("Not yet implemented")
+    }
+
+    override fun screenToLocal(positionOnScreen: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localPosition: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localTransform: Matrix) {
         TODO("Not yet implemented")
     }
 
@@ -3744,8 +4167,9 @@ private class MockOwner(
     }
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         return object : OwnedLayer {
             override fun updateLayerProperties(
@@ -3763,8 +4187,8 @@ private class MockOwner(
             override fun resize(size: IntSize) {
             }
 
-            override fun drawLayer(canvas: Canvas) {
-                drawBlock(canvas)
+            override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
+                drawBlock(canvas, parentLayer)
             }
 
             override fun updateDisplayList() {
@@ -3780,7 +4204,7 @@ private class MockOwner(
             }
 
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {
             }

@@ -16,6 +16,7 @@
 
 package androidx.compose.animation
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Transition
@@ -102,9 +103,7 @@ fun <T> Transition<T>.Crossfade(
     content: @Composable (targetState: T) -> Unit
 ) {
     val currentlyVisible = remember { mutableStateListOf<T>().apply { add(currentState) } }
-    val contentMap = remember {
-        mutableMapOf<T, @Composable () -> Unit>()
-    }
+    val contentMap = remember { mutableScatterMapOf<T, @Composable () -> Unit>() }
     if (currentState == targetState) {
         // If not animating, just display the current state
         if (currentlyVisible.size != 1 || currentlyVisible[0] != targetState) {
@@ -113,7 +112,7 @@ fun <T> Transition<T>.Crossfade(
             contentMap.clear()
         }
     }
-    if (!contentMap.contains(targetState)) {
+    if (targetState !in contentMap) {
         // Replace target with the same key if any
         val replacementId = currentlyVisible.indexOfFirst {
             contentKey(it) == contentKey(targetState)

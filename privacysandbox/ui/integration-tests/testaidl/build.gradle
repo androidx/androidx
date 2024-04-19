@@ -15,32 +15,22 @@
  */
 
 plugins {
-    id 'AndroidXPlugin'
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace 'androidx.privacysandbox.ui.integration.testaidl'
+    namespace "androidx.privacysandbox.ui.integration.testaidl"
 
     defaultConfig {
         minSdk 33
-        targetSdk 33
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled false
         }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
     }
     buildFeatures {
         aidl = true

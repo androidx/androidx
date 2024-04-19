@@ -17,12 +17,10 @@
 package androidx.emoji2.text;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.os.TraceCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -84,12 +82,9 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     @NonNull
     @Override
     public Boolean create(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            EmojiCompat.init(new BackgroundDefaultConfig(context));
-            delayUntilFirstResume(context);
-            return true;
-        }
-        return false;
+        EmojiCompat.init(new BackgroundDefaultConfig(context));
+        delayUntilFirstResume(context);
+        return true;
     }
 
     /**
@@ -97,7 +92,6 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
      *
      * This allows startup code to run before the delay is scheduled.
      */
-    @RequiresApi(19)
     void delayUntilFirstResume(@NonNull Context context) {
         // schedule delay after first Activity resumes
         AppInitializer appInitializer = AppInitializer.getInstance(context);
@@ -113,7 +107,6 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
         });
     }
 
-    @RequiresApi(19)
     void loadEmojiCompatAfterDelay() {
         final Handler mainHandler = ConcurrencyHelpers.mainHandlerAsync();
         mainHandler.postDelayed(new LoadEmojiCompatRunnable(), STARTUP_THREAD_CREATION_DELAY_MS);
@@ -144,7 +137,6 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
         }
     }
 
-    @RequiresApi(19)
     static class BackgroundDefaultConfig extends EmojiCompat.Config {
         protected BackgroundDefaultConfig(Context context) {
             super(new BackgroundDefaultLoader(context));
@@ -152,7 +144,6 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
         }
     }
 
-    @RequiresApi(19)
     static class BackgroundDefaultLoader implements EmojiCompat.MetadataRepoLoader {
         private final Context mContext;
 

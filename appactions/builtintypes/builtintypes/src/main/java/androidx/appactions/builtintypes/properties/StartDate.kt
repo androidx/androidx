@@ -51,7 +51,7 @@ internal constructor(
   /** Constructor for the [LocalDate] variant. */
   public constructor(date: LocalDate) : this(asDate = date)
 
-  public override fun toString(): String = toString(includeWrapperName = true)
+  override fun toString(): String = toString(includeWrapperName = true)
 
   internal fun toString(includeWrapperName: Boolean): String =
     when {
@@ -64,12 +64,12 @@ internal constructor(
       else -> error("No variant present in StartDate")
     }
 
-  public override fun equals(other: Any?): Boolean {
+  override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is StartDate) return false
     if (asDate != other.asDate) return false
     return true
   }
 
-  public override fun hashCode(): Int = Objects.hash(asDate)
+  override fun hashCode(): Int = Objects.hash(asDate)
 }

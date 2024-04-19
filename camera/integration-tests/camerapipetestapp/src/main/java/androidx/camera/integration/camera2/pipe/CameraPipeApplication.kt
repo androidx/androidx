@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.camera2.pipe
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.os.Build
 import android.os.Process
@@ -25,6 +26,7 @@ import android.util.Log
 import androidx.camera.camera2.pipe.CameraPipe
 import kotlin.system.measureNanoTime
 
+@SuppressLint("RestrictedApiAndroidX")
 class CameraPipeApplication : Application() {
     private val _cameraPipe = lazy {
         Trace.beginSection("CXCP-App#cameraPipe")

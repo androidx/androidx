@@ -43,21 +43,19 @@ import org.junit.runners.Parameterized
 class ParagraphWithLineHeightBenchmark(
     private val textLength: Int,
     private val addNewLine: Boolean,
-    private val applyLineHeight: Boolean,
-    private val lineHeightStyle: LineHeightStyle?
+    private val applyLineHeight: Boolean
 ) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(
-            name = "length={0} newLine={1} applyLineHeight={2} lineHeightStyle={3}"
+            name = "length={0} newLine={1} applyLineHeight={2}"
         )
         fun initParameters(): List<Array<Any?>> = cartesian(
             arrayOf(16),
             // add new line
             arrayOf(true),
             // apply line height
-            arrayOf(false, true),
-            arrayOf(LineHeightStyle.Default)
+            arrayOf(false, true)
         )
     }
 
@@ -103,13 +101,13 @@ class ParagraphWithLineHeightBenchmark(
             TextStyle(
                 fontSize = fontSize,
                 lineHeight = fontSize * 2,
-                lineHeightStyle = lineHeightStyle,
+                lineHeightStyle = LineHeightStyle.Default,
                 platformStyle = PlatformTextStyle(includeFontPadding = false)
             )
         } else {
             TextStyle(
                 fontSize = fontSize,
-                lineHeightStyle = lineHeightStyle,
+                lineHeightStyle = LineHeightStyle.Default,
                 platformStyle = PlatformTextStyle(includeFontPadding = false)
             )
         }

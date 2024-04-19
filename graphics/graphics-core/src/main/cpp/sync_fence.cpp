@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 #include <jni.h>
+#include <inttypes.h>
+#include <android/fdsan.h>
 #include <android/sync.h>
 #include <android/log.h>
 #include <cstdint>
@@ -43,6 +45,8 @@ void SyncFence_nClose(JNIEnv *env, jobject, jint fd) {
  */
 static std::once_flag load_sync_lib_flag;
 
+static std::once_flag load_fdsan_lib_flag;
+
 /**
  * Function pointer to the dynamically linked sync_file_info method
  */
@@ -52,6 +56,16 @@ static decltype(&sync_file_info) sync_file_info_ptr = nullptr;
  * Function pointer to the dynamically linked sync_file_info_free method
  */
 static decltype(&sync_file_info_free) sync_file_info_free_ptr = nullptr;
+
+/**
+ * Function pointer to resolve the corresponding owner tag from a file descriptor
+ */
+static uint64_t (*android_fdsan_get_owner_tag_ptr)(int) = nullptr;
+
+/**
+ * Function pointer to close the corresponding file descriptor with the given tag
+ */
+static int (*android_fdsan_close_with_tag_ptr)(int, uint64_t) = nullptr;
 
 /**
  * Helper method to attempt to load libsync.so. It only attempts to load the library once and the
@@ -78,6 +92,32 @@ static void load_libsync() {
             ALOGW("Unable to load libsync.so");
             sync_file_info_ptr = nullptr;
             sync_file_info_free_ptr = nullptr;
+        }
+    });
+}
+
+static void load_lib_fdsan() {
+    std::call_once(load_fdsan_lib_flag, []() {
+        void* handle = dlopen("libc.so", RTLD_NOW);
+        if (handle) {
+            android_fdsan_get_owner_tag_ptr =
+                    reinterpret_cast<uint64_t (*)(int)>(
+                            dlsym(handle, "android_fdsan_get_owner_tag"));
+            if (!android_fdsan_get_owner_tag_ptr) {
+                ALOGW("Unable to resolve android_fdsan_get_owner_tag");
+            }
+
+            android_fdsan_close_with_tag_ptr =
+                    reinterpret_cast<int(*)(int, uint64_t)>(
+                            dlsym(handle, "android_fdsan_close_with_tag"));
+            if (!android_fdsan_close_with_tag_ptr) {
+                ALOGW("Unable to resolve android_fdsan_close_with_tag");
+            }
+
+        } else {
+            ALOGW("Unable to load libc.so");
+            android_fdsan_close_with_tag_ptr = nullptr;
+            android_fdsan_get_owner_tag_ptr = nullptr;
         }
     });
 }
@@ -111,7 +151,21 @@ static void release_sync_file_info(struct sync_file_info* info) {
     }
 }
 
-jlong SyncFence_nGetSignalTime(JNIEnv *env, jobject, jint fd) {
+void SyncFenceBindings_nForceClose(JNIEnv *env, jclass, jint fd) {
+    load_lib_fdsan();
+    if (android_fdsan_get_owner_tag_ptr && android_fdsan_close_with_tag_ptr) {
+        uint64_t tag = android_fdsan_get_owner_tag_ptr(static_cast<int>(fd));
+        uint64_t type = tag >> 56;
+        // From fdsan.h docs on android_fdsan_owner_type, native file descriptors have their upper
+        // most bits as all zeros. So limit the closure of file descriptors to only this type in
+        // order to avoid potential double closure instances.
+        if (type == android_fdsan_owner_type::ANDROID_FDSAN_OWNER_TYPE_GENERIC_00) {
+            android_fdsan_close_with_tag_ptr(fd, tag);
+        }
+    }
+}
+
+jlong SyncFenceBindings_nGetSignalTime(JNIEnv *env, jclass, jint fd) {
     // Implementation sampled from Fence::getSignalTime in the framework
     if (fd == -1) {
         return SIGNAL_TIME_INVALID;
@@ -119,7 +173,6 @@ jlong SyncFence_nGetSignalTime(JNIEnv *env, jobject, jint fd) {
 
     struct sync_file_info* finfo = get_sync_file_info(fd);
     if (finfo == nullptr) {
-        ALOGE("sync_file_info returned NULL for fd %d", fd);
         return SIGNAL_TIME_INVALID;
     }
 
@@ -209,11 +262,6 @@ static const JNINativeMethod SYNC_FENCE_METHOD_TABLE[] = {
             (void*)SyncFence_nClose
         },
         {
-            "nGetSignalTime",
-            "(I)J",
-            (void*)SyncFence_nGetSignalTime
-        },
-        {
             "nWait",
             "(II)Z",
             (void*)SyncFence_nWait
@@ -225,7 +273,7 @@ static const JNINativeMethod SYNC_FENCE_METHOD_TABLE[] = {
         }
 };
 
-static const JNINativeMethod SYNC_FENCE_TEST_METHOD_TABLE[] = {
+static const JNINativeMethod SYNC_FENCE_BINDINGS_METHOD_TABLE[] = {
         {
             "nResolveSyncFileInfo",
             "()Z",
@@ -235,6 +283,16 @@ static const JNINativeMethod SYNC_FENCE_TEST_METHOD_TABLE[] = {
             "nResolveSyncFileInfoFree",
             "()Z",
             (void*)SyncFenceBindings_nResolveSyncFileInfoFree
+        },
+        {
+            "nGetSignalTime",
+            "(I)J",
+            (void*)SyncFenceBindings_nGetSignalTime
+        },
+        {
+            "nForceClose",
+            "(I)V",
+                (void *) SyncFenceBindings_nForceClose
         }
 };
 
@@ -254,8 +312,8 @@ jint loadSyncFenceMethods(JNIEnv* env) {
         return JNI_ERR;
     }
 
-    if (env->RegisterNatives(syncFenceTestBindings, SYNC_FENCE_TEST_METHOD_TABLE,
-                    sizeof(SYNC_FENCE_TEST_METHOD_TABLE) / sizeof(JNINativeMethod)) != JNI_OK) {
+    if (env->RegisterNatives(syncFenceTestBindings, SYNC_FENCE_BINDINGS_METHOD_TABLE,
+                    sizeof(SYNC_FENCE_BINDINGS_METHOD_TABLE) / sizeof(JNINativeMethod)) != JNI_OK) {
         return JNI_ERR;
     }
 

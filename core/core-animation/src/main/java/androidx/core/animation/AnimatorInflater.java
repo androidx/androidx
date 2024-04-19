@@ -143,11 +143,7 @@ public class AnimatorInflater {
                 // This path buffer has to have the same size and structure as the morphing path.
                 mPathData = PathParser.deepCopyNodes(endPathData);
             }
-            if (!PathParser.interpolatePathDataNodes(
-                    mPathData, startPathData, endPathData, fraction)) {
-                throw new IllegalArgumentException("Can't interpolate between"
-                        + " two incompatible pathData");
-            }
+            PathParser.interpolatePathDataNodes(mPathData, fraction, startPathData, endPathData);
             return mPathData;
         }
     }

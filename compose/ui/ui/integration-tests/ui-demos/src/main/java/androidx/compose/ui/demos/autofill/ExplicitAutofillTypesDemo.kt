@@ -16,18 +16,20 @@
 
 package androidx.compose.ui.demos.autofill
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillNode
@@ -37,69 +39,41 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalAutofill
 import androidx.compose.ui.platform.LocalAutofillTree
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 fun ExplicitAutofillTypesDemo() {
-    Column {
-        val nameState = remember { mutableStateOf("Enter name here") }
-        val emailState = remember { mutableStateOf("Enter email here") }
-        val autofill = LocalAutofill.current
-        val labelStyle = MaterialTheme.typography.subtitle1
-        val textStyle = MaterialTheme.typography.h6
+    var name by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
+    }
 
-        Text("Name", style = labelStyle)
+    Column {
         Autofill(
             autofillTypes = listOf(AutofillType.PersonFullName),
-            onFill = { nameState.value = it }
-        ) { autofillNode ->
-            BasicTextField(
-                modifier = Modifier.onFocusChanged {
-                    autofill?.apply {
-                        if (it.isFocused) {
-                            requestAutofillForNode(autofillNode)
-                        } else {
-                            cancelAutofillForNode(autofillNode)
-                        }
-                    }
-                },
-                value = nameState.value,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Default
-                ),
-                onValueChange = { nameState.value = it },
-                textStyle = textStyle
+            onFill = { name = TextFieldValue(it) }
+        ) {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Name") },
             )
         }
 
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(10.dp))
 
-        Text("Email", style = labelStyle)
         Autofill(
             autofillTypes = listOf(AutofillType.EmailAddress),
-            onFill = { emailState.value = it }
-        ) { autofillNode ->
-            BasicTextField(
-                modifier = Modifier.onFocusChanged {
-                    autofill?.run {
-                        if (it.isFocused) {
-                            requestAutofillForNode(autofillNode)
-                        } else {
-                            cancelAutofillForNode(autofillNode)
-                        }
-                    }
-                },
-                value = emailState.value,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Default
-                ),
-                onValueChange = { emailState.value = it },
-                textStyle = textStyle
+            onFill = { email = TextFieldValue(it) }
+        ) {
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
             )
         }
     }
@@ -110,18 +84,29 @@ fun ExplicitAutofillTypesDemo() {
 private fun Autofill(
     autofillTypes: List<AutofillType>,
     onFill: ((String) -> Unit),
-    content: @Composable (AutofillNode) -> Unit
+    content: @Composable BoxScope.() -> Unit
 ) {
-    val autofillNode = AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
-
+    val autofill = LocalAutofill.current
     val autofillTree = LocalAutofillTree.current
-    autofillTree += autofillNode
+    val autofillNode = remember(autofillTypes, onFill) {
+        AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
+    }
 
     Box(
-        Modifier.onGloballyPositioned {
-            autofillNode.boundingBox = it.boundsInWindow()
-        }
-    ) {
-        content(autofillNode)
+        modifier = Modifier
+            .onFocusChanged {
+                if (it.isFocused) {
+                    autofill?.requestAutofillForNode(autofillNode)
+                } else {
+                    autofill?.cancelAutofillForNode(autofillNode)
+                }
+            }
+            .onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() },
+        content = content
+    )
+
+    DisposableEffect(autofillNode) {
+        autofillTree.children[autofillNode.id] = autofillNode
+        onDispose { autofillTree.children.remove(autofillNode.id) }
     }
 }

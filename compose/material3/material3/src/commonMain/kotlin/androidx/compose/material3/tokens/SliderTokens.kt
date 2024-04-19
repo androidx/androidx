@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_117
+// Version: v2_3_5
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -21,42 +21,55 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SliderTokens {
+    val ActiveContainerOpacity = 1.0f
+    val ActiveHandleHeight = 44.0.dp
+    val ActiveHandleLeadingSpace = 6.0.dp
+    val ActiveHandlePadding = 6.0.dp
+    val ActiveHandleShape = ShapeKeyTokens.CornerFull
+    val ActiveHandleTrailingSpace = 6.0.dp
+    val ActiveHandleWidth = 4.0.dp
     val ActiveTrackColor = ColorSchemeKeyTokens.Primary
-    val ActiveTrackHeight = 4.0.dp
+    val ActiveTrackHeight = 16.0.dp
     val ActiveTrackShape = ShapeKeyTokens.CornerFull
+    val ActiveTrackShapeLeading = ShapeKeyTokens.CornerFull
     val DisabledActiveTrackColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledActiveTrackOpacity = 0.38f
+    val DisabledActiveTrackOpacity = 0.38f
     val DisabledHandleColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledHandleElevation = ElevationTokens.Level0
-    const val DisabledHandleOpacity = 0.38f
+    val DisabledHandleOpacity = 0.38f
+    val DisabledHandleWidth = 4.0.dp
     val DisabledInactiveTrackColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledInactiveTrackOpacity = 0.12f
-    val FocusHandleColor = ColorSchemeKeyTokens.Primary
+    val DisabledInactiveTrackOpacity = 0.12f
+    val DisabledStopColor = ColorSchemeKeyTokens.OnSurface
+    val FocusActiveTrackColor = ColorSchemeKeyTokens.Primary
+    val FocusHandleWidth = 2.0.dp
+    val FocusInactiveTrackColor = ColorSchemeKeyTokens.SecondaryContainer
+    val FocusStopColor = ColorSchemeKeyTokens.Primary
     val HandleColor = ColorSchemeKeyTokens.Primary
-    val HandleElevation = ElevationTokens.Level1
-    val HandleHeight = 20.0.dp
+    val HandleHeight = 44.0.dp
     val HandleShape = ShapeKeyTokens.CornerFull
-    val HandleWidth = 20.0.dp
+    val HandleWidth = 4.0.dp
     val HoverHandleColor = ColorSchemeKeyTokens.Primary
-    val InactiveTrackColor = ColorSchemeKeyTokens.SurfaceVariant
-    val InactiveTrackHeight = 4.0.dp
+    val HoverHandleWidth = 4.0.dp
+    val HoverStopColor = ColorSchemeKeyTokens.Primary
+    val InactiveContainerOpacity = 1.0f
+    val InactiveTrackColor = ColorSchemeKeyTokens.SecondaryContainer
+    val InactiveTrackHeight = 16.0.dp
     val InactiveTrackShape = ShapeKeyTokens.CornerFull
     val LabelContainerColor = ColorSchemeKeyTokens.Primary
-    val LabelContainerElevation = ElevationTokens.Level0
-    val LabelContainerHeight = 28.0.dp
-    val LabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val LabelTextFont = TypographyKeyTokens.LabelMedium
+    val LabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
+    val PressedActiveTrackColor = ColorSchemeKeyTokens.Primary
     val PressedHandleColor = ColorSchemeKeyTokens.Primary
-    val StateLayerSize = 40.0.dp
-    val TrackElevation = ElevationTokens.Level0
-    val OverlapHandleOutlineColor = ColorSchemeKeyTokens.OnPrimary
-    val OverlapHandleOutlineWidth = 1.0.dp
-    val TickMarksActiveContainerColor = ColorSchemeKeyTokens.OnPrimary
-    const val TickMarksActiveContainerOpacity = 0.38f
-    val TickMarksContainerShape = ShapeKeyTokens.CornerFull
-    val TickMarksContainerSize = 2.0.dp
-    val TickMarksDisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    const val TickMarksDisabledContainerOpacity = 0.38f
-    val TickMarksInactiveContainerColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    const val TickMarksInactiveContainerOpacity = 0.38f
+    val PressedHandleWidth = 2.0.dp
+    val PressedInactiveTrackColor = ColorSchemeKeyTokens.SecondaryContainer
+    val PressedStopColor = ColorSchemeKeyTokens.Primary
+    val SliderActiveHandleColor = ColorSchemeKeyTokens.Primary
+    val StopIndicatorColor = ColorSchemeKeyTokens.SecondaryContainer
+    val StopIndicatorColorSelected = ColorSchemeKeyTokens.SecondaryContainer
+    val StopIndicatorShape = ShapeKeyTokens.CornerFull
+    val StopIndicatorSize = 4.0.dp
+    val StopIndicatorTrailingSpace = 6.0.dp
+    val ValueIndicatorActiveBottomSpace = 12.0.dp
+    val ValueIndicatorContainerColor = ColorSchemeKeyTokens.InverseSurface
+    val ValueIndicatorLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
+    val ValueIndicatorLabelTextFont = TypographyKeyTokens.LabelLarge
 }

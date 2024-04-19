@@ -17,7 +17,12 @@
 package androidx.compose.material.textfield
 
 import android.os.Build
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.EditorInfo.IME_ACTION_GO
+import android.view.inputmethod.EditorInfo.TYPE_CLASS_TEXT
+import android.view.inputmethod.EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -29,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -55,6 +61,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -65,9 +72,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.error
@@ -89,11 +97,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.PlatformTextInputService
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -104,14 +109,10 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.awaitCancellation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.atLeastOnce
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -222,7 +223,10 @@ class OutlinedTextFieldTest {
         val density = Density(4f)
         rule.setMaterialContent {
             CompositionLocalProvider(LocalDensity provides density) {
-                Box(Modifier.testTag("box").background(Color.Red)) {
+                Box(
+                    Modifier
+                        .testTag("box")
+                        .background(Color.Red)) {
                     OutlinedTextField(
                         value = "",
                         onValueChange = {},
@@ -401,7 +405,9 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier.testTag(TextfieldTag).requiredWidth(textFieldWidth),
+                    modifier = Modifier
+                        .testTag(TextfieldTag)
+                        .requiredWidth(textFieldWidth),
                     label = {
                         Text(
                             text = "long long long long long long long long long long long long",
@@ -434,9 +440,11 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextfieldTag).onGloballyPositioned {
-                    tfSize.value = it.size
-                },
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .onGloballyPositioned {
+                        tfSize.value = it.size
+                    },
                 label = {
                     Box(Modifier.size(width = 50.dp, height = labelHeight))
                 },
@@ -458,13 +466,17 @@ class OutlinedTextFieldTest {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.testTag(TextfieldTag).requiredWidth(textFieldWidth),
+                modifier = Modifier
+                    .testTag(TextfieldTag)
+                    .requiredWidth(textFieldWidth),
                 label = {
                     Text(
                         text = "Label",
-                        modifier = Modifier.width(labelRequestedWidth).onGloballyPositioned {
-                            labelSize.value = it.size
-                        }
+                        modifier = Modifier
+                            .width(labelRequestedWidth)
+                            .onGloballyPositioned {
+                                labelSize.value = it.size
+                            }
                     )
                 },
                 trailingIcon = {
@@ -778,7 +790,9 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "text",
                     onValueChange = {},
-                    modifier = Modifier.width(textFieldWidth).height(textFieldHeight),
+                    modifier = Modifier
+                        .width(textFieldWidth)
+                        .height(textFieldHeight),
                     leadingIcon = {
                         IconButton(
                             onClick = {},
@@ -840,21 +854,27 @@ class OutlinedTextFieldTest {
                 OutlinedTextField(
                     value = "text",
                     onValueChange = {},
-                    modifier = Modifier.width(textFieldWidth).height(textFieldHeight),
+                    modifier = Modifier
+                        .width(textFieldWidth)
+                        .height(textFieldHeight),
                     leadingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                leadingPosition = it.positionInRoot()
-                                leadingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    leadingPosition = it.positionInRoot()
+                                    leadingSize = it.size
+                                }
                         )
                     },
                     trailingIcon = {
                         Box(
-                            Modifier.size(size).onGloballyPositioned {
-                                trailingPosition = it.positionInRoot()
-                                trailingSize = it.size
-                            }
+                            Modifier
+                                .size(size)
+                                .onGloballyPositioned {
+                                    trailingPosition = it.positionInRoot()
+                                    trailingSize = it.size
+                                }
                         )
                     },
                 )
@@ -995,15 +1015,20 @@ class OutlinedTextFieldTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testOutlinedTextField_imeActionAndKeyboardTypePropagatedDownstream() {
-        val platformTextInputService = mock<PlatformTextInputService>()
-        val textInputService = TextInputService(platformTextInputService)
+        var editorInfo: EditorInfo? = null
+        val interceptor = PlatformTextInputInterceptor { request, _ ->
+            EditorInfo().also {
+                request.createInputConnection(it)
+                editorInfo = it
+            }
+            awaitCancellation()
+        }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                var text = remember { mutableStateOf("") }
+            val text = remember { mutableStateOf("") }
+            InterceptPlatformTextInput(interceptor) {
                 OutlinedTextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = text.value,
@@ -1019,17 +1044,12 @@ class OutlinedTextFieldTest {
         rule.onNodeWithTag(TextfieldTag).performClick()
 
         rule.runOnIdle {
-            verify(platformTextInputService, atLeastOnce()).startInput(
-                value = any(),
-                imeOptions = eq(
-                    ImeOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Go
-                    )
-                ),
-                onEditCommand = any(),
-                onImeActionPerformed = any()
-            )
+            @Suppress("NAME_SHADOWING")
+            val editorInfo = editorInfo ?: throw AssertionError("Input session never started")
+            val expectedOptions = IME_ACTION_GO
+            val expectedInputType = TYPE_CLASS_TEXT or TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            assertThat(editorInfo.imeOptions and expectedOptions).isEqualTo(expectedOptions)
+            assertThat(editorInfo.inputType and expectedInputType).isEqualTo(expectedInputType)
         }
     }
 
@@ -1196,7 +1216,10 @@ class OutlinedTextFieldTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testOutlinedTextField_label_notUsingErrorColor_notFocused_withoutInput() {
         rule.setMaterialContent {
-            Box(Modifier.background(Color.White).padding(10.dp)) {
+            Box(
+                Modifier
+                    .background(Color.White)
+                    .padding(10.dp)) {
                 OutlinedTextField(
                     value = "",
                     onValueChange = {},
@@ -1467,7 +1490,10 @@ class OutlinedTextFieldTest {
         val text = "Long text input. ".repeat(20)
         rule.setMaterialContent {
             Row {
-                Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
+                Box(
+                    Modifier
+                        .width(150.dp)
+                        .height(IntrinsicSize.Min)) {
                     OutlinedTextField(
                         value = text,
                         onValueChange = {},
@@ -1528,6 +1554,25 @@ class OutlinedTextFieldTest {
 
         rule.runOnIdle {
             assertThat(callbackCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testTextFields_noCrashConstraintsInfinity() {
+        rule.setMaterialContent {
+            Column(
+                modifier = Modifier
+                    .height(IntrinsicSize.Min)
+                    .horizontalScroll(
+                        rememberScrollState()
+                    )
+            ) {
+                OutlinedTextField(
+                    value = "Cat",
+                    onValueChange = {},
+                    leadingIcon = { Text("Icon") }
+                )
+            }
         }
     }
 

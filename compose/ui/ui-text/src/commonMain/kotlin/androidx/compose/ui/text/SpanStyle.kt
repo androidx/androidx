@@ -50,6 +50,7 @@ private val DefaultBackgroundColor = Color.Transparent
 // TODO(nona): Introduce TextUnit.Original for representing "do not change the original result".
 //  Need to distinguish from Inherit.
 private val DefaultColor = Color.Black
+private val DefaultColorForegroundStyle = TextForegroundStyle.from(DefaultColor)
 
 /**
  * Styling configuration for a text span. This configuration only allows character level styling,
@@ -829,9 +830,7 @@ private fun lerpPlatformStyle(
 }
 
 internal fun resolveSpanStyleDefaults(style: SpanStyle) = SpanStyle(
-    textForegroundStyle = style.textForegroundStyle.takeOrElse {
-        TextForegroundStyle.from(DefaultColor)
-    },
+    textForegroundStyle = style.textForegroundStyle.takeOrElse { DefaultColorForegroundStyle },
     fontSize = if (style.fontSize.isUnspecified) DefaultFontSize else style.fontSize,
     fontWeight = style.fontWeight ?: FontWeight.Normal,
     fontStyle = style.fontStyle ?: FontStyle.Normal,

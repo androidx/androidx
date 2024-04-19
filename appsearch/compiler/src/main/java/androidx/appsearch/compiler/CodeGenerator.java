@@ -17,11 +17,14 @@
 package androidx.appsearch.compiler;
 
 import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_CLASS_FACTORY_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_ANNOTATION_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.RESTRICT_TO_SCOPE_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentClassFactoryForClass;
 
 import androidx.annotation.NonNull;
 
 import com.google.auto.common.GeneratedAnnotationSpecs;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -40,30 +43,28 @@ import javax.lang.model.element.Modifier;
 class CodeGenerator {
     private final ProcessingEnvironment mEnv;
     private final DocumentModel mModel;
-
+    private final boolean mRestrictGeneratedCodeToLib;
     private final String mOutputPackage;
-    private final TypeSpec mOutputClass;
 
-    public static CodeGenerator generate(
-            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
-            throws ProcessingException {
-        return new CodeGenerator(env, model);
-    }
-
-    private CodeGenerator(
+    /**
+     * Constructs a {@link CodeGenerator}.
+     *
+     * @param restrictGeneratedCodeToLib Whether to annotate the generated classes with
+     *                                   {@code RestrictTo(LIBRARY)}.
+     */
+    CodeGenerator(
             @NonNull ProcessingEnvironment env,
-            @NonNull DocumentModel model) throws ProcessingException {
-        // Prepare constants needed for processing
+            @NonNull DocumentModel model,
+            boolean restrictGeneratedCodeToLib) {
         mEnv = env;
         mModel = model;
-
-        // Perform the actual work of generating code
+        mRestrictGeneratedCodeToLib = restrictGeneratedCodeToLib;
         mOutputPackage = mEnv.getElementUtils().getPackageOf(mModel.getClassElement()).toString();
-        mOutputClass = createClass();
     }
 
-    public JavaFile createJavaFile() throws IOException {
-        return JavaFile.builder(mOutputPackage, mOutputClass).build();
+    public JavaFile createJavaFile() throws IOException, ProcessingException {
+        TypeSpec outputClass = createClass();
+        return JavaFile.builder(mOutputPackage, outputClass).build();
     }
 
     /**
@@ -98,6 +99,14 @@ class CodeGenerator {
                 mEnv.getSourceVersion(),
                 AppSearchCompiler.class
         ).ifPresent(genClass::addAnnotation);
+
+        if (mRestrictGeneratedCodeToLib) {
+            // Add @RestrictTo(LIBRARY_GROUP) to the generated class
+            genClass.addAnnotation(
+                    AnnotationSpec.builder(RESTRICT_TO_ANNOTATION_CLASS)
+                            .addMember(/* name= */"value", "$T.LIBRARY", RESTRICT_TO_SCOPE_CLASS)
+                            .build());
+        }
 
         SchemaCodeGenerator.generate(mEnv, mModel, genClass);
         ToGenericDocumentCodeGenerator.generate(mEnv, mModel, genClass);

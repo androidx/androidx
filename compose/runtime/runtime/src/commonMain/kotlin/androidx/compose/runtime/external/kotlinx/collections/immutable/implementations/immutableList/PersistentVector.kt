@@ -9,7 +9,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.Persisten
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.assert
-import androidx.compose.runtime.external.kotlinx.collections.immutable.mutate
+import androidx.compose.runtime.requirePrecondition
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
@@ -27,7 +27,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
                                    private val rootShift: Int) : PersistentList<E>, AbstractPersistentList<E>() {
 
     init {
-        require(size > MAX_BUFFER_SIZE) { "Trie-based persistent vector should have at least ${MAX_BUFFER_SIZE + 1} elements, got $size" }
+        requirePrecondition(size > MAX_BUFFER_SIZE) {
+            "Trie-based persistent vector should have at least " +
+                "${MAX_BUFFER_SIZE + 1} elements, got $size"
+        }
         assert(size - rootSize(size) <= tail.size.coerceAtMost(MAX_BUFFER_SIZE))
     }
 

@@ -20,6 +20,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.ServiceInfo;
 import android.net.Uri;
 import android.os.Build;
 
@@ -70,7 +71,13 @@ public final class NavigationCarAppService extends CarAppService {
         // foreground service instead.
         // See https://developer.android.com/reference/com/google/android/libraries/car/app
         // /CarAppService#accessing-location for more details.
-        startForeground(NOTIFICATION_ID, getNotification());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIFICATION_ID, getNotification(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else {
+            startForeground(NOTIFICATION_ID, getNotification());
+        }
+
         NavigationSession session = new NavigationSession(sessionInfo);
         session.getLifecycle()
                 .addObserver(

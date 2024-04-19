@@ -18,12 +18,10 @@ package androidx.constraintlayout.helper.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.motion.widget.MotionHelper;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.motion.widget.MotionScene;
@@ -325,7 +323,6 @@ public class Carousel extends MotionHelper {
         mList.clear();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();

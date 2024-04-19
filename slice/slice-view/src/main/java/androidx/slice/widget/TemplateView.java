@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,7 +41,6 @@ import java.util.Set;
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @SuppressWarnings("HiddenSuperclass")
-@RequiresApi(19)
 @Deprecated
 public class TemplateView extends SliceChildView implements
         SliceViewPolicy.PolicyChangeListener {

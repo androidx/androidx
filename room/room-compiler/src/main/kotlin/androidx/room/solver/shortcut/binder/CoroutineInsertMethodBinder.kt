@@ -1,0 +1,132 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room.solver.shortcut.binder
+
+import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
+import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.box
+import androidx.room.compiler.processing.XType
+import androidx.room.ext.Function1TypeSpec
+import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.SQLiteDriverTypeNames
+import androidx.room.solver.CodeGenScope
+import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
+import androidx.room.vo.ShortcutQueryParameter
+
+/**
+ * Binder for suspending insert methods.
+ */
+class CoroutineInsertMethodBinder(
+    val typeArg: XType,
+    adapter: InsertOrUpsertMethodAdapter?,
+    private val continuationParamName: String
+) : InsertOrUpsertMethodBinder(adapter) {
+
+    override fun convertAndReturn(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        when (scope.language) {
+            CodeLanguage.JAVA -> convertAndReturnJava(
+                parameters, adapters, dbProperty, scope
+            )
+            CodeLanguage.KOTLIN -> convertAndReturnKotlin(
+                parameters, adapters, dbProperty, scope
+            )
+        }
+    }
+
+    private fun convertAndReturnJava(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        if (adapter == null) {
+            return
+        }
+        val connectionVar = scope.getTmpVar("_connection")
+        scope.builder.addStatement(
+            "return %M(%N, %L, %L, %L, %L)",
+            RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+            dbProperty,
+            false, // isReadOnly
+            true, // inTransaction
+            Function1TypeSpec(
+                language = scope.language,
+                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                parameterName = connectionVar,
+                returnTypeName = adapter.returnType.asTypeName().box()
+            ) {
+                val functionScope = scope.fork()
+                val functionCode = functionScope.builder.apply {
+                    adapter.generateMethodBody(
+                        scope = functionScope,
+                        connectionVar = connectionVar,
+                        parameters = parameters,
+                        adapters = adapters
+                    )
+                }.build()
+                this.addCode(functionCode)
+            },
+            continuationParamName
+        )
+    }
+
+    private fun convertAndReturnKotlin(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        if (adapter == null) {
+            return
+        }
+        val connectionVar = scope.getTmpVar("_connection")
+        scope.builder.apply {
+            beginControlFlow(
+                "return %M(%N, %L, %L) { %L ->",
+                RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+                dbProperty,
+                false, // isReadOnly
+                true, // inTransaction
+                connectionVar
+            ).apply {
+                adapter.generateMethodBody(
+                    scope = scope,
+                    connectionVar = connectionVar,
+                    parameters = parameters,
+                    adapters = adapters
+                )
+            }.endControlFlow()
+        }
+    }
+
+    override fun convertAndReturnCompat(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
+        error("Wrong convertAndReturn invoked")
+    }
+
+    override fun isMigratedToDriver(): Boolean = true
+}

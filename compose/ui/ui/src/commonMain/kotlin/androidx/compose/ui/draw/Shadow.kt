@@ -18,13 +18,15 @@ package androidx.compose.ui.draw
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlockGraphicsLayerModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -99,24 +101,39 @@ fun Modifier.shadow(
     ambientColor: Color = DefaultShadowColor,
     spotColor: Color = DefaultShadowColor,
 ) = if (elevation > 0.dp || clip) {
-    inspectable(
-        inspectorInfo = debugInspectorInfo {
-            name = "shadow"
-            properties["elevation"] = elevation
-            properties["shape"] = shape
-            properties["clip"] = clip
-            properties["ambientColor"] = ambientColor
-            properties["spotColor"] = spotColor
-        }
-    ) {
-        graphicsLayer {
-            this.shadowElevation = elevation.toPx()
-            this.shape = shape
-            this.clip = clip
-            this.ambientShadowColor = ambientColor
-            this.spotShadowColor = spotColor
-        }
-    }
+    this then ShadowGraphicsLayerElement(elevation, shape, clip, ambientColor, spotColor)
 } else {
     this
+}
+
+internal data class ShadowGraphicsLayerElement(
+    val elevation: Dp,
+    val shape: Shape,
+    val clip: Boolean,
+    val ambientColor: Color,
+    val spotColor: Color,
+) : ModifierNodeElement<BlockGraphicsLayerModifier>() {
+
+    private fun createBlock(): GraphicsLayerScope.() -> Unit = {
+        this.shadowElevation = this@ShadowGraphicsLayerElement.elevation.toPx()
+        this.shape = this@ShadowGraphicsLayerElement.shape
+        this.clip = this@ShadowGraphicsLayerElement.clip
+        this.ambientShadowColor = this@ShadowGraphicsLayerElement.ambientColor
+        this.spotShadowColor = this@ShadowGraphicsLayerElement.spotColor
+    }
+    override fun create() = BlockGraphicsLayerModifier(createBlock())
+
+    override fun update(node: BlockGraphicsLayerModifier) {
+        node.layerBlock = createBlock()
+        node.invalidateLayerBlock()
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "shadow"
+        properties["elevation"] = elevation
+        properties["shape"] = shape
+        properties["clip"] = clip
+        properties["ambientColor"] = ambientColor
+        properties["spotColor"] = spotColor
+    }
 }

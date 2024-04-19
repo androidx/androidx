@@ -112,6 +112,33 @@ fun HideWhenFullSLCDemo() {
 }
 
 @Composable
+fun SLCWithPositionIndicatorDemo() {
+    val listState = rememberScalingLazyListState(5)
+    Scaffold(
+        positionIndicator = {
+            PositionIndicator(
+                scalingLazyListState = listState,
+                modifier = Modifier
+            )
+        }
+    ) {
+        ScalingLazyColumn(
+            state = listState,
+            autoCentering = null
+        ) {
+            items(
+                count = 15
+            ) {
+                Chip(
+                    onClick = {},
+                    label = { Text("SLC Item #$it") }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun ControllablePositionIndicator() {
     val position = remember { mutableFloatStateOf(0.2f) }
     val size = remember { mutableFloatStateOf(0.5f) }

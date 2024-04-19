@@ -52,7 +52,6 @@ internal interface LazyLayoutKeyIndexMap {
  * Implementation of [LazyLayoutKeyIndexMap] indexing over given [IntRange] of items.
  * Items outside of given range are considered unknown, with null returned as the index.
  */
-@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 internal class NearestRangeKeyIndexMap(
     nearestRange: IntRange,

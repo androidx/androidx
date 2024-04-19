@@ -1,19 +1,15 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.draganddrop.DragAndDropModifierNode#acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent):
-    Added method androidx.compose.ui.draganddrop.DragAndDropModifierNode.acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent)
+InvalidNullConversion: androidx.compose.ui.input.pointer.SuspendingPointerInputFilterKt#pointerInput(androidx.compose.ui.Modifier, Object[], kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.PointerInputScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) parameter #1:
+    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter keys in androidx.compose.ui.input.pointer.SuspendingPointerInputFilterKt.pointerInput(androidx.compose.ui.Modifier arg1, Object[] keys, kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.PointerInputScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block)
 
 
-AddedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
-    Added class androidx.compose.ui.draganddrop.DragAndDropKt
-AddedClass: androidx.compose.ui.platform.JvmActuals_jvmKt:
-    Added class androidx.compose.ui.platform.JvmActuals_jvmKt
+RemovedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
+    Removed class androidx.compose.ui.draganddrop.DragAndDropKt
 
 
-ChangedType: androidx.compose.ui.draganddrop.DragAndDropTarget#onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent):
-    Method androidx.compose.ui.draganddrop.DragAndDropTarget.onStarted has changed return type from boolean to void
-
-
-ParameterNameChange: androidx.compose.ui.draganddrop.DragAndDropModifierNode#drag(androidx.compose.ui.draganddrop.DragAndDropTransferData, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>) parameter #1:
-    Attempted to change parameter name from dragDecorationSize to decorationSize in method androidx.compose.ui.draganddrop.DragAndDropModifierNode.drag
-ParameterNameChange: androidx.compose.ui.draganddrop.DragAndDropNodeKt#DragAndDropModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget>) parameter #0:
-    Attempted to change parameter name from onDragAndDropStart to acceptDragAndDropTransfer in method androidx.compose.ui.draganddrop.DragAndDropNodeKt.DragAndDropModifierNode
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#indexOfFirstPressed(int):
+    Removed method androidx.compose.ui.input.pointer.PointerEventKt.indexOfFirstPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#indexOfLastPressed(int):
+    Removed method androidx.compose.ui.input.pointer.PointerEventKt.indexOfLastPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#isPressed(int, int):
+    Removed method androidx.compose.ui.input.pointer.PointerEventKt.isPressed(int,int)

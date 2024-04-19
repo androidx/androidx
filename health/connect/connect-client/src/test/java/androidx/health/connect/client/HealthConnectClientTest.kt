@@ -35,6 +35,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowUserManager
 
 private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
 
@@ -136,29 +137,6 @@ class HealthConnectClientTest {
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.P])
-    @Suppress("Deprecation")
-    fun backingImplementationLegacy_enabledSupportedVersion_isAvailable() {
-        installPackage(
-            context,
-            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
-            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
-            enabled = true
-        )
-        installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
-
-        assertThat(
-                HealthConnectClient.getSdkStatusLegacy(
-                    context,
-                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
-                )
-            )
-            .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
-        assertThat(HealthConnectClient.getOrCreateLegacy(context))
-            .isInstanceOf(HealthConnectClientImpl::class.java)
-    }
-
-    @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     @Suppress("Deprecation")
     fun sdkVersionTooOld_unavailable() {
@@ -166,17 +144,6 @@ class HealthConnectClientTest {
             .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
         assertThrows(UnsupportedOperationException::class.java) {
             HealthConnectClient.getOrCreate(context, PROVIDER_PACKAGE_NAME)
-        }
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.O_MR1])
-    @Suppress("Deprecation")
-    fun sdkVersionTooOld_legacyClient_unavailable() {
-        assertThat(HealthConnectClient.getSdkStatusLegacy(context, PROVIDER_PACKAGE_NAME))
-            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
-        assertThrows(UnsupportedOperationException::class.java) {
-            HealthConnectClient.getOrCreateLegacy(context, PROVIDER_PACKAGE_NAME)
         }
     }
 
@@ -225,7 +192,6 @@ class HealthConnectClientTest {
             .isEqualTo("android.health.connect.action.MANAGE_HEALTH_DATA")
     }
 
-    // TODO(b/306157011): Add tests for work profile in Android U.
     @Test
     @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
     fun getSdkStatus_withProfileInT_isAvailable() {
@@ -236,9 +202,7 @@ class HealthConnectClientTest {
             enabled = true
         )
         installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
-
-        val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
-        shadowOf(userManager).setManagedProfile(true)
+        addProfile()
 
         assertThat(
                 HealthConnectClient.getSdkStatus(
@@ -254,6 +218,44 @@ class HealthConnectClientTest {
                 )
             )
             .isNotNull()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    fun getSdkStatus_withProfileInU_isNotAvailable() {
+        installPackage(
+            context,
+            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
+            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true
+        )
+        installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
+        addProfile()
+
+        assertThat(
+                HealthConnectClient.getSdkStatus(
+                    context,
+                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+                )
+            )
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
+
+        assertThrows(UnsupportedOperationException::class.java) {
+            HealthConnectClient.getOrCreate(
+                context,
+                HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+            )
+        }
+    }
+
+    private fun addProfile() {
+        shadowOf(context.getSystemService(Context.USER_SERVICE) as UserManager)
+            .addProfile(
+                /* userHandle= */ 1,
+                /* profileUserHandle= */ 0,
+                "Profile Name",
+                ShadowUserManager.FLAG_PROFILE
+            )
     }
 
     private fun installPackage(

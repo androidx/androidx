@@ -43,6 +43,8 @@ import androidx.health.services.client.proto.DataProto
  * modified after the exercise has started
  * @property batchingModeOverrides [BatchingMode] overrides for this exercise
  * @property exerciseEventTypes [ExerciseEventType]s which should be tracked for this exercise
+ * @property debouncedGoals [DebouncedGoal]s for this exercise. [DataType]s in [DebouncedGoal]s must
+ * also be tracked.
  */
 @Suppress("ParcelCreator")
 class ExerciseConfig
@@ -58,6 +60,7 @@ constructor(
     val exerciseTypeConfig: ExerciseTypeConfig? = null,
     val batchingModeOverrides: Set<BatchingMode> = emptySet(),
     val exerciseEventTypes: Set<ExerciseEventType<*>> = emptySet(),
+    val debouncedGoals: List<DebouncedGoal<*>> = emptyList(),
 ) {
 
     internal constructor(
@@ -70,8 +73,8 @@ constructor(
         proto.isGpsUsageEnabled,
         proto.exerciseGoalsList.map { ExerciseGoal.fromProto(it) },
         BundlesUtil.fromProto(proto.exerciseParams),
-        if (proto.hasSwimmingPoolLength()) {
-            proto.swimmingPoolLength
+        if (proto.hasSwimmingPoolLengthMeters()) {
+            proto.swimmingPoolLengthMeters
         } else {
             SWIMMING_POOL_LENGTH_UNSPECIFIED
         },
@@ -80,6 +83,7 @@ constructor(
         } else null,
         proto.batchingModeOverridesList.map { BatchingMode(it) }.toSet(),
         proto.exerciseEventTypesList.map { ExerciseEventType.fromProto(it) }.toSet(),
+        proto.debouncedGoalsList.map { DebouncedGoal.fromProto(it) },
     )
 
     init {
@@ -116,6 +120,7 @@ constructor(
         private var exerciseTypeConfig: ExerciseTypeConfig? = null
         private var batchingModeOverrides: Set<BatchingMode> = emptySet()
         private var exerciseEventTypes: Set<ExerciseEventType<*>> = emptySet()
+        private var debouncedGoals: List<DebouncedGoal<*>> = emptyList()
 
         /**
          * Sets the requested [DataType]s that should be tracked during this exercise. If not
@@ -173,6 +178,20 @@ constructor(
          */
         fun setExerciseGoals(exerciseGoals: List<ExerciseGoal<*>>): Builder {
             this.exerciseGoals = exerciseGoals
+            return this
+        }
+
+        /**
+         * Sets [DebouncedGoal]s specified for this exercise.
+         *
+         * [DataType]s in [DebouncedGoal]s must also be tracked. Only one debounced goal per data
+         * type can be tracked in an exercise. If multiple debuonced goals of the same data type,
+         * only the last one will be applied.
+         *
+         * @param debouncedGoals the list of [DeoubcendGoal]s to begin the exercise with
+         */
+        fun setDebouncedGoals(debouncedGoals: List<DebouncedGoal<*>>): Builder {
+            this.debouncedGoals = debouncedGoals
             return this
         }
 
@@ -238,6 +257,7 @@ constructor(
                 exerciseTypeConfig,
                 batchingModeOverrides,
                 exerciseEventTypes,
+                debouncedGoals,
             )
         }
     }
@@ -250,7 +270,8 @@ constructor(
             "isGpsEnabled=$isGpsEnabled, " +
             "exerciseGoals=$exerciseGoals, " +
             "swimmingPoolLengthMeters=$swimmingPoolLengthMeters, " +
-            "exerciseTypeConfig=$exerciseTypeConfig)"
+            "exerciseTypeConfig=$exerciseTypeConfig, " +
+            "debouncedGoals=$debouncedGoals)"
 
     internal fun toProto(): DataProto.ExerciseConfig {
         val builder = DataProto.ExerciseConfig.newBuilder()
@@ -260,8 +281,9 @@ constructor(
             .setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled)
             .setIsGpsUsageEnabled(isGpsEnabled)
             .addAllExerciseGoals(exerciseGoals.map { it.proto })
+            .addAllDebouncedGoals(debouncedGoals.map { it.proto })
             .setExerciseParams(BundlesUtil.toProto(exerciseParams))
-            .setSwimmingPoolLength(swimmingPoolLengthMeters)
+            .setSwimmingPoolLengthMeters(swimmingPoolLengthMeters)
             .addAllBatchingModeOverrides(batchingModeOverrides.map { it.toProto() })
             .addAllExerciseEventTypes(exerciseEventTypes.map { it.toProto() })
         if (exerciseTypeConfig != null) {

@@ -120,7 +120,6 @@ public class AppCompatRadioButtonTest extends AppCompatBaseViewTest<AppCompatRad
                 TextViewCompat.getCompoundDrawableTintList(textView));
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testCompoundDrawableRelativeTint() {
         // Given an ACTV with a white drawableStartCompat set and a #f0f drawableTint

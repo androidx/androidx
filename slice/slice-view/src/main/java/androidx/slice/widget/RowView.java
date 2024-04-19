@@ -96,11 +96,9 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.view.ViewCompat;
 import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceStructure;
@@ -124,7 +122,6 @@ import java.util.Set;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
 @Deprecated
 public class RowView extends SliceChildView implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
@@ -234,9 +231,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mActionSpinner = findViewById(R.id.action_sent_indicator);
         SliceViewUtil.tintIndeterminateProgressBar(getContext(), mActionSpinner);
         mEndContainer = findViewById(android.R.id.widget_frame);
-        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        ViewCompat.setImportantForAccessibility(
-                mContent, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        mContent.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     /**
@@ -697,9 +693,9 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             mShowActionSpinner = true;
         }
 
-        ViewCompat.setImportantForAccessibility(mRootView, mRootView.isClickable()
-                ? ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO
-                : ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
+        mRootView.setImportantForAccessibility(mRootView.isClickable()
+                ? View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
+                : View.IMPORTANT_FOR_ACCESSIBILITY_NO
         );
     }
 

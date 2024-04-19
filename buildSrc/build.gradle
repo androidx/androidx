@@ -16,9 +16,6 @@ buildscript {
     }
 }
 
-apply from: "out.gradle"
-init.chooseBuildSrcBuildDir()
-
 ext.supportRootFolder = project.projectDir.getParentFile()
 apply from: "repos.gradle"
 apply plugin: "kotlin"

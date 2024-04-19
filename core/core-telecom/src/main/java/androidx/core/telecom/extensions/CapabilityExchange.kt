@@ -26,7 +26,7 @@ internal class CapabilityExchange() : ICapabilityExchange.Stub() {
     internal lateinit var capabilityExchangeListener: ICapabilityExchangeListener
     internal lateinit var voipCapabilities: MutableList<Capability>
 
-    internal val beingExchangeLatch = CountDownLatch(1)
+    internal val beginExchangeLatch = CountDownLatch(1)
 
     override fun beginExchange(
         capabilities: MutableList<Capability>?,
@@ -36,6 +36,6 @@ internal class CapabilityExchange() : ICapabilityExchange.Stub() {
             voipCapabilities = capabilities
         }
         l?.let { capabilityExchangeListener = l }
-        beingExchangeLatch.countDown()
+        beginExchangeLatch.countDown()
     }
 }

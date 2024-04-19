@@ -17,14 +17,19 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.TextFieldDefaults.indicatorLine
+import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -363,7 +368,7 @@ class TextFieldDecorationBoxTest {
                         interactionSource = interactionSource,
                         singleLine = singleLine,
                         container = {
-                            OutlinedTextFieldDefaults.ContainerBox(
+                            OutlinedTextFieldDefaults.Container(
                                 enabled = true,
                                 isError = false,
                                 colors = colors,
@@ -680,5 +685,27 @@ class TextFieldDecorationBoxTest {
                 }
             }
         }
+    }
+    @Test
+    fun testTextFields_TextDecoration_noCrashConstraintsInfinity() {
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
+                rememberScrollState()
+            )) {
+                TextFieldDefaults.DecorationBox(
+                    value = "Hats",
+                    innerTextField = { Text("Cats") },
+                    enabled = true,
+                    singleLine = true,
+                    visualTransformation = VisualTransformation.None,
+                    interactionSource = remember { MutableInteractionSource() },
+                    suffix = { Text("Rats") },
+                    colors = TextFieldDefaults.colors(),
+                )
+            }
+        }
+
+        rule.runOnIdle { }
     }
 }

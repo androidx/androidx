@@ -18,10 +18,11 @@ package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastLastOrNull
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * The result of the measure pass for lazy list layout.
@@ -33,7 +34,7 @@ internal class LazyListMeasureResult(
     /** The new value for [LazyListState.firstVisibleItemScrollOffset].*/
     var firstVisibleItemScrollOffset: Int,
     /** True if there is some space available to continue scrolling in the forward direction.*/
-    val canScrollForward: Boolean,
+    var canScrollForward: Boolean,
     /** The amount of scroll consumed during the measure pass.*/
     var consumedScroll: Float,
     /** MeasureResult defining the layout.*/
@@ -42,6 +43,12 @@ internal class LazyListMeasureResult(
     val scrollBackAmount: Float,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    /** Scope for animations. */
+    val coroutineScope: CoroutineScope,
+    /** Density of the last measure. */
+    val density: Density,
+    /** Constraints used to measure children. */
+    val childConstraints: Constraints,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyListLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyListMeasuredItem>,
@@ -58,10 +65,11 @@ internal class LazyListMeasureResult(
     /** see [LazyListLayoutInfo.afterContentPadding] */
     override val afterContentPadding: Int,
     /** see [LazyListLayoutInfo.mainAxisItemSpacing] */
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
 ) : LazyListLayoutInfo, MeasureResult by measureResult {
 
-    val canScrollBackward = (firstVisibleItem?.index ?: 0) != 0 || firstVisibleItemScrollOffset != 0
+    val canScrollBackward
+        get() = (firstVisibleItem?.index ?: 0) != 0 || firstVisibleItemScrollOffset != 0
 
     override val viewportSize: IntSize
         get() = IntSize(width, height)
@@ -78,21 +86,26 @@ internal class LazyListMeasureResult(
      * If true is returned, only the placement phase is needed to apply new offsets.
      * If false is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    fun tryToApplyScrollWithoutRemeasure(delta: Int): Boolean {
+    fun tryToApplyScrollWithoutRemeasure(delta: Int, updateAnimations: Boolean): Boolean {
         if (remeasureNeeded || visibleItemsInfo.isEmpty() || firstVisibleItem == null ||
             // applying this delta will change firstVisibleItem
-            (firstVisibleItemScrollOffset - delta) !in 0 until firstVisibleItem.sizeWithSpacings
+            (firstVisibleItemScrollOffset - delta) !in
+            0 until firstVisibleItem.mainAxisSizeWithSpacings
         ) {
             return false
         }
-        val first = visibleItemsInfo.fastFirst { !it.nonScrollableItem }
-        val last = visibleItemsInfo.fastLastOrNull { !it.nonScrollableItem }!!
+        val first = visibleItemsInfo.first()
+        val last = visibleItemsInfo.last()
+        if (first.nonScrollableItem || last.nonScrollableItem) {
+            // non scrollable items like headers require special handling in the measurement.
+            return false
+        }
         val canApply = if (delta < 0) {
             // scrolling forward
             val deltaToFirstItemChange =
-                first.offset + first.sizeWithSpacings - viewportStartOffset
+                first.offset + first.mainAxisSizeWithSpacings - viewportStartOffset
             val deltaToLastItemChange =
-                last.offset + last.sizeWithSpacings - viewportEndOffset
+                last.offset + last.mainAxisSizeWithSpacings - viewportEndOffset
             minOf(deltaToFirstItemChange, deltaToLastItemChange) > -delta
         } else {
             // scrolling backward
@@ -105,9 +118,13 @@ internal class LazyListMeasureResult(
         return if (canApply) {
             firstVisibleItemScrollOffset -= delta
             visibleItemsInfo.fastForEach {
-                it.applyScrollDelta(delta)
+                it.applyScrollDelta(delta, updateAnimations)
             }
             consumedScroll = delta.toFloat()
+            if (!canScrollForward && delta > 0) {
+                // we scrolled backward, so now we can scroll forward
+                canScrollForward = true
+            }
             true
         } else {
             false

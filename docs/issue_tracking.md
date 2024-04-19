@@ -108,12 +108,12 @@ information provided on Google Play.
 ## Issue lifecycle
 
 1.  When an issue is reported, it is set to `Assigned` status for default
-    assignee (typically the [library owner](/company/teams/androidx/owners.md))
+    assignee (typically the [library owner](/docs/owners.md))
     with a priority of **P4**.
 1.  Once an issue has been triaged by the assignee, its priority will be raised
     from **P4** according to severity.
 1.  The issue may still be reassigned at this point.
-    [Bug bounty](/company/teams/androidx/onboarding.md#bug-bounty) issues are
+    [Bug bounty](/docs/onboarding.md#bug-bounty) issues are
     likely to change assignees.
 1.  A status of **Accepted** means the assignee is actively working on the
     issue.

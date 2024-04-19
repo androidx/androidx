@@ -3,7 +3,7 @@ set -e
 
 echo "Starting $0 at $(date)"
 
-cd "$(dirname $0)"
+cd "$(dirname $0)/.."
 
 # This target is for testing that clean builds work correctly
 # We disable the remote cache for this target unless it was already enabled
@@ -13,24 +13,34 @@ fi
 
 EXIT_VALUE=0
 
+# b/321949384 list existing generated files
+if [ "$OUT_DIR" == "" ]; then
+  OUT_DIR="../../out"
+fi
+if [ "$DIST_DIR" != "" ]; then
+  mkdir -p "$DIST_DIR"
+  echo looking for preexisting generated files at $(date)
+  find "$OUT_DIR" "$PWD/.gradle" "buildSrc/.gradle" "local.properties" -type f 2>/dev/null > "$DIST_DIR/preexisting_files" || true
+  echo done looking for generated files at $(date)
+fi
+
 # Validate translation exports, if present
-if ! impl/check_translations.sh; then
+if ! busytown/impl/check_translations.sh; then
   EXIT_VALUE=1
 else
   # Run Gradle
   # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration
-  if ! impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs exportSboms \
+  if ! busytown/impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs exportSboms \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       -Pandroidx.constraints=true \
-      --no-daemon \
-      --profile "$@"; then
+      --no-daemon "$@"; then
     EXIT_VALUE=1
   fi
 
-  # Parse performance profile reports (generated with the --profile option above) and re-export
+  # Parse performance profile reports (generated with the --profile option) and re-export
   # the metrics in an easily machine-readable format for tracking
-  impl/parse_profile_data.sh
+  busytown/impl/parse_profile_data.sh
 fi
 
 echo "Completing $0 at $(date) with exit value $EXIT_VALUE"

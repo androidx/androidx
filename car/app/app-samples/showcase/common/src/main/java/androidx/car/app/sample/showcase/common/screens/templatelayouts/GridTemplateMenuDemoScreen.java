@@ -21,6 +21,7 @@ import static androidx.car.app.model.Action.BACK;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -52,8 +53,10 @@ public final class GridTemplateMenuDemoScreen extends Screen implements DefaultL
                 R.string.notification_template_demo_title));
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle(getCarContext().getString(R.string.grid_template_menu_demo_title))
-                .setHeaderAction(BACK)
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext().getString(R.string.grid_template_menu_demo_title))
+                        .setStartHeaderAction(BACK)
+                        .build())
                 .build();
     }
 

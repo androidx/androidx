@@ -43,7 +43,9 @@ public class UwbClientSessionScopeRxTest {
             RangingParameters.CONFIG_UNICAST_DS_TWR,
             0,
             0,
-            /*sessionKeyInfo=*/ null,
+            /*sessionKeyInfo=*/ new byte[] {
+                /*Vendor ID=*/ 0x07, 0x08,
+                /*Static STS IV=*/ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
             /*subSessionKeyInfo=*/ null,
             /*complexChannel=*/ null,
             ImmutableList.of(UWB_DEVICE),

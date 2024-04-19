@@ -166,7 +166,7 @@ public class Processor implements ForegroundProcessor {
                             tags)
                             .withRuntimeExtras(runtimeExtras)
                             .build();
-            ListenableFuture<Boolean> future = workWrapper.getFuture();
+            ListenableFuture<Boolean> future = workWrapper.launch();
             future.addListener(
                     () -> {
                         boolean needsReschedule;
@@ -184,7 +184,6 @@ public class Processor implements ForegroundProcessor {
             set.add(startStopToken);
             mWorkRuns.put(workSpecId, set);
         }
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(workWrapper);
         Logger.get().debug(TAG, getClass().getSimpleName() + ": processing " + id);
         return true;
     }

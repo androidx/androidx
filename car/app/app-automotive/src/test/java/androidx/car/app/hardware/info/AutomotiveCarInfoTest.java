@@ -39,6 +39,7 @@ import static androidx.car.app.hardware.common.CarValue.STATUS_UNAVAILABLE;
 import static androidx.car.app.hardware.common.CarValue.STATUS_UNIMPLEMENTED;
 import static androidx.car.app.hardware.common.CarValue.STATUS_UNKNOWN;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.DEFAULT_SAMPLE_RATE;
+import static androidx.car.app.hardware.info.AutomotiveCarInfo.INFO_EXTERIOR_DIMENSIONS_ID;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.SPEED_DISPLAY_UNIT_ID;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.TOLL_CARD_STATUS_ID;
 import static androidx.car.app.hardware.info.EnergyProfile.EVCONNECTOR_TYPE_CHADEMO;
@@ -94,10 +95,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(
-        manifest = Config.NONE,
-        shadows = {ShadowCar.class}
-)
+@Config(shadows = {ShadowCar.class})
 @DoNotInstrument
 public class AutomotiveCarInfoTest {
     @Rule
@@ -128,6 +126,8 @@ public class AutomotiveCarInfoTest {
     private static final long DEFAULT_TIMESTAMP_MILLIS = 1L;
     private static final boolean FUEL_LEVEL_LOW_VALUE = true;
     private static final float RANGE_REMAINING_VALUE = 5f;
+    private static final Integer[]
+            TEST_EXTERIOR_DIMENSIONS_VALUES = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8};
     private static final CarPropertyResponse<?> EV_BATTERY_CAPACITY_RESPONSE_SUCCESS =
             CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
                     STATUS_SUCCESS).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).setValue(
@@ -400,6 +400,39 @@ public class AutomotiveCarInfoTest {
         assertThat(loadedResult.get()).isEqualTo(new EnergyProfile.Builder().build());
         verify(mPropertyManager, times(1)).submitGetPropertyRequest(
                 eq(mGetPropertyRequests), eq(mExecutor));
+    }
+
+    @Test
+    public void fetchExteriorDimensions() throws InterruptedException {
+        // Set up mocks
+        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EXTERIOR_DIMENSIONS_ID));
+        mResponse.add(
+                CarPropertyResponse.builder()
+                        .setPropertyId(INFO_EXTERIOR_DIMENSIONS_ID)
+                        .setStatus(STATUS_SUCCESS)
+                        .setValue(TEST_EXTERIOR_DIMENSIONS_VALUES)
+                        .setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS)
+                        .build());
+        when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), eq(mExecutor)))
+                .thenReturn(Futures.immediateFuture(mResponse));
+
+        // Listener for collecting results
+        AtomicReference<ExteriorDimensions> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<ExteriorDimensions> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.fetchExteriorDimensions(mExecutor, listener);
+        mCountDownLatch.await();
+
+        // Expect values set up in the mock
+        ExteriorDimensions result = loadedResult.get();
+        CarValue<Integer[]> exteriorDimensionsResult = result.getExteriorDimensions();
+        assertThat(exteriorDimensionsResult.getTimestampMillis()).isEqualTo(
+                DEFAULT_TIMESTAMP_MILLIS);
+        assertThat(exteriorDimensionsResult.getStatus()).isEqualTo(STATUS_SUCCESS);
+        assertThat(exteriorDimensionsResult.getValue()).isEqualTo(TEST_EXTERIOR_DIMENSIONS_VALUES);
     }
 
     @Test
@@ -749,7 +782,7 @@ public class AutomotiveCarInfoTest {
                 CarValue.STATUS_UNIMPLEMENTED);
     }
 
-    @Config(minSdk = 31)
+    @Config(sdk = 31)
     @Test
     public void getTollCard_verifyResponseApi31() throws InterruptedException {
         // Create "TOLL_CARD_STATUS_ID" request property IDs list with car zones.
@@ -783,7 +816,7 @@ public class AutomotiveCarInfoTest {
         assertThat(tollCard.getCardState().getCarZones()).isEqualTo(GLOBAL_ZONE);
     }
 
-    @Config(maxSdk = 30)
+    @Config(sdk = 30)
     @Test
     public void getTollCard_verifyResponseApi30() {
         AtomicReference<TollCard> loadedResult = new AtomicReference<>();
@@ -912,6 +945,34 @@ public class AutomotiveCarInfoTest {
         mCountDownLatch.await();
 
         assertThat(loadedResult.get()).isEqualTo(new Speed.Builder().build());
+    }
+
+    @Test
+    public void getSpeed_with0SpeedUnit_doesNotCrash() throws InterruptedException {
+        AtomicReference<Speed> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<Speed> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addSpeedListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(any(),
+                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
+
+        // Set the speed display unit to 0 (as reported by some OEMs)
+        mResponse.add(CarPropertyResponse.builder().setPropertyId(SPEED_DISPLAY_UNIT_ID).setStatus(
+                STATUS_SUCCESS).setValue(0).setTimestampMillis(1L).build());
+
+        // This should not crash
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        // But just to be certain it processed correctly, assert that the 0 is reported by the API
+        Speed speed = loadedResult.get();
+        assertThat(speed.getSpeedDisplayUnit().getValue()).isEqualTo(0);
     }
 
     private void getEnergyLevelHelperFunction(List<CarPropertyResponse<?>> energyCapacities,
@@ -1083,8 +1144,8 @@ public class AutomotiveCarInfoTest {
             InterruptedException {
         List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
                 EV_BATTERY_CAPACITY_RESPONSE_SUCCESS, CarPropertyResponse.builder().setPropertyId(
-                INFO_FUEL_CAPACITY).setStatus(STATUS_UNIMPLEMENTED).setTimestampMillis(
-                DEFAULT_TIMESTAMP_MILLIS).build());
+                        INFO_FUEL_CAPACITY).setStatus(STATUS_UNIMPLEMENTED).setTimestampMillis(
+                        DEFAULT_TIMESTAMP_MILLIS).build());
 
         List<CarPropertyResponse<?>> energyResponses = Arrays.asList(
                 EV_BATTERY_LEVEL_RESPONSE_SUCCESS, FUEL_LEVEL_RESPONSE_SUCCESS,

@@ -103,6 +103,12 @@ class ChecksumsApiSImpl {
                             + "list of certificates.");
         }
 
+        if (Build.VERSION.SDK_INT <= 34) {
+            // On certain U devices, this might throw NameNotFoundException even if package is
+            // present.
+            context.getPackageManager().getInstallSourceInfo(packageName);
+        }
+
         context.getPackageManager().requestChecksums(packageName, includeSplits, required,
                 trustedInstallers, new PackageManager.OnChecksumsReadyListener() {
                     @SuppressLint({"WrongConstant"})

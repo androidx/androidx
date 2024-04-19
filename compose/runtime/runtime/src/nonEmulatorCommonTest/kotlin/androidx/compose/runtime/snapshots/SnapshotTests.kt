@@ -22,6 +22,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -37,6 +43,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -621,15 +628,22 @@ class SnapshotTests {
         }
     }
 
+    // Boxes a primitive Int into an object to facilitate testing on all platforms.
+    // In common case we can't rely on a default pool of boxed Integers (-128..127).
+    // For example, in K/Wasm each boxed Int is a new instance.
+    private fun boxInt(i: Int): Any = i
+
     @Test
     fun stateUsingNeverEqualPolicyCannotBeMerged() {
+        val value = boxInt(0)
+        val value2 = boxInt(1)
         assertFailsWith(SnapshotApplyConflictException::class) {
-            val state = mutableStateOf(0, neverEqualPolicy())
+            val state = mutableStateOf(value, neverEqualPolicy())
             val snapshot1 = takeMutableSnapshot()
             val snapshot2 = takeMutableSnapshot()
             try {
-                snapshot1.enter { state.value = 1 }
-                snapshot2.enter { state.value = 1 }
+                snapshot1.enter { state.value = value2 }
+                snapshot2.enter { state.value = value2 }
                 snapshot1.apply().check()
                 snapshot2.apply().check()
             } finally {
@@ -641,18 +655,20 @@ class SnapshotTests {
 
     @Test
     fun changingAnEqualityPolicyStateToItsCurrentValueIsNotConsideredAChange() {
-        val state = mutableStateOf(0, referentialEqualityPolicy())
+        val value = boxInt(0)
+        val state = mutableStateOf(value, referentialEqualityPolicy())
         val changes = changesOf(state) {
-            state.value = 0
+            state.value = value
         }
         assertEquals(0, changes)
     }
 
     @Test
     fun changingANeverEqualPolicyStateToItsCurrentValueIsConsideredAChange() {
-        val state = mutableStateOf(0, neverEqualPolicy())
+        val value = boxInt(0)
+        val state = mutableStateOf(value, neverEqualPolicy())
         val changes = changesOf(state) {
-            state.value = 0
+            state.value = value
         }
         assertEquals(1, changes)
     }
@@ -1256,6 +1272,73 @@ class SnapshotTests {
         assertEquals(1, current.writeCount)
     }
 
+    @Test
+    fun testSnapshotStateIsBornAccessible() {
+        fun <T, V> test(create: () -> T, read: (T) -> V, update: (T) -> V) {
+            val snapshot = takeMutableSnapshot()
+            val created: Any? = null
+            val modified = observeChanges(snapshot) {
+                val (state, initial) = snapshot.enter {
+                    val state = create()
+                    state to read(state)
+                }
+
+                // Ensure the value is accessible and has its initial state
+                assertEquals(initial, read(state))
+                val newValue = snapshot.enter {
+                    update(state)
+                }
+
+                // Ensure the test actually modified it
+                assertNotEquals(initial, newValue)
+
+                // Ensure the value still has its initial state
+                assertEquals(initial, read(state))
+                snapshot.apply().check()
+
+                // Ensure the value now has the modified state
+                assertEquals(newValue, read(state))
+            }
+
+            // The object is not considered modified
+            assertFalse(created in modified)
+        }
+
+        test({ mutableStateOf("A") }, { it.value }) { it.value = "B"; "B" }
+        test({ mutableIntStateOf(1) }, { it.value }, { it.value = 2; 2 })
+        test({ mutableLongStateOf(1L) }, { it.value }, { it.value = 2L; 2L })
+        test({ mutableFloatStateOf(1f) }, { it.value }, { it.value = 2f; 2f })
+        test({ mutableDoubleStateOf(1.0) }, { it.value }, { it.value = 2.0; 2.0 })
+        test({ mutableStateListOf<Int>() }, { it.isEmpty() }, { it.add(1); it.isEmpty() })
+        test({ mutableStateMapOf<Int, Int>() }, { it.isEmpty() }, { it[23] = 42; it.isEmpty() })
+    }
+
+    @Test
+    fun readObserverIsMergedOnNestedReadonlySnapshot() {
+        val result = mutableListOf<Int>()
+
+        val readObserver1: (Any) -> Unit = { result += 1 }
+        val readObserver2: (Any) -> Unit = { result += 2 }
+        val readObserver3: (Any) -> Unit = { result += 3 }
+
+        val state = mutableStateOf("")
+
+        val snapshot = takeSnapshot(readObserver1)
+        try {
+            snapshot.enter {
+                Snapshot.observe(readObserver2) {
+                    Snapshot.observe(readObserver3) {
+                        state.value
+                    }
+                }
+            }
+        } finally {
+            snapshot.dispose()
+        }
+
+        assertEquals(listOf(3, 2, 1), result)
+    }
+
     private fun usedRecords(state: StateObject): Int {
         var used = 0
         var current: StateRecord? = state.firstStateRecord
@@ -1286,6 +1369,20 @@ internal fun <T> changesOf(state: State<T>, block: () -> Unit): Int {
     var changes = 0
     val removeObserver = Snapshot.registerApplyObserver { states, _ ->
         if (states.contains(state)) changes++
+    }
+    try {
+        block()
+        Snapshot.sendApplyNotifications()
+    } finally {
+        removeObserver.dispose()
+    }
+    return changes
+}
+
+internal fun observeChanges(snapshot: Snapshot, block: () -> Unit): Set<Any> {
+    var changes = setOf<Any>()
+    val removeObserver = Snapshot.registerApplyObserver { states, changedSnapshot ->
+        if (changedSnapshot == snapshot) changes = states
     }
     try {
         block()

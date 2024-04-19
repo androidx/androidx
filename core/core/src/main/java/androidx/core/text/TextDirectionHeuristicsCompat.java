@@ -17,7 +17,7 @@
 package androidx.core.text;
 
 
-import androidx.core.view.ViewCompat;
+import android.view.View;
 
 import java.nio.CharBuffer;
 
@@ -247,7 +247,7 @@ public final class TextDirectionHeuristicsCompat {
         @Override
         protected boolean defaultIsRtl() {
             final int dir = TextUtilsCompat.getLayoutDirectionFromLocale(java.util.Locale.getDefault());
-            return (dir == ViewCompat.LAYOUT_DIRECTION_RTL);
+            return (dir == View.LAYOUT_DIRECTION_RTL);
         }
 
         static final TextDirectionHeuristicLocale INSTANCE =

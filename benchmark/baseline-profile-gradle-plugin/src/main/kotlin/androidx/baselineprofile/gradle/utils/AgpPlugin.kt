@@ -46,8 +46,8 @@ import org.gradle.api.tasks.TaskProvider
 internal abstract class AgpPlugin(
     private val project: Project,
     private val supportedAgpPlugins: Set<AgpPluginId>,
-    private val minAgpVersion: AndroidPluginVersion,
-    private val maxAgpVersion: AndroidPluginVersion,
+    private val minAgpVersionInclusive: AndroidPluginVersion,
+    private val maxAgpVersionExclusive: AndroidPluginVersion,
 ) {
 
     protected val logger: Logger
@@ -93,7 +93,7 @@ internal abstract class AgpPlugin(
 
     private fun configureWithAndroidPlugin() {
 
-        checkAgpVersion(min = minAgpVersion, max = maxAgpVersion)
+        checkAgpVersion()
 
         onBeforeFinalizeDsl()
 
@@ -161,8 +161,8 @@ internal abstract class AgpPlugin(
         }
 
         var applied = false
-        variants.all {
-            if (applied) return@all
+        variants.configureEach {
+            if (applied) return@configureEach
             applied = true
 
             // Execute all the scheduled variant blocks
@@ -222,17 +222,36 @@ internal abstract class AgpPlugin(
     protected fun onVariant(variantName: String, block: (TestVariant) -> (Unit)) =
         onTestVariantBlockScheduler.executeOrScheduleOnVariantBlock(variantName, block)
 
+    protected fun removeOnVariantCallback(variantName: String) {
+        onVariantBlockScheduler.removeOnVariantCallback(variantName)
+        onAppVariantBlockScheduler.removeOnVariantCallback(variantName)
+        onLibraryVariantBlockScheduler.removeOnVariantCallback(variantName)
+        onTestVariantBlockScheduler.removeOnVariantCallback(variantName)
+    }
+
     protected fun agpVersion() = project.agpVersion()
 
-    private fun checkAgpVersion(min: AndroidPluginVersion, max: AndroidPluginVersion) {
+    private fun checkAgpVersion() {
         val agpVersion = project.agpVersion()
-        if (agpVersion < min || agpVersion > max) {
+        if (agpVersion.previewType == "dev") {
+            return // Skip version check for androidx-studio-integration branch
+        }
+        if (agpVersion < minAgpVersionInclusive) {
             throw GradleException(
                 """
-        This version of the Baseline Profile Gradle Plugin only works with Android Gradle plugin
-        between versions $MIN_AGP_VERSION_REQUIRED and $MAX_AGP_VERSION_REQUIRED. Current version
-        is $agpVersion."
+        This version of the Baseline Profile Gradle Plugin requires the Android Gradle Plugin to be
+        at least version $minAgpVersionInclusive. The current version is $agpVersion.
+        Please update your project.
             """.trimIndent()
+            )
+        }
+        if (agpVersion >= maxAgpVersionExclusive) {
+            logger.warn(
+                """
+        This version of the Baseline Profile Gradle Plugin was tested with versions below Android
+        Gradle Plugin version $maxAgpVersionExclusive and it may not work as intended.
+        Current version is $agpVersion.
+                """.trimIndent()
             )
         }
     }
@@ -358,6 +377,10 @@ private class OnVariantBlockScheduler<T : Variant>(private val variantTypeName: 
         } else {
             onVariantBlocks.computeIfAbsent(variantName) { mutableListOf() } += block
         }
+    }
+
+    fun removeOnVariantCallback(variantName: String) {
+        onVariantBlocks.remove(variantName)
     }
 
     fun onVariant(variant: T) {

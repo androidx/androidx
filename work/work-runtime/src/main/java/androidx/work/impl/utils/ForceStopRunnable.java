@@ -396,11 +396,7 @@ public class ForceStopRunnable implements Runnable {
         // scheduled ~forever and shouldn't need WorkManager to be initialized to reschedule.
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);
-            } else {
-                alarmManager.set(RTC_WAKEUP, triggerAt, pendingIntent);
-            }
+            alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);
         }
     }
 

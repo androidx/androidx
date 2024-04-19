@@ -416,6 +416,24 @@ abstract class ColorSpace internal constructor(
     }
 }
 
+private fun createConnector(
+    source: ColorSpace,
+    destination: ColorSpace,
+    intent: RenderIntent
+): Connector {
+    return if (source === destination) {
+        Connector.identity(source)
+    } else if (source.model == ColorModel.Rgb && destination.model == ColorModel.Rgb) {
+        Connector.RgbConnector(
+            source as Rgb,
+            destination as Rgb,
+            intent
+        )
+    } else {
+        Connector(source, destination, intent)
+    }
+}
+
 /**
  * Connects two color spaces to allow conversion from the source color
  * space to the destination color space. If the source and destination
@@ -434,31 +452,14 @@ fun ColorSpace.connect(
     destination: ColorSpace = ColorSpaces.Srgb,
     intent: RenderIntent = RenderIntent.Perceptual
 ): Connector {
-    if (this === ColorSpaces.Srgb) {
-        if (destination === ColorSpaces.Srgb) {
-            return Connector.SrgbIdentity
-        }
-        if (destination === ColorSpaces.Oklab && intent == RenderIntent.Perceptual) {
-            return Connector.SrgbToOklabPerceptual
-        }
-    } else if (this === ColorSpaces.Oklab &&
-        destination === ColorSpaces.Srgb &&
-        intent == RenderIntent.Perceptual
-    ) {
-        return Connector.OklabToSrgbPerceptual
-    }
-    if (this === destination) {
-        return Connector.identity(this)
-    }
-
-    return if (this.model == ColorModel.Rgb && destination.model == ColorModel.Rgb) {
-        Connector.RgbConnector(
-            this as Rgb,
-            destination as Rgb,
-            intent
-        )
+    val srcId = id
+    val dstId = destination.id
+    return if ((srcId or dstId) < 0) { // User-supplied color spaces, don't cache
+        createConnector(this, destination, intent)
     } else {
-        Connector(this, destination, intent)
+        Connectors.getOrPut(connectorKey(srcId, dstId, intent)) {
+            createConnector(this, destination, intent)
+        }
     }
 }
 
@@ -705,7 +706,8 @@ internal fun mul3x3Float3(
  * @param r2: The third element of the vector
  * @return The first element of the resulting multiplication.
  */
-internal fun mul3x3Float3_0(
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun mul3x3Float3_0(
     lhs: FloatArray,
     r0: Float,
     r1: Float,
@@ -723,7 +725,8 @@ internal fun mul3x3Float3_0(
  * @param r2: The third element of the vector
  * @return The second element of the resulting multiplication.
  */
-internal fun mul3x3Float3_1(
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun mul3x3Float3_1(
     lhs: FloatArray,
     r0: Float,
     r1: Float,
@@ -741,7 +744,8 @@ internal fun mul3x3Float3_1(
  * @param r2: The third element of the vector
  * @return The third element of the resulting multiplication.
  */
-internal fun mul3x3Float3_2(
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun mul3x3Float3_2(
     lhs: FloatArray,
     r0: Float,
     r1: Float,
@@ -792,7 +796,6 @@ internal fun chromaticAdaptation(
     val srcLMS = mul3x3Float3(matrix, srcWhitePoint)
     val dstLMS = mul3x3Float3(matrix, dstWhitePoint)
     // LMS is a diagonal matrix stored as a float[3]
-    val LMS =
-        floatArrayOf(dstLMS[0] / srcLMS[0], dstLMS[1] / srcLMS[1], dstLMS[2] / srcLMS[2])
+    val LMS = floatArrayOf(dstLMS[0] / srcLMS[0], dstLMS[1] / srcLMS[1], dstLMS[2] / srcLMS[2])
     return mul3x3(inverse3x3(matrix), mul3x3Diag(LMS, matrix))
 }

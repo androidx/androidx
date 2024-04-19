@@ -22,8 +22,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
-import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
@@ -74,18 +74,13 @@ class UseCaseCameraTest {
         surfaceToStreamMap = surfaceToStreamMap,
         cameraStateAdapter = CameraStateAdapter(),
     )
-    private val fakeConfigAdapter = CaptureConfigAdapter(
-        useCaseGraphConfig = fakeUseCaseGraphConfig,
-        cameraProperties = fakeCameraProperties,
-        threads = useCaseThreads,
-    )
     private val fakeUseCaseCameraState = UseCaseCameraState(
         useCaseGraphConfig = fakeUseCaseGraphConfig,
         threads = useCaseThreads,
+        sessionProcessorManager = null,
     )
     private val requestControl = UseCaseCameraRequestControlImpl(
         capturePipeline = FakeCapturePipeline(),
-        configAdapter = fakeConfigAdapter,
         state = fakeUseCaseCameraState,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
@@ -107,6 +102,7 @@ class UseCaseCameraTest {
                 }
             )
         }
+
         @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         val useCaseCamera = UseCaseCameraImpl(
             controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
@@ -118,7 +114,9 @@ class UseCaseCameraTest {
                 NoOpInactiveSurfaceCloser,
             ),
             threads = useCaseThreads,
-            requestControl = requestControl
+            sessionProcessorManager = null,
+            sessionConfigAdapter = SessionConfigAdapter(listOf(fakeUseCase)),
+            requestControl = requestControl,
         ).also {
             it.runningUseCases = setOf(fakeUseCase)
         }
@@ -147,7 +145,7 @@ class UseCaseCameraTest {
 }
 
 @RequiresApi(21)
-private class FakeTestUseCase() : FakeUseCase(
+private class FakeTestUseCase : FakeUseCase(
     FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
 ) {
 

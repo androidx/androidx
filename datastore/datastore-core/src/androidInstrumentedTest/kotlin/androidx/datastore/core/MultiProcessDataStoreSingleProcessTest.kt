@@ -54,6 +54,7 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -602,6 +603,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             store.data.take(8).toList(collectedBytes)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -626,6 +628,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             flowOf8.toList(bytesFromSecondCollect)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -659,6 +662,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             flowOf8.take(8).toList(collectedBytes)
         }
 
+        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -685,6 +689,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             }
         }
 
+        runCurrent()
         repeat(15) {
             store.updateData { it.inc() }
         }
@@ -945,6 +950,17 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
         assertThat(dataStore.data.first()).isEqualTo(1)
         StrictMode.allowThreadDiskReads()
         StrictMode.allowThreadDiskWrites()
+    }
+
+    @Test
+    fun testWriteSameValueSkipDisk() = runTest {
+        // write a non-default value to force a disk write
+        store.updateData { 10 }
+        assertThat(serializerConfig.writeCount).isEqualTo(1)
+
+        // write same value again
+        store.updateData { 10 }
+        assertThat(serializerConfig.writeCount).isEqualTo(1)
     }
 
     // Mutable wrapper around a byte

@@ -41,7 +41,6 @@ import androidx.slice.SliceViewManager;
 import androidx.slice.SliceViewManager.SliceCallback;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -60,7 +59,6 @@ import java.util.concurrent.CountDownLatch;
 @SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 19)
 public class CachedSliceLiveDataTest {
 
     private static final Uri URI = Uri.parse("content://test/something");

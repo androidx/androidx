@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
@@ -21,56 +29,23 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXRepackagePlugin")
     id("kotlin")
-    id("com.github.johnrengelman.shadow")
 }
 
-configurations {
-    /**
-     * shadowed is used for dependencies which we jarjar into the library jar instead of adding it
-     * as a pom dependency
-     */
-    shadowed
-    // make sure shadowed dependencies show up as compileOnly so that normal compilation works
-    compileOnly.extendsFrom(shadowed)
-    // compiler tests run w/o shadowed classes so we should add those dependencies into test
-    // configuration
-    testCompile.extendsFrom(shadowed)
-    // for downstream tests, provide a configuration that includes the shadow output + other
-    // dependencies that are not shadowed
-    shadowAndImplementation.extendsFrom(shadow)
-    shadowAndImplementation.extendsFrom(implementation)
-}
-
-shadowJar {
-    // set classifier to empty string so that it doesn't append anything to the jar.
-    archiveClassifier = ""
-    configurations = [project.configurations.shadowed]
-    relocate("org.antlr", "androidx.room.jarjarred.org.antlr")
-    relocate("org.stringtemplate", "androidx.room.jarjarred.org.stringtemplate")
-}
-
-jar {
-    // set a classifier on this one so that the output does not clash with the output from
-    // shadowJar task. We should never use this directly as it won't have the shadowed classes that
-    // are necessary to run.
-    archiveClassifier = "before-jarjar"
-}
-
-configurations {
-    // replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
-    apiElements.outgoing.artifacts.clear()
-    apiElements.outgoing.artifact(shadowJar) {
-        builtBy shadowJar
+repackage {
+    // Must match what is in room/room-external-antlr/build.gradle
+    addRelocation {
+        sourcePackage = "org.antlr"
+        targetPackage = "androidx.room.jarjarred.org.antlr"
     }
-    runtimeElements.outgoing.artifacts.clear()
-    runtimeElements.outgoing.artifact(shadowJar) {
-        builtBy shadowJar
+    // Must match what is in room/room-external-antlr/build.gradle
+    addRelocation {
+        sourcePackage = "org.stringtemplate"
+        targetPackage =  "androidx.room.jarjarred.org.stringtemplate"
     }
 }
 
@@ -78,6 +53,7 @@ androidx.configureAarAsJarForConfiguration("testImplementation")
 
 dependencies {
     implementation(project(":room:room-common"))
+    implementation(project(":room:room-external-antlr"))
     implementation(project(":room:room-migration"))
     implementation(project(":room:room-compiler-processing"))
     implementation(libs.kotlinStdlib)
@@ -87,7 +63,10 @@ dependencies {
     implementation(libs.kotlinPoet)
     implementation(libs.kotlinPoetJavaPoet)
     implementation(libs.kspApi)
-    shadowed(libs.antlr4) {
+    // Must be compileOnly to not bring in antlr4 in runtime
+    // Repackaged antlr4 brought in by
+    // project(":room:room-external-antlr") and used at runtime
+    compileOnly(libs.antlr4) {
         // antlr has dependencies on unrelated projects for its gui stuff, do not include them
         exclude group: "org.abego.treelayout"
         exclude group: "com.ibm.icu"
@@ -116,7 +95,11 @@ dependencies {
 }
 
 def generateAntlrTask = tasks.register("generateAntlrGrammar", GenerateAntlrGrammar) { task ->
-    task.getSqliteFile().set(layout.projectDirectory.file("SQLite.g4"))
+    def sourceFiles = [
+            "SQLiteLexer.g4",
+            "SQLiteParser.g4"
+    ]
+    task.getSourceFiles().set(sourceFiles.collect { layout.projectDirectory.file(it) })
     task.getAntlrClasspath().from(configurations.compileClasspath)
     task.getOutputDirectory().set(layout.buildDirectory.dir("generated/antlr/grammar-gen/"))
 }
@@ -128,8 +111,8 @@ sourceSets {
 @CacheableTask
 abstract class GenerateAntlrGrammar extends DefaultTask {
     @PathSensitive(PathSensitivity.NONE)
-    @InputFile
-    abstract RegularFileProperty getSqliteFile()
+    @InputFiles
+    abstract ListProperty<RegularFile> getSourceFiles()
 
     @Classpath
     abstract ConfigurableFileCollection getAntlrClasspath()
@@ -142,26 +125,30 @@ abstract class GenerateAntlrGrammar extends DefaultTask {
 
     @Inject
     public GenerateAntlrGrammar() {
-        description("Generates Antlr Grammar used by room")
+        description("Generates ANTLR Grammar used by Room")
         group("build")
     }
 
     @TaskAction
     void generateAntlrGrammar() {
+        File outputDirectoryFile = getOutputDirectory().asFile.get()
+        outputDirectoryFile.deleteDir()
         execOperations.javaexec {
             mainClass.set("org.antlr.v4.Tool")
             classpath = getAntlrClasspath()
-            args getSqliteFile().asFile.get().absolutePath,
+            args(
+                 *getSourceFiles().get().collect { it.getAsFile().absolutePath },
                  "-visitor",
-                 "-o", new File(getOutputDirectory().asFile.get(), "androidx/room/parser").path,
+                 "-o", new File(outputDirectoryFile, "androidx/room/parser").path,
                  "-package", "androidx.room.parser"
+            )
         }
     }
 }
 
 /**
- * Room compiler jarjars some dependencies. This task validates the published artifacts of room
- * compiler to ensure dependencies are properly jarjarred.
+ * This task validates the published artifacts of room compiler to ensure dependencies are properly
+ * specified.
  */
 abstract class CheckArtifactTask extends DefaultTask {
     @InputFiles
@@ -170,52 +157,6 @@ abstract class CheckArtifactTask extends DefaultTask {
     abstract RegularFileProperty getPomFile()
     @OutputFile
     abstract RegularFileProperty getResult()
-    /**
-     * Checks the publish task's artifacts to make sure the classes.jar does include jarjarred
-     * antlr classes.
-     */
-    void validatePublishTaskOutputs() {
-        if (getArtifactInputs().files.isEmpty()) {
-            throw new GradleException("Couldn't find the classes.jar for the room-compiler " +
-                    "artifact. Ensure that publish is setup properly.")
-        }
-        getArtifactInputs().forEach {
-            validateJarContents(it)
-        }
-    }
-
-    /**
-     * Traverses the given jar file, looks for the classes that should be jarjarred and validates
-     * their location.
-     */
-    static void validateJarContents(File jarFile) {
-        Boolean found = false
-        ZipFile zip = new ZipFile(jarFile)
-        try {
-            for (Enumeration list = zip.entries(); list.hasMoreElements(); ) {
-                String entry = ((ZipEntry) list.nextElement()).name
-                if (!entry.endsWith(".class")) continue
-                if (entry.contains("org/antlr")) {
-                    found = true
-                    if (!entry.contains("androidx/room/jarjarred/org/antlr")) {
-                        throw new GradleException("Any Antlr class included in the Room Compiler's" +
-                                " jar file should be moved into androidx/room/jarjarred.\n" +
-                                "Looks like $entry has not been moved")
-                    }
-                }
-                if (!entry.startsWith("androidx/room/")) {
-                    throw new GradleException("Found a class that is not in androidx.room " +
-                            "package: $entry")
-                }
-            }
-        } finally {
-            zip.close()
-        }
-        if (!found) {
-            throw new GradleException("Couldn't find any Antlr classes in room-compiler artifact" +
-                    ".\n Antlr is jarjarred into room-compiler so there should be some files")
-        }
-    }
 
     /**
      * Checks the generated pom file to ensure it does not depend on any jarjarred dependencies
@@ -242,7 +183,6 @@ abstract class CheckArtifactTask extends DefaultTask {
     @TaskAction
     void validate() {
         getResult().asFile.get().write("fail\n")
-        validatePublishTaskOutputs()
         validatePomTaskOutputs()
         // have a no-op output to make gradle happy w/ input/output checking.
         getResult().asFile.get().write("ok\n")
@@ -289,7 +229,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 tasks.withType(Test).configureEach {
     it.systemProperty("androidx.room.compiler.processing.strict", "true")
-    it.maxParallelForks(5)
+    it.maxParallelForks(8)
     if (project.providers.environmentVariable("GITHUB_ACTIONS").present) {
         // limit memory usage to avoid running out of memory in the docker container.
         it.maxHeapSize("512m")
@@ -301,8 +241,4 @@ androidx {
     type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
-    license { // jarjared antlr library
-        name = "BSD licence"
-        url = "http://antlr.org/license.html"
-    }
 }

@@ -18,8 +18,6 @@ package androidx.core.telecom.test
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.media.AudioManager.AudioRecordingCallback
-import android.media.AudioRecord
 import android.os.Bundle
 import android.telecom.DisconnectCause
 import android.util.Log
@@ -31,7 +29,6 @@ import androidx.core.telecom.CallsManager
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,10 +43,6 @@ class CallingMainActivity : Activity() {
 
     // Telecom
     private var mCallsManager: CallsManager? = null
-
-    // Audio Record
-    private var mAudioRecord: AudioRecord? = null
-    private var mAudioRecordingCallback: AudioRecordingCallback? = null
 
     // Call Log objects
     private var mRecyclerView: RecyclerView? = null
@@ -75,7 +68,6 @@ class CallingMainActivity : Activity() {
         val addOutgoingCallButton = findViewById<Button>(R.id.addOutgoingCall)
         addOutgoingCallButton.setOnClickListener {
             mScope.launch {
-                startAudioRecording()
                 addCallWithAttributes(Utilities.OUTGOING_CALL_ATTRIBUTES)
             }
         }
@@ -83,14 +75,12 @@ class CallingMainActivity : Activity() {
         val addIncomingCallButton = findViewById<Button>(R.id.addIncomingCall)
         addIncomingCallButton.setOnClickListener {
             mScope.launch {
-                startAudioRecording()
                 addCallWithAttributes(Utilities.INCOMING_CALL_ATTRIBUTES)
             }
         }
 
         // Set up AudioRecord
-        mAudioRecord = Utilities.createAudioRecord(applicationContext, this)
-        mAdapter = CallListAdapter(mCallObjects, mAudioRecord)
+        mAdapter = CallListAdapter(mCallObjects, null)
 
         // set up the call list view holder
         mRecyclerView = findViewById(R.id.callListRecyclerView)
@@ -109,10 +99,6 @@ class CallingMainActivity : Activity() {
                 }
             }
         }
-
-        // Clean up AudioRecord
-        mAudioRecord?.release()
-        mAudioRecord = null
     }
 
     @SuppressLint("WrongConstant")
@@ -197,13 +183,5 @@ class CallingMainActivity : Activity() {
         runOnUiThread {
             mAdapter.notifyDataSetChanged()
         }
-    }
-
-    private fun startAudioRecording() {
-        mAudioRecordingCallback = Utilities.TelecomAudioRecordingCallback(mAudioRecord!!)
-        mAudioRecord?.registerAudioRecordingCallback(
-            Executors.newSingleThreadExecutor(), mAudioRecordingCallback!!)
-        mAdapter.mAudioRecordingCallback = mAudioRecordingCallback
-        mAudioRecord?.startRecording()
     }
 }

@@ -25,6 +25,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat;
 import androidx.wear.watchface.data.WatchUiState;
+import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -41,7 +42,7 @@ interface IInteractiveWatchFace {
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 9;
+    const int API_VERSION = 10;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -235,4 +236,11 @@ interface IInteractiveWatchFace {
      */
     IRemoteWatchFaceView createRemoteWatchFaceView(
         in IBinder hostToken, in int width, in int height) = 24;
+
+    /**
+     * Gets the current user style flavors.
+     *
+     * @since API version 10.
+     */
+    UserStyleFlavorsWireFormat getUserStyleFlavors() = 25;
 }

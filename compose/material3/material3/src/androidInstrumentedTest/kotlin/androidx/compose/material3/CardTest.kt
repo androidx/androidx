@@ -94,6 +94,80 @@ class CardTest {
     }
 
     @Test
+    fun cardColors_customValues() {
+        rule.setContent() {
+            var colorScheme = MaterialTheme.colorScheme.copy(
+                surface = Color.Green,
+                onSurface = Color.Blue,
+                error = Color.Red,
+                onError = Color.Yellow
+            )
+            MaterialTheme(colorScheme = colorScheme) {
+                var colors = CardDefaults.cardColors(
+                    containerColor = colorScheme.surface
+                )
+                assert(colors.contentColor == colorScheme.onSurface)
+                assert(colors.disabledContentColor == colors.contentColor.copy(DisabledAlpha))
+
+                colors = CardDefaults.cardColors(
+                    containerColor = colorScheme.error
+                )
+                assert(colors.contentColor == colorScheme.onError)
+                assert(colors.disabledContentColor == colors.contentColor.copy(DisabledAlpha))
+            }
+        }
+    }
+
+    @Test
+    fun elevatedCardColors_customValues() {
+        rule.setContent() {
+            var colorScheme = MaterialTheme.colorScheme.copy(
+                surface = Color.Green,
+                onSurface = Color.Blue,
+                error = Color.Red,
+                onError = Color.Yellow
+            )
+            MaterialTheme(colorScheme = colorScheme) {
+                var colors = CardDefaults.elevatedCardColors(
+                    containerColor = colorScheme.surface
+                )
+                assert(colors.contentColor == colorScheme.onSurface)
+                assert(colors.disabledContentColor == colors.contentColor.copy(DisabledAlpha))
+
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = colorScheme.error
+                )
+                assert(colors.contentColor == colorScheme.onError)
+                assert(colors.disabledContentColor == colors.contentColor.copy(DisabledAlpha))
+            }
+        }
+    }
+
+    @Test
+    fun outlinedCardColors_customValues() {
+        rule.setContent() {
+            var colorScheme = MaterialTheme.colorScheme.copy(
+                surface = Color.Green,
+                onSurface = Color.Blue,
+                error = Color.Red,
+                onError = Color.Yellow
+            )
+            MaterialTheme(colorScheme = colorScheme) {
+                var colors = CardDefaults.outlinedCardColors(
+                    containerColor = colorScheme.surface
+                )
+                assert(colors.contentColor == colorScheme.onSurface)
+                assert(colors.disabledContentColor == colors.contentColor.copy(DisabledAlpha))
+
+                colors = CardDefaults.outlinedCardColors(
+                    containerColor = colorScheme.error
+                )
+                assert(colors.contentColor == colorScheme.onError)
+                assert(colors.disabledContentColor == colors.contentColor.copy(DisabledAlpha))
+            }
+        }
+    }
+    @Test
     fun clickableOverload_semantics() {
         val count = mutableStateOf(0)
         rule.setMaterialContent(lightColorScheme()) {

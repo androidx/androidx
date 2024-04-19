@@ -490,23 +490,34 @@ class FragmentNavigatorTest {
             .isEqualTo(2)
         assertThat(navigatorState.transitionsInProgress.value).isEmpty()
         assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
-
+        // obs for upcoming pop
+        val countDownLatch1 = CountDownLatch(1)
+        var pendingOps1: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry2.id, entry3.id)
+            pendingOps1 = it.entries().toList()
+            countDownLatch1.countDown()
         }
         // first pop entry3
         fragmentNavigator.popBackStack(entry3, false)
+        assertThat(countDownLatch1.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(pendingOps1).containsExactly(entry2.id, entry3.id)
 
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
             assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
-
+        // obs for upcoming pop
+        val countDownLatch2 = CountDownLatch(1)
+        var pendingOps2: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry1.id, entry2.id)
+            pendingOps2 = it.entries().toList()
+            countDownLatch2.countDown()
         }
         // And then pop entry2
         fragmentNavigator.popBackStack(entry2, false)
+        // wait for onBackStackChangedStarted before asserting
+        assertThat(countDownLatch2.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(pendingOps2).containsExactly(entry1.id, entry2.id)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
             assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
@@ -520,17 +531,17 @@ class FragmentNavigatorTest {
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
         // are complete and the viewLifecycle has been RESUMED.
-        val countDownLatch = CountDownLatch(1)
+        val countDownLatch3 = CountDownLatch(1)
         activityRule.runOnUiThread {
             fragment1?.viewLifecycleOwner?.lifecycle?.addObserver(object : LifecycleEventObserver {
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                     if (event == Lifecycle.Event.ON_RESUME) {
-                        countDownLatch.countDown()
+                        countDownLatch3.countDown()
                     }
                 }
             })
         }
-        assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(countDownLatch3.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         // We should ensure the fragment manager is on the proper fragment at the end
         assertWithMessage("FragmentManager back stack should be empty")
@@ -1729,24 +1740,33 @@ class FragmentNavigatorTest {
                 }
             })
         }
-
+        // obs for upcoming pop
+        val countDownLatch2 = CountDownLatch(1)
+        var pendingOps1: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry2.id, entry3.id)
+            pendingOps1 = it.entries().toList()
+            countDownLatch2.countDown()
         }
         fragmentNavigator.popBackStack(entry3, false)
+        assertThat(countDownLatch2.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(pendingOps1).containsExactly(entry2.id, entry3.id)
         assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
-
+        // obs for upcoming pop
+        val countDownLatch3 = CountDownLatch(1)
+        var pendingOps2: List<String> = emptyList()
         fragmentNavigator.pendingOps.onBackStackChangedStarted {
-            assertThat(it.entries()).containsExactly(entry1.id, entry2.id)
+            pendingOps2 = it.entries().toList()
+            countDownLatch3.countDown()
         }
         fragmentNavigator.popBackStack(entry2, false)
-
+        // wait for onBackStackChangedStarted before asserting
+        assertThat(countDownLatch3.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(pendingOps2).containsExactly(entry1.id, entry2.id)
         assertThat(navigatorState.backStack.value).containsExactly(entry1)
         activityRule.runOnUiThread {
             fragmentManager.executePendingTransactions()
             assertThat(fragmentNavigator.pendingOps.entries()).isEmpty()
         }
-
         val fragment1 = fragmentManager.findFragmentById(R.id.container) as AnimatorFragment
         assertWithMessage("Fragment should be added")
             .that(fragment1)
@@ -1765,17 +1785,17 @@ class FragmentNavigatorTest {
 
         // Add an observer to ensure that we don't attempt to verify the state until animations
         // are complete and the viewLifecycle has been RESUMED.
-        val countDownLatch2 = CountDownLatch(1)
+        val countDownLatch4 = CountDownLatch(1)
         activityRule.runOnUiThread {
             fragment1.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
                 override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                     if (event == Lifecycle.Event.ON_RESUME) {
-                        countDownLatch2.countDown()
+                        countDownLatch4.countDown()
                     }
                 }
             })
         }
-        assertThat(countDownLatch2.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(countDownLatch4.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         // Entry 1 should move back to RESUMED
         assertThat(entry1.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)

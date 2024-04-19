@@ -553,10 +553,13 @@ class RestrictToDetectorTest : AbstractCheckTest() {
             .run()
             .expect(
                 """
+            src/test/pkg/Outer.java:8: Error: Inner can only be accessed from tests [RestrictedApiAndroidX]
+                                private Inner innerInstance;
+                                        ~~~~~
             src/test/pkg/Outer.java:18: Error: Inner.method can only be called from tests [RestrictedApiAndroidX]
                                     innerInstance.method();
                                                   ~~~~~~
-            1 errors, 0 warnings
+            2 errors, 0 warnings
             """
             )
     }

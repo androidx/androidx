@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -102,7 +103,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(10.0f.toDp(), Color.Red), shape)
 
@@ -127,7 +129,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(
                             BorderStroke(10.0f.toDp(), SolidColor(Color.Red)),
@@ -154,7 +157,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(1500.0f.toDp(), Color.Red), shape)
                 ) {}
@@ -176,7 +180,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(-5.0f.toDp(), Color.Red), shape)
                 ) {}
@@ -198,10 +203,13 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp()).background(Color.White)
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
+                        .background(Color.White)
                 ) {
                     Box(
-                        Modifier.size(0.0f.toDp(), 40.0f.toDp())
+                        Modifier
+                            .size(0.0f.toDp(), 40.0f.toDp())
                             .border(BorderStroke(4.0f.toDp(), Color.Red), shape)
                     ) {}
                 }
@@ -233,7 +241,8 @@ class BorderTest(val shape: Shape) {
                 borderWidthDp = (10f / density).dp
             }
             Box(
-                Modifier.testTag(testTag)
+                Modifier
+                    .testTag(testTag)
                     .requiredSize(triangleSizeDp, triangleSizeDp)
                     .background(Color.White)
                     .border(BorderStroke(borderWidthDp, Color.Red), triangle)
@@ -271,7 +280,8 @@ class BorderTest(val shape: Shape) {
                 borderPx = border.toPx()
             }
             Box(
-                Modifier.testTag(roundRectTag)
+                Modifier
+                    .testTag(roundRectTag)
                     .size(size)
                     .background(Color.White)
                     .border(
@@ -333,7 +343,8 @@ class BorderTest(val shape: Shape) {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                    Modifier
+                        .size(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
                         .border(BorderStroke(10.0f.toDp(), Color.Red), rtlAwareShape)
                 ) {}
@@ -358,7 +369,8 @@ class BorderTest(val shape: Shape) {
             SemanticParent {
                 CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
                     Box(
-                        Modifier.size(40.0f.toDp(), 40.0f.toDp())
+                        Modifier
+                            .size(40.0f.toDp(), 40.0f.toDp())
                             .background(color = Color.Blue)
                             .border(BorderStroke(10.0f.toDp(), Color.Red), rtlAwareShape)
                     ) {}
@@ -403,7 +415,8 @@ class BorderTest(val shape: Shape) {
                 borderStrokePx = borderStrokeDp.toPx()
             }
             Box(
-                Modifier.testTag(testTag)
+                Modifier
+                    .testTag(testTag)
                     .requiredSize(20.dp, 20.dp)
                     .background(Color.White)
                     .border(
@@ -437,7 +450,7 @@ class BorderTest(val shape: Shape) {
             )
             assertEquals(
                 Color.White,
-                pixelMap[ width / 2, height / 2]
+                pixelMap[width / 2, height / 2]
             )
         }
 
@@ -465,7 +478,7 @@ class BorderTest(val shape: Shape) {
             )
             assertEquals(
                 Color.White,
-                pixelMap[ width / 2, height / 2]
+                pixelMap[width / 2, height / 2]
             )
         }
     }
@@ -510,7 +523,8 @@ class BorderTest(val shape: Shape) {
                 borderStrokePx = borderWidthDp.toPx()
             }
             Box(
-                Modifier.testTag(testTag)
+                Modifier
+                    .testTag(testTag)
                     .requiredSize(bubbleWidthDp, bubbleHeightDp)
                     .background(Color.White)
                     .padding(top = arrowLengthDp)
@@ -579,6 +593,43 @@ class BorderTest(val shape: Shape) {
                     (offset.y + borderStrokePx / 2).toInt()
                 ]
             )
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withColor() {
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.border(10.dp, Color.Red)
+            } else {
+                Modifier.border(5.dp, Color.Red)
+            }
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withBorderStroke() {
+        val borderStroke1 = BorderStroke(10.dp, Color.Blue)
+        val borderStroke2 = BorderStroke(5.dp, Color.Blue)
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.border(borderStroke1)
+            } else {
+                Modifier.border(borderStroke2)
+            }
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withBrush() {
+        val brush1 = Brush.horizontalGradient()
+        val brush2 = Brush.verticalGradient()
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.border(10.dp, brush1, shape)
+            } else {
+                Modifier.border(10.dp, brush2, shape)
+            }
         }
     }
 

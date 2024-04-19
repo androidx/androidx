@@ -45,6 +45,7 @@ import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +60,11 @@ class RotaryScrollEventTest {
     private lateinit var rootView: View
     private var receivedEvent: RotaryScrollEvent? = null
     private val tolerance: Float = 0.000001f
+
+    @Before
+    fun before() {
+        receivedEvent = null
+    }
 
     @Test
     fun androidWearCrownRotation_triggersRotaryEvent() {
@@ -87,6 +93,38 @@ class RotaryScrollEventTest {
         // Assert.
         rule.runOnIdle {
             assertThat(receivedEvent).isNotNull()
+        }
+    }
+
+    // tests bad data
+    @Test
+    fun androidWearCrownRotation_triggersRotaryEventWithBadData() {
+        // Arrange.
+        ContentWithInitialFocus {
+            Box(
+                modifier = Modifier
+                    .onRotaryScrollEvent {
+                        receivedEvent = it
+                        true
+                    }
+                    .focusable(initiallyFocused = true)
+            )
+        }
+
+        // Act.
+        rule.runOnIdle {
+            rootView.dispatchGenericMotionEvent(
+                MotionEventBuilder.newBuilder()
+                    .setAction(ACTION_SCROLL)
+                    .setSource(SOURCE_ROTARY_ENCODER)
+                    .setPointer(Float.NaN, Float.NaN)
+                    .build()
+            )
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(receivedEvent).isNull()
         }
     }
 

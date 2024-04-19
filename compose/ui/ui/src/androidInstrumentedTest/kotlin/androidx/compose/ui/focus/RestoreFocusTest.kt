@@ -129,7 +129,7 @@ class RestoreFocusTest {
     }
 
     @Test
-    fun withoutUniqueKeysRestoresFirstMatchingChild() {
+    fun adjacentCallsRestoreTheFocusToTheCorrectChild() {
         // Arrange.
         val (parent, child2) = FocusRequester.createRefs()
         lateinit var focusManager: FocusManager
@@ -166,8 +166,8 @@ class RestoreFocusTest {
         rule.runOnIdle {
             assertThat(savedSuccessfully).isTrue()
             assertThat(restoredSuccessfully).isTrue()
-            assertThat(child1State.isFocused).isTrue()
-            assertThat(child2State.isFocused).isFalse()
+            assertThat(child1State.isFocused).isFalse()
+            assertThat(child2State.isFocused).isTrue()
         }
     }
 

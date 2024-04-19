@@ -31,6 +31,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -53,7 +54,7 @@ import androidx.compose.ui.util.fastForEach
 fun AnnotatedString.toAccessibilitySpannableString(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    urlSpanCache: URLSpanCache
+    urlSpanCache: URLSpanCache,
 ): SpannableString {
     val spannableString = SpannableString(text)
     spanStylesOrNull?.fastForEach { (style, start, end) ->
@@ -72,6 +73,7 @@ fun AnnotatedString.toAccessibilitySpannableString(
         )
     }
 
+    @Suppress("Deprecation")
     getUrlAnnotations(0, length).fastForEach { (urlAnnotation, start, end) ->
         spannableString.setSpan(
             urlSpanCache.toURLSpan(urlAnnotation),
@@ -81,6 +83,24 @@ fun AnnotatedString.toAccessibilitySpannableString(
         )
     }
 
+    getLinkAnnotations(0, length).fastForEach { linkRange ->
+        val link = linkRange.item
+        if (link is LinkAnnotation.Url && link.linkInteractionListener == null) {
+            spannableString.setSpan(
+                urlSpanCache.toURLSpan(linkRange.toUrlLink()),
+                linkRange.start,
+                linkRange.end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        } else {
+            spannableString.setSpan(
+                urlSpanCache.toClickableSpan(linkRange),
+                linkRange.start,
+                linkRange.end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
     return spannableString
 }
 
@@ -179,3 +199,6 @@ private object Api28Impl {
     @DoNotInline
     fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
 }
+
+private fun AnnotatedString.Range<LinkAnnotation>.toUrlLink() =
+    AnnotatedString.Range(this.item as LinkAnnotation.Url, this.start, this.end)

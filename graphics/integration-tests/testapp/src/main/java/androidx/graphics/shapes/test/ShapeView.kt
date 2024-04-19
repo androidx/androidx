@@ -43,6 +43,11 @@ class ShapeView(context: Context, shape: RoundedPolygon) : View(context) {
     }
 
     override fun onDraw(canvas: Canvas) {
+        /*
+        // For debugging - it's good to check how stroking the paths looks occasionally
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = width / 10f
+        */
         canvas.drawPath(path, paint)
     }
 }

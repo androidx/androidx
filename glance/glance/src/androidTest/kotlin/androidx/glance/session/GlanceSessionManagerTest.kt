@@ -127,7 +127,9 @@ class GlanceSessionManagerTest {
         val text = assertIs<EmittableText>(testSession.uiTree.receive().children.single())
         assertThat(text.text).isEqualTo("Hello World")
 
-        assertNotNull(GlanceSessionManager.getSession(testSession.key)).close()
+        GlanceSessionManager.runWithLock {
+            assertNotNull(getSession(testSession.key)).close()
+        }
         waitForWorkerSuccess()
     }
 
@@ -150,7 +152,9 @@ class GlanceSessionManagerTest {
         // The session is not subject to a timeout before the composition has been processed
         // successfully for the first time.
         delay(initialTimeout * 5)
-        assertThat(GlanceSessionManager.isSessionRunning(context, testSession.key)).isTrue()
+        GlanceSessionManager.runWithLock {
+            assertThat(isSessionRunning(context, testSession.key)).isTrue()
+        }
 
         testSession.uiTree.receive()
         val timeout = testTimeSource.measureTime {
@@ -189,9 +193,11 @@ class GlanceSessionManagerTest {
     }
 
     private suspend fun startSession() {
-        GlanceSessionManager.startSession(context, testSession)
-        waitForWorkerStart()
-        assertThat(GlanceSessionManager.isSessionRunning(context, testSession.key)).isTrue()
+        GlanceSessionManager.runWithLock {
+            startSession(context, testSession)
+            waitForWorkerStart()
+            assertThat(isSessionRunning(context, testSession.key)).isTrue()
+        }
     }
 
     private suspend fun waitForWorkerState(vararg state: State) = workerState.first {

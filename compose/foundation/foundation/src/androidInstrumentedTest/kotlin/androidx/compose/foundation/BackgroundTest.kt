@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 The Android Open Source Project
  *
@@ -27,10 +26,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -93,10 +94,15 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40f.toDp()).background(Color.Magenta),
+                    Modifier
+                        .size(40f.toDp())
+                        .background(Color.Magenta),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(Modifier.size(20f.toDp()).background(Color.White))
+                    Box(
+                        Modifier
+                            .size(20f.toDp())
+                            .background(Color.White))
                 }
             }
         }
@@ -116,11 +122,14 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40f.toDp()).background(Color.Magenta),
+                    Modifier
+                        .size(40f.toDp())
+                        .background(Color.Magenta),
                     contentAlignment = Alignment.Center
                 ) {
                     Box(
-                        Modifier.size(20f.toDp())
+                        Modifier
+                            .size(20f.toDp())
                             .background(SolidColor(Color.White))
                     )
                 }
@@ -142,7 +151,8 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40f.toDp())
+                    Modifier
+                        .size(40f.toDp())
                         .background(Color.Magenta)
                         .background(color = Color.White, shape = CircleShape)
                 )
@@ -163,7 +173,8 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40f.toDp())
+                    Modifier
+                        .size(40f.toDp())
                         .background(Color.Magenta)
                         .background(
                             brush = SolidColor(Color.White),
@@ -189,7 +200,8 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier.size(40f.toDp())
+                    Modifier
+                        .size(40f.toDp())
                         .background(Color.Magenta)
                         .background(color = Color.White, shape = shape)
                 )
@@ -224,7 +236,8 @@ class BackgroundTest {
             SemanticParent {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Box(
-                        Modifier.size(40f.toDp())
+                        Modifier
+                            .size(40f.toDp())
                             .background(Color.Magenta)
                             .background(
                                 brush = SolidColor(Color.White),
@@ -251,7 +264,8 @@ class BackgroundTest {
             SemanticParent {
                 CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
                     Box(
-                        Modifier.size(40f.toDp())
+                        Modifier
+                            .size(40f.toDp())
                             .background(Color.Magenta)
                             .background(
                                 brush = SolidColor(Color.White),
@@ -298,9 +312,28 @@ class BackgroundTest {
     }
 
     @Test
-    fun testEquals() {
-        assertThat(Modifier.background(SolidColor(Color.Red)))
-            .isEqualTo(Modifier.background(SolidColor(Color.Red)))
+    fun equalInputs_shouldResolveToEquals_withColor() {
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.background(Color.Red)
+            } else {
+                Modifier.background(Color.Gray)
+            }
+        }
+    }
+
+    @Test
+    fun equalInputs_shouldResolveToEquals_withBrush() {
+        val brush1 = Brush.horizontalGradient()
+        val brush2 = Brush.verticalGradient()
+
+        assertModifierIsPure { toggleInput ->
+            if (toggleInput) {
+                Modifier.background(brush1)
+            } else {
+                Modifier.background(brush2)
+            }
+        }
     }
 
     @Composable

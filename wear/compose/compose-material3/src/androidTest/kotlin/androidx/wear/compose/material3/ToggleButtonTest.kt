@@ -18,14 +18,18 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -41,6 +45,7 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
@@ -48,6 +53,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithCheckbox
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithSwitch
+import androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
+import androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -75,6 +85,22 @@ class ToggleButtonTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun toggle_button_samples_build() {
+        rule.setContentWithTheme {
+            ToggleButtonWithCheckbox()
+            ToggleButtonWithSwitch()
+        }
+    }
+
+    @Test
+    fun split_toggle_button_samples_build() {
+        rule.setContentWithTheme {
+            SplitToggleButtonWithCheckbox()
+            SplitToggleButtonWithSwitch()
+        }
     }
 
     @Test
@@ -371,23 +397,6 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun has_role_checkbox() {
-        rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
-    }
-
-    @Test
     fun can_override_role() {
         rule.setContentWithTheme {
             ToggleButtonWithDefaults(
@@ -409,26 +418,20 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_roles_button_and_checkbox() {
+    fun split_button_clickable_has_role_button() {
         rule.setContentWithTheme {
             SplitToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
+        // NB The toggle control (Checkbox or Switch) provides its own role,
+        // but the main clickable section is a Button.
         rule.onNodeWithTag(TEST_TAG).onChildAt(0)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
-                )
-            )
-
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
                 )
             )
     }
@@ -494,7 +497,7 @@ class ToggleButtonTest {
         val minHeight: Dp = 53.dp
 
         rule.setContentWithThemeForSizeAssertions {
-            ToggleButtonWithDefaults(
+            SplitToggleButtonWithDefaults(
                 label = {
                     Text(
                         text = "Primary label with 3 lines of text."
@@ -562,6 +565,54 @@ class ToggleButtonTest {
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_toggle_button_colors_enabled_and_checked() {
+        rule.verifyToggleButtonColors(checked = true, enabled = true)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_toggle_button_colors_enabled_and_unchecked() {
+        rule.verifyToggleButtonColors(checked = false, enabled = true)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_toggle_button_colors_disabled_and_checked() {
+        rule.verifyToggleButtonColors(checked = true, enabled = false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_toggle_button_colors_disabled_and_unchecked() {
+        rule.verifyToggleButtonColors(checked = false, enabled = false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_split_toggle_button_colors_enabled_and_checked() {
+        rule.verifySplitToggleButtonColors(checked = true, enabled = true)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_split_toggle_button_colors_enabled_and_unchecked() {
+        rule.verifySplitToggleButtonColors(checked = false, enabled = true)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_split_toggle_button_colors_disabled_and_checked() {
+        rule.verifySplitToggleButtonColors(checked = true, enabled = false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun verify_split_toggle_button_colors_disabled_and_unchecked() {
+        rule.verifySplitToggleButtonColors(checked = false, enabled = false)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun verifyToggleButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
@@ -622,7 +673,7 @@ private fun ToggleButtonWithDefaults(
     },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
-    selectionControl: @Composable () -> Unit = {}
+    toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() }
 ) =
     ToggleButton(
         modifier = modifier,
@@ -633,7 +684,7 @@ private fun ToggleButtonWithDefaults(
         label = label,
         secondaryLabel = secondaryLabel,
         icon = icon,
-        selectionControl = selectionControl
+        toggleControl = toggleControl
     )
 
 @Composable
@@ -648,7 +699,7 @@ private fun SplitToggleButtonWithDefaults(
         Text("Primary")
     },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    selectionControl: @Composable BoxScope.() -> Unit = {}
+    toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() }
 ) = SplitToggleButton(
     modifier = modifier,
     colors = colors,
@@ -658,8 +709,146 @@ private fun SplitToggleButtonWithDefaults(
     label = label,
     secondaryLabel = secondaryLabel,
     onClick = onClick,
-    selectionControl = selectionControl,
+    toggleControl = toggleControl,
 )
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun ComposeContentTestRule.verifyToggleButtonColors(
+    enabled: Boolean,
+    checked: Boolean
+) {
+    val testBackgroundColor = Color.White
+    var expectedContainerColor = Color.Transparent
+    var expectedLabelColor = Color.Transparent
+    var expectedIconColor = Color.Transparent
+    var expectedSecondaryLabelColor = Color.Transparent
+    var actualLabelColor = Color.Transparent
+    var actualIconColor = Color.Transparent
+    var actualSecondaryLabelColor = Color.Transparent
+    setContentWithTheme {
+        expectedContainerColor = toggle_button_container_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+            .compositeOver(testBackgroundColor)
+        expectedLabelColor = toggle_button_content_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+        expectedSecondaryLabelColor = toggle_button_secondary_label_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+        expectedIconColor = toggle_button_icon_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(testBackgroundColor)
+        ) {
+            ToggleButton(
+                modifier = Modifier.testTag(TEST_TAG),
+                checked = checked,
+                onCheckedChange = {},
+                enabled = enabled,
+                toggleControl = { Checkbox() },
+                label = { actualLabelColor = LocalContentColor.current },
+                secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current }
+            )
+        }
+    }
+    Assert.assertEquals(expectedLabelColor, actualLabelColor)
+    Assert.assertEquals(expectedSecondaryLabelColor, actualSecondaryLabelColor)
+    Assert.assertEquals(expectedIconColor, actualIconColor)
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertContainsColor(
+            if (expectedContainerColor != Color.Transparent) expectedContainerColor
+            else testBackgroundColor,
+        )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun ComposeContentTestRule.verifySplitToggleButtonColors(
+    enabled: Boolean,
+    checked: Boolean
+) {
+    val testBackgroundColor = Color.White
+    var expectedContainerColor = Color.Transparent
+    var expectedLabelColor = Color.Transparent
+    var expectedSecondaryLabelColor = Color.Transparent
+    var actualLabelColor = Color.Transparent
+    var actualSecondaryLabelColor = Color.Transparent
+    setContentWithTheme {
+        expectedContainerColor = toggle_button_container_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+            .compositeOver(testBackgroundColor)
+        expectedLabelColor = toggle_button_content_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+        expectedSecondaryLabelColor = toggle_button_secondary_label_color(checked)
+            .withDisabledAlphaApplied(enabled = enabled)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(testBackgroundColor)
+        ) {
+            SplitToggleButton(
+                modifier = Modifier.testTag(TEST_TAG),
+                checked = checked,
+                onCheckedChange = {},
+                onClick = {},
+                enabled = enabled,
+                toggleControl = { Checkbox() },
+                label = { actualLabelColor = LocalContentColor.current },
+                secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+            )
+        }
+    }
+    Assert.assertEquals(expectedLabelColor, actualLabelColor)
+    Assert.assertEquals(expectedSecondaryLabelColor, actualSecondaryLabelColor)
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertContainsColor(
+            if (expectedContainerColor != Color.Transparent) expectedContainerColor
+            else testBackgroundColor,
+        )
+}
+
+@Composable
+private fun toggle_button_container_color(
+    checked: Boolean
+): Color {
+    return if (checked) MaterialTheme.colorScheme.primaryContainer
+    else MaterialTheme.colorScheme.surface
+}
+
+@Composable
+private fun toggle_button_content_color(
+    checked: Boolean
+): Color {
+    return if (checked) MaterialTheme.colorScheme.onPrimaryContainer
+    else MaterialTheme.colorScheme.onSurface
+}
+
+@Composable
+private fun toggle_button_secondary_label_color(
+    checked: Boolean
+): Color {
+    return if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+    else MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+@Composable
+private fun toggle_button_icon_color(
+    checked: Boolean
+): Color {
+    return if (checked) MaterialTheme.colorScheme.onPrimaryContainer
+    else MaterialTheme.colorScheme.primary
+}
+
+@Composable
+private fun Color.withDisabledAlphaApplied(
+    enabled: Boolean
+): Color {
+    return if (!enabled) toDisabledColor(disabledAlpha = 0.38f) else this
+}
 
 private val CHECKED_COLOR = Color(0xFFA020F0)
 private val UNCHECKED_COLOR = Color(0xFFFFA500)

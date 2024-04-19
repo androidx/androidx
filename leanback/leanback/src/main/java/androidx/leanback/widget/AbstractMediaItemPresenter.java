@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
 import java.util.ArrayList;
@@ -593,7 +592,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
                 .getInteger(android.R.integer.config_shortAnimTime);
         DecelerateInterpolator interpolator = new DecelerateInterpolator();
 
-        int layoutDirection = ViewCompat.getLayoutDirection(selectorView);
+        int layoutDirection = selectorView.getLayoutDirection();
         if (!focusChangedView.hasFocus()) {
             // if neither of the details or action views are in focus (ie. another row is in focus),
             // animate the selector out.

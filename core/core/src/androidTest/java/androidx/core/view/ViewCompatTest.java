@@ -108,8 +108,8 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
     public void testConstants() {
         // Compat constants must match core constants since they can be used interchangeably
         // in various support lib calls.
-        assertEquals("LTR constants", View.LAYOUT_DIRECTION_LTR, ViewCompat.LAYOUT_DIRECTION_LTR);
-        assertEquals("RTL constants", View.LAYOUT_DIRECTION_RTL, ViewCompat.LAYOUT_DIRECTION_RTL);
+        assertEquals("LTR constants", View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_LTR);
+        assertEquals("RTL constants", View.LAYOUT_DIRECTION_RTL, View.LAYOUT_DIRECTION_RTL);
     }
 
     @Test
@@ -252,7 +252,7 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
 
         Set<Integer> generatedIds = new HashSet<>();
         for (int i = 0; i < requestCount; i++) {
-            int generatedId = ViewCompat.generateViewId();
+            int generatedId = View.generateViewId();
             assertTrue(isViewIdGenerated(generatedId));
             generatedIds.add(generatedId);
         }
@@ -329,7 +329,7 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         Bundle bundle = new Bundle();
         bundle.putInt(ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT, 100);
 
-        ViewCompat.performAccessibilityAction(view, actionCompat.getId(), bundle);
+        view.performAccessibilityAction(actionCompat.getId(), bundle);
 
         ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
         verify(view).performAccessibilityAction(eq(actionCompat.getId()), bundleCaptor.capture());

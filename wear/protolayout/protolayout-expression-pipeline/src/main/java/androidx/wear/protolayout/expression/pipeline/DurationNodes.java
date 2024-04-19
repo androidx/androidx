@@ -17,6 +17,8 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.UiThread;
+import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedDuration;
 
 import java.time.Duration;
@@ -52,6 +54,11 @@ class DurationNodes {
 
         @Override
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic duration node that gets the duration between two time instants. */
@@ -60,6 +67,22 @@ class DurationNodes {
 
         BetweenInstancesNode(DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
             super(downstream, Duration::between);
+        }
+    }
+
+    /** Dynamic Duration node that gets value from the state. */
+    static class StateDurationSourceNode extends StateSourceNode<Duration> {
+
+        StateDurationSourceNode(
+                DataStore dataStore,
+                DynamicProto.StateDurationSource protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Duration> downstream) {
+            super(
+                    dataStore,
+                    StateSourceNode.<DynamicBuilders.DynamicDuration>createKey(
+                            protoNode.getSourceNamespace(), protoNode.getSourceKey()),
+                    se -> Duration.ofSeconds(se.getDurationVal().getSeconds()),
+                    downstream);
         }
     }
 }

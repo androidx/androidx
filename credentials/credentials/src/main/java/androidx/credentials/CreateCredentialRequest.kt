@@ -155,7 +155,7 @@ abstract class CreateCredentialRequest internal constructor(
             return bundle
         }
 
-        internal companion object {
+        companion object {
             @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
             const val BUNDLE_KEY_REQUEST_DISPLAY_INFO =
                 "androidx.credentials.BUNDLE_KEY_REQUEST_DISPLAY_INFO"
@@ -173,32 +173,33 @@ abstract class CreateCredentialRequest internal constructor(
                 "androidx.credentials.BUNDLE_KEY_DEFAULT_PROVIDER"
 
             /**
-             * Returns a RequestDisplayInfo from a `credentialData` Bundle, or otherwise `null` if
-             * parsing fails.
+             * Returns a RequestDisplayInfo from a [CreateCredentialRequest.credentialData] Bundle.
+             *
+             * @param from the raw display data in the Bundle format, retrieved from
+             * [CreateCredentialRequest.credentialData]
              */
             @JvmStatic
             @RequiresApi(23)
-            @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
-            @Suppress("DEPRECATION") // bundle.getParcelable(key)
-            fun parseFromCredentialDataBundle(from: Bundle): DisplayInfo? {
+            fun parseFromCredentialDataBundle(from: Bundle): DisplayInfo {
                 return try {
                     val displayInfoBundle = from.getBundle(BUNDLE_KEY_REQUEST_DISPLAY_INFO)!!
                     val userId = displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_ID)
                     val displayName =
                         displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_DISPLAY_NAME)
+                    @Suppress("DEPRECATION") // bundle.getParcelable(key)
                     val icon: Icon? =
                         displayInfoBundle.getParcelable(BUNDLE_KEY_CREDENTIAL_TYPE_ICON)
                     val defaultProvider: String? =
                         displayInfoBundle.getString(BUNDLE_KEY_DEFAULT_PROVIDER)
                     DisplayInfo(userId!!, displayName, icon, defaultProvider)
                 } catch (e: Exception) {
-                    null
+                    throw IllegalArgumentException(e)
                 }
             }
         }
     }
 
-    internal companion object {
+    companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
@@ -209,10 +210,18 @@ abstract class CreateCredentialRequest internal constructor(
         /**
          * Attempts to parse the raw data into one of [CreatePasswordRequest],
          * [CreatePublicKeyCredentialRequest], and
-         * [CreateCustomCredentialRequest]. Otherwise returns null.
+         * [CreateCustomCredentialRequest].
+         *
+         * @param type matches [CreateCredentialRequest.type]
+         * @param credentialData matches [CreateCredentialRequest.credentialData]
+         * @param candidateQueryData matches [CreateCredentialRequest.candidateQueryData]
+         * @param requireSystemProvider whether the request must only be fulfilled by a system
+         * provider
+         * @param origin the origin of a different application if the request is being made on
+         * behalf of that application
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         @JvmStatic
+        @JvmOverloads
         @RequiresApi(23)
         fun createFrom(
             type: String,
@@ -220,7 +229,7 @@ abstract class CreateCredentialRequest internal constructor(
             candidateQueryData: Bundle,
             requireSystemProvider: Boolean,
             origin: String? = null,
-        ): CreateCredentialRequest? {
+        ): CreateCredentialRequest {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL ->
@@ -248,11 +257,12 @@ abstract class CreateCredentialRequest internal constructor(
                     requireSystemProvider,
                     DisplayInfo.parseFromCredentialDataBundle(
                         credentialData
-                    ) ?: return null,
+                    ),
                     credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
                     origin,
                     credentialData.getBoolean(
-                        BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false),
+                        BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false
+                    ),
                 )
             }
         }

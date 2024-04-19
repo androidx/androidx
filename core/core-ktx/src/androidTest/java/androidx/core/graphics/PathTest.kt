@@ -52,7 +52,6 @@ class PathTest {
         assertEquals(3, count)
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testUnion() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
@@ -64,7 +63,6 @@ class PathTest {
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testOr() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
@@ -76,7 +74,6 @@ class PathTest {
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testDifference() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
@@ -88,7 +85,6 @@ class PathTest {
         assertEquals(RectF(0.0f, 0.0f, 5.0f, 10.0f), r)
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testIntersection() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 0.0f, 15.0f, 15.0f, Path.Direction.CW) }
@@ -100,7 +96,6 @@ class PathTest {
         assertEquals(RectF(5.0f, 0.0f, 10.0f, 10.0f), r)
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testEmptyIntersection() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 2.0f, 2.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 5.0f, 7.0f, 7.0f, Path.Direction.CW) }
@@ -109,7 +104,6 @@ class PathTest {
         assertTrue(p.isEmpty)
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testXor() {
         val r1 = Path().apply { addRect(0.0f, 0.0f, 10.0f, 10.0f, Path.Direction.CW) }
         val r2 = Path().apply { addRect(5.0f, 5.0f, 15.0f, 15.0f, Path.Direction.CW) }

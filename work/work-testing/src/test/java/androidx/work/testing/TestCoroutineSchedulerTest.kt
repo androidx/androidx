@@ -40,9 +40,12 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -109,7 +112,7 @@ class TestCoroutineSchedulerTest {
         val workInfoEarly = workManager.getWorkInfoById(request.id)
         synchronizeThreads()
 
-        assertThat(Futures.getDone(workInfoEarly).state).isEqualTo(ENQUEUED)
+        assertThat(Futures.getDone(workInfoEarly)!!.state).isEqualTo(ENQUEUED)
 
         // Work should run and finish now.
         testCoroutineScheduler.advanceTimeBy(initialDelayMillis)
@@ -118,7 +121,7 @@ class TestCoroutineSchedulerTest {
         // Verify result
         val workInfoOnTime = workManager.getWorkInfoById(request.id)
         synchronizeThreads()
-        assertThat(Futures.getDone(workInfoOnTime).state).isEqualTo(SUCCEEDED)
+        assertThat(Futures.getDone(workInfoOnTime)!!.state).isEqualTo(SUCCEEDED)
     }
 
     @Test
@@ -135,7 +138,7 @@ class TestCoroutineSchedulerTest {
         val workInfoEarly = workManager.getWorkInfoById(request.id)
         synchronizeThreads()
 
-        assertThat(Futures.getDone(workInfoEarly).state).isEqualTo(ENQUEUED)
+        assertThat(Futures.getDone(workInfoEarly)!!.state).isEqualTo(ENQUEUED)
 
         // Can't use setXDelayMet with clock-based scheduling
         assertThrows(IllegalStateException::class.java) {
@@ -209,7 +212,13 @@ class TestCoroutineSchedulerTest {
 
     @After
     fun tearDown() {
-        WorkManagerTestInitHelper.closeWorkDatabase()
+        runBlocking {
+            val job = launch { WorkManagerTestInitHelper.closeWorkDatabase() }
+            while (job.isActive) {
+                synchronizeThreads()
+                yield()
+            }
+        }
     }
 }
 
@@ -224,7 +233,6 @@ private class MarkedRunnable : Runnable {
  * A [RunnableScheduler] that delegates to a Coroutines [kotlinx.coroutines.CoroutineDispatcher] for
  * scheduling.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 private class CoroutineDispatcherRunnableScheduler(private val testDispatcher: TestDispatcher) :
     RunnableScheduler {
     val runnables: MutableMap<Runnable, DisposableHandle> = Collections.synchronizedMap(HashMap())

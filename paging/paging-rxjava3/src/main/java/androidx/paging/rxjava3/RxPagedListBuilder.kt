@@ -16,7 +16,6 @@
 
 package androidx.paging.rxjava3
 
-import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.paging.DataSource
 import androidx.paging.InitialPagedList
@@ -296,12 +295,10 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      */
     @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildObservable(): Observable<PagedList<Value>> {
-        @SuppressLint("RestrictedApi")
         val notifyScheduler = notifyScheduler
             ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
         val notifyDispatcher = notifyDispatcher ?: notifyScheduler.asCoroutineDispatcher()
 
-        @SuppressLint("RestrictedApi")
         val fetchScheduler = fetchScheduler
             ?: ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
         val fetchDispatcher = fetchDispatcher ?: fetchScheduler.asCoroutineDispatcher()

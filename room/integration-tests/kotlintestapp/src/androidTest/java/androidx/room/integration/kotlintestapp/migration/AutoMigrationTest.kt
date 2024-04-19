@@ -15,11 +15,10 @@
  */
 package androidx.room.integration.kotlintestapp.migration
 
-import android.database.sqlite.SQLiteConstraintException
-import android.os.Build
 import androidx.kruth.assertThat
 import androidx.room.testing.MigrationTestHelper
 import androidx.room.util.TableInfo.Companion.read
+import androidx.sqlite.SQLiteException
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -33,7 +32,7 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // Due to FTS table migrations
+@SdkSuppress(minSdkVersion = 22) // b/329236938
 class AutoMigrationTest {
     @JvmField
     @Rule
@@ -53,6 +52,7 @@ class AutoMigrationTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun goFromV1ToV2() {
         createFirstVersion()
         val db = helper.runMigrationsAndValidate(
@@ -73,7 +73,7 @@ class AutoMigrationTest {
                 3,
                 true
             )
-        } catch (e: SQLiteConstraintException) {
+        } catch (e: SQLiteException) {
             assertThat(e.message).isEqualTo(
                 """Foreign key violation(s) detected in 'Entity9'.
 Number of different violations discovered: 1
@@ -86,6 +86,7 @@ Violation(s) detected in the following constraint(s):
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun testAutoMigrationWithNewEmbeddedField() {
         val embeddedHelper = MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),

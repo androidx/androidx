@@ -14,33 +14,43 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-    api("androidx.annotation:annotation:1.0.0")
+androidXMultiplatform {
+    android()
 
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.kotlinCoroutinesTest)
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":lifecycle:lifecycle-runtime"))
+                api(project(":annotation:annotation"))
+            }
+        }
 
-    lintPublish(project(":lifecycle:lifecycle-runtime-ktx-lint"))
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.kotlinCoroutinesAndroid)
+            }
+        }
+    }
 }
 
 androidx {

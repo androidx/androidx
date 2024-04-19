@@ -16,20 +16,9 @@
 
 package androidx.window.layout.util
 
-import android.graphics.Point
 import android.os.Build
-import android.view.Display
 import android.view.DisplayCutout
 import androidx.annotation.RequiresApi
-
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-internal object DisplayCompatHelperApi17 {
-
-    @Suppress("DEPRECATION")
-    fun getRealSize(display: Display, point: Point) {
-        display.getRealSize(point)
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.P)
 internal object DisplayCompatHelperApi28 {

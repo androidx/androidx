@@ -51,3 +51,4 @@ configure_file($ENV{JAVA_HOME}/include/jvmti.h external_jvmti/jvmti.h COPYONLY)
 target_include_directories(art_tooling
         PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/external_jvmti)
 target_link_libraries(art_tooling ${log-lib})
+target_link_options(art_tooling PRIVATE "-Wl,-z,max-page-size=16384")

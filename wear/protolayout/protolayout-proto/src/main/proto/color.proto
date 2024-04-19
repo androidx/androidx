@@ -12,12 +12,11 @@ option java_outer_classname = "ColorProto";
 
 // A property defining a color.
 message ColorProp {
-
   oneof optional_argb {
-    // The static color value, in ARGB format. If a dynamic value is also set and the
-    // renderer supports dynamic values for the corresponding field, this static
-    // value will be ignored. If the static value is not specified, zero
-    // (equivalent to {@link Color#TRANSPARENT}) will be used instead.
+    // The static color value, in ARGB format. If a dynamic value is also set
+    // and the renderer supports dynamic values for the corresponding field,
+    // this static value will be ignored. If the static value is not specified,
+    // zero (equivalent to {@link Color#TRANSPARENT}) will be used instead.
     uint32 argb = 1;
   }
 
@@ -30,7 +29,8 @@ message ColorProp {
 
 // A color and an offset, determining a color position in a gradient.
 message ColorStop {
-  // The color for this stop.
+  // The color for this stop. Only opaque colors are supported. Any transparent
+  // colors will have their alpha component set to 0xFF (opaque).
   ColorProp color = 1;
 
   oneof optional_offset {
@@ -55,13 +55,10 @@ message SweepGradient {
   // The offset is the relative position of the color, beginning with 0 from the
   // start angle and ending with 1.0 at the end angle, spanning clockwise.
   //
-  // There must be at least 2 colors.
+  // There must be at least 2 colors and at most 10 colors.
   //
   // If offset values are not set, the colors are evenly distributed in the
   // gradient.
-  //
-  // If the offset values are not monotonic, the drawing may produce unexpected
-  // results.
   repeated ColorStop color_stops = 1;
 
   // The start angle of the gradient relative to the element's base angle. If

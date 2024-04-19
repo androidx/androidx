@@ -90,8 +90,7 @@ public final class FontRequest {
             @NonNull String providerPackage,
             @NonNull String query
     ) {
-        return new StringBuilder(providerAuthority).append("-").append(providerPackage)
-                .append("-").append(query).toString();
+        return providerAuthority + "-" + providerPackage + "-" + query;
     }
 
     /**

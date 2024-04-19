@@ -16,13 +16,14 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import android.hardware.camera2.CaptureFailure
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
+import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
@@ -32,6 +33,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeState3AControlCreato
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
@@ -91,9 +93,18 @@ class StillCaptureRequestTest {
 
     private lateinit var fakeUseCaseCamera: UseCaseCamera
 
+    private val torchControl = TorchControl(
+        fakeCameraProperties,
+        fakeState3AControl,
+        fakeUseCaseThreads
+    )
+
     private val flashControl = FlashControl(
+        fakeCameraProperties,
         fakeState3AControl,
         fakeUseCaseThreads,
+        torchControl,
+        NotUseFlashModeTorchFor3aUpdate,
     )
 
     private val stillCaptureRequestControl = StillCaptureRequestControl(
@@ -209,16 +220,12 @@ class StillCaptureRequestTest {
 
         fakeCameraGraphSession.submittedRequests.first().let { request ->
             request.listeners.forEach { listener ->
-                @Suppress("DEPRECATION")
                 listener.onFailed(
                     fakeRequestMetadata,
                     frameNumber,
-                    FakeCaptureFailure(
+                    FakeRequestFailure(
                         fakeRequestMetadata,
-                        false,
-                        frameNumber,
-                        CaptureFailure.REASON_ERROR,
-                        null
+                        frameNumber
                     )
                 )
             }
@@ -435,27 +442,38 @@ class StillCaptureRequestTest {
         fakeConfigAdapter = CaptureConfigAdapter(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             cameraProperties = fakeCameraProperties,
+            zslControl = ZslControlNoOpImpl(),
             threads = fakeUseCaseThreads,
         )
         fakeUseCaseCameraState = UseCaseCameraState(
             useCaseGraphConfig = fakeUseCaseGraphConfig,
             threads = fakeUseCaseThreads,
+            sessionProcessorManager = null,
+        )
+        val torchControl = TorchControl(
+            fakeCameraProperties,
+            fakeState3AControl,
+            fakeUseCaseThreads
         )
         requestControl = UseCaseCameraRequestControlImpl(
             capturePipeline = CapturePipelineImpl(
+                configAdapter = fakeConfigAdapter,
                 cameraProperties = fakeCameraProperties,
                 requestListener = ComboRequestListener(),
                 threads = fakeUseCaseThreads,
-                torchControl = TorchControl(
-                    fakeCameraProperties,
-                    fakeState3AControl,
-                    fakeUseCaseThreads
-                ),
+                torchControl = torchControl,
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
                 useCaseCameraState = fakeUseCaseCameraState,
                 useTorchAsFlash = NotUseTorchAsFlash,
+                sessionProcessorManager = null,
+                flashControl = FlashControl(
+                    cameraProperties = fakeCameraProperties,
+                    state3AControl = fakeState3AControl,
+                    threads = fakeUseCaseThreads,
+                    torchControl = torchControl,
+                    useFlashModeTorchFor3aUpdate = NotUseFlashModeTorchFor3aUpdate,
+                ),
             ),
-            configAdapter = fakeConfigAdapter,
             state = fakeUseCaseCameraState,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
         )

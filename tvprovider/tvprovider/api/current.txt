@@ -260,7 +260,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setWeight(int);
   }
 
-  public final class Program implements java.lang.Comparable<androidx.tvprovider.media.tv.Program> {
+  public final class Program implements java.lang.Comparable<androidx.tvprovider.media.tv.Program!> {
     method public int compareTo(androidx.tvprovider.media.tv.Program);
     method public static androidx.tvprovider.media.tv.Program! fromCursor(android.database.Cursor!);
     method public String![]! getAudioLanguages();

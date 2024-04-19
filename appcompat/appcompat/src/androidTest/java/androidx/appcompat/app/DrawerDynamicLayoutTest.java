@@ -30,7 +30,6 @@ import android.view.ViewStub;
 import androidx.annotation.LayoutRes;
 import androidx.appcompat.test.R;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.espresso.UiController;
@@ -124,9 +123,9 @@ public class DrawerDynamicLayoutTest {
             View child = drawer.getChildAt(i);
             final int gravity = ((DrawerLayout.LayoutParams) child.getLayoutParams()).gravity;
             final int absGravity = GravityCompat.getAbsoluteGravity(gravity,
-                    ViewCompat.getLayoutDirection(child));
+                    child.getLayoutDirection());
             final int gravityInParent = GravityCompat.getAbsoluteGravity(gravity,
-                    ViewCompat.getLayoutDirection(drawer));
+                    drawer.getLayoutDirection());
             Log.e("DrawerDynamicLayoutTest", "gravity of child[" + i + "] "
                     + " = " + absGravity +  "; gravity in parent " + gravityInParent);
         }

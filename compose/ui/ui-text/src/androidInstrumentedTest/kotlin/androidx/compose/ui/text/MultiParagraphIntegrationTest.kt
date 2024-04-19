@@ -872,6 +872,63 @@ class MultiParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineBaseline() {
+        with(defaultDensity) {
+            val text = createAnnotatedString("a", "a", "a")
+
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx()
+
+            val paragraph = simpleMultiParagraph(
+                text = text,
+                fontSize = fontSize
+            )
+
+            for (i in 0 until paragraph.lineCount) {
+                assertWithMessage("baseline of line $i doesn't match")
+                    .that(paragraph.getLineBaseline(i))
+                    .isEqualTo(fontSizeInPx * i + fontSizeInPx * 0.8f)
+            }
+        }
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun getLineBaseline_negative_throw_exception() {
+        val text = "abc"
+        val paragraph = simpleMultiParagraph(text = text)
+
+        paragraph.getLineBaseline(-1)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun getLineBaseline_greaterThanOrEqual_lineCount_throw_exception() {
+        val text = "abc"
+        val paragraph = simpleMultiParagraph(text = text)
+
+        paragraph.getLineBaseline(1)
+    }
+
+    @Test
+    fun getLineBaseline_forFirstLine_equals_firstBaseline() {
+        val text = createAnnotatedString("a", "a", "a")
+        val paragraph = simpleMultiParagraph(text = text)
+
+        assertWithMessage("first baseline doesn't match")
+            .that(paragraph.getLineBaseline(0))
+            .isEqualTo(paragraph.firstBaseline)
+    }
+
+    @Test
+    fun getLineBaseline_forLastLine_equals_lastBaseline() {
+        val text = createAnnotatedString("a", "a", "a")
+        val paragraph = simpleMultiParagraph(text = text)
+
+        assertWithMessage("last baseline doesn't match")
+            .that(paragraph.getLineBaseline(2))
+            .isEqualTo(paragraph.lastBaseline)
+    }
+
+    @Test
     fun getLineBottom() {
         with(defaultDensity) {
             val text = createAnnotatedString("a", "a", "a")

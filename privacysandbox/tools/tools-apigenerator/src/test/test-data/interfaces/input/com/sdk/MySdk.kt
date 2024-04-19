@@ -4,7 +4,7 @@ import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.core.SdkActivityLauncher
+import androidx.privacysandbox.activity.core.SdkActivityLauncher
 
 @PrivacySandboxService
 interface MySdk {

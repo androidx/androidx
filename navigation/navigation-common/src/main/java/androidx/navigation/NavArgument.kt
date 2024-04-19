@@ -28,7 +28,8 @@ public class NavArgument internal constructor(
     type: NavType<Any?>,
     isNullable: Boolean,
     defaultValue: Any?,
-    defaultValuePresent: Boolean
+    defaultValuePresent: Boolean,
+    unknownDefaultValuePresent: Boolean,
 ) {
     /**
      * The type of this NavArgument.
@@ -51,6 +52,12 @@ public class NavArgument internal constructor(
     public val isDefaultValuePresent: Boolean
 
     /**
+     * Indicates whether the default value (if present) is unknown (i.e. safe args where
+     * default value is declared in KClass but not stored in [defaultValue]).
+     */
+    internal val isDefaultValueUnknown: Boolean
+
+    /**
      * The default value of this argument or `null` if it doesn't have a default value.
      * Use [isDefaultValuePresent] to distinguish between `null` and absence of a value.
      * @return The default value assigned to this argument.
@@ -59,7 +66,10 @@ public class NavArgument internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun putDefaultValue(name: String, bundle: Bundle) {
-        if (isDefaultValuePresent) {
+        // even if there is defaultValuePresent, the defaultValue itself could be null as in the
+        // case of safe args where we know there is default value present but we are not able to
+        // read the actual default (serializer limitations), so the defaultValue is set to null.
+        if (isDefaultValuePresent && defaultValue != null) {
             type.put(bundle, name, defaultValue)
         }
     }
@@ -120,6 +130,7 @@ public class NavArgument internal constructor(
         private var isNullable = false
         private var defaultValue: Any? = null
         private var defaultValuePresent = false
+        private var unknownDefaultValuePresent = false
 
         /**
          * Set the type of the argument.
@@ -157,6 +168,21 @@ public class NavArgument internal constructor(
         }
 
         /**
+         * Set whether there is an unknown default value present.
+         *
+         * Use with caution!! In general you should let [setDefaultValue] to automatically set
+         * this state. This state should be set to true only if all these conditions are met:
+         *
+         * 1. There is default value present
+         * 2. You do not have access to actual default value (thus you can't use [defaultValue])
+         * 3. You know the default value will never ever be null if [isNullable] is true.
+         */
+        internal fun setUnknownDefaultValuePresent(unknownDefaultValuePresent: Boolean): Builder {
+            this.unknownDefaultValuePresent = unknownDefaultValuePresent
+            return this
+        }
+
+        /**
          * Build the NavArgument specified by this builder.
          * If the type is not set, the builder will infer the type from the default argument value.
          * If there is no default value, the type will be unspecified.
@@ -164,7 +190,13 @@ public class NavArgument internal constructor(
          */
         public fun build(): NavArgument {
             val finalType = type ?: NavType.inferFromValueType(defaultValue) as NavType<Any?>
-            return NavArgument(finalType, isNullable, defaultValue, defaultValuePresent)
+            return NavArgument(
+                finalType,
+                isNullable,
+                defaultValue,
+                defaultValuePresent,
+                unknownDefaultValuePresent
+            )
         }
     }
 
@@ -178,7 +210,8 @@ public class NavArgument internal constructor(
         this.type = type
         this.isNullable = isNullable
         this.defaultValue = defaultValue
-        isDefaultValuePresent = defaultValuePresent
+        isDefaultValuePresent = defaultValuePresent || unknownDefaultValuePresent
+        isDefaultValueUnknown = unknownDefaultValuePresent
     }
 }
 
@@ -193,9 +226,8 @@ internal fun Map<String, NavArgument?>.missingRequiredArguments(
     isArgumentMissing: (key: String) -> Boolean
 ): List<String> {
     val requiredArgumentKeys = filterValues {
-        if (it != null) {
-            !it.isNullable && !it.isDefaultValuePresent
-        } else false
+        !it?.isNullable!! && !it.isDefaultValuePresent
     }.keys
+
     return requiredArgumentKeys.filter { key -> isArgumentMissing(key) }
 }

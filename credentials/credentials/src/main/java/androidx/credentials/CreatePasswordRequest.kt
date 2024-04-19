@@ -174,8 +174,11 @@ class CreatePasswordRequest private constructor(
             try {
                 val id = data.getString(BUNDLE_KEY_ID)!!
                 val password = data.getString(BUNDLE_KEY_PASSWORD)!!
-                val displayInfo = DisplayInfo.parseFromCredentialDataBundle(data)
-                    ?: DisplayInfo(id, null)
+                val displayInfo = try {
+                    DisplayInfo.parseFromCredentialDataBundle(data)
+                } catch (e: IllegalArgumentException) {
+                    DisplayInfo(id, null)
+                }
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
                 val isAutoSelectAllowed =

@@ -39,7 +39,6 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -66,7 +65,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -85,9 +84,12 @@ import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQ
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.OutputTransform;
+import androidx.camera.viewfinder.core.ZoomGestureDetector;
+import androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -175,7 +177,7 @@ public final class PreviewView extends FrameLayout {
 
     // Detector for zoom-to-scale.
     @NonNull
-    private final ScaleGestureDetector mScaleGestureDetector;
+    private final ZoomGestureDetector mZoomGestureDetector;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -324,8 +326,14 @@ public final class PreviewView extends FrameLayout {
             attributes.recycle();
         }
 
-        mScaleGestureDetector = new ScaleGestureDetector(
-                context, new PinchToZoomOnScaleGestureListener());
+        mZoomGestureDetector = new ZoomGestureDetector(context,
+                zoomEvent -> {
+                    if (zoomEvent instanceof ZoomEvent.Move && mCameraController != null) {
+                        mCameraController.onPinchToZoom(
+                                ((ZoomEvent.Move) zoomEvent).getScaleFactor());
+                    }
+                    return true;
+                });
 
         // Set background only if it wasn't already set. A default background prevents the content
         // behind the PreviewView from being visible before the preview starts streaming.
@@ -382,7 +390,7 @@ public final class PreviewView extends FrameLayout {
             // invoked twice.
             return true;
         }
-        return mScaleGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
+        return mZoomGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
     @Override
@@ -932,20 +940,6 @@ public final class PreviewView extends FrameLayout {
     }
 
     /**
-     * GestureListener that speeds up scale factor and sends it to controller.
-     */
-    class PinchToZoomOnScaleGestureListener extends
-            ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            if (mCameraController != null) {
-                mCameraController.onPinchToZoom(detector.getScaleFactor());
-            }
-            return true;
-        }
-    }
-
-    /**
      * Sets the {@link CameraController}.
      *
      * <p> Once set, the controller will use {@link PreviewView} to display camera preview feed.
@@ -973,7 +967,7 @@ public final class PreviewView extends FrameLayout {
         }
         mCameraController = cameraController;
         attachToControllerIfReady(/*shouldFailSilently=*/false);
-        setScreenFlashUiInfo(getScreenFlashUiControl());
+        setScreenFlashUiInfo(getScreenFlash());
     }
 
     /**
@@ -1037,25 +1031,36 @@ public final class PreviewView extends FrameLayout {
     }
 
     /**
-     * Gets the camera sensor to {@link PreviewView} transform.
+     * Gets the transformation matrix from camera sensor to {@link PreviewView}.
      *
      * <p>The value is a mapping from sensor coordinates to {@link PreviewView} coordinates,
      * which is, from the rect of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to the
-     * rect defined by {@code (0, 0, PreviewView#getWidth(), PreviewView#getWidth())}. The matrix
-     * can be used to map the coordinates from one {@link UseCase} to another. For example,
+     * rect defined by {@code (0, 0, PreviewView#getWidth(), PreviewView#getHeight())}. The app can
+     * use the matrix to map the coordinates from one {@link UseCase} to another. For example,
      * detecting face with {@link ImageAnalysis}, and then highlighting the face in
-     * {@link Preview}.
+     * {@link PreviewView}.
      *
-     * <p>This method returns {@code null} if the transformation is not ready. For example, when
-     * {@link PreviewView} layout has not been measured.
+     * <p>This method returns {@code null} if the transformation is not ready. It happens when
+     * {@link PreviewView} layout has not been measured, or the associated {@link Preview} use case
+     * is not yet bound to a camera. For the former case, the app can listen to the layout change
+     * via e.g. {@link #addOnLayoutChangeListener}. For the latter case, the app wait until the
+     * {@link Preview} or {@link CameraController} is bound and the {@link LifecycleOwner} is in
+     * the {@link androidx.lifecycle.Lifecycle.State#STARTED} state. The app should call this
+     * method to get the latest value before performing coordinates transformation.
      *
      * <p>The return value does not include the custom transform applied by the app via methods like
      * {@link View#setScaleX(float)}.
+     *
+     * @see SurfaceRequest.TransformationInfo#getSensorToBufferTransform()
+     * @see ImageInfo#getSensorToBufferTransformMatrix()
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
     @Nullable
     public Matrix getSensorToViewTransform() {
         checkMainThread();
+        if (getWidth() == 0 || getHeight() == 0) {
+            return null;
+        }
         return mPreviewTransform.getSensorToViewTransform(
                 new Size(getWidth(), getHeight()), getLayoutDirection());
     }
@@ -1079,9 +1084,9 @@ public final class PreviewView extends FrameLayout {
         }
     }
 
-    private void setScreenFlashUiInfo(ScreenFlashUiControl control) {
+    private void setScreenFlashUiInfo(ImageCapture.ScreenFlash control) {
         if (mCameraController == null) {
-            Logger.d(TAG, "setScreenFlashUiControl: mCameraController is null!");
+            Logger.d(TAG, "setScreenFlashUiInfo: mCameraController is null!");
             return;
         }
         mCameraController.setScreenFlashUiInfo(new ScreenFlashUiInfo(
@@ -1139,32 +1144,31 @@ public final class PreviewView extends FrameLayout {
     public void setScreenFlashWindow(@Nullable Window screenFlashWindow) {
         checkMainThread();
         mScreenFlashView.setScreenFlashWindow(screenFlashWindow);
-        setScreenFlashUiInfo(getScreenFlashUiControl());
+        setScreenFlashUiInfo(getScreenFlash());
     }
 
     /**
-     * Returns an {@link ScreenFlashUiControl} implementation based
+     * Returns an {@link ImageCapture.ScreenFlash} implementation based
      * on the {@link Window} instance set via {@link #setScreenFlashWindow(Window)}.
      *
      * <p> This API uses an internally managed {@link ScreenFlashView} to provide the
-     * {@link ScreenFlashUiControl} implementation.
+     * {@link ImageCapture.ScreenFlash} implementation.
      *
-     * @return An {@link ScreenFlashUiControl} implementation provided by
-     *         {@link ScreenFlashView#getScreenFlashUiControl()}.
+     * @return An {@link ImageCapture.ScreenFlash} implementation provided by
+     * {@link ScreenFlashView#getScreenFlash()}.
      */
     @UiThread
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public ScreenFlashUiControl getScreenFlashUiControl() {
-        return mScreenFlashView.getScreenFlashUiControl();
+    public ImageCapture.ScreenFlash getScreenFlash() {
+        return mScreenFlashView.getScreenFlash();
     }
 
     /**
      * Sets the color of the top overlay view during screen flash.
      *
      * @param color The color value of the top overlay.
-     *
-     * @see #getScreenFlashUiControl()
+     * @see #getScreenFlash()
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setScreenFlashOverlayColor(@ColorInt int color) {

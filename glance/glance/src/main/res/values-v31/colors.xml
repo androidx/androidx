@@ -41,4 +41,5 @@
     <color name="glance_colorOnError">#ffffffff</color>
     <color name="glance_colorErrorContainer">#fff9dedc</color>
     <color name="glance_colorOnErrorContainer">#ff410e0b</color>
+    <color name="glance_colorWidgetBackground">@android:color/system_accent2_50</color>
 </resources>

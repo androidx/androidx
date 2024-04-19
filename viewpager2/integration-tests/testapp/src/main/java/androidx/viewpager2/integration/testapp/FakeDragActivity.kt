@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.text.TextUtilsCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.integration.testapp.cards.CardViewAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -34,7 +33,7 @@ class FakeDragActivity : FragmentActivity() {
     private var lastValue: Float = 0f
 
     private val isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) ==
-        ViewCompat.LAYOUT_DIRECTION_RTL
+        View.LAYOUT_DIRECTION_RTL
 
     private val ViewPager2.isHorizontal: Boolean
         get() {

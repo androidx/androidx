@@ -16,15 +16,18 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import androidx.compose.compiler.plugins.kotlin.analysis.FqNameMatcher
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityConfigParser
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableCallChecker
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableDeclarationChecker
 import androidx.compose.compiler.plugins.kotlin.k1.ComposableTargetChecker
+import androidx.compose.compiler.plugins.kotlin.k1.ComposeDescriptorSerializerContext
 import androidx.compose.compiler.plugins.kotlin.k1.ComposeDiagnosticSuppressor
 import androidx.compose.compiler.plugins.kotlin.k1.ComposeTypeResolutionInterceptorExtension
 import androidx.compose.compiler.plugins.kotlin.k2.ComposeFirExtensionRegistrar
 import androidx.compose.compiler.plugins.kotlin.lower.ClassStabilityFieldSerializationPlugin
+import androidx.compose.compiler.plugins.kotlin.lower.hiddenfromobjc.AddHiddenFromObjCSerializationPlugin
 import com.intellij.mock.MockProject
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
@@ -64,6 +67,10 @@ object ComposeConfiguration {
         CompilerConfigurationKey<String>("Directory to save compose build reports")
     val INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Enable optimization to treat remember as an intrinsic")
+    val NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_KEY =
+        CompilerConfigurationKey<Boolean>(
+            "Enabled optimization to remove groups around non-skipping functions"
+        )
     val SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK = CompilerConfigurationKey<String?>(
         "Version of Kotlin for which version compatibility check should be suppressed"
     )
@@ -72,8 +79,12 @@ object ComposeConfiguration {
     val STRONG_SKIPPING_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Enable strong skipping mode")
     val STABILITY_CONFIG_PATH_KEY =
-        CompilerConfigurationKey<String>(
+        CompilerConfigurationKey<List<String>>(
             "Path to stability configuration file"
+        )
+    val TEST_STABILITY_CONFIG_KEY =
+        CompilerConfigurationKey<Set<String>>(
+            "Set of stable classes to be merged with configuration file, used for testing."
         )
     val TRACE_MARKERS_ENABLED_KEY =
         CompilerConfigurationKey<Boolean>("Include composition trace markers in generated code")
@@ -133,9 +144,16 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             required = false,
             allowMultipleOccurrences = false
         )
+        val NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_OPTION = CliOption(
+            optionName = "nonSkippingGroupOptimization",
+            valueDescription = "<true|false>",
+            description = "Remove groups around non-skipping composable functions",
+            required = false,
+            allowMultipleOccurrences = false
+        )
         val SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION = CliOption(
             "suppressKotlinVersionCompatibilityCheck",
-            "<true|false>",
+            "<kotlin_version>",
             "Suppress Kotlin version compatibility check",
             required = false,
             allowMultipleOccurrences = false
@@ -148,9 +166,16 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             allowMultipleOccurrences = false
         )
         val STRONG_SKIPPING_OPTION = CliOption(
+            "strongSkipping",
+            "<true|false>",
+            "Enable strong skipping mode",
+            required = false,
+            allowMultipleOccurrences = false
+        )
+        val EXPERIMENTAL_STRONG_SKIPPING_OPTION = CliOption(
             "experimentalStrongSkipping",
             "<true|false>",
-            "Enable experimental strong skipping mode",
+            "Deprecated - Use strongSkipping instead",
             required = false,
             allowMultipleOccurrences = false
         )
@@ -179,10 +204,13 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
         METRICS_DESTINATION_OPTION,
         REPORTS_DESTINATION_OPTION,
         INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_OPTION,
+        NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_OPTION,
         SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION,
         DECOYS_ENABLED_OPTION,
+        EXPERIMENTAL_STRONG_SKIPPING_OPTION,
         STRONG_SKIPPING_OPTION,
-        TRACE_MARKERS_OPTION
+        STABLE_CONFIG_PATH_OPTION,
+        TRACE_MARKERS_OPTION,
     )
 
     override fun processOption(
@@ -218,6 +246,10 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY,
             value == "true"
         )
+        NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_OPTION -> configuration.put(
+            ComposeConfiguration.NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_KEY,
+            value == "true"
+        )
         SUPPRESS_KOTLIN_VERSION_CHECK_ENABLED_OPTION -> configuration.put(
             ComposeConfiguration.SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK,
             value
@@ -226,11 +258,23 @@ class ComposeCommandLineProcessor : CommandLineProcessor {
             ComposeConfiguration.DECOYS_ENABLED_KEY,
             value == "true"
         )
+        EXPERIMENTAL_STRONG_SKIPPING_OPTION -> {
+            val msgCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+            msgCollector?.report(
+                CompilerMessageSeverity.WARNING,
+                "${EXPERIMENTAL_STRONG_SKIPPING_OPTION.optionName} is deprecated." +
+                    " Use ${STRONG_SKIPPING_OPTION.optionName} instead."
+            )
+            configuration.put(
+                ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
+                value == "true"
+            )
+        }
         STRONG_SKIPPING_OPTION -> configuration.put(
             ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
             value == "true"
         )
-        STABLE_CONFIG_PATH_OPTION -> configuration.put(
+        STABLE_CONFIG_PATH_OPTION -> configuration.appendList(
             ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
             value
         )
@@ -254,23 +298,48 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
         configuration: CompilerConfiguration
     ) {
         if (checkCompilerVersion(configuration)) {
-            registerCommonExtensions(project)
+            val usesK2 = configuration.languageVersionSettings.languageVersion.usesK2
+            val descriptorSerializerContext =
+                if (usesK2) null
+                else ComposeDescriptorSerializerContext()
+
+            registerCommonExtensions(project, descriptorSerializerContext)
+
             IrGenerationExtension.registerExtension(
                 project,
-                createComposeIrExtension(configuration)
+                createComposeIrExtension(
+                    configuration,
+                    descriptorSerializerContext
+                )
             )
+
+            if (!usesK2) {
+                registerNativeExtensions(project, descriptorSerializerContext!!)
+            }
         }
     }
 
     companion object {
         fun checkCompilerVersion(configuration: CompilerConfiguration): Boolean {
             try {
-                val KOTLIN_VERSION_EXPECTATION = "1.9.20"
+                val KOTLIN_VERSION_EXPECTATION = "1.9.23"
                 KotlinCompilerVersion.getVersion()?.let { version ->
                     val msgCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
                     val suppressKotlinVersionCheck = configuration.get(
                         ComposeConfiguration.SUPPRESS_KOTLIN_VERSION_COMPATIBILITY_CHECK
                     )
+
+                    val decoysEnabled =
+                        configuration.get(ComposeConfiguration.DECOYS_ENABLED_KEY, false)
+                    if (decoysEnabled) {
+                        msgCollector?.report(
+                            CompilerMessageSeverity.ERROR,
+                            "decoys generation should be disabled" +
+                                " for Compose Multiplatform projects"
+                        )
+                        return false
+                    }
+
                     if (
                         suppressKotlinVersionCheck != null &&
                         suppressKotlinVersionCheck != version
@@ -340,7 +409,10 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             }
         }
 
-        fun registerCommonExtensions(project: Project) {
+        fun registerCommonExtensions(
+            project: Project,
+            composeDescriptorSerializerContext: ComposeDescriptorSerializerContext? = null
+        ) {
             StorageComponentContainerContributor.registerExtension(
                 project,
                 ComposableCallChecker()
@@ -357,18 +429,32 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             @Suppress("OPT_IN_USAGE_ERROR")
             TypeResolutionInterceptor.registerExtension(
                 project,
-                @Suppress("IllegalExperimentalApiUsage")
                 ComposeTypeResolutionInterceptorExtension()
             )
             DescriptorSerializerPlugin.registerExtension(
                 project,
-                ClassStabilityFieldSerializationPlugin()
+                ClassStabilityFieldSerializationPlugin(
+                    composeDescriptorSerializerContext?.classStabilityInferredCollection
+                )
             )
             FirExtensionRegistrarAdapter.registerExtension(project, ComposeFirExtensionRegistrar())
         }
 
+        fun registerNativeExtensions(
+            project: Project,
+            composeDescriptorSerializerContext: ComposeDescriptorSerializerContext
+        ) {
+            DescriptorSerializerPlugin.registerExtension(
+                project,
+                AddHiddenFromObjCSerializationPlugin(
+                    composeDescriptorSerializerContext.hideFromObjCDeclarationsSet
+                )
+            )
+        }
+
         fun createComposeIrExtension(
             configuration: CompilerConfiguration,
+            descriptorSerializerContext: ComposeDescriptorSerializerContext? = null,
             moduleMetricsFactory: ((StabilityInferencer) -> ModuleMetrics)? = null
         ): ComposeIrGenerationExtension {
             val liveLiteralsEnabled = configuration.getBoolean(
@@ -385,6 +471,10 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             )
             val intrinsicRememberEnabled = configuration.get(
                 ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY,
+                true
+            )
+            val nonSkippingGroupOptimizationEnabled = configuration.get(
+                ComposeConfiguration.NON_SKIPPING_GROUP_OPTIMIZATION_ENABLED_KEY,
                 false
             )
             val decoysEnabled = configuration.getBoolean(
@@ -403,14 +493,14 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             )
 
             val useK2 = configuration.languageVersionSettings.languageVersion.usesK2
+
             val strongSkippingEnabled = configuration.get(
                 ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY,
                 false
             )
 
-            val stabilityConfigPath = configuration.get(
-                ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
-                ""
+            val stabilityConfigPaths = configuration.getList(
+                ComposeConfiguration.STABILITY_CONFIG_PATH_KEY
             )
             val traceMarkersEnabled = configuration.get(
                 ComposeConfiguration.TRACE_MARKERS_ENABLED_KEY,
@@ -418,15 +508,25 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
             )
 
             val msgCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
-            val stableTypeMatchers = try {
-                StabilityConfigParser.fromFile(stabilityConfigPath).stableTypeMatchers
-            } catch (e: Exception) {
-                msgCollector?.report(
-                    CompilerMessageSeverity.ERROR,
-                    e.message ?: "Error parsing stability configuration"
-                )
-                emptySet()
+
+            val stableTypeMatchers = mutableSetOf<FqNameMatcher>()
+            for (i in stabilityConfigPaths.indices) {
+                val path = stabilityConfigPaths[i]
+                val matchers = try {
+                    StabilityConfigParser.fromFile(path).stableTypeMatchers
+                } catch (e: Exception) {
+                    msgCollector?.report(
+                        CompilerMessageSeverity.ERROR,
+                        e.message ?: "Error parsing stability configuration at $path"
+                    )
+                    emptySet()
+                }
+                stableTypeMatchers.addAll(matchers)
             }
+            val testingMatchers = configuration.get(ComposeConfiguration.TEST_STABILITY_CONFIG_KEY)
+                ?.map { FqNameMatcher(it) }
+                ?: emptySet()
+            stableTypeMatchers.addAll(testingMatchers)
 
             return ComposeIrGenerationExtension(
                 liveLiteralsEnabled = liveLiteralsEnabled,
@@ -435,6 +535,7 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
                 sourceInformationEnabled = sourceInformationEnabled,
                 traceMarkersEnabled = traceMarkersEnabled,
                 intrinsicRememberEnabled = intrinsicRememberEnabled,
+                nonSkippingGroupOptimizationEnabled = nonSkippingGroupOptimizationEnabled,
                 decoysEnabled = decoysEnabled,
                 metricsDestination = metricsDestination,
                 reportsDestination = reportsDestination,
@@ -442,7 +543,8 @@ class ComposePluginRegistrar : org.jetbrains.kotlin.compiler.plugin.ComponentReg
                 useK2 = useK2,
                 strongSkippingEnabled = strongSkippingEnabled,
                 stableTypeMatchers = stableTypeMatchers,
-                moduleMetricsFactory = moduleMetricsFactory
+                moduleMetricsFactory = moduleMetricsFactory,
+                descriptorSerializerContext = descriptorSerializerContext,
             )
         }
     }

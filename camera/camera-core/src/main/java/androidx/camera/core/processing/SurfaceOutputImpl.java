@@ -215,7 +215,7 @@ final class SurfaceOutputImpl implements SurfaceOutput {
     }
 
     @VisibleForTesting
-    public boolean getMirroring() {
+    public boolean isMirroring() {
         return mMirroring;
     }
 

@@ -18,11 +18,11 @@ package androidx.compose.ui.window
 
 import android.os.Build
 import android.view.View
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -77,14 +77,15 @@ class PopupDismissTest(private val focusable: Boolean) {
         rule.setContent {
             view = LocalView.current
             Box(Modifier.fillMaxSize()) {
-                ClickableText(
+                BasicText(
                     text = AnnotatedString("Button"),
-                    onClick = { btnClicksCounter++ },
-                    modifier = Modifier.onGloballyPositioned {
-                        // UiDevice needs screen relative coordinates
-                        @Suppress("DEPRECATION")
-                        btnPos = it.localToRoot(Offset.Zero)
-                    }
+                    modifier = Modifier
+                        .clickable { btnClicksCounter++ }
+                        .onGloballyPositioned {
+                            // UiDevice needs screen relative coordinates
+                            @Suppress("DEPRECATION")
+                            btnPos = it.localToRoot(Offset.Zero)
+                        }
                 )
 
                 Popup(

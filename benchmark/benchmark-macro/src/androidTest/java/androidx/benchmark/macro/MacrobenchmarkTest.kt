@@ -16,8 +16,10 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -55,6 +57,7 @@ class MacrobenchmarkTest {
                 compilationMode = CompilationMode.Ignore(),
                 iterations = 1,
                 startupMode = null,
+                perfettoConfig = null,
                 setupBlock = {},
                 measureBlock = {}
             )
@@ -74,6 +77,7 @@ class MacrobenchmarkTest {
                 compilationMode = CompilationMode.Ignore(),
                 iterations = 0, // invalid
                 startupMode = null,
+                perfettoConfig = null,
                 setupBlock = {},
                 measureBlock = {}
             )
@@ -101,6 +105,7 @@ class MacrobenchmarkTest {
             compilationMode = CompilationMode.DEFAULT,
             iterations = 2,
             startupMode = startupMode,
+            perfettoConfig = null,
             setupBlock = {
                 opOrder += Block.Setup
                 setupIterations += iteration
@@ -156,6 +161,49 @@ class MacrobenchmarkTest {
     @SdkSuppress(minSdkVersion = 29)
     @Test
     fun callbackBehavior_hot() = validateCallbackBehavior(StartupMode.HOT)
+
+    @SuppressLint("BanThreadSleep") // need non-zero duration to assert sum, regardless of clock
+    private fun validateSlicesCustomConfig(includeMacroAppTag: Boolean) {
+        val atraceApps = if (includeMacroAppTag) {
+            listOf(Packages.TEST)
+        } else {
+            emptyList()
+        }
+        val measurements = macrobenchmarkWithStartupMode(
+            uniqueName = "MacrobenchmarkTest#validateSlicesCustomConfig",
+            className = "MacrobenchmarkTest",
+            testName = "validateCallbackBehavior",
+            packageName = Packages.TARGET,
+            // disable targetPackageOnly filter, since this process emits the event
+            metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
+            compilationMode = CompilationMode.DEFAULT,
+            iterations = 3,
+            startupMode = null,
+            perfettoConfig = PerfettoConfig.MinimalTest(atraceApps),
+            setupBlock = { },
+            measureBlock = {
+                trace(TRACE_LABEL) {
+                    Thread.sleep(2)
+                }
+            }
+        ).metrics[TRACE_LABEL + "SumMs"]!!.runs
+
+        assertEquals(3, measurements.size)
+
+        if (includeMacroAppTag) {
+            assertTrue(measurements.all { it > 0.0 })
+        } else {
+            assertEquals(listOf(0.0, 0.0, 0.0), measurements)
+        }
+    }
+
+    @LargeTest
+    @Test
+    fun customConfig_thisProcess() = validateSlicesCustomConfig(includeMacroAppTag = true)
+
+    @LargeTest
+    @Test
+    fun customConfig_noProcess() = validateSlicesCustomConfig(includeMacroAppTag = false)
 
     companion object {
         const val TRACE_LABEL = "MacrobencharkTestTraceLabel"

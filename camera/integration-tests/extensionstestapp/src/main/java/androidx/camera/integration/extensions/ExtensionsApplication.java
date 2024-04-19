@@ -27,10 +27,27 @@ import androidx.camera.core.CameraXConfig;
 public class ExtensionsApplication extends Application implements CameraXConfig.Provider {
     private static final String TAG = "ExtensionApplication";
 
+    private CameraXConfig mCameraXConfig = Camera2Config.defaultConfig();
+
     @NonNull
     @Override
+    @SuppressWarnings("ObjectToString")
     public CameraXConfig getCameraXConfig() {
         Log.d(TAG, "Providing custom CameraXConfig through Application");
-        return Camera2Config.defaultConfig();
+        return mCameraXConfig;
+    }
+
+    /**
+     * Sets the {@link CameraXConfig} we provide when CameraX invokes
+     * {@link CameraXConfig.Provider#getCameraXConfig}.
+     *
+     * @param cameraXConfig the CameraX config to set.
+     */
+    @SuppressWarnings("ObjectToString")
+    public void setCameraXConfig(@NonNull CameraXConfig cameraXConfig) {
+        if (cameraXConfig != mCameraXConfig) {
+            Log.d(TAG, "CameraXConfig changed through Application");
+            mCameraXConfig = cameraXConfig;
+        }
     }
 }

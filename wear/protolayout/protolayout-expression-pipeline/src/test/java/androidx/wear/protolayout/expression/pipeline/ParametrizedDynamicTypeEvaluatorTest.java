@@ -26,11 +26,11 @@ import static java.lang.Integer.MAX_VALUE;
 
 import android.graphics.Color;
 import android.icu.util.ULocale;
+import android.os.Build;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.wear.protolayout.expression.AppDataKey;
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
@@ -40,6 +40,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
@@ -52,6 +53,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -64,9 +66,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
+@Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public class ParametrizedDynamicTypeEvaluatorTest {
 
     private static final ZoneId GMT_PLUS_TWO = ZoneId.ofOffset("GMT", ZoneOffset.ofHours(2));
+    private static final ZoneId ASIA_KATHMANDU = ZoneId.of("Asia/Kathmandu");
+    private static final ZoneId EUROPE_LONDON = ZoneId.of("Europe/London");
+    private static final DynamicInstant FIXED_INSTANT =
+            DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(123450000L));
 
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
     public static ImmutableList<Object[]> params() {
@@ -201,31 +208,31 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             test(dynamicDurationOfSeconds(-123456L).getHoursPart(), 10),
             test(dynamicDurationOfSeconds(-123456L).getMinutesPart(), 17),
             test(dynamicDurationOfSeconds(-123456L).getSecondsPart(), 36),
-            // Zoned date-time
+            // date-time getters.
             // Friday November 30, 1973 01:10:00 (am) in time zone Asia/Kathmandu (+0530)
             // Thursday November 29, 1973 19:40:00 (pm) in time zone Europe/London (GMT)
             // Thursday November 29, 1973 21:40:00 (pm) in time zone  GMT+2
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getYear(), 1973),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getYear(), 1973),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getYear(), 1973),
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getMonth(), 11),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getMonth(), 11),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getMonth(), 11),
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getDayOfMonth(), 30),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getDayOfMonth(), 29),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getDayOfMonth(), 29),
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getDayOfWeek(), 5),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getDayOfWeek(), 4),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getDayOfWeek(), 4),
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getHour(), 1),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getHour(), 19),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getHour(), 21),
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getMinute(), 10),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getMinute(), 40),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getMinute(), 40),
-            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getSecond(), 0),
-            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getSecond(), 0),
-            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getSecond(), 0),
+            test(FIXED_INSTANT.getYear(ASIA_KATHMANDU), 1973),
+            test(FIXED_INSTANT.getYear(EUROPE_LONDON), 1973),
+            test(FIXED_INSTANT.getYear(GMT_PLUS_TWO), 1973),
+            test(FIXED_INSTANT.getMonth(ASIA_KATHMANDU), 11),
+            test(FIXED_INSTANT.getMonth(EUROPE_LONDON), 11),
+            test(FIXED_INSTANT.getMonth(GMT_PLUS_TWO), 11),
+            test(FIXED_INSTANT.getDayOfMonth(ASIA_KATHMANDU), 30),
+            test(FIXED_INSTANT.getDayOfMonth(EUROPE_LONDON), 29),
+            test(FIXED_INSTANT.getDayOfMonth(GMT_PLUS_TWO), 29),
+            test(FIXED_INSTANT.getDayOfWeek(ASIA_KATHMANDU), 5),
+            test(FIXED_INSTANT.getDayOfWeek(EUROPE_LONDON), 4),
+            test(FIXED_INSTANT.getDayOfWeek(GMT_PLUS_TWO), 4),
+            test(FIXED_INSTANT.getHour(ASIA_KATHMANDU), 1),
+            test(FIXED_INSTANT.getHour(EUROPE_LONDON), 19),
+            test(FIXED_INSTANT.getHour(GMT_PLUS_TWO), 21),
+            test(FIXED_INSTANT.getMinute(ASIA_KATHMANDU), 10),
+            test(FIXED_INSTANT.getMinute(EUROPE_LONDON), 40),
+            test(FIXED_INSTANT.getMinute(GMT_PLUS_TWO), 40),
+            test(FIXED_INSTANT.getSecond(ASIA_KATHMANDU), 0),
+            test(FIXED_INSTANT.getSecond(EUROPE_LONDON), 0),
+            test(FIXED_INSTANT.getSecond(GMT_PLUS_TWO), 0),
             test(
                     DynamicString.onCondition(DynamicBool.constant(true))
                             .use(constant("Hello"))
@@ -374,14 +381,20 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicString bindUnderTest, String expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicStringProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(
-                                        bindUnderTest,
-                                        ULocale.getDefault(),
-                                        new MainThreadExecutor(),
-                                        cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicString(
+                                                bindUnderTest,
+                                                ULocale.getDefault(),
+                                                new MainThreadExecutor(),
+                                                cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -389,10 +402,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest, Integer expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicInt32(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -400,10 +420,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicColor bindUnderTest, Integer expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicColorProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicColor(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -411,10 +438,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicInstant bindUnderTest, Instant instant) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInstantProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicInstant(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 instant);
     }
 
@@ -422,10 +456,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicDuration bindUnderTest, Duration duration) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicDurationProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicDuration(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 duration);
     }
 
@@ -433,10 +474,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicFloat bindUnderTest, Float expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicFloatProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicFloat(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -444,10 +492,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicBool bindUnderTest, Boolean expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicBoolProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicBool(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -455,20 +510,34 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation());
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicInt32(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private static ParametrizedDynamicTypeEvaluatorTest.TestCase<Float> testForInvalidValue(
             DynamicFloat bindUnderTest) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicFloatProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation());
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicFloat(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private static class TestCase<T> {
@@ -517,8 +586,8 @@ public class ParametrizedDynamicTypeEvaluatorTest {
 
             if (mExpectedValue != null) {
                 // Test expects an actual value.
-                assertThat(results).hasSize(1);
                 assertThat(results).containsExactly(mExpectedValue);
+                assertThat(invalidatedCalls.get()).isEqualTo(0);
             } else {
                 // Test expects an invalid value.
                 assertThat(results).isEmpty();
@@ -535,16 +604,6 @@ public class ParametrizedDynamicTypeEvaluatorTest {
 
     private static DynamicDuration dynamicDurationOfSeconds(long seconds) {
         return DynamicDuration.withSecondsPrecision(Duration.ofSeconds(seconds));
-    }
-
-    private static DynamicBuilders.DynamicZonedDateTime dynamicZdtFromEpoch(
-            long epoch, String zoneId) {
-        return dynamicZdtFromEpoch(epoch, ZoneId.of(zoneId));
-    }
-
-    private static DynamicBuilders.DynamicZonedDateTime dynamicZdtFromEpoch(
-            long epoch, ZoneId zoneId) {
-        return DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(epoch)).atZone(zoneId);
     }
 
     private static ImmutableMap<AppDataKey<?>, DynamicDataValue> generateExampleState() {

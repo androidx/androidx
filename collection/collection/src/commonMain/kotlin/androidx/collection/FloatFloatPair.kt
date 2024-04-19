@@ -17,6 +17,7 @@
 
 package androidx.collection
 
+import androidx.collection.internal.floatFromBits
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmInline
 
@@ -44,13 +45,13 @@ public value class FloatFloatPair internal constructor(
      * The first value in the pair.
      */
     public inline val first: Float
-        get() = Float.fromBits((packedValue shr 32).toInt())
+        get() = floatFromBits((packedValue shr 32).toInt())
 
     /**
      * The second value in the pair.
      */
     public inline val second: Float
-        get() = Float.fromBits((packedValue and 0xFFFFFFFF).toInt())
+        get() = floatFromBits((packedValue and 0xFFFFFFFF).toInt())
 
     /**
      * Returns the [first] component of the pair. For instance, the first component
@@ -63,7 +64,7 @@ public value class FloatFloatPair internal constructor(
      * ```
      */
     // NOTE: Unpack the value directly because using `first` forces an invokestatic
-    public inline operator fun component1(): Float = Float.fromBits((packedValue shr 32).toInt())
+    public inline operator fun component1(): Float = floatFromBits((packedValue shr 32).toInt())
 
     /**
      * Returns the [second] component of the pair. For instance, the second component
@@ -77,7 +78,7 @@ public value class FloatFloatPair internal constructor(
      */
     // NOTE: Unpack the value directly because using `second` forces an invokestatic
     public inline operator fun component2(): Float =
-        Float.fromBits((packedValue and 0xFFFFFFFF).toInt())
+        floatFromBits((packedValue and 0xFFFFFFFF).toInt())
 
     override fun toString(): String = "($first, $second)"
 }

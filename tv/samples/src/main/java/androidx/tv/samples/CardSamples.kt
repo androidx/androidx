@@ -19,20 +19,25 @@
 package androidx.tv.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Border
 import androidx.tv.material3.Card
+import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ClassicCard
 import androidx.tv.material3.CompactCard
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -41,17 +46,78 @@ import androidx.tv.material3.WideClassicCard
 
 @Sampled
 @Composable
-fun CardSample() {
+fun HorizontalImageAspectRatioCardSample() {
     Card(
-        modifier = Modifier.size(150.dp, 120.dp),
-        onClick = { }
+        onClick = { },
+        modifier = Modifier
+            .width(200.dp)
+            .aspectRatio(CardDefaults.HorizontalImageAspectRatio),
+        border = CardDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.Green),
+                shape = RoundedCornerShape(5),
+            ),
+        ),
+        colors = CardDefaults.colors(
+            containerColor = Color.Red,
+            focusedContainerColor = Color.Yellow
+        ),
+        scale = CardDefaults.scale(
+            focusedScale = 1.05f,
+        )
     ) {
-        Box(Modifier.fillMaxSize()) {
-            Text(
-                text = "Card",
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
+    }
+}
+
+@Sampled
+@Composable
+fun VerticalImageAspectRatioCardSample() {
+    Card(
+        onClick = { },
+        modifier = Modifier
+            .width(200.dp)
+            .aspectRatio(CardDefaults.VerticalImageAspectRatio),
+        border = CardDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.Green),
+                shape = RoundedCornerShape(5),
+            ),
+        ),
+        colors = CardDefaults.colors(
+            containerColor = Color.Red,
+            focusedContainerColor = Color.Yellow
+        ),
+        scale = CardDefaults.scale(
+            focusedScale = 1.05f,
+        )
+    ) {
+    }
+}
+
+@Sampled
+@Composable
+fun SquareImageAspectRatioCardSample() {
+    Card(
+        onClick = { },
+        modifier = Modifier
+            .width(150.dp)
+            .aspectRatio(CardDefaults.SquareImageAspectRatio),
+        border = CardDefaults.border(
+            focusedBorder = Border(
+                border = BorderStroke(width = 3.dp, color = Color.Green)
+            ),
+        ),
+        shape = CardDefaults.shape(
+            shape = CircleShape,
+        ),
+        colors = CardDefaults.colors(
+            containerColor = Color.Red,
+            focusedContainerColor = Color.Yellow
+        ),
+        scale = CardDefaults.scale(
+            focusedScale = 1.05f,
+        )
+    ) {
     }
 }
 

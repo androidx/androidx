@@ -16,17 +16,24 @@
 
 package androidx.privacysandbox.ads.adservices.adselection
 
+import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 
 /**
- * This class represents  input to the [AdSelectionManager#selectAds] in the
- * [AdSelectionManager]. This field is populated in the case of a successful
+ * This class represents the output of the [AdSelectionManager#selectAds] in the
+ * [AdSelectionManager]. The fields are populated in the case of a successful
  * [AdSelectionManager#selectAds] call.
  *
  * @param adSelectionId An ID unique only to a device user that identifies a successful ad
  *     selection.
  * @param renderUri A render URL for the winning ad.
  */
+@SuppressLint("ClassVerificationFailure")
 class AdSelectionOutcome public constructor(
     val adSelectionId: Long,
     val renderUri: Uri
@@ -51,4 +58,23 @@ class AdSelectionOutcome public constructor(
     override fun toString(): String {
         return "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"
     }
+
+    @ExperimentalFeatures.Ext10OptIn
+    fun hasOutcome(): Boolean {
+        return this != NO_OUTCOME
+    }
+
+    @ExperimentalFeatures.Ext10OptIn
+    companion object {
+        /** Represents an AdSelectionOutcome with empty results. */
+        @ExperimentalFeatures.Ext10OptIn
+        @JvmField public val NO_OUTCOME = AdSelectionOutcome(0, Uri.EMPTY)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    internal constructor(
+        response: android.adservices.adselection.AdSelectionOutcome
+    ) : this(response.adSelectionId, response.renderUri)
 }

@@ -367,7 +367,7 @@ class ObjectPValueTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        map["Hola"] = 7ValueSuffix
+        map["Hello"] = 7ValueSuffix
 
         assertEquals(1, map.size)
         assertEquals(capacity, map.capacity)

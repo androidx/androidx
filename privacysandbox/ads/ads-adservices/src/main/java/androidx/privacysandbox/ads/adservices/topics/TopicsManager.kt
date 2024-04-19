@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.LimitExceededException
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
+import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
 
 /**
  * TopicsManager provides APIs for App and Ad-Sdks to get the user interest topics in a privacy
@@ -54,8 +55,10 @@ abstract class TopicsManager internal constructor() {
                 TopicsManagerApi33Ext5Impl(context)
             } else if (AdServicesInfo.adServicesVersion() == 4) {
                 TopicsManagerApi33Ext4Impl(context)
-            } else if (AdServicesInfo.extServicesVersion() >= 9) {
-                TopicsManagerApi31Ext9Impl(context)
+            } else if (AdServicesInfo.extServicesVersionS() >= 9) {
+                BackCompatManager.getManager(context, "TopicsManager") {
+                    TopicsManagerApi31Ext9Impl(context)
+                }
             } else {
                 null
             }

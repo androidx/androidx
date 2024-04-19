@@ -1,11 +1,12 @@
 package com.mysdk
 
+import android.os.Bundle
 import androidx.privacysandbox.tools.PrivacySandboxCallback
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.core.SdkActivityLauncher
+import androidx.privacysandbox.activity.core.SdkActivityLauncher
 
 @PrivacySandboxService
 interface MySdk {
@@ -58,6 +59,8 @@ interface MyUiInterface : SandboxedUiAdapter {
 interface MySecondInterface {
     suspend fun doIntStuff(x: List<Int>): List<Int>
 
+    suspend fun doBundleStuff(x: Bundle): Bundle
+
     suspend fun doCharStuff(x: List<Char>): List<Char>
 
     suspend fun doFloatStuff(x: List<Float>): List<Float>
@@ -83,10 +86,17 @@ data class Request(
     val myInterface: MyInterface,
     val myUiInterface: MyUiInterface,
     val activityLauncher: SdkActivityLauncher,
+    val flag: RequestFlag,
 )
 
 @PrivacySandboxValue
 data class InnerValue(val numbers: List<Int>, val maybeNumber: Int?)
+
+@PrivacySandboxValue
+enum class RequestFlag {
+    SLOW,
+    FAST,
+}
 
 @PrivacySandboxValue
 data class Response(
@@ -105,4 +115,6 @@ interface MyCallback {
     fun onCompleteInterface(myInterface: MyInterface)
 
     fun onCompleteUiInterface(myUiInterface: MyUiInterface)
+
+    suspend fun returnAValueFromCallback(): Response
 }

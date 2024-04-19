@@ -19,12 +19,12 @@ package androidx.compose.material3.benchmark
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -36,11 +36,13 @@ import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,20 +55,29 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
     val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
+    fun edm_firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel { ExposedDropdownMenuTestCase(expanded) }
+    }
+
+    @Ignore
+    @Test
     fun edm_first_compose() {
         benchmarkRule.benchmarkFirstCompose { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore
     @Test
     fun edm_measure() {
         benchmarkRule.benchmarkFirstMeasure { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore
     @Test
     fun edm_layout() {
         benchmarkRule.benchmarkFirstLayout { ExposedDropdownMenuTestCase(expanded) }
     }
 
+    @Ignore
     @Test
     fun edm_draw() {
         benchmarkRule.benchmarkFirstDraw { ExposedDropdownMenuTestCase(expanded) }
@@ -104,12 +115,8 @@ internal class ExposedDropdownMenuTestCase(
                 expanded = expanded,
                 onExpandedChange = {},
             ) {
-                Spacer(modifier = Modifier.size(100.dp).menuAnchor())
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = {},
-                    content = { Spacer(modifier = Modifier.height(50.dp).fillMaxWidth()) },
-                )
+                Spacer(Modifier.size(100.dp).menuAnchor(MenuAnchorType.PrimaryNotEditable))
+                // Can't test ExposedDropdownMenu directly because Popup can't be benchmarked
             }
         }
     }

@@ -29,8 +29,9 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.ScreenFlashUiControl
+import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.TorchState
@@ -49,7 +50,6 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessor
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.internal.ScreenFlashUiInfo
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.test.annotation.UiThreadTest
@@ -82,11 +82,13 @@ class CameraControllerTest {
     private val previewViewTransform = Matrix().also { it.postRotate(90F) }
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var controller: LifecycleCameraController
+
     @Suppress("deprecation")
     private val targetSizeWithAspectRatio =
         CameraController.OutputSize(AspectRatio.RATIO_16_9)
     private val resolutionSelector = ResolutionSelector.Builder()
         .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY).build()
+
     @Suppress("deprecation")
     private val targetSizeWithResolution =
         CameraController.OutputSize(Size(1080, 1960))
@@ -246,6 +248,15 @@ class CameraControllerTest {
         controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(null))
         // Assert: the ImageAnalysis is the same.
         assertThat(controller.mImageAnalysis).isEqualTo(originalImageAnalysis)
+    }
+
+    @Test
+    fun setAnalysisFormat_setSuccessfully() {
+        // Act: set the format to RGBA.
+        controller.imageAnalysisOutputImageFormat = ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
+        // Assert: returned format is RGBA.
+        assertThat(controller.imageAnalysisOutputImageFormat)
+            .isEqualTo(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
     }
 
     /**
@@ -533,14 +544,15 @@ class CameraControllerTest {
         controller.setScreenFlashUiInfo(
             ScreenFlashUiInfo(
                 ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW,
-                object : ScreenFlashUiControl {
-                    override fun applyScreenFlashUi(
-                        screenFlashUiCompleter: ImageCapture.ScreenFlashUiCompleter
+                object : ScreenFlash {
+                    override fun apply(
+                        expirationTimeMillis: Long,
+                        screenFlashListener: ImageCapture.ScreenFlashListener,
                     ) {
-                        screenFlashUiCompleter.complete()
+                        screenFlashListener.onCompleted()
                     }
 
-                    override fun clearScreenFlashUi() {
+                    override fun clear() {
                     }
                 }
             )

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.glance`)"
-        errorLine1="            .result.await()"
-        errorLine2="                    ~~~~~">
+        errorLine1="                .result.await()"
+        errorLine2="                        ~~~~~">
         <location
             file="src/main/java/androidx/glance/session/SessionManager.kt"/>
     </issue>
@@ -13,8 +13,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.glance`)"
-        errorLine1="        (WorkManager.getInstance(context).getWorkInfosForUniqueWork(key).await()"
-        errorLine2="                                                                         ~~~~~">
+        errorLine1="                .await()"
+        errorLine2="                 ~~~~~">
         <location
             file="src/main/java/androidx/glance/session/SessionManager.kt"/>
     </issue>
@@ -71,15 +71,6 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/glance/layout/Row.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            .any { it.state == WorkInfo.State.RUNNING } &amp;&amp; synchronized(sessions) {"
-        errorLine2="             ~~~">
-        <location
-            file="src/main/java/androidx/glance/session/SessionManager.kt"/>
     </issue>
 
     <issue

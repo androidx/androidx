@@ -16,17 +16,28 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class DeviceInfoTest {
+    @Before
+    fun setup() {
+        // clear any process wide warnings, since tests below will capture them
+        InstrumentationResults.clearIdeWarningPrefix()
+    }
+
     @SdkSuppress(minSdkVersion = PerfettoHelper.MIN_SDK_VERSION)
     @Test
     fun misconfiguredForTracing() {
@@ -36,5 +47,51 @@ class DeviceInfoTest {
             "${DeviceInfo.typeLabel} is incorrectly configured for tracing," +
                 " and is not CTS compatible. All Perfetto/Atrace capture will fail."
         )
+    }
+
+    @Test
+    fun artMainlineVersionWembley() { // specific regression test for b/319541718
+        assumeTrue(Build.DEVICE.startsWith("wembley"))
+
+        // Double checks some special properties of go devices
+        assertTrue(DeviceInfo.isLowRamDevice)
+
+        // Wembley available versions don't hit any of the method tracing issues, no art mainline
+        assertFalse(DeviceInfo.methodTracingAffectsMeasurements)
+        assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, DeviceInfo.artMainlineVersion)
+    }
+
+    @Test
+    fun artMainlineVersion() {
+        // bypass main test if appear to be on go device without art mainline module
+        if (Build.VERSION.SDK_INT in 31..33 && DeviceInfo.isLowRamDevice) {
+            if (DeviceInfo.artMainlineVersion == DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED) {
+                return // bypass rest of test, appear to be on go device
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= 30) {
+            // validate we have a reasonable looking number
+            if (Build.VERSION.SDK_INT >= 31) {
+                assertTrue(DeviceInfo.artMainlineVersion > 300000000)
+            } else {
+                assertEquals(1, DeviceInfo.artMainlineVersion)
+            }
+            // validate parsing by checking against shell command,
+            // which we don't use at runtime due to cost of shell commands
+            val shellVersion = Shell.executeCommandCaptureStdoutOnly(
+                "cmd package list packages --show-versioncode --apex-only art"
+            ).trim()
+
+            // "google" and "go" may or may not be present in package
+            val expectedRegExStr = "package:com(\\.google)?\\.android(\\.go)?\\.art" +
+                " versionCode:${DeviceInfo.artMainlineVersion}"
+            assertTrue(
+                expectedRegExStr.toRegex().matches(shellVersion),
+                "Expected shell version ($shellVersion) to match $expectedRegExStr"
+            )
+        } else {
+            assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, DeviceInfo.artMainlineVersion)
+        }
     }
 }

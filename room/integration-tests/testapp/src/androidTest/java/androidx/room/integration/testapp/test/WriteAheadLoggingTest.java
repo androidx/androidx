@@ -46,7 +46,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -70,7 +69,6 @@ import java.util.concurrent.TimeoutException;
 @RunWith(AndroidJUnit4.class)
 @FlakyTest(bugId = 241095868)
 @LargeTest
-@SdkSuppress(minSdkVersion = 16)
 public class WriteAheadLoggingTest {
 
     private static final String DATABASE_NAME = "wal.db";

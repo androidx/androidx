@@ -16,9 +16,12 @@
 
 package androidx.compose.testutils.benchmark
 
+import android.os.Looper
 import androidx.activity.ComponentActivity
+import androidx.annotation.UiThread
+import androidx.annotation.WorkerThread
 import androidx.benchmark.junit4.BenchmarkRule
-import androidx.benchmark.junit4.measureRepeated
+import androidx.benchmark.junit4.measureRepeatedOnMainThread
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 import androidx.compose.testutils.benchmark.android.AndroidTestCaseRunner
@@ -33,9 +36,7 @@ class AndroidBenchmarkRule : TestRule {
 
     @Suppress("DEPRECATION")
     private val activityTestRule =
-        androidx.test.rule.ActivityTestRule<ComponentActivity>(
-            ComponentActivity::class.java
-        )
+        androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
     val benchmarkRule = BenchmarkRule()
 
@@ -48,33 +49,49 @@ class AndroidBenchmarkRule : TestRule {
     /**
      * Runs benchmark for the given [AndroidTestCase].
      *
-     * Note that benchmark by default runs on the ui thread.
+     * Note that UI setup and benchmark measurements must be explicitly scheduled to the UI thread,
+     * as the block runs on the current (test) thread.
      *
      * @param givenTestCase The test case to be executed
      * @param block The benchmark instruction to be performed over the given test case
      */
     fun <T : AndroidTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
+        @WorkerThread
         block: AndroidTestCaseRunner<T>.() -> Unit
     ) {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "Cannot invoke runBenchmarkFor from the main thread"
+        }
         require(givenTestCase !is ComposeTestCase) {
             "Expected ${AndroidTestCase::class.simpleName}!"
         }
-
-        activityTestRule.runOnUiThread {
-            val runner =
-                AndroidTestCaseRunner(
-                    givenTestCase,
-                    activityTestRule.activity
-                )
-            block(runner)
+        lateinit var runner: AndroidTestCaseRunner<T>
+        runOnUiThread {
+            runner = AndroidTestCaseRunner(
+                givenTestCase,
+                activityTestRule.activity
+            )
         }
+
+        block(runner)
     }
 
     /**
-     * Convenience proxy for [BenchmarkRule.measureRepeated].
+     * Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread].
      */
-    fun measureRepeated(block: BenchmarkRule.Scope.() -> Unit) {
-        benchmarkRule.measureRepeated(block)
+    @WorkerThread
+    fun measureRepeatedOnUiThread(
+        @UiThread
+        block: BenchmarkRule.Scope.() -> Unit
+    ) {
+        benchmarkRule.measureRepeatedOnMainThread(block)
+    }
+
+    /**
+     * Convenience proxy for `ActivityTestRule.runOnUiThread`
+     */
+    fun runOnUiThread(block: () -> Unit) {
+        activityTestRule.runOnUiThread(block)
     }
 }

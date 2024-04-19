@@ -27,7 +27,6 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 
@@ -39,7 +38,6 @@ import java.util.Set;
 /**
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(19)
 @Deprecated
 public class CompatPermissionManager {
     public static final String ALL_SUFFIX = "_all";

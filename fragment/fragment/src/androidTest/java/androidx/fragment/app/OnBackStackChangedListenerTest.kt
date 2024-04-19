@@ -461,6 +461,7 @@ class OnBackStackChangedListenerTest {
             val fragment2 = StrictFragment()
             var startedCount = 0
             var committedCount = 0
+            var progress = 0f
 
             withActivity {
                 fragmentManager.beginTransaction()
@@ -487,6 +488,10 @@ class OnBackStackChangedListenerTest {
                     startedCount++
                 }
 
+                override fun onBackStackChangeProgressed(backEventCompat: BackEventCompat) {
+                    progress = backEventCompat.progress
+                }
+
                 override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
                     committedCount++
                 }
@@ -498,8 +503,14 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
+            withActivity {
+                onBackPressedDispatcher.dispatchOnBackProgressed(BackEventCompat(0f, 0f, 0.5f, 0))
+                executePendingTransactions()
+            }
+
             if (FragmentManager.USE_PREDICTIVE_BACK) {
                 assertThat(startedCount).isEqualTo(1)
+                assertThat(progress).isEqualTo(0.5f)
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
@@ -527,6 +538,7 @@ class OnBackStackChangedListenerTest {
             val fragment2 = StrictFragment()
             var startedCount = 0
             var committedCount = 0
+            var cancelledCount = 0
 
             withActivity {
                 fragmentManager.beginTransaction()
@@ -556,6 +568,10 @@ class OnBackStackChangedListenerTest {
                 override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
                     committedCount++
                 }
+
+                override fun onBackStackChangeCancelled() {
+                    cancelledCount++
+                }
             }
             fragmentManager.addOnBackStackChangedListener(listener)
 
@@ -577,6 +593,7 @@ class OnBackStackChangedListenerTest {
 
             if (FragmentManager.USE_PREDICTIVE_BACK) {
                 assertThat(startedCount).isEqualTo(1)
+                assertThat(cancelledCount).isEqualTo(1)
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }

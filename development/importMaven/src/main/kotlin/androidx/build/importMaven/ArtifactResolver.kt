@@ -53,7 +53,8 @@ internal object ArtifactResolver {
     internal val jetbrainsRepositories = listOf(
         "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev/",
         "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev",
-        "https://maven.pkg.jetbrains.space/public/p/compose/dev"
+        "https://maven.pkg.jetbrains.space/public/p/compose/dev",
+        "https://maven.pkg.jetbrains.space/kotlin/p/dokka/test"
     )
 
     internal val gradlePluginPortalRepo = "https://plugins.gradle.org/m2/"
@@ -307,15 +308,20 @@ ${verificationException.message?.prependIndent("    ")}
             vararg dependencies: Dependency
         ): List<Configuration> {
             return listOf(
-                LibraryElements.JAR,
-                "aar"
-            ).map { libraryElement ->
+                LibraryElements.JAR to TargetJvmEnvironment.STANDARD_JVM,
+                LibraryElements.JAR to TargetJvmEnvironment.ANDROID,
+                "aar" to TargetJvmEnvironment.ANDROID,
+            ).map { (libraryElement, jvmEnvironment) ->
                 createConfiguration(*dependencies) {
                     attributes.apply {
                         attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, libraryElement)
                         attribute(Usage.USAGE_ATTRIBUTE, Usage.JAVA_RUNTIME)
                         attribute(Category.CATEGORY_ATTRIBUTE, Category.LIBRARY)
                         attribute(Bundling.BUNDLING_ATTRIBUTE, Bundling.EXTERNAL)
+                        attribute(
+                            TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+                            jvmEnvironment
+                        )
                     }
                 }
             }

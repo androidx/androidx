@@ -48,6 +48,23 @@ public interface CarInfo {
             @NonNull OnCarDataAvailableListener<EnergyProfile> listener);
 
     /**
+     * Request the {@link ExteriorDimensions} information about the vehicle. This will only return
+     * meaningful data on select Automotive vehicles running SDK 30 and above.
+     *
+     * <p>This requires the {@code android.car.permission.CAR_INFO} permission.
+     *
+     * <p>See
+     * <a href="https://developer.android.com/reference/android/car/VehiclePropertyIds#INFO_EXTERIOR_DIMENSIONS">VehiclePropertyIds#INFO_EXTERIOR_DIMENSIONS</a>
+     *
+     * @param executor the executor which will be used for invoking the listener
+     * @param listener the listener that will be invoked when data is available
+     */
+    @RequiresCarApi(7)
+    default void fetchExteriorDimensions(@NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull OnCarDataAvailableListener<ExteriorDimensions> listener) {
+    }
+
+    /**
      * Setup an ongoing listener to receive {@link TollCard} information from the car hardware.
      *
      * <p>If the listener was added previously then it won't be added again.

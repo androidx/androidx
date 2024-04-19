@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastMaxBy
 import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
@@ -708,7 +709,7 @@ class ResistanceConfig(
     fun computeResistance(overflow: Float): Float {
         val factor = if (overflow < 0) factorAtMin else factorAtMax
         if (factor == 0f) return 0f
-        val progress = (overflow / basis).coerceIn(-1f, 1f)
+        val progress = (overflow / basis).fastCoerceIn(-1f, 1f)
         return basis / factor * sin(progress * PI.toFloat() / 2)
     }
 
@@ -862,7 +863,7 @@ internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedSc
     get() = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
             val delta = available.toFloat()
-            return if (delta < 0 && source == NestedScrollSource.Drag) {
+            return if (delta < 0 && source == NestedScrollSource.UserInput) {
                 performDrag(delta).toOffset()
             } else {
                 Offset.Zero
@@ -874,7 +875,7 @@ internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedSc
             available: Offset,
             source: NestedScrollSource
         ): Offset {
-            return if (source == NestedScrollSource.Drag) {
+            return if (source == NestedScrollSource.UserInput) {
                 performDrag(available.toFloat()).toOffset()
             } else {
                 Offset.Zero

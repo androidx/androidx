@@ -19,4 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance एपको विजेटसम्बन्धी त्रुटि"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"adb logcat"</tt></b>" प्रयोग गरी "<b><tt>"GlanceAppWidget"</tt></b>" खोजेर यथार्थ त्रुटि पत्ता लगाउनुहोस्"</string>
+    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"सामग्री देखाउन सकिएन"</string>
 </resources>

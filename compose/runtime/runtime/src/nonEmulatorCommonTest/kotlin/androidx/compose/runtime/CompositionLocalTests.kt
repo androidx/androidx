@@ -702,6 +702,137 @@ class CompositionLocalTests {
 
         revalidate()
     }
+
+    @Test // Regression test for: b/330036209
+    fun testSingleProvideDefaultValue() = compositionTest {
+        val local = compositionLocalOf { 0 }
+        compose {
+            CompositionLocalProvider(local provides 1) {
+                CompositionLocalProvider(local providesDefault 2) {
+                    assertEquals(1, local.current)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testDefaultComputedLocal() = compositionTest {
+        val local1 = compositionLocalOf { 0 }
+        val local2 = compositionLocalWithComputedDefaultOf { local1.currentValue + 10 }
+        compose {
+            val valueOfLocal1 = local1.current
+            val valueOfLocal2 = local2.current
+            assertEquals(valueOfLocal1 + 10, valueOfLocal2)
+            CompositionLocalProvider(local1 provides 20) {
+                val nestedValueOfLocal1 = local1.current
+                val nestedValueOfLocal2 = local2.current
+                assertEquals(nestedValueOfLocal1 + 10, nestedValueOfLocal2)
+            }
+        }
+    }
+
+    @Test
+    fun testProvidingDynamicLocalAsComputed() = compositionTest {
+        val local1 = compositionLocalOf { 0 }
+        val local2 = compositionLocalOf { 0 }
+        compose {
+            val valueOfLocal1A = local1.current
+            val valueOfLocal2A = local2.current
+            assertEquals(0, valueOfLocal1A)
+            assertEquals(0, valueOfLocal2A)
+            CompositionLocalProvider(local2 providesComputed { local1.currentValue + 10 }) {
+                val valueOfLocal1B = local1.current
+                val valueOfLocal2B = local2.current
+                assertEquals(valueOfLocal1B + 10, valueOfLocal2B)
+                CompositionLocalProvider(local1 provides 10) {
+                    val valueOfLocal1C = local1.current
+                    val valueOfLocal2C = local2.current
+                    assertEquals(valueOfLocal1C + 10, valueOfLocal2C)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testProvidingAStaticLocalAsComputed() = compositionTest {
+        val local1 = staticCompositionLocalOf { 0 }
+        val local2 = staticCompositionLocalOf { 0 }
+        compose {
+            val valueOfLocal1A = local1.current
+            val valueOfLocal2A = local2.current
+            assertEquals(0, valueOfLocal1A)
+            assertEquals(0, valueOfLocal2A)
+            CompositionLocalProvider(local2 providesComputed { local1.currentValue + 10 }) {
+                val valueOfLocal1B = local1.current
+                val valueOfLocal2B = local2.current
+                assertEquals(valueOfLocal1B + 10, valueOfLocal2B)
+                CompositionLocalProvider(local1 provides 10) {
+                    val valueOfLocal1C = local1.current
+                    val valueOfLocal2C = local2.current
+                    assertEquals(valueOfLocal1C + 10, valueOfLocal2C)
+                }
+            }
+        }
+    }
+
+    @Suppress("LocalVariableName")
+    @Test
+    // Validate androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
+    fun validateSampledExample() = compositionTest {
+        val LocalValue = compositionLocalOf { 10 }
+        val LocalLargerValue = compositionLocalOf { 12 }
+        val LocalComputedValue = compositionLocalWithComputedDefaultOf {
+            LocalValue.currentValue + 4
+        }
+
+        @Composable
+        fun App() {
+            // Value is 10, the default value for LocalValue
+            val value = LocalValue.current
+            assertEquals(10, value)
+            // Value is 12, the default value
+            val largerValue = LocalLargerValue.current
+            assertEquals(12, largerValue)
+            // Value is computed to be 14
+            val computedValue = LocalComputedValue.current
+            assertEquals(14, computedValue)
+            CompositionLocalProvider(
+                LocalValue provides 20
+            ) {
+                // Value is 20 provided above
+                val nestedValue = LocalValue.current
+                assertEquals(20, nestedValue)
+                // Value is still 12 as an updated value was not re-provided
+                val nestedLargerValue = LocalLargerValue.current
+                assertEquals(12, nestedLargerValue)
+                // Values is computed to be 24; LocalValue.current + 4
+                val nestedComputedValue = LocalComputedValue.current
+                assertEquals(24, nestedComputedValue)
+                CompositionLocalProvider(
+                    LocalLargerValue provides LocalValue.current + 2
+                ) {
+                    // Value is 22 provided above
+                    val newLargerValue = LocalLargerValue.current
+                    assertEquals(22, newLargerValue)
+                    CompositionLocalProvider(
+                        LocalValue provides 50
+                    ) {
+                        // Value is now 50 provided above
+                        val finalValue = LocalValue.current
+                        assertEquals(50, finalValue)
+                        // Value is still 22
+                        val finalLargerValue = LocalLargerValue.current
+                        assertEquals(22, finalLargerValue)
+                        // Value is now computed to be 54
+                        val finalComputed = LocalComputedValue.current
+                        assertEquals(54, finalComputed)
+                    }
+                }
+            }
+        }
+
+        compose { App() }
+    }
 }
 
 val cacheLocal = staticCompositionLocalOf { "Unset" }

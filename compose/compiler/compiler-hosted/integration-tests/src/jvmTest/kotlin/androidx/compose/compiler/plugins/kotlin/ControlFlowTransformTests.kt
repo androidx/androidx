@@ -450,7 +450,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                     }
                 }
                 Text("Some more text")
-            } 
+            }
         """
     )
 
@@ -2115,7 +2115,6 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             import androidx.compose.runtime.*
             import androidx.compose.foundation.layout.*
             import androidx.compose.foundation.text.KeyboardActions
-            import androidx.compose.material.*
 
             object Ui {}
 
@@ -2131,6 +2130,17 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                     Text("${'$'}keyboardActions2")
                 }
             }
+        """.trimIndent(),
+        extra = """
+            import androidx.compose.runtime.Composable
+
+            @Composable
+            fun Text(
+                text: String,
+                softWrap: Boolean = true,
+                maxLines: Int = Int.MAX_VALUE,
+                minLines: Int = 1,
+            ) {}
         """.trimIndent()
     )
 
@@ -2227,6 +2237,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
         """
     )
 
+    @Test
     fun testNothingBody() = verifyGoldenComposeIrTransform(
         source = """
         import androidx.compose.runtime.*
@@ -2289,6 +2300,241 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             import androidx.compose.runtime.*
 
             @Composable fun Text(text: String) {}
+        """
+    )
+
+    @Test
+    fun testComposableInAnonymousObjectDelegate() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+                interface A
+
+                interface B {
+                    val property: A @Composable get() = TODO()
+                }
+
+                @Composable fun Test(b: B) {
+                    val a = object : A by b.property {}
+                    println(a)
+                }
+        """
+    )
+
+    @Test
+    fun testReturnNull() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable
+            fun Test(): String? {
+                return null
+            }
+            @Composable
+            fun Test2(b: Boolean): String? {
+                if (b) return "true"
+                return null
+            }
+            @Composable
+            fun Test3(b: Boolean): String? {
+                if (b) {
+                    return "true"
+                } else {
+                    return null
+                }
+            }
+            @Composable
+            fun Test4(b: Boolean): String? {
+                return if (b) {
+                    "true"
+                } else {
+                    null
+                }
+            }
+            @Composable
+            fun Test5(): String? {
+                var varNull = null
+                return varNull
+            }
+            @Composable
+            fun Test6(): String? {
+                TODO()
+            }
+            @Composable
+            fun Test7(b: Boolean): String? {
+                if (b) {
+                    return null
+                }
+                return "false"
+            }
+            @Composable
+            fun Test8(): Unit? {
+                var unitNull: Unit? = null
+                Test6()
+                return unitNull
+            }
+            @Composable
+            fun Test9(): Unit? {
+                var unitNotNull: Unit? = Unit
+                Test6()
+                return unitNotNull
+            }
+            @Composable
+            fun Test10(): Unit? {
+                Test6()
+                return Unit
+            }
+        """.trimIndent()
+    )
+
+    @Test
+    fun testGroupsInLoops() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.*
+
+            @Composable
+            private fun KeyContent1(items: List<Int>) {
+                items.forEach { item ->
+                    if (item > -1) {
+                        key(item) {
+                            remember {
+                                item
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Composable
+            private fun KeyContent2(items: List<Int>) {
+                for (item in items) {
+                    if (item > -1) {
+                        key(item) {
+                            remember {
+                                item
+                            }
+                        }
+                    }
+                }
+            }
+        """
+    )
+
+    @Test
+    fun testIfWithEarlyReturnInsideInlineLambda() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+            @Composable fun Test() {
+                run {
+                    if (true) {
+                        return@run
+                    } else {
+                        Test()
+                        return@run
+                    }
+                }
+            }
+        """
+    )
+
+    @Test
+    fun testLambdaWithNonUnitResult() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.*
+
+            @Composable
+            fun Test() {
+                val factory = createFactory {
+                    10
+                }
+                factory()
+            }
+        """,
+        extra = """
+            import androidx.compose.runtime.*
+
+            fun createFactory(factory: @Composable () -> Int) = factory
+        """
+    )
+
+    @Test
+    fun testOverrideWithNonUnitResult() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.*
+
+            class SomeClassImpl: SomeClass() {
+                @Composable
+                override fun SomeFunction(): Int = 10
+            }
+        """,
+        """
+            import androidx.compose.runtime.*
+
+            abstract class SomeClass {
+                @Composable
+                abstract fun SomeFunction(): Int
+            }
+        """
+    )
+
+    @Test
+    fun testConditionalReturnFromInline() = verifyGoldenComposeIrTransform(
+        extra = """
+            import androidx.compose.runtime.*
+
+            @Composable inline fun Column(content: @Composable () -> Unit) {}
+            inline fun NonComposable(content: () -> Unit) {}
+            @Composable fun Text(text: String) {}
+        """,
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(test: Boolean) {
+                Column {
+                   if (!test) {
+                       Text("Say")
+                       return@Column
+                   }
+                   Text("Hello")
+                }
+
+                NonComposable {
+                    if (!test) {
+                       Text("Say")
+                       return@NonComposable
+                   }
+                   Text("Hello")
+                }
+            }
+        """
+    )
+
+    @Test
+    fun ifInsideInlineComposableFunction() = verifyGoldenComposeIrTransform(
+        extra = """
+            import androidx.compose.runtime.*
+
+            fun interface MeasurePolicy {
+                fun invoke(size: Int)
+            }
+            @Composable inline fun Layout(content: @Composable () -> Unit) {}
+            @Composable fun Box() {}
+        """,
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable
+            fun Label(test: Boolean) {
+                Layout(
+                    content = {
+                        Box()
+                        if (test) {
+                            Box()
+                        }
+                    }
+                )
+            }
         """
     )
 }

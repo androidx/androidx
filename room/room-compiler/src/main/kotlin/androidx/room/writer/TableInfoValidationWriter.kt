@@ -20,6 +20,7 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.KotlinCollectionMemberNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.capitalize
@@ -35,24 +36,34 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
         const val CREATED_FROM_ENTITY = "CREATED_FROM_ENTITY"
     }
 
-    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
+    override fun write(connectionParamName: String, scope: CountingCodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder.apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = CommonTypeNames.HASH_MAP.parametrizedBy(
+            val columnListType = CommonTypeNames.MUTABLE_MAP.parametrizedBy(
                 CommonTypeNames.STRING,
                 RoomTypeNames.TABLE_INFO_COLUMN
             )
             addLocalVariable(
                 name = columnListVar,
                 typeName = columnListType,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    columnListType,
-                    "%L",
-                    entity.fields.size
-                )
+                assignExpr = when (language) {
+                    CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                        language,
+                        CommonTypeNames.HASH_MAP.parametrizedBy(
+                            CommonTypeNames.STRING,
+                            RoomTypeNames.TABLE_INFO_COLUMN
+                        ),
+                        "%L",
+                        entity.fields.size
+                    )
+                    CodeLanguage.KOTLIN -> XCodeBlock.of(
+                        language,
+                        "%M()",
+                        KotlinCollectionMemberNames.MUTABLE_MAP_OF
+                    )
+                }
             )
             entity.fields.forEach { field ->
                 addStatement(
@@ -75,16 +86,25 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
 
             val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")
             val foreignKeySetType =
-                CommonTypeNames.HASH_SET.parametrizedBy(RoomTypeNames.TABLE_INFO_FOREIGN_KEY)
+                CommonTypeNames.MUTABLE_SET.parametrizedBy(RoomTypeNames.TABLE_INFO_FOREIGN_KEY)
             addLocalVariable(
                 name = foreignKeySetVar,
                 typeName = foreignKeySetType,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    foreignKeySetType,
-                    "%L",
-                    entity.foreignKeys.size
-                )
+                assignExpr = when (language) {
+                    CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                        language,
+                        CommonTypeNames.HASH_SET.parametrizedBy(
+                            RoomTypeNames.TABLE_INFO_FOREIGN_KEY
+                        ),
+                        "%L",
+                        entity.foreignKeys.size
+                    )
+                    CodeLanguage.KOTLIN -> XCodeBlock.of(
+                        language,
+                        "%M()",
+                        KotlinCollectionMemberNames.MUTABLE_SET_OF
+                    )
+                }
             )
             entity.foreignKeys.forEach {
                 addStatement(
@@ -105,16 +125,25 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
 
             val indicesSetVar = scope.getTmpVar("_indices$suffix")
             val indicesType =
-                CommonTypeNames.HASH_SET.parametrizedBy(RoomTypeNames.TABLE_INFO_INDEX)
+                CommonTypeNames.MUTABLE_SET.parametrizedBy(RoomTypeNames.TABLE_INFO_INDEX)
             addLocalVariable(
                 name = indicesSetVar,
                 typeName = indicesType,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    indicesType,
-                    "%L",
-                    entity.indices.size
-                )
+                assignExpr = when (language) {
+                    CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                        language,
+                        CommonTypeNames.HASH_SET.parametrizedBy(
+                            RoomTypeNames.TABLE_INFO_INDEX
+                        ),
+                        "%L",
+                        entity.indices.size
+                    )
+                    CodeLanguage.KOTLIN -> XCodeBlock.of(
+                        language,
+                        "%M()",
+                        KotlinCollectionMemberNames.MUTABLE_SET_OF
+                    )
+                }
             )
             entity.indices.forEach { index ->
                 val orders = if (index.orders.isEmpty()) {
@@ -153,7 +182,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                 existingVar,
                 RoomTypeNames.TABLE_INFO,
                 "%M(%L, %S)",
-                RoomMemberNames.TABLE_INFO_READ, dbParamName, entity.tableName
+                RoomMemberNames.TABLE_INFO_READ, connectionParamName, entity.tableName
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -161,7 +190,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                     "return %L",
                     XCodeBlock.ofNewInstance(
                         language,
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                         "false, %S + %L + %S + %L",
                         "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,

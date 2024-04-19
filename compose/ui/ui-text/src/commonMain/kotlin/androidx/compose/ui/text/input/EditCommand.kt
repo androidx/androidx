@@ -333,8 +333,11 @@ class DeleteSurroundingTextInCodePointsCommand(
                 if (isSurrogatePair(lead, trail)) {
                     beforeLenInChars++
                 }
+            } else {
+                // overflowing
+                beforeLenInChars = buffer.selectionStart
+                break
             }
-            if (beforeLenInChars == buffer.selectionStart) break
         }
 
         var afterLenInChars = 0
@@ -347,8 +350,11 @@ class DeleteSurroundingTextInCodePointsCommand(
                 if (isSurrogatePair(lead, trail)) {
                     afterLenInChars++
                 }
+            } else {
+                // overflowing
+                afterLenInChars = buffer.length - buffer.selectionEnd
+                break
             }
-            if (buffer.selectionEnd + afterLenInChars == buffer.length) break
         }
 
         buffer.delete(buffer.selectionEnd, buffer.selectionEnd + afterLenInChars)

@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Deferred
 
 /** Provides utilities for querying cameras and accessing metadata about those cameras. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -116,6 +117,34 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
             Log.warn { "Failed to load metadata for $cameraId from ${cameraBackend.id}" }
         }
         return metadata
+    }
+
+    override fun prewarm(cameraId: CameraId, cameraBackendId: CameraBackendId?) {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        cameraBackend.prewarm(cameraId)
+    }
+
+    override fun disconnect(cameraId: CameraId, cameraBackendId: CameraBackendId?) {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        cameraBackend.disconnect(cameraId)
+    }
+
+    override fun disconnectAsync(
+        cameraId: CameraId,
+        cameraBackendId: CameraBackendId?
+    ): Deferred<Unit> {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.disconnectAsync(cameraId)
+    }
+
+    override fun disconnectAll(cameraBackendId: CameraBackendId?) {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        cameraBackend.disconnectAll()
+    }
+
+    override fun disconnectAllAsync(cameraBackendId: CameraBackendId?): Deferred<Unit> {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.disconnectAllAsync()
     }
 
     private fun getCameraBackend(cameraBackendId: CameraBackendId?): CameraBackend =

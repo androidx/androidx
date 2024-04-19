@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.serialization.Serializable
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -141,6 +142,7 @@ public class DynamicIncludeNavGraphBuilderTest {
             .isEqualTo(GRAPH_RESOURCE_NAME)
     }
 
+    @Test
     public fun includeDynamic_emptyModuleNameRoute() {
         navController.navigatorProvider.navigation(startDestination = GRAPH_ROUTE) {
             try {
@@ -189,6 +191,82 @@ public class DynamicIncludeNavGraphBuilderTest {
             }
         }
     }
+
+    @Test
+    public fun includeDynamicKClass() {
+        val graph = navController.navigatorProvider.navigation(
+            startDestination = TestClass::class
+        ) {
+            includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME) {
+                graphPackage = GRAPH_PACKAGE
+            }
+        }
+        val includeDynamic = graph[TestClass::class]
+            as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
+        assertWithMessage("Module should be set in the graph")
+            .that(includeDynamic.moduleName)
+            .isEqualTo(MODULE_NAME)
+
+        assertWithMessage("graphPackage has to be set")
+            .that(includeDynamic.graphPackage)
+            .isEqualTo(GRAPH_PACKAGE)
+
+        assertWithMessage("graphResourceName has to be set")
+            .that(includeDynamic.graphResourceName)
+            .isEqualTo(GRAPH_RESOURCE_NAME)
+    }
+
+    @Test
+    public fun includeDynamic_emptyModuleNameKClass() {
+        try {
+            navController.navigatorProvider.navigation(startDestination = TestClass::class) {
+                includeDynamic<TestClass>("", GRAPH_RESOURCE_NAME)
+            }
+            fail("includeDynamic should fail with an empty module name")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().isEqualTo("Module name cannot be empty")
+        }
+    }
+
+    @Test
+    public fun includeDynamic_graphPackage_nullKClass() {
+        val graph = navController.navigatorProvider.navigation(
+            startDestination = TestClass::class
+        ) {
+            includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME)
+        }
+        val includeDynamic = graph[TestClass::class]
+            as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
+
+        assertWithMessage("graphPackage should be filled in from package name and module name")
+            .that(includeDynamic.graphPackage).isEqualTo("${context.packageName}.$MODULE_NAME")
+    }
+
+    @Test
+    public fun includeDynamic_graphPackage_emptyKClass() {
+        try {
+            navController.navigatorProvider.navigation(startDestination = TestClass::class) {
+                includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME) {
+                    graphPackage = ""
+                }
+            }
+            fail("includeDynamic should fail with an empty graph package")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().isEqualTo("Graph package name cannot be empty")
+        }
+    }
+
+    @Test
+    public fun includeDynamic_graphResourceName_emptyKClass() {
+        try {
+            navController.navigatorProvider.navigation(startDestination = TestClass::class) {
+                includeDynamic<TestClass>(MODULE_NAME, "")
+            }
+            fail("includeDynamic should fail with an empty graph resource name")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().isEqualTo("Graph resource name cannot be empty")
+        }
+    }
 }
 
 private const val GRAPH_ID = 1
@@ -196,3 +274,6 @@ private const val GRAPH_ROUTE = "graph"
 private const val MODULE_NAME = "myModule"
 private const val GRAPH_PACKAGE = "com.example.mypackage"
 private const val GRAPH_RESOURCE_NAME = "graphName"
+
+@Serializable
+class TestClass

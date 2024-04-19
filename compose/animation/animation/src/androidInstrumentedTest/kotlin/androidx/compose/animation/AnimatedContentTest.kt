@@ -23,6 +23,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -49,21 +50,17 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -72,7 +69,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -80,6 +76,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -105,7 +102,7 @@ class AnimatedContentTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -185,7 +182,7 @@ class AnimatedContentTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -254,7 +251,7 @@ class AnimatedContentTest {
         var contentAlignment by mutableStateOf(Alignment.TopStart)
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                val transition = updateTransition(transitionState)
+                val transition = rememberTransition(transitionState)
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     testModifier,
@@ -378,7 +375,7 @@ class AnimatedContentTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
                 @Suppress("UpdateTransitionLabel")
-                val rootTransition = updateTransition(transitionState)
+                val rootTransition = rememberTransition(transitionState)
                 rootTransition.AnimatedContent(
                     transitionSpec = {
                         if (true isTransitioningTo false) {
@@ -789,334 +786,6 @@ class AnimatedContentTest {
     }
 
     @Test
-    fun testScaleToFitDefault() {
-        var target by mutableStateOf(1)
-        var box1Coords: LayoutCoordinates? = null
-        var box2Coords: LayoutCoordinates? = null
-        var box1Disposed = true
-        var box2Disposed = true
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                AnimatedContent(
-                    targetState = target,
-                    transitionSpec = {
-                        if (1 isTransitioningTo 2) {
-                            fadeIn(tween(300)) + scaleInToFitContainer() togetherWith
-                                scaleOutToFitContainer()
-                        } else {
-                            fadeIn() + scaleInToFitContainer() togetherWith
-                                fadeOut(tween(150))
-                        } using SizeTransform { initialSize, targetSize ->
-                            keyframes {
-                                durationMillis = 300
-                                initialSize at 100 using LinearEasing
-                                targetSize at 200 using LinearEasing
-                            }
-                        }
-                    }) {
-                    if (it == 1) {
-                        Box(
-                            Modifier
-                                .onPlaced {
-                                    box1Coords = it
-                                }
-                                .size(200.dp, 400.dp)) {
-                            DisposableEffect(key1 = Unit) {
-                                box1Disposed = false
-                                onDispose {
-                                    box1Disposed = true
-                                }
-                            }
-                        }
-                    } else {
-                        Box(
-                            Modifier
-                                .onPlaced { box2Coords = it }
-                                .size(100.dp, 50.dp)) {
-
-                            DisposableEffect(key1 = Unit) {
-                                box2Disposed = false
-                                onDispose {
-                                    box2Disposed = true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        rule.mainClock.autoAdvance = false
-        assertEquals(IntSize(200, 400), box1Coords?.size)
-        assertNull(box2Coords)
-
-        assertFalse(box1Disposed)
-        assertTrue(box2Disposed)
-
-        rule.runOnIdle {
-            // Start transition from 1 -> 2, size 200,400 -> 100,50
-            target = 2
-        }
-        rule.mainClock.advanceTimeByFrame()
-        rule.waitForIdle()
-
-        // Box1 doesn't have any other ExitTransition than scale, so it'll be disposed
-        // after a couple of frames
-        assertFalse(box1Disposed)
-        assertFalse(box2Disposed)
-
-        repeat(20) {
-            rule.mainClock.advanceTimeByFrame()
-
-            val playTime = 16 * it
-            val bounds2 = box2Coords?.boundsInRoot()
-            if (playTime <= 100) {
-                assertEquals(Rect(0f, 0f, 200f, 100f), bounds2)
-            } else if (playTime <= 200) {
-                val fraction = (playTime - 100) / 100f
-                val width = 200 * (1 - fraction) + 100 * fraction
-                // Since we are testing default behavior, the scaling is based on width.
-                val height = width / 100f * 50
-                assertEquals(Offset.Zero, bounds2?.topLeft)
-                assertEquals(width, bounds2?.width)
-                assertEquals(height, bounds2?.height)
-            } else {
-                assertEquals(Rect(0f, 0f, 100f, 50f), bounds2)
-            }
-        }
-
-        rule.runOnIdle {
-            // Start transition from false -> true, size 100, 50 -> 200,400
-            target = 1
-        }
-        rule.mainClock.advanceTimeByFrame()
-        rule.waitForIdle()
-
-        assertFalse(box1Disposed)
-        assertFalse(box2Disposed)
-
-        repeat(20) {
-            rule.mainClock.advanceTimeByFrame()
-            val playTime = 16 * it
-            val bounds = box1Coords?.boundsInRoot()
-            if (playTime <= 100) {
-                assertEquals(100f, bounds?.width)
-                assertFalse(box2Disposed)
-            } else if (playTime <= 150) {
-                val fraction = (playTime - 100) / 100f
-                val width = 100 * (1 - fraction) + 200 * fraction
-                // Since we are testing default behavior, the scaling is based on width.
-                assertEquals(Offset.Zero, bounds?.topLeft)
-                assertEquals(width, bounds?.width)
-            } else {
-                rule.waitForIdle()
-                assertThat(box2Disposed)
-            }
-        }
-    }
-
-    @Test
-    fun testScaleToFitCenterAlignment() {
-        var target by mutableStateOf(true)
-        var box1Coords: LayoutCoordinates? = null
-        var box2Coords: LayoutCoordinates? = null
-        var layoutDirection: LayoutDirection? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                layoutDirection = LocalLayoutDirection.current
-                AnimatedContent(
-                    targetState = target,
-                    transitionSpec = {
-                        fadeIn() + scaleInToFitContainer(Alignment.Center) togetherWith
-                            fadeOut(tween(100)) using
-                            SizeTransform { _, _ ->
-                                tween(100, easing = LinearEasing)
-                            }
-                    }) {
-                    if (target) {
-                        Box(
-                            Modifier
-                                .onPlaced {
-                                    box1Coords = it
-                                }
-                                .size(200.dp, 400.dp))
-                    } else {
-                        Box(
-                            Modifier
-                                .onPlaced { box2Coords = it }
-                                .size(100.dp, 50.dp))
-                    }
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        assertEquals(IntSize(200, 400), box1Coords?.size)
-        assertNull(box2Coords)
-
-        rule.runOnIdle {
-            // Start transition from true -> false, size 200,400 -> 100,50
-            target = false
-        }
-        rule.mainClock.advanceTimeByFrame()
-        repeat(10) {
-            rule.mainClock.advanceTimeByFrame()
-            val playTime = 16 * it
-            val bounds = box2Coords?.boundsInRoot()
-            assertNotNull(bounds)
-            val fraction = (playTime / 100f).coerceAtMost(1f)
-            val width = 200 * (1 - fraction) + 100 * fraction
-            val containerHeight = 400 * (1 - fraction) + 50 * fraction
-            // Since we are testing default behavior, the scaling is based on width.
-            val height = width / 100f * 50
-            assertEquals(width, bounds!!.width, 0.01f)
-            assertEquals(height, bounds.height, 0.01f)
-            val offset = Alignment.Center.align(
-                IntSize(width.roundToInt(), height.roundToInt()),
-                IntSize(width.roundToInt(), containerHeight.roundToInt()), layoutDirection!!
-            )
-            assertEquals(offset, bounds.topLeft.round())
-        }
-    }
-
-    @Test
-    fun testScaleToFitBottomCenterAlignment() {
-        var target by mutableStateOf(true)
-        var box1Coords: LayoutCoordinates? = null
-        var box2Coords: LayoutCoordinates? = null
-        var layoutDirection: LayoutDirection? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                layoutDirection = LocalLayoutDirection.current
-                AnimatedContent(
-                    targetState = target,
-                    transitionSpec = {
-                        fadeIn() + scaleInToFitContainer(
-                            Alignment.BottomCenter
-                        ) togetherWith
-                            fadeOut(tween(100)) using
-                            SizeTransform { _, _ ->
-                                tween(100, easing = LinearEasing)
-                            }
-                    }) {
-                    if (target) {
-                        Box(
-                            Modifier
-                                .onPlaced {
-                                    box1Coords = it
-                                }
-                                .size(200.dp, 400.dp))
-                    } else {
-                        Box(
-                            Modifier
-                                .onPlaced { box2Coords = it }
-                                .size(100.dp, 50.dp))
-                    }
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        rule.mainClock.autoAdvance = false
-        assertEquals(IntSize(200, 400), box1Coords?.size)
-        assertNull(box2Coords)
-
-        rule.runOnIdle {
-            // Start transition from true -> false, size 200,400 -> 100,50
-            target = false
-        }
-        rule.mainClock.advanceTimeByFrame()
-        repeat(10) {
-            rule.mainClock.advanceTimeByFrame()
-            val playTime = 16 * it
-            val bounds = box2Coords?.boundsInRoot()
-            assertNotNull(bounds)
-            val fraction = (playTime / 100f).coerceAtMost(1f)
-            val width = 200 * (1 - fraction) + 100 * fraction
-            val containerHeight = 400 * (1 - fraction) + 50 * fraction
-            // Since we are testing default behavior, the scaling is based on width.
-            val height = width / 100f * 50
-            assertEquals(width, bounds!!.width, 0.01f)
-            assertEquals(height, bounds.height, 0.01f)
-            val offset = Alignment.BottomCenter.align(
-                IntSize(width.roundToInt(), height.roundToInt()),
-                IntSize(width.roundToInt(), containerHeight.roundToInt()), layoutDirection!!
-            )
-            assertEquals(offset, bounds.topLeft.round())
-        }
-    }
-
-    @Test
-    fun testScaleToFitInsideBottomEndAlignment() {
-        var target by mutableStateOf(true)
-        var box1Coords: LayoutCoordinates? = null
-        var box2Coords: LayoutCoordinates? = null
-        var layoutDirection: LayoutDirection? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                layoutDirection = LocalLayoutDirection.current
-                AnimatedContent(
-                    targetState = target,
-                    transitionSpec = {
-                        fadeIn() + scaleInToFitContainer(
-                            Alignment.BottomEnd, ContentScale.Inside
-                        ) togetherWith
-                            fadeOut(tween(100)) using
-                            SizeTransform { _, _ ->
-                                tween(100, easing = LinearEasing)
-                            }
-                    }) {
-                    if (target) {
-                        Box(
-                            Modifier
-                                .onPlaced {
-                                    box1Coords = it
-                                }
-                                .size(200.dp, 400.dp))
-                    } else {
-                        Box(
-                            Modifier
-                                .onPlaced { box2Coords = it }
-                                .size(100.dp, 50.dp))
-                    }
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        rule.mainClock.autoAdvance = false
-        assertEquals(IntSize(200, 400), box1Coords?.size)
-        assertNull(box2Coords)
-
-        rule.runOnIdle {
-            // Start transition from true -> false, size 200,400 -> 100,50
-            target = false
-        }
-        rule.mainClock.advanceTimeByFrame()
-        repeat(10) {
-            rule.mainClock.advanceTimeByFrame()
-            val playTime = 16 * it
-            val bounds = box2Coords?.boundsInRoot()
-            assertNotNull(bounds)
-            val fraction = (playTime / 100f).coerceAtMost(1f)
-            val width = 100f
-            val containerWidth = 200 * (1 - fraction) + 100 * fraction
-            val containerHeight = 400 * (1 - fraction) + 50 * fraction
-            // Since we are testing default behavior, the scaling is based on width.
-            val height = 50f
-            assertEquals(width, bounds!!.width, 0.01f)
-            assertEquals(height, bounds.height, 0.01f)
-            val offset = Alignment.BottomEnd.align(
-                IntSize(width.roundToInt(), height.roundToInt()),
-                IntSize(containerWidth.roundToInt(), containerHeight.roundToInt()),
-                layoutDirection!!
-            )
-            assertEquals(offset, bounds.topLeft.round())
-        }
-    }
-
-    @Test
     fun testRightEnterExitTransitionIsChosenDuringInterruption() {
         var flag by mutableStateOf(false)
         var fixedPosition: Offset? = null
@@ -1185,72 +854,6 @@ class AnimatedContentTest {
             assertEquals(initialFixedPosition, fixedPosition)
         }
         rule.waitForIdle()
-    }
-
-    @Test
-    fun testScaleToFitWithFitHeight() {
-        var target by mutableStateOf(true)
-        var box1Coords: LayoutCoordinates? = null
-        var box2Coords: LayoutCoordinates? = null
-        var layoutDirection: LayoutDirection? = null
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                layoutDirection = LocalLayoutDirection.current
-                AnimatedContent(
-                    targetState = target,
-                    transitionSpec = {
-                        fadeIn() + scaleInToFitContainer(
-                            Alignment.Center, ContentScale.FillHeight
-                        ) togetherWith fadeOut(tween(100)) using
-                            SizeTransform { _, _ ->
-                                tween(100, easing = LinearEasing)
-                            }
-                    }) {
-                    if (target) {
-                        Box(
-                            Modifier
-                                .onPlaced {
-                                    box1Coords = it
-                                }
-                                .size(200.dp, 400.dp))
-                    } else {
-                        Box(
-                            Modifier
-                                .onPlaced { box2Coords = it }
-                                .size(100.dp, 250.dp))
-                    }
-                }
-            }
-        }
-
-        rule.waitForIdle()
-        rule.mainClock.autoAdvance = false
-        assertEquals(IntSize(200, 400), box1Coords?.size)
-        assertNull(box2Coords)
-
-        rule.runOnIdle {
-            // Start transition from true -> false, size 200,400 -> 100,250
-            target = false
-        }
-        rule.mainClock.advanceTimeByFrame()
-        repeat(10) {
-            rule.mainClock.advanceTimeByFrame()
-            val playTime = 16 * it
-            val bounds = box2Coords?.boundsInRoot()
-            assertNotNull(bounds)
-            val fraction = (playTime / 100f).coerceAtMost(1f)
-            val height = 400 * (1 - fraction) + 250 * fraction
-            val containerWidth = 200 * (1 - fraction) + 100 * fraction
-            // Since we are testing default behavior, the scaling is based on width.
-            val width = height / 250f * 100
-            assertEquals(width, bounds!!.width, 0.01f)
-            assertEquals(height, bounds.height, 0.01f)
-            val offset = Alignment.Center.align(
-                IntSize(width.roundToInt(), height.roundToInt()),
-                IntSize(containerWidth.roundToInt(), height.roundToInt()), layoutDirection!!
-            )
-            assertEquals(offset, bounds.topLeft.round())
-        }
     }
 
     @OptIn(ExperimentalAnimationApi::class)
@@ -1327,49 +930,196 @@ class AnimatedContentTest {
         assertTrue(box2EnterFinished)
     }
 
-    /**
-     * This test checks that scaleInToFitContainer and scaleOutToFitContainer handle empty
-     * content correctly.
-     */
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun testAnimateToEmptyComposable() {
-        var isEmpty by mutableStateOf(false)
-        var targetSize: IntSize? = null
+    fun AnimatedContentLookaheadTest() {
+        // Test that AnimatedContent's lookahead size is its target content's lookahead size.
+        // Also test that the lookahead placement for content is correct.
+        val size1 = 400
+        val size2 = 20
+        val transitionState = MutableTransitionState(true)
+        var playTimeMillis by mutableStateOf(0)
+        val testModifier = TestModifier()
+        var lookaheadPosition: Offset? = null
+        var approachPosition: Offset? = null
+        rule.mainClock.autoAdvance = false
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                AnimatedContent(targetState = isEmpty,
-                    transitionSpec = {
-                        scaleInToFitContainer() togetherWith scaleOutToFitContainer()
-                    },
-                    modifier = Modifier.layout { measurable, constraints ->
-                        measurable.measure(constraints).run {
-                            if (isLookingAhead) {
-                                targetSize = IntSize(width, height)
-                            }
-                            layout(width, height) {
-                                place(0, 0)
+                LookaheadScope {
+                    Box(testModifier) {
+                        val transition = rememberTransition(transitionState)
+                        playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
+                        transition.AnimatedContent(
+                            transitionSpec = {
+                                if (true isTransitioningTo false) {
+                                    fadeIn() togetherWith fadeOut() using SizeTransform { _, _ ->
+                                        tween(durationMillis = 80, easing = LinearEasing)
+                                    }
+                                } else {
+                                    fadeIn() togetherWith fadeOut() using SizeTransform { _, _ ->
+                                        tween(durationMillis = 80, easing = LinearEasing)
+                                    }
+                                }
+                            },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (it) {
+                                Box(modifier = Modifier.size(size = size1.dp))
+                            } else {
+                                Box(modifier = Modifier
+                                    .layout { m, c ->
+                                        m
+                                            .measure(c)
+                                            .run {
+                                                layout(width, height) {
+                                                    if (isLookingAhead) {
+                                                        with(this@LookaheadScope) {
+                                                            lookaheadPosition =
+                                                                lookaheadScopeCoordinates
+                                                                    .localLookaheadPositionOf(
+                                                                        coordinates!!
+                                                                    )
+                                                        }
+                                                    } else {
+                                                        approachPosition = lookaheadScopeCoordinates
+                                                            .localPositionOf(
+                                                                coordinates!!,
+                                                                Offset.Zero
+                                                            )
+                                                    }
+                                                    place(0, 0)
+                                                }
+                                            }
+                                    }
+                                    .size(size = size2.dp))
                             }
                         }
-                    }
-                ) {
-                    if (!it) {
-                        Box(Modifier.size(200.dp))
                     }
                 }
             }
         }
         rule.runOnIdle {
-            assertEquals(IntSize(200, 200), targetSize)
-            isEmpty = true
+            assertTrue(transitionState.targetState)
+            assertEquals(IntSize(size1, size1), testModifier.lookaheadSize)
+            transitionState.targetState = false
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Transition from item1 to item2 in 320ms, animating to full width in the first 160ms
+        // then full height in the next 160ms
+        while (transitionState.currentState != transitionState.targetState) {
+            rule.runOnIdle {
+                assertEquals(IntSize(size2, size2), testModifier.lookaheadSize)
+                assertNotNull(approachPosition)
+                assertNotNull(lookaheadPosition)
+                assertOffsetEquals(Offset(0f, 0f), lookaheadPosition!!)
+            }
+            rule.mainClock.advanceTimeByFrame()
+        }
+        rule.waitForIdle()
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testTargetChangeLookaheadPlacement() {
+        var lookaheadPosition1: Offset? = null
+        var lookaheadPosition2: Offset? = null
+        val transitionState = MutableTransitionState(true)
+        var playTimeMillis by mutableStateOf(0)
+        rule.setContent {
+            LookaheadScope {
+                val transition = rememberTransition(transitionState)
+                playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
+                transition.AnimatedContent(
+                    contentAlignment = Alignment.Center,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() using null }
+                ) {
+                    if (it) {
+                        Box(
+                            Modifier
+                                .layout { measurable, constraints ->
+                                    measurable
+                                        .measure(constraints)
+                                        .run {
+                                            layout(width, height) {
+                                                if (isLookingAhead) {
+                                                    lookaheadPosition1 = lookaheadScopeCoordinates
+                                                        .localLookaheadPositionOf(coordinates!!)
+                                                }
+                                            }
+                                        }
+                                }
+                                .fillMaxSize()
+                                .background(Color.Blue)
+                        )
+                    } else {
+                        Box(
+                            Modifier
+                                .layout { measurable, constraints ->
+                                    measurable
+                                        .measure(constraints)
+                                        .run {
+                                            layout(width, height) {
+                                                if (isLookingAhead) {
+                                                    lookaheadPosition2 = lookaheadScopeCoordinates
+                                                        .localLookaheadPositionOf(coordinates!!)
+                                                }
+                                            }
+                                        }
+                                }
+                                .size(100.dp)
+                                .background(Color.Red)
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertTrue(transitionState.targetState)
+            assertTrue(transitionState.currentState)
+            transitionState.targetState = false
+        }
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle {
+            assertNotNull(lookaheadPosition1)
+            assertOffsetEquals(Offset(0f, 0f), lookaheadPosition1!!)
+            transitionState.targetState = false
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Transition from item1 to item2 in 320ms, animating to full width in the first 160ms
+        // then full height in the next 160ms
+        repeat(3) {
+            assertNotEquals(transitionState.currentState, transitionState.targetState)
+            rule.runOnIdle {
+                assertNotNull(lookaheadPosition2)
+                assertOffsetEquals(Offset(0f, 0f), lookaheadPosition2!!)
+            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
         }
 
+        // Check that the lookahead position for the outgoing content changed
+        assertNotEquals(0f, lookaheadPosition1!!.x)
+        assertNotEquals(0f, lookaheadPosition1!!.y)
+        // Interruption during animation
+        transitionState.targetState = true
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
         rule.runOnIdle {
-            assertEquals(IntSize.Zero, targetSize)
-            isEmpty = !isEmpty
+            assertNotNull(lookaheadPosition1)
+            // Check that after the target state change, the new incoming content has
+            // a 0, 0 lookahead offset.
+            assertOffsetEquals(Offset(0f, 0f), lookaheadPosition1!!)
         }
-        rule.runOnIdle {
-            assertEquals(IntSize(200, 200), targetSize)
-        }
+    }
+
+    private fun assertOffsetEquals(expected: Offset, actual: Offset) {
+        assertEquals(expected.x, actual.x, 0.00001f)
+        assertEquals(expected.y, actual.y, 0.00001f)
     }
 
     @OptIn(InternalAnimationApi::class)

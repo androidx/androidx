@@ -198,9 +198,28 @@ scopes:
         <td><code>TEST</code></td>
         <td><code>*</code></td>
         <td>No compatibility guarantees (same as private)</td>
-        <td>Not recommended. Prefer language visibility, e.g. `internal` or package-private.</td>
+        <td>Not allowed in Jetpack, use `@VisibleForTesting`</td>
     </tr>
 </table>
+
+#### Test APIs and `@VisibleForTesting`
+
+For library APIs that should only be used from test code -- including the
+library's own tests, integration test apps, app developers' tests, or
+third-party testing libraries -- use the `@VisibleForTesting` annotation to
+ensure that the API is only called from test source sets.
+
+Libraries targeted at multi-platform usage in IntelliJ may use `@TestOnly` to
+ensure that the IDE enforces usage restrictions.
+
+Jetpack prefers that libraries expose test APIs as public API and maintain
+binary compatibility. This ensures that whatever a library needs in its own
+integration test app is available to app developers and may be safely called in
+third-party testing libraries.
+
+In cases where a test API needs restricted visibility or flexibility around
+binary compatibility, the `@VisibleForTesting` annotation may be combined with a
+`@RestrictTo` scope or `@RequiresOptIn` feature group.
 
 #### `@IntDef` `@StringDef` and `@LongDef` and visibility
 

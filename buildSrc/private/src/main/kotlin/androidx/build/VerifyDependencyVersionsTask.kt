@@ -22,12 +22,14 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.setProperty
 
 /**
@@ -144,7 +146,7 @@ internal fun Project.createVerifyDependencyVersionsTask():
             task.androidXDependencySet.set(
                 project.provider {
                     val dependencies = mutableSetOf<AndroidXDependency>()
-                    project.configurations.filter(::shouldVerifyConfiguration).forEach {
+                    project.configurations.filter(project::shouldVerifyConfiguration).forEach {
                         configuration ->
                         configuration.allDependencies.filter(::shouldVerifyDependency).forEach {
                             dependency ->
@@ -163,11 +165,12 @@ internal fun Project.createVerifyDependencyVersionsTask():
             )
             task.cacheEvenIfNoOutputs()
         }
+
     addToBuildOnServer(taskProvider)
     return taskProvider
 }
 
-private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
+private fun Project.shouldVerifyConfiguration(configuration: Configuration): Boolean {
     // Only verify configurations that are exported to POM. In an ideal world, this would be an
     // inclusion derived from the mappings used by the Maven Publish Plugin; however, since we
     // don't have direct access to those, this should remain an exclusion list.
@@ -214,6 +217,17 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     // https://github.com/JetBrains/kotlin/blob/v1.9.10/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/resolvableMetadataConfiguration.kt#L102
     if (name.endsWith("DependenciesMetadata")) return false
 
+    // don't verify test configurations of KMP projects
+    if (name.contains("TestCompilation")) return false
+    if (name.contains("TestCompile")) return false
+    if (name.contains("commonTest", ignoreCase = true)) return false
+    if (name.contains("nativeTest", ignoreCase = true)) return false
+    if (multiplatformExtension?.targets
+            ?.any { name.contains("${it.name}Test", ignoreCase = true) } == true
+    ) {
+        return false
+    }
+
     return true
 }
 
@@ -229,5 +243,15 @@ private fun shouldVerifyDependency(dependency: Dependency): Boolean {
         // version.
         return false
     }
+
+    // Should be guaranteed to be an androidx project at this point, but doesn't necessarily mean
+    // we have AndroidXExtension applied.
+    if (dependency is ProjectDependency &&
+        dependency.dependencyProject.extensions.findByType<AndroidXExtension>()
+            ?.shouldRelease() != true
+    ) {
+        return false
+    }
+
     return true
 }

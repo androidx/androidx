@@ -26,10 +26,10 @@ data class Dao(
     val type: XType,
     val queryMethods: List<QueryMethod>,
     val rawQueryMethods: List<RawQueryMethod>,
-    val insertionMethods: List<InsertionMethod>,
-    val deletionMethods: List<DeletionMethod>,
+    val insertMethods: List<InsertMethod>,
+    val deleteMethods: List<DeleteMethod>,
     val updateMethods: List<UpdateMethod>,
-    val upsertionMethods: List<UpsertionMethod>,
+    val upsertMethods: List<UpsertMethod>,
     val transactionMethods: List<TransactionMethod>,
     val kotlinBoxedPrimitiveMethodDelegates: List<KotlinBoxedPrimitiveMethodDelegate>,
     val kotlinDefaultMethodDelegates: List<KotlinDefaultMethodDelegate>,
@@ -47,11 +47,11 @@ data class Dao(
     val typeName: XClassName by lazy { element.asClassName() }
 
     val deleteOrUpdateShortcutMethods: List<DeleteOrUpdateShortcutMethod> by lazy {
-        deletionMethods + updateMethods
+        deleteMethods + updateMethods
     }
 
     val insertOrUpsertShortcutMethods: List<InsertOrUpsertShortcutMethod> by lazy {
-        insertionMethods + upsertionMethods
+        insertMethods + upsertMethods
     }
 
     val implTypeName: XClassName by lazy {

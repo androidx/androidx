@@ -29,7 +29,6 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,6 +42,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.LayoutDirection
@@ -52,11 +53,15 @@ import androidx.core.graphics.Insets as AndroidXInsets
 import androidx.core.view.DisplayCutoutCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.forEach
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
@@ -72,14 +77,31 @@ class WindowInsetsPaddingTest {
 
     private lateinit var insetsView: InsetsView
 
+    private lateinit var finishLatch: CountDownLatch
+    private val finishLatchGetter
+        get() = finishLatch
+    private val observer = object : DefaultLifecycleObserver {
+        override fun onDestroy(owner: LifecycleOwner) {
+            finishLatchGetter.countDown()
+        }
+    }
+
     @Before
     fun setup() {
         WindowInsetsHolder.setUseTestInsets(true)
+        finishLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            rule.activity.lifecycle.addObserver(observer)
+        }
     }
 
     @After
     fun teardown() {
         WindowInsetsHolder.setUseTestInsets(false)
+        rule.runOnUiThread {
+            rule.activity.finish()
+        }
+        assertThat(finishLatch.await(1, TimeUnit.SECONDS)).isTrue()
     }
 
     @Test
@@ -346,7 +368,9 @@ class WindowInsetsPaddingTest {
 
         setContent {
             with(LocalDensity.current) {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+                ) {
                     Box(
                         Modifier
                             .fillMaxSize()
@@ -386,7 +410,9 @@ class WindowInsetsPaddingTest {
         lateinit var coordinates: LayoutCoordinates
 
         setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+            ) {
                 Box(Modifier.statusBarsPadding()) {
                     Box(Modifier.systemBarsPadding()) {
                         Box(
@@ -421,7 +447,9 @@ class WindowInsetsPaddingTest {
         var top = 0
         var consumingModifier: Modifier by mutableStateOf(Modifier)
         setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
+            ) {
                 Box(consumingModifier) {
                     val density = LocalDensity.current
                     Box(

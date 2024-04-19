@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import androidx.appcompat.test.R;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -42,7 +41,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void setupCallbacks_whenLoading() throws Throwable {
         SwitchCompat emojiEnabled = mActivityTestRule.getActivity()
                 .findViewById(R.id.emoji_enabled);
@@ -57,7 +55,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void dontSetupCallbacks_whenDisabled() throws Throwable {
         SwitchCompat emojiDisabled =
                 mActivityTestRule.getActivity().findViewById(R.id.emoji_disabled);
@@ -72,7 +69,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void noInteractions_whenDisnabled_andRepeatedShowText() {
         SwitchCompat emojiDisabled =
                 mActivityTestRule.getActivity().findViewById(R.id.emoji_disabled);
@@ -90,7 +86,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void setupCallbacks_whenLoading_andEnabledLate() throws Throwable {
         SwitchCompat emojiDisabled =
                 mActivityTestRule.getActivity().findViewById(R.id.emoji_disabled);
@@ -108,7 +103,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void whenSetShowText_doesTransform() {
         SwitchCompat emojiEnabled =
                 mActivityTestRule.getActivity().findViewById(R.id.emoji_enabled);
@@ -120,7 +114,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void whenSetTextOn_doesTransform() {
         SwitchCompat emojiEnabled =
                 mActivityTestRule.getActivity().findViewById(R.id.emoji_enabled);
@@ -133,7 +126,6 @@ public class SwitchCompatEmojiTest extends
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void whenSetTextOff_doesTransform() {
         SwitchCompat emojiEnabled =
                 mActivityTestRule.getActivity().findViewById(R.id.emoji_enabled);

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -362,7 +363,8 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
+  public Gift fromGenericDocument(GenericDocument genericDoc,
+      Map<String, List<String>> documentClassMap) throws AppSearchException {
     String namespaceConv = genericDoc.getNamespace();
     String idConv = genericDoc.getId();
     long[] collectLongCopy = genericDoc.getPropertyLongArray("collectLong");
@@ -423,7 +425,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (collectGiftCopy != null) {
       collectGiftConv = new ArrayList<>(collectGiftCopy.length);
       for (int i = 0; i < collectGiftCopy.length; i++) {
-        collectGiftConv.add(collectGiftCopy[i].toDocumentClass(Gift.class));
+        collectGiftConv.add(collectGiftCopy[i].toDocumentClass(Gift.class, documentClassMap));
       }
     }
     long[] arrBoxLongCopy = genericDoc.getPropertyLongArray("arrBoxLong");
@@ -492,7 +494,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (arrGiftCopy != null) {
       arrGiftConv = new Gift[arrGiftCopy.length];
       for (int i = 0; i < arrGiftCopy.length; i++) {
-        arrGiftConv[i] = arrGiftCopy[i].toDocumentClass(Gift.class);
+        arrGiftConv[i] = arrGiftCopy[i].toDocumentClass(Gift.class, documentClassMap);
       }
     }
     String[] stringCopy = genericDoc.getPropertyStringArray("string");
@@ -538,7 +540,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     GenericDocument giftCopy = genericDoc.getPropertyDocument("gift");
     Gift giftConv = null;
     if (giftCopy != null) {
-      giftConv = giftCopy.toDocumentClass(Gift.class);
+      giftConv = giftCopy.toDocumentClass(Gift.class, documentClassMap);
     }
     Gift document = new Gift();
     document.namespace = namespaceConv;

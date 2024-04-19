@@ -17,13 +17,9 @@
 package androidx.privacysandbox.sdkruntime.client.loader.storage
 
 import android.content.Context
-import android.os.Build
-import android.os.Build.VERSION_CODES.JELLY_BEAN_MR2
 import android.os.Environment
 import android.os.StatFs
 import android.util.Log
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import java.io.File
 
@@ -107,23 +103,7 @@ internal class CachedLocalSdkStorage private constructor(
     private fun availableBytes(): Long {
         val dataDirectory = Environment.getDataDirectory()
         val statFs = StatFs(dataDirectory.path)
-        if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
-            return Api18Impl.availableBytes(statFs)
-        }
-
-        @Suppress("DEPRECATION")
-        val blockSize = statFs.blockSize.toLong()
-
-        @Suppress("DEPRECATION")
-        val availableBlocks = statFs.availableBlocks.toLong()
-
-        return availableBlocks * blockSize
-    }
-
-    @RequiresApi(JELLY_BEAN_MR2)
-    private object Api18Impl {
-        @DoNotInline
-        fun availableBytes(statFs: StatFs) = statFs.availableBytes
+        return statFs.availableBytes
     }
 
     companion object {

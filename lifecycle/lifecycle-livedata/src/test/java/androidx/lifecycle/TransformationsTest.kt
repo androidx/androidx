@@ -15,280 +15,375 @@
  */
 package androidx.lifecycle
 
-import androidx.arch.core.executor.ArchTaskExecutor.getInstance
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.lifecycle.util.InstantTaskExecutor
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.nullValue
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.only
-import org.mockito.Mockito.reset
-import org.mockito.Mockito.verify
 
 @Suppress("unchecked_cast")
 @RunWith(JUnit4::class)
 class TransformationsTest {
-    private lateinit var owner: TestLifecycleOwner
-
-    @Before
-    fun swapExecutorDelegate() {
-        getInstance().setDelegate(InstantTaskExecutor())
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    @Before
-    fun setup() {
-        owner = TestLifecycleOwner(
-            Lifecycle.State.STARTED,
-            UnconfinedTestDispatcher(null, null)
-        )
+    private val owner = TestLifecycleOwner(coroutineDispatcher = UnconfinedTestDispatcher())
+
+    //region map
+    @Test
+    fun map() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<String>()
+        val observer = TestObserver<Int>()
+
+        val mapLiveData = sourceLiveData.map { it.length }
+        mapLiveData.observe(owner, observer)
+        sourceLiveData.value = "four"
+
+        assertThat(observer.values).containsExactly(4)
     }
 
     @Test
-    fun testMap() {
-        val source: LiveData<String> = MutableLiveData()
-        val mapped = source.map(String::length)
-        val observer = mock(Observer::class.java) as Observer<Int>
-        mapped.observe(owner, observer)
-        source.value = "four"
-        verify(observer).onChanged(4)
+    fun map_initialValueIsSet() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val initialValue = "initialValue"
+        val sourceLiveData = MutableLiveData(initialValue)
+
+        val mapLiveData = sourceLiveData.map { it }
+
+        assertThat(mapLiveData.isInitialized).isTrue()
+        assertThat(mapLiveData.value).isEqualTo(initialValue)
+        assertThat(sourceLiveData.value).isEqualTo(initialValue)
     }
 
     @Test
-    fun testMap_initialValueIsSet() {
-        val initialValue = "value"
-        val source = MutableLiveData(initialValue)
-        val mapped = source.map { it }
-        assertThat(mapped.isInitialized, `is`(true))
-        assertThat(source.value, `is`(initialValue))
-        assertThat(mapped.value, `is`(initialValue))
-    }
+    fun map_initialValueNull() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
 
-    @Test
-    fun testMap_initialValueNull() {
-        val source = MutableLiveData<String?>(null)
+        val sourceLiveData = MutableLiveData<String?>(null)
         val output = "testOutput"
-        val mapped: LiveData<String?> = source.map { output }
-        assertThat(mapped.isInitialized, `is`(true))
-        assertThat(source.value, nullValue())
-        assertThat(mapped.value, `is`(output))
+
+        val mapLiveData = sourceLiveData.map { output }
+
+        assertThat(mapLiveData.isInitialized).isTrue()
+        assertThat(mapLiveData.value).isEqualTo(output)
+        assertThat(sourceLiveData.value).isNull()
     }
 
     @Test
-    fun testSwitchMap() {
-        val trigger: LiveData<Int> = MutableLiveData()
-        val first: LiveData<String> = MutableLiveData()
-        val second: LiveData<String> = MutableLiveData()
-        val result = trigger.switchMap { input ->
-            if (input == 1) {
-                first
-            } else {
-                second
-            }
-        }
-        val observer = mock(Observer::class.java) as Observer<String>
-        result.observe(owner, observer)
-        verify(observer, never()).onChanged(anyString())
-        first.value = "first"
-        trigger.value = 1
-        verify(observer).onChanged("first")
-        second.value = "second"
-        reset(observer)
-        verify(observer, never()).onChanged(anyString())
-        trigger.value = 2
-        verify(observer).onChanged("second")
-        reset(observer)
-        first.value = "failure"
-        verify(observer, never()).onChanged(anyString())
-    }
+    fun map_createsOnBackgroundThread() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskOnBackgroundTaskExecutor())
 
-    @Test
-    fun testSwitchMap2() {
-        val trigger: LiveData<Int> = MutableLiveData()
-        val first: LiveData<String> = MutableLiveData()
-        val second: LiveData<String> = MutableLiveData()
-        val result = trigger.switchMap { input: Int ->
-            if (input == 1) {
-                first
-            } else {
-                second
-            }
-        }
-        val observer = mock(Observer::class.java) as Observer<String>
-        result.observe(owner, observer)
-        verify(observer, never()).onChanged(anyString())
-        trigger.value = 1
-        verify(observer, never()).onChanged(anyString())
-        first.value = "fi"
-        verify(observer).onChanged("fi")
-        first.value = "rst"
-        verify(observer).onChanged("rst")
-        second.value = "second"
-        reset(observer)
-        verify(observer, never()).onChanged(anyString())
-        trigger.value = 2
-        verify(observer).onChanged("second")
-        reset(observer)
-        first.value = "failure"
-        verify(observer, never()).onChanged(anyString())
-    }
-
-    @Test
-    fun testSwitchMap_initialValueSet() {
-        val initialValue1 = "value1"
-        val original = MutableLiveData(true)
-        val source1 = MutableLiveData(initialValue1)
-
-        val switched = original.switchMap { source1 }
-        assertThat(switched.isInitialized, `is`(true))
-        assertThat(source1.value, `is`(initialValue1))
-        assertThat(switched.value, `is`(initialValue1))
-    }
-
-    @Test
-    fun testSwitchMap_noInitialValue_notInitialized() {
-        val original = MutableLiveData(true)
-        val source = MutableLiveData<String>()
-
-        val switched = original.switchMap { source }
-        assertThat(switched.isInitialized, `is`(false))
-    }
-
-    @Test
-    fun testSwitchMap_initialValueNull() {
-        val original = MutableLiveData<String?>(null)
-        val source = MutableLiveData<String?>()
-
-        val switched = original.switchMap { source }
-        assertThat(switched.isInitialized, `is`(false))
-    }
-
-    @Test
-    fun testSwitchMap_sameLiveData() {
         val initialValue = "value"
+        val sourceLiveData = MutableLiveData(initialValue)
+
+        val mapLiveData = sourceLiveData.map { "mapped $it" }
+
+        assertThat(mapLiveData.isInitialized).isTrue()
+        assertThat(mapLiveData.value).isEqualTo("mapped $initialValue")
+        assertThat(sourceLiveData.value).isEqualTo(initialValue)
+    }
+
+    @Test
+    fun map_observesOnBackgroundThread_throwsException() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskOnBackgroundTaskExecutor())
+
+        val sourceLiveData = MutableLiveData("value")
+        val observer = TestObserver<String>()
+
+        val mapLiveData = sourceLiveData.map { "mapped $it" }
+        val error = runCatching { mapLiveData.observe(owner, observer) }.exceptionOrNull()
+
+        with(assertThat(error)) {
+            isInstanceOf(IllegalStateException::class.java)
+            hasMessageThat().isEqualTo("Cannot invoke observe on a background thread")
+        }
+    }
+
+    @Test
+    fun map_noObsoleteValue() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<Int>()
+        val mapLiveData = sourceLiveData.map { value: Int -> value * value }
+        val observer = TestObserver<Int>()
+
+        mapLiveData.value = 1
+        mapLiveData.observeForever(observer)
+        mapLiveData.removeObserver(observer)
+        sourceLiveData.value = 2
+        mapLiveData.observeForever(observer)
+
+        assertThat(observer.values).containsExactly(1, 4)
+    }
+    //endregion
+
+    //region switchMap
+    @Test
+    fun switchMap() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<Int>()
+        val firstLiveData = MutableLiveData<String>()
+        val secondLiveData = MutableLiveData<String>()
+        val observer = TestObserver<String>()
+
+        val switchLiveData = sourceLiveData.switchMap { input ->
+            if (input == 1) firstLiveData else secondLiveData
+        }
+        switchLiveData.observe(owner, observer)
+
+        firstLiveData.value = "first"
+        sourceLiveData.value = 1
+        secondLiveData.value = "second"
+        sourceLiveData.value = 2
+        firstLiveData.value = "failure"
+
+        assertThat(observer.values).containsExactly("first", "second")
+    }
+
+    @Test
+    fun switchMap_initialValueSet() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val initialValue = "initialValue"
+        val sourceLiveData = MutableLiveData(true)
+        val anotherLiveData = MutableLiveData(initialValue)
+
+        val switchMapLiveData = sourceLiveData.switchMap { anotherLiveData }
+
+        assertThat(switchMapLiveData.isInitialized).isTrue()
+        assertThat(switchMapLiveData.value).isEqualTo(initialValue)
+        assertThat(anotherLiveData.value).isEqualTo(initialValue)
+    }
+
+    @Test
+    fun switchMap_noInitialValue_notInitialized() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData(true)
+        val anotherLiveData = MutableLiveData<String>()
+
+        val switchMapLiveData = sourceLiveData.switchMap { anotherLiveData }
+
+        assertThat(switchMapLiveData.isInitialized).isFalse()
+    }
+
+    @Test
+    fun switchMap_initialValueNull() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<String?>(null)
+        val anotherLiveData = MutableLiveData<String?>()
+
+        val switchMapLiveData = sourceLiveData.switchMap { anotherLiveData }
+
+        assertThat(switchMapLiveData.isInitialized).isFalse()
+    }
+
+    @Test
+    fun switchMap_sameLiveData() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val initialValue = "initialValue"
         val modifiedValue = "modifiedValue"
-        val observer = mock(Observer::class.java) as Observer<in String?>
-        val original = MutableLiveData(true)
-        val source = MutableLiveData(initialValue)
-        val switchMapLiveData = original.switchMap { source }
+        val observer = TestObserver<String?>()
+        val sourceLiveData = MutableLiveData(true)
+        val anotherLiveData = MutableLiveData(initialValue)
+
+        val switchMapLiveData = sourceLiveData.switchMap { anotherLiveData }
         switchMapLiveData.observe(owner, observer)
-        source.value = modifiedValue
-        verify(observer).onChanged(modifiedValue)
-        assertThat(switchMapLiveData.value, `is`(modifiedValue))
+
+        anotherLiveData.value = modifiedValue
+
+        assertThat(switchMapLiveData.value).isEqualTo(modifiedValue)
+        assertThat(observer.values).containsExactly(initialValue, modifiedValue)
     }
 
     @Test
-    fun testNoRedispatchSwitchMap() {
-        val trigger: LiveData<Int> = MutableLiveData()
-        val first: LiveData<String> = MutableLiveData()
-        val result = trigger.switchMap { first }
-        val observer = mock(Observer::class.java) as Observer<String>
-        result.observe(owner, observer)
-        verify(observer, never()).onChanged(anyString())
-        first.value = "first"
-        trigger.value = 1
-        verify(observer).onChanged("first")
-        reset(observer)
-        trigger.value = 2
-        verify(observer, never()).onChanged(anyString())
+    fun switchMap_noRedispatch() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<Int>()
+        val anotherLiveData = MutableLiveData<String>()
+        val observer = TestObserver<String>()
+
+        val switchMapLiveData = sourceLiveData.switchMap { anotherLiveData }
+        switchMapLiveData.observe(owner, observer)
+
+        anotherLiveData.value = "first"
+        sourceLiveData.value = 1
+        sourceLiveData.value = 2
+
+        assertThat(observer.values).containsExactly("first")
     }
 
     @Test
-    fun testSwitchMapToNull() {
-        val trigger: LiveData<Int> = MutableLiveData()
-        val first: LiveData<String> = MutableLiveData()
-        val result = trigger.switchMap { input: Int ->
-            if (input == 1) {
-                first
-            } else {
-                null
-            }
+    fun switchMap_toNull() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<Int>()
+        val anotherLiveData = MutableLiveData<String>()
+        val observer = TestObserver<String>()
+
+        val switchMapLiveData = sourceLiveData.switchMap { input: Int ->
+            if (input == 1) anotherLiveData else null
         }
-        val observer = mock(Observer::class.java) as Observer<String>
-        result.observe(owner, observer)
-        verify(observer, never()).onChanged(anyString())
-        first.value = "first"
-        trigger.value = 1
-        verify(observer).onChanged("first")
-        reset(observer)
-        trigger.value = 2
-        verify(observer, never()).onChanged(anyString())
-        assertThat(first.hasObservers(), `is`(false))
+        switchMapLiveData.observe(owner, observer)
+
+        anotherLiveData.value = "first"
+        sourceLiveData.value = 1
+        sourceLiveData.value = 2
+
+        assertThat(anotherLiveData.hasObservers()).isFalse()
+        assertThat(observer.values).containsExactly("first")
     }
 
     @Test
-    fun noObsoleteValueTest() {
-        val numbers = MutableLiveData<Int>()
-        val squared = numbers.map { input: Int -> input * input }
-        val observer = mock(Observer::class.java) as Observer<Int>
-        squared.value = 1
-        squared.observeForever(observer)
-        verify(observer).onChanged(1)
-        squared.removeObserver(observer)
-        reset(observer)
-        numbers.value = 2
-        squared.observeForever(observer)
-        verify(observer, only()).onChanged(4)
+    fun switchMap_createsOnBackgroundThread() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskOnBackgroundTaskExecutor())
+
+        val initialValue = "initialValue"
+        val sourceLiveData = MutableLiveData(true)
+        val anotherLiveData = MutableLiveData(initialValue)
+
+        val switchMapLiveData = sourceLiveData.switchMap { anotherLiveData }
+
+        assertThat(switchMapLiveData.isInitialized).isTrue()
+        assertThat(switchMapLiveData.value).isEqualTo(initialValue)
     }
 
     @Test
-    fun testDistinctUntilChanged_initialValueIsSet() {
-        val originalLiveData = MutableLiveData("value")
-        val newLiveData = originalLiveData.distinctUntilChanged()
-        assertThat(newLiveData.value, `is`("value"))
-        val observer = CountingObserver<String>()
-        newLiveData.observe(owner, observer)
-        assertThat(observer.timesUpdated, `is`(1))
-        assertThat(newLiveData.value, `is`("value"))
+    fun switchMap_observesOnBackgroundThread_throwsException() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskOnBackgroundTaskExecutor())
+
+        val initialValue = "initialValue"
+        val sourceLiveData = MutableLiveData(true)
+        val anotherLiveData = MutableLiveData(initialValue)
+        val observer = TestObserver<String>()
+
+        val mapLiveData = sourceLiveData.switchMap { anotherLiveData }
+        val error = runCatching { mapLiveData.observe(owner, observer) }.exceptionOrNull()
+
+        with(assertThat(error)) {
+            isInstanceOf(IllegalStateException::class.java)
+            hasMessageThat().isEqualTo("Cannot invoke observe on a background thread")
+        }
+    }
+    //endregion
+
+    //region distinctUntilChanged
+    @Test
+    fun distinctUntilChanged_initialValueIsSet() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData("value")
+        val observer = TestObserver<String>()
+
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+        distinctLiveData.observe(owner, observer)
+
+        assertThat(observer.values).containsExactly("value")
+        assertThat(distinctLiveData.value).isEqualTo("value")
     }
 
     @Test
-    fun testDistinctUntilChanged_triggersOnInitialNullValue() {
-        val originalLiveData = MutableLiveData<String?>()
-        originalLiveData.value = null
-        val newLiveData = originalLiveData.distinctUntilChanged()
-        assertThat(newLiveData.value, `is`(nullValue()))
-        val observer = CountingObserver<String?>()
-        newLiveData.observe(owner, observer)
-        assertThat(observer.timesUpdated, `is`(1))
-        assertThat(newLiveData.value, `is`(nullValue()))
+    fun distinctUntilChanged_onInitialNullValue_triggersObserver() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<String?>(null)
+        val observer = TestObserver<String?>()
+
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+        distinctLiveData.observe(owner, observer)
+
+        assertThat(observer.values).containsExactly(null)
+        assertThat(distinctLiveData.value).isNull()
     }
 
     @Test
-    fun testDistinctUntilChanged_copiesValues() {
-        val originalLiveData = MutableLiveData<String>()
-        val newLiveData = originalLiveData.distinctUntilChanged()
-        assertThat(newLiveData.value, `is`(nullValue()))
-        val observer = CountingObserver<String>()
-        newLiveData.observe(owner, observer)
-        assertThat(observer.timesUpdated, `is`(0))
-        val value = "new value"
-        originalLiveData.value = value
-        assertThat(newLiveData.value, `is`(value))
-        assertThat(observer.timesUpdated, `is`(1))
-        originalLiveData.value = value
-        assertThat(newLiveData.value, `is`(value))
-        assertThat(observer.timesUpdated, `is`(1))
-        val newerValue = "newer value"
-        originalLiveData.value = newerValue
-        assertThat(newLiveData.value, `is`(newerValue))
-        assertThat(observer.timesUpdated, `is`(2))
-        newLiveData.removeObservers(owner)
+    fun distinctUntilChanged_initialNullValue() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<String>()
+        val observer = TestObserver<String>()
+
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+        distinctLiveData.observe(owner, observer)
+
+        assertThat(distinctLiveData.value).isNull()
     }
 
-    private class CountingObserver<T> : Observer<T> {
-        var timesUpdated = 0
+    @Test
+    fun distinctUntilChanged_filtersValueRepetitions() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData<String>()
+        val observer = TestObserver<String>()
+
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+        distinctLiveData.observe(owner, observer)
+
+        sourceLiveData.value = "new value"
+        sourceLiveData.value = "new value"
+        sourceLiveData.value = "newer value"
+
+        assertThat(observer.values).containsExactly("new value", "newer value")
+    }
+
+    @Test
+    fun distinctUntilChanged_createsOnBackgroundThread() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskOnBackgroundTaskExecutor())
+
+        val sourceLiveData = MutableLiveData("value")
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+
+        assertThat(distinctLiveData.value).isEqualTo("value")
+    }
+
+    @Test
+    fun distinctUntilChanged_observesOnMainThread() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
+
+        val sourceLiveData = MutableLiveData("value")
+        val observer = TestObserver<String>()
+
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+        distinctLiveData.observe(owner, observer)
+
+        assertThat(observer.values.size).isEqualTo(1)
+        assertThat(distinctLiveData.value).isEqualTo("value")
+    }
+
+    @Test
+    fun distinctUntilChanged_observesOnBackgroundThread_throwsException() {
+        ArchTaskExecutor.getInstance().setDelegate(InstantTaskOnBackgroundTaskExecutor())
+
+        val sourceLiveData = MutableLiveData("value")
+        val observer = TestObserver<String>()
+
+        val distinctLiveData = sourceLiveData.distinctUntilChanged()
+        val error = runCatching { distinctLiveData.observe(owner, observer) }.exceptionOrNull()
+
+        with(assertThat(error)) {
+            isInstanceOf(IllegalStateException::class.java)
+            hasMessageThat().isEqualTo("Cannot invoke observe on a background thread")
+        }
+    }
+    //endregion
+
+    private class TestObserver<T>(val values: MutableList<T> = mutableListOf()) : Observer<T> {
         override fun onChanged(value: T) {
-            ++timesUpdated
+            values += value
         }
+    }
+
+    private class InstantTaskOnBackgroundTaskExecutor : InstantTaskExecutor() {
+        override fun isMainThread(): Boolean = false
     }
 }

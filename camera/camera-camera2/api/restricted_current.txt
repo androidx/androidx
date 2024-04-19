@@ -40,7 +40,7 @@ package androidx.camera.camera2.interop {
     method public <ValueT> ValueT? getCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);
   }
 
-  @RequiresApi(21) public static final class CaptureRequestOptions.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.camera2.interop.CaptureRequestOptions> {
+  @RequiresApi(21) public static final class CaptureRequestOptions.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.camera2.interop.CaptureRequestOptions!> {
     ctor public CaptureRequestOptions.Builder();
     method public androidx.camera.camera2.interop.CaptureRequestOptions build();
     method public <ValueT> androidx.camera.camera2.interop.CaptureRequestOptions.Builder clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT!>);

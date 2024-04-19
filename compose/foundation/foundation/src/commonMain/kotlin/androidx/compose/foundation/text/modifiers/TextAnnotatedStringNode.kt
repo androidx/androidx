@@ -64,7 +64,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Node that implements Text for [AnnotatedString] or [onTextLayout] parameters.
@@ -81,9 +81,11 @@ internal class TextAnnotatedStringNode(
     private var placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private var onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
-    private var overrideColor: ColorProducer? = null
+    private var overrideColor: ColorProducer? = null,
+    private var onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
-    private var baselineCache: Map<AlignmentLine, Int>? = null
+    @Suppress("PrimitiveInCollection")
+    private var baselineCache: MutableMap<AlignmentLine, Int>? = null
 
     private var _layoutCache: MultiParagraphLayoutCache? = null
     private val layoutCache: MultiParagraphLayoutCache
@@ -131,10 +133,19 @@ internal class TextAnnotatedStringNode(
      * Element has text parameters to update
      */
     fun updateText(text: AnnotatedString): Boolean {
-        if (this.text == text) return false
-        this.text = text
-        clearSubstitution()
-        return true
+        val charDiff = this.text.text != text.text
+        val spanDiff = this.text.spanStyles != text.spanStyles
+        val paragraphDiff = this.text.paragraphStyles != text.paragraphStyles
+        val annotationDiff = !this.text.hasEqualsAnnotations(text)
+        val anyDiff = charDiff || spanDiff || paragraphDiff || annotationDiff
+
+        if (anyDiff) {
+            this.text = text
+        }
+        if (charDiff) {
+            clearSubstitution()
+        }
+        return anyDiff
     }
 
     /**
@@ -193,22 +204,28 @@ internal class TextAnnotatedStringNode(
     fun updateCallbacks(
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
-        selectionController: SelectionController?
+        selectionController: SelectionController?,
+        onShowTranslation: ((TextSubstitutionValue) -> Unit)?
     ): Boolean {
         var changed = false
 
-        if (this.onTextLayout != onTextLayout) {
+        if (this.onTextLayout !== onTextLayout) {
             this.onTextLayout = onTextLayout
             changed = true
         }
 
-        if (this.onPlaceholderLayout != onPlaceholderLayout) {
+        if (this.onPlaceholderLayout !== onPlaceholderLayout) {
             this.onPlaceholderLayout = onPlaceholderLayout
             changed = true
         }
 
         if (this.selectionController != selectionController) {
             this.selectionController = selectionController
+            changed = true
+        }
+
+        if (this.onShowTranslation !== onShowTranslation) {
+            this.onShowTranslation = onShowTranslation
             changed = true
         }
         return changed
@@ -223,14 +240,7 @@ internal class TextAnnotatedStringNode(
         layoutChanged: Boolean,
         callbacksChanged: Boolean
     ) {
-        if (!isAttached) {
-            // no-up for !isAttached. The node will invalidate when attaching again.
-            return
-        }
-        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
-            invalidateSemantics()
-        }
-
+        // bring caches up to date even if the node is detached in case it is used again later
         if (textChanged || layoutChanged || callbacksChanged) {
             layoutCache.update(
                 text = text,
@@ -242,6 +252,17 @@ internal class TextAnnotatedStringNode(
                 minLines = minLines,
                 placeholders = placeholders
             )
+        }
+
+        if (!isAttached) {
+            // no-up for !isAttached. The node will invalidate when attaching again.
+            return
+        }
+        if (textChanged || (drawChanged && semanticsTextLayoutResult != null)) {
+            invalidateSemantics()
+        }
+
+        if (textChanged || layoutChanged || callbacksChanged) {
             invalidateMeasurement()
             invalidateDraw()
         }
@@ -260,9 +281,9 @@ internal class TextAnnotatedStringNode(
         // TODO(b/283944749): add animation
     )
 
-    private var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
+    internal var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
 
-    private fun setSubstitution(updatedText: AnnotatedString): Boolean {
+    internal fun setSubstitution(updatedText: AnnotatedString): Boolean {
         val currentTextSubstitution = textSubstitution
         if (currentTextSubstitution != null) {
             if (updatedText == currentTextSubstitution.substitution) {
@@ -298,7 +319,7 @@ internal class TextAnnotatedStringNode(
         return true
     }
 
-    private fun clearSubstitution() {
+    internal fun clearSubstitution() {
         textSubstitution = null
     }
 
@@ -339,6 +360,8 @@ internal class TextAnnotatedStringNode(
 
         setTextSubstitution { updatedText ->
             setSubstitution(updatedText)
+            // TODO: add test to cover the immediate semantics invalidation
+            invalidateSemantics()
 
             true
         }
@@ -346,6 +369,7 @@ internal class TextAnnotatedStringNode(
             if (this@TextAnnotatedStringNode.textSubstitution == null) {
                 return@showTextSubstitution false
             }
+            onShowTranslation?.invoke(this@TextAnnotatedStringNode.textSubstitution!!)
 
             this@TextAnnotatedStringNode.textSubstitution?.isShowingSubstitution = it
 
@@ -366,6 +390,9 @@ internal class TextAnnotatedStringNode(
         }
         getTextLayoutResult(action = localSemanticsTextLayoutResult)
     }
+
+    override val shouldClearDescendantSemantics: Boolean
+        get() = true
 
     fun measureNonExtension(
         measureScope: MeasureScope,
@@ -394,10 +421,12 @@ internal class TextAnnotatedStringNode(
             invalidateLayer()
             onTextLayout?.invoke(textLayoutResult)
             selectionController?.updateTextLayout(textLayoutResult)
-            baselineCache = mapOf(
-                FirstBaseline to textLayoutResult.firstBaseline.roundToInt(),
-                LastBaseline to textLayoutResult.lastBaseline.roundToInt()
-            )
+
+            @Suppress("PrimitiveInCollection")
+            val cache = baselineCache ?: LinkedHashMap(2)
+            cache[FirstBaseline] = textLayoutResult.firstBaseline.fastRoundToInt()
+            cache[LastBaseline] = textLayoutResult.lastBaseline.fastRoundToInt()
+            baselineCache = cache
         }
 
         // first share the placeholders
@@ -405,9 +434,9 @@ internal class TextAnnotatedStringNode(
 
         // then allow children to measure _inside_ our final box, with the above placeholders
         val placeable = measurable.measure(
-            Constraints.fixed(
-                textLayoutResult.size.width,
-                textLayoutResult.size.height
+            Constraints.fixedCoerceHeightAndWidthForBits(
+                width = textLayoutResult.size.width,
+                height = textLayoutResult.size.height
             )
         )
 
@@ -416,7 +445,6 @@ internal class TextAnnotatedStringNode(
             textLayoutResult.size.height,
             baselineCache!!
         ) {
-            // this is basically a graphicsLayer
             placeable.place(0, 0)
         }
     }
@@ -481,6 +509,7 @@ internal class TextAnnotatedStringNode(
             // no-up for !isAttached. The node will invalidate when attaching again.
             return
         }
+
         selectionController?.draw(this)
         drawIntoCanvas { canvas ->
             val layoutCache = getLayoutCache(this)
@@ -531,9 +560,18 @@ internal class TextAnnotatedStringNode(
                     canvas.restore()
                 }
             }
-        }
-        if (!placeholders.isNullOrEmpty()) {
-            drawContent()
+
+            // draw inline content and links indication
+            val hasLinks = if (textSubstitution?.isShowingSubstitution == true) {
+                false
+            } else {
+                text.hasLinks()
+            }
+            if (hasLinks || !placeholders.isNullOrEmpty()) {
+                drawContent()
+            }
         }
     }
 }
+
+internal fun AnnotatedString.hasLinks() = hasLinkAnnotations(0, length)

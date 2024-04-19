@@ -29,11 +29,13 @@ import androidx.graphics.shapes.CornerRounding.Companion.Unrounded
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
+import androidx.graphics.shapes.pill
+import androidx.graphics.shapes.pillStar
 import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
 import androidx.graphics.shapes.transformed
 
-class ShapeActivity : Activity() {
+open class ShapeActivity : Activity() {
 
     val shapes = mutableListOf<RoundedPolygon>()
 
@@ -77,7 +79,7 @@ class ShapeActivity : Activity() {
         return view
     }
 
-    private fun setupShapes() {
+    internal open fun setupShapes() {
         // Note: all RoundedPolygon(4) shapes are placeholders for shapes not yet handled
         val matrix1 = Matrix().apply { setRotate(-45f) }
         val matrix2 = Matrix().apply { setRotate(45f) }
@@ -145,18 +147,29 @@ class ShapeActivity : Activity() {
             innerRounding = Unrounded))
         shapes.add(RoundedPolygon(3))
 
+        // Pills
+        shapes.add(RoundedPolygon.pill())
+        shapes.add(RoundedPolygon.pill(15f, 1f))
+        shapes.add(RoundedPolygon.pillStar())
+        shapes.add(RoundedPolygon.pillStar(numVerticesPerRadius = 10,
+            rounding = CornerRounding(.5f)
+        ))
+        shapes.add(RoundedPolygon.pillStar(numVerticesPerRadius = 10,
+            rounding = CornerRounding(.5f), innerRadiusRatio = .5f,
+            innerRounding = CornerRounding(.2f)))
+
         prevShape = shapes[0]
         currShape = shapes[0]
     }
 
     private fun addShapeViews(container: ViewGroup) {
-        val WIDTH = 200
-        val HEIGHT = 200
+        val WIDTH = 170
+        val HEIGHT = 170
 
         var shapeIndex = 0
         var row: LinearLayout? = null
         while (shapeIndex < shapes.size) {
-            if (shapeIndex % 5 == 0) {
+            if (shapeIndex % 6 == 0) {
                 row = LinearLayout(this)
                 val layoutParams = LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)

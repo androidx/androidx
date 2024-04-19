@@ -45,13 +45,7 @@ internal abstract class LazyGridMeasuredLineProvider(
         }
     }
 
-    fun itemConstraints(itemIndex: Int): Constraints {
-        val span = spanLayoutProvider.spanOf(
-            itemIndex,
-            spanLayoutProvider.slotsPerLine
-        )
-        return childConstraints(0, span)
-    }
+    fun spanOf(index: Int): Int = spanLayoutProvider.spanOf(index, spanLayoutProvider.slotsPerLine)
 
     /**
      * Used to subcompose items on lines of lazy grids. Composed placeables will be measured
@@ -76,9 +70,11 @@ internal abstract class LazyGridMeasuredLineProvider(
             val span = lineConfiguration.spans[it].currentLineSpan
             val constraints = childConstraints(startSlot, span)
             measuredItemProvider.getAndMeasure(
-                lineConfiguration.firstItemIndex + it,
-                mainAxisSpacing,
-                constraints
+                index = lineConfiguration.firstItemIndex + it,
+                constraints = constraints,
+                lane = startSlot,
+                span = span,
+                mainAxisSpacing = mainAxisSpacing
             ).also { startSlot += span }
         }
         return createLine(

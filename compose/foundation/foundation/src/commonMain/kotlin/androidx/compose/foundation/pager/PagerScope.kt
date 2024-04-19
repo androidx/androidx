@@ -16,13 +16,10 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 /**
  * Receiver scope for [Pager].
+ * Note: This is empty now, but we may add new members in the future if needed.
  */
-@ExperimentalFoundationApi
 sealed interface PagerScope
 
-@OptIn(ExperimentalFoundationApi::class)
 internal object PagerScopeImpl : PagerScope

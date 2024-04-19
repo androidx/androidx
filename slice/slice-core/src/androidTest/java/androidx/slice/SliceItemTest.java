@@ -25,7 +25,6 @@ import android.text.Spanned;
 import android.text.style.StyleSpan;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 19)
 public class SliceItemTest {
 
     @Test

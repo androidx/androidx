@@ -278,6 +278,29 @@ public class CaptureConfigTest {
     }
 
     @Test
+    public void postviewEnabledDefaultIsFalse() {
+        // 1. Arrange / Act
+        CaptureConfig captureConfig = new CaptureConfig.Builder().build();
+
+        // 3. Assert
+        assertThat(captureConfig.isPostviewEnabled()).isFalse();
+    }
+
+    @Test
+    public void canSetPostviewEnabled() {
+        // 1. Arrange
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        // 2. Act
+        builder.setPostviewEnabled(true);
+        CaptureConfig captureConfig = builder.build();
+
+        // 3. Assert
+        assertThat(captureConfig.isPostviewEnabled()).isTrue();
+
+    }
+
+    @Test
     public void builderChange_doNotChangeEarlierBuiltInstance() {
         // 1. Arrange
         CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);

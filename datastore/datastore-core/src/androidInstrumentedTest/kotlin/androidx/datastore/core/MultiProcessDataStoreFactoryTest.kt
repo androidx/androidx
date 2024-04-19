@@ -55,7 +55,6 @@ class MultiProcessDataStoreFactoryTest {
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
     }
 
-    @ExperimentalMultiProcessDataStore
     @Test
     fun testNewInstance() = runTest {
         val store = MultiProcessDataStoreFactory.create(
@@ -73,7 +72,6 @@ class MultiProcessDataStoreFactoryTest {
         assertThat(store.data.first()).isEqualTo(expectedByte)
     }
 
-    @ExperimentalMultiProcessDataStore
     @Test
     fun testCorruptionHandlerInstalled() = runTest {
         val valueToReplace = 123.toByte()
@@ -91,7 +89,6 @@ class MultiProcessDataStoreFactoryTest {
         assertThat(store.data.first()).isEqualTo(valueToReplace)
     }
 
-    @ExperimentalMultiProcessDataStore
     @Test
     fun testMigrationsInstalled() = runTest {
         val migratedByte = 1

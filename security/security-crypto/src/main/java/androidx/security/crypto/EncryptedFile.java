@@ -16,8 +16,6 @@
 
 package androidx.security.crypto;
 
-import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.annotation.SuppressLint;
@@ -85,7 +83,10 @@ import java.security.GeneralSecurityException;
  *  // read the encrypted file
  *  FileInputStream encryptedInputStream = encryptedFile.openFileInput();
  * </pre>
+ * @deprecated Use {@link java.io.File} instead.
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public final class EncryptedFile {
 
     private static final String KEYSET_PREF_NAME =
@@ -111,7 +112,9 @@ public final class EncryptedFile {
 
     /**
      * The encryption scheme to encrypt files.
+     * @deprecated Use {@link java.io.File} instead.
      */
+    @Deprecated
     public enum FileEncryptionScheme {
         /**
          * The file content is encrypted using StreamingAead with AES-GCM, with the file name as
@@ -136,7 +139,9 @@ public final class EncryptedFile {
 
     /**
      * Builder class to configure EncryptedFile
+     * @deprecated Use {@link java.io.File} instead.
      */
+    @Deprecated
     public static final class Builder {
         private static final Object sLock = new Object();
 
@@ -223,7 +228,7 @@ public final class EncryptedFile {
             AndroidKeysetManager.Builder keysetManagerBuilder = new AndroidKeysetManager.Builder()
                     .withKeyTemplate(mFileEncryptionScheme.getKeyTemplate())
                     .withSharedPref(mContext, mKeysetAlias, mKeysetPrefName)
-                    .withMasterKeyUri(KEYSTORE_PATH_URI + mMasterKeyAlias);
+                    .withMasterKeyUri(MasterKey.KEYSTORE_PATH_URI + mMasterKeyAlias);
 
             // Building the keyset manager involves shared pref filesystem operations. To control
             // access to this global state in multi-threaded contexts we need to ensure mutual

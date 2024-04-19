@@ -98,7 +98,7 @@ public abstract class ParallaxTarget {
      * @param <T> Type of target object.
      * @param <V> Type of value, either Integer or Float.
      */
-    public static final class DirectPropertyTarget<T extends Object, V extends Number>
+    public static final class DirectPropertyTarget<T, V extends Number>
             extends ParallaxTarget {
 
         Object mObject;

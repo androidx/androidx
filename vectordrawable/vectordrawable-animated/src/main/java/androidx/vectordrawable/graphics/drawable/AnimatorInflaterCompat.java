@@ -408,10 +408,6 @@ public class AnimatorInflaterCompat {
                             AndroidResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_NAME);
             oa.setPropertyName(propertyName);
         }
-
-
-        return;
-
     }
 
     private static void setupPathMotion(Path path, ObjectAnimator oa, float precision,

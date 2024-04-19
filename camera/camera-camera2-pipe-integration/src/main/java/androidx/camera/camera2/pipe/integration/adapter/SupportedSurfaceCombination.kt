@@ -50,6 +50,7 @@ import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
+import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil
@@ -258,10 +259,7 @@ class SupportedSurfaceCombination(
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize()
-        val surfaceConfigs: MutableList<SurfaceConfig> = mutableListOf()
-        for (scc in attachedSurfaces) {
-            surfaceConfigs.add(scc.surfaceConfig)
-        }
+
         val newUseCaseConfigs = newUseCaseConfigsSupportedSizeMap.keys.toList()
 
         // Get the index order list by the use case priority for finding stream configuration
@@ -270,54 +268,29 @@ class SupportedSurfaceCombination(
             attachedSurfaces,
             newUseCaseConfigs, useCasesPriorityOrder
         )
-        val requiredMaxBitDepth: Int = getRequiredMaxBitDepth(resolvedDynamicRanges)
-        val featureSettings = FeatureSettings(
-            cameraMode, requiredMaxBitDepth,
+        val featureSettings = createFeatureSettings(
+            cameraMode, resolvedDynamicRanges,
             isPreviewStabilizationOn
         )
-        require(
-            !(cameraMode != CameraMode.DEFAULT &&
-                requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT)
-        ) {
-            "No supported surface combination is " +
-                "found for camera device - Id : $cameraId. 10 bit dynamic range is not " +
-                "currently supported in ${CameraMode.toLabelString(cameraMode)} camera mode."
-        }
-
-        // Use the small size (640x480) for new use cases to check whether there is any possible
-        // supported combination first
-        for (useCaseConfig in newUseCaseConfigs) {
-            surfaceConfigs.add(
-                SurfaceConfig.transformSurfaceConfig(
-                    cameraMode,
-                    useCaseConfig.inputFormat,
-                    RESOLUTION_VGA,
-                    getUpdatedSurfaceSizeDefinitionByFormat(useCaseConfig.inputFormat)
-                )
-            )
-        }
-
-        val containsZsl: Boolean = StreamUseCaseUtil.containsZslUseCase(
+        val isSurfaceCombinationSupported = isUseCasesCombinationSupported(
+            featureSettings,
             attachedSurfaces,
-            newUseCaseConfigs
+            newUseCaseConfigsSupportedSizeMap
         )
-        var orderedSurfaceConfigListForStreamUseCase: List<SurfaceConfig>? =
-            if (isStreamUseCaseSupported && !containsZsl)
-                getOrderedSupportedStreamUseCaseSurfaceConfigList(
-                    featureSettings,
-                    surfaceConfigs
-                ) else null
-
-        val isSurfaceCombinationSupported = checkSupported(featureSettings, surfaceConfigs)
-
-        require(
-            !(orderedSurfaceConfigListForStreamUseCase == null &&
-                !isSurfaceCombinationSupported)
-        ) {
+        require(isSurfaceCombinationSupported) {
             "No supported surface combination is found for camera device - Id : $cameraId. " +
                 "May be attempting to bind too many use cases. Existing surfaces: " +
                 "$attachedSurfaces. New configs: $newUseCaseConfigs."
         }
+
+        // Calculates the target FPS range
+        val targetFpsRange =
+            getTargetFpsRange(attachedSurfaces, newUseCaseConfigs, useCasesPriorityOrder)
+        // Filters the unnecessary output sizes for performance improvement. This will
+        // significantly reduce the number of all possible size arrangements below.
+        val useCaseConfigToFilteredSupportedSizesMap = filterSupportedSizes(
+            newUseCaseConfigsSupportedSizeMap, featureSettings, targetFpsRange
+        )
         // The two maps are used to keep track of the attachedSurfaceInfo or useCaseConfigs the
         // surfaceConfigs are made from. They are populated in getSurfaceConfigListAndFpsCeiling().
         // The keys are the position of their corresponding surfaceConfigs in the list. We can
@@ -329,13 +302,19 @@ class SupportedSurfaceCombination(
         val surfaceConfigIndexUseCaseConfigMap: MutableMap<Int, UseCaseConfig<*>> = mutableMapOf()
         val allPossibleSizeArrangements = getAllPossibleSizeArrangements(
             getSupportedOutputSizesList(
-                newUseCaseConfigsSupportedSizeMap,
+                useCaseConfigToFilteredSupportedSizesMap,
                 newUseCaseConfigs,
                 useCasesPriorityOrder
             )
         )
 
-        if (orderedSurfaceConfigListForStreamUseCase != null) {
+        val containsZsl: Boolean = StreamUseCaseUtil.containsZslUseCase(
+            attachedSurfaces,
+            newUseCaseConfigs
+        )
+        var orderedSurfaceConfigListForStreamUseCase: List<SurfaceConfig>? = null
+        // Only checks the stream use case combination support when ZSL is not required.
+        if (isStreamUseCaseSupported && !containsZsl) {
             orderedSurfaceConfigListForStreamUseCase = getOrderedSurfaceConfigListForStreamUseCase(
                 allPossibleSizeArrangements,
                 attachedSurfaces,
@@ -348,9 +327,7 @@ class SupportedSurfaceCombination(
             )
         }
 
-        val targetFpsRange =
-            getTargetFpsRange(attachedSurfaces, newUseCaseConfigs, useCasesPriorityOrder)
-        val maxSupportedFps = getMaxSupportedFps(attachedSurfaces)
+        val maxSupportedFps = getMaxSupportedFpsFromAttachedSurfaces(attachedSurfaces)
         val bestSizesAndFps = findBestSizesAndFps(
             allPossibleSizeArrangements,
             attachedSurfaces,
@@ -382,6 +359,92 @@ class SupportedSurfaceCombination(
         )
 
         return Pair.create(suggestedStreamSpecMap, attachedSurfaceStreamSpecMap)
+    }
+
+    /**
+     * Creates the feature settings from the related info.
+     *
+     * @param cameraMode               the working camera mode.
+     * @param resolvedDynamicRanges    the resolved dynamic range list of the newly added UseCases
+     * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
+     */
+    private fun createFeatureSettings(
+        @CameraMode.Mode cameraMode: Int,
+        resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
+        isPreviewStabilizationOn: Boolean
+    ): FeatureSettings {
+        val requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges)
+        require(
+            !(cameraMode != CameraMode.DEFAULT &&
+                requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT)
+        ) {
+            "Camera device Id is $cameraId. 10 bit dynamic range is not " +
+                "currently supported in ${CameraMode.toLabelString(cameraMode)} camera mode."
+        }
+        return FeatureSettings(
+            cameraMode,
+            requiredMaxBitDepth,
+            isPreviewStabilizationOn
+        )
+    }
+
+    /**
+     * Checks whether at least a surfaces combination can be supported for the UseCases
+     * combination.
+     *
+     * This function collects the selected surfaces from the existing UseCases and the
+     * surfaces of the smallest available supported sizes from all the new UseCases. Using this
+     * set of surfaces, this function can quickly determine whether at least one surface
+     * combination can be supported for the target UseCases combination.
+     *
+     * This function disregards the stream use case, frame rate, and ZSL factors since they
+     * are not mandatory requirements if no surface combination can satisfy them. The current
+     * algorithm only attempts to identify the optimal surface combination for the given conditions.
+     *
+     * @param featureSettings                   the feature settings which can affect the surface
+     *                                          config transformation or the guaranteed supported
+     *                                          configurations.
+     * @param attachedSurfaces                  the existing surfaces.
+     * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output sizes
+     *                                          map.
+     * @return `true` if at least a surface combination can be supported for the UseCases
+     * combination. Otherwise, returns `false`.
+     */
+    private fun isUseCasesCombinationSupported(
+        featureSettings: FeatureSettings,
+        attachedSurfaces: List<AttachedSurfaceInfo>,
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
+    ): Boolean {
+        val surfaceConfigs = mutableListOf<SurfaceConfig>()
+
+        // Collects the surfaces of the attached UseCases
+        for (attachedSurface: AttachedSurfaceInfo in attachedSurfaces) {
+            surfaceConfigs.add(attachedSurface.getSurfaceConfig())
+        }
+
+        // Collects the surfaces with the smallest available sizes of the newly attached UseCases
+        // to do the quick check that whether at least a surface combination can be supported.
+        val compareSizesByArea = CompareSizesByArea()
+        for (useCaseConfig: UseCaseConfig<*> in newUseCaseConfigsSupportedSizeMap.keys) {
+            val outputSizes = newUseCaseConfigsSupportedSizeMap[useCaseConfig]
+            require(!outputSizes.isNullOrEmpty()) {
+                "No available output size is found for $useCaseConfig."
+            }
+            val minSize = Collections.min(
+                outputSizes,
+                compareSizesByArea
+            )
+            val imageFormat = useCaseConfig.inputFormat
+            surfaceConfigs.add(
+                SurfaceConfig.transformSurfaceConfig(
+                    featureSettings.cameraMode,
+                    imageFormat,
+                    minSize,
+                    getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
+                )
+            )
+        }
+        return checkSupported(featureSettings, surfaceConfigs)
     }
 
     /**
@@ -534,7 +597,7 @@ class SupportedSurfaceCombination(
         return targetFrameRateForConfig
     }
 
-    private fun getMaxSupportedFps(
+    private fun getMaxSupportedFpsFromAttachedSurfaces(
         attachedSurfaces: List<AttachedSurfaceInfo>,
     ): Int {
         var existingSurfaceFrameRateCeiling = Int.MAX_VALUE
@@ -546,6 +609,77 @@ class SupportedSurfaceCombination(
             )
         }
         return existingSurfaceFrameRateCeiling
+    }
+
+    /**
+     * Filters the supported sizes for each use case to keep only one item for each unique config
+     * size and frame rate combination.
+     *
+     * @return the new use case config to the supported sizes map, with the unnecessary sizes
+     * filtered out.
+     */
+    private fun filterSupportedSizes(
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
+        featureSettings: FeatureSettings,
+        targetFpsRange: Range<Int>?
+    ): Map<UseCaseConfig<*>, List<Size>> {
+        val filteredUseCaseConfigToSupportedSizesMap = mutableMapOf<UseCaseConfig<*>, List<Size>>()
+        for (useCaseConfig in newUseCaseConfigsSupportedSizeMap.keys) {
+            val reducedSizeList = mutableListOf<Size>()
+            val configSizeUniqueMaxFpsMap = mutableMapOf<ConfigSize, MutableSet<Int>>()
+            for (size in newUseCaseConfigsSupportedSizeMap[useCaseConfig]!!) {
+                val imageFormat = useCaseConfig.inputFormat
+                val configSize = SurfaceConfig.transformSurfaceConfig(
+                    featureSettings.cameraMode, imageFormat, size,
+                    getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
+                ).configSize
+                // Filters the sizes with frame rate only if there is target FPS setting
+                val maxFrameRate = if (targetFpsRange != null) {
+                    getMaxFrameRate(imageFormat, size)
+                } else {
+                    Int.MAX_VALUE
+                }
+
+                var uniqueMaxFrameRates = configSizeUniqueMaxFpsMap[configSize]
+                // Creates an empty FPS list for the config size when it doesn't exist.
+                if (uniqueMaxFrameRates == null) {
+                    uniqueMaxFrameRates = mutableSetOf()
+                    configSizeUniqueMaxFpsMap[configSize] = uniqueMaxFrameRates
+                }
+                // Adds the size to the result list when there is still no entry for the config
+                // size and frame rate combination.
+                //
+                // An example to explain the filter logic.
+                //
+                // If a UseCase's sorted supported sizes are in the following sequence, the
+                // corresponding config size type and the supported max frame rate are as the
+                // following:
+                //
+                //    4032x3024 => MAXIMUM size, 30 fps
+                //    3840x2160 => RECORD size, 30 fps
+                //    2560x1440 => RECORD size, 30 fps -> can be filtered out
+                //    1920x1080 => PREVIEW size, 60 fps
+                //    1280x720 => PREVIEW size, 60 fps -> can be filtered out
+                //
+                // If 3840x2160 can be used, then it will have higher priority than 2560x1440 to
+                // be used. Therefore, 2560x1440 can be filtered out because they belong to the
+                // same config size type and also have the same max supported frame rate. The same
+                // logic also works for 1920x1080 and 1280x720.
+                //
+                // If there are three UseCases have the same sorted supported sizes list, the
+                // number of possible arrangements can be reduced from 125 (5x5x5) to 27 (3x3x3).
+                // On real devices, more than 20 output sizes might be supported. This filtering
+                // step can possibly reduce the number of possible arrangements from 8000 to less
+                // than 100. Therefore, we can improve the bindToLifecycle function performance
+                // because we can skip a large amount of unnecessary checks.
+                if (!uniqueMaxFrameRates.contains(maxFrameRate)) {
+                    reducedSizeList.add(size)
+                    uniqueMaxFrameRates.add(maxFrameRate)
+                }
+            }
+            filteredUseCaseConfigToSupportedSizesMap[useCaseConfig] = reducedSizeList
+        }
+        return filteredUseCaseConfigToSupportedSizesMap
     }
 
     private fun findBestSizesAndFps(
