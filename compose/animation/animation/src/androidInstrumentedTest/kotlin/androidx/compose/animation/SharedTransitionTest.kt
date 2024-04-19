@@ -29,16 +29,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +71,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -79,6 +84,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2568,6 +2574,139 @@ class SharedTransitionTest {
         }
         isSquare = !isSquare
         rule.waitForIdle()
+    }
+
+    sealed class Screen {
+        abstract val key: Int
+
+        object List : Screen() {
+            override val key = 1
+        }
+
+        data class Details(val item: Int) : Screen() {
+            override val key = 2
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testRandomScrollingWithInterruption() {
+        @Suppress("PrimitiveInCollection")
+        val colors = listOf(
+            Color(0xffff6f69),
+            Color(0xffffcc5c),
+            Color(0xff2a9d84),
+            Color(0xff264653)
+        )
+        var state by mutableStateOf<Screen>(Screen.List)
+        val lazyListState = LazyListState()
+        rule.setContent {
+            SharedTransitionLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(800.dp)
+            ) {
+                AnimatedContent(state, label = "", contentKey = { it.key },
+                    transitionSpec = {
+                        if (initialState == Screen.List) {
+                            slideInHorizontally { -it } + fadeIn() togetherWith
+                                slideOutHorizontally { it } + fadeOut()
+                        } else {
+                            slideInHorizontally { it } + fadeIn() togetherWith
+                                slideOutHorizontally { -it } + fadeOut()
+                        }
+                    }) {
+                    when (it) {
+                        Screen.List -> {
+                            LazyColumn(state = lazyListState) {
+                                items(50) { item ->
+                                    Row(modifier = Modifier.fillMaxWidth()) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .then(
+                                                    Modifier.sharedElement(
+                                                        rememberSharedContentState(
+                                                            key = "item-image$item"
+                                                        ),
+                                                        this@AnimatedContent,
+                                                    )
+                                                )
+                                                .background(colors[item % 4]),
+                                        )
+                                        Spacer(Modifier.size(15.dp))
+                                        Text("Item $item")
+                                    }
+                                }
+                            }
+                        }
+
+                        is Screen.Details -> {
+                            val item = it.item
+                            Column(modifier = Modifier.fillMaxSize()) {
+                                Box(
+                                    modifier = Modifier
+                                        .sharedElement(
+                                            rememberSharedContentState(key = "item-image$item"),
+                                            this@AnimatedContent,
+                                        )
+                                        .background(colors[item % 4])
+                                        .fillMaxWidth(),
+                                )
+                                Text(
+                                    "Item $item",
+                                    fontSize = 23.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state = Screen.Details(5)
+        repeat(10) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+        state = Screen.List
+        repeat(3) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        repeat(3) {
+            repeat(5) {
+                rule.runOnIdle {
+                    runBlocking {
+                        lazyListState.scrollToItem(it * 10)
+                    }
+                }
+            }
+            rule.mainClock.advanceTimeByFrame()
+            repeat(5) {
+                rule.runOnIdle {
+                    runBlocking {
+                        lazyListState.scrollToItem(40 - it * 10)
+                    }
+                }
+            }
+            rule.mainClock.advanceTimeByFrame()
+            repeat(10) {
+                rule.runOnIdle {
+                    runBlocking {
+                        lazyListState.scrollToItem(it * 5)
+                    }
+                }
+            }
+            rule.mainClock.advanceTimeByFrame()
+            rule.runOnIdle {
+                runBlocking {
+                    lazyListState.scrollToItem(0)
+                }
+            }
+        }
     }
 }
 
