@@ -44,6 +44,6 @@
     <string name="desc_selection_start" msgid="3249210022376857070">"awal pilihan"</string>
     <string name="desc_selection_stop" msgid="2690168835536726898">"akhir pilihan"</string>
     <string name="label_page_range" msgid="8290964180158460076">"<xliff:g id="FIRST">%1$d</xliff:g>-<xliff:g id="LAST">%2$d</xliff:g> / <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
-    <string name="desc_page_range" msgid="5286496438609641577">"halaman <xliff:g id="FIRST">%1$d</xliff:g> hingga <xliff:g id="LAST">%2$d</xliff:g> dari <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
+    <string name="desc_page_range" msgid="5286496438609641577">"halaman <xliff:g id="FIRST">%1$d</xliff:g> sampai <xliff:g id="LAST">%2$d</xliff:g> dari <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"Gambar: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
 </resources>
