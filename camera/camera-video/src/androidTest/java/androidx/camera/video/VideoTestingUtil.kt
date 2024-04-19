@@ -70,6 +70,13 @@ fun assumeSuccessfulSurfaceProcessing() {
     )
 }
 
+fun assumeNotBrokenEmulator() {
+    assumeFalse(
+        "Skip tests for Emulator API 30 crashing issue",
+        Build.MODEL.contains("gphone") && Build.VERSION.SDK_INT == 30
+    )
+}
+
 @RequiresApi(21)
 fun getRotationNeeded(
     videoCapture: VideoCapture<Recorder>,

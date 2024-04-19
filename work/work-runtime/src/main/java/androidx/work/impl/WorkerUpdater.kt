@@ -28,7 +28,7 @@ import androidx.work.WorkRequest
 import androidx.work.executeAsync
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.EnqueueRunnable
-import androidx.work.impl.utils.wrapInConstraintTrackingWorkerIfNeeded
+import androidx.work.impl.utils.wrapWorkSpecIfNeeded
 import androidx.work.launchOperation
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -75,7 +75,7 @@ private fun updateWorkImpl(
             }
         }
 
-        workSpecDao.updateWorkSpec(wrapInConstraintTrackingWorkerIfNeeded(schedulers, updatedSpec))
+        workSpecDao.updateWorkSpec(wrapWorkSpecIfNeeded(schedulers, updatedSpec))
         workTagDao.deleteByWorkSpecId(workSpecId)
         workTagDao.insertTags(workSpecId, tags)
         if (!isEnqueued) {

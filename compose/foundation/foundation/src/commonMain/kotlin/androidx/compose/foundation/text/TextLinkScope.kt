@@ -17,12 +17,19 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,14 +43,11 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.semantics.CustomAccessibilityAction
-import androidx.compose.ui.semantics.customActions
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -59,8 +63,18 @@ internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
  * Therefore this class initialisation should be guarded by the `hasLinks` check.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class TextLinkScope(val text: AnnotatedString) {
+internal class TextLinkScope(internal val initialText: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
+
+    /**
+     * [initialText] with applied links styling to it (i.e. [LinkAnnotation.style],
+     * [LinkAnnotation.hoveredStyle] or [LinkAnnotation.focusedStyle])
+     */
+    internal var text: AnnotatedString = initialText
+
+    // Additional span style annotations applied to the AnnotatedString. These SpanStyles are coming
+    // from LinkAnnotation's style arguments
+    private val annotators = mutableStateListOf<TextAnnotatorScope.() -> Unit>()
 
     // indicates whether the links should be measured or not. The latter needed to handle
     // case where translated string forces measurement before the recomposition. Recomposition in
@@ -132,37 +146,53 @@ internal class TextLinkScope(val text: AnnotatedString) {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun LinksComposables() {
-        val indication = LocalIndication.current
         val uriHandler = LocalUriHandler.current
 
         val links = text.getLinkAnnotations(0, text.length)
         links.fastForEach { range ->
             val shape = shapeForRange(range)
             val clipModifier = shape?.let { Modifier.clip(it) } ?: Modifier
+            val interactionSource = remember { MutableInteractionSource() }
+
             Box(
                 clipModifier
                     .textRange(range.start, range.end)
-                    .semantics {
-                        // TODO(b/139312671) handle Url when replacement API for a link click
-                        //  handler arrives
-                        if (range.item is LinkAnnotation.Clickable) {
-                            customActions = listOf(
-                                // this action will be passed down to the Talkback through the
-                                // ClickableSpan's onClick method
-                                CustomAccessibilityAction("") {
-                                    // TODO(b/139312671) handle this no-op when replacement API for
-                                    //  a link click handler arrives
-                                    true
-                                }
-                            )
-                            textSelectionRange = TextRange(range.start, range.end)
-                        }
-                    }
+                    .hoverable(interactionSource)
                     .pointerHoverIcon(PointerIcon.Hand)
-                    .combinedClickable(null, indication, onClick = {
-                        handleLink(range.item, uriHandler)
-                    })
+                    .combinedClickable(
+                        indication = null,
+                        interactionSource = interactionSource,
+                        onClick = { handleLink(range.item, uriHandler) }
+                    )
             )
+
+            val isHovered by interactionSource.collectIsHoveredAsState()
+            val isFocused by interactionSource.collectIsFocusedAsState()
+            val isPressed by interactionSource.collectIsPressedAsState()
+
+            StyleAnnotation(
+                isHovered,
+                isFocused,
+                isPressed,
+                range.item.style,
+                range.item.focusedStyle,
+                range.item.hoveredStyle,
+                range.item.pressedStyle
+            ) {
+                // we calculate the latest style based on the link state and apply it to the
+                // initialText's style. This allows us to merge the style with the original instead
+                // of fully replacing it
+                val mergedStyle = range.item.style?.merge(
+                    if (isFocused) range.item.focusedStyle else null
+                )?.merge(
+                    if (isHovered) range.item.hoveredStyle else null
+                )?.merge(
+                    if (isPressed) range.item.pressedStyle else null
+                )
+                mergedStyle?.let {
+                    replaceStyle(it, range.start, range.end)
+                }
+            }
         }
     }
 
@@ -171,17 +201,39 @@ internal class TextLinkScope(val text: AnnotatedString) {
         uriHandler: UriHandler
     ) {
         when (link) {
-            is LinkAnnotation.Url -> {
-                try {
-                    uriHandler.openUri(link.url)
-                } catch (_: IllegalArgumentException) {
-                    // we choose to silently fail when the uri can't be opened to avoid crashes
-                    // for users. This is the case where developer don't provide the link
-                    // handlers themselves and therefore I suspect are less likely to test them
-                    // manually.
-                }
+            is LinkAnnotation.Url -> link.linkInteractionListener?.onClicked(link) ?: try {
+                uriHandler.openUri(link.url)
+            } catch (_: IllegalArgumentException) {
+                // we choose to silently fail when the uri can't be opened to avoid crashes
+                // for users. This is the case where developer don't provide the link
+                // handlers themselves and therefore I suspect are less likely to test them
+                // manually.
             }
-            is LinkAnnotation.Clickable -> { /* for now this is a no-op */ }
+            is LinkAnnotation.Clickable -> link.linkInteractionListener?.onClicked(link)
+        }
+    }
+
+    /** Returns [text] with additional styles from [LinkAnnotation] based on link's state */
+    internal fun applyAnnotators(): AnnotatedString {
+        val styledText = if (annotators.isEmpty()) text else buildAnnotatedString {
+            append(initialText)
+            val scope = TextAnnotatorScope(this)
+            annotators.fastForEach {
+                it.invoke(scope)
+            }
+        }
+        text = styledText
+        return styledText
+    }
+
+    /** Adds style annotations to [text]. */
+    @Composable
+    private fun StyleAnnotation(vararg keys: Any?, block: TextAnnotatorScope.() -> Unit) {
+        DisposableEffect(block, *keys) {
+            annotators += block
+            onDispose {
+                annotators -= block
+            }
         }
     }
 }
@@ -212,4 +264,13 @@ internal fun interface TextRangeScopeMeasurePolicy {
 internal class TextRangeLayoutModifier(val measurePolicy: TextRangeScopeMeasurePolicy) :
     ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?) = this@TextRangeLayoutModifier
+}
+
+/**
+ * Provides methods to add styles to text inside a [TextLinkScope.StyleAnnotation] function.
+ */
+private class TextAnnotatorScope(private val builder: AnnotatedString.Builder) {
+    fun replaceStyle(style: SpanStyle, start: Int, end: Int) {
+        builder.addStyle(style, start, end)
+    }
 }

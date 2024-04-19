@@ -598,6 +598,15 @@ class GlanceAppWidgetReceiverScreenshotTest {
     }
 
     @Test
+    fun linearProgressIndicator_colors() {
+        TestGlanceAppWidget.uiDefinition = { LinearProgressIndicatorColorsTest() }
+
+        mHostRule.startHost()
+
+        mScreenshotRule.checkScreenshot(mHostRule.mHostView, "linearProgressIndicator_colors")
+    }
+
+    @Test
     fun buttonTests_createFilledButton() {
         TestGlanceAppWidget.uiDefinition = { ButtonComponentsScreenshotTests.FilledButtonTest() }
         mHostRule.startHost()
@@ -969,6 +978,31 @@ private fun RadioButtonScreenshotTest() {
                 checkedColor = Color.Red,
                 uncheckedColor = Color.Green
             )
+        )
+    }
+}
+
+@Composable
+private fun LinearProgressIndicatorColorsTest() {
+    Column(
+        modifier = GlanceModifier.padding(16.dp)
+            .background(colorProvider = GlanceTheme.colors.widgetBackground)
+    ) {
+        Text("Default colors")
+        LinearProgressIndicator(progress = 0.5f)
+        Spacer(modifier = GlanceModifier.height(8.dp))
+        Text("Colors set to theme")
+        LinearProgressIndicator(
+            progress = 0.5f,
+            color = GlanceTheme.colors.onTertiary,
+            backgroundColor = GlanceTheme.colors.tertiary
+        )
+        Spacer(modifier = GlanceModifier.height(8.dp))
+        Text("Fixed colors")
+        LinearProgressIndicator(
+            progress = 0.5f,
+            color = ColorProvider(Color.Green),
+            backgroundColor = ColorProvider(Color.Gray)
         )
     }
 }

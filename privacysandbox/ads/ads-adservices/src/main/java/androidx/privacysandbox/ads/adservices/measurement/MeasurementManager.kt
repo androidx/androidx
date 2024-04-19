@@ -153,9 +153,13 @@ abstract class MeasurementManager {
                 "AdServicesInfo.version=${AdServicesInfo.adServicesVersion()}")
             return if (AdServicesInfo.adServicesVersion() >= 5) {
                 MeasurementManagerApi33Ext5Impl(context)
-            } else if (AdServicesInfo.extServicesVersion() >= 9) {
+            } else if (AdServicesInfo.extServicesVersionS() >= 9) {
                 BackCompatManager.getManager(context, "MeasurementManager") {
                     MeasurementManagerApi31Ext9Impl(context)
+                }
+            } else if (AdServicesInfo.extServicesVersionR() >= 11) {
+                BackCompatManager.getManager(context, "MeasurementManager") {
+                    MeasurementManagerApi30Ext11Impl(context)
                 }
             } else {
                 null

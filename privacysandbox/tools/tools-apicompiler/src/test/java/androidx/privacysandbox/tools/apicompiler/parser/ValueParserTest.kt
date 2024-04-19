@@ -126,59 +126,6 @@ class ValueParserTest {
     }
 
     @Test
-    fun enumClassWithFields_fails() {
-        val source =
-            annotatedValue(
-                """
-                    enum class MyEnum(val x: Int, val y: String) {
-                        FOO(0, "")
-                    }
-                """
-            )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MyEnum: Enum classes annotated with @PrivacySandboxValue " +
-                "may not declare properties (x, y)"
-        )
-    }
-
-    @Test
-    fun enumClassWithMethods_fails() {
-        val source =
-            annotatedValue(
-                """
-                    enum class HungryState {
-                        HUNGRY, FULL;
-                        abstract fun eat()
-                    }
-                """
-            )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.HungryState: types annotated with @PrivacySandboxValue may " +
-                "not declare methods (eat)"
-        )
-    }
-
-    @Test
-    fun enumClassWithVariantMethods_fails() {
-        val source =
-            annotatedValue(
-                """
-                    @PrivacySandboxValue
-                    enum class Direction {
-                        LEFT {
-                            fun bearing(): Int = 270
-                        },
-                        RIGHT;
-                    }
-                """
-            )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.Direction: types annotated with @PrivacySandboxValue " +
-                "may not declare methods (bearing)"
-        )
-    }
-
-    @Test
     fun enumClassImplementingInterface_fails() {
         val source = Source.kotlin(
             "com/mysdk/MySdk.kt", """
@@ -277,22 +224,6 @@ class ValueParserTest {
                     "annotated with @PrivacySandboxValue, interfaces annotated with " +
                     "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
                     "properties."
-            )
-    }
-
-    @Test
-    fun dataClassWithMethod_fails() {
-        val dataClass = annotatedValue(
-            """
-                |data class MySdkRequest(val id: Int, val data: String) {
-                |   abstract fun sendRequest()
-                |}
-            """.trimMargin()
-        )
-        checkSourceFails(dataClass)
-            .containsExactlyErrors(
-                "Error in com.mysdk.MySdkRequest: types annotated with @PrivacySandboxValue may" +
-                    " not declare methods (sendRequest)"
             )
     }
 

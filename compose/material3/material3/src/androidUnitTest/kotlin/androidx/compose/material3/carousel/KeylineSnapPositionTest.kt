@@ -27,25 +27,34 @@ class KeylineSnapPositionTest {
     @Test
     fun testSnapPosition_forCenterAlignedStrategy() {
         val itemCount = 6
-        val map = calculateSnapPositions(testCenterAlignedStrategy(), itemCount)
+        val strategy = testCenterAlignedStrategy()
         val expectedSnapPositions = arrayListOf(0, 200, 300, 300, 400, 600)
-        repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(expectedSnapPositions[i]) }
+        repeat(itemCount) { i ->
+            assertThat(getSnapPositionOffset(strategy, i, itemCount))
+                .isEqualTo(expectedSnapPositions[i])
+        }
     }
 
     @Test
     fun testSnapPosition_forStartAlignedStrategy() {
         val itemCount = 6
-        val map = calculateSnapPositions(testStartAlignedStrategy(), itemCount)
+        val strategy = testStartAlignedStrategy()
         val expectedSnapPositions = arrayListOf(0, 0, 100, 200, 400, 600)
-        repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(expectedSnapPositions[i]) }
+        repeat(itemCount) { i ->
+            assertThat(getSnapPositionOffset(strategy, i, itemCount))
+                .isEqualTo(expectedSnapPositions[i])
+        }
     }
 
     @Test
     fun testSnapPosition_forStartAlignedStrategyWithMultipleFocal() {
         val itemCount = 5
-        val map = calculateSnapPositions(testStartAlignedStrategyWithMultipleFocal(), itemCount)
+        val strategy = testStartAlignedStrategyWithMultipleFocal()
         val expectedSnapPositions = arrayListOf(0, 0, 75, 200, 200)
-        repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(expectedSnapPositions[i]) }
+        repeat(itemCount) { i ->
+            assertThat(getSnapPositionOffset(strategy, i, itemCount))
+                .isEqualTo(expectedSnapPositions[i])
+        }
     }
 
     @Test
@@ -53,9 +62,11 @@ class KeylineSnapPositionTest {
         val strategy = testStartAlignedStrategyWithMultipleFocal()
         // item count is the number of keylines minus anchor keylines
         val itemCount = strategy.defaultKeylines.size - 2
-        val map = calculateSnapPositions(strategy, itemCount)
         val expectedSnapPositions = arrayListOf(0, 75, 200, 200)
-        repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(expectedSnapPositions[i]) }
+        repeat(itemCount) { i ->
+            assertThat(getSnapPositionOffset(strategy, i, itemCount))
+                .isEqualTo(expectedSnapPositions[i])
+        }
     }
 
     @Test
@@ -64,8 +75,9 @@ class KeylineSnapPositionTest {
         // item count is the number of focal keylines minus one
         val itemCount = strategy.defaultKeylines.lastFocalIndex -
             strategy.defaultKeylines.firstFocalIndex
-        val map = calculateSnapPositions(strategy, itemCount)
-        repeat(itemCount) { i -> assertThat(map[i]).isEqualTo(0) }
+        repeat(itemCount) { i ->
+            assertThat(getSnapPositionOffset(strategy, i, itemCount)).isEqualTo(0)
+        }
     }
 
     // Test strategy that is center aligned and has a complex keyline state, ie:
@@ -97,7 +109,8 @@ class KeylineSnapPositionTest {
             add(xSmallSize, isAnchor = true)
         }
 
-        return Strategy { _, _ -> keylineList }.apply(
+        return Strategy(
+            defaultKeylines = keylineList,
             availableSpace = 1000f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -132,7 +145,8 @@ class KeylineSnapPositionTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        return Strategy { _, _ -> keylineList }.apply(
+        return Strategy(
+            defaultKeylines = keylineList,
             availableSpace = 1000f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -160,7 +174,8 @@ class KeylineSnapPositionTest {
             add(smallSize)
             add(xSmallSize, isAnchor = true)
         }
-        return Strategy { _, _ -> keylineList }.apply(
+        return Strategy(
+            defaultKeylines = keylineList,
             availableSpace = 1000f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,

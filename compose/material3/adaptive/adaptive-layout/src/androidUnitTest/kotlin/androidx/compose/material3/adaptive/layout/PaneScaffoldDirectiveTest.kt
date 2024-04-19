@@ -35,7 +35,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_compactWidth() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(400, 800),
+                WindowSizeClass.compute(400f, 800f),
                 Posture()
             )
         )
@@ -51,7 +51,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_mediumWidth() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(750, 900),
+                WindowSizeClass.compute(750f, 900f),
                 Posture()
             )
         )
@@ -67,7 +67,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_expandedWidth() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(1200, 800),
+                WindowSizeClass.compute(1200f, 800f),
                 Posture()
             )
         )
@@ -83,7 +83,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_tabletop() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(isTabletop = true)
             )
         )
@@ -99,7 +99,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_compactWidth() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(400, 800),
+                WindowSizeClass.compute(400f, 800f),
                 Posture()
             )
         )
@@ -115,7 +115,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_mediumWidth() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(750, 900),
+                WindowSizeClass.compute(750f, 900f),
                 Posture()
             )
         )
@@ -131,7 +131,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_expandedWidth() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(1200, 800),
+                WindowSizeClass.compute(1200f, 800f),
                 Posture()
             )
         )
@@ -147,7 +147,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_tabletop() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(isTabletop = true)
             )
         )
@@ -163,7 +163,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_alwaysAvoidHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.AlwaysAvoid
@@ -176,7 +176,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_avoidOccludingHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidOccluding
@@ -189,7 +189,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_avoidSeparatingHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidSeparating
@@ -202,7 +202,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateStandardPaneScaffoldDirective_neverAvoidHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirective(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.NeverAvoid
@@ -215,7 +215,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_alwaysAvoidHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.AlwaysAvoid
@@ -228,7 +228,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_avoidOccludingHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidOccluding
@@ -241,7 +241,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_avoidSeparatingHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidSeparating
@@ -254,7 +254,7 @@ class PaneScaffoldDirectiveTest {
     fun test_calculateDensePaneScaffoldDirective_neverAvoidHinge() {
         val scaffoldDirective = calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
             WindowAdaptiveInfo(
-                WindowSizeClass(700, 800),
+                WindowSizeClass.compute(700f, 800f),
                 Posture(hingeList = hingeList)
             ),
             HingePolicy.NeverAvoid

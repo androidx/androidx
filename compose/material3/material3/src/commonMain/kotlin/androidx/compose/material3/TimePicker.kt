@@ -647,7 +647,6 @@ class TimePickerState(
     internal var selection by mutableStateOf(Selection.Hour)
     internal var isAfternoonToggle by mutableStateOf(initialHour >= 12 && !is24Hour)
     internal var isInnerCircle by mutableStateOf(initialHour >= 12)
-
     internal var hourAngle by mutableFloatStateOf(
         RadiansPerHour * (initialHour % 12) - FullCircle / 4
     )
@@ -656,17 +655,24 @@ class TimePickerState(
     )
 
     private val mutex = MutatorMutex()
-    private val isAfternoon by derivedStateOf { is24hour && isInnerCircle || isAfternoonToggle }
+    private val isAfternoon
+        get() = is24hour && isInnerCircle || isAfternoonToggle
 
-    internal val currentAngle = Animatable(hourAngle)
+    internal var currentAngle = Animatable(hourAngle)
 
     internal fun setMinute(minute: Int) {
         minuteAngle = RadiansPerMinute * minute - FullCircle / 4
+        if (selection == Selection.Minute) {
+            currentAngle = Animatable(minuteAngle)
+        }
     }
 
     internal fun setHour(hour: Int) {
         isInnerCircle = hour >= 12
         hourAngle = RadiansPerHour * (hour % 12) - FullCircle / 4
+        if (selection == Selection.Hour) {
+            currentAngle = Animatable(hourAngle)
+        }
     }
 
     internal fun moveSelector(x: Float, y: Float, maxDist: Float) {
@@ -674,13 +680,6 @@ class TimePickerState(
             isInnerCircle = dist(x, y, center.x, center.y) < maxDist
         }
     }
-
-    internal fun isSelected(value: Int): Boolean =
-        if (selection == Selection.Minute) {
-            value == minute
-        } else {
-            hour == (value + if (isAfternoon) 12 else 0)
-        }
 
     internal suspend fun update(value: Float, fromTap: Boolean = false) {
         mutex.mutate(MutatePriority.UserInput) {
@@ -833,7 +832,7 @@ private fun TimeInputImpl(
         modifier = modifier.padding(bottom = TimeInputBottomPadding),
         verticalAlignment = Alignment.Top
     ) {
-        val textStyle = MaterialTheme.typography.fromToken(TimeInputTokens.TimeFieldLabelTextFont)
+        val textStyle = TimeInputTokens.TimeFieldLabelTextFont.value
             .copy(
                 textAlign = TextAlign.Center,
                 color = colors.timeSelectorContentColor(true)
@@ -982,7 +981,7 @@ private fun ClockDisplayNumbers(
     colors: TimePickerColors
 ) {
     CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.fromToken(TimeSelectorLabelTextFont),
+        LocalTextStyle provides TimeSelectorLabelTextFont.value,
         // Always display the TimeSelectors from left to right.
         LocalLayoutDirection provides LayoutDirection.Ltr
     ) {
@@ -1488,7 +1487,7 @@ private fun ClockText(
     value: Int,
     autoSwitchToMinute: Boolean
 ) {
-    val style = MaterialTheme.typography.fromToken(ClockDialLabelTextFont)
+    val style = ClockDialLabelTextFont.value
     val maxDist = with(LocalDensity.current) { MaxDistance.toPx() }
     var center by remember { mutableStateOf(Offset.Zero) }
     val scope = rememberCoroutineScope()
@@ -1680,9 +1679,7 @@ private fun TimePickerTextField(
                 }
             ),
             color = TimeInputTokens.TimeFieldSupportingTextColor.value,
-            style = MaterialTheme
-                .typography
-                .fromToken(TimeInputTokens.TimeFieldSupportingTextFont)
+            style = TimeInputTokens.TimeFieldSupportingTextFont.value
         )
     }
 

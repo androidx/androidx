@@ -28,14 +28,15 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.internal.CodepointTransformation
-import androidx.compose.foundation.text.input.internal.mask
 import androidx.compose.foundation.text.input.then
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -105,8 +106,9 @@ import kotlinx.coroutines.flow.consumeAsFlow
  * @param decorator Allows to add decorations around text field, such as icon, placeholder, helper
  * messages or similar, and automatically increase the hit target area of the text field.
  * @param textObfuscationMode Determines the method used to obscure the input text.
+ * @param textObfuscationCharacter Which character to use while obfuscating the text. It doesn't
+ * have an effect when [textObfuscationMode] is set to [TextObfuscationMode.Visible].
  */
-@ExperimentalFoundationApi
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
@@ -125,8 +127,10 @@ fun BasicSecureTextField(
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
     textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
+    textObfuscationCharacter: Char = DefaultObfuscationCharacter,
 ) {
-    val secureTextFieldController = remember { SecureTextFieldController() }
+    val obfuscationMaskState = rememberUpdatedState(textObfuscationCharacter)
+    val secureTextFieldController = remember { SecureTextFieldController(obfuscationMaskState) }
     LaunchedEffect(secureTextFieldController) {
         // start a coroutine that listens for scheduled hide events.
         secureTextFieldController.observeHideEvents()
@@ -138,20 +142,22 @@ fun BasicSecureTextField(
     val revealLastTypedEnabled = textObfuscationMode == TextObfuscationMode.RevealLastTyped
 
     // while toggling between obfuscation methods if the revealing gets disabled, reset the reveal.
-    if (!revealLastTypedEnabled) {
-        secureTextFieldController.passwordInputTransformation.hide()
+    LaunchedEffect(revealLastTypedEnabled) {
+        if (!revealLastTypedEnabled) {
+            secureTextFieldController.passwordInputTransformation.hide()
+        }
     }
 
-    val codepointTransformation = when {
-        revealLastTypedEnabled -> {
-            secureTextFieldController.codepointTransformation
+    val codepointTransformation = remember(textObfuscationMode) {
+        when (textObfuscationMode) {
+            TextObfuscationMode.RevealLastTyped -> {
+                secureTextFieldController.codepointTransformation
+            }
+            TextObfuscationMode.Hidden -> {
+                CodepointTransformation { _, _ -> obfuscationMaskState.value.code }
+            }
+            else -> null
         }
-
-        textObfuscationMode == TextObfuscationMode.Hidden -> {
-            PasswordCodepointTransformation
-        }
-
-        else -> null
     }
 
     val secureTextFieldModifier = modifier
@@ -190,7 +196,20 @@ fun BasicSecureTextField(
     }
 }
 
-internal class SecureTextFieldController {
+/**
+ * Enables chaining nullable transformations with the regular chaining order.
+ */
+private fun InputTransformation?.then(next: InputTransformation?): InputTransformation? {
+    return when {
+        this == null -> next
+        next == null -> this
+        else -> this.then(next)
+    }
+}
+
+internal class SecureTextFieldController(
+    private val obfuscationMaskState: State<Char>
+) {
     /**
      * A special [InputTransformation] that tracks changes to the content to identify the last typed
      * character to reveal. `scheduleHide` lambda is delegated to a member function to be able to
@@ -206,7 +225,7 @@ internal class SecureTextFieldController {
             // reveal the last typed character by not obscuring it
             codepoint
         } else {
-            DEFAULT_OBFUSCATION_MASK.code
+            obfuscationMaskState.value.code
         }
     }
 
@@ -279,10 +298,7 @@ internal class PasswordInputTransformation(
 // adopted from PasswordTransformationMethod from Android platform.
 private const val LAST_TYPED_CHARACTER_REVEAL_DURATION_MILLIS = 1500L
 
-private const val DEFAULT_OBFUSCATION_MASK = '\u2022'
-
-@OptIn(ExperimentalFoundationApi::class)
-private val PasswordCodepointTransformation = CodepointTransformation.mask(DEFAULT_OBFUSCATION_MASK)
+private const val DefaultObfuscationCharacter: Char = '\u2022'
 
 /**
  * Overrides the TextToolbar and keyboard shortcuts to never allow copy or cut options by the

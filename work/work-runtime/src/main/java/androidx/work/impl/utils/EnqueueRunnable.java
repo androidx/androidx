@@ -26,7 +26,7 @@ import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.utils.EnqueueUtilsKt.checkContentUriTriggerWorkerLimits;
-import static androidx.work.impl.utils.EnqueueUtilsKt.wrapInConstraintTrackingWorkerIfNeeded;
+import static androidx.work.impl.utils.EnqueueUtilsKt.wrapWorkSpecIfNeeded;
 
 import android.text.TextUtils;
 
@@ -285,7 +285,7 @@ public class EnqueueRunnable {
             }
 
             workDatabase.workSpecDao().insertWorkSpec(
-                    wrapInConstraintTrackingWorkerIfNeeded(
+                    wrapWorkSpecIfNeeded(
                             workManagerImpl.getSchedulers(),
                             workSpec
                     )

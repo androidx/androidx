@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Placeable
@@ -3860,6 +3861,55 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
     }
 
+    @Test
+    fun dispatchChangesClearsStaleIdsPartialHitWithInvalidHistory() {
+        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
+        val pif1 = PointerInputNodeMock(
+            coordinator = parentLayoutCoordinates
+        )
+        val pif2 = PointerInputNodeMock(
+            coordinator = parentLayoutCoordinates
+        )
+        val pif3 = PointerInputNodeMock(
+            coordinator = parentLayoutCoordinates
+        )
+        val pointerId1 = PointerId(0)
+        val pointerId2 = PointerId(5)
+
+        hitPathTracker.addHitPath(pointerId1, listOf(pif1, pif2, pif3))
+        hitPathTracker.addHitPath(pointerId2, listOf(pif1, pif2))
+
+        val internalPointerEventWithBadHistory = internalPointerEventOf(
+            down(
+                id = 5,
+                historicalData = listOf(
+                    HistoricalChange(
+                        uptimeMillis = 1L,
+                        position = Offset.Unspecified
+                    )
+                )
+            )
+        )
+
+        // Bad history should be ignored and not impact test (or crash test). This not only tests
+        // HitPathTracker's dispatchChanges() but buildCache() as well.
+        hitPathTracker.dispatchChanges(internalPointerEventWithBadHistory)
+
+        val expectedAfterDispatch = NodeParent().apply {
+            children.add(
+                Node(pif1).apply {
+                    pointerIds.add(pointerId2)
+                    children.add(
+                        Node(pif2).apply {
+                            pointerIds.add(pointerId2)
+                        }
+                    )
+                }
+            )
+        }
+        assertThat(areEqual(hitPathTracker.root, expectedAfterDispatch)).isTrue()
+    }
+
     private fun areEqual(actualNode: NodeParent, expectedNode: NodeParent): Boolean {
         var check = true
 
@@ -3953,7 +4003,14 @@ internal class LayoutCoordinatesStub(
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
-    ): Offset = relativeToSource
+    ): Offset {
+        // In normal NodeCoordinator, an invalid Offset will crash the app farther down in the code.
+        // (Specifically, in the Offset class when you try to create a new Offset.)
+        checkPrecondition(relativeToSource.isValid()) {
+            "Offset is unspecified"
+        }
+        return relativeToSource
+    }
 
     override fun localBoundingBoxOf(
         sourceCoordinates: LayoutCoordinates,

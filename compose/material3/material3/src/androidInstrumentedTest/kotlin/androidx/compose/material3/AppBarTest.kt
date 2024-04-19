@@ -160,7 +160,7 @@ class AppBarTest {
                 Text("Title")
                 textStyle = LocalTextStyle.current
                 expectedTextStyle =
-                    MaterialTheme.typography.fromToken(TopAppBarSmallTokens.HeadlineFont)
+                    TopAppBarSmallTokens.HeadlineFont.value
             }
             )
         }
@@ -475,9 +475,7 @@ class AppBarTest {
                     Text("Title")
                     textStyle = LocalTextStyle.current
                     expectedTextStyle =
-                        MaterialTheme.typography.fromToken(
-                            TopAppBarSmallCenteredTokens.HeadlineFont
-                        )
+                            TopAppBarSmallCenteredTokens.HeadlineFont.value
                 }
             )
         }

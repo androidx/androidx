@@ -165,10 +165,13 @@ class ScrollState(initial: Int) : ScrollableState {
 
     override val canScrollBackward: Boolean by derivedStateOf { value > 0 }
 
-    override val isLastScrollForward: Boolean
-        get() = scrollableState.isLastScrollForward
-    override val isLastScrollBackward: Boolean
-        get() = scrollableState.isLastScrollBackward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
 
     /**
      * Scroll to position in pixels with animation.
@@ -456,7 +459,13 @@ internal class ScrollingLayoutNode(
             val absScroll = if (isReversed) scroll - side else -scroll
             val xOffset = if (isVertical) 0 else absScroll
             val yOffset = if (isVertical) absScroll else 0
-            placeable.placeRelativeWithLayer(xOffset, yOffset)
+
+            // Tagging as direct manipulation, such that consumers of this offset can decide whether
+            // to exclude this offset on their coordinates calculation. Such as whether an
+            // `approachLayout` will animate it or directly apply the offset without animation.
+            withDirectManipulationPlacement {
+                placeable.placeRelativeWithLayer(xOffset, yOffset)
+            }
         }
     }
 

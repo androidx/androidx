@@ -1066,6 +1066,7 @@ class AnnotatedStringBuilderTest {
 
     @OptIn(ExperimentalTextApi::class)
     @Test
+    @Suppress("Deprecation")
     fun getAnnotation_separates_urlAnnotation_and_stringAnnotation() {
         val annotation1 = UrlAnnotation("abc")
         val annotation2 = "annotation"
@@ -1099,6 +1100,7 @@ class AnnotatedStringBuilderTest {
 
     @OptIn(ExperimentalTextApi::class)
     @Test
+    @Suppress("Deprecation")
     fun getAnnotation_withTag_withUrlAnnotation_withStringAnnotation() {
         val annotation1 = UrlAnnotation("abc")
         val annotation2 = "annotation"
@@ -1125,11 +1127,10 @@ class AnnotatedStringBuilderTest {
         assertThat(buildResult.getStringAnnotations(tag, 10, 11)).isEmpty()
     }
 
-    @OptIn(ExperimentalTextApi::class)
     @Test
     fun getAnnotation_separates_linkAnnotation_and_stringAnnotation() {
         val annotation1 = LinkAnnotation.Url("url")
-        val annotation2 = LinkAnnotation.Clickable("clickable tag")
+        val annotation2 = LinkAnnotation.Clickable("clickable tag") {}
         val annotation3 = "annotation"
         val tag = "tag"
         val buildResult = AnnotatedString.Builder().apply {

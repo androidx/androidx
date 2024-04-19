@@ -50,34 +50,85 @@ import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.XMLReader
 
-actual fun String.parseAsHtml(): AnnotatedString {
+actual fun AnnotatedString.Companion.fromHtml(
+    htmlString: String,
+    linkStyle: SpanStyle?,
+    linkFocusedStyle: SpanStyle?,
+    linkHoveredStyle: SpanStyle?,
+    linkPressedStyle: SpanStyle?,
+    linkInteractionListener: LinkInteractionListener?
+): AnnotatedString {
     // Check ContentHandlerReplacementTag kdoc for more details
-    val stringToParse = "<$ContentHandlerReplacementTag />$this"
+    val stringToParse = "<$ContentHandlerReplacementTag />$htmlString"
     val spanned = HtmlCompat.fromHtml(
         stringToParse,
         HtmlCompat.FROM_HTML_MODE_COMPACT,
         null,
         TagHandler
     )
-    return spanned.toAnnotatedString()
+    return spanned.toAnnotatedString(
+        linkStyle,
+        linkFocusedStyle,
+        linkHoveredStyle,
+        linkPressedStyle,
+        linkInteractionListener
+    )
 }
 
 @VisibleForTesting
-internal fun Spanned.toAnnotatedString(): AnnotatedString {
+internal fun Spanned.toAnnotatedString(
+    linkStyle: SpanStyle? = null,
+    linkFocusedStyle: SpanStyle? = null,
+    linkHoveredStyle: SpanStyle? = null,
+    linkPressedStyle: SpanStyle? = null,
+    linkInteractionListener: LinkInteractionListener? = null
+): AnnotatedString {
     return AnnotatedString.Builder(capacity = length)
         .append(this)
-        .also { it.addSpans(this) }
+        .also { it.addSpans(
+            this,
+            linkStyle,
+            linkFocusedStyle,
+            linkHoveredStyle,
+            linkPressedStyle,
+            linkInteractionListener
+        ) }
         .toAnnotatedString()
 }
 
-private fun AnnotatedString.Builder.addSpans(spanned: Spanned) {
+private fun AnnotatedString.Builder.addSpans(
+    spanned: Spanned,
+    linkStyle: SpanStyle?,
+    linkFocusedStyle: SpanStyle?,
+    linkHoveredStyle: SpanStyle?,
+    linkPressedStyle: SpanStyle?,
+    linkInteractionListener: LinkInteractionListener?
+) {
     spanned.getSpans(0, length, Any::class.java).forEach { span ->
         val range = TextRange(spanned.getSpanStart(span), spanned.getSpanEnd(span))
-        addSpan(span, range.start, range.end)
+        addSpan(
+            span,
+            range.start,
+            range.end,
+            linkStyle,
+            linkFocusedStyle,
+            linkHoveredStyle,
+            linkPressedStyle,
+            linkInteractionListener
+        )
     }
 }
 
-private fun AnnotatedString.Builder.addSpan(span: Any, start: Int, end: Int) {
+private fun AnnotatedString.Builder.addSpan(
+    span: Any,
+    start: Int,
+    end: Int,
+    linkStyle: SpanStyle?,
+    linkFocusedStyle: SpanStyle?,
+    linkHoveredStyle: SpanStyle?,
+    linkPressedStyle: SpanStyle?,
+    linkInteractionListener: LinkInteractionListener?
+) {
     when (span) {
         is AbsoluteSizeSpan -> {
             // TODO(soboleva) need density object or make dip/px new units in TextUnit
@@ -116,8 +167,16 @@ private fun AnnotatedString.Builder.addSpan(span: Any, start: Int, end: Int) {
             addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
         }
         is URLSpan -> {
-            span.url?.let {
-                addLink(LinkAnnotation.Url(it), start, end)
+            span.url?.let { url ->
+                val link = LinkAnnotation.Url(
+                    url,
+                    linkStyle,
+                    linkFocusedStyle,
+                    linkHoveredStyle,
+                    linkPressedStyle,
+                    linkInteractionListener
+                )
+                addLink(link, start, end)
             }
         }
     }

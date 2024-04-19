@@ -18,10 +18,13 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.LegacyTextFieldState
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.PlatformTextInputService
 import kotlinx.coroutines.Job
 
@@ -70,6 +73,9 @@ internal abstract class LegacyPlatformTextInputServiceAdapter : PlatformTextInpu
     interface LegacyPlatformTextInputNode {
         val softwareKeyboardController: SoftwareKeyboardController?
         val layoutCoordinates: LayoutCoordinates?
+        val legacyTextFieldState: LegacyTextFieldState?
+        val textFieldSelectionManager: TextFieldSelectionManager?
+        val viewConfiguration: ViewConfiguration
         fun launchTextInputSession(block: suspend PlatformTextInputSession.() -> Nothing): Job?
     }
 }

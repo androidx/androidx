@@ -47,6 +47,8 @@ dependencies {
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
     compileOnly(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
+    compileOnly(fileTree(dir: "../wear_sdk", include: ["wear-sdk.jar"]))
+
 }
 
 android {

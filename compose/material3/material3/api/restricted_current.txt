@@ -77,16 +77,6 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void BadgedBox(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> badge, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface BasicTooltipState {
-    method public void dismiss();
-    method public boolean isPersistent();
-    method public boolean isVisible();
-    method public void onDispose();
-    method public suspend Object? show(optional androidx.compose.foundation.MutatePriority mutatePriority, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public abstract boolean isPersistent;
-    property public abstract boolean isVisible;
-  }
-
   public final class BottomAppBarDefaults {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.material3.BottomAppBarScrollBehavior exitAlwaysScrollBehavior(optional androidx.compose.material3.BottomAppBarState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? flingAnimationSpec);
     method @androidx.compose.runtime.Composable public long getBottomAppBarFabColor();
@@ -201,12 +191,13 @@ package androidx.compose.material3 {
     method public float getIconSpacing();
     method public float getMinHeight();
     method public float getMinWidth();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke getOutlinedButtonBorder();
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke getOutlinedButtonBorder();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public androidx.compose.foundation.layout.PaddingValues getTextButtonContentPadding();
     method public androidx.compose.foundation.layout.PaddingValues getTextButtonWithIconContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getTextShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedButtonBorder(optional boolean enabled);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors outlinedButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors outlinedButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors textButtonColors();
@@ -221,7 +212,7 @@ package androidx.compose.material3 {
     property public final androidx.compose.foundation.layout.PaddingValues TextButtonWithIconContentPadding;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape elevatedShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape filledTonalShape;
-    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.BorderStroke outlinedButtonBorder;
+    property @Deprecated @androidx.compose.runtime.Composable public final androidx.compose.foundation.BorderStroke outlinedButtonBorder;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape textShape;
@@ -714,12 +705,13 @@ package androidx.compose.material3 {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3Api {
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public abstract class ExposedDropdownMenuBoxScope {
-    ctor public ExposedDropdownMenuBoxScope();
-    method @androidx.compose.runtime.Composable public final void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, optional boolean focusable, optional boolean matchTextFieldWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float tonalElevation, optional float shadowElevation, optional androidx.compose.foundation.BorderStroke? border, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public abstract sealed class ExposedDropdownMenuBoxScope {
+    method @androidx.compose.runtime.Composable public final void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, optional boolean matchTextFieldWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float tonalElevation, optional float shadowElevation, optional androidx.compose.foundation.BorderStroke? border, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public final void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, optional boolean focusable, optional boolean matchTextFieldWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float tonalElevation, optional float shadowElevation, optional androidx.compose.foundation.BorderStroke? border, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @Deprecated @androidx.compose.runtime.Composable public void ExposedDropdownMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.ScrollState scrollState, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method public abstract androidx.compose.ui.Modifier exposedDropdownSize(androidx.compose.ui.Modifier, optional boolean matchTextFieldWidth);
-    method public abstract androidx.compose.ui.Modifier menuAnchor(androidx.compose.ui.Modifier);
+    method @Deprecated public final androidx.compose.ui.Modifier menuAnchor(androidx.compose.ui.Modifier);
+    method public abstract androidx.compose.ui.Modifier menuAnchor(androidx.compose.ui.Modifier, String type, optional boolean enabled);
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class ExposedDropdownMenuDefaults {
@@ -957,6 +949,19 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.compose.material3.ColorScheme colorScheme, optional androidx.compose.material3.Shapes shapes, optional androidx.compose.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  @kotlin.jvm.JvmInline public final value class MenuAnchorType {
+    field public static final androidx.compose.material3.MenuAnchorType.Companion Companion;
+  }
+
+  public static final class MenuAnchorType.Companion {
+    method public String getPrimaryEditable();
+    method public String getPrimaryNotEditable();
+    method public String getSecondaryEditable();
+    property public final String PrimaryEditable;
+    property public final String PrimaryNotEditable;
+    property public final String SecondaryEditable;
+  }
+
   public final class MenuDefaults {
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method public androidx.compose.foundation.layout.PaddingValues getDropdownMenuItemContentPadding();
@@ -1146,6 +1151,7 @@ package androidx.compose.material3 {
   }
 
   public final class ProgressIndicatorDefaults {
+    method public void drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope, float stopSize, long color, int strokeCap);
     method @androidx.compose.runtime.Composable public long getCircularColor();
     method public int getCircularDeterminateStrokeCap();
     method @androidx.compose.runtime.Composable public long getCircularDeterminateTrackColor();
@@ -1191,7 +1197,6 @@ package androidx.compose.material3 {
     method @Deprecated @androidx.compose.runtime.Composable public static void LinearProgressIndicator(float progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional int strokeCap);
     method @Deprecated @androidx.compose.runtime.Composable public static void LinearProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional int strokeCap);
     method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional long color, optional long trackColor, optional int strokeCap, optional float gapSize, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>? drawStopIndicator);
-    method public static void drawStopIndicator(androidx.compose.ui.graphics.drawscope.DrawScope, float stopSize, long color, int strokeCap);
   }
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
@@ -1768,6 +1773,13 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
   }
 
+  public final class TextDefaults {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.LinkAnnotation.Clickable Clickable(String tag, optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.LinkAnnotation.Url Url(String url, optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.AnnotatedString fromHtml(String htmlString, optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener);
+    field public static final androidx.compose.material3.TextDefaults INSTANCE;
+  }
+
   @androidx.compose.runtime.Immutable public final class TextFieldColors {
     ctor public TextFieldColors(long focusedTextColor, long unfocusedTextColor, long disabledTextColor, long errorTextColor, long focusedContainerColor, long unfocusedContainerColor, long disabledContainerColor, long errorContainerColor, long cursorColor, long errorCursorColor, androidx.compose.foundation.text.selection.TextSelectionColors textSelectionColors, long focusedIndicatorColor, long unfocusedIndicatorColor, long disabledIndicatorColor, long errorIndicatorColor, long focusedLeadingIconColor, long unfocusedLeadingIconColor, long disabledLeadingIconColor, long errorLeadingIconColor, long focusedTrailingIconColor, long unfocusedTrailingIconColor, long disabledTrailingIconColor, long errorTrailingIconColor, long focusedLabelColor, long unfocusedLabelColor, long disabledLabelColor, long errorLabelColor, long focusedPlaceholderColor, long unfocusedPlaceholderColor, long disabledPlaceholderColor, long errorPlaceholderColor, long focusedSupportingTextColor, long unfocusedSupportingTextColor, long disabledSupportingTextColor, long errorSupportingTextColor, long focusedPrefixColor, long unfocusedPrefixColor, long disabledPrefixColor, long errorPrefixColor, long focusedSuffixColor, long unfocusedSuffixColor, long disabledSuffixColor, long errorSuffixColor);
     method public androidx.compose.material3.TextFieldColors copy(optional long focusedTextColor, optional long unfocusedTextColor, optional long disabledTextColor, optional long errorTextColor, optional long focusedContainerColor, optional long unfocusedContainerColor, optional long disabledContainerColor, optional long errorContainerColor, optional long cursorColor, optional long errorCursorColor, optional androidx.compose.foundation.text.selection.TextSelectionColors? textSelectionColors, optional long focusedIndicatorColor, optional long unfocusedIndicatorColor, optional long disabledIndicatorColor, optional long errorIndicatorColor, optional long focusedLeadingIconColor, optional long unfocusedLeadingIconColor, optional long disabledLeadingIconColor, optional long errorLeadingIconColor, optional long focusedTrailingIconColor, optional long unfocusedTrailingIconColor, optional long disabledTrailingIconColor, optional long errorTrailingIconColor, optional long focusedLabelColor, optional long unfocusedLabelColor, optional long disabledLabelColor, optional long errorLabelColor, optional long focusedPlaceholderColor, optional long unfocusedPlaceholderColor, optional long disabledPlaceholderColor, optional long errorPlaceholderColor, optional long focusedSupportingTextColor, optional long unfocusedSupportingTextColor, optional long disabledSupportingTextColor, optional long errorSupportingTextColor, optional long focusedPrefixColor, optional long unfocusedPrefixColor, optional long disabledPrefixColor, optional long errorPrefixColor, optional long focusedSuffixColor, optional long unfocusedSuffixColor, optional long disabledSuffixColor, optional long errorSuffixColor);
@@ -2004,8 +2016,15 @@ package androidx.compose.material3 {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TooltipState rememberTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TooltipState extends androidx.compose.material3.BasicTooltipState {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TooltipState {
+    method public void dismiss();
     method public androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> getTransition();
+    method public boolean isPersistent();
+    method public boolean isVisible();
+    method public void onDispose();
+    method public suspend Object? show(optional androidx.compose.foundation.MutatePriority mutatePriority, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract boolean isPersistent;
+    property public abstract boolean isVisible;
     property public abstract androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> transition;
   }
 
@@ -2139,9 +2158,11 @@ package androidx.compose.material3.carousel {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemInfo {
+    method public androidx.compose.ui.geometry.Rect getMaskRect();
     method public float getMaxSize();
     method public float getMinSize();
     method public float getSize();
+    property public abstract androidx.compose.ui.geometry.Rect maskRect;
     property public abstract float maxSize;
     property public abstract float minSize;
     property public abstract float size;
@@ -2175,9 +2196,7 @@ package androidx.compose.material3.carousel {
   }
 
   public final class CarouselStateKt {
-    method public static float endOffset(androidx.compose.material3.carousel.CarouselItemInfo);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.carousel.CarouselState rememberCarouselState(optional int initialItem, kotlin.jvm.functions.Function0<java.lang.Integer> itemCount);
-    method public static float startOffset(androidx.compose.material3.carousel.CarouselItemInfo);
   }
 
 }

@@ -57,7 +57,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method get"
+        message="Avoid using method get"
         errorLine1="        val allHostTests = project.tasks.register(&quot;allHostTests&quot;).get()"
         errorLine2="                                                                  ~~~">
         <location
@@ -147,7 +147,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method findByName"
+        message="Avoid using method findByName"
         errorLine1="        if (project.tasks.findByName(&quot;check&quot;) != null) {"
         errorLine2="                          ~~~~~~~~~~">
         <location
@@ -183,7 +183,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method get"
+        message="Avoid using method get"
         errorLine1="        val jvmJarTask = jvmJarTaskProvider.get()"
         errorLine2="                                            ~~~">
         <location
@@ -192,7 +192,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method get"
+        message="Avoid using method get"
         errorLine1="                    .get()"
         errorLine2="                     ~~~">
         <location
@@ -210,7 +210,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method findByName"
+        message="Avoid using method findByName"
         errorLine1="        if (project.tasks.findByName(&quot;check&quot;) != null) {"
         errorLine2="                          ~~~~~~~~~~">
         <location
@@ -237,7 +237,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method findByName"
+        message="Avoid using method findByName"
         errorLine1="    tasks.findByName(taskName) ?: throw GradleException("
         errorLine2="          ~~~~~~~~~~">
         <location
@@ -282,16 +282,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="    libraryExtension.libraryVariants.all { variant ->"
-        errorLine2="                                     ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/resources/PublicResourcesStubHelper.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Avoid using eager method get"
+        message="Avoid using method get"
         errorLine1="            val verifyOutputsTask = verifyOutputs.get()"
         errorLine2="                                                  ~~~">
         <location
@@ -327,7 +318,7 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method findByName"
+        message="Avoid using method findByName"
         errorLine1="        .findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!"
         errorLine2="         ~~~~~~~~~~">
         <location
@@ -336,11 +327,155 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using eager method findByName"
+        message="Avoid using method findByName"
         errorLine1="        project.rootProject.tasks.findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)"
         errorLine2="                                  ~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="                    rootProject.findProperty(ENABLE_ARG) != &quot;false&quot;"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/dependencyTracker/AffectedModuleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="                    rootProject.findProperty(ENABLE_ARG) != &quot;false&quot;"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/dependencyTracker/AffectedModuleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="            val baseCommitOverride: String? = rootProject.findProperty(BASE_COMMIT_ARG) as String?"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/dependencyTracker/AffectedModuleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="            val baseCommitOverride: String? = rootProject.findProperty(BASE_COMMIT_ARG) as String?"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/dependencyTracker/AffectedModuleDetector.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="    override val compileSdk: String by lazy { project.findProperty(COMPILE_SDK_VERSION).toString() }"
+        errorLine2="                                                      ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/AndroidXConfig.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="        project.findProperty(TARGET_SDK_VERSION).toString().toInt()"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/AndroidXConfig.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="    project.findProperty(ALTERNATIVE_PROJECT_URL) as? String"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXGradleProperties.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="    return (project.findProperty(ENABLE_DOCUMENTATION) as? String)?.toBoolean() ?: true"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXGradleProperties.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="fun Project.findBooleanProperty(propName: String) = (findProperty(propName) as? String)?.toBoolean()"
+        errorLine2="                                                     ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXGradleProperties.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="                return checkNotNull(findProperty(name)) {"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXPlaygroundRootImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="        parseTargetPlatformsFlag(project.findProperty(ENABLED_KMP_TARGET_PLATFORMS) as? String)"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/KmpPlatforms.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="            findProperty(DISABLE_COMPILER_DAEMON_FLAG)?.toString()?.toBoolean() == true"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/KonanPrebuiltsSetup.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="            val value = project.findProperty(STUDIO_TYPE)?.toString()"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/ProjectLayoutType.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="            val value = project.findProperty(STUDIO_TYPE)?.toString()"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*3}/androidx/build/ProjectLayoutType.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="        val group = findProperty(&quot;group&quot;) as String"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/VersionFileWriterTask.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of findProperty"
+        errorLine1="        val artifactId = findProperty(&quot;name&quot;) as String"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/VersionFileWriterTask.kt"/>
     </issue>
 
     <issue
@@ -368,33 +503,6 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
-    </issue>
-
-    <issue
-        id="InternalAgpApiUsage"
-        message="Avoid using internal Android Gradle Plugin APIs"
-        errorLine1="import com.android.build.gradle.internal.attributes.VariantAttr"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
-    </issue>
-
-    <issue
-        id="InternalAgpApiUsage"
-        message="Avoid using internal Android Gradle Plugin APIs"
-        errorLine1="import com.android.build.gradle.internal.publishing.AndroidArtifacts"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
-    </issue>
-
-    <issue
-        id="InternalAgpApiUsage"
-        message="Avoid using internal Android Gradle Plugin APIs"
-        errorLine1="import com.android.build.gradle.internal.publishing.AndroidArtifacts.ArtifactType"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
     </issue>
 
     <issue
@@ -566,6 +674,24 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/build/buildInfo/CreateLibraryBuildInfoFileTaskTest.kt"/>
+    </issue>
+
+    <issue
+        id="WithTypeWithoutConfigureEach"
+        message="Avoid passing a closure to withType, use withType().configureEach instead"
+        errorLine1="        project.tasks.withType(AbstractTestTask::class.java) { task ->"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="WithTypeWithoutConfigureEach"
+        message="Avoid passing a closure to withType, use withType().configureEach instead"
+        errorLine1="        project.tasks.withType(Test::class.java) { task -> configureJvmTestTask(project, task) }"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
     </issue>
 
 </issues>

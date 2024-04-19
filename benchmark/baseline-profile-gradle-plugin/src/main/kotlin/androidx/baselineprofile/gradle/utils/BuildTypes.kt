@@ -17,6 +17,8 @@ package androidx.baselineprofile.gradle.utils
 
 import com.android.build.api.dsl.AndroidSourceDirectorySet
 import com.android.build.api.dsl.AndroidSourceSet
+import com.android.build.api.dsl.ApkSigningConfig
+import com.android.build.api.dsl.ApplicationBuildType
 import com.android.build.api.dsl.BuildType
 import com.android.build.gradle.internal.api.DefaultAndroidSourceDirectorySet
 import com.android.build.gradle.internal.api.DefaultAndroidSourceFile
@@ -29,8 +31,10 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
     extensionBuildTypes: NamedDomainObjectContainer<out T>,
     newBuildTypePrefix: String,
     crossinline filterBlock: (T) -> (Boolean),
-    crossinline configureBlock: T.() -> (Unit),
-    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf()
+    crossinline newConfigureBlock: T.() -> (Unit),
+    crossinline overrideConfigureBlock: T.() -> (Unit),
+    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf(),
+    debugSigningConfig: ApkSigningConfig?
 ) {
     extensionBuildTypes.filter { buildType ->
         if (buildType !is T) {
@@ -44,18 +48,33 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
         val newBuildTypeName = camelCase(newBuildTypePrefix, buildType.name)
 
         // Check in case the build type was created manually (to allow full customization)
-        if (extensionBuildTypes.findByName(newBuildTypeName) != null) {
+        var newBuildType = extensionBuildTypes.findByName(newBuildTypeName)
+        if (newBuildType != null) {
             project.logger.info(
                 "Build type $newBuildTypeName won't be created because already exists."
             )
+            // If the build type exists, we apply the `overrideConfigurationBlock`
+            newBuildType.apply {
+                matchingFallbacks += listOf(buildType.name)
+                overrideConfigureBlock(this)
+            }
         } else {
-            // If the new build type doesn't exist, create it simply extending the configured
-            // one (by default release).
-            extensionBuildTypes.create(newBuildTypeName).apply {
+            // If the new build type doesn't exist, create it and apply the `newConfigurationBlock`
+            newBuildType = extensionBuildTypes.create(newBuildTypeName).apply {
                 initWith(buildType)
                 matchingFallbacks += listOf(buildType.name)
-                configureBlock(this as T)
+                newConfigureBlock(this)
             }
+        }
+
+        // If the build type is for applications, the signing config has not been defined yet,
+        // we copy the signing config of the original build type, or the debug one if the original
+        // doesn't have one.
+        if (buildType is ApplicationBuildType &&
+            newBuildType is ApplicationBuildType &&
+            newBuildType.signingConfig == null
+        ) {
+            newBuildType.signingConfig = buildType.signingConfig ?: debugSigningConfig
         }
 
         // Mapping the build type to the newly created

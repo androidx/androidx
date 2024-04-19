@@ -76,11 +76,10 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * @param navigationSuiteColors [NavigationSuiteColors] that will be used to determine the container
  * (background) color of the navigation component and the preferred color for content inside the
  * navigation component
- * @param containerColor the color used for the background of the navigation suite scaffold. Use
- * [Color.Transparent] to have no color
- * @param contentColor the preferred color for content inside the navigation suite scaffold.
- * Defaults to either the matching content color for [containerColor], or to the current
- * [LocalContentColor] if [containerColor] is not a color from the theme
+ * @param containerColor the color used for the background of the navigation suite scaffold,
+ * including the passed [content] composable. Use [Color.Transparent] to have no color
+ * @param contentColor the preferred color to be used for typography and iconography within the
+ * passed in [content] lambda inside the navigation suite scaffold.
  * @param content the content of your screen
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -92,8 +91,8 @@ fun NavigationSuiteScaffold(
     layoutType: NavigationSuiteType =
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
     navigationSuiteColors: NavigationSuiteColors = NavigationSuiteDefaults.colors(),
-    containerColor: Color = MaterialTheme.colorScheme.background,
-    contentColor: Color = contentColorFor(containerColor),
+    containerColor: Color = NavigationSuiteScaffoldDefaults.containerColor,
+    contentColor: Color = NavigationSuiteScaffoldDefaults.contentColor,
     content: @Composable () -> Unit = {},
 ) {
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
@@ -210,6 +209,9 @@ fun NavigationSuite(
     content: NavigationSuiteScope.() -> Unit
 ) {
     val scope by rememberStateOfItems(content)
+    // Define defaultItemColors here since we can't set NavigationSuiteDefaults.itemColors() as a
+    // default for the colors param of the NavigationSuiteScope.item non-composable function.
+    val defaultItemColors = NavigationSuiteDefaults.itemColors()
 
     when (layoutType) {
         NavigationSuiteType.NavigationBar -> {
@@ -228,7 +230,7 @@ fun NavigationSuite(
                         label = it.label,
                         alwaysShowLabel = it.alwaysShowLabel,
                         colors = it.colors?.navigationBarItemColors
-                            ?: NavigationBarItemDefaults.colors(),
+                            ?: defaultItemColors.navigationBarItemColors,
                         interactionSource = it.interactionSource
                     )
                 }
@@ -251,7 +253,7 @@ fun NavigationSuite(
                         label = it.label,
                         alwaysShowLabel = it.alwaysShowLabel,
                         colors = it.colors?.navigationRailItemColors
-                            ?: NavigationRailItemDefaults.colors(),
+                            ?: defaultItemColors.navigationRailItemColors,
                         interactionSource = it.interactionSource
                     )
                 }
@@ -273,7 +275,7 @@ fun NavigationSuite(
                         badge = it.badge,
                         label = { it.label?.invoke() ?: Text("") },
                         colors = it.colors?.navigationDrawerItemColors
-                            ?: NavigationDrawerItemDefaults.colors(),
+                            ?: defaultItemColors.navigationDrawerItemColors,
                         interactionSource = it.interactionSource
                     )
                 }
@@ -286,7 +288,7 @@ fun NavigationSuite(
 
 /** The scope associated with the [NavigationSuiteScope]. */
 @ExperimentalMaterial3AdaptiveNavigationSuiteApi
-interface NavigationSuiteScope {
+sealed interface NavigationSuiteScope {
 
     /**
      * This function sets the parameters of the default Material navigation item to be used with the
@@ -304,11 +306,12 @@ interface NavigationSuiteScope {
      * respond to user input, and it will appear visually disabled and disabled to accessibility
      * services. Note: as of now, for [NavigationDrawerItem], this is always `true`.
      * @param label the text label for this item
-     * @param alwaysShowLabel whether to always show the label for this item. If `false`, the label will
-     * only be shown when this item is selected. Note: for [NavigationDrawerItem] this is always `true`
+     * @param alwaysShowLabel whether to always show the label for this item. If `false`, the label
+     * will only be shown when this item is selected. Note: for [NavigationDrawerItem] this is
+     * always `true`
      * @param badge optional badge to show on this item
-     * @param colors [NavigationSuiteItemColors] that will be used to resolve the colors used for this
-     * item in different states.
+     * @param colors [NavigationSuiteItemColors] that will be used to resolve the colors used for
+     * this item in different states. If null, [NavigationSuiteDefaults.itemColors] will be used.
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
      * emitting [Interaction]s for this item. You can use this to change the item's appearance
      * or preview the item in different states. Note that if `null` is provided, interactions will
@@ -399,6 +402,12 @@ object NavigationSuiteScaffoldDefaults {
             }
         }
     }
+
+    /** Default container color for a navigation suite scaffold. */
+    val containerColor: Color @Composable get() = MaterialTheme.colorScheme.background
+
+    /** Default content color for a navigation suite scaffold. */
+    val contentColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground
 }
 
 /** Contains the default values used by the [NavigationSuite]. */
@@ -438,6 +447,33 @@ object NavigationSuiteDefaults {
             navigationRailContentColor = navigationRailContentColor,
             navigationDrawerContainerColor = navigationDrawerContainerColor,
             navigationDrawerContentColor = navigationDrawerContentColor
+        )
+
+    /**
+     * Creates a [NavigationSuiteItemColors] with the provided colors for a
+     * [NavigationSuiteScope.item].
+     *
+     * For specifics about each navigation item colors see [NavigationBarItemColors],
+     * [NavigationRailItemColors], and [NavigationDrawerItemColors].
+     *
+     * @param navigationBarItemColors the [NavigationBarItemColors] associated with the
+     * [NavigationBarItem] of the [NavigationSuiteScope.item]
+     * @param navigationRailItemColors the [NavigationRailItemColors] associated with the
+     * [NavigationRailItem] of the [NavigationSuiteScope.item]
+     * @param navigationDrawerItemColors the [NavigationDrawerItemColors] associated with the
+     * [NavigationDrawerItem] of the [NavigationSuiteScope.item]
+     */
+    @Composable
+    fun itemColors(
+        navigationBarItemColors: NavigationBarItemColors = NavigationBarItemDefaults.colors(),
+        navigationRailItemColors: NavigationRailItemColors = NavigationRailItemDefaults.colors(),
+        navigationDrawerItemColors: NavigationDrawerItemColors =
+            NavigationDrawerItemDefaults.colors()
+    ): NavigationSuiteItemColors =
+        NavigationSuiteItemColors(
+            navigationBarItemColors = navigationBarItemColors,
+            navigationRailItemColors = navigationRailItemColors,
+            navigationDrawerItemColors = navigationDrawerItemColors
         )
 }
 

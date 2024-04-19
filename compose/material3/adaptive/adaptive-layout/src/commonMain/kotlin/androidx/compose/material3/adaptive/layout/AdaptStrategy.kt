@@ -17,25 +17,43 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /**
  * Provides the information about how the associated pane should be adapted if it cannot be
  * displayed in its [PaneAdaptedValue.Expanded] state.
  */
 @ExperimentalMaterial3AdaptiveApi
-interface AdaptStrategy {
+@Stable
+sealed interface AdaptStrategy {
     /**
      * Override this function to provide the resulted adapted state.
      */
     fun adapt(): PaneAdaptedValue
 
-    private class BaseAdaptStrategy(
+    @Immutable
+    private class SimpleAdaptStrategy(
         private val description: String,
-        private val adaptedState: PaneAdaptedValue
+        private val adaptedValue: PaneAdaptedValue
     ) : AdaptStrategy {
-        override fun adapt() = adaptedState
+        override fun adapt() = adaptedValue
 
         override fun toString() = "AdaptStrategy[$description]"
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SimpleAdaptStrategy) return false
+            if (description != other.description) return false
+            if (adaptedValue != other.adaptedValue) return false
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = description.hashCode()
+            result = 31 * result + adaptedValue.hashCode()
+            return result
+        }
     }
 
     companion object {
@@ -43,6 +61,6 @@ interface AdaptStrategy {
          * The default [AdaptStrategy] that suggests the layout to hide the associated pane when
          * it has to be adapted, i.e., cannot be displayed in its [PaneAdaptedValue.Expanded] state.
          */
-        val Hide: AdaptStrategy = BaseAdaptStrategy("Hide", PaneAdaptedValue.Hidden)
+        val Hide: AdaptStrategy = SimpleAdaptStrategy("Hide", PaneAdaptedValue.Hidden)
     }
 }

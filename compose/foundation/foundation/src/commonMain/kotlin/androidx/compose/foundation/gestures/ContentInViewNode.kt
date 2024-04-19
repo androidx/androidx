@@ -71,6 +71,7 @@ internal class ContentInViewNode(
 ) : Modifier.Node(), BringIntoViewResponder, LayoutAwareModifierNode,
     CompositionLocalConsumerModifierNode {
 
+    override val shouldAutoInvalidate: Boolean = false
     /**
      * Ongoing requests from [bringChildIntoView], with the invariant that it is always sorted by
      * overlapping order: each item's [Rect] completely overlaps the next item.

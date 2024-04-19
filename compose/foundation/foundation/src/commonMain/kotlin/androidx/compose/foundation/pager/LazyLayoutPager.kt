@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,6 +111,8 @@ internal fun Pager(
         key = key
     ) { state.pageCount }
 
+    val coroutineScope = rememberCoroutineScope()
+
     val measurePolicy = rememberPagerMeasurePolicy(
         state = state,
         contentPadding = contentPadding,
@@ -122,6 +125,7 @@ internal fun Pager(
         verticalAlignment = verticalAlignment,
         itemProviderLambda = pagerItemProvider,
         snapPosition = snapPosition,
+        coroutineScope = coroutineScope,
         pageCount = { state.pageCount }
     )
 
@@ -329,7 +333,7 @@ private class PagerBringIntoViewSpec(
                 // move one page forward or backward, whilst making sure we don't move out of bounds
                 // again.
                 val reversedFirstPageScroll = pagerState.firstVisiblePageOffset * -1f
-                if (pagerState.isLastScrollForward) {
+                if (pagerState.lastScrolledForward) {
                     reversedFirstPageScroll + pagerState.pageSizeWithSpacing
                 } else {
                     reversedFirstPageScroll

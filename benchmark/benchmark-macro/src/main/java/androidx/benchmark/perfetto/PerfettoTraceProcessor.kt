@@ -173,7 +173,7 @@ class PerfettoTraceProcessor {
                     val label = "Trace with processing error: ${t.message?.take(50)?.trim()}..."
                     reportSummaryToIde(
                         profilerResults = listOf(
-                            Profiler.ResultFile(
+                            Profiler.ResultFile.ofPerfettoTrace(
                                 label = label,
                                 absolutePath = trace.path
                             )
@@ -374,11 +374,11 @@ class PerfettoTraceProcessor {
                     },
                     postfix = ")"
                 ) {
-                    "slice.name LIKE \"$it\""
+                    "slice_name LIKE \"$it\""
                 }
             val innerJoins = if (packageName != null) {
                 """
-                INNER JOIN thread_track on slice.track_id = thread_track.id
+                INNER JOIN thread_track ON slice.track_id = thread_track.id
                 INNER JOIN thread USING(utid)
                 INNER JOIN process USING(upid)
                 """.trimMargin()
@@ -386,15 +386,32 @@ class PerfettoTraceProcessor {
                 ""
             }
 
+            val processTrackInnerJoins = """
+                INNER JOIN process_track ON slice.track_id = process_track.id
+                INNER JOIN process USING(upid)
+            """.trimIndent()
+
             return query(
                 query = """
-                    SELECT slice.name,ts,dur
+                    SELECT slice.name AS slice_name,ts,dur
                     FROM slice
                     $innerJoins
                     WHERE $whereClause
+                    UNION
+                    SELECT process_track.name AS slice_name,ts,dur
+                    FROM slice
+                    $processTrackInnerJoins
+                    WHERE $whereClause
                     ORDER BY ts
-                    """.trimMargin()
-            ).toSlices()
+                    """.trimIndent()
+            ).map { row ->
+                // Using an explicit mapper here to account for the aliasing of `slice_name`
+                Slice(
+                    name = row.string("slice_name"),
+                    ts = row.long("ts"),
+                    dur = row.long("dur")
+                )
+            }.toList()
         }
     }
 

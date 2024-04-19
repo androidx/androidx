@@ -124,6 +124,13 @@ class WorkerWrapper internal constructor(builder: Builder) {
     }
 
     private suspend fun runWorker(): Resolution {
+        val traceTag = workSpec.traceTag
+        if (traceTag != null) {
+            configuration.tracer.beginAsyncSection(
+                traceTag,
+                workGenerationalId.generation
+            )
+        }
         // Needed for nested transactions, such as when we're in a dependent work request when
         // using a SynchronousExecutor.
         val shouldExit = workDatabase.runInTransaction(Callable {
@@ -245,6 +252,12 @@ class WorkerWrapper internal constructor(builder: Builder) {
         job.invokeOnCompletion {
             if (it is WorkerStoppedException) {
                 worker.stop(it.reason)
+            }
+            if (traceTag != null) {
+                configuration.tracer.endAsyncSection(
+                    traceTag,
+                    workGenerationalId.generation
+                )
             }
         }
 

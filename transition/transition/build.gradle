@@ -15,9 +15,9 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    api(project(":core:core"))
+    api("androidx.core:core:1.13.0")
     implementation("androidx.collection:collection:1.1.0")
-    compileOnly(projectOrArtifact(":fragment:fragment"))
+    compileOnly("androidx.fragment:fragment:1.7.0-rc02")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
     implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
 

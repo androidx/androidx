@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * The result of the measure pass for lazy list layout.
@@ -41,6 +42,8 @@ internal class LazyGridMeasureResult(
     measureResult: MeasureResult,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    /** Scope for animations. */
+    val coroutineScope: CoroutineScope,
     /** Density of the last measure. */
     val density: Density,
     /** Amount of slots we have in each line. */

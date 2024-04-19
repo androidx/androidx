@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalScrollCaptureInProgress
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
@@ -83,6 +84,7 @@ internal fun LazyList(
     val semanticState = rememberLazyListSemanticState(state, isVertical)
     val coroutineScope = rememberCoroutineScope()
     val graphicsContext = LocalGraphicsContext.current
+    val stickyHeadersEnabled = !LocalScrollCaptureInProgress.current
 
     val measurePolicy = rememberLazyListMeasurePolicy(
         itemProviderLambda,
@@ -96,7 +98,8 @@ internal fun LazyList(
         horizontalArrangement,
         verticalArrangement,
         coroutineScope,
-        graphicsContext
+        graphicsContext,
+        stickyHeadersEnabled = stickyHeadersEnabled,
     )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -162,7 +165,9 @@ private fun rememberLazyListMeasurePolicy(
     verticalArrangement: Arrangement.Vertical?,
     /** Scope for animations */
     coroutineScope: CoroutineScope,
-    graphicsContext: GraphicsContext
+    /** Used for creating graphics layers */
+    graphicsContext: GraphicsContext,
+    stickyHeadersEnabled: Boolean,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
     contentPadding,
@@ -172,7 +177,8 @@ private fun rememberLazyListMeasurePolicy(
     verticalAlignment,
     horizontalArrangement,
     verticalArrangement,
-    graphicsContext
+    graphicsContext,
+    stickyHeadersEnabled,
 ) {
     { containerConstraints ->
         state.measurementScopeInvalidator.attachToScope()
@@ -262,7 +268,8 @@ private fun rememberLazyListMeasurePolicy(
                 index: Int,
                 key: Any,
                 contentType: Any?,
-                placeables: List<Placeable>
+                placeables: List<Placeable>,
+                constraints: Constraints
             ): LazyListMeasuredItem {
                 // we add spaceBetweenItems as an extra spacing for all items apart from the last one so
                 // the lazy list measuring logic will take it into account.
@@ -281,7 +288,8 @@ private fun rememberLazyListMeasurePolicy(
                     visualOffset = visualItemOffset,
                     key = key,
                     contentType = contentType,
-                    animator = state.itemAnimator
+                    animator = state.itemAnimator,
+                    constraints = constraints
                 )
             }
         }
@@ -306,6 +314,13 @@ private fun rememberLazyListMeasurePolicy(
             state.scrollDeltaBetweenPasses
         }
 
+        @Suppress("PrimitiveInCollection")
+        val headerIndexes = if (stickyHeadersEnabled) {
+            itemProvider.headerIndexes
+        } else {
+            emptyList()
+        }
+
         val measureResult = Snapshot.withMutableSnapshot {
             measureLazyList(
                 itemsCount = itemsCount,
@@ -319,7 +334,7 @@ private fun rememberLazyListMeasurePolicy(
                 scrollToBeConsumed = scrollToBeConsumed,
                 constraints = contentConstraints,
                 isVertical = isVertical,
-                headerIndexes = itemProvider.headerIndexes,
+                headerIndexes = headerIndexes,
                 verticalArrangement = verticalArrangement,
                 horizontalArrangement = horizontalArrangement,
                 reverseLayout = reverseLayout,

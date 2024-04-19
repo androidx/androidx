@@ -92,13 +92,15 @@ fun BadgedBox(
         },
         modifier = modifier
             .onGloballyPositioned { coordinates ->
-                layoutAbsoluteLeft = coordinates.boundsInWindow().left
-                layoutAbsoluteTop = coordinates.boundsInWindow().top
+                val windowBoundsRect = coordinates.boundsInWindow()
+                layoutAbsoluteLeft = windowBoundsRect.left
+                layoutAbsoluteTop = windowBoundsRect.top
                 val layoutGreatGrandParent =
                     coordinates.parentLayoutCoordinates?.parentLayoutCoordinates?.parentCoordinates
                 layoutGreatGrandParent?.let {
-                    greatGrandParentAbsoluteRight = it.boundsInWindow().right
-                    greatGrandParentAbsoluteTop = it.boundsInWindow().top
+                    val greatGrandParentWindowBoundsRect = it.boundsInWindow()
+                    greatGrandParentAbsoluteRight = greatGrandParentWindowBoundsRect.right
+                    greatGrandParentAbsoluteTop = greatGrandParentWindowBoundsRect.top
                 }
             }
     ) { measurables, constraints ->
@@ -208,7 +210,7 @@ fun Badge(
     ) {
         if (content != null) {
             // Not using Surface composable because it blocks touch propagation behind it.
-            val style = MaterialTheme.typography.fromToken(BadgeTokens.LargeLabelTextFont)
+            val style = BadgeTokens.LargeLabelTextFont.value
             ProvideContentColorTextStyle(
                 contentColor = contentColor,
                 textStyle = style,

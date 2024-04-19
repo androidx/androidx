@@ -46,23 +46,14 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * Temporary feature flag for long screenshots support in Compose scrollables. This property will
- * eventually be removed.
- *
- * Long screenshot support is currently off by default. To enable it, set this flag to true.
- * A future release will set it to true by default.
- */
-@Deprecated("Temporary feature flag. See b/329128246")
-@get:Deprecated("Temporary feature flag. See b/329128246")
-@set:Deprecated("Temporary feature flag. See b/329128246")
-// TODO(b/329128246) Remove before 1.7
-var ComposeFeatureFlag_LongScreenshotsEnabled by mutableStateOf(false)
-
-/**
  * Separate class to host the implementation of scroll capture for dex verification.
  */
 @RequiresApi(31)
-internal object ScrollCapture {
+internal class ScrollCapture : ComposeScrollCaptureCallback.ScrollCaptureSessionListener {
+
+    var scrollCaptureInProgress: Boolean by mutableStateOf(false)
+        private set
+
     /**
      * Implements scroll capture (long screenshots) support for a composition. Finds a single
      * [ScrollCaptureTarget] to propose to the platform. Searches over the semantics tree to find
@@ -86,9 +77,6 @@ internal object ScrollCapture {
         coroutineContext: CoroutineContext,
         targets: Consumer<ScrollCaptureTarget>
     ) {
-        @Suppress("DEPRECATION")
-        if (!ComposeFeatureFlag_LongScreenshotsEnabled) return
-
         // Search the semantics tree for scroll containers.
         val candidates = mutableVectorOf<ScrollCaptureCandidate>()
         visitScrollCaptureCandidates(
@@ -110,6 +98,7 @@ internal object ScrollCapture {
             node = candidate.node,
             viewportBoundsInWindow = candidate.viewportBoundsInWindow,
             coroutineScope = coroutineScope,
+            listener = this
         )
         val localVisibleRectOfCandidate = candidate.coordinates.boundsInRoot()
         val windowOffsetOfCandidate = candidate.viewportBoundsInWindow.topLeft
@@ -123,6 +112,14 @@ internal object ScrollCapture {
                 scrollBounds = candidate.viewportBoundsInWindow.toAndroidRect()
             }
         )
+    }
+
+    override fun onSessionStarted() {
+        scrollCaptureInProgress = true
+    }
+
+    override fun onSessionEnded() {
+        scrollCaptureInProgress = false
     }
 }
 

@@ -27,8 +27,11 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -41,6 +44,18 @@ import java.util.concurrent.TimeUnit;
 public class AppSetIdManagerTest {
     private static final String TAG = "AppSetIdManagerTest";
     TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+
+    @BeforeClass
+    public static void presuite() {
+        TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+        testUtil.disableDeviceConfigSyncForTests(true);
+    }
+
+    @AfterClass
+    public static void postsuite() {
+        TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+        testUtil.disableDeviceConfigSyncForTests(false);
+    }
 
     @Before
     public void setup() throws Exception {
@@ -61,13 +76,13 @@ public class AppSetIdManagerTest {
         mTestUtil.overrideAllowlists(false);
     }
 
+    @Ignore("Flaky test. b/316167204")
     @Test
     public void testAppSetId() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         AppSetIdManagerFutures appSetIdManager =
                 AppSetIdManagerFutures.from(ApplicationProvider.getApplicationContext());

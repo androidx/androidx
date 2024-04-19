@@ -908,8 +908,8 @@ public class WebSettingsCompat {
     }
 
     @IntDef({WEB_AUTHENTICATION_SUPPORT_NONE,
-            WEB_AUTHENTICATION_SUPPORT_APP,
-            WEB_AUTHENTICATION_SUPPORT_BROWSER})
+            WEB_AUTHENTICATION_SUPPORT_FOR_APP,
+            WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @interface WebAuthenticationSupport {
@@ -920,7 +920,6 @@ public class WebSettingsCompat {
      * <p>
      * This is the default behavior.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int WEB_AUTHENTICATION_SUPPORT_NONE =
             WebSettingsBoundaryInterface.WebauthnSupport.NONE;
     /**
@@ -929,8 +928,7 @@ public class WebSettingsCompat {
      * <a href="https://developers.google.com/digital-asset-links">Digital Asset Links</a>
      * to learn how to associate an app with a website.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int WEB_AUTHENTICATION_SUPPORT_APP =
+    public static final int WEB_AUTHENTICATION_SUPPORT_FOR_APP =
             WebSettingsBoundaryInterface.WebauthnSupport.APP;
 
     /**
@@ -938,8 +936,7 @@ public class WebSettingsCompat {
      * <a href="https://developer.android.com/training/sign-in/privileged-apps">Privileged apps</a>
      * to learn how to make WebAuthn calls for any website.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int WEB_AUTHENTICATION_SUPPORT_BROWSER =
+    public static final int WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER =
             WebSettingsBoundaryInterface.WebauthnSupport.BROWSER;
 
     /**
@@ -953,10 +950,9 @@ public class WebSettingsCompat {
      * @param settings Settings retrieved from {@link WebView#getSettings()}.
      * @param support  The new support level which this WebView will use.
      * @see #WEB_AUTHENTICATION_SUPPORT_NONE
-     * @see #WEB_AUTHENTICATION_SUPPORT_APP
-     * @see #WEB_AUTHENTICATION_SUPPORT_BROWSER
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_APP
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_AUTHENTICATION,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebAuthenticationSupport(@NonNull WebSettings settings,
@@ -982,10 +978,9 @@ public class WebSettingsCompat {
      * @return the current support level.
      * @see #setWebAuthenticationSupport(WebSettings, int)
      * @see #WEB_AUTHENTICATION_SUPPORT_NONE
-     * @see #WEB_AUTHENTICATION_SUPPORT_APP
-     * @see #WEB_AUTHENTICATION_SUPPORT_BROWSER
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_APP
+     * @see #WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_AUTHENTICATION,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @WebAuthenticationSupport

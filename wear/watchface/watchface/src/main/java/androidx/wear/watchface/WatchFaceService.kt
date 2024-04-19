@@ -857,33 +857,31 @@ public abstract class WatchFaceService : WallpaperService() {
     internal fun periodicallyWriteComplicationDataCache(
         context: Context,
         fileName: String,
-        complicationsFlow: MutableStateFlow<List<IdAndComplicationDataWireFormat>>
+        complicationsFlow: MutableStateFlow<Map<Int, ComplicationData>>
     ) =
         TraceEvent("WatchFaceService.writeComplicationCache").use {
             val backgroundThreadCoroutineScope =
                 CoroutineScope(getBackgroundThreadHandler().asCoroutineDispatcher().immediate)
             backgroundThreadCoroutineScope.launch {
-                complicationsFlow.collect { complicationDataWireFormats ->
+                complicationsFlow.collect { complicationDataMap ->
                     try {
                         // The combination of 'collect' which conflates the updates and adding a
-                        // delay
-                        // here ensures that we write updates at least 1 second apart. The delay is
-                        // at
-                        // the beginning to delay writes during WF init.
+                        // delay here ensures that we write updates at least 1 second apart. The
+                        // delay is at the beginning to delay writes during WF init.
                         delay(1000)
                         val stream = ByteArrayOutputStream()
                         val objectOutputStream = ObjectOutputStream(stream)
-                        objectOutputStream.writeInt(complicationDataWireFormats.size)
-                        for (wireData in complicationDataWireFormats) {
-                            objectOutputStream.writeInt(wireData.id)
+                        objectOutputStream.writeInt(complicationDataMap.size)
+                        for (pair in complicationDataMap) {
+                            objectOutputStream.writeInt(pair.key)
                             objectOutputStream.writeObject(
                                 if (
-                                    (wireData.complicationData.persistencePolicy and
+                                    (pair.value.persistencePolicy and
                                         ComplicationPersistencePolicies.DO_NOT_PERSIST) != 0
                                 ) {
                                     NoDataComplicationData().asWireComplicationData()
                                 } else {
-                                    wireData.complicationData
+                                    pair.value.asWireComplicationData()
                                 }
                             )
                         }
@@ -1343,8 +1341,7 @@ public abstract class WatchFaceService : WallpaperService() {
         private var asyncWatchFaceConstructionPending = false
 
         @VisibleForTesting
-        internal val complicationsFlow =
-            MutableStateFlow<List<IdAndComplicationDataWireFormat>>(emptyList())
+        internal val complicationsFlow = MutableStateFlow<Map<Int, ComplicationData>>(emptyMap())
 
         private var initialUserStyle: UserStyleWireFormat? = null
         internal lateinit var interactiveInstanceId: String
@@ -1359,6 +1356,7 @@ public abstract class WatchFaceService : WallpaperService() {
         private val listeners = RemoteCallbackList<IWatchfaceListener>()
         private var lastWatchFaceColors: WatchFaceColors? = null
         private var lastPreviewImageNeedsUpdateRequest: String? = null
+        private var overriddenComplications: HashMap<Int, ComplicationData>? = null
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
@@ -1665,16 +1663,59 @@ public abstract class WatchFaceService : WallpaperService() {
             complicationDataWireFormats: List<IdAndComplicationDataWireFormat>
         ): Unit =
             TraceEvent("EngineWrapper.setComplicationDataList").use {
-                complicationsFlow.update { base ->
-                    // We need to merge the updates.
-                    val complicationUpdateMap =
-                        base.associate { Pair(it.id, it.complicationData) }.toMutableMap()
-                    for (data in complicationDataWireFormats) {
-                        complicationUpdateMap[data.id] = data.complicationData
+                synchronized(lock) {
+                    if (overriddenComplications != null) {
+                        // We need to merge the updates.
+                        for (data in complicationDataWireFormats) {
+                            overriddenComplications!![data.id] =
+                                data.complicationData.toApiComplicationData()
+                        }
+                    } else {
+                        complicationsFlow.update {
+                            it.toMutableMap().apply {
+                                // We need to merge the updates.
+                                for (data in complicationDataWireFormats) {
+                                    put(data.id, data.complicationData.toApiComplicationData())
+                                }
+                            }
+                        }
                     }
-                    complicationUpdateMap.map { IdAndComplicationDataWireFormat(it.key, it.value) }
                 }
             }
+
+        @AnyThread
+        internal fun overrideComplications(complications: Map<Int, ComplicationData>) {
+            synchronized(lock) {
+                if (overriddenComplications == null) {
+                    // Take a copy of the current complications to later restore.
+                    overriddenComplications = HashMap(complicationsFlow.value)
+                }
+
+                complicationsFlow.update {
+                    it.toMutableMap().apply {
+                        for (pair in complications) {
+                            put(pair.key, pair.value)
+                        }
+                    }
+                }
+            }
+        }
+
+        @AnyThread
+        internal fun removeAnyComplicationOverrides() {
+            synchronized(lock) {
+                if (overriddenComplications == null) {
+                   return
+                }
+
+                // Restore the original complications.
+                complicationsFlow.update {
+                    overriddenComplications!!
+                }
+
+                overriddenComplications = null
+            }
+        }
 
         @WorkerThread
         private fun listenForComplicationChanges(
@@ -1684,10 +1725,10 @@ public abstract class WatchFaceService : WallpaperService() {
             uiThreadCoroutineScope.launch {
                 complicationsFlow.collect { complicationDataWireFormats ->
                     val now = Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
-                    for (idAndComplicationData in complicationDataWireFormats) {
+                    for (pair in complicationDataWireFormats) {
                         complicationSlotsManager.onComplicationDataUpdate(
-                            idAndComplicationData.id,
-                            idAndComplicationData.complicationData.toApiComplicationData(),
+                            pair.key,
+                            pair.value,
                             now,
                             forceLoad = mutableWatchState.isAmbient.value ?: false,
                         )
@@ -2923,11 +2964,12 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("frameCallbackPending=$frameCallbackPending")
             writer.println("destroyed=$destroyed")
             writer.println("surfaceDestroyed=$surfaceDestroyed")
-            writer.println("lastComplications=${complicationsFlow.value.joinToString()}")
+            writer.println("lastComplications=${complicationsFlow.value}")
             writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
             writer.println("Resource only package name $resourceOnlyWatchFacePackageName")
 
             synchronized(lock) {
+                writer.println("overriddenComplications=$overriddenComplications")
                 forEachListener("dump") { writer.println("listener = ${it.asBinder()}") }
             }
 

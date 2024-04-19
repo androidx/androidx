@@ -41,7 +41,7 @@ internal class LazyGridAnimateScrollScope(
         get() = calculateLineAverageMainAxisSize(state.layoutInfo)
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
-        state.snapToItemIndexInternal(index, scrollOffset)
+        state.snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
     }
 
     override fun calculateDistanceTo(targetIndex: Int): Float {

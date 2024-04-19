@@ -23,6 +23,7 @@ import androidx.annotation.RawRes;
 import androidx.exifinterface.test.R;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.io.CharStreams;
 
 import java.io.IOException;
@@ -40,9 +41,9 @@ final class ExpectedAttributes {
                     .setMake("SAMSUNG")
                     .setMakeOffsetAndLength(160, 8)
                     .setModel("SM-N900S")
-                    .setAperture(2.2f)
+                    .setAperture(2.2)
                     .setDateTimeOriginal("2016:01:29 18:32:27")
-                    .setExposureTime(0.033f)
+                    .setExposureTime(1.0 / 30)
                     .setFocalLength("413/100")
                     .setImageSize(640, 480)
                     .setIso("50")
@@ -69,9 +70,9 @@ final class ExpectedAttributes {
                     .setMake("LGE")
                     .setMakeOffsetAndLength(414, 4)
                     .setModel("Nexus 5")
-                    .setAperture(2.4f)
+                    .setAperture(2.4)
                     .setDateTimeOriginal("2016:01:29 15:44:58")
-                    .setExposureTime(0.017f)
+                    .setExposureTime(1.0 / 60)
                     .setFocalLength("3970/1000")
                     .setGpsAltitude("0/1000")
                     .setGpsAltitudeRef("0")
@@ -116,14 +117,14 @@ final class ExpectedAttributes {
                     .setThumbnailSize(256, 144)
                     .setIsThumbnailCompressed(true)
                     .setLatitudeOffsetAndLength(12486, 24)
-                    .setLatLong(53.834507f, 10.69585f)
+                    .setLatLong(53.83450833333334, 10.69585)
                     .setAltitude(0)
                     .setMake("LGE")
                     .setMakeOffsetAndLength(102, 4)
                     .setModel("LG-H815")
-                    .setAperture(1.8f)
+                    .setAperture(1.8)
                     .setDateTimeOriginal("2015:11:12 16:46:18")
-                    .setExposureTime(0.0040f)
+                    .setExposureTime(0.0040)
                     .setFocalLength("442/100")
                     .setGpsDatestamp("1970:01:17")
                     .setGpsLatitude("53/1,50/1,423/100")
@@ -204,9 +205,9 @@ final class ExpectedAttributes {
         private boolean mHasLatLong;
         private long mLatitudeOffset;
         private long mLatitudeLength;
-        private float mLatitude;
-        private float mLongitude;
-        private float mAltitude;
+        private double mLatitude;
+        private double mLongitude;
+        private double mAltitude;
 
         // Make information
         private boolean mHasMake;
@@ -216,10 +217,10 @@ final class ExpectedAttributes {
 
         // Values.
         @Nullable private String mModel;
-        private float mAperture;
+        private double mAperture;
         @Nullable private String mDateTimeOriginal;
-        private float mExposureTime;
-        private float mFlash;
+        private double mExposureTime;
+        private double mFlash;
         @Nullable private String mFocalLength;
         @Nullable private String mGpsAltitude;
         @Nullable private String mGpsAltitudeRef;
@@ -238,6 +239,7 @@ final class ExpectedAttributes {
 
         // XMP information.
         private boolean mHasXmp;
+        @Nullable private String mXmp;
         @Nullable private Integer mXmpResourceId;
         private long mXmpOffset;
         private long mXmpLength;
@@ -280,6 +282,7 @@ final class ExpectedAttributes {
             mIso = attributes.iso;
             mOrientation = attributes.orientation;
             mHasXmp = attributes.hasXmp;
+            mXmp = attributes.mXmp;
             mXmpResourceId = attributes.mXmpResourceId;
             mXmpOffset = attributes.xmpOffset;
             mXmpLength = attributes.xmpLength;
@@ -325,7 +328,7 @@ final class ExpectedAttributes {
             return this;
         }
 
-        public Builder setLatLong(float latitude, float longitude) {
+        public Builder setLatLong(double latitude, double longitude) {
             mHasLatLong = true;
             mLatitude = latitude;
             mLongitude = longitude;
@@ -356,7 +359,7 @@ final class ExpectedAttributes {
             return this;
         }
 
-        public Builder setAltitude(float altitude) {
+        public Builder setAltitude(double altitude) {
             mAltitude = altitude;
             return this;
         }
@@ -397,7 +400,7 @@ final class ExpectedAttributes {
             return this;
         }
 
-        public Builder setAperture(float aperture) {
+        public Builder setAperture(double aperture) {
             mAperture = aperture;
             return this;
         }
@@ -407,12 +410,12 @@ final class ExpectedAttributes {
             return this;
         }
 
-        public Builder setExposureTime(float exposureTime) {
+        public Builder setExposureTime(double exposureTime) {
             mExposureTime = exposureTime;
             return this;
         }
 
-        public Builder setFlash(float flash) {
+        public Builder setFlash(double flash) {
             mFlash = flash;
             return this;
         }
@@ -488,9 +491,26 @@ final class ExpectedAttributes {
             return this;
         }
 
-        /** Sets the resource ID of the expected XMP data. */
+        /**
+         * Sets the expected XMP data.
+         *
+         * <p>Clears any value set by {@link #setXmpResourceId}.
+         */
+        public Builder setXmp(String xmp) {
+            mHasXmp = true;
+            mXmp = xmp;
+            mXmpResourceId = null;
+            return this;
+        }
+
+        /**
+         * Sets the resource ID of the expected XMP data.
+         *
+         * <p>Clears any value set by {@link #setXmp}.
+         */
         public Builder setXmpResourceId(@RawRes int xmpResourceId) {
             mHasXmp = true;
+            mXmp = null;
             mXmpResourceId = xmpResourceId;
             return this;
         }
@@ -514,6 +534,7 @@ final class ExpectedAttributes {
 
         public Builder clearXmp() {
             mHasXmp = false;
+            mXmp = null;
             mXmpResourceId = null;
             mXmpOffset = 0;
             mXmpLength = 0;
@@ -541,11 +562,11 @@ final class ExpectedAttributes {
     // GPS information.
     public final boolean hasLatLong;
     // TODO: b/270554381 - Merge this and longitude into a double[]
-    public final float latitude;
+    public final double latitude;
     public final long latitudeOffset;
     public final long latitudeLength;
-    public final float longitude;
-    public final float altitude;
+    public final double longitude;
+    public final double altitude;
 
     // Make information
     public final boolean hasMake;
@@ -555,9 +576,9 @@ final class ExpectedAttributes {
 
     // Values.
     public final String model;
-    public final float aperture;
+    public final double aperture;
     public final String dateTimeOriginal;
-    public final float exposureTime;
+    public final double exposureTime;
     public final String focalLength;
     // TODO: b/270554381 - Rename these to make them clear they're strings, or original values,
     //  and move them closer to the (computed) latitude/longitude/altitude values. Consider
@@ -578,6 +599,7 @@ final class ExpectedAttributes {
     public final int orientation;
 
     // XMP information.
+    @Nullable private final String mXmp;
     @Nullable private final Integer mXmpResourceId;
     @Nullable private String mMemoizedXmp;
     public final boolean hasXmp;
@@ -621,14 +643,19 @@ final class ExpectedAttributes {
         iso = builder.mIso;
         orientation = builder.mOrientation;
         hasXmp = builder.mHasXmp;
+        mXmp = builder.mXmp;
         mXmpResourceId = builder.mXmpResourceId;
+        Preconditions.checkArgument(
+                mXmp == null || mXmpResourceId == null,
+                "At most one of mXmp or mXmpResourceId may be set");
+        mMemoizedXmp = mXmp;
         xmpOffset = builder.mXmpOffset;
         xmpLength = builder.mXmpLength;
     }
 
     /**
-     * Returns the expected XMP data read from {@code resources} using {@link
-     * Builder#setXmpResourceId}.
+     * Returns the expected XMP data set directly with {@link Builder#setXmp} or read from {@code
+     * resources} using {@link Builder#setXmpResourceId}.
      *
      * <p>Returns null if no expected XMP data was set.
      */

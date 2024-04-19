@@ -45,6 +45,7 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -62,6 +63,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -196,6 +198,11 @@ class SupportedQualitiesVerificationTest(
     }
 
     private fun testQualityOptionRecordVideo(enableSurfaceProcessing: Boolean = false) {
+        // Skip for b/331618729
+        assumeFalse(
+            "Emulator API 28 crashes running this test.",
+            Build.VERSION.SDK_INT == 28 && isEmulator()
+        )
         // Arrange.
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
         val videoProfile =

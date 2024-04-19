@@ -268,7 +268,7 @@ public class BenchmarkRule private constructor(
                 fullClassName = description.className,
                 simpleClassName = description.testClass.simpleName,
                 methodName = invokeMethodName,
-                tracePath = tracePath
+                perfettoTracePath = tracePath
             )
         }
 

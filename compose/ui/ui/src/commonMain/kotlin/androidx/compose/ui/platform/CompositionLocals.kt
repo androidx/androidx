@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -201,6 +202,16 @@ expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
 internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconService?> {
     null
 }
+
+/** @see LocalScrollCaptureInProgress */
+internal val LocalProvidableScrollCaptureInProgress = compositionLocalOf { false }
+
+/**
+ * True when the system is currently capturing the contents of a scrollable in this compose view or
+ * any parent compose view.
+ */
+val LocalScrollCaptureInProgress: CompositionLocal<Boolean>
+    get() = LocalProvidableScrollCaptureInProgress
 
 @ExperimentalComposeUiApi
 @Composable

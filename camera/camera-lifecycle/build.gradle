@@ -35,7 +35,9 @@ dependencies {
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation(libs.autoValueAnnotations)
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
     annotationProcessor(libs.autoValue)
 
@@ -77,4 +79,5 @@ androidx {
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
     metalavaK2UastEnabled = true
+    samples(project(":camera:camera-lifecycle:camera-lifecycle-samples"))
 }

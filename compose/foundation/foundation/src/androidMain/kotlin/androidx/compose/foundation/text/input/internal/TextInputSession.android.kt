@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.view.KeyEvent
+import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
@@ -64,4 +65,9 @@ internal interface TextInputSession {
      * Called from [InputConnection.requestCursorUpdates].
      */
     fun requestCursorUpdates(cursorUpdateMode: Int)
+
+    /**
+     * Called from [InputConnection.performHandwritingGesture].
+     */
+    fun performHandwritingGesture(gesture: HandwritingGesture): Int
 }

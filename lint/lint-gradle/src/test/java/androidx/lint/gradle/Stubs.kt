@@ -29,13 +29,14 @@ internal val STUBS =
                 package org.gradle.api.tasks
 
                 import groovy.lang.Closure
+                import java.lang.Class
                 import org.gradle.api.DomainObjectCollection
                 import org.gradle.api.NamedDomainObjectCollection
                 import org.gradle.api.provider.Provider
                 import org.gradle.api.Task
                 import org.gradle.api.tasks.TaskProvider
 
-                class TaskContainer : DomainObjectCollection<Task>, TaskCollection<Task>, NamedDomainObjectCollection<Task> {
+                class TaskContainer : DomainObjectCollection<Task>, TaskCollection<Task>, NamedDomainObjectCollection<Task>, NamedDomainObjectSet<Task> {
                     fun create(name: String) = Unit
                     fun register(name: String): TaskProvider<Task> = TODO()
                     fun getByName(name: String) = Unit
@@ -75,9 +76,11 @@ internal val STUBS =
 
                 import groovy.lang.Closure
                 import org.gradle.api.tasks.TaskContainer
+                import java.lang.Class
 
                 class Project {
                     val tasks: TaskContainer
+                    fun findProperty(propertyName: String): Object? = null
                 }
 
                 interface NamedDomainObjectCollection<T> : Collection<T>, DomainObjectCollection<T>, Iterable<T> {
@@ -89,8 +92,7 @@ internal val STUBS =
                     fun all(action: Action<in T>)
                     fun configureEach(action: Action<in T>)
                     fun whenObjectAdded(action: Action<in T>)
-                    fun withType(cls: Class)
-                    fun withType(cls: Class, action: Action)
+                    fun withType(type: Class<S>)
                 }
 
                 interface Action<T>

@@ -31,6 +31,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
+import androidx.compose.material3.ProgressIndicatorDefaults.drawStopIndicator
 import androidx.compose.material3.tokens.ProgressIndicatorTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -175,41 +176,6 @@ fun LinearProgressIndicator(
         )
         // stop
         drawStopIndicator?.invoke(this)
-    }
-}
-
-/**
- * Draws the stop indicator at the end of the track.
- *
- * @param stopSize size of this stop indicator, it cannot be bigger than the track's height
- * @param color color of this stop indicator
- * @param strokeCap stroke cap to use for the ends of this stop indicator
- */
-fun DrawScope.drawStopIndicator(
-    stopSize: Dp,
-    color: Color,
-    strokeCap: StrokeCap,
-) {
-    val adjustedStopSize = min(stopSize.toPx(), size.height) // Stop can't be bigger than track
-    val stopOffset = (size.height - adjustedStopSize) / 2 // Offset from end
-    if (strokeCap == StrokeCap.Round) {
-        drawCircle(
-            color = color,
-            radius = adjustedStopSize / 2f,
-            center = Offset(
-                x = size.width - (adjustedStopSize / 2f) - stopOffset,
-                y = size.height / 2f
-            )
-        )
-    } else {
-        drawRect(
-            color = color,
-            topLeft = Offset(
-                x = size.width - adjustedStopSize - stopOffset,
-                y = (size.height - adjustedStopSize) / 2f
-            ),
-            size = Size(width = adjustedStopSize, height = adjustedStopSize)
-        )
     }
 }
 
@@ -924,6 +890,41 @@ object ProgressIndicatorDefaults {
         // large and noticeable. We purposefully choose a smaller threshold.
         visibilityThreshold = 1 / 1000f
     )
+
+    /**
+     * Draws the stop indicator at the end of the track.
+     *
+     * @param stopSize size of this stop indicator, it cannot be bigger than the track's height
+     * @param color color of this stop indicator
+     * @param strokeCap stroke cap to use for the ends of this stop indicator
+     */
+    fun DrawScope.drawStopIndicator(
+        stopSize: Dp,
+        color: Color,
+        strokeCap: StrokeCap,
+    ) {
+        val adjustedStopSize = min(stopSize.toPx(), size.height) // Stop can't be bigger than track
+        val stopOffset = (size.height - adjustedStopSize) / 2 // Offset from end
+        if (strokeCap == StrokeCap.Round) {
+            drawCircle(
+                color = color,
+                radius = adjustedStopSize / 2f,
+                center = Offset(
+                    x = size.width - (adjustedStopSize / 2f) - stopOffset,
+                    y = size.height / 2f
+                )
+            )
+        } else {
+            drawRect(
+                color = color,
+                topLeft = Offset(
+                    x = size.width - adjustedStopSize - stopOffset,
+                    y = (size.height - adjustedStopSize) / 2f
+                ),
+                size = Size(width = adjustedStopSize, height = adjustedStopSize)
+            )
+        }
+    }
 }
 
 // LinearProgressIndicator Material specs

@@ -39,7 +39,8 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = carouselSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -67,7 +68,8 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = carouselSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -98,7 +100,8 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = carouselSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
@@ -138,7 +141,8 @@ class UncontainedTest {
             itemSize = itemSize,
             itemSpacing = 0f
         )
-        val strategy = Strategy { _, _ -> keylineList }.apply(
+        val strategy = Strategy(
+            defaultKeylines = keylineList,
             availableSpace = carouselSize,
             itemSpacing = 0f,
             beforeContentPadding = 0f,

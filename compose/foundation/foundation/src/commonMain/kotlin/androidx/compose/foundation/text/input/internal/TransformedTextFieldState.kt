@@ -218,9 +218,14 @@ internal class TransformedTextFieldState(
     fun replaceText(
         newText: CharSequence,
         range: TextRange,
-        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible
+        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
+        restartImeIfContentChanges: Boolean = true
     ) {
-        textFieldState.editAsUser(inputTransformation, undoBehavior = undoBehavior) {
+        textFieldState.editAsUser(
+            inputTransformation = inputTransformation,
+            undoBehavior = undoBehavior,
+            restartImeIfContentChanges = restartImeIfContentChanges
+        ) {
             val selection = mapFromTransformed(range)
             replace(
                 selection.min,

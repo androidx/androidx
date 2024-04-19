@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
+import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
 import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
@@ -46,20 +47,13 @@ import java.io.FileOutputStream
  * switching from warmup -> timing phase, when [start] would be called.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-sealed class Profiler {
-    class ResultFile(
+sealed class Profiler() {
+    class ResultFile private constructor(
         val label: String,
+        val type: ProfilerOutput.Type,
         val outputRelativePath: String,
-        val source: Profiler?
+        val source: Profiler?,
     ) {
-        constructor(
-            label: String,
-            absolutePath: String
-        ) : this(
-            label = label,
-            outputRelativePath = Outputs.relativePathFor(absolutePath),
-            source = null
-        )
 
         fun embedInPerfettoTrace(perfettoTracePath: String) {
             source?.embedInPerfettoTrace(
@@ -71,6 +65,30 @@ sealed class Profiler {
             get() = outputRelativePath
                 .replace("(", "\\(")
                 .replace(")", "\\)")
+
+        companion object {
+            fun ofPerfettoTrace(
+                label: String,
+                absolutePath: String
+            ) = ResultFile(
+                label = label,
+                outputRelativePath = Outputs.relativePathFor(absolutePath),
+                type = ProfilerOutput.Type.PerfettoTrace,
+                source = null
+            )
+
+            fun of(
+                label: String,
+                type: ProfilerOutput.Type,
+                outputRelativePath: String,
+                source: Profiler
+            ) = ResultFile(
+                label = label,
+                outputRelativePath = outputRelativePath,
+                type = type,
+                source = source
+            )
+        }
     }
 
     abstract fun start(traceUniqueName: String): ResultFile?
@@ -158,11 +176,21 @@ internal fun startRuntimeMethodTracing(
         Debug.startMethodTracing(path, bufferSize, 0x10)
     }
 
-    return Profiler.ResultFile(
-        outputRelativePath = traceFileName,
-        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace",
-        source = profiler
-    )
+    return if (sampled) {
+        Profiler.ResultFile.of(
+            outputRelativePath = traceFileName,
+            label = "Stack Sampling (legacy) Trace",
+            type = ProfilerOutput.Type.StackSamplingTrace,
+            source = profiler
+        )
+    } else {
+        Profiler.ResultFile.of(
+            outputRelativePath = traceFileName,
+            label = "Method Trace",
+            type = ProfilerOutput.Type.MethodTrace,
+            source = profiler
+        )
+    }
 }
 
 internal fun stopRuntimeMethodTracing() {
@@ -295,9 +323,10 @@ internal object StackSamplingSimpleperf : Profiler() {
                     .setOutputFilename("simpleperf.data")
             )
         }
-        return ResultFile(
+        return ResultFile.of(
             label = "Stack Sampling Trace",
             outputRelativePath = outputRelativePath!!,
+            type = ProfilerOutput.Type.StackSamplingTrace,
             source = this
         )
     }

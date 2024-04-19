@@ -949,7 +949,6 @@ private fun LazyWithFlingConfig() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun LazyStaggeredGridDemo() {
@@ -1023,7 +1022,7 @@ private fun LazyStaggeredGridDemo() {
                         val color = colors[index]
                         Box(
                             modifier = Modifier
-                                .animateItemPlacement()
+                                .animateItem()
                                 .height(if (!expanded) heights[index] else heights[index] * 2)
                                 .border(2.dp, color, RoundedCornerShape(5.dp))
                                 .clickable {

@@ -325,6 +325,12 @@ suspend fun ScrollCaptureTester.captureBitmapsVertically(
 }
 
 @RequiresApi(31)
+internal suspend fun ScrollCaptureTester.CaptureSessionScope.performCaptureDiscardingBitmap() =
+    performCapture()
+        .also { it.bitmap?.recycle() }
+        .capturedRect
+
+@RequiresApi(31)
 suspend fun ScrollCaptureTester.CaptureSessionScope.captureAllFromTop(
     onBitmap: suspend (Bitmap) -> Unit
 ) {

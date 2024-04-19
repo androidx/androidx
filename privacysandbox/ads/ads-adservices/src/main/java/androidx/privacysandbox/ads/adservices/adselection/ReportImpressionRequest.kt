@@ -68,7 +68,8 @@ class ReportImpressionRequest public constructor(
     @SuppressLint("NewApi")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal fun convertToAdServices(): android.adservices.adselection.ReportImpressionRequest {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.convertReportImpressionRequest(this)
         }
         return Ext4Impl.convertReportImpressionRequest(this)

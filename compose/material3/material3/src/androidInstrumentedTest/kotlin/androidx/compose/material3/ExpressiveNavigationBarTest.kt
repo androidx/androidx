@@ -16,10 +16,23 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -27,16 +40,23 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -52,6 +72,341 @@ import org.junit.runner.RunWith
 class ExpressiveNavigationBarTest {
     @get:Rule
     val rule = createComposeRule()
+
+    @Test
+    fun bar_selectableGroupSemantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ExpressiveNavigationBar {
+                ExpressiveNavigationBarItem(
+                    modifier = Modifier.testTag("item"),
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("item")
+            .onParent()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
+    }
+    @Test
+    fun bar_size() {
+        val height = 64.dp // TODO: Replace with token.
+        rule.setMaterialContentForSizeAssertions {
+            ExpressiveNavigationBar {
+                repeat(3) { index ->
+                    ExpressiveNavigationBarItem(
+                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        label = { Text("Item $index") },
+                        selected = index == 0,
+                        onClick = {}
+                    )
+                }
+            }
+        }
+            .assertWidthIsEqualTo(rule.rootWidth())
+            .assertHeightIsEqualTo(height)
+    }
+
+    @Test
+    fun bar_respectContentPadding() {
+        rule.setMaterialContentForSizeAssertions {
+            ExpressiveNavigationBar(windowInsets = WindowInsets(17.dp, 17.dp, 17.dp, 17.dp)) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag("content"))
+            }
+        }
+        rule.onNodeWithTag("content")
+            .assertLeftPositionInRootIsEqualTo(17.dp)
+            .assertTopPositionInRootIsEqualTo(17.dp)
+    }
+
+    @Test
+    fun bar_equalWeightArrangement_sizeAndPositions() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        rule.setMaterialContent(
+            lightColorScheme(),
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates ->
+                parentCoords = coords
+            }
+        ) {
+            Box {
+                ExpressiveNavigationBar {
+                    repeat(4) { index ->
+                        ExpressiveNavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            val width = parentCoords.size.width
+            val expectedItemWidth = (width / 4f)
+            val expectedItemHeight = 64.dp.toPx() // TODO: Replace with token.
+
+            Truth.assertThat(itemCoords.size).isEqualTo(4)
+            itemCoords.forEach { (index, coord) ->
+                Truth.assertThat(coord.size.width.toFloat()).isWithin(1f).of(expectedItemWidth)
+                Truth.assertThat(coord.size.height.toFloat()).isWithin(1f).of(expectedItemHeight)
+                Truth.assertThat(coord.positionInWindow().x).isWithin(1f)
+                    .of(expectedItemWidth * index)
+            }
+        }
+    }
+
+    @Test
+    fun bar_equalWeightArrangement_topIconItemWithLongLabel_automaticallyResizesHeight() {
+        val defaultHeight = 64.dp // TODO: Replace with token.
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExpressiveNavigationBar(modifier = Modifier.testTag("TAG")) {
+                repeat(4) { index ->
+                    ExpressiveNavigationBarItem(
+                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        label = { Text("Long\nLabel\nMultiple\nLines") },
+                        selected = index == 0,
+                        onClick = {},
+                    )
+                }
+            }
+        }
+
+        Truth.assertThat(rule.onNodeWithTag("TAG").getUnclippedBoundsInRoot().height)
+            .isGreaterThan(defaultHeight)
+    }
+
+    @Test
+    fun bar_centeredArrangement_threeItems_widthAndPositions() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        rule.setContentWithSimulatedSize(
+            1000.dp,
+            200.dp,
+            lightColorScheme(),
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
+        ) {
+            Box {
+                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                    repeat(3) { index ->
+                        ExpressiveNavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            iconPosition = NavigationItemIconPosition.Start,
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            assertWidthAndPositions(
+                paddingPercentage = .2f,
+                itemsSpacePercentage = .6f,
+                numberOfItems = 3,
+                parentCoords = parentCoords,
+                itemCoords = itemCoords
+            )
+        }
+    }
+
+    @Test
+    fun bar_centeredArrangement_fourItems_widthAndPositions() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        rule.setContentWithSimulatedSize(
+            1000.dp,
+            200.dp,
+            lightColorScheme(),
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
+        ) {
+            Box {
+                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                    repeat(4) { index ->
+                        ExpressiveNavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            iconPosition = NavigationItemIconPosition.Start,
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            assertWidthAndPositions(
+                paddingPercentage = .15f,
+                itemsSpacePercentage = .7f,
+                numberOfItems = 4,
+                parentCoords = parentCoords,
+                itemCoords = itemCoords
+            )
+        }
+    }
+
+    @Test
+    fun bar_centeredArrangement_fiveItems_widthAndPositions() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        rule.setContentWithSimulatedSize(
+            1000.dp,
+            200.dp,
+            lightColorScheme(),
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
+        ) {
+            Box {
+                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                    repeat(5) { index ->
+                        ExpressiveNavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            iconPosition = NavigationItemIconPosition.Start,
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            assertWidthAndPositions(
+                paddingPercentage = .1f,
+                itemsSpacePercentage = .8f,
+                numberOfItems = 5,
+                parentCoords = parentCoords,
+                itemCoords = itemCoords
+            )
+        }
+    }
+
+    @Test
+    fun bar_centeredArrangement_sixItems_widthAndPositions() {
+        lateinit var parentCoords: LayoutCoordinates
+        val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
+        rule.setContentWithSimulatedSize(
+            1000.dp,
+            200.dp,
+            lightColorScheme(),
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
+        ) {
+            Box {
+                ExpressiveNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                    repeat(6) { index ->
+                        ExpressiveNavigationBarItem(
+                            icon = { Icon(Icons.Filled.Favorite, null) },
+                            iconPosition = NavigationItemIconPosition.Start,
+                            label = { Text("Item $index") },
+                            selected = index == 0,
+                            onClick = {},
+                            modifier = Modifier.onGloballyPositioned { coords ->
+                                itemCoords[index] = coords
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdleWithDensity {
+            assertWidthAndPositions(
+                paddingPercentage = .05f,
+                itemsSpacePercentage = .9f,
+                numberOfItems = 6,
+                parentCoords = parentCoords,
+                itemCoords = itemCoords
+            )
+        }
+    }
+
+    @Test
+    fun bar_centeredArrangement_startIconItemWithLongLabel_automaticallyResizesHeight() {
+        val defaultHeight = 64.dp // TODO: Replace with token.
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ExpressiveNavigationBar(
+                modifier = Modifier.testTag("TAG"),
+                arrangement = NavigationBarArrangement.Centered
+            ) {
+                repeat(4) { index ->
+                    ExpressiveNavigationBarItem(
+                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        iconPosition = NavigationItemIconPosition.Start,
+                        label = { Text("Long\nLabel\nMultiple\nLines") },
+                        selected = index == 0,
+                        onClick = {},
+                    )
+                }
+            }
+        }
+
+        Truth.assertThat(rule.onNodeWithTag("TAG").getUnclippedBoundsInRoot().height)
+            .isGreaterThan(defaultHeight)
+    }
+
+    @Test
+    fun bar_itemsWithCustomColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val customItemColors = ExpressiveNavigationBarItemDefaults.colors().copy(
+                selectedIconColor = Color.Red,
+                selectedTextColor = Color.Blue,
+                unselectedIconColor = Color.Green,
+                unselectedTextColor = Color.White,
+                disabledIconColor = Color.Gray,
+                disabledTextColor = Color.Black,
+            )
+
+            ExpressiveNavigationBar {
+                ExpressiveNavigationBarItem(
+                    selected = true,
+                    colors = customItemColors,
+                    icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
+                    label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Blue) },
+                    onClick = {}
+                )
+                ExpressiveNavigationBarItem(
+                    selected = false,
+                    colors = customItemColors,
+                    icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
+                    label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.White) },
+                    onClick = {}
+                )
+                ExpressiveNavigationBarItem(
+                    enabled = false,
+                    selected = false,
+                    colors = customItemColors,
+                    icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Gray) },
+                    label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Black) },
+                    onClick = {}
+                )
+            }
+        }
+    }
 
     @Test
     fun item_defaultSemantics() {
@@ -173,8 +528,11 @@ class ExpressiveNavigationBarTest {
         rule.onNodeWithTag("icon", useUnmergedTree = true)
             // The icon should be horizontally centered in the item.
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
-            // The top of the icon is `TopIconIndicatorVerticalPadding` below the top of the item.
-            .assertTopPositionInRootIsEqualTo(itemBounds.top + TopIconIndicatorVerticalPadding)
+            // The top of the icon is `TopIconIndicatorVerticalPadding + TopIconItemVerticalPadding`
+            // below the top of the item.
+            .assertTopPositionInRootIsEqualTo(
+                itemBounds.top + TopIconIndicatorVerticalPadding + TopIconItemVerticalPadding
+            )
 
         val iconBottom = iconBounds.top + iconBounds.height
         // Text should be `TopIconIndicatorVerticalPadding + TopIconIndicatorToLabelPadding` from
@@ -262,5 +620,54 @@ class ExpressiveNavigationBarTest {
         rule.onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+    }
+}
+
+private fun Density.assertWidthAndPositions(
+    paddingPercentage: Float,
+    itemsSpacePercentage: Float,
+    numberOfItems: Int,
+    parentCoords: LayoutCoordinates,
+    itemCoords: Map<Int, LayoutCoordinates>
+) {
+    val width = parentCoords.size.width
+    val padding = width * paddingPercentage
+    val expectedItemWidth = (width * itemsSpacePercentage / numberOfItems).toInt()
+
+    Truth.assertThat(itemCoords.size).isEqualTo(numberOfItems)
+    itemCoords.forEach { (index, coord) ->
+        Truth.assertThat(coord.size.width.toFloat()).isWithin(1f)
+            .of(expectedItemWidth.toFloat())
+        Truth.assertThat(coord.positionInWindow().x).isWithin(1f)
+            .of((expectedItemWidth * index) + padding)
+    }
+}
+
+private fun ComposeContentTestRule.setContentWithSimulatedSize(
+    simulatedWidth: Dp,
+    simulatedHeight: Dp,
+    colorScheme: ColorScheme,
+    modifier: Modifier = Modifier,
+    composable: @Composable () -> Unit
+) {
+    setContent {
+        val currentDensity = LocalDensity.current
+        val currentConfiguration = LocalConfiguration.current
+        val simulatedDensity = Density(
+            currentDensity.density * (currentConfiguration.screenWidthDp.dp / simulatedWidth)
+        )
+        MaterialTheme(colorScheme = colorScheme) {
+            Surface(modifier = modifier) {
+                CompositionLocalProvider(LocalDensity provides simulatedDensity) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(simulatedHeight),
+                    ) {
+                        composable()
+                    }
+                }
+            }
+        }
     }
 }

@@ -23,6 +23,7 @@ import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequ
 import androidx.health.services.client.impl.request.BatchingModeConfigRequest;
 import androidx.health.services.client.impl.request.CapabilitiesRequest;
 import androidx.health.services.client.impl.request.FlushRequest;
+import androidx.health.services.client.impl.request.DebouncedGoalRequest;
 import androidx.health.services.client.impl.request.ExerciseGoalRequest;
 import androidx.health.services.client.impl.request.PrepareExerciseRequest;
 import androidx.health.services.client.impl.request.StartExerciseRequest;
@@ -32,16 +33,16 @@ import androidx.health.services.client.impl.response.ExerciseCapabilitiesRespons
 /**
  * Interface to make ipc calls for health services exercise api.
  *
- * The next method added to the interface should use ID: 18
+ * The next method added to the interface should use ID: 24
  * (this id needs to be incremented for each added method)
  *
  */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IExerciseApiService {
     /**
-     * API version of the AIDL interface. Should be incremented every time a new
-     * method is added.
-     *
+     * Deprecated. Now defined within the implementation of the
+     * IExerciseApiService, due to stable AIDL preventing this from being
+     * modified.
      */
     const int API_VERSION = 4;
 
@@ -143,4 +144,23 @@ interface IExerciseApiService {
      * <p>Added in API version 3.
      */
     void updateExerciseTypeConfigForActiveExercise(in UpdateExerciseTypeConfigRequest updateExerciseTypeConfigRequest, IStatusCallback statuscallback) = 16;
+
+    /**
+     * Adds a debounced goal for an active exercise.
+     *
+     * <p>Debounced goals apply to only sample data types in active exercises
+     * owned by the client, and will be invalidated once the exercise is
+     * complete. A goal can be added only after an exercise has been started.
+     * Only one debounced goal per DataType+ComparisonType pair is allowed.
+     *
+     * <p>Added in API_VERION 7.
+     */
+     void addDebouncedGoalToActiveExercise(in DebouncedGoalRequest request, IStatusCallback statusCallback) = 22;
+
+    /**
+     * Removes a debounced goal for an active exercise.
+     *
+     * <p>Added in API_VERION 7.
+     */
+    void removeDebouncedGoalFromActiveExercise(in DebouncedGoalRequest request, IStatusCallback statusCallback) = 23;
 }

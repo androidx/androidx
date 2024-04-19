@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import kotlin.jvm.JvmInline
 
 /**
@@ -30,7 +29,6 @@ import kotlin.jvm.JvmInline
  * for a short period or until another character is typed. This helps the user to follow the text
  * input while also protecting their privacy by not revealing too much information to others.
  */
-@ExperimentalFoundationApi
 @JvmInline
 value class TextObfuscationMode internal constructor(val value: Int) {
     companion object {

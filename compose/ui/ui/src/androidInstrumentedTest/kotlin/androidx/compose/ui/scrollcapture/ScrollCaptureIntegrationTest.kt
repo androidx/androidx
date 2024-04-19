@@ -16,11 +16,16 @@
 
 package androidx.compose.ui.scrollcapture
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -31,7 +36,17 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -39,8 +54,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,18 +70,6 @@ class ScrollCaptureIntegrationTest {
     val rule = createComposeRule()
 
     private val captureTester = ScrollCaptureTester(rule)
-
-    @Before
-    fun setUp() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = true
-    }
-
-    @After
-    fun tearDown() {
-        @Suppress("DEPRECATION")
-        ComposeFeatureFlag_LongScreenshotsEnabled = false
-    }
 
     @Test
     fun search_finds_verticalScrollModifier() = captureTester.runTest {
@@ -243,5 +244,94 @@ class ScrollCaptureIntegrationTest {
 
         val targets = captureTester.findCaptureTargets()
         assertThat(targets.isEmpty())
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun capture_LazyColumn_stickyHeadersDisabled_byLayout() = captureTester.runTest {
+        val headerHeight = 5
+        val state = LazyListState()
+        var firstHeaderCoords by mutableStateOf<LayoutCoordinates?>(null, neverEqualPolicy())
+        var firstItemCoords by mutableStateOf<LayoutCoordinates?>(null, neverEqualPolicy())
+
+        fun assertHeaderNotStuck() {
+            val headerBounds = firstHeaderCoords
+                ?.takeIf { it.isAttached }
+                ?.boundsInParent()
+                ?: return
+            val itemBounds = firstItemCoords
+                ?.takeIf { it.isAttached }
+                ?.boundsInParent()
+                ?: return
+            assertThat(headerBounds.bottom).isEqualTo(itemBounds.top)
+        }
+
+        captureTester.setContent {
+            with(LocalDensity.current) {
+                LazyColumn(
+                    state = state,
+                    modifier = Modifier.size(10.toDp())
+                ) {
+                    stickyHeader {
+                        Box(
+                            Modifier
+                                .background(Color.Red)
+                                .fillMaxWidth()
+                                .height(headerHeight.toDp())
+                                .onGloballyPositioned { firstHeaderCoords = it }
+                        )
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                firstHeaderCoords = null
+                            }
+                        }
+                    }
+                    item {
+                        Box(
+                            Modifier
+                                .background(Color.Green)
+                                .size(10.toDp())
+                                .onGloballyPositioned { firstItemCoords = it }
+                        )
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                firstItemCoords = null
+                            }
+                        }
+                    }
+
+                    stickyHeader {
+                        Box(
+                            Modifier
+                                .background(Color.Red)
+                                .fillMaxWidth()
+                                .height(headerHeight.toDp())
+                        )
+                    }
+                    item {
+                        Box(
+                            Modifier
+                                .background(Color.Green)
+                                .size(10.toDp())
+                        )
+                    }
+                }
+            }
+        }
+
+        // Sticky headers render correctly trivially when starting from the top, so we need to
+        // start a bit down the list.
+        rule.awaitIdle()
+        val scrolled = state.scrollBy(100f)
+
+        val target = captureTester.findCaptureTargets().single()
+        captureTester.capture(target, captureWindowHeight = 1) {
+            repeat(scrolled.toInt()) {
+                shiftWindowBy(-1)
+                performCaptureDiscardingBitmap()
+                rule.awaitIdle()
+                assertHeaderNotStuck()
+            }
+        }
     }
 }

@@ -87,7 +87,7 @@ internal class PagerScrollPosition(
      * c) there will be not enough pages to fill the viewport after the requested index, so we
      * would have to compose few elements before the asked index, changing the first visible page.
      */
-    fun requestPosition(index: Int, offsetFraction: Float) {
+    fun requestPositionAndForgetLastKnownKey(index: Int, offsetFraction: Float) {
         update(index, offsetFraction)
         // clear the stored key as we have a direct request to scroll to [index] position and the
         // next [checkIfFirstVisibleItemWasMoved] shouldn't override this.

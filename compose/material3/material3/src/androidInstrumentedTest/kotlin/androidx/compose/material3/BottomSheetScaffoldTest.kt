@@ -99,6 +99,7 @@ import junit.framework.TestCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -619,7 +620,9 @@ class BottomSheetScaffoldTest {
         }
     }
 
+    // TODO(330937081): Update test logic to instead change virtual screen size.
     @Test
+    @Ignore
     fun bottomSheetScaffold_landscape_sheetRespectsMaxWidthAndIsCentered() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)
@@ -674,7 +677,9 @@ class BottomSheetScaffoldTest {
         }
     }
 
+    // TODO(330937081): Update test logic to instead change virtual screen size.
     @Test
+    @Ignore
     fun bottomSheetScaffold_landscape_filledWidth_sheetFillsEntireWidth() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)

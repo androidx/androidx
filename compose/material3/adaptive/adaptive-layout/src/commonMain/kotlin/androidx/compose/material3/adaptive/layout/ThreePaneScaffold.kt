@@ -16,10 +16,8 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
@@ -36,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
@@ -688,45 +685,6 @@ private class ThreePaneContentMeasurePolicy(
     }
 }
 
-/**
- * The root composable of pane contents in a [ThreePaneScaffold] that supports default motions
- * during pane switching. It's recommended to use this composable to wrap your own contents when
- * passing them into pane parameters of the scaffold functions, therefore your panes can have a
- * nice default animation for free.
- *
- * See usage samples at:
- * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
- * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
- */
-@Suppress("IllegalExperimentalApiUsage") // TODO: address before moving to beta
-@OptIn(ExperimentalAnimationApi::class)
-@ExperimentalMaterial3AdaptiveApi
-@Composable
-fun ThreePaneScaffoldScope.AnimatedPane(
-    modifier: Modifier = Modifier,
-    content: (@Composable ThreePaneScaffoldScope.() -> Unit),
-) {
-    val keepShowing = scaffoldStateTransition.currentState[role] != PaneAdaptedValue.Hidden &&
-        scaffoldStateTransition.targetState[role] != PaneAdaptedValue.Hidden
-    scaffoldStateTransition.AnimatedVisibility(
-        visible = { value: ThreePaneScaffoldValue -> value[role] != PaneAdaptedValue.Hidden },
-        modifier = modifier
-            .animatedPane()
-            .animateBounds(
-                animateFraction = scaffoldStateTransitionFraction,
-                positionAnimationSpec = positionAnimationSpec,
-                sizeAnimationSpec = sizeAnimationSpec,
-                lookaheadScope = this,
-                enabled = keepShowing
-            )
-            .graphicsLayer(clip = !keepShowing),
-        enter = enterTransition,
-        exit = exitTransition
-    ) {
-        content()
-    }
-}
-
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class PaneMeasurable(
     val measurable: Measurable,
@@ -778,8 +736,8 @@ private class PaneMeasurable(
 /**
  * Scope for the panes of [ThreePaneScaffold].
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
+@ExperimentalMaterial3AdaptiveApi
+sealed interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
     /**
      * The [ThreePaneScaffoldRole] of the current pane in the scope.
      */
@@ -793,6 +751,7 @@ interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
     /**
      * The current fraction of the scaffold state transition.
      */
+    // TODO(b/333403487): change this to lambda to defer value reading
     val scaffoldStateTransitionFraction: Float
 
     /**

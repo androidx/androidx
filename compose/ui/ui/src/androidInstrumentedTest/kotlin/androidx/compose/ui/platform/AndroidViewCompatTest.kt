@@ -845,7 +845,6 @@ class AndroidViewCompatTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun touchEventsAreDispatched() {
         val view = createCaptureEventsView()

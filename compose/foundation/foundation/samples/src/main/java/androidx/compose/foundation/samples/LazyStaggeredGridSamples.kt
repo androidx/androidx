@@ -19,6 +19,7 @@ package androidx.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -29,8 +30,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -141,6 +147,25 @@ fun LazyHorizontalStaggeredGridSpanSample() {
                     "Item $it",
                     Modifier.border(1.dp, Color.Blue).width(80.dp).wrapContentSize()
                 )
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun StaggeredGridAnimateItemSample() {
+    var list by remember { mutableStateOf(listOf("A", "B", "C")) }
+    Column {
+        Button(onClick = { list = list + "D" }) {
+            Text("Add new item")
+        }
+        Button(onClick = { list = list.shuffled() }) {
+            Text("Shuffle")
+        }
+        LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(1)) {
+            items(list, key = { it }) {
+                Text("Item $it", Modifier.animateItem())
             }
         }
     }

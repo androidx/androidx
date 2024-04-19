@@ -34,6 +34,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState.Companion.Saver
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -261,7 +262,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    internal val itemAnimator = LazyListItemAnimator()
+    internal val itemAnimator = LazyLayoutItemAnimator<LazyListMeasuredItem>()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
@@ -300,7 +301,7 @@ class LazyListState @ExperimentalFoundationApi constructor(
         scrollOffset: Int = 0
     ) {
         scroll {
-            snapToItemIndexInternal(index, scrollOffset)
+            snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
         }
     }
 
@@ -336,15 +337,11 @@ class LazyListState @ExperimentalFoundationApi constructor(
         snapToItemIndexInternal(index, scrollOffset, forceRemeasure = false)
     }
 
-    internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
-        snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
-    }
-
     /**
      * Snaps to the requested scroll position. Synchronously executes remeasure if [forceRemeasure]
      * is true, and schedules a remeasure if false.
      */
-    private fun snapToItemIndexInternal(
+    internal fun snapToItemIndexInternal(
         index: Int,
         scrollOffset: Int,
         forceRemeasure: Boolean
@@ -398,10 +395,12 @@ class LazyListState @ExperimentalFoundationApi constructor(
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
-    override val isLastScrollForward: Boolean
-        get() = scrollableState.isLastScrollForward
-    override val isLastScrollBackward: Boolean
-        get() = scrollableState.isLastScrollBackward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
+        get() = scrollableState.lastScrolledForward
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
+        get() = scrollableState.lastScrolledBackward
 
     internal val placementScopeInvalidator = ObservableScopeInvalidator()
 

@@ -447,10 +447,6 @@ class RoomAndroidGradlePluginTest {
         expectFailure: Boolean = false
     ) = runGradle(*args, projectDir = projectDir, expectFailure = expectFailure)
 
-    private fun searchAndReplace(file: File, search: String, replace: String) {
-        file.writeText(file.readText().replace(search, replace))
-    }
-
     enum class ProcessingBackend(
         val isForKotlin: Boolean
     ) {

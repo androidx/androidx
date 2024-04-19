@@ -217,11 +217,34 @@ interface LookaheadScope {
      * converted coordinates.
      */
     @ExperimentalComposeUiApi
-    fun LayoutCoordinates.localLookaheadPositionOf(coordinates: LayoutCoordinates) =
-        this.toLookaheadCoordinates().localPositionOf(
-            coordinates.toLookaheadCoordinates(),
-            Offset.Zero
-        )
+    fun LayoutCoordinates.localLookaheadPositionOf(
+        coordinates: LayoutCoordinates,
+        excludeDirectManipulationOffset: Boolean = false,
+    ): Offset {
+        val lookaheadCoords = this.toLookaheadCoordinates()
+        val source = coordinates.toLookaheadCoordinates()
+
+        return if (lookaheadCoords is LookaheadLayoutCoordinates) {
+            lookaheadCoords.localPositionOf(
+                sourceCoordinates = source,
+                relativeToSource = Offset.Zero,
+                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            )
+        } else if (source is LookaheadLayoutCoordinates) {
+            // Relative from source, so we take its negative position
+            -source.localPositionOf(
+                sourceCoordinates = lookaheadCoords,
+                relativeToSource = Offset.Zero,
+                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            )
+        } else {
+            lookaheadCoords.localPositionOf(
+                sourceCoordinates = source,
+                relativeToSource = Offset.Zero,
+                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

@@ -197,7 +197,7 @@ fun TopAppBar(
 ) = SingleRowTopAppBar(
     modifier = modifier,
     title = title,
-    titleTextStyle = MaterialTheme.typography.fromToken(TopAppBarSmallTokens.HeadlineFont),
+    titleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
     centeredTitle = false,
     navigationIcon = navigationIcon,
     actions = actions,
@@ -312,7 +312,7 @@ fun CenterAlignedTopAppBar(
 ) = SingleRowTopAppBar(
     modifier = modifier,
     title = title,
-    titleTextStyle = MaterialTheme.typography.fromToken(TopAppBarSmallTokens.HeadlineFont),
+    titleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
     centeredTitle = true,
     navigationIcon = navigationIcon,
     actions = actions,
@@ -439,8 +439,8 @@ fun MediumTopAppBar(
 ) = TwoRowsTopAppBar(
     modifier = modifier,
     title = title,
-    titleTextStyle = MaterialTheme.typography.fromToken(TopAppBarMediumTokens.HeadlineFont),
-    smallTitleTextStyle = MaterialTheme.typography.fromToken(TopAppBarSmallTokens.HeadlineFont),
+    titleTextStyle = TopAppBarMediumTokens.HeadlineFont.value,
+    smallTitleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
     titleBottomPadding = MediumTitleBottomPadding,
     smallTitle = title,
     navigationIcon = navigationIcon,
@@ -572,8 +572,8 @@ fun LargeTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null
 ) = TwoRowsTopAppBar(
     title = title,
-    titleTextStyle = MaterialTheme.typography.fromToken(TopAppBarLargeTokens.HeadlineFont),
-    smallTitleTextStyle = MaterialTheme.typography.fromToken(TopAppBarSmallTokens.HeadlineFont),
+    titleTextStyle = TopAppBarLargeTokens.HeadlineFont.value,
+    smallTitleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
     titleBottomPadding = LargeTitleBottomPadding,
     smallTitle = title,
     modifier = modifier,

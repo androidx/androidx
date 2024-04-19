@@ -206,6 +206,9 @@ package androidx.camera.core {
   @SuppressCompatibility @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
   }
 
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalImageCaptureOutputFormat {
+  }
+
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
   }
 
@@ -302,6 +305,7 @@ package androidx.camera.core {
     method public int getFlashMode();
     method public static androidx.camera.core.ImageCaptureCapabilities getImageCaptureCapabilities(androidx.camera.core.CameraInfo);
     method @IntRange(from=1, to=100) public int getJpegQuality();
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public int getOutputFormat();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getPostviewResolutionSelector();
     method public androidx.camera.core.ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
@@ -327,6 +331,8 @@ package androidx.camera.core {
     field public static final int FLASH_MODE_OFF = 2; // 0x2
     field public static final int FLASH_MODE_ON = 1; // 0x1
     field public static final int FLASH_MODE_SCREEN = 3; // 0x3
+    field @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public static final int OUTPUT_FORMAT_JPEG = 0; // 0x0
+    field @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public static final int OUTPUT_FORMAT_JPEG_ULTRA_HDR = 1; // 0x1
   }
 
   public static final class ImageCapture.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageCapture!> {
@@ -336,6 +342,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageCapture.Builder setFlashMode(int);
     method public androidx.camera.core.ImageCapture.Builder setIoExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageCapture.Builder setJpegQuality(@IntRange(from=1, to=100) int);
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public androidx.camera.core.ImageCapture.Builder setOutputFormat(int);
     method public androidx.camera.core.ImageCapture.Builder setPostviewEnabled(boolean);
     method public androidx.camera.core.ImageCapture.Builder setPostviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method public androidx.camera.core.ImageCapture.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
@@ -398,6 +405,7 @@ package androidx.camera.core {
   }
 
   public interface ImageCaptureCapabilities {
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalImageCaptureOutputFormat public java.util.Set<java.lang.Integer!> getSupportedOutputFormats();
     method public boolean isCaptureProcessProgressSupported();
     method public boolean isPostviewSupported();
   }
@@ -405,6 +413,11 @@ package androidx.camera.core {
   @RequiresApi(21) public class ImageCaptureException extends java.lang.Exception {
     ctor public ImageCaptureException(int, String, Throwable?);
     method public int getImageCaptureError();
+  }
+
+  public final class ImageCaptureExtKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? takePicture(androidx.camera.core.ImageCapture, androidx.camera.core.ImageCapture.OutputFileOptions outputFileOptions, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageCapture.OutputFileResults>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public static suspend Object? takePicture(androidx.camera.core.ImageCapture, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageProxy>);
   }
 
   @RequiresApi(21) public class ImageCaptureLatencyEstimate {

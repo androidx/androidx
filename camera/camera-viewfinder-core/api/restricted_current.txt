@@ -3,38 +3,50 @@ package androidx.camera.viewfinder.core {
 
   @RequiresApi(21) public final class ZoomGestureDetector {
     ctor public ZoomGestureDetector(android.content.Context context, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
-    ctor public ZoomGestureDetector(android.content.Context context, optional int spanSlop, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
-    ctor public ZoomGestureDetector(android.content.Context context, optional int spanSlop, optional int minSpan, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
-    method public long getEventTime();
-    method public float getFocusX();
-    method public float getFocusY();
-    method public float getScaleFactor();
+    ctor public ZoomGestureDetector(android.content.Context context, optional @Px int spanSlop, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
+    ctor public ZoomGestureDetector(android.content.Context context, optional @Px int spanSlop, optional @Px int minSpan, androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener listener);
     method public long getTimeDelta();
-    method public boolean isInProgress();
     method public boolean isQuickZoomEnabled();
     method public boolean isStylusZoomEnabled();
     method @UiThread public boolean onTouchEvent(android.view.MotionEvent event);
     method public void setQuickZoomEnabled(boolean);
     method public void setStylusZoomEnabled(boolean);
-    property public final long eventTime;
-    property public final float focusX;
-    property public final float focusY;
-    property public final boolean isInProgress;
     property public final boolean isQuickZoomEnabled;
     property public final boolean isStylusZoomEnabled;
-    property public final float scaleFactor;
     property public final long timeDelta;
     field public static final androidx.camera.viewfinder.core.ZoomGestureDetector.Companion Companion;
-    field public static final int ZOOM_GESTURE_BEGIN = 1; // 0x1
-    field public static final int ZOOM_GESTURE_END = 2; // 0x2
-    field public static final int ZOOM_GESTURE_MOVE = 0; // 0x0
   }
 
   public static final class ZoomGestureDetector.Companion {
   }
 
   public static fun interface ZoomGestureDetector.OnZoomGestureListener {
-    method @UiThread public boolean onZoomEvent(int type, androidx.camera.viewfinder.core.ZoomGestureDetector detector);
+    method @UiThread public boolean onZoomEvent(androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent zoomEvent);
+  }
+
+  public abstract static class ZoomGestureDetector.ZoomEvent {
+    method public final long getEventTime();
+    method public final int getFocusX();
+    method public final int getFocusY();
+    property public final long eventTime;
+    property public final int focusX;
+    property public final int focusY;
+  }
+
+  public static final class ZoomGestureDetector.ZoomEvent.Begin extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
+    ctor public ZoomGestureDetector.ZoomEvent.Begin(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY);
+  }
+
+  public static final class ZoomGestureDetector.ZoomEvent.End extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
+    ctor public ZoomGestureDetector.ZoomEvent.End(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float scaleFactor);
+    method public float getScaleFactor();
+    property public final float scaleFactor;
+  }
+
+  public static final class ZoomGestureDetector.ZoomEvent.Move extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
+    ctor public ZoomGestureDetector.ZoomEvent.Move(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float scaleFactor);
+    method public float getScaleFactor();
+    property public final float scaleFactor;
   }
 
 }

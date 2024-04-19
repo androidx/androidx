@@ -77,7 +77,6 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
@@ -3068,8 +3067,8 @@ class ScrollableTest {
 
         // Assert both isLastScrollForward and isLastScrollBackward are false before any scroll
         rule.runOnIdle {
-            assertThat(controller.isLastScrollForward).isFalse()
-            assertThat(controller.isLastScrollBackward).isFalse()
+            assertThat(controller.lastScrolledForward).isFalse()
+            assertThat(controller.lastScrolledBackward).isFalse()
         }
 
         lateinit var animateJob: Job
@@ -3087,8 +3086,8 @@ class ScrollableTest {
 
         // Assert isLastScrollForward is true during forward-scroll and isLastScrollBackward is false
         rule.runOnIdle {
-            assertThat(controller.isLastScrollForward).isTrue()
-            assertThat(controller.isLastScrollBackward).isFalse()
+            assertThat(controller.lastScrolledForward).isTrue()
+            assertThat(controller.lastScrolledBackward).isFalse()
         }
 
         // Stop halfway through the animation
@@ -3096,8 +3095,8 @@ class ScrollableTest {
 
         // Assert isLastScrollForward is true after forward-scroll and isLastScrollBackward is false
         rule.runOnIdle {
-            assertThat(controller.isLastScrollForward).isTrue()
-            assertThat(controller.isLastScrollBackward).isFalse()
+            assertThat(controller.lastScrolledForward).isTrue()
+            assertThat(controller.lastScrolledBackward).isFalse()
         }
 
         rule.runOnIdle {
@@ -3113,8 +3112,8 @@ class ScrollableTest {
 
         // Assert isLastScrollForward is false during backward-scroll and isLastScrollBackward is true
         rule.runOnIdle {
-            assertThat(controller.isLastScrollForward).isFalse()
-            assertThat(controller.isLastScrollBackward).isTrue()
+            assertThat(controller.lastScrolledForward).isFalse()
+            assertThat(controller.lastScrolledBackward).isTrue()
         }
 
         // Stop halfway through the animation
@@ -3122,8 +3121,8 @@ class ScrollableTest {
 
         // Assert isLastScrollForward is false after backward-scroll and isLastScrollBackward is true
         rule.runOnIdle {
-            assertThat(controller.isLastScrollForward).isFalse()
-            assertThat(controller.isLastScrollBackward).isTrue()
+            assertThat(controller.lastScrolledForward).isFalse()
+            assertThat(controller.lastScrolledBackward).isTrue()
         }
     }
 
@@ -3150,11 +3149,7 @@ internal suspend fun savePointerInputEvents(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
 ) {
-    if (VelocityTrackerAddPointsFix) {
-        savePointerInputEventsWithFix(tracker, pointerInputScope)
-    } else {
-        savePointerInputEventsLegacy(tracker, pointerInputScope)
-    }
+    savePointerInputEventsWithFix(tracker, pointerInputScope)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

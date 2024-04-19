@@ -921,10 +921,10 @@ open class MutableSnapshot internal constructor(
                 val readonlyId = nextSnapshotId++
                 openSnapshots = openSnapshots.set(readonlyId)
                 NestedReadonlySnapshot(
-                    readonlyId,
-                    invalid.addRange(previousId + 1, readonlyId),
-                    readObserver,
-                    this
+                    id = readonlyId,
+                    invalid = invalid.addRange(previousId + 1, readonlyId),
+                    readObserver = mergedReadObserver(readObserver, this.readObserver),
+                    parent = this
                 )
             }
         }
@@ -1359,7 +1359,12 @@ internal class ReadonlySnapshot internal constructor(
 
     override fun takeNestedSnapshot(readObserver: ((Any) -> Unit)?): Snapshot {
         validateOpen(this)
-        return NestedReadonlySnapshot(id, invalid, readObserver, this)
+        return NestedReadonlySnapshot(
+            id = id,
+            invalid = invalid,
+            readObserver = mergedReadObserver(readObserver, this.readObserver),
+            parent = this
+        )
     }
 
     override fun notifyObjectsInitialized() {
@@ -1390,28 +1395,24 @@ internal class ReadonlySnapshot internal constructor(
 internal class NestedReadonlySnapshot(
     id: Int,
     invalid: SnapshotIdSet,
-    readObserver: ((Any) -> Unit)?,
+    override val readObserver: ((Any) -> Unit)?,
     val parent: Snapshot
 ) : Snapshot(id, invalid) {
     init { parent.nestedActivated(this) }
     override val readOnly get() = true
     override val root: Snapshot get() = parent.root
     override fun takeNestedSnapshot(readObserver: ((Any) -> Unit)?) =
-        NestedReadonlySnapshot(id, invalid, readObserver, parent)
+        NestedReadonlySnapshot(
+            id = id,
+            invalid = invalid,
+            readObserver = mergedReadObserver(readObserver, this.readObserver),
+            parent = parent
+        )
+
     override fun notifyObjectsInitialized() {
         // Nothing to do for read-only snapshots
     }
     override fun hasPendingChanges(): Boolean = false
-    override val readObserver: ((Any) -> Unit)? =
-        // Merge the read observers if necessary
-        readObserver?.let {
-            parent.readObserver?.let {
-                { state: Any ->
-                    readObserver(state)
-                    it(state)
-                }
-            } ?: readObserver
-        } ?: parent.readObserver
 
     override fun dispose() {
         if (!disposed) {

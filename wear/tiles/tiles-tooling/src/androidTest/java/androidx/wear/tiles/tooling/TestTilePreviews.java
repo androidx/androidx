@@ -21,13 +21,20 @@ import static androidx.wear.tiles.tooling.preview.TilePreviewHelper.singleTimeli
 
 import android.content.Context;
 
+import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle;
 import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.LayoutElementBuilders.Text;
 import androidx.wear.protolayout.ResourceBuilders.Resources;
+import androidx.wear.protolayout.TimelineBuilders;
 import androidx.wear.protolayout.TimelineBuilders.Timeline;
 import androidx.wear.protolayout.TimelineBuilders.TimelineEntry;
+import androidx.wear.protolayout.TypeBuilders;
+import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
+import androidx.wear.protolayout.expression.PlatformDataValues;
+import androidx.wear.protolayout.expression.PlatformHealthSources;
+import androidx.wear.tiles.TileBuilders;
 import androidx.wear.tiles.TileBuilders.Tile;
 import androidx.wear.tiles.tooling.preview.Preview;
 import androidx.wear.tiles.tooling.preview.TilePreviewData;
@@ -111,5 +118,49 @@ public class TestTilePreviews {
     @Preview
     TilePreviewData nonStaticMethod() {
         return new TilePreviewData((request) -> tile());
+    }
+
+    private static LayoutElementBuilders.Text heartRateText() {
+        return new LayoutElementBuilders.Text.Builder()
+                .setText(
+                        new TypeBuilders.StringProp.Builder("--")
+                                .setDynamicValue(PlatformHealthSources.heartRateBpm().format())
+                                .build())
+                .setLayoutConstraintsForDynamicText(
+                        new TypeBuilders.StringLayoutConstraint.Builder("XX")
+                                .setAlignment(LayoutElementBuilders.TEXT_ALIGN_CENTER)
+                                .build())
+                .setFontStyle(
+                        new LayoutElementBuilders.FontStyle.Builder()
+                                .setColor(argb(0xFF000000))
+                                .build())
+                .build();
+    }
+
+    private static Tile tileWithPlatformData() {
+        return new TileBuilders.Tile.Builder()
+                .setResourcesVersion(RESOURCES_VERSION)
+                .setTileTimeline(new TimelineBuilders.Timeline.Builder()
+                        .addTimelineEntry(new TimelineBuilders.TimelineEntry.Builder()
+                                .setLayout(new LayoutElementBuilders.Layout.Builder()
+                                        .setRoot(heartRateText())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+    @Preview
+    static TilePreviewData tilePreviewWithDefaultPlatformData() {
+        return new TilePreviewData((request) -> tileWithPlatformData());
+    }
+
+    @Preview
+    static TilePreviewData tilePreviewWithOverriddenPlatformData() {
+        PlatformDataValues platformDataValues = PlatformDataValues.of(
+                PlatformHealthSources.Keys.HEART_RATE_BPM,
+                DynamicDataValue.fromFloat(180f));
+        return new TilePreviewData((request) -> RESOURCES, platformDataValues,
+                (request) -> tileWithPlatformData());
     }
 }

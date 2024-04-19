@@ -171,6 +171,13 @@ class Configuration internal constructor(builder: Builder) {
     @property:ExperimentalConfigurationApi
     val isMarkingJobsAsImportantWhileForeground: Boolean
 
+    /**
+     * @return The [Tracer] instance that can be used by [WorkManager] to record trace spans
+     * when executing [WorkRequest]s.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val tracer: Tracer
+
     init {
         val builderWorkerDispatcher = builder.workerContext
 
@@ -210,6 +217,7 @@ class Configuration internal constructor(builder: Builder) {
         defaultProcessName = builder.defaultProcessName
         contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
         isMarkingJobsAsImportantWhileForeground = builder.markJobsAsImportantWhileForeground
+        tracer = builder.tracer ?: createDefaultTracer()
     }
 
     /**
@@ -234,6 +242,7 @@ class Configuration internal constructor(builder: Builder) {
         internal var maxSchedulerLimit: Int = MIN_SCHEDULER_LIMIT
         internal var contentUriTriggerWorkersLimit: Int = DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT
         internal var markJobsAsImportantWhileForeground: Boolean = true
+        internal var tracer: Tracer? = null
 
         /**
          * Creates a new [Configuration.Builder].
@@ -266,6 +275,10 @@ class Configuration internal constructor(builder: Builder) {
                 configuration.workerInitializationExceptionHandler
             workerExecutionExceptionHandler = configuration.workerExecutionExceptionHandler
             defaultProcessName = configuration.defaultProcessName
+            contentUriTriggerWorkersLimit = configuration.contentUriTriggerWorkersLimit
+            markJobsAsImportantWhileForeground =
+                configuration.isMarkingJobsAsImportantWhileForeground
+            tracer = configuration.tracer
         }
 
         /**
@@ -544,6 +557,18 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
+         * Specifies the [Tracer] that can be used by [WorkManager] to record trace spans.
+         *
+         * @param tracer The [Tracer] instance to be used.
+         * @return This [Builder] instance
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun setTracer(tracer: Tracer): Builder {
+            this.tracer = tracer
+            return this
+        }
+
+        /**
          * Builds a [Configuration] object.
          *
          * @return A [Configuration] object with this [Builder]'s parameters.
@@ -599,6 +624,21 @@ private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
         max(2, min(Runtime.getRuntime().availableProcessors() - 1, 4)),
         factory
     )
+}
+
+private fun createDefaultTracer(): Tracer {
+    // Delegate to AndroidX Tracing while leaving the implementation open-ended for a pluggable
+    // implementation.
+    val tracer = object : Tracer {
+        override fun beginAsyncSection(methodName: String, cookie: Int) {
+            androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
+        }
+
+        override fun endAsyncSection(methodName: String, cookie: Int) {
+            androidx.tracing.Trace.endAsyncSection(methodName, cookie)
+        }
+    }
+    return tracer
 }
 
 private fun CoroutineContext?.asExecutor(): Executor? =

@@ -32,4 +32,6 @@ data class NativeEntity(
 interface MyDao {
     @Query("SELECT * FROM NativeEntity")
     suspend fun getEntity(): NativeEntity
+
+    // Insert-change
 }

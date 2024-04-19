@@ -17,4 +17,8 @@
 <resources>
     <dimen name="corner_radius">16dp</dimen>
     <dimen name="external_padding">8dp</dimen>
+
+    <!-- Default drop size for widgets that display lists-->
+    <integer name="list_widget_target_cell_width">4</integer>
+    <integer name="list_widget_target_cell_height">2</integer>
 </resources>

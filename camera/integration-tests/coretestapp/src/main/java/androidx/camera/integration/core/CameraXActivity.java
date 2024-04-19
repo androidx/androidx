@@ -108,6 +108,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.DynamicRange;
+import androidx.camera.core.ExperimentalImageCaptureOutputFormat;
 import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
@@ -143,6 +144,7 @@ import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.ScreenFlashView;
 import androidx.camera.viewfinder.core.ZoomGestureDetector;
+import androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -185,6 +187,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * resumed and when the device is rotated. The complex interactions between the camera and these
  * lifecycle events are handled internally by CameraX.
  */
+@SuppressLint("NullAnnotationGroup")
+@OptIn(markerClass = ExperimentalImageCaptureOutputFormat.class)
 public class CameraXActivity extends AppCompatActivity {
     private static final String TAG = "CameraXActivity";
     private static final String[] REQUIRED_PERMISSIONS;
@@ -2042,12 +2046,12 @@ public class CameraXActivity extends AppCompatActivity {
         mZoomRatioLabel.setTextColor(getResources().getColor(R.color.zoom_ratio_set));
     }
 
-    ZoomGestureDetector.OnZoomGestureListener mZoomGestureListener = (type, detector) -> {
-        if (mCamera != null && type == ZoomGestureDetector.ZOOM_GESTURE_MOVE) {
+    ZoomGestureDetector.OnZoomGestureListener mZoomGestureListener = zoomEvent -> {
+        if (mCamera != null && zoomEvent instanceof ZoomEvent.Move) {
             CameraInfo cameraInfo = mCamera.getCameraInfo();
             float newZoom =
                     requireNonNull(cameraInfo.getZoomState().getValue()).getZoomRatio()
-                            * detector.getScaleFactor();
+                            * ((ZoomEvent.Move) zoomEvent).getScaleFactor();
             setZoomRatio(newZoom);
         }
         return true;

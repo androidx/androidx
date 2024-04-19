@@ -287,6 +287,12 @@ public class TakePictureManager implements OnImageCloseListener, TakePictureRequ
     }
 
     @VisibleForTesting
+    @Nullable
+    public RequestWithCallback getCapturingRequest() {
+        return mCapturingRequest;
+    }
+
+    @VisibleForTesting
     List<RequestWithCallback> getIncompleteRequests() {
         return mIncompleteRequests;
     }

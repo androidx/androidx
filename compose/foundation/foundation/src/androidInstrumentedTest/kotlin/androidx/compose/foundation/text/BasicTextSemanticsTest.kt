@@ -19,21 +19,11 @@ package androidx.compose.foundation.text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withAnnotation
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,30 +55,5 @@ class BasicTextSemanticsTest {
         rule.onNodeWithText("before").assertExists()
         text = "after"
         rule.onNodeWithText("after").assertExists()
-    }
-
-    @Test
-    fun link_semantics_AnnotatedString() {
-        rule.setContent {
-            BasicText(
-                text = buildAnnotatedString {
-                    withAnnotation(LinkAnnotation.Clickable("tag")) { append("text") }
-                }
-            )
-        }
-
-        val node = rule
-            .onNodeWithText("text", useUnmergedTree = true)
-            .assertExists()
-            .fetchSemanticsNode()
-        assertThat(node.config.isClearingSemantics).isTrue()
-
-        rule.onNodeWithText("text", useUnmergedTree = true)
-            .onChildAt(0)
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CustomActions))
-            .assert(SemanticsMatcher.expectValue(
-                SemanticsProperties.TextSelectionRange,
-                TextRange(0, 4)
-            ))
     }
 }

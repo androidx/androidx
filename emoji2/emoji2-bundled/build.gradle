@@ -60,12 +60,12 @@ androidx {
             "devices to avoid the empty emoji characters."
     metalavaK2UastEnabled = true
 
-    license {
+    extraLicense {
         name = "SIL Open Font License, Version 1.1"
         url = "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
-    license {
+    extraLicense {
         name = "Unicode, Inc. License"
         url = "http://www.unicode.org/copyright.html#License"
     }

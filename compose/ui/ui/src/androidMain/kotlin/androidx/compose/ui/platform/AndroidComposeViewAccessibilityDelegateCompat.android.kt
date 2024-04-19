@@ -43,6 +43,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntIntMap
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.collection.MutableObjectIntMap
@@ -52,7 +53,6 @@ import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
-import androidx.collection.mutableLongObjectMapOf
 import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
@@ -97,7 +97,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.compose.ui.util.packInts
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
 import androidx.core.view.ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE
@@ -315,8 +314,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     private var paneDisplayed = MutableIntSet()
 
-    internal var idToBeforeMap = MutableIntObjectMap<Int>()
-    internal var idToAfterMap = MutableIntObjectMap<Int>()
+    internal var idToBeforeMap = MutableIntIntMap()
+    internal var idToAfterMap = MutableIntIntMap()
     internal val ExtraDataTestTraversalBeforeVal =
         @Suppress("SpellCheckingInspection")
         "android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL"
@@ -1218,8 +1217,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         info.isScreenReaderFocusable = isScreenReaderFocusable(semanticsNode)
 
         // `beforeId` refers to the semanticsId that should be read before this `virtualViewId`.
-        val beforeId = idToBeforeMap[virtualViewId]
-        beforeId?.let {
+        val beforeId = idToBeforeMap.getOrDefault(virtualViewId, -1)
+        if (beforeId != -1) {
             val beforeView = view.androidViewsHandler.semanticsIdToView(beforeId)
             if (beforeView != null) {
                 // If the node that should come before this one is a view, we want to pass in the
@@ -1234,8 +1233,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             )
         }
 
-        val afterId = idToAfterMap[virtualViewId]
-        afterId?.let {
+        val afterId = idToAfterMap.getOrDefault(virtualViewId, -1)
+        if (afterId != -1) {
             val afterView = view.androidViewsHandler.semanticsIdToView(afterId)
             // Specially use `traversalAfter` value if the node after is a View,
             // as expressing the order using traversalBefore in this case would require mutating the
@@ -1387,37 +1386,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     @OptIn(InternalTextApi::class)
-    private fun AnnotatedString.toSpannableString(
-        node: SemanticsNode
-    ): SpannableString? {
+    private fun AnnotatedString.toSpannableString(): SpannableString? {
         val fontFamilyResolver: FontFamily.Resolver = view.fontFamilyResolver
-
-        val linkActions = if (hasLinkAnnotations(0, length)) {
-            // handle hyperlinks in text
-            val rangesToCustomActions = mutableLongObjectMapOf<() -> Unit>()
-            node.children.fastForEach { childNode ->
-                // hyperlink nodes pass onLinkClick actions through custom actions
-                val config = childNode.unmergedConfig
-                if (config.contains(SemanticsProperties.TextSelectionRange)) {
-                    val range = config[SemanticsProperties.TextSelectionRange]
-                    val action = config.getOrNull(CustomActions)?.firstOrNull()?.action
-                    action?.let {
-                        rangesToCustomActions[packInts(range.start, range.end)] = { it() }
-                    }
-                }
-            }
-            rangesToCustomActions
-        } else {
-            null
-        }
 
         return trimToSize(
             toAccessibilitySpannableString(
                 density = view.density,
                 fontFamilyResolver = fontFamilyResolver,
-                urlSpanCache = urlSpanCache,
-                linkActions = linkActions,
-                accessibilityNodeId = node.id
+                urlSpanCache = urlSpanCache
             ),
             ParcelSafeTextLength
         )
@@ -1427,7 +1403,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         node: SemanticsNode,
         info: AccessibilityNodeInfoCompat,
     ) {
-        info.text = getInfoText(node)?.toSpannableString(node)
+        info.text = getInfoText(node)?.toSpannableString()
     }
 
     /**
@@ -1825,7 +1801,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         force = false,
                         refreshFocusEvents = true,
                         clearOwnerFocus = true,
-                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
+                        focusDirection = Exit
                     )
                     true
                 } else {
@@ -1952,13 +1928,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // This extra is just for testing: needed a way to retrieve `traversalBefore` and
         // `traversalAfter` from a non-sealed instance of an ANI
         if (extraDataKey == ExtraDataTestTraversalBeforeVal) {
-            idToBeforeMap[virtualViewId]?.let {
-                info.extras.putInt(extraDataKey, it)
-            }
+            idToBeforeMap
+                .getOrDefault(virtualViewId, -1)
+                .let { if (it != -1) { info.extras.putInt(extraDataKey, it) } }
         } else if (extraDataKey == ExtraDataTestTraversalAfterVal) {
-            idToAfterMap[virtualViewId]?.let {
-                info.extras.putInt(extraDataKey, it)
-            }
+            idToAfterMap
+                .getOrDefault(virtualViewId, -1)
+                .let { if (it != -1) { info.extras.putInt(extraDataKey, it) } }
         } else if (node.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult) &&
             arguments != null && extraDataKey == EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
         ) {

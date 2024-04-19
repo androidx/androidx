@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -46,7 +47,8 @@ internal fun rememberStaggeredGridMeasurePolicy(
     mainAxisSpacing: Dp,
     crossAxisSpacing: Dp,
     coroutineScope: CoroutineScope,
-    slots: LazyGridStaggeredGridSlotsProvider
+    slots: LazyGridStaggeredGridSlotsProvider,
+    graphicsContext: GraphicsContext
 ): LazyLayoutMeasureScope.(Constraints) -> LazyStaggeredGridMeasureResult = remember(
     state,
     itemProviderLambda,
@@ -55,9 +57,11 @@ internal fun rememberStaggeredGridMeasurePolicy(
     orientation,
     mainAxisSpacing,
     crossAxisSpacing,
-    slots
+    slots,
+    graphicsContext
 ) {
     { constraints ->
+        state.measurementScopeInvalidator.attachToScope()
         checkScrollableContainerConstraints(
             constraints,
             orientation
@@ -114,7 +118,8 @@ internal fun rememberStaggeredGridMeasurePolicy(
                 reverseLayout = reverseLayout,
                 beforeContentPadding = beforeContentPadding,
                 afterContentPadding = afterContentPadding,
-                coroutineScope = coroutineScope
+                coroutineScope = coroutineScope,
+                graphicsContext = graphicsContext
             )
         }
         state.applyMeasureResult(measureResult)

@@ -206,14 +206,22 @@ abstract class BaseRoomConnectionManager {
                 )
             }
         } else {
-            // No room_master_table, this might an a pre-populated DB, we must validate to see if
-            // its suitable for usage.
-            val result = openDelegate.onValidateSchema(connection)
-            if (!result.isValid) {
-                error("Pre-packaged database has an invalid schema: ${result.expectedFoundMsg}")
+            connection.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+            runCatching {
+                // No room_master_table, this might an a pre-populated DB, we must validate to see
+                // if it's suitable for usage.
+                val result = openDelegate.onValidateSchema(connection)
+                if (!result.isValid) {
+                    error("Pre-packaged database has an invalid schema: ${result.expectedFoundMsg}")
+                }
+                openDelegate.onPostMigrate(connection)
+                updateIdentity(connection)
+            }.onSuccess {
+                connection.execSQL("END TRANSACTION")
+            }.onFailure {
+                connection.execSQL("ROLLBACK TRANSACTION")
+                throw it
             }
-            openDelegate.onPostMigrate(connection)
-            updateIdentity(connection)
         }
     }
 

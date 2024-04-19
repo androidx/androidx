@@ -126,7 +126,7 @@ class TextFieldState internal constructor(
      * @see edit
      * @see snapshotFlow
      */
-    val text: CharSequence get() = value.getBackingCharSequence()
+    val text: CharSequence get() = value.text
 
     /**
      * The current selection range. If the selection is collapsed, it represents cursor location.
@@ -580,7 +580,6 @@ fun rememberTextFieldState(
  * @see clearText
  * @see TextFieldBuffer.placeCursorAtEnd
  */
-@ExperimentalFoundationApi
 fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
     edit {
         replace(0, length, text)
@@ -605,7 +604,6 @@ fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
  * @see clearText
  * @see TextFieldBuffer.selectAll
  */
-@ExperimentalFoundationApi
 fun TextFieldState.setTextAndSelectAll(text: String) {
     edit {
         replace(0, length, text)
@@ -628,7 +626,6 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
  * @see setTextAndPlaceCursorAtEnd
  * @see setTextAndSelectAll
  */
-@ExperimentalFoundationApi
 fun TextFieldState.clearText() {
     edit {
         delete(0, length)

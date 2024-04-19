@@ -68,7 +68,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SdkSuppress(minSdkVersion = 28) // API 28 is the lowest level supporting device_config used by this test
+@SdkSuppress(
+        minSdkVersion = 28) // API 28 is the lowest level supporting device_config used by this test
 public class FledgeCtsDebuggableTest {
     protected static final Context sContext = ApplicationProvider.getApplicationContext();
     private static final String TAG = "FledgeCtsDebuggableTest";
@@ -88,13 +89,13 @@ public class FledgeCtsDebuggableTest {
     // for ad selection is 10 seconds
     private static final int API_RESPONSE_LONGER_TIMEOUT_SECONDS = 12;
 
-    private static final AdTechIdentifier SELLER = new AdTechIdentifier("performance-fledge"
-            + "-static-5jyy5ulagq-uc.a.run.app");
+    private static final AdTechIdentifier SELLER =
+            new AdTechIdentifier("performance-fledge-static-5jyy5ulagq-uc.a.run.app");
 
-    private static final AdTechIdentifier BUYER_1 = new AdTechIdentifier("performance-fledge"
-            + "-static-5jyy5ulagq-uc.a.run.app");
-    private static final AdTechIdentifier BUYER_2 = new AdTechIdentifier("performance-fledge"
-            + "-static-2-5jyy5ulagq-uc.a.run.app");
+    private static final AdTechIdentifier BUYER_1 =
+            new AdTechIdentifier("performance-fledge-static-5jyy5ulagq-uc.a.run.app");
+    private static final AdTechIdentifier BUYER_2 =
+            new AdTechIdentifier("performance-fledge-static-2-5jyy5ulagq-uc.a.run.app");
 
     private static final AdSelectionSignals AD_SELECTION_SIGNALS =
             new AdSelectionSignals("{\"ad_selection_signals\":1}");
@@ -104,11 +105,10 @@ public class FledgeCtsDebuggableTest {
 
     private static final Map<AdTechIdentifier, AdSelectionSignals> PER_BUYER_SIGNALS =
             new HashMap<>();
+
     static {
-        PER_BUYER_SIGNALS.put(BUYER_1,
-                new AdSelectionSignals("{\"buyer_signals\":1}"));
-        PER_BUYER_SIGNALS.put(BUYER_2,
-                new AdSelectionSignals("{\"buyer_signals\":2}"));
+        PER_BUYER_SIGNALS.put(BUYER_1, new AdSelectionSignals("{\"buyer_signals\":1}"));
+        PER_BUYER_SIGNALS.put(BUYER_2, new AdSelectionSignals("{\"buyer_signals\":2}"));
     }
 
     private static final String VALID_TRUSTED_BIDDING_URI_PATH = "/trusted/biddingsignals/simple";
@@ -137,22 +137,17 @@ public class FledgeCtsDebuggableTest {
     private static final String SELLER_MALFORMED_DECISION_LOGIC_URI_PATH = "/reporting/seller";
     private static final String BUYER_MALFORMED_BIDDING_LOGIC_URI_PATH = "/reporting/buyer";
 
-    private static final AdSelectionConfig DEFAULT_AD_SELECTION_CONFIG = new AdSelectionConfig(
-            SELLER,
-            Uri.parse(
-                    String.format(
-                            "https://%s%s",
-                            SELLER,
-                            SELLER_DECISION_LOGIC_URI_PATH)),
-            Arrays.asList(BUYER_1, BUYER_2),
-            AD_SELECTION_SIGNALS,
-            SELLER_SIGNALS,
-            PER_BUYER_SIGNALS,
-            Uri.parse(
-                    String.format(
-                            "https://%s%s",
-                            SELLER,
-                            SELLER_TRUSTED_SIGNAL_URI_PATH)));
+    private static final AdSelectionConfig DEFAULT_AD_SELECTION_CONFIG =
+            new AdSelectionConfig(
+                    SELLER,
+                    Uri.parse(
+                            String.format("https://%s%s", SELLER, SELLER_DECISION_LOGIC_URI_PATH)),
+                    Arrays.asList(BUYER_1, BUYER_2),
+                    AD_SELECTION_SIGNALS,
+                    SELLER_SIGNALS,
+                    PER_BUYER_SIGNALS,
+                    Uri.parse(
+                            String.format("https://%s%s", SELLER, SELLER_TRUSTED_SIGNAL_URI_PATH)));
 
     private AdSelectionClient mAdSelectionClient;
     private CustomAudienceClient mCustomAudienceClient;
@@ -161,6 +156,7 @@ public class FledgeCtsDebuggableTest {
     public static void configure() {
         TestUtil testUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
 
+        testUtil.enableVerboseLogging();
         testUtil.overrideAdIdKillSwitch(true);
         testUtil.overrideAppSetIdKillSwitch(true);
         testUtil.overrideKillSwitches(true);
@@ -178,7 +174,7 @@ public class FledgeCtsDebuggableTest {
         testUtil.enforceFledgeJsIsolateMaxHeapSize(false);
 
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            testUtil.enableBackCompat();
+            testUtil.enableBackCompatOnS();
         }
     }
 
@@ -203,17 +199,15 @@ public class FledgeCtsDebuggableTest {
         testUtil.enforceFledgeJsIsolateMaxHeapSize(true);
 
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
-            testUtil.disableBackCompat();
+            testUtil.disableBackCompatOnS();
         }
     }
 
     @Before
     public void setup() throws Exception {
         Assume.assumeTrue(JavaScriptSandbox.isSupported());
-        mAdSelectionClient =
-                new AdSelectionClient(sContext);
-        mCustomAudienceClient =
-                new CustomAudienceClient(sContext);
+        mAdSelectionClient = new AdSelectionClient(sContext);
+        mCustomAudienceClient = new CustomAudienceClient(sContext);
 
         // TODO(b/266725238): Remove/modify once the API rate limit has been adjusted for FLEDGE
         doSleep(DEFAULT_API_RATE_LIMIT_SLEEP_MS);
@@ -224,8 +218,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -253,12 +246,11 @@ public class FledgeCtsDebuggableTest {
                         .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // Assert that ad3 from BUYER_2 is rendered, since it had the highest bid and score
-        Assert.assertEquals(
-                getUri(BUYER_2, AD_URI_PREFIX + "/ad3"), outcome.getRenderUri());
+        Assert.assertEquals(getUri(BUYER_2, AD_URI_PREFIX + "/ad3"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
-                new ReportImpressionRequest(outcome.getAdSelectionId(),
-                        DEFAULT_AD_SELECTION_CONFIG);
+                new ReportImpressionRequest(
+                        outcome.getAdSelectionId(), DEFAULT_AD_SELECTION_CONFIG);
 
         // Performing reporting, and asserting that no exception is thrown
         mAdSelectionClient
@@ -271,8 +263,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -287,8 +278,7 @@ public class FledgeCtsDebuggableTest {
                         Uri.parse(
                                 String.format(
                                         "https://%s%s",
-                                        SELLER + "etld_noise",
-                                        SELLER_DECISION_LOGIC_URI_PATH)),
+                                        SELLER + "etld_noise", SELLER_DECISION_LOGIC_URI_PATH)),
                         Arrays.asList(BUYER_1, BUYER_2),
                         AD_SELECTION_SIGNALS,
                         SELLER_SIGNALS,
@@ -296,8 +286,7 @@ public class FledgeCtsDebuggableTest {
                         Uri.parse(
                                 String.format(
                                         "https://%s%s",
-                                        SELLER + "etld_noise",
-                                        SELLER_TRUSTED_SIGNAL_URI_PATH)));
+                                        SELLER + "etld_noise", SELLER_TRUSTED_SIGNAL_URI_PATH)));
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
         // exception."
@@ -329,8 +318,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -345,8 +333,7 @@ public class FledgeCtsDebuggableTest {
                         Uri.parse(
                                 String.format(
                                         "https://%s%s",
-                                        SELLER + "etld_noise",
-                                        SELLER_DECISION_LOGIC_URI_PATH)),
+                                        SELLER + "etld_noise", SELLER_DECISION_LOGIC_URI_PATH)),
                         Arrays.asList(BUYER_1, BUYER_2),
                         AD_SELECTION_SIGNALS,
                         SELLER_SIGNALS,
@@ -354,8 +341,7 @@ public class FledgeCtsDebuggableTest {
                         Uri.parse(
                                 String.format(
                                         "https://%s%s",
-                                        SELLER + "etld_noise",
-                                        SELLER_TRUSTED_SIGNAL_URI_PATH)));
+                                        SELLER + "etld_noise", SELLER_TRUSTED_SIGNAL_URI_PATH)));
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
         // exception."
@@ -377,8 +363,7 @@ public class FledgeCtsDebuggableTest {
                         .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // Assert that the ad3 from buyer 2 is rendered, since it had the highest bid and score
-        Assert.assertEquals(
-                getUri(BUYER_2, AD_URI_PREFIX + "/ad3"), outcome.getRenderUri());
+        Assert.assertEquals(getUri(BUYER_2, AD_URI_PREFIX + "/ad3"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
                 new ReportImpressionRequest(
@@ -401,21 +386,20 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
 
         CustomAudience customAudience1 = createCustomAudience(BUYER_1, bidsForBuyer1);
 
-        CustomAudience customAudience2 = createCustomAudience(
-                BUYER_2,
-                bidsForBuyer2,
-                getValidActivationTime(),
-                getValidExpirationTime(),
-                BUYER_MALFORMED_BIDDING_LOGIC_URI_PATH);
-
+        CustomAudience customAudience2 =
+                createCustomAudience(
+                        BUYER_2,
+                        bidsForBuyer2,
+                        getValidActivationTime(),
+                        getValidExpirationTime(),
+                        BUYER_MALFORMED_BIDDING_LOGIC_URI_PATH);
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
         // exception."
@@ -439,12 +423,11 @@ public class FledgeCtsDebuggableTest {
         // Assert that the ad3 from buyer 2 is skipped despite having the highest bid, since it has
         // malformed bidding logic
         // The winner should come from buyer1 with the highest bid i.e. ad2
-        Assert.assertEquals(
-                getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
+        Assert.assertEquals(getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
-                new ReportImpressionRequest(outcome.getAdSelectionId(),
-                        DEFAULT_AD_SELECTION_CONFIG);
+                new ReportImpressionRequest(
+                        outcome.getAdSelectionId(), DEFAULT_AD_SELECTION_CONFIG);
 
         // Performing reporting, and asserting that no exception is thrown
         mAdSelectionClient
@@ -457,8 +440,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -481,22 +463,20 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // Ad Selection will fail due to scoring logic malformed
-        AdSelectionConfig adSelectionConfig = new AdSelectionConfig(
-                SELLER,
-                Uri.parse(
-                        String.format(
-                                "https://%s%s",
-                                SELLER,
-                                SELLER_MALFORMED_DECISION_LOGIC_URI_PATH)),
-                Arrays.asList(BUYER_1, BUYER_2),
-                AD_SELECTION_SIGNALS,
-                SELLER_SIGNALS,
-                PER_BUYER_SIGNALS,
-                Uri.parse(
-                        String.format(
-                                "https://%s%s",
-                                SELLER,
-                                SELLER_TRUSTED_SIGNAL_URI_PATH)));
+        AdSelectionConfig adSelectionConfig =
+                new AdSelectionConfig(
+                        SELLER,
+                        Uri.parse(
+                                String.format(
+                                        "https://%s%s",
+                                        SELLER, SELLER_MALFORMED_DECISION_LOGIC_URI_PATH)),
+                        Arrays.asList(BUYER_1, BUYER_2),
+                        AD_SELECTION_SIGNALS,
+                        SELLER_SIGNALS,
+                        PER_BUYER_SIGNALS,
+                        Uri.parse(
+                                String.format(
+                                        "https://%s%s", SELLER, SELLER_TRUSTED_SIGNAL_URI_PATH)));
 
         Exception selectAdsException =
                 assertThrows(
@@ -513,20 +493,20 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
 
         CustomAudience customAudience1 = createCustomAudience(BUYER_1, bidsForBuyer1);
 
-        CustomAudience customAudience2 = createCustomAudience(
-                BUYER_2,
-                bidsForBuyer2,
-                getValidActivationTime(),
-                getValidExpirationTime(),
-                "/invalid/bidding/logic/uri");
+        CustomAudience customAudience2 =
+                createCustomAudience(
+                        BUYER_2,
+                        bidsForBuyer2,
+                        getValidActivationTime(),
+                        getValidExpirationTime(),
+                        "/invalid/bidding/logic/uri");
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
         // exception."
@@ -553,8 +533,8 @@ public class FledgeCtsDebuggableTest {
         Assert.assertEquals(getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
-                new ReportImpressionRequest(outcome.getAdSelectionId(),
-                        DEFAULT_AD_SELECTION_CONFIG);
+                new ReportImpressionRequest(
+                        outcome.getAdSelectionId(), DEFAULT_AD_SELECTION_CONFIG);
 
         // Performing reporting, and asserting that no exception is thrown
         mAdSelectionClient
@@ -567,8 +547,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -592,34 +571,33 @@ public class FledgeCtsDebuggableTest {
 
         // Ad Selection will fail due to scoring logic not found, because the URI that is used to
         // fetch scoring logic does not exist
-        AdSelectionConfig adSelectionConfig = new AdSelectionConfig(
-                SELLER,
-                Uri.parse(
-                        String.format(
-                                "https://%s%s",
-                                SELLER,
-                                "/invalid/seller/decision/logic/uri")),
-                Arrays.asList(BUYER_1, BUYER_2),
-                AD_SELECTION_SIGNALS,
-                SELLER_SIGNALS,
-                PER_BUYER_SIGNALS,
-                Uri.parse(
-                        String.format(
-                                "https://%s%s",
-                                SELLER,
-                                SELLER_TRUSTED_SIGNAL_URI_PATH)));
+        AdSelectionConfig adSelectionConfig =
+                new AdSelectionConfig(
+                        SELLER,
+                        Uri.parse(
+                                String.format(
+                                        "https://%s%s",
+                                        SELLER, "/invalid/seller/decision/logic/uri")),
+                        Arrays.asList(BUYER_1, BUYER_2),
+                        AD_SELECTION_SIGNALS,
+                        SELLER_SIGNALS,
+                        PER_BUYER_SIGNALS,
+                        Uri.parse(
+                                String.format(
+                                        "https://%s%s", SELLER, SELLER_TRUSTED_SIGNAL_URI_PATH)));
         Exception selectAdsException =
                 assertThrows(
                         ExecutionException.class,
                         () ->
                                 mAdSelectionClient
                                         .selectAds(adSelectionConfig)
-                                        .get(API_RESPONSE_LONGER_TIMEOUT_SECONDS,
+                                        .get(
+                                                API_RESPONSE_LONGER_TIMEOUT_SECONDS,
                                                 TimeUnit.SECONDS));
         // Sometimes a 400 status code is returned (ISE) instead of the network fetch timing out
         assertThat(
-                selectAdsException.getCause() instanceof TimeoutException
-                        || selectAdsException.getCause() instanceof IllegalStateException)
+                        selectAdsException.getCause() instanceof TimeoutException
+                                || selectAdsException.getCause() instanceof IllegalStateException)
                 .isTrue();
     }
 
@@ -628,8 +606,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -667,12 +644,11 @@ public class FledgeCtsDebuggableTest {
         // Assert that the ad3 from buyer 2 is skipped despite having the highest bid, since it is
         // not activated yet
         // The winner should come from buyer1 with the highest bid i.e. ad2
-        Assert.assertEquals(
-                getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
+        Assert.assertEquals(getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
-                new ReportImpressionRequest(outcome.getAdSelectionId(),
-                        DEFAULT_AD_SELECTION_CONFIG);
+                new ReportImpressionRequest(
+                        outcome.getAdSelectionId(), DEFAULT_AD_SELECTION_CONFIG);
 
         // Performing reporting, and asserting that no exception is thrown
         mAdSelectionClient
@@ -685,8 +661,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -730,12 +705,11 @@ public class FledgeCtsDebuggableTest {
         // Assert that the ad3 from buyer 2 is skipped despite having the highest bid, since it is
         // expired
         // The winner should come from buyer1 with the highest bid i.e. ad2
-        Assert.assertEquals(
-                getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
+        Assert.assertEquals(getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
-                new ReportImpressionRequest(outcome.getAdSelectionId(),
-                        DEFAULT_AD_SELECTION_CONFIG);
+                new ReportImpressionRequest(
+                        outcome.getAdSelectionId(), DEFAULT_AD_SELECTION_CONFIG);
 
         // Performing reporting, and asserting that no exception is thrown
         mAdSelectionClient
@@ -748,19 +722,19 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
 
         CustomAudience customAudience1 = createCustomAudience(BUYER_1, bidsForBuyer1);
-        CustomAudience customAudience2 = createCustomAudience(
-                BUYER_2,
-                bidsForBuyer2,
-                getValidActivationTime(),
-                getValidExpirationTime(),
-                BUYER_BIDDING_LOGIC_URI_PATH + "?delay=" + 5000);
+        CustomAudience customAudience2 =
+                createCustomAudience(
+                        BUYER_2,
+                        bidsForBuyer2,
+                        getValidActivationTime(),
+                        getValidExpirationTime(),
+                        BUYER_BIDDING_LOGIC_URI_PATH + "?delay=" + 5000);
 
         // Joining custom audiences, no result to do assertion on. Failures will generate an
         // exception.
@@ -784,12 +758,11 @@ public class FledgeCtsDebuggableTest {
         // Assert that the ad3 from buyer 2 is skipped despite having the highest bid, since it
         // timed out
         // The winner should come from buyer1 with the highest bid i.e. ad2
-        Assert.assertEquals(
-                getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
+        Assert.assertEquals(getUri(BUYER_1, AD_URI_PREFIX + "/ad2"), outcome.getRenderUri());
 
         ReportImpressionRequest reportImpressionRequest =
-                new ReportImpressionRequest(outcome.getAdSelectionId(),
-                        DEFAULT_AD_SELECTION_CONFIG);
+                new ReportImpressionRequest(
+                        outcome.getAdSelectionId(), DEFAULT_AD_SELECTION_CONFIG);
 
         // Performing reporting, and asserting that no exception is thrown
         mAdSelectionClient
@@ -802,8 +775,7 @@ public class FledgeCtsDebuggableTest {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
-                        /* minAdServicesVersion=*/ 4,
-                        /* minExtServicesVersion=*/ 9));
+                        /* minAdServicesVersion= */ 4, /* minExtServicesVersion= */ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -826,29 +798,29 @@ public class FledgeCtsDebuggableTest {
                 .get(API_RESPONSE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         // Running ad selection and asserting that the outcome is returned in < 10 seconds
-        AdSelectionConfig adSelectionConfig = new AdSelectionConfig(
-                SELLER,
-                Uri.parse(
-                        String.format(
-                                "https://%s%s",
-                                SELLER,
-                                SELLER_DECISION_LOGIC_URI_PATH + "?delay=" + 10000)),
-                Arrays.asList(BUYER_1, BUYER_2),
-                AD_SELECTION_SIGNALS,
-                SELLER_SIGNALS,
-                PER_BUYER_SIGNALS,
-                Uri.parse(
-                        String.format(
-                                "https://%s%s",
-                                SELLER,
-                                SELLER_TRUSTED_SIGNAL_URI_PATH)));
+        AdSelectionConfig adSelectionConfig =
+                new AdSelectionConfig(
+                        SELLER,
+                        Uri.parse(
+                                String.format(
+                                        "https://%s%s",
+                                        SELLER,
+                                        SELLER_DECISION_LOGIC_URI_PATH + "?delay=" + 10000)),
+                        Arrays.asList(BUYER_1, BUYER_2),
+                        AD_SELECTION_SIGNALS,
+                        SELLER_SIGNALS,
+                        PER_BUYER_SIGNALS,
+                        Uri.parse(
+                                String.format(
+                                        "https://%s%s", SELLER, SELLER_TRUSTED_SIGNAL_URI_PATH)));
         Exception selectAdsException =
                 assertThrows(
                         ExecutionException.class,
                         () ->
                                 mAdSelectionClient
                                         .selectAds(adSelectionConfig)
-                                        .get(API_RESPONSE_LONGER_TIMEOUT_SECONDS,
+                                        .get(
+                                                API_RESPONSE_LONGER_TIMEOUT_SECONDS,
                                                 TimeUnit.SECONDS));
         assertThat(selectAdsException.getCause()).isInstanceOf(TimeoutException.class);
     }
@@ -892,8 +864,7 @@ public class FledgeCtsDebuggableTest {
 
     private static TrustedBiddingData getValidTrustedBiddingDataByBuyer(AdTechIdentifier buyer) {
         return new TrustedBiddingData(
-                getValidTrustedBiddingUriByBuyer(buyer),
-                getValidTrustedBiddingKeys());
+                getValidTrustedBiddingUriByBuyer(buyer), getValidTrustedBiddingKeys());
     }
 
     @RequiresApi(26)
@@ -901,9 +872,7 @@ public class FledgeCtsDebuggableTest {
         Duration maxActivationDelayIn =
                 Duration.ofMillis(FLEDGE_CUSTOM_AUDIENCE_MAX_ACTIVATION_DELAY_IN_MS);
 
-        return Instant.now()
-                .truncatedTo(ChronoUnit.MILLIS)
-                .plus(maxActivationDelayIn.dividedBy(2));
+        return Instant.now().truncatedTo(ChronoUnit.MILLIS).plus(maxActivationDelayIn.dividedBy(2));
     }
 
     @RequiresApi(26)
@@ -913,8 +882,7 @@ public class FledgeCtsDebuggableTest {
 
     @RequiresApi(26)
     private Instant getValidActivationTime() {
-        return Instant.now()
-                .truncatedTo(ChronoUnit.MILLIS);
+        return Instant.now().truncatedTo(ChronoUnit.MILLIS);
     }
 
     @RequiresApi(26)
@@ -922,7 +890,6 @@ public class FledgeCtsDebuggableTest {
         return getValidActivationTime()
                 .plus(Duration.ofMillis(FLEDGE_CUSTOM_AUDIENCE_DEFAULT_EXPIRE_IN_MS));
     }
-
 
     /**
      * @param buyer The name of the buyer for this Custom Audience
@@ -952,21 +919,21 @@ public class FledgeCtsDebuggableTest {
         // Add the bid value to the metadata
         for (int i = 0; i < bids.size(); i++) {
             ads.add(
-                    new AdData(getUri(buyer, AD_URI_PREFIX + "/ad" + (i + 1)),
+                    new AdData(
+                            getUri(buyer, AD_URI_PREFIX + "/ad" + (i + 1)),
                             "{\"bid\":" + bids.get(i) + "}"));
         }
 
         return new CustomAudience.Builder(
-                buyer,
-                buyer + VALID_NAME,
-                getValidDailyUpdateUriByBuyer(buyer),
-                getUri(buyer, biddingLogicUri),
-                ads)
+                        buyer,
+                        buyer + VALID_NAME,
+                        getValidDailyUpdateUriByBuyer(buyer),
+                        getUri(buyer, biddingLogicUri),
+                        ads)
                 .setActivationTime(activationTime)
                 .setExpirationTime(expirationTime)
                 .setUserBiddingSignals(VALID_USER_BIDDING_SIGNALS)
-                .setTrustedBiddingData(
-                        getValidTrustedBiddingDataByBuyer(buyer))
+                .setTrustedBiddingData(getValidTrustedBiddingDataByBuyer(buyer))
                 .build();
     }
 
@@ -979,8 +946,7 @@ public class FledgeCtsDebuggableTest {
 
         public ListenableFuture<Unit> joinCustomAudience(CustomAudience customAudience) {
             JoinCustomAudienceRequest request = new JoinCustomAudienceRequest(customAudience);
-            return mCustomAudienceManager
-                    .joinCustomAudienceAsync(request);
+            return mCustomAudienceManager.joinCustomAudienceAsync(request);
         }
     }
 
@@ -993,8 +959,8 @@ public class FledgeCtsDebuggableTest {
         }
 
         /**
-         *  Invokes the {@code selectAds} method of {@link AdSelectionManager} and
-         *  returns a future with {@link AdSelectionOutcome}
+         * Invokes the {@code selectAds} method of {@link AdSelectionManager} and returns a future
+         * with {@link AdSelectionOutcome}
          */
         public ListenableFuture<AdSelectionOutcome> selectAds(AdSelectionConfig adSelectionConfig)
                 throws Exception {
@@ -1002,8 +968,8 @@ public class FledgeCtsDebuggableTest {
         }
 
         /**
-         * Invokes the {@code reportImpression} method of {@link AdSelectionManager} and returns
-         * a future with Unit
+         * Invokes the {@code reportImpression} method of {@link AdSelectionManager} and returns a
+         * future with Unit
          */
         public ListenableFuture<Unit> reportImpression(ReportImpressionRequest input) {
             return mAdSelectionManager.reportImpressionAsync(input);

@@ -30,6 +30,7 @@ plugins {
     id("com.android.library")
     id("kotlin-android")
     id("com.squareup.wire")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -79,6 +80,8 @@ dependencies {
     implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
     implementation("androidx.test:monitor:1.6.1")
     implementation(libs.wireRuntime)
+    implementation(libs.moshi)
+    ksp(libs.moshiCodeGen)
 
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)

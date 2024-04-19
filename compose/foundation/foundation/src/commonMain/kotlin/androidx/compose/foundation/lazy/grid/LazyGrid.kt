@@ -36,8 +36,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -79,6 +81,7 @@ internal fun LazyGrid(
     val semanticState = rememberLazyGridSemanticState(state, reverseLayout)
 
     val coroutineScope = rememberCoroutineScope()
+    val graphicsContext = LocalGraphicsContext.current
     val measurePolicy = rememberLazyGridMeasurePolicy(
         itemProviderLambda,
         state,
@@ -88,7 +91,8 @@ internal fun LazyGrid(
         isVertical,
         horizontalArrangement,
         verticalArrangement,
-        coroutineScope
+        coroutineScope,
+        graphicsContext
     )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -111,6 +115,7 @@ internal fun LazyGrid(
                 orientation = orientation,
                 enabled = userScrollEnabled
             )
+            .then(state.itemAnimator.modifier)
             .scrollingContainer(
                 state = state,
                 orientation = orientation,
@@ -151,7 +156,9 @@ private fun rememberLazyGridMeasurePolicy(
     /** The vertical arrangement for items */
     verticalArrangement: Arrangement.Vertical?,
     /** Coroutine scope for item animations */
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    /** Used for creating graphics layers */
+    graphicsContext: GraphicsContext
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
     slots,
@@ -160,8 +167,10 @@ private fun rememberLazyGridMeasurePolicy(
     isVertical,
     horizontalArrangement,
     verticalArrangement,
+    graphicsContext
 ) {
     { containerConstraints ->
+        state.measurementScopeInvalidator.attachToScope()
         checkScrollableContainerConstraints(
             containerConstraints,
             if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -245,7 +254,10 @@ private fun rememberLazyGridMeasurePolicy(
                 contentType: Any?,
                 crossAxisSize: Int,
                 mainAxisSpacing: Int,
-                placeables: List<Placeable>
+                placeables: List<Placeable>,
+                constraints: Constraints,
+                lane: Int,
+                span: Int
             ) = LazyGridMeasuredItem(
                 index = index,
                 key = key,
@@ -259,7 +271,10 @@ private fun rememberLazyGridMeasurePolicy(
                 visualOffset = visualItemOffset,
                 placeables = placeables,
                 contentType = contentType,
-                animator = state.placementAnimator
+                animator = state.itemAnimator,
+                constraints = constraints,
+                lane = lane,
+                span = span
             )
         }
         val measuredLineProvider = object : LazyGridMeasuredLineProvider(
@@ -339,12 +354,13 @@ private fun rememberLazyGridMeasurePolicy(
                 horizontalArrangement = horizontalArrangement,
                 reverseLayout = reverseLayout,
                 density = this,
-                placementAnimator = state.placementAnimator,
-                spanLayoutProvider = spanLayoutProvider,
+                itemAnimator = state.itemAnimator,
+                slotsPerLine = slotsPerLine,
                 pinnedItems = pinnedItems,
                 coroutineScope = coroutineScope,
                 placementScopeInvalidator = state.placementScopeInvalidator,
                 prefetchInfoRetriever = prefetchInfoRetriever,
+                graphicsContext = graphicsContext,
                 layout = { width, height, placement ->
                     layout(
                         containerConstraints.constrainWidth(width + totalHorizontalPadding),

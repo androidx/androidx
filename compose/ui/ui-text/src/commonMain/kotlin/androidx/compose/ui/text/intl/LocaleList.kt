@@ -32,6 +32,12 @@ class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
     companion object {
 
         /**
+         * An empty instance of [LocaleList]. Usually used to reference a lack of explicit [Locale]
+         * configuration.
+         */
+        val Empty = LocaleList(emptyList())
+
+        /**
          * Returns Locale object which represents current locale
          */
         val current: LocaleList

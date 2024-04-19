@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.foundation.textfield
 
 import android.os.Build

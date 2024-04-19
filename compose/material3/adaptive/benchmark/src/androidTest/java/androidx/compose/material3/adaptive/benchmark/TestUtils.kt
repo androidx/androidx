@@ -35,23 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-val singlePaneDirective = PaneScaffoldDirective(
-    maxHorizontalPartitions = 1,
-    horizontalPartitionSpacerSize = 0.dp,
-    maxVerticalPartitions = 1,
-    verticalPartitionSpacerSize = 0.dp,
-    defaultPanePreferredWidth = 360.dp,
-    excludedBounds = emptyList()
-)
+val singlePaneDirective = PaneScaffoldDirective.Default
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-val dualPaneDirective = PaneScaffoldDirective(
+val dualPaneDirective = PaneScaffoldDirective.Default.copy(
     maxHorizontalPartitions = 2,
     horizontalPartitionSpacerSize = 24.dp,
-    maxVerticalPartitions = 1,
-    verticalPartitionSpacerSize = 0.dp,
-    defaultPanePreferredWidth = 360.dp,
-    excludedBounds = emptyList()
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

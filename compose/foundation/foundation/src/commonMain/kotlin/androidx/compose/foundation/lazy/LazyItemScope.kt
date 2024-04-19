@@ -120,7 +120,7 @@ interface LazyItemScope {
     @Deprecated(
         "Use Modifier.animateItem() instead",
         ReplaceWith(
-            "Modifier.animateItem(enterSpec = null, exitSpec = null, " +
+            "Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, " +
                 "placementSpec = animationSpec)"
         )
     )

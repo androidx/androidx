@@ -76,10 +76,11 @@ class ComponentActivityResultTest {
 
             scenario.withActivity { }
 
-            scenario.withActivity {
-                assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
-                assertThat(launchedList).containsExactly("second")
-            }
+            val latch = scenario.withActivity { launchCountDownLatch }
+            val list = scenario.withActivity { launchedList }
+
+            assertThat(latch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(list).containsExactly("second")
         }
     }
 

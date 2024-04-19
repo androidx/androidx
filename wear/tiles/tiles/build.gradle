@@ -37,7 +37,7 @@ dependencies {
 
     implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation(project(path: ":wear:tiles:tiles-proto"))
+    implementation(project(":wear:tiles:tiles-proto"))
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)

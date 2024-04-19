@@ -621,7 +621,7 @@ private fun ProvideTextStyleFromToken(
     content: @Composable () -> Unit,
 ) = ProvideContentColorTextStyle(
     contentColor = color,
-    textStyle = MaterialTheme.typography.fromToken(textToken),
+    textStyle = textToken.value,
     content = content
 )
 

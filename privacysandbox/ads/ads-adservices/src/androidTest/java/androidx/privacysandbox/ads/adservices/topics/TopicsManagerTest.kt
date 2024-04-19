@@ -55,7 +55,7 @@ class TopicsManagerTest {
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExt4Version = AdServicesInfo.adServicesVersion() >= 4
     private val mValidAdServicesSdkExt5Version = AdServicesInfo.adServicesVersion() >= 5
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
 
     @Before
     fun setUp() {
@@ -170,6 +170,7 @@ class TopicsManagerTest {
             return topicsManager
         }
 
+        @Suppress("deprecation")
         private fun setupTopicsResponse(topicsManager: TopicsManager) {
             // Set up the response that TopicsManager will return when the compat code calls it.
             val topic1 = Topic(1, 1, 1)

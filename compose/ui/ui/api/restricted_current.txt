@@ -429,16 +429,16 @@ package androidx.compose.ui.focus {
 
   public static final class FocusDirection.Companion {
     method public int getDown();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public int getEnter();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public int getExit();
+    method public int getEnter();
+    method public int getExit();
     method public int getLeft();
     method public int getNext();
     method public int getPrevious();
     method public int getRight();
     method public int getUp();
     property public final int Down;
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final int Enter;
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final int Exit;
+    property public final int Enter;
+    property public final int Exit;
     property public final int Left;
     property public final int Next;
     property public final int Previous;
@@ -510,8 +510,8 @@ package androidx.compose.ui.focus {
     method public boolean getCanFocus();
     method public default androidx.compose.ui.focus.FocusRequester getDown();
     method public default androidx.compose.ui.focus.FocusRequester getEnd();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> getEnter();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> getExit();
+    method public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> getEnter();
+    method public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> getExit();
     method public default androidx.compose.ui.focus.FocusRequester getLeft();
     method public default androidx.compose.ui.focus.FocusRequester getNext();
     method public default androidx.compose.ui.focus.FocusRequester getPrevious();
@@ -521,8 +521,8 @@ package androidx.compose.ui.focus {
     method public void setCanFocus(boolean);
     method public default void setDown(androidx.compose.ui.focus.FocusRequester);
     method public default void setEnd(androidx.compose.ui.focus.FocusRequester);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default void setEnter(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default void setExit(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>);
+    method public default void setEnter(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>);
+    method public default void setExit(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>);
     method public default void setLeft(androidx.compose.ui.focus.FocusRequester);
     method public default void setNext(androidx.compose.ui.focus.FocusRequester);
     method public default void setPrevious(androidx.compose.ui.focus.FocusRequester);
@@ -532,8 +532,8 @@ package androidx.compose.ui.focus {
     property public abstract boolean canFocus;
     property public default androidx.compose.ui.focus.FocusRequester down;
     property public default androidx.compose.ui.focus.FocusRequester end;
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> enter;
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> exit;
+    property public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> enter;
+    property public default kotlin.jvm.functions.Function1<androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> exit;
     property public default androidx.compose.ui.focus.FocusRequester left;
     property public default androidx.compose.ui.focus.FocusRequester next;
     property public default androidx.compose.ui.focus.FocusRequester previous;
@@ -566,9 +566,9 @@ package androidx.compose.ui.focus {
 
   public static final class FocusRequester.Companion {
     method public androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory createRefs();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public androidx.compose.ui.focus.FocusRequester getCancel();
+    method public androidx.compose.ui.focus.FocusRequester getCancel();
     method public androidx.compose.ui.focus.FocusRequester getDefault();
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final androidx.compose.ui.focus.FocusRequester Cancel;
+    property public final androidx.compose.ui.focus.FocusRequester Cancel;
     property public final androidx.compose.ui.focus.FocusRequester Default;
   }
 
@@ -2009,11 +2009,8 @@ package androidx.compose.ui.input.pointer.util {
 
   public final class VelocityTrackerKt {
     method public static void addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange event);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getVelocityTrackerAddPointsFix();
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getVelocityTrackerStrategyUseImpulse();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setVelocityTrackerAddPointsFix(boolean);
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setVelocityTrackerStrategyUseImpulse(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean VelocityTrackerAddPointsFix;
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean VelocityTrackerStrategyUseImpulse;
   }
 
@@ -2184,8 +2181,10 @@ package androidx.compose.ui.layout {
     method public java.util.Set<androidx.compose.ui.layout.AlignmentLine> getProvidedAlignmentLines();
     method public long getSize();
     method public boolean isAttached();
+    method public default boolean isPositionedByParentWithDirectManipulation();
     method public androidx.compose.ui.geometry.Rect localBoundingBoxOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, optional boolean clipBounds);
     method public long localPositionOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, long relativeToSource);
+    method public default long localPositionOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, long relativeToSource, boolean excludeDirectManipulationOffset);
     method public long localToRoot(long relativeToLocal);
     method public default long localToScreen(long relativeToLocal);
     method public long localToWindow(long relativeToLocal);
@@ -2194,6 +2193,7 @@ package androidx.compose.ui.layout {
     method public default void transformToScreen(float[] matrix);
     method public long windowToLocal(long relativeToWindow);
     property public abstract boolean isAttached;
+    property public default boolean isPositionedByParentWithDirectManipulation;
     property public abstract androidx.compose.ui.layout.LayoutCoordinates? parentCoordinates;
     property public abstract androidx.compose.ui.layout.LayoutCoordinates? parentLayoutCoordinates;
     property public abstract java.util.Set<androidx.compose.ui.layout.AlignmentLine> providedAlignmentLines;
@@ -2271,7 +2271,7 @@ package androidx.compose.ui.layout {
 
   public interface LookaheadScope {
     method public androidx.compose.ui.layout.LayoutCoordinates getLookaheadScopeCoordinates(androidx.compose.ui.layout.Placeable.PlacementScope);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default long localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates coordinates);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default long localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates coordinates, optional boolean excludeDirectManipulationOffset);
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public androidx.compose.ui.layout.LayoutCoordinates toLookaheadCoordinates(androidx.compose.ui.layout.LayoutCoordinates);
   }
 
@@ -2425,6 +2425,7 @@ package androidx.compose.ui.layout {
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, int x, int y, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, long position, androidx.compose.ui.graphics.layer.GraphicsLayer layer, optional float zIndex);
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, long position, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
+    method public final void withDirectManipulationPlacement(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> block);
     property public androidx.compose.ui.layout.LayoutCoordinates? coordinates;
     property protected abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
     property protected abstract int parentWidth;
@@ -2891,6 +2892,7 @@ package androidx.compose.ui.platform {
     method public float getTouchSlop();
     property public long doubleTapMinTimeMillis;
     property public long doubleTapTimeoutMillis;
+    property public float handwritingGestureLineMargin;
     property public float handwritingSlop;
     property public long longPressTimeoutMillis;
     property public float maximumFlingVelocity;
@@ -2946,6 +2948,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> getLocalHapticFeedback();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> getLocalInputModeManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> getLocalLayoutDirection();
+    method public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> getLocalScrollCaptureInProgress();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> getLocalSoftwareKeyboardController();
     method @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> getLocalTextInputService();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> getLocalTextToolbar();
@@ -2963,6 +2966,7 @@ package androidx.compose.ui.platform {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> LocalHapticFeedback;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> LocalInputModeManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> LocalLayoutDirection;
+    property public static final androidx.compose.runtime.CompositionLocal<java.lang.Boolean> LocalScrollCaptureInProgress;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> LocalSoftwareKeyboardController;
     property @Deprecated public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> LocalTextInputService;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> LocalTextToolbar;
@@ -3144,6 +3148,7 @@ package androidx.compose.ui.platform {
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ViewConfiguration {
     method public long getDoubleTapMinTimeMillis();
     method public long getDoubleTapTimeoutMillis();
+    method public default float getHandwritingGestureLineMargin();
     method public default float getHandwritingSlop();
     method public long getLongPressTimeoutMillis();
     method public default float getMaximumFlingVelocity();
@@ -3151,6 +3156,7 @@ package androidx.compose.ui.platform {
     method public float getTouchSlop();
     property public abstract long doubleTapMinTimeMillis;
     property public abstract long doubleTapTimeoutMillis;
+    property public default float handwritingGestureLineMargin;
     property public default float handwritingSlop;
     property public abstract long longPressTimeoutMillis;
     property public default float maximumFlingVelocity;
@@ -3257,16 +3263,6 @@ package androidx.compose.ui.res {
   public final class VectorResources_androidKt {
     method @kotlin.jvm.Throws(exceptionClasses=XmlPullParserException::class) public static androidx.compose.ui.graphics.vector.ImageVector vectorResource(androidx.compose.ui.graphics.vector.ImageVector.Companion, optional android.content.res.Resources.Theme? theme, android.content.res.Resources res, int resId) throws org.xmlpull.v1.XmlPullParserException;
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.vector.ImageVector vectorResource(androidx.compose.ui.graphics.vector.ImageVector.Companion, @DrawableRes int id);
-  }
-
-}
-
-package androidx.compose.ui.scrollcapture {
-
-  public final class ScrollCapture_androidKt {
-    method @Deprecated public static boolean getComposeFeatureFlag_LongScreenshotsEnabled();
-    method @Deprecated public static void setComposeFeatureFlag_LongScreenshotsEnabled(boolean);
-    property @Deprecated public static final boolean ComposeFeatureFlag_LongScreenshotsEnabled;
   }
 
 }

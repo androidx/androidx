@@ -45,7 +45,7 @@ object ListItemDefaults {
     /**
      * The default elevation used by [ListItem].
      */
-    val ListItemElevation = Elevation.Level0
+    val TonalElevation = Elevation.Level0
 
     /**
      * The default shape for a [ListItem].
@@ -67,7 +67,7 @@ object ListItemDefaults {
     /**
      * The default opacity for the [ListItem] container color in selected state.
      */
-    const val SelectedContinerColorOpacity = 0.4f
+    const val SelectedContainerColorOpacity = 0.4f
 
     /**
      * The default content padding [PaddingValues] used by [ListItem]
@@ -116,6 +116,8 @@ object ListItemDefaults {
      * @param pressedSelectedShape the shape used when the ListItem is enabled, pressed and
      * selected
      */
+    @ReadOnlyComposable
+    @Composable
     fun shape(
         shape: Shape = ListItemShape,
         focusedShape: Shape = shape,
@@ -172,7 +174,7 @@ object ListItemDefaults {
         pressedContainerColor: Color = focusedContainerColor,
         pressedContentColor: Color = contentColorFor(focusedContainerColor),
         selectedContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer
-            .copy(alpha = SelectedContinerColorOpacity),
+            .copy(alpha = SelectedContainerColorOpacity),
         selectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
         disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface,

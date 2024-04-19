@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -26,6 +27,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
@@ -55,10 +57,13 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates and remember a [PagerState] to be used with a [Pager]
@@ -394,7 +399,7 @@ abstract class PagerState(
         } else {
             // act on scroll only
             if (abs(this.currentPageOffsetFraction) >= abs(positionThresholdFraction)) {
-                if (isLastScrollForward) {
+                if (lastScrolledForward) {
                     firstVisiblePage + 1
                 } else {
                     firstVisiblePage
@@ -482,7 +487,7 @@ abstract class PagerState(
             "pageOffsetFraction $pageOffsetFraction is not within the range -0.5 to 0.5"
         }
         val targetPage = page.coerceInPageRange()
-        snapToItem(targetPage, pageOffsetFraction)
+        snapToItem(targetPage, pageOffsetFraction, forceRemeasure = true)
     }
 
     /**
@@ -504,7 +509,7 @@ abstract class PagerState(
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
     ) {
         with(animatedScrollScope) {
-            snapToItem(page, pageOffsetFraction)
+            snapToItem(page, pageOffsetFraction, forceRemeasure = true)
         }
     }
 
@@ -524,9 +529,42 @@ abstract class PagerState(
         programmaticScrollTargetPage = targetPage.coerceInPageRange()
     }
 
-    internal fun snapToItem(page: Int, offsetFraction: Float) {
-        scrollPosition.requestPosition(page, offsetFraction)
-        remeasurement?.forceRemeasure() // trigger remeasure
+    internal fun snapToItem(page: Int, offsetFraction: Float, forceRemeasure: Boolean) {
+        scrollPosition.requestPositionAndForgetLastKnownKey(page, offsetFraction)
+        if (forceRemeasure) {
+            remeasurement?.forceRemeasure()
+        } else {
+            measurementScopeInvalidator.invalidateScope()
+        }
+    }
+
+    internal val measurementScopeInvalidator = ObservableScopeInvalidator()
+
+    /**
+     * Requests the [page] to be at the snapped position during the next remeasure,
+     * offset by [pageOffsetFraction], and schedules a remeasure.
+     *
+     * The scroll position will be updated to the requested position rather than maintain
+     * the index based on the current page key (when a data set change will also be
+     * applied during the next remeasure), but *only* for the next remeasure.
+     *
+     * Any scroll in progress will be cancelled.
+     *
+     * @param page the index to which to scroll. Must be non-negative.
+     * @param pageOffsetFraction the offset fraction that the page should end up after the scroll.
+     */
+    fun requestScrollToPage(
+        @AndroidXIntRange(from = 0) page: Int,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
+    ) {
+        // Cancel any scroll in progress.
+        if (isScrollInProgress) {
+            pagerLayoutInfoState.value.coroutineScope.launch {
+                stopScroll()
+            }
+        }
+
+        snapToItem(page, pageOffsetFraction, forceRemeasure = false)
     }
 
     /**
@@ -599,10 +637,12 @@ abstract class PagerState(
     private val isLastScrollForwardState = mutableStateOf(false)
     private val isLastScrollBackwardState = mutableStateOf(false)
 
-    override val isLastScrollForward: Boolean
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledForward: Boolean
         get() = isLastScrollForwardState.value
 
-    override val isLastScrollBackward: Boolean
+    @get:Suppress("GetterSetterNames")
+    override val lastScrolledBackward: Boolean
         get() = isLastScrollBackwardState.value
 
     /**
@@ -707,19 +747,24 @@ abstract class PagerState(
     }
 
     /**
-     * An utility function to help to calculate a given page's offset. Since this is based off
-     * [currentPageOffsetFraction] the same concept applies: a fraction offset that represents
-     * how far [page] is from the settled position (represented by [currentPage] offset). The
-     * difference here is that [currentPageOffsetFraction] is a value between -0.5 and 0.5 and
-     * the value calculate by this function can be larger than these numbers if [page] is different
-     * than [currentPage].
+     * An utility function to help to calculate a given page's offset. This is an offset that
+     * represents how far [page] is from the settled position (represented by [currentPage]
+     * offset). The difference here is that [currentPageOffsetFraction] is a value between -0.5 and
+     * 0.5 and the value calculated by this function can be larger than these numbers if [page] is
+     * different than [currentPage].
      *
-     * For instance, if currentPage=0 and we call getOffsetDistanceInPages for page 3, the result
-     * will be -3, meaning the given page is 3 pages away from the current page (the sign represent
-     * the direction of the offset, negative is forward, positive is backwards). This offset also
-     * works in conjunction with [currentPageOffsetFraction], so if currentPage is out of its
-     * snapped position (i.e. currentPageOffsetFraction!=0) then the calculated value will still
-     * represent the offset in number of pages (in this case, not whole pages).
+     * For instance, if currentPage=0 and we call [getOffsetDistanceInPages] for page 3, the result
+     * will be 3, meaning the given page is 3 pages away from the current page (the sign represent
+     * the direction of the offset, positive is forward, negative is backwards). Another example is
+     * if currentPage=3 and we call [getOffsetDistanceInPages] for page 1, the result would be -2,
+     * meaning we're 2 pages away (moving backwards) to the current page.
+     *
+     * This offset also works in conjunction with [currentPageOffsetFraction], so if [currentPage]
+     * is out of its snapped position (i.e. currentPageOffsetFraction!=0) then the calculated value
+     * will still represent the offset in number of pages (in this case, not whole pages).
+     * For instance, if currentPage=1 and we're slightly offset, currentPageOffsetFraction=0.2,
+     * if we call this to page 2, the result would be 0.8, that is 0.8 page away from current page
+     * (moving forward).
      *
      * @param page The page to calculate the offset from. This should be between 0 and [pageCount].
      * @return The offset of [page] with respect to [currentPage].
@@ -728,7 +773,7 @@ abstract class PagerState(
         require(page in 0..pageCount) {
             "page $page is not within the range 0 to $pageCount"
         }
-        return (currentPage - page) + currentPageOffsetFraction
+        return page - currentPage - currentPageOffsetFraction
     }
 
     /**
@@ -780,7 +825,8 @@ internal val EmptyLayoutInfo = PagerMeasureResult(
 
         override fun placeChildren() {}
     },
-    remeasureNeeded = false
+    remeasureNeeded = false,
+    coroutineScope = CoroutineScope(EmptyCoroutineContext)
 )
 
 private val UnitDensity = object : Density {

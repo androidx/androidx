@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
+<<<<<<<< HEAD:compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/BasicTooltipInternal.kt
 package androidx.compose.material3
+========
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package androidx.compose.material3.internal
+>>>>>>>> 67004410fdbff19f90caa4cc43965ab21dca1943:compose/material3/material3/src/androidMain/kotlin/androidx/compose/material3/internal/BasicTooltip.android.kt
 
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,7 +78,7 @@ import kotlinx.coroutines.launch
 internal fun BasicTooltipBoxInternal(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
-    state: BasicTooltipState,
+    state: TooltipState,
     modifier: Modifier,
     focusable: Boolean,
     enableUserInput: Boolean,
@@ -104,7 +112,7 @@ internal fun BasicTooltipBoxInternal(
 @Composable
 private fun WrappedAnchor(
     enableUserInput: Boolean,
-    state: BasicTooltipState,
+    state: TooltipState,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -119,7 +127,7 @@ private fun WrappedAnchor(
 @Composable
 private fun TooltipPopup(
     positionProvider: PopupPositionProvider,
-    state: BasicTooltipState,
+    state: TooltipState,
     scope: CoroutineScope,
     focusable: Boolean,
     content: @Composable () -> Unit
@@ -146,7 +154,7 @@ private fun TooltipPopup(
 
 private fun Modifier.handleGestures(
     enabled: Boolean,
-    state: BasicTooltipState
+    state: TooltipState
 ): Modifier =
     if (enabled) {
         this.pointerInput(state) {
@@ -205,7 +213,7 @@ private fun Modifier.handleGestures(
 private fun Modifier.anchorSemantics(
     label: String,
     enabled: Boolean,
-    state: BasicTooltipState,
+    state: TooltipState,
     scope: CoroutineScope
 ): Modifier =
     if (enabled) {

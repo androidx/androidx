@@ -20,7 +20,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
@@ -58,7 +57,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 @Preview
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyColumnDragAndDropDemo() {
     var list by remember { mutableStateOf(List(50) { it }) }
@@ -182,8 +180,7 @@ class DragDropState internal constructor(
                 draggingItem.index != item.index
         }
         if (targetItem != null) {
-            if (
-                draggingItem.index == state.firstVisibleItemIndex ||
+            if (draggingItem.index == state.firstVisibleItemIndex ||
                 targetItem.index == state.firstVisibleItemIndex
             ) {
                 state.requestScrollToItem(
@@ -225,7 +222,6 @@ fun Modifier.dragContainer(dragDropState: DragDropState): Modifier {
     }
 }
 
-@ExperimentalFoundationApi
 @Composable
 fun LazyItemScope.DraggableItem(
     dragDropState: DragDropState,

@@ -27,10 +27,12 @@ class GradleIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
 
     override val issues = listOf(
-        EagerConfigurationDetector.ISSUE,
+        DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE,
+        DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE,
         InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
         InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
         WithPluginClasspathUsageDetector.ISSUE,
+        WithTypeWithoutConfigureEachUsageDetector.ISSUE,
     )
 
     override val vendor = Vendor(

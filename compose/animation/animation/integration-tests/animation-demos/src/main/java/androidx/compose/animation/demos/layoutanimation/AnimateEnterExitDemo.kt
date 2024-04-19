@@ -90,7 +90,7 @@ fun AnimateEnterExitDemo() {
             ) {
                 Box {
                     Column(Modifier.fillMaxSize()) {
-                        colors.forEachIndexed { index, color ->
+                        summerColors.forEachIndexed { index, color ->
                             // Creates a custom enter/exit animation on scale using
                             // `AnimatedVisibilityScope.transition`
                             val scale by transition.animateFloat { enterExitState ->
@@ -138,7 +138,8 @@ fun AnimateEnterExitDemo() {
     }
 }
 
-private val colors = listOf(
+@Suppress("PrimitiveInCollection")
+internal val summerColors = listOf(
     Color(0xffff6f69),
     Color(0xffffcc5c),
     Color(0xff2a9d84),

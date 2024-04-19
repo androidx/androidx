@@ -170,8 +170,12 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             project = project,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
+            debugSigningConfig = null,
             extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
-            configureBlock = configureBlock,
+            newConfigureBlock = configureBlock,
+            overrideConfigureBlock = {
+                // Properties are not overridden if the build type already exists.
+            },
             filterBlock = {
                 // All the build types that have been added to the test module should be
                 // extended. This is because we can't know here which ones are actually
@@ -193,8 +197,12 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
                 project = project,
                 extensionBuildTypes = extension.buildTypes,
                 newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
+                debugSigningConfig = null,
                 extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
-                configureBlock = configureBlock,
+                newConfigureBlock = configureBlock,
+                overrideConfigureBlock = {
+                    // Properties are not overridden if the build type already exists.
+                },
                 filterBlock = {
                     // Note that at this point we already have created the baseline profile build
                     // types that we don't want to extend again.
@@ -263,7 +271,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // app as an instrumentation runner argument. BaselineProfileRule and MacrobenchmarkRule
         // can pick that up during the test execution.
         if (addTargetPackageNameInstrumentationArgument &&
-            supportsFeature(TEST_VARIANT_TESTED_APKS)) {
+            supportsFeature(TEST_VARIANT_TESTED_APKS)
+        ) {
             InstrumentationTestRunnerArgumentsAgp82.set(
                 variant = variant,
                 key = INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME,

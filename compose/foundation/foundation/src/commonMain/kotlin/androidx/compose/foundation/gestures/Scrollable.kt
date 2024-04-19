@@ -281,6 +281,8 @@ private class ScrollableNode(
 ), ObserverModifierNode, CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode, KeyInputModifierNode {
 
+    override val shouldAutoInvalidate: Boolean = false
+
     private val nestedScrollDispatcher = NestedScrollDispatcher()
 
     private val scrollableContainerNode =

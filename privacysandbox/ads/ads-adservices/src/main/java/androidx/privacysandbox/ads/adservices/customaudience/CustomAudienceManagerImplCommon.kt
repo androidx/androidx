@@ -53,7 +53,8 @@ open class CustomAudienceManagerImplCommon(
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun fetchAndJoinCustomAudience(request: FetchAndJoinCustomAudienceRequest) {
-        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+        if (AdServicesInfo.adServicesVersion() >= 10 ||
+            AdServicesInfo.extServicesVersionS() >= 10) {
             return Ext10Impl.fetchAndJoinCustomAudience(customAudienceManager, request)
         }
         throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")

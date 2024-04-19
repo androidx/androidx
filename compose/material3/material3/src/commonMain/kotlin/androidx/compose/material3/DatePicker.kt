@@ -204,9 +204,7 @@ fun DatePicker(
         } else {
             null
         },
-        headlineTextStyle = MaterialTheme.typography.fromToken(
-            DatePickerModalTokens.HeaderHeadlineFont
-        ),
+        headlineTextStyle = DatePickerModalTokens.HeaderHeadlineFont.value,
         headerMinHeight = DatePickerModalTokens.HeaderContainerHeight,
         colors = colors,
     ) {
@@ -1329,7 +1327,8 @@ internal fun DateEntryContainer(
             .semantics {
                 @Suppress("DEPRECATION")
                 isContainer = true
-            }.background(colors.containerColor)
+            }
+            .background(colors.containerColor)
     ) {
         DatePickerHeader(
             modifier = Modifier,
@@ -1627,10 +1626,7 @@ internal fun DatePickerHeader(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         if (title != null) {
-            val textStyle =
-                MaterialTheme.typography.fromToken(
-                    DatePickerModalTokens.HeaderSupportingTextFont
-                )
+            val textStyle = DatePickerModalTokens.HeaderSupportingTextFont.value
             ProvideContentColorTextStyle(
                 contentColor = titleContentColor,
                 textStyle = textStyle
@@ -1669,9 +1665,7 @@ private fun HorizontalMonthsList(
             month = 1 // January
         )
     }
-    ProvideTextStyle(
-        MaterialTheme.typography.fromToken(DatePickerModalTokens.DateLabelTextFont)
-    ) {
+    ProvideTextStyle(DatePickerModalTokens.DateLabelTextFont.value) {
         LazyRow(
             // Apply this to prevent the screen reader from scrolling to the next or previous month,
             // and instead, traverse outside the Month composable when swiping from a focused first
@@ -1751,8 +1745,7 @@ internal fun WeekDays(colors: DatePickerColors, calendarModel: CalendarModel) {
     for (i in 0 until firstDayOfWeek - 1) {
         dayNames.add(weekdays[i])
     }
-    val textStyle =
-        MaterialTheme.typography.fromToken(DatePickerModalTokens.WeekdaysLabelTextFont)
+    val textStyle = DatePickerModalTokens.WeekdaysLabelTextFont.value
 
     Row(
         modifier = Modifier
@@ -2013,9 +2006,7 @@ private fun YearPicker(
     yearRange: IntRange,
     colors: DatePickerColors
 ) {
-    ProvideTextStyle(
-        value = MaterialTheme.typography.fromToken(DatePickerModalTokens.SelectionYearLabelTextFont)
-    ) {
+    ProvideTextStyle(value = DatePickerModalTokens.SelectionYearLabelTextFont.value) {
         val currentYear = calendarModel.getMonth(calendarModel.today).year
         val displayedYear = calendarModel.getMonth(displayedMonthMillis).year
         val lazyGridState =

@@ -624,7 +624,7 @@ internal fun CoreTextField(
     // Modifiers that should be applied to the outer text field container. Usually those include
     // gesture and semantics modifiers.
     val decorationBoxModifier = modifier
-        .legacyTextInputAdapter(legacyTextInputServiceAdapter)
+        .legacyTextInputAdapter(legacyTextInputServiceAdapter, state, manager)
         .then(focusModifier)
         .interceptDPadAndMoveFocus(state, focusManager)
         .previewKeyEventToDeselectOnBack(state, manager)

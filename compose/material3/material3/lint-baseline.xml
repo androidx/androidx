@@ -155,6 +155,24 @@
     </issue>
 
     <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun Url("
+        errorLine2="        ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun Clickable("
+        errorLine2="        ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
         <location

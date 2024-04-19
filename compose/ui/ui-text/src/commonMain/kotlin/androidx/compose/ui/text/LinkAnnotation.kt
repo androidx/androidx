@@ -16,26 +16,76 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.ui.text.style.TextDecoration
+
 /**
  * An annotation that represents a clickable part of the text.
- *
- * Disclaimer: This is a no-op at the moment. Continue using [UrlAnnotation] to make your links
- * visible for the accessibility services like Talkback
  */
 abstract class LinkAnnotation private constructor() {
+    /** Interaction listener triggered when user interacts with this link. */
+    abstract val linkInteractionListener: LinkInteractionListener?
     /**
-     * An annotation that contains a url string. When clicking on the text to which this annotation
-     * is attached, the app will try to open the url using [androidx.compose.ui.platform.UriHandler].
+     * Style configuration for this link that is always applied
      */
-    class Url(val url: String) : LinkAnnotation() {
+    abstract val style: SpanStyle?
+    /**
+     * Style configuration for this link applied on top of the [style] when the link is focused.
+     *
+     * The resulting style of the link is always a combination of all styles merged into one in
+     * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`
+     */
+    abstract val focusedStyle: SpanStyle?
+    /**
+     * Style configuration for this link applied on top of the [style] when the link is hovered.
+     *
+     * The resulting style of the link is always a combination of all styles merged into one in
+     * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`
+     */
+    abstract val hoveredStyle: SpanStyle?
+    /**
+     * Style configuration for this link applied on top of the [style] when the link is pressed.
+     *
+     * The resulting style of the link is always a combination of all styles merged into one in
+     * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`
+     */
+    abstract val pressedStyle: SpanStyle?
+    /**
+     * An annotation that contains a [url] string. When clicking on the text to which this annotation
+     * is attached, the app will try to open the url using [androidx.compose.ui.platform.UriHandler].
+     * However, if [linkInteractionListener] is provided, its [LinkInteractionListener.onClicked]
+     * method will be called instead and so you need to then handle opening url manually (for
+     * example by calling [androidx.compose.ui.platform.UriHandler]).
+     */
+    class Url(
+        val url: String,
+        override val style: SpanStyle? = SpanStyle(textDecoration = TextDecoration.Underline),
+        override val focusedStyle: SpanStyle? = null,
+        override val hoveredStyle: SpanStyle? = null,
+        override val pressedStyle: SpanStyle? = null,
+        override val linkInteractionListener: LinkInteractionListener? = null
+    ) : LinkAnnotation() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Url) return false
-            return url == other.url
+
+            if (url != other.url) return false
+            if (style != other.style) return false
+            if (focusedStyle != other.focusedStyle) return false
+            if (hoveredStyle != other.hoveredStyle) return false
+            if (pressedStyle != other.pressedStyle) return false
+            if (linkInteractionListener != other.linkInteractionListener) return false
+
+            return true
         }
 
         override fun hashCode(): Int {
-            return url.hashCode()
+            var result = url.hashCode()
+            result = 31 * result + (style?.hashCode() ?: 0)
+            result = 31 * result + (focusedStyle?.hashCode() ?: 0)
+            result = 31 * result + (hoveredStyle?.hashCode() ?: 0)
+            result = 31 * result + (pressedStyle?.hashCode() ?: 0)
+            result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
+            return result
         }
 
         override fun toString(): String {
@@ -45,17 +95,40 @@ abstract class LinkAnnotation private constructor() {
 
     /**
      * An annotation that contains a clickable marked with [tag]. When clicking on the text to
-     * which this annotation is attached, the app will trigger a corresponding click handler.
+     * which this annotation is attached, the app will trigger a [linkInteractionListener] listener.
      */
-    class Clickable(val tag: String) : LinkAnnotation() {
+    class Clickable(
+        val tag: String,
+        // nullable for the save/restore purposes
+        override val style: SpanStyle? = SpanStyle(textDecoration = TextDecoration.Underline),
+        override val focusedStyle: SpanStyle? = null,
+        override val hoveredStyle: SpanStyle? = null,
+        override val pressedStyle: SpanStyle? = null,
+        override val linkInteractionListener: LinkInteractionListener?
+        ) : LinkAnnotation() {
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Clickable) return false
-            return tag == other.tag
+
+            if (tag != other.tag) return false
+            if (style != other.style) return false
+            if (focusedStyle != other.focusedStyle) return false
+            if (hoveredStyle != other.hoveredStyle) return false
+            if (pressedStyle != other.pressedStyle) return false
+            if (linkInteractionListener != other.linkInteractionListener) return false
+
+            return true
         }
 
         override fun hashCode(): Int {
-            return tag.hashCode()
+            var result = tag.hashCode()
+            result = 31 * result + (style?.hashCode() ?: 0)
+            result = 31 * result + (focusedStyle?.hashCode() ?: 0)
+            result = 31 * result + (hoveredStyle?.hashCode() ?: 0)
+            result = 31 * result + (pressedStyle?.hashCode() ?: 0)
+            result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
+            return result
         }
 
         override fun toString(): String {

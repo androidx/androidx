@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("NullAnnotationGroup") // b/331484152
-
 package androidx.navigation.fragment
 
-import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.ExperimentalSafeArgsApi
@@ -96,7 +93,7 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when destination contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 @ExperimentalSafeArgsApi
 public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
@@ -108,7 +105,7 @@ public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.
  *
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. Required only when destination contains custom NavTypes.
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
 @ExperimentalSafeArgsApi
@@ -181,7 +178,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
      * @param route the destination's unique route from a [KClass]. This sets the [route] on
      * the newly constructed [NavDestination].
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. Required only when destination contains custom NavTypes.
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
      * destination
      */
