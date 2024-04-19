@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -500,6 +501,25 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(1000f) }
 
         rule.onNodeWithTag("0").isNotDisplayed()
+    }
+
+    @Test
+    fun smallScroll_shouldNotTriggerRemeasurements() {
+        createPager(modifier = Modifier.fillMaxSize())
+
+        val measurements = pagerState.numMeasurePasses
+        rule.runOnIdle {
+            runBlocking {
+                pagerState.scrollBy(0f)
+            }
+        }
+        assertThat(measurements).isEqualTo(pagerState.numMeasurePasses)
+        rule.runOnIdle {
+            runBlocking {
+                pagerState.scrollBy(-0f)
+            }
+        }
+        assertThat(measurements).isEqualTo(pagerState.numMeasurePasses)
     }
 
     companion object {
