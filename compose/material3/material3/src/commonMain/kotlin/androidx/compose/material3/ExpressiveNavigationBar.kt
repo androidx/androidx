@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import kotlin.jvm.JvmInline
 import kotlin.math.roundToInt
 
 /**
