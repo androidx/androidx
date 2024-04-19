@@ -16,9 +16,11 @@
 
 @file:JvmName("ActivityNavigatorDestinationBuilderKt")
 @file:Suppress("NOTHING_TO_INLINE")
+@file:SuppressLint("NullAnnotationGroup") // b/331484152
 
 package androidx.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -63,7 +65,7 @@ public inline fun NavGraphBuilder.activity(
  *
  * @param T destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * [NavType]. Required only when destination contains custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
 @ExperimentalSafeArgsApi
@@ -105,7 +107,7 @@ public class ActivityNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param route the route from a [KClass] of the destination
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     * [NavType]. Required only when destination contains custom NavTypes.
      */
     @ExperimentalSafeArgsApi
     public constructor(

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
 
     <issue
         id="BanThreadSleep"
@@ -48,18 +48,9 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Avoid using method get"
+        message="Avoid using eager method get"
         errorLine1="            variant.registerJavaGeneratingTask(task, task.get().outputDir.asFile.get())"
         errorLine2="                                                          ~~~">
-        <location
-            file="src/main/kotlin/androidx/navigation/safeargs/gradle/SafeArgsPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of findProperty"
-        errorLine1="                    (project.findProperty(&quot;android.useAndroidX&quot;) == &quot;true&quot;).also {"
-        errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/navigation/safeargs/gradle/SafeArgsPlugin.kt"/>
     </issue>

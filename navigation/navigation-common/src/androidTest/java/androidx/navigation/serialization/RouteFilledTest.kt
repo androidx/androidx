@@ -750,7 +750,7 @@ private class CustomSerializer : KSerializer<CustomSerializerClass> {
 
 private interface TestInterface
 
-internal fun stringArgument(
+private fun stringArgument(
     name: String,
     hasDefaultValue: Boolean = false
 ) = navArgument(name) {
@@ -759,7 +759,7 @@ internal fun stringArgument(
     unknownDefaultValuePresent = hasDefaultValue
 }
 
-internal fun nullableStringArgument(
+private fun nullableStringArgument(
     name: String,
     hasDefaultValue: Boolean = false
 ) = navArgument(name) {
@@ -768,7 +768,7 @@ internal fun nullableStringArgument(
     unknownDefaultValuePresent = hasDefaultValue
 }
 
-internal fun intArgument(
+private fun intArgument(
     name: String,
     hasDefaultValue: Boolean = false
 ) = navArgument(name) {

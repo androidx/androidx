@@ -69,8 +69,8 @@ public actual inline fun NavigatorProvider.navigation(
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
  * respective NavDestination must be added with route from a [KClass] in order to match.
  * @param route the graph's unique route as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
- * [route] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  *
  * @return the newly constructed NavGraph
@@ -90,8 +90,8 @@ public inline fun NavigatorProvider.navigation(
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
  * respective NavDestination must be added with route from a [KClass] in order to match.
  * @param route the graph's unique route as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
- * [route] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  *
  * @return the newly constructed NavGraph
@@ -146,42 +146,42 @@ public actual inline fun NavGraphBuilder.navigation(
 /**
  * Construct a nested [NavGraph]
  *
- * @param T the graph's unique route from a KClass<T>
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
  * respective NavDestination must be added with route from a [KClass] in order to match.
- * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if
- * [T] does not use custom NavTypes.
+ * @param route the graph's unique route from a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  *
  * @return the newly constructed nested NavGraph
  */
 @ExperimentalSafeArgsApi
-public inline fun <reified T : Any> NavGraphBuilder.navigation(
+public inline fun NavGraphBuilder.navigation(
     startDestination: KClass<*>,
+    route: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
-): Unit = destination(NavGraphBuilder(provider, startDestination, T::class, typeMap)
-    .apply(builder))
+): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
 
 /**
  * Construct a nested [NavGraph]
  *
- * @param T the graph's unique route from a KClass<T>
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
  * respective NavDestination must be added with route from a [KClass] in order to match.
- * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if
- * [T] does not use custom NavTypes.
+ * @param route the graph's unique route from a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  *
  * @return the newly constructed nested NavGraph
  */
 @ExperimentalSafeArgsApi
-public inline fun <reified T : Any> NavGraphBuilder.navigation(
+public inline fun NavGraphBuilder.navigation(
     startDestination: Any,
+    route: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
-): Unit = destination(NavGraphBuilder(provider, startDestination, T::class, typeMap)
-    .apply(builder))
+): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
 
 /**
  * DSL for constructing a new [NavGraph]
@@ -248,8 +248,8 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      * @param startDestination the starting destination's route as a [KClass] for this NavGraph. The
      * respective NavDestination must be added with route from a [KClass] in order to match.
      * @param route the graph's unique route as a [KClass]
-     * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
-     * [route] does not use custom NavTypes.
+     * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+     * if [route] uses custom NavTypes.
      *
      * @return the newly created NavGraph
      */
@@ -271,8 +271,8 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
      * @param startDestination the starting destination's route as an Object for this NavGraph. The
      * respective NavDestination must be added with route from a [KClass] in order to match.
      * @param route the graph's unique route as a [KClass]
-     * @param typeMap A mapping of KType to custom NavType<*> in the [route].  May be empty if
-     * [route] does not use custom NavTypes.
+     * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+     * if [route] uses custom NavTypes.
      *
      * @return the newly created NavGraph
      */

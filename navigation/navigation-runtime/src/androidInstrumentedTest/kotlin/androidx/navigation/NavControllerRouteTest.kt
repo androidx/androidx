@@ -288,30 +288,6 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
-    fun testNestedStartDestinationKClass() {
-        @Serializable
-        class NestedGraph
-
-        @Serializable
-        @SerialName("test")
-        class TestClass
-
-        val navController = createNavController()
-        navController.graph = navController.createGraph(
-            startDestination = NestedGraph::class
-        ) {
-            navigation<NestedGraph>(startDestination = TestClass::class) {
-                test(route = TestClass::class)
-            }
-        }
-        assertThat(navController.currentDestination?.route).isEqualTo("test")
-        assertThat(navController.currentDestination?.id).isEqualTo(
-            serializer<TestClass>().hashCode()
-        )
-    }
-
-    @UiThreadTest
-    @Test
     fun testStartDestinationObject() {
         @Serializable
         @SerialName("test")
@@ -449,41 +425,6 @@ class NavControllerRouteTest {
         val actual = entry.arguments!!.getString("arg")
         val expected = "myArg"
         assertThat(actual).isEqualTo(expected)
-    }
-
-    @UiThreadTest
-    @Test
-    fun testNestedStartDestinationObjectWithPathArg() {
-        @Serializable
-        @SerialName("graph")
-        class NestedGraph(val nestedArg: Int)
-
-        @Serializable
-        @SerialName("test")
-        class TestClass(val arg: Int)
-
-        val navController = createNavController()
-        navController.graph = navController.createGraph(
-            startDestination = NestedGraph(0)
-        ) {
-            navigation<NestedGraph>(startDestination = TestClass(1)) {
-                test(route = TestClass::class)
-            }
-        }
-        assertThat(navController.currentDestination?.route).isEqualTo(
-            "test/{arg}"
-        )
-        assertThat(navController.currentDestination?.id).isEqualTo(
-            serializer<TestClass>().hashCode()
-        )
-
-        val nestedArg = navController.currentBackStackEntry?.arguments?.getInt("nestedArg")
-        assertThat(nestedArg).isNotNull()
-        assertThat(nestedArg).isEqualTo(0)
-
-        val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
-        assertThat(arg).isNotNull()
-        assertThat(arg).isEqualTo(1)
     }
 
     @UiThreadTest

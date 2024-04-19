@@ -15,9 +15,11 @@
  */
 
 @file:JvmName("NavControllerKt")
+@file:SuppressLint("NullAnnotationGroup")
 
 package androidx.navigation
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -547,7 +549,7 @@ public actual open class NavController(
     @MainThread
     @JvmOverloads
     @ExperimentalSafeArgsApi
-    public inline fun <reified T : Any> popBackStack(
+    public inline fun <reified T> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false
     ): Boolean = popBackStack(serializer<T>().hashCode(), inclusive, saveState)
@@ -891,7 +893,7 @@ public actual open class NavController(
      */
     @MainThread
     @ExperimentalSafeArgsApi
-    public inline fun <reified T : Any> clearBackStack(): Boolean =
+    public inline fun <reified T> clearBackStack(): Boolean =
         clearBackStack(serializer<T>().hashCode())
 
     /**
@@ -1760,7 +1762,7 @@ public actual open class NavController(
      * @throws IllegalArgumentException if the desired destination cannot be found from the
      *                                  current destination
      */
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     @MainThread
     public open fun navigate(
         @IdRes resId: Int,
@@ -1967,7 +1969,7 @@ public actual open class NavController(
         }
     }
 
-    @OptIn(InternalSerializationApi::class, ExperimentalSafeArgsApi::class)
+    @OptIn(InternalSerializationApi::class)
     @MainThread
     private fun navigate(
         node: NavDestination,
@@ -2851,8 +2853,8 @@ public actual inline fun NavController.createGraph(
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
  * respective NavDestination must be added as a [KClass] in order to match.
  * @param route the graph's unique route from a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
- * does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  */
 @ExperimentalSafeArgsApi
@@ -2869,8 +2871,8 @@ public inline fun NavController.createGraph(
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
  * respective NavDestination must be added as a [KClass] in order to match.
  * @param route the graph's unique route from a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
- * does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
  * @param builder the builder used to construct the graph
  */
 @ExperimentalSafeArgsApi

@@ -17,7 +17,6 @@ package androidx.navigation.dynamicfeatures
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavController
 import androidx.navigation.plusAssign
 import androidx.test.core.app.ApplicationProvider
@@ -25,7 +24,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 import com.google.common.truth.Truth.assertThat
-import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -189,96 +187,6 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
         }
         val destination = graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination
         assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    public fun moduleKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
-            }
-        }
-
-        assertThat(
-            (graph.findNode<TestClass>() as DynamicActivityNavigator.Destination).moduleName
-        )
-            .isEqualTo(MODULE_NAME)
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    public fun noModuleKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-            }
-        }
-        assertThat(
-            (graph.findNode<TestClass>() as DynamicActivityNavigator.Destination).moduleName
-        ).isNull()
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    public fun activityKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
-            }
-        }
-        val destination = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isEqualTo(
-            ComponentName(
-                context,
-                CLASS_NAME
-            )
-        )
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    public fun noActivityKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-            }
-        }
-        val destination = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isNull()
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    public fun modulePackageKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
-                targetPackage = PACKAGE_NAME
-            }
-        }
-        val destination = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
-        assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
-    }
-
-    @OptIn(ExperimentalSafeArgsApi::class)
-    @Test
-    public fun moduleObject() {
-        @Serializable
-        class TestClass(val arg: Int)
-        val graph = navController.createGraph(startDestination = TestClass(0)) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
-            }
-        }
-
-        val dest = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
-        assertThat(dest.moduleName).isEqualTo(MODULE_NAME)
-        assertThat(dest.arguments["arg"]).isNotNull()
     }
 }
 

@@ -28,7 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -41,7 +40,6 @@ android {
 dependencies {
     api(project(":navigation:navigation-runtime"))
     api(libs.playFeatureDelivery)
-    implementation(libs.kotlinSerializationCore)
 
     testImplementation(project(":navigation:navigation-testing"))
     testImplementation("androidx.arch.core:core-testing:2.2.0")

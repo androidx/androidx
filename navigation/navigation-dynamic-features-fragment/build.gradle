@@ -28,7 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -41,7 +40,6 @@ dependencies {
     api(project(":navigation:navigation-dynamic-features-runtime"))
     api(project(":navigation:navigation-fragment"))
     api(libs.kotlinStdlib)
-    implementation(libs.kotlinSerializationCore)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
