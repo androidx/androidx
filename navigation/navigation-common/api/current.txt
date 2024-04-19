@@ -257,17 +257,14 @@ package androidx.navigation {
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, String? route);
     ctor @SuppressCompatibility @androidx.navigation.ExperimentalSafeArgsApi public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, kotlin.reflect.KClass<?>? route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<?>> typeMap);
     method @Deprecated public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
-    method public final void argument(String name, androidx.navigation.NavArgument argument);
     method public final void argument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> argumentBuilder);
     method public D build();
-    method public final void deepLink(androidx.navigation.NavDeepLink navDeepLink);
     method public final void deepLink(String uriPattern);
     method public final void deepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> navDeepLink);
     method public final int getId();
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
     method public final String? getRoute();
-    method protected D instantiateDestination();
     method public final void setLabel(CharSequence?);
     property public final int id;
     property public final CharSequence? label;

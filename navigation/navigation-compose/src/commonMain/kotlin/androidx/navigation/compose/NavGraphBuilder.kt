@@ -97,17 +97,17 @@ public fun NavGraphBuilder.composable(
             exitTransition,
     content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
-    destination(
-        ComposeNavigatorDestinationBuilder(
+    addDestination(
+        ComposeNavigator.Destination(
             provider[ComposeNavigator.NAME],
-            route,
             content
         ).apply {
+            this.route = route
             arguments.forEach { (argumentName, argument) ->
-                argument(argumentName, argument)
+                addArgument(argumentName, argument)
             }
             deepLinks.forEach { deepLink ->
-                deepLink(deepLink)
+                addDeepLink(deepLink)
             }
             this.enterTransition = enterTransition
             this.exitTransition = exitTransition
@@ -148,17 +148,17 @@ public fun NavGraphBuilder.composable(
     AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null,
     content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
-    destination(
-        ComposeNavigatorDestinationBuilder(
+    addDestination(
+        ComposeNavigator.Destination(
             provider[ComposeNavigator.NAME],
-            route,
             content
         ).apply {
+            this.route = route
             arguments.forEach { (argumentName, argument) ->
-                argument(argumentName, argument)
+                addArgument(argumentName, argument)
             }
             deepLinks.forEach { deepLink ->
-                deepLink(deepLink)
+                addDeepLink(deepLink)
             }
             this.enterTransition = enterTransition
             this.exitTransition = exitTransition
@@ -314,18 +314,18 @@ public fun NavGraphBuilder.dialog(
     dialogProperties: DialogProperties = DialogProperties(),
     content: @Composable (NavBackStackEntry) -> Unit
 ) {
-    destination(
-        DialogNavigatorDestinationBuilder(
+    addDestination(
+        DialogNavigator.Destination(
             provider[DialogNavigator.NAME],
-            route,
             dialogProperties,
             content
         ).apply {
+            this.route = route
             arguments.forEach { (argumentName, argument) ->
-                argument(argumentName, argument)
+                addArgument(argumentName, argument)
             }
             deepLinks.forEach { deepLink ->
-                deepLink(deepLink)
+                addDeepLink(deepLink)
             }
         }
     )
