@@ -312,6 +312,53 @@ class SavedStateHandleSaverTest {
         assertThat(getCount!!()).isEqualTo(1)
         assertThat(savedStateHandle?.keys()).isEqualTo(setOf("count"))
     }
+
+    @OptIn(SavedStateHandleSaveableApi::class)
+    @Test
+    fun nullableMutableState_delegate_simpleRestore() {
+        var savedStateHandle: SavedStateHandle? = null
+        var getOptionalCount: (() -> Int?)? = null
+        var setOptionalCount: ((Int?) -> Unit)? = null
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                savedStateHandle = viewModel.savedStateHandle
+                var count: Int? by viewModel.savedStateHandle.saveable {
+                    mutableStateOf(null)
+                }
+                getOptionalCount = { count }
+                setOptionalCount = { count = it }
+            }
+        }
+
+        assertThat(getOptionalCount!!()).isNull()
+        assertThat(savedStateHandle?.keys()).isEqualTo(setOf("count"))
+
+        activityTestRuleScenario.scenario.onActivity {
+            setOptionalCount!!(1)
+            // we null all to ensure recomposition happened
+            getOptionalCount = null
+            setOptionalCount = null
+            savedStateHandle = null
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            activity.setContent {
+                val viewModel = viewModel<SavingTestViewModel>(activity)
+                savedStateHandle = viewModel.savedStateHandle
+                var count: Int? by viewModel.savedStateHandle.saveable {
+                    mutableStateOf(null)
+                }
+                getOptionalCount = { count }
+                setOptionalCount = { count = it }
+            }
+        }
+
+        assertThat(getOptionalCount!!()).isEqualTo(1)
+        assertThat(savedStateHandle?.keys()).isEqualTo(setOf("count"))
+    }
 }
 
 class SavingTestViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
