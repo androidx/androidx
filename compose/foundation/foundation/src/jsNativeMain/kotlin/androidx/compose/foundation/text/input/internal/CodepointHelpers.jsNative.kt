@@ -25,3 +25,7 @@ internal actual fun CharSequence.codePointAt(index: Int): Int =
 
 internal actual fun charCount(codePoint: Int): Int =
     codePoint.charCount()
+
+internal actual fun CharSequence.codePointBefore(index: Int): Int {
+    TODO()
+}
