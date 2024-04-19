@@ -299,6 +299,7 @@ internal fun CoreTextField(
     manager.hapticFeedBack = LocalHapticFeedback.current
     manager.focusRequester = focusRequester
     manager.editable = !readOnly
+    manager.enabled = enabled
 
     val coroutineScope = rememberCoroutineScope()
     val bringIntoViewRequester = remember { BringIntoViewRequester() }

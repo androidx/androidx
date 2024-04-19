@@ -125,6 +125,11 @@ internal class TextFieldSelectionManager(
     var editable by mutableStateOf(true)
 
     /**
+     * Whether the text field should be selectable at all.
+     */
+    var enabled by mutableStateOf(true)
+
+    /**
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
      * recalculated.
      */
