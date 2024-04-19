@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -28,9 +29,17 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.internal.ContainerId
 import androidx.compose.material3.internal.HorizontalIconPadding
@@ -76,6 +85,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -93,6 +103,182 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.roundToInt
+
+/**
+ * <a href="https://m3.material.io/components/text-fields/overview" class="external"
+ * target="_blank">Material Design filled text field</a>.
+ *
+ * Text fields allow users to enter text into a UI. They typically appear in forms and dialogs.
+ * Filled text fields have more visual emphasis than outlined text fields, making them stand out
+ * when surrounded by other content and components.
+ *
+ * ![Filled text field
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/filled-text-field.png)
+ *
+ * If you are looking for an outlined version, see [OutlinedTextField].
+ *
+ * This overload of [TextField] uses [TextFieldState] to keep track of its text content and position
+ * of the cursor or selection.
+ *
+ * @param state [TextFieldState] object that holds the internal editing state of the text field.
+ * @param modifier the [Modifier] to be applied to this text field.
+ * @param enabled controls the enabled state of this text field. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param readOnly controls the editable state of the text field. When `true`, the text field cannot
+ *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
+ *   usually used to display pre-filled forms that a user cannot edit.
+ * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
+ * @param label the optional label to be displayed with this text field. The default text style uses
+ *   [Typography.bodySmall] when the text field is in focus and [Typography.bodyLarge] when the text
+ *   field is not in focus.
+ * @param placeholder the optional placeholder to be displayed when the input text is empty. The
+ *   default text style uses [Typography.bodyLarge].
+ * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
+ *   container.
+ * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
+ *   container.
+ * @param prefix the optional prefix to be displayed before the input text in the text field.
+ * @param suffix the optional suffix to be displayed after the input text in the text field.
+ * @param supportingText the optional supporting text to be displayed below the text field.
+ * @param isError indicates if the text field's current value is in error. When `true`, the
+ *   components of the text field will be displayed in an error color, and an error will be
+ *   announced to accessibility services.
+ * @param inputTransformation optional [InputTransformation] that will be used to transform changes
+ *   to the [TextFieldState] made by the user. The transformation will be applied to changes made by
+ *   hardware and software keyboard events, pasting or dropping text, accessibility services, and
+ *   tests. The transformation will _not_ be applied when changing the [state] programmatically, or
+ *   when the transformation is changed. If the transformation is changed on an existing text field,
+ *   it will be applied to the next user edit. The transformation will not immediately affect the
+ *   current [state].
+ * @param outputTransformation optional [OutputTransformation] that transforms how the contents of
+ *   the text field are presented.
+ * @param keyboardOptions software keyboard options that contains configuration such as
+ *   [KeyboardType] and [ImeAction].
+ * @param onKeyboardAction called when the user presses the action button in the input method editor
+ *   (IME), or by pressing the enter key on a hardware keyboard. By default this parameter is null,
+ *   and would execute the default behavior for a received IME Action e.g., [ImeAction.Done] would
+ *   close the keyboard, [ImeAction.Next] would switch the focus to the next focusable item on the
+ *   screen.
+ * @param lineLimits whether the text field should be [SingleLine], scroll horizontally, and ignore
+ *   newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all newline
+ *   characters ('\n') within the text will be replaced with regular whitespace (' ').
+ * @param onTextLayout Callback that is executed when the text layout becomes queryable. The
+ *   callback receives a function that returns a [TextLayoutResult] if the layout can be calculated,
+ *   or null if it cannot. The function reads the layout result from a snapshot state object, and
+ *   will invalidate its caller when the layout result changes. A [TextLayoutResult] object contains
+ *   paragraph information, size of the text, baselines and other details. [Density] scope is the
+ *   one that was used while creating the given text layout.
+ * @param scrollState scroll state that manages either horizontal or vertical scroll of the text
+ *   field. If [lineLimits] is [SingleLine], this text field is treated as single line with
+ *   horizontal scroll behavior. Otherwise, the text field becomes vertically scrollable.
+ * @param shape defines the shape of this text field's container.
+ * @param colors [TextFieldColors] that will be used to resolve the colors used for this text field
+ *   in different states. See [TextFieldDefaults.colors].
+ * @param contentPadding the padding applied to the inner text field that separates it from the
+ *   surrounding elements of the text field. Note that the padding values may not be respected if
+ *   they are incompatible with the text field's size constraints or layout. See
+ *   [TextFieldDefaults.contentPaddingWithLabel] and [TextFieldDefaults.contentPaddingWithoutLabel].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this text field. You can use this to change the text field's
+ *   appearance or preview the text field in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TextField(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    inputTransformation: InputTransformation? = null,
+    outputTransformation: OutputTransformation? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)? = null,
+    scrollState: ScrollState = rememberScrollState(),
+    shape: Shape = TextFieldDefaults.shape,
+    colors: TextFieldColors = TextFieldDefaults.colors(),
+    contentPadding: PaddingValues =
+        if (label == null) {
+            TextFieldDefaults.contentPaddingWithoutLabel()
+        } else {
+            TextFieldDefaults.contentPaddingWithLabel()
+        },
+    interactionSource: MutableInteractionSource? = null,
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // If color is not provided via the text style, use content color as a default
+    val textColor =
+        textStyle.color.takeOrElse {
+            val focused = interactionSource.collectIsFocusedAsState().value
+            colors.textColor(enabled, isError, focused)
+        }
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+    CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
+        BasicTextField(
+            state = state,
+            modifier =
+                modifier
+                    .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                    .defaultMinSize(
+                        minWidth = TextFieldDefaults.MinWidth,
+                        minHeight = TextFieldDefaults.MinHeight
+                    ),
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = mergedTextStyle,
+            cursorBrush = SolidColor(colors.cursorColor(isError)),
+            keyboardOptions = keyboardOptions,
+            onKeyboardAction = onKeyboardAction,
+            lineLimits = lineLimits,
+            onTextLayout = onTextLayout,
+            interactionSource = interactionSource,
+            inputTransformation = inputTransformation,
+            outputTransformation = outputTransformation,
+            scrollState = scrollState,
+            decorator =
+                TextFieldDefaults.decorator(
+                    state = state,
+                    enabled = enabled,
+                    lineLimits = lineLimits,
+                    outputTransformation = outputTransformation,
+                    interactionSource = interactionSource,
+                    label = label,
+                    placeholder = placeholder,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    prefix = prefix,
+                    suffix = suffix,
+                    supportingText = supportingText,
+                    isError = isError,
+                    colors = colors,
+                    contentPadding = contentPadding,
+                    container = {
+                        TextFieldDefaults.Container(
+                            enabled = enabled,
+                            isError = isError,
+                            interactionSource = interactionSource,
+                            colors = colors,
+                            shape = shape,
+                        )
+                    }
+                )
+        )
+    }
+}
 
 /**
  * <a href="https://m3.material.io/components/text-fields/overview" class="external"
