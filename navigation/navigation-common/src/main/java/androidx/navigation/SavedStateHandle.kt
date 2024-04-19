@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.navigation.serialization
+package androidx.navigation
 
-import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.NavType
-import kotlinx.serialization.KSerializer
+import androidx.navigation.serialization.decodeArguments
+import kotlinx.serialization.serializer
 
-// public due to reified toRoute()
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> KSerializer<T>.decodeArguments(
-    bundle: Bundle,
-    typeMap: Map<String, NavType<*>>
-): T = RouteDecoder(bundle, typeMap).decodeSerializableValue(this)
-
-// public due to reified toRoute()
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> KSerializer<T>.decodeArguments(
-    handle: SavedStateHandle
-): T = RouteDecoder(handle).decodeSerializableValue(this)
+/**
+ * Returns route as an object of type [T]
+ *
+ * Extrapolates arguments from [SavedStateHandle] and recreates object [T]
+ *
+ * @param [T] the entry's [NavDestination.route] as a [KClass]
+ *
+ * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
+ */
+public inline fun <reified T> SavedStateHandle.toRoute(): T =
+    serializer<T>().decodeArguments(this)

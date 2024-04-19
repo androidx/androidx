@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.core.os.bundleOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.common.test.R
@@ -32,8 +33,18 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+enum class ArgumentSource {
+    BUNDLE,
+    SAVED_STATE_HANDLE
+}
+
 @RunWith(JUnit4::class)
-class RouteDecoderTest {
+class RouteDecoderSavedStateTest : RouteDecoderTest(ArgumentSource.SAVED_STATE_HANDLE)
+
+@RunWith(JUnit4::class)
+class RouteDecoderBundleTest : RouteDecoderTest(ArgumentSource.BUNDLE)
+
+abstract class RouteDecoderTest(val source: ArgumentSource) {
 
     @Test
     fun decodeString() {
@@ -131,10 +142,11 @@ class RouteDecoderTest {
         class TestClass(val arg: IntArray)
 
         val bundle = bundleOf("arg" to intArrayOf(0, 1, 2, 3))
-        val result = serializer<TestClass>().decodeArguments(
-            bundle,
-            mapOf("arg" to NavType.IntArrayType as NavType<*>,)
-        )
+        val result = decode<TestClass>(bundle, listOf(
+            navArgument("arg") {
+                type = NavType.IntArrayType
+            }
+        ))
         assertThat(result.arg).isEqualTo(intArrayOf(0, 1, 2, 3))
     }
 
@@ -390,12 +402,21 @@ class RouteDecoderTest {
         assertThat(result.list).containsExactlyElementsIn(arg).inOrder()
     }
 
+    @Suppress("DEPRECATION")
     private inline fun <reified T : Any> decode(
         bundle: Bundle,
         args: List<NamedNavArgument> = emptyList()
     ): T {
-        val typeMap = mutableMapOf<String, NavType<Any?>>()
-        args.forEach { typeMap[it.name] = it.argument.type }
-        return serializer<T>().decodeArguments(bundle, typeMap)
+        return if (source == ArgumentSource.BUNDLE) {
+            val typeMap = mutableMapOf<String, NavType<Any?>>()
+            args.forEach { typeMap[it.name] = it.argument.type }
+            serializer<T>().decodeArguments(bundle, typeMap)
+        } else {
+            val handle = SavedStateHandle()
+            bundle.keySet().forEach {
+                handle[it] = bundle[it]
+            }
+            serializer<T>().decodeArguments(handle)
+        }
     }
 }

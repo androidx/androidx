@@ -21,6 +21,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -304,7 +308,7 @@ class NavHostControllerTest {
     }
 
     @Test
-    fun testNavigateKClassArgs() {
+    fun testNavigateKClassArgsBundle() {
         lateinit var args: TestClassArg
         lateinit var navController: NavHostController
         composeTestRule.setContent {
@@ -318,16 +322,42 @@ class NavHostControllerTest {
             }
         }
         composeTestRule.runOnUiThread {
-            navController.navigate(TestClassArg(0)) {}
+            navController.navigate(TestClassArg(1)) {}
         }
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
-            assertThat(args.arg).isEqualTo(0)
+            assertThat(args.arg).isEqualTo(1)
         }
     }
 
     @Test
-    fun testNavigateKClassMultipleArgs() {
+    fun testNavigateKClassArgsSavedStateHandle() {
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClassArg> {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClassArg(1)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(vm.handle.toRoute<TestClassArg>().arg).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testNavigateKClassMultipleArgsBundle() {
         @Serializable
         class TestClass(val arg: Int, val arg2: Boolean)
 
@@ -344,20 +374,54 @@ class NavHostControllerTest {
             }
         }
         composeTestRule.runOnUiThread {
-            navController.navigate(TestClass(0, false)) {}
+            navController.navigate(TestClass(1, false)) {}
         }
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(
                 "androidx.navigation.compose.NavHostControllerTest." +
-                    "testNavigateKClassMultipleArgs.TestClass/{arg}/{arg2}"
+                    "testNavigateKClassMultipleArgsBundle.TestClass/{arg}/{arg2}"
             )
-            assertThat(args.arg).isEqualTo(0)
+            assertThat(args.arg).isEqualTo(1)
             assertThat(args.arg2).isEqualTo(false)
         }
     }
 
     @Test
-    fun testNavigateKClassArgsNullValue() {
+    fun testNavigateKClassMultipleArgsSavedStateHandle() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: Boolean)
+
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass> {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(1, false)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateKClassMultipleArgsSavedStateHandle.TestClass/{arg}/{arg2}"
+            )
+            val vmRoute = vm.handle.toRoute<TestClass>()
+            assertThat(vmRoute.arg).isEqualTo(1)
+            assertThat(vmRoute.arg2).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun testNavigateKClassArgsNullValueBundle() {
         @Serializable
         class TestClass(val arg: String?)
 
@@ -379,9 +443,41 @@ class NavHostControllerTest {
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(
                 "androidx.navigation.compose.NavHostControllerTest." +
-                    "testNavigateKClassArgsNullValue.TestClass/{arg}"
+                    "testNavigateKClassArgsNullValueBundle.TestClass/{arg}"
             )
             assertThat(args.arg).isNull()
+        }
+    }
+
+    @Test
+    fun testNavigateKClassArgsNullValueSavedStateHandle() {
+        @Serializable
+        class TestClass(val arg: String?)
+
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass> {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(null)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateKClassArgsNullValueSavedStateHandle.TestClass/{arg}"
+            )
+            assertThat(vm.handle.toRoute<TestClass>().arg).isNull()
         }
     }
 
@@ -406,8 +502,8 @@ class NavHostControllerTest {
     }
 
     @Test
-    fun testNavigateDialogKClassArgs() {
-        lateinit var args: TestClassArg
+    fun testNavigateDialogKClassArgsBundle() {
+        lateinit var bundle: TestClassArg
         lateinit var navController: NavHostController
         composeTestRule.setContent {
             navController = rememberNavController()
@@ -415,21 +511,47 @@ class NavHostControllerTest {
             NavHost(navController, startDestination = "first") {
                 composable("first") { }
                 dialog<TestClassArg> {
-                    args = it.toRoute<TestClassArg>()
+                    bundle = it.toRoute<TestClassArg>()
                 }
             }
         }
         composeTestRule.runOnUiThread {
-            navController.navigate(TestClassArg(0)) {}
+            navController.navigate(TestClassArg(1)) {}
         }
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
-            assertThat(args.arg).isEqualTo(0)
+            assertThat(bundle.arg).isEqualTo(1)
         }
     }
 
     @Test
-    fun testNavigateDialogKClassMultipleArgs() {
+    fun testNavigateDialogKClassArgsSavedStateHandle() {
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClassArg> {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClassArg(1)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
+            assertThat(vm.handle.toRoute<TestClassArg>().arg).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClassMultipleArgsBundle() {
         @Serializable
         class TestClass(val arg: Int, val arg2: Boolean)
 
@@ -446,20 +568,54 @@ class NavHostControllerTest {
             }
         }
         composeTestRule.runOnUiThread {
-            navController.navigate(TestClass(0, false)) {}
+            navController.navigate(TestClass(1, false)) {}
         }
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(
                 "androidx.navigation.compose.NavHostControllerTest." +
-                    "testNavigateDialogKClassMultipleArgs.TestClass/{arg}/{arg2}"
+                    "testNavigateDialogKClassMultipleArgsBundle.TestClass/{arg}/{arg2}"
             )
-            assertThat(args.arg).isEqualTo(0)
+            assertThat(args.arg).isEqualTo(1)
             assertThat(args.arg2).isEqualTo(false)
         }
     }
 
     @Test
-    fun testNavigateDialogKClassArgsNullValue() {
+    fun testNavigateDialogKClassMultipleArgsSavedStateHandle() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: Boolean)
+
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClass> {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(1, false)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateDialogKClassMultipleArgsSavedStateHandle.TestClass/{arg}/{arg2}"
+            )
+            val vmRoute = vm.handle.toRoute<TestClass>()
+            assertThat(vmRoute.arg).isEqualTo(1)
+            assertThat(vmRoute.arg2).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClassArgsNullValueBundle() {
         @Serializable
         class TestClass(val arg: String?)
 
@@ -481,9 +637,41 @@ class NavHostControllerTest {
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(
                 "androidx.navigation.compose.NavHostControllerTest." +
-                    "testNavigateDialogKClassArgsNullValue.TestClass/{arg}"
+                    "testNavigateDialogKClassArgsNullValueBundle.TestClass/{arg}"
             )
             assertThat(args.arg).isNull()
+        }
+    }
+
+    @Test
+    fun testNavigateDialogKClassArgsNullValueSavedStateHandle() {
+        @Serializable
+        class TestClass(val arg: String?)
+
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                dialog<TestClass> {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(null)) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.route).isEqualTo(
+                "androidx.navigation.compose.NavHostControllerTest." +
+                    "testNavigateDialogKClassArgsNullValueSavedStateHandle.TestClass/{arg}"
+            )
+            assertThat(vm.handle.toRoute<TestClass>().arg).isNull()
         }
     }
 
@@ -563,6 +751,10 @@ class NavHostControllerTest {
                 .isEqualTo(TEST_CLASS_ROUTE)
         }
     }
+
+    class TestVM(
+        val handle: SavedStateHandle
+    ) : ViewModel()
 }
 
 private const val FIRST_DESTINATION = "first"
