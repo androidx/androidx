@@ -28,10 +28,12 @@ plugins {
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinSerializationCore)
 
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:foundation:foundation"))
