@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.modifiers
 import android.content.Context
 import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,8 +41,12 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.Font
@@ -142,7 +147,6 @@ class TextStringSimpleNodeTest {
         assertNotEquals(0, textLayout2.size.width)
     }
 
-    // TODO(b/279797016) re-enable this test, and add a path for AnnotatedString
     @Ignore("b/279797016 drawBehind is currently broken in tot")
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
@@ -189,6 +193,64 @@ class TextStringSimpleNodeTest {
         rule.waitForIdle()
 
         Truth.assertThat(drawCount.get()).isGreaterThan(initialCount)
+    }
+
+    @Test
+    fun setTextSubstitution_invalidatesDraw() {
+        val drawCount = AtomicInteger(0)
+
+        val subject = TextStringSimpleElement(
+            "til",
+            TextStyle.Default,
+            createFontFamilyResolver(context)
+        )
+
+        val modifier = Modifier.fillMaxSize().drawBehind {
+                drawRect(Color.Magenta, size = Size(100f, 100f))
+                drawCount.incrementAndGet()
+            } then subject
+
+        rule.setContent {
+            Box(modifier)
+        }
+        val initialCount = drawCount.get()
+        rule.runOnIdle {
+            Truth.assertThat(initialCount).isGreaterThan(0)
+        }
+
+        val node = rule.onNodeWithText("til").fetchSemanticsNode()
+
+        rule.runOnIdle {
+            node.config[SemanticsActions.SetTextSubstitution].action?.invoke(AnnotatedString("T"))
+            node.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+        rule.waitForIdle()
+        Truth.assertThat(drawCount.get()).isGreaterThan(initialCount)
+    }
+
+    @Test
+    fun setTextSubstitution_setsSemantics() {
+        val subject = TextStringSimpleElement(
+            "til",
+            TextStyle.Default,
+            createFontFamilyResolver(context)
+        )
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize() then subject)
+        }
+
+        val node = rule.onNodeWithText("til").fetchSemanticsNode()
+
+        rule.runOnIdle {
+            node.config[SemanticsActions.SetTextSubstitution].action?.invoke(AnnotatedString("T"))
+            node.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+        val replacedNode = rule.onNodeWithText("til").fetchSemanticsNode()
+        rule.runOnIdle {
+            Truth.assertThat(replacedNode.config[SemanticsProperties.TextSubstitution].text)
+                .isEqualTo("T")
+        }
     }
 
     private fun makeAsyncFont(loadDeferred: Deferred<Unit>): Font {
