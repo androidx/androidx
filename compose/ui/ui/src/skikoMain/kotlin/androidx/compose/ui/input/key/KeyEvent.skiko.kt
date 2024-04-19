@@ -80,7 +80,7 @@ fun KeyEvent(
             isAltPressed = isAltPressed,
             isShiftPressed = isShiftPressed
         ),
-        nativeEvent = nativeEvent as? InternalKeyEvent
+        nativeEvent = nativeEvent
     )
 )
 
