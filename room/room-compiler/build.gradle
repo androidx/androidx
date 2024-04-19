@@ -131,13 +131,15 @@ abstract class GenerateAntlrGrammar extends DefaultTask {
 
     @TaskAction
     void generateAntlrGrammar() {
+        File outputDirectoryFile = getOutputDirectory().asFile.get()
+        outputDirectoryFile.deleteDir()
         execOperations.javaexec {
             mainClass.set("org.antlr.v4.Tool")
             classpath = getAntlrClasspath()
             args(
                  *getSourceFiles().get().collect { it.getAsFile().absolutePath },
                  "-visitor",
-                 "-o", new File(getOutputDirectory().asFile.get(), "androidx/room/parser").path,
+                 "-o", new File(outputDirectoryFile, "androidx/room/parser").path,
                  "-package", "androidx.room.parser"
             )
         }
