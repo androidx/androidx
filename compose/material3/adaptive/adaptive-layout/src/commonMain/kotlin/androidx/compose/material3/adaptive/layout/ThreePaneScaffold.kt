@@ -86,7 +86,8 @@ internal fun ThreePaneScaffold(
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    paneExpansionState: PaneExpansionState = PaneExpansionState(),
+    // TODO(conradchen): Moves to use the specific remember function
+    paneExpansionState: PaneExpansionState = remember { PaneExpansionState() },
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
@@ -118,7 +119,8 @@ internal fun ThreePaneScaffold(
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    paneExpansionState: PaneExpansionState = PaneExpansionState(),
+    // TODO(conradchen): Moves to use the specific remember function
+    paneExpansionState: PaneExpansionState = remember { PaneExpansionState() },
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
@@ -305,45 +307,93 @@ private class ThreePaneContentMeasurePolicy(
                 constraints.maxWidth,
                 constraints.maxHeight
             )
+            if (!isLookingAhead) {
+                paneExpansionState.maxExpansionWidth = outerBounds.width
+            }
 
-            if (!paneExpansionState.isUnspecified()) {
+            if (!paneExpansionState.isUnspecified() && visiblePanes.size == 2) {
                 // Pane expansion should override everything
-                val availableWidth = constraints.maxWidth
-                if (paneExpansionState.firstPaneWidth == 0 ||
-                    paneExpansionState.firstPanePercentage == 0f) {
-                    if (visiblePanes.size > 1) {
+                if (paneExpansionState.currentDraggingOffset
+                    != PaneExpansionState.UnspecifiedWidth) {
+                    // Respect the user dragging result if there's any
+                    val halfSpacerSize = verticalSpacerSize / 2
+                    if (paneExpansionState.currentDraggingOffset <= halfSpacerSize) {
+                        val bounds = if (paneExpansionState.isDragging) {
+                            outerBounds.copy(
+                                left = paneExpansionState.currentDraggingOffset * 2 +
+                                    outerBounds.left
+                            )
+                        } else {
+                            outerBounds
+                        }
+                        measureAndPlacePaneWithLocalBounds(
+                            bounds,
+                            visiblePanes[1],
+                            isLookingAhead
+                        )
+                    } else if (paneExpansionState.currentDraggingOffset >=
+                        outerBounds.width - halfSpacerSize) {
+                        val bounds = if (paneExpansionState.isDragging) {
+                            outerBounds.copy(
+                                right = paneExpansionState.currentDraggingOffset * 2 -
+                                    outerBounds.right
+                            )
+                        } else {
+                            outerBounds
+                        }
+                        measureAndPlacePaneWithLocalBounds(
+                            bounds,
+                            visiblePanes[0],
+                            isLookingAhead
+                        )
+                    } else {
+                        measureAndPlacePaneWithLocalBounds(
+                            outerBounds.copy(
+                                right = paneExpansionState.currentDraggingOffset - halfSpacerSize
+                            ),
+                            visiblePanes[0],
+                            isLookingAhead
+                        )
+                        measureAndPlacePaneWithLocalBounds(
+                            outerBounds.copy(
+                                left = paneExpansionState.currentDraggingOffset + halfSpacerSize
+                            ),
+                            visiblePanes[1],
+                            isLookingAhead
+                        )
+                    }
+                } else { // Pane expansion settings from non-dragging results
+                    val availableWidth = constraints.maxWidth
+                    if (paneExpansionState.firstPaneWidth == 0 ||
+                        paneExpansionState.firstPanePercentage == 0f) {
                         measureAndPlacePaneWithLocalBounds(
                             outerBounds,
                             visiblePanes[1],
                             isLookingAhead
                         )
-                    }
-                } else if (
-                    paneExpansionState.firstPaneWidth >= availableWidth - verticalSpacerSize ||
-                    paneExpansionState.firstPanePercentage >= 1f) {
-                    if (visiblePanes.isNotEmpty()) {
+                    } else if (
+                        paneExpansionState.firstPaneWidth >= availableWidth - verticalSpacerSize ||
+                        paneExpansionState.firstPanePercentage >= 1f) {
                         measureAndPlacePaneWithLocalBounds(
                             outerBounds,
                             visiblePanes[0],
                             isLookingAhead
                         )
-                    }
-                } else if (visiblePanes.isNotEmpty()) {
-                    val firstPaneWidth =
-                        if (paneExpansionState.firstPaneWidth !=
-                            PaneExpansionState.UnspecifiedWidth) {
-                            paneExpansionState.firstPaneWidth
-                        } else {
-                            (paneExpansionState.firstPanePercentage *
-                                (availableWidth - verticalSpacerSize)).toInt()
-                        }
-                    val firstPaneRight = outerBounds.left + firstPaneWidth
-                    measureAndPlacePaneWithLocalBounds(
-                        outerBounds.copy(right = firstPaneRight),
-                        visiblePanes[0],
-                        isLookingAhead
-                    )
-                    if (visiblePanes.size > 1) {
+                    } else {
+                        val firstPaneWidth =
+                            if (paneExpansionState.firstPaneWidth !=
+                                PaneExpansionState.UnspecifiedWidth) {
+                                paneExpansionState.firstPaneWidth
+                            } else {
+                                (paneExpansionState.firstPanePercentage *
+                                    (availableWidth - verticalSpacerSize)).toInt()
+                            }
+                        val firstPaneRight = outerBounds.left + firstPaneWidth
+                        measureAndPlacePaneWithLocalBounds(
+                            outerBounds.copy(right = firstPaneRight),
+                            visiblePanes[0],
+                            isLookingAhead
+                        )
                         measureAndPlacePaneWithLocalBounds(
                             outerBounds.copy(left = firstPaneRight + verticalSpacerSize),
                             visiblePanes[1],
@@ -446,13 +496,31 @@ private class ThreePaneContentMeasurePolicy(
             }
 
             if (visiblePanes.size == 2 && dragHandleMeasurables.isNotEmpty()) {
+                val handleOffsetX =
+                    if (!paneExpansionState.isDragging ||
+                        paneExpansionState.currentDraggingOffset ==
+                        PaneExpansionState.UnspecifiedWidth) {
+                        val spacerMiddleOffset = getSpacerMiddleOffsetX(
+                            visiblePanes[0],
+                            visiblePanes[1]
+                        )
+                        if (!isLookingAhead) {
+                            paneExpansionState.currentMeasuredDraggingOffset = spacerMiddleOffset
+                        }
+                        spacerMiddleOffset
+                    } else {
+                        paneExpansionState.currentDraggingOffset
+                    }
                 measureAndPlaceDragHandleIfNeeded(
                     dragHandleMeasurables,
                     constraints,
                     outerBounds,
                     verticalSpacerSize,
-                    getSpacerMiddleOffsetX(visiblePanes[0], visiblePanes[1]),
+                    handleOffsetX
                 )
+            } else if (!isLookingAhead) {
+                paneExpansionState.currentMeasuredDraggingOffset =
+                    PaneExpansionState.UnspecifiedWidth
             }
 
             // Place the hidden panes to ensure a proper motion at the AnimatedVisibility,
@@ -575,24 +643,24 @@ private class ThreePaneContentMeasurePolicy(
             return
         }
         val allocatableWidth = partitionBounds.width - (measurables.size - 1) * spacerSize
-        val totalPreferredWidth = measurables.sumOf { it.measuredWidth }
+        val totalPreferredWidth = measurables.sumOf { it.measuringWidth }
         if (allocatableWidth > totalPreferredWidth) {
             // Allocate the remaining space to the pane with the highest priority.
             measurables.maxBy {
                 it.priority
-            }.measuredWidth += allocatableWidth - totalPreferredWidth
+            }.measuringWidth += allocatableWidth - totalPreferredWidth
         } else if (allocatableWidth < totalPreferredWidth) {
             // Scale down all panes to fit in the available space.
             val scale = allocatableWidth.toFloat() / totalPreferredWidth
             measurables.fastForEach {
-                it.measuredWidth = (it.measuredWidth * scale).toInt()
+                it.measuringWidth = (it.measuringWidth * scale).toInt()
             }
         }
         var positionX = partitionBounds.left
         measurables.fastForEach {
             with(it) {
                 measureAndPlace(
-                    it.measuredWidth,
+                    it.measuringWidth,
                     partitionBounds.height,
                     positionX,
                     partitionBounds.top,
@@ -641,7 +709,7 @@ private class ThreePaneContentMeasurePolicy(
         maxHandleWidth: Int,
         offsetX: Int
     ) {
-        if (offsetX == Int.MIN_VALUE) {
+        if (offsetX == PaneExpansionState.UnspecifiedWidth) {
             return
         }
         val placeables = measurables.fastMap {
@@ -674,7 +742,7 @@ private class ThreePaneContentMeasurePolicy(
                 (paneLeft.placedPositionX + paneLeft.measuredWidth + paneRight.placedPositionX) / 2
             paneLeft.measuredAndPlaced -> paneLeft.placedPositionX + paneLeft.measuredWidth
             paneRight.measuredAndPlaced -> 0
-            else -> Int.MIN_VALUE
+            else -> PaneExpansionState.UnspecifiedWidth
         }
     }
 }
@@ -689,7 +757,7 @@ private class PaneMeasurable(
     private val data =
         ((measurable.parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
 
-    var measuredWidth = if (data.preferredWidth == null || data.preferredWidth!!.isNaN()) {
+    var measuringWidth = if (data.preferredWidth == null || data.preferredWidth!!.isNaN()) {
         defaultPreferredWidth
     } else {
         data.preferredWidth!!.toInt()
@@ -697,10 +765,20 @@ private class PaneMeasurable(
 
     val isAnimatedPane = data.isAnimatedPane
 
+    var measuredWidth = 0
+        private set
+
     var measuredHeight = 0
+        private set
+
     var placedPositionX = 0
+        private set
+
     var placedPositionY = 0
+        private set
+
     var measuredAndPlaced = false
+        private set
 
     fun Placeable.PlacementScope.measureAndPlace(
         width: Int,
