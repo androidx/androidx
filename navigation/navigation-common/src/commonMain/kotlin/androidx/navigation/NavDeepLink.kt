@@ -49,6 +49,9 @@ public expect class NavDeepLink internal constructor(
         get
         internal set
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(uri: String)
+
     /**
      * A builder for constructing [NavDeepLink] instances.
      */

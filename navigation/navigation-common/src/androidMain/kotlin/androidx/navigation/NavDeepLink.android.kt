@@ -90,7 +90,7 @@ public actual class NavDeepLink internal actual constructor(
         internal set
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(uri: String) : this(uri, null, null)
+    public actual constructor(uri: String) : this(uri, null, null)
 
     private fun buildRegex(
         uri: String,

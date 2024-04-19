@@ -90,6 +90,7 @@ kotlin {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
 
@@ -138,17 +139,23 @@ kotlin {
 
 
         jbMain.dependsOn(commonMain)
+        jbTest.dependsOn(commonTest)
+
         desktopMain {
             dependsOn(jvmMain)
             dependsOn(jbMain)
         }
+        desktopTest.dependsOn(jbTest)
         nonJvmMain.dependsOn(jbMain)
         nativeMain.dependsOn(nonJvmMain)
+        nativeTest.dependsOn(jbTest)
         darwinMain.dependsOn(nativeMain)
         linuxMain.dependsOn(nativeMain)
 
         if (jsEnabled || wasmEnabled) {
             webMain.dependsOn(nonJvmMain)
+            jsTest.dependsOn(jbTest)
+            wasmJsTest.dependsOn(jbTest)
         }
 
         targets.all { target ->
