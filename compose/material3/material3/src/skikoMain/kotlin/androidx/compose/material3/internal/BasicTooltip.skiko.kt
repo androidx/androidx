@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
+import androidx.compose.foundation.BasicTooltipState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Popup
@@ -50,7 +52,7 @@ import androidx.compose.ui.window.PopupProperties
 internal actual fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
-    state: BasicTooltipState,
+    state: TooltipState,
     modifier: Modifier,
     focusable: Boolean,
     enableUserInput: Boolean,
