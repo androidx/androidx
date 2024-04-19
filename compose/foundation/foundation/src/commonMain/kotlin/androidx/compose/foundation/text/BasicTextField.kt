@@ -236,6 +236,7 @@ internal fun BasicTextField(
     outputTransformation: OutputTransformation? = null,
     decorator: TextFieldDecorator? = null,
     scrollState: ScrollState = rememberScrollState(),
+    isPassword: Boolean = false,
     // Last parameter must not be a function unless it's intended to be commonly used as a trailing
     // lambda.
 ) {
@@ -281,7 +282,8 @@ internal fun BasicTextField(
             density = density,
             enabled = enabled,
             readOnly = readOnly,
-            isFocused = isFocused && isWindowFocused
+            isFocused = isFocused && isWindowFocused,
+            isPassword = isPassword,
         )
     }
     val currentHapticFeedback = LocalHapticFeedback.current
@@ -297,6 +299,7 @@ internal fun BasicTextField(
             density = density,
             enabled = enabled,
             readOnly = readOnly,
+            isPassword = isPassword,
         )
     }
 
@@ -341,67 +344,69 @@ internal fun BasicTextField(
         .pointerHoverIcon(textPointerIcon)
 
     Box(decorationModifiers, propagateMinConstraints = true) {
-        val nonNullDecorator = decorator ?: DefaultTextFieldDecorator
-        nonNullDecorator.Decoration {
-            val minLines: Int
-            val maxLines: Int
-            if (lineLimits is MultiLine) {
-                minLines = lineLimits.minHeightInLines
-                maxLines = lineLimits.maxHeightInLines
-            } else {
-                minLines = 1
-                maxLines = 1
-            }
+        ContextMenuArea(textFieldSelectionState, enabled) {
+            val nonNullDecorator = decorator ?: DefaultTextFieldDecorator
+            nonNullDecorator.Decoration {
+                val minLines: Int
+                val maxLines: Int
+                if (lineLimits is MultiLine) {
+                    minLines = lineLimits.minHeightInLines
+                    maxLines = lineLimits.maxHeightInLines
+                } else {
+                    minLines = 1
+                    maxLines = 1
+                }
 
-            Box(
-                propagateMinConstraints = true,
-                modifier = Modifier
-                    .heightIn(min = textLayoutState.minHeightForSingleLineField)
-                    .heightInLines(
-                        textStyle = textStyle,
-                        minLines = minLines,
-                        maxLines = maxLines
-                    )
-                    .textFieldMinSize(textStyle)
-                    .clipToBounds()
-                    .then(
-                        TextFieldCoreModifier(
-                            isFocused = isFocused && isWindowFocused,
-                            isDragHovered = isDragHovered,
-                            textLayoutState = textLayoutState,
-                            textFieldState = transformedState,
-                            textFieldSelectionState = textFieldSelectionState,
-                            cursorBrush = cursorBrush,
-                            writeable = enabled && !readOnly,
-                            scrollState = scrollState,
-                            orientation = orientation
-                        )
-                    )
-            ) {
                 Box(
+                    propagateMinConstraints = true,
                     modifier = Modifier
-                        .bringIntoViewRequester(textLayoutState.bringIntoViewRequester)
+                        .heightIn(min = textLayoutState.minHeightForSingleLineField)
+                        .heightInLines(
+                            textStyle = textStyle,
+                            minLines = minLines,
+                            maxLines = maxLines
+                        )
+                        .textFieldMinSize(textStyle)
+                        .clipToBounds()
                         .then(
-                            TextFieldTextLayoutModifier(
+                            TextFieldCoreModifier(
+                                isFocused = isFocused && isWindowFocused,
+                                isDragHovered = isDragHovered,
                                 textLayoutState = textLayoutState,
                                 textFieldState = transformedState,
-                                textStyle = textStyle,
-                                singleLine = singleLine,
-                                onTextLayout = onTextLayout
+                                textFieldSelectionState = textFieldSelectionState,
+                                cursorBrush = cursorBrush,
+                                writeable = enabled && !readOnly,
+                                scrollState = scrollState,
+                                orientation = orientation
                             )
                         )
-                )
-
-                if (enabled && isFocused &&
-                    isWindowFocused && textFieldSelectionState.isInTouchMode
                 ) {
-                    TextFieldSelectionHandles(
-                        selectionState = textFieldSelectionState
+                    Box(
+                        modifier = Modifier
+                            .bringIntoViewRequester(textLayoutState.bringIntoViewRequester)
+                            .then(
+                                TextFieldTextLayoutModifier(
+                                    textLayoutState = textLayoutState,
+                                    textFieldState = transformedState,
+                                    textStyle = textStyle,
+                                    singleLine = singleLine,
+                                    onTextLayout = onTextLayout
+                                )
+                            )
                     )
-                    if (!readOnly) {
-                        TextFieldCursorHandle(
+
+                    if (enabled && isFocused &&
+                        isWindowFocused && textFieldSelectionState.isInTouchMode
+                    ) {
+                        TextFieldSelectionHandles(
                             selectionState = textFieldSelectionState
                         )
+                        if (!readOnly) {
+                            TextFieldCursorHandle(
+                                selectionState = textFieldSelectionState
+                            )
+                        }
                     }
                 }
             }

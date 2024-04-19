@@ -18,6 +18,8 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.contextmenu.ContextMenuState
 import androidx.compose.foundation.contextmenu.close
+import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
+import androidx.compose.foundation.text.input.internal.selection.contextMenuBuilder
 import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.foundation.text.selection.contextMenuBuilder
@@ -37,6 +39,22 @@ internal actual fun ContextMenuArea(
         onDismiss = { state.close() },
         contextMenuBuilderBlock = manager.contextMenuBuilder(state),
         enabled = manager.enabled,
+        content = content,
+    )
+}
+
+@Composable
+internal actual fun ContextMenuArea(
+    selectionState: TextFieldSelectionState,
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) {
+    val state = remember { ContextMenuState() }
+    androidx.compose.foundation.contextmenu.ContextMenuArea(
+        state = state,
+        onDismiss = { state.close() },
+        contextMenuBuilderBlock = selectionState.contextMenuBuilder(state),
+        enabled = enabled,
         content = content,
     )
 }
