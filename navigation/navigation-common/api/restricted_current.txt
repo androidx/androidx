@@ -583,5 +583,9 @@ package androidx.navigation {
     property public final boolean saveState;
   }
 
+  public final class SavedStateHandleKt {
+    method public static inline <reified T> T toRoute(androidx.lifecycle.SavedStateHandle);
+  }
+
 }
 

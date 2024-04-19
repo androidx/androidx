@@ -17,6 +17,7 @@
 package androidx.navigation.serialization
 
 import android.os.Bundle
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -34,12 +35,26 @@ import kotlinx.serialization.modules.SerializersModule
  * to re-create the object instance.
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal class RouteDecoder(
-    bundle: Bundle,
-    typeMap: Map<String, NavType<*>>
-) : AbstractDecoder() {
+internal class RouteDecoder : AbstractDecoder {
 
-    private val decoder = Decoder(bundle, typeMap)
+    // Bundle as argument source
+    constructor(
+        bundle: Bundle,
+        typeMap: Map<String, NavType<*>>
+    ) {
+        val store = BundleArgStore(bundle, typeMap)
+        decoder = Decoder(store)
+    }
+
+    // SavedStateHandle as argument source
+    constructor(
+        handle: SavedStateHandle
+    ) {
+        val store = SavedStateArgStore(handle)
+        decoder = Decoder(store)
+    }
+
+    private val decoder: Decoder
 
     @Suppress("DEPRECATION") // deprecated in 1.6.3
     override val serializersModule: SerializersModule = EmptySerializersModule
@@ -56,14 +71,15 @@ internal class RouteDecoder(
      * no more arguments to decode.
      *
      * This method should sequentially return the element index for every element that has its
-     * value available within the [bundle]. For more details, see [Decoder.computeNextElementIndex].
+     * value available within the [ArgStore]. For more details,
+     * see [Decoder.computeNextElementIndex].
      */
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         return decoder.computeNextElementIndex(descriptor)
     }
 
     /**
-     * Returns argument value from the [bundle] for the argument at the index returned from
+     * Returns argument value from the [ArgStore] for the argument at the index returned from
      * [decodeElementIndex]
      */
     override fun decodeValue(): Any = decoder.decodeValue()
@@ -83,17 +99,14 @@ internal class RouteDecoder(
     ): T = decoder.decodeValue() as T
 }
 
-private class Decoder(
-    private val bundle: Bundle,
-    private val typeMap: Map<String, NavType<*>>
-) {
+private class Decoder(private val store: ArgStore) {
     private var elementIndex: Int = -1
     private var elementName: String = ""
 
     /**
      * Computes the index of the next element to call [decodeValue] on.
      *
-     * [decodeValue] should only be called for arguments with values stored within [bundle].
+     * [decodeValue] should only be called for arguments with values stored within [store].
      * Otherwise, we should let the deserializer fall back to default value. This is done by
      * skipping (not returning) the indices whose argument is not present in the bundle. In doing
      * so, the deserializer considers the skipped element un-processed and will use the
@@ -110,7 +123,7 @@ private class Decoder(
             val currentName = descriptor.getElementName(currentIndex)
             // Check if bundle has argument value. If so, we tell decoder to process
             // currentIndex. Otherwise, we skip this index and proceed to next index.
-            if (bundle.containsKey(currentName)) {
+            if (store.contains(currentName)) {
                 elementIndex = currentIndex
                 elementName = currentName
                 return elementIndex
@@ -122,16 +135,36 @@ private class Decoder(
      * Retrieves argument value stored in the bundle
      */
     fun decodeValue(): Any {
-        val navType = typeMap[elementName]
-        val arg = navType?.get(bundle, elementName)
+        val arg = store.get(elementName)
         checkNotNull(arg) {
             "Unexpected null value for non-nullable argument $elementName"
         }
         return arg
     }
 
-    fun isCurrentElementNull(): Boolean {
-        val navType = typeMap[elementName]
-        return navType?.isNullableAllowed == true && navType[bundle, elementName] == null
+    fun isCurrentElementNull() = store.get(elementName) == null
+}
+
+// key-value map of argument values where the key is argument name
+private abstract class ArgStore {
+    // Retrieves argument value from store
+    abstract fun get(key: String): Any?
+    // Checks if store contains argument for key
+    abstract fun contains(key: String): Boolean
+}
+
+private class SavedStateArgStore(private val handle: SavedStateHandle) : ArgStore() {
+    override fun get(key: String): Any? = handle[key]
+    override fun contains(key: String) = handle.contains(key)
+}
+
+private class BundleArgStore(
+    private val bundle: Bundle,
+    private val typeMap: Map<String, NavType<*>>
+) : ArgStore() {
+    override fun get(key: String): Any? {
+        val navType = typeMap[key]
+        return navType?.get(bundle, key)
     }
+    override fun contains(key: String) = bundle.containsKey(key)
 }
