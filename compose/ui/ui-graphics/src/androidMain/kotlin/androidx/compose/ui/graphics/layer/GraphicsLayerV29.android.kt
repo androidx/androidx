@@ -247,6 +247,9 @@ internal class GraphicsLayerV29(
         return m
     }
 
+    override val hasDisplayList: Boolean
+        get() = renderNode.hasDisplayList()
+
     override fun discardDisplayList() {
         renderNode.discardDisplayList()
     }

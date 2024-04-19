@@ -16,8 +16,12 @@
 
 package androidx.compose.ui.graphics
 
+import android.content.ComponentCallbacks2
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import android.view.View
+import android.view.View.OnAttachStateChangeListener
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -42,6 +46,64 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
     private val lock = Any()
     private val layerManager = LayerManager(CanvasHolder())
     private var viewLayerContainer: DrawChildContainer? = null
+    private var componentCallbackRegistered = false
+    private val componentCallback = object : ComponentCallbacks2 {
+        override fun onConfigurationChanged(newConfig: Configuration) {
+            // NO-OP
+        }
+
+        override fun onLowMemory() {
+            // NO-OP
+        }
+
+        override fun onTrimMemory(level: Int) {
+            // See CacheManager.cpp. HWUI releases graphics resources whenever the trim memory
+            // callback exceed the level of TRIM_MEMORY_BACKGROUND so do the same here to
+            // release and recreate the internal ImageReader used to increment the ref count
+            // of internal RenderNodes
+            // Some devices skip straight to TRIM_COMPLETE so ensure we persist layers if
+            // we receive any trim memory callback that exceeds TRIM_MEMORY_BACKGROUND
+            if (level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {
+                // HardwareRenderer instances would be discarded by HWUI so we need to discard
+                // the existing underlying ImageReader instance and do a placeholder render
+                // to increment the refcount of any outstanding layers again
+                layerManager.updateLayerPersistence()
+            }
+        }
+    }
+
+    init {
+        // Register the component callbacks when the GraphicsContext is created
+        if (ownerView.isAttachedToWindow) {
+            registerComponentCallback(ownerView.context)
+        }
+        ownerView.addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                // If the View is attached to the window again, re-add the component callbacks
+                registerComponentCallback(v.context)
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {
+                // When the View is detached from the window, remove the component callbacks
+                // used to listen to trim memory signals
+                unregisterComponentCallback(v.context)
+            }
+        })
+    }
+
+    private fun registerComponentCallback(context: Context) {
+        if (!componentCallbackRegistered) {
+            context.applicationContext.registerComponentCallbacks(componentCallback)
+            componentCallbackRegistered = true
+        }
+    }
+
+    private fun unregisterComponentCallback(context: Context) {
+        if (componentCallbackRegistered) {
+            context.applicationContext.unregisterComponentCallbacks(componentCallback)
+            componentCallbackRegistered = false
+        }
+    }
 
     override fun createGraphicsLayer(): GraphicsLayer {
         synchronized(lock) {

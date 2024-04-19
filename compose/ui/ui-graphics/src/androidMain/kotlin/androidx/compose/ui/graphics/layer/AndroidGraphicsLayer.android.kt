@@ -421,7 +421,10 @@ actual class GraphicsLayer internal constructor(
         this.layoutDirection = layoutDirection
         this.drawBlock = block
         impl.isInvalidated = true
+        recordInternal()
+    }
 
+    private fun recordInternal() {
         childDependenciesTracker.withTracking(
             onDependencyRemoved = { it.onRemovedFromParentLayer() }
         ) {
@@ -483,6 +486,26 @@ actual class GraphicsLayer internal constructor(
         if (isReleased) {
             return
         }
+
+        // If the displaylist has been discarded from underneath us, attempt to recreate it.
+        // This can happen if the application resumes from a background state after a trim memory
+        // callback has been invoked with a level greater than or equal to hidden. During which
+        // HWUI attempts to cull out resources that can be recreated quickly.
+        // Because recording instructions invokes the draw lambda again, there can be the potential
+        // for the objects referenced to be invalid for example in the case of a lazylist removal
+        // animation for a Composable that has been disposed, but the GraphicsLayer is drawn
+        // for a transient animation. However, when the application is backgrounded, animations are
+        // stopped anyway so attempts to recreate the displaylist from the draw lambda should
+        // be safe as the draw lambdas should still be valid. If not catch potential exceptions
+        // and continue as UI state would be recreated on resume anyway.
+        if (!impl.hasDisplayList) {
+            try {
+                recordInternal()
+            } catch (_: Throwable) {
+                // NO-OP
+            }
+        }
+
         if (pivotOffset.isUnspecified) {
             impl.pivotOffset = Offset(size.width / 2f, size.height / 2f)
         }
@@ -954,6 +977,9 @@ internal interface GraphicsLayerImpl {
         layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     )
+
+    val hasDisplayList: Boolean
+        get() = true
 
     /**
      * @see GraphicsLayer.discardDisplayList
