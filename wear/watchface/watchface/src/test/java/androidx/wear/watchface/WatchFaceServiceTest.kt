@@ -1426,14 +1426,35 @@ public class WatchFaceServiceTest {
         // The delay should change when battery is low.
         watchFaceImpl.broadcastsReceiver!!
             .receiver
-            .onReceive(context, Intent(Intent.ACTION_BATTERY_LOW))
+            .onReceive(
+                context,
+                Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                    putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                    putExtra(
+                        BatteryManager.EXTRA_LEVEL,
+                        (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD - 1).toInt()
+                    )
+                    putExtra(BatteryManager.EXTRA_SCALE, 100)
+                }
+            )
+
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
             .isEqualTo(WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
 
         // And go back to normal when battery is OK.
         watchFaceImpl.broadcastsReceiver!!
             .receiver
-            .onReceive(context, Intent(Intent.ACTION_BATTERY_OKAY))
+            .onReceive(
+                context,
+                Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                    putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
+                    putExtra(
+                        BatteryManager.EXTRA_LEVEL,
+                        (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD + 1).toInt()
+                    )
+                    putExtra(BatteryManager.EXTRA_SCALE, 100)
+                }
+            )
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
             .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
     }
@@ -1453,14 +1474,34 @@ public class WatchFaceServiceTest {
         // The delay should change when battery is low.
         watchFaceImpl.broadcastsReceiver!!
             .receiver
-            .onReceive(context, Intent(Intent.ACTION_BATTERY_LOW))
+            .onReceive(
+                context,
+                Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                    putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+                    putExtra(
+                        BatteryManager.EXTRA_LEVEL,
+                        (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD - 1).toInt()
+                    )
+                    putExtra(BatteryManager.EXTRA_SCALE, 100)
+                }
+            )
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
             .isEqualTo(WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
 
         // And go back to normal when power is connected.
         watchFaceImpl.broadcastsReceiver!!
             .receiver
-            .onReceive(context, Intent(Intent.ACTION_POWER_CONNECTED))
+            .onReceive(
+                context,
+                Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+                    putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
+                    putExtra(
+                        BatteryManager.EXTRA_LEVEL,
+                        (BroadcastsReceiver.INITIAL_LOW_BATTERY_THRESHOLD - 1).toInt()
+                    )
+                    putExtra(BatteryManager.EXTRA_SCALE, 100)
+                }
+            )
         assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0, Instant.EPOCH))
             .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
     }
