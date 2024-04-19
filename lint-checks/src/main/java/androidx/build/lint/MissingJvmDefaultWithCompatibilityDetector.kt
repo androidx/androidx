@@ -59,7 +59,7 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
                 return
             }
 
-            if (!isKotlin(node.language)) return
+            if (!isKotlin(node)) return
             if (!node.isInterface) return
             if (node.annotatedWithAnyOf(
                     // If the interface is not stable, it doesn't need the annotation
