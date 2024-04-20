@@ -66,12 +66,19 @@ public final class EmbeddingVector extends AbstractSafeParcelable {
     @Nullable
     private Integer mHashCode;
 
-    /** Creates a new {@link EmbeddingVector}. */
+    /**
+     * Creates a new {@link EmbeddingVector}.
+     *
+     * @throws IllegalArgumentException if {@code values} is empty.
+     */
     @Constructor
     public EmbeddingVector(
             @Param(id = 1) @NonNull float[] values,
             @Param(id = 2) @NonNull String modelSignature) {
         mValues = Preconditions.checkNotNull(values);
+        if (mValues.length == 0) {
+            throw new IllegalArgumentException("Embedding values cannot be empty.");
+        }
         mModelSignature = Preconditions.checkNotNull(modelSignature);
     }
 

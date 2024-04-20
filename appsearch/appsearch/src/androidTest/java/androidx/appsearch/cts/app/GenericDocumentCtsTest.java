@@ -1170,4 +1170,11 @@ public class GenericDocumentCtsTest {
         assertThat(document.getPropertyNames()).containsExactly("longKey1", "doubleKey1",
                 "booleanKey1", "stringKey1", "embeddingKey1");
     }
+
+    @Test
+    public void testEmbeddingValuesCannotBeEmpty() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new EmbeddingVector(new float[]{}, "my_model"));
+        assertThat(exception).hasMessageThat().contains("Embedding values cannot be empty.");
+    }
 }
