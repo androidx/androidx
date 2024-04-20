@@ -173,4 +173,47 @@ public class SearchSpecInternalTest {
         assertThat(searchSpec3.getEnabledFeatures()).containsExactly(
                 Features.VERBATIM_SEARCH, Features.LIST_FILTER_QUERY_LANGUAGE);
     }
+
+    @Test
+    public void testGetEnabledFeatures_embeddingSearch() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                FeatureConstants.EMBEDDING_SEARCH);
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                FeatureConstants.EMBEDDING_SEARCH);
+    }
+
+    @Test
+    public void testGetEnabledFeatures_tokenize() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterTokenizeFunctionEnabled(true)
+                .build();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE,
+                FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE,
+                FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
+    }
 }
