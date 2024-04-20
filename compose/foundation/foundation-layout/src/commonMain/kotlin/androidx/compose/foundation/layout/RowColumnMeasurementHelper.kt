@@ -174,8 +174,9 @@ internal class RowColumnMeasurementHelper(
                             "totalWeight " + totalWeight +
                             "weightUnitSpace " + weightUnitSpace +
                             "itemWeight " + itemWeight +
-                            "weightedSize " + weightedSize
-                    ).initCause(e)
+                            "weightedSize " + weightedSize,
+                        e
+                    )
                 }
             }
 
@@ -229,8 +230,9 @@ internal class RowColumnMeasurementHelper(
                                 "weight " + weight +
                                 "weightedSize " + weightedSize +
                                 "remainderUnit " + remainderUnit +
-                                "childMainAxisSize " + childMainAxisSize
-                        ).initCause(e)
+                                "childMainAxisSize " + childMainAxisSize,
+                            e
+                        )
                     }
                     val placeable = child.measure(childConstraints)
                     weightedSpace += placeable.mainAxisSize()
