@@ -18,6 +18,7 @@
 
 package androidx.compose.animation.demos.sharedelement
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -34,6 +35,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -55,7 +58,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,22 +72,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 
 @Preview
 @Composable
 fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selected = items[1] } }) {
+    BackHandler {
+        model.selected = null
+    }
     SharedTransitionLayout {
-        LaunchedEffect(key1 = Unit) {
-            while (true) {
-                delay(2500)
-                if (model.selected == null) {
-                    model.selected = model.items[1]
-                } else {
-                    model.selected = null
-                }
-            }
-        }
         AnimatedContent(
             model.selected,
             transitionSpec = {
@@ -213,14 +207,22 @@ fun DetailView(
 ) {
     Column(
         Modifier
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null
+            ) {
+                model.selected = null
+            }
             .sharedBounds(
                 rememberSharedContentState(
                     key = "container + ${selected.id}"
                 ),
                 this@AnimatedVisibilityScope,
-                scaleInSharedContentToBounds(contentScale = ContentScale.Crop),
-                scaleOutSharedContentToBounds(contentScale = ContentScale.Crop),
-                clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp))
+                scaleInSharedContentToBounds(contentScale = ContentScale.Crop) + fadeIn(),
+                scaleOutSharedContentToBounds(contentScale = ContentScale.Crop) + fadeOut(),
+                clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp)),
             )
     ) {
         Row(Modifier.fillMaxHeight(0.5f)) {
@@ -274,7 +276,11 @@ fun GridView(model: MyModel) {
             contentPadding = PaddingValues(top = 90.dp)
         ) {
             items(6) {
-                KittyItem(model.items[it])
+                Box(modifier = Modifier.clickable {
+                    model.selected = model.items[it]
+                }) {
+                    KittyItem(model.items[it])
+                }
             }
         }
     }
@@ -286,8 +292,8 @@ class MyModel {
         Kitty("油条", R.drawable.yt_profile, "Tabby", 1),
         Kitty("Cowboy", R.drawable.cowboy, "American Short Hair", 2),
         Kitty("Pepper", R.drawable.pepper, "Tabby", 3),
-        Kitty("Unknown", R.drawable.question_mark, "Unknown", 4),
-        Kitty("Unknown", R.drawable.question_mark, "Unknown", 5),
+        Kitty("Unknown", R.drawable.question_mark, "Unknown Breed", 4),
+        Kitty("Unknown", R.drawable.question_mark, "Unknown Breed", 5),
         Kitty("YT", R.drawable.yt_profile2, "Tabby", 6),
     )
     var selected: Kitty? by mutableStateOf(null)
@@ -301,7 +307,7 @@ fun KittyItem(kitty: Kitty) {
             .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             .sharedBounds(
                 rememberSharedContentState(key = "container + ${kitty.id}"),
-                this@AnimatedVisibilityScope
+                this@AnimatedVisibilityScope,
             )
             .background(Color.White, RoundedCornerShape(20.dp))
     ) {
@@ -317,7 +323,6 @@ fun KittyItem(kitty: Kitty) {
                 )
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color(0xffaaaaaa))
         )
         Spacer(Modifier.size(10.dp))
         Text(
