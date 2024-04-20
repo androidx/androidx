@@ -32,7 +32,7 @@ import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.flow.map
 
-@ExperimentalMaterial3AdaptiveApi
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
     val windowSize = with(LocalDensity.current) {
@@ -49,7 +49,6 @@ actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
  *
  * @return an [IntSize] that represents the current window size.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun currentWindowSize(): IntSize {
     // Observe view configuration changes and recalculate the size class on each change. We can't
@@ -70,7 +69,6 @@ fun currentWindowSize(): IntSize {
  *
  * @return a [State] of a [FoldingFeature] list.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
     val context = LocalContext.current
