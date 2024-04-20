@@ -27,7 +27,6 @@ import androidx.window.core.layout.WindowSizeClass
  *
  * @return [WindowAdaptiveInfo] of the provided context
  */
-@ExperimentalMaterial3AdaptiveApi
 @Composable
 expect fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo
 
@@ -39,7 +38,6 @@ expect fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo
  * @param windowSizeClass [WindowSizeClass] of the current window.
  * @param windowPosture [Posture] of the current window.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class WindowAdaptiveInfo(
     val windowSizeClass: WindowSizeClass,

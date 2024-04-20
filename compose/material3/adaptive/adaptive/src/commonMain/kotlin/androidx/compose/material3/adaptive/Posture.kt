@@ -37,7 +37,6 @@ import androidx.compose.ui.geometry.Rect
  *           show software keyboard or other controls in the bottom half of the window.
  * @property hingeList a list of all hinges that are relevant to the posture.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class Posture(
     val isTabletop: Boolean = false,
@@ -67,39 +66,33 @@ class Posture(
 /**
  * Returns the list of vertical hinge bounds that are separating.
  */
-@ExperimentalMaterial3AdaptiveApi
 val Posture.separatingVerticalHingeBounds get() = hingeList.getBounds { isVertical && isSeparating }
 
 /**
  *  Returns the list of vertical hinge bounds that are occluding.
  */
-@ExperimentalMaterial3AdaptiveApi
 val Posture.occludingVerticalHingeBounds get() = hingeList.getBounds { isVertical && isOccluding }
 
 /**
  *  Returns the list of all vertical hinge bounds.
  */
-@ExperimentalMaterial3AdaptiveApi
 val Posture.allVerticalHingeBounds get() = hingeList.getBounds { isVertical }
 
 /**
  * Returns the list of horizontal hinge bounds that are separating.
  */
-@ExperimentalMaterial3AdaptiveApi
 val Posture.separatingHorizontalHingeBounds
     get() = hingeList.getBounds { !isVertical && isSeparating }
 
 /**
  * Returns the list of horizontal hinge bounds that are occluding.
  */
-@ExperimentalMaterial3AdaptiveApi
 val Posture.occludingHorizontalHingeBounds
     get() = hingeList.getBounds { !isVertical && isOccluding }
 
 /**
  *  Returns the list of all horizontal hinge bounds.
  */
-@ExperimentalMaterial3AdaptiveApi
 val Posture.allHorizontalHingeBounds
     get() = hingeList.getBounds { !isVertical }
 
@@ -113,7 +106,6 @@ val Posture.allHorizontalHingeBounds
  * @param isSeparating `true` if the hinge creates two logical display areas.
  * @param isOccluding `true` if the hinge conceals part of the display.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Immutable
 class HingeInfo(
     val bounds: Rect,
@@ -147,7 +139,6 @@ class HingeInfo(
     }
 }
 
-@ExperimentalMaterial3AdaptiveApi
 private inline fun List<HingeInfo>.getBounds(predicate: HingeInfo.() -> Boolean): List<Rect> =
     @Suppress("ListIterator")
     mapNotNull { if (it.predicate()) it.bounds else null }
