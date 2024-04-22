@@ -153,6 +153,8 @@ package androidx.benchmark.macro {
     method public static androidx.benchmark.macro.PowerMetric.Type.Battery Battery();
     method public static androidx.benchmark.macro.PowerMetric.Type.Energy Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
     method public static androidx.benchmark.macro.PowerMetric.Type.Power Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method public static boolean deviceBatteryHasMinimumCharge();
+    method public static boolean deviceSupportsPowerEnergy();
     field public static final androidx.benchmark.macro.PowerMetric.Companion Companion;
   }
 
@@ -160,6 +162,8 @@ package androidx.benchmark.macro {
     method public androidx.benchmark.macro.PowerMetric.Type.Battery Battery();
     method public androidx.benchmark.macro.PowerMetric.Type.Energy Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
     method public androidx.benchmark.macro.PowerMetric.Type.Power Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method public boolean deviceBatteryHasMinimumCharge();
+    method public boolean deviceSupportsPowerEnergy();
   }
 
   public abstract static sealed class PowerMetric.Type {
