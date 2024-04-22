@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.geometry
 
+import androidx.compose.ui.util.floatFromBits
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,7 +24,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class GeometryUtilsTest {
-
     @Test
     fun testRoundDownToNearestTenth() {
         assertEquals("1.2", 1.234f.toStringAsFixed(1))
@@ -35,12 +35,12 @@ class GeometryUtilsTest {
     }
 
     @Test
-    fun testRoundDownToNearestHundreth() {
+    fun testRoundDownToNearestHundredth() {
         assertEquals("1.23", 1.234f.toStringAsFixed(2))
     }
 
     @Test
-    fun testRoundUpToNearestHundreth() {
+    fun testRoundUpToNearestHundredth() {
         assertEquals("1.24", 1.235f.toStringAsFixed(2))
     }
 
@@ -52,5 +52,18 @@ class GeometryUtilsTest {
     @Test
     fun testRoundDownToNearestInt() {
         assertEquals("0", 0.49f.toStringAsFixed(0))
+    }
+
+    @Test
+    fun testNaN() {
+        assertEquals("NaN", Float.NaN.toStringAsFixed(1))
+        // Arbitrary NaN
+        assertEquals("NaN", floatFromBits(0x7F824000).toStringAsFixed(1))
+    }
+
+    @Test
+    fun testInfinity() {
+        assertEquals("Infinity", Float.POSITIVE_INFINITY.toStringAsFixed(1))
+        assertEquals("-Infinity", Float.NEGATIVE_INFINITY.toStringAsFixed(1))
     }
 }

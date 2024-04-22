@@ -124,8 +124,8 @@ value class Offset internal constructor(internal val packedValue: Long) {
 
     @Stable
     fun isValid(): Boolean {
-        val convertX = (packedValue shr 32) and FloatNonFiniteMask
-        val convertY = packedValue and FloatNonFiniteMask
+        val convertX = (packedValue shr 32) and UnsignedFloatMask
+        val convertY = packedValue and UnsignedFloatMask
 
         return (convertX <= FloatInfinityBase) && (convertY <= FloatInfinityBase)
     }
@@ -174,7 +174,7 @@ value class Offset internal constructor(internal val packedValue: Long) {
         checkPrecondition(packedValue != UnspecifiedPackedFloats) {
             "Offset is unspecified"
         }
-        return Offset(-unpackFloat1(packedValue), -unpackFloat2(packedValue))
+        return Offset(packedValue xor DualFloatSignBit)
     }
 
     /**
