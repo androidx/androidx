@@ -31,6 +31,7 @@ import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import writeTestSource
 
 @RunWith(JUnit4::class)
 class DaoWriterTest {
@@ -44,18 +45,9 @@ class DaoWriterTest {
             loadTestSource(
                 fileName = "daoWriter/input/ComplexDao.java",
                 qName = "foo.bar.ComplexDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/ComplexDao.java",
-                        qName = "foo.bar.ComplexDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            outputFileName = "ComplexDao.java"
+        )
     }
 
     @Test
@@ -75,18 +67,9 @@ class DaoWriterTest {
             loadTestSource(
                 fileName = "daoWriter/input/WriterDao.java",
                 qName = "foo.bar.WriterDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/WriterDao.java",
-                        qName = "foo.bar.WriterDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            outputFileName = "WriterDao.java"
+        )
     }
 
     @Test
@@ -95,18 +78,9 @@ class DaoWriterTest {
             loadTestSource(
                 fileName = "daoWriter/input/DeletionDao.java",
                 qName = "foo.bar.DeletionDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/DeletionDao.java",
-                        qName = "foo.bar.DeletionDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            outputFileName = "DeletionDao.java"
+        )
     }
 
     @Test
@@ -115,18 +89,9 @@ class DaoWriterTest {
             loadTestSource(
                 fileName = "daoWriter/input/UpdateDao.java",
                 qName = "foo.bar.UpdateDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/UpdateDao.java",
-                        qName = "foo.bar.UpdateDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            outputFileName = "UpdateDao.java"
+        )
     }
 
     @Test
@@ -135,23 +100,15 @@ class DaoWriterTest {
             loadTestSource(
                 fileName = "daoWriter/input/UpsertDao.java",
                 qName = "foo.bar.UpsertDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/UpsertDao.java",
-                        qName = "foo.bar.UpsertDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            outputFileName = "UpsertDao.java"
+        )
     }
 
     private fun singleDao(
         vararg inputs: Source,
-        handler: (XTestInvocation) -> Unit
+        outputFileName: String,
+        handler: (XTestInvocation) -> Unit = { }
     ) {
         val sources = listOf(
             COMMON.USER, COMMON.MULTI_PKEY_ENTITY, COMMON.BOOK,
@@ -188,13 +145,33 @@ class DaoWriterTest {
                 val parsedDao = parser.process()
                 DaoWriter(parsedDao, db, CodeLanguage.JAVA)
                     .write(invocation.processingEnv)
+                val outputSubFolder = outputFolder(invocation)
+                invocation.assertCompilationResult {
+                    val expectedFilePath = "daoWriter/output/$outputSubFolder/$outputFileName"
+                    val expectedSrc = loadTestSource(
+                        fileName = expectedFilePath,
+                        qName = parsedDao.implTypeName.canonicalName
+                    )
+                    // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
+                    // handy for big sweeping code gen changes. ;)
+                    if (System.getenv("ROOM_TEST_WRITE_SRCS") != null) {
+                        writeTestSource(
+                            checkNotNull(this.findGeneratedSource(expectedSrc.relativePath)) {
+                                "Couldn't find gen src: $expectedSrc"
+                            },
+                            expectedFilePath
+                        )
+                    }
+                    generatedSource(expectedSrc)
+                }
             }
-            // we could call handler inside the if block but if something happens and we cannot
-            // find the dao, test will never assert on generated code.
             handler(invocation)
         }
     }
 
-    private fun backendFolder(invocation: XTestInvocation) =
-        invocation.processingEnv.backend.name.lowercase()
+    private fun outputFolder(
+        invocation: XTestInvocation,
+    ): String {
+        return invocation.processingEnv.backend.name.lowercase()
+    }
 }
