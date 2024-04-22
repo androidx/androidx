@@ -21,6 +21,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.textFieldMagnifierNode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -264,11 +266,16 @@ internal class TextFieldCoreModifierNode(
         val value = textFieldState.visualText
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
+        value.highlight?.let { drawHighlight(it, textLayoutResult) }
         if (value.selection.collapsed) {
             drawText(textLayoutResult)
-            drawCursor()
+            if (value.shouldShowSelection()) {
+                drawCursor()
+            }
         } else {
-            drawSelection(value.selection, textLayoutResult)
+            if (value.shouldShowSelection()) {
+                drawSelection(value.selection, textLayoutResult)
+            }
             drawText(textLayoutResult)
         }
 
@@ -460,6 +467,37 @@ internal class TextFieldCoreModifierNode(
                 .backgroundColor
             val selectionPath = textLayoutResult.getPathForRange(start, end)
             drawPath(selectionPath, color = selectionBackgroundColor)
+        }
+    }
+
+    private fun DrawScope.drawHighlight(
+        highlight: Pair<TextHighlightType, TextRange>,
+        textLayoutResult: TextLayoutResult
+    ) {
+        val (type, range) = highlight
+
+        if (range.collapsed) return
+
+        val highlightPath = textLayoutResult.getPathForRange(range.min, range.max)
+
+        if (type == TextHighlightType.HandwritingDeletePreview) {
+            // The handwriting delete gesture preview highlight should be the same color as the
+            // text at 20% opacity.
+            val brush = textLayoutResult.layoutInput.style.brush
+            if (brush != null) {
+                drawPath(highlightPath, brush = brush, alpha = 0.2f)
+            } else {
+                val textColor =
+                    textLayoutResult.layoutInput.style.color.takeOrElse { Color.Black }
+                val highlightBackgroundColor = textColor.copy(alpha = textColor.alpha * 0.2f)
+                drawPath(highlightPath, color = highlightBackgroundColor)
+            }
+        } else {
+            // The handwriting select gesture preview highlight should be the same color as the
+            // regular select highlight.
+            val highlightBackgroundColor =
+                currentValueOf(LocalTextSelectionColors).backgroundColor
+            drawPath(highlightPath, color = highlightBackgroundColor)
         }
     }
 

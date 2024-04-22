@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.input.internal
 import android.content.ClipData
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Parcelable
 import android.text.TextUtils
@@ -33,6 +34,7 @@ import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputContentInfo
+import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -352,6 +354,17 @@ internal class StatelessInputConnection(
             .performHandwritingGesture(session, gesture, executor, consumer)
     }
 
+    override fun previewHandwritingGesture(
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean {
+        logDebug("previewHandwritingGesture($gesture, $cancellationSignal)")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return false
+
+        return Api34PerformHandwritingGestureImpl
+            .previewHandwritingGesture(session, gesture, cancellationSignal)
+    }
+
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
         logDebug("getExtractedText($request, $flags)")
 //        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0
@@ -530,6 +543,15 @@ private object Api34PerformHandwritingGestureImpl {
         } else {
             intConsumer.accept(result)
         }
+    }
+
+    @DoNotInline
+    fun previewHandwritingGesture(
+        session: TextInputSession,
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean {
+        return session.previewHandwritingGesture(gesture, cancellationSignal)
     }
 }
 
