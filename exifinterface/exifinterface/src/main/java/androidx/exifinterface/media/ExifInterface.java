@@ -6219,11 +6219,10 @@ public class ExifInterface {
         // 2.1. Integers and byte order
         in.setByteOrder(BIG_ENDIAN);
 
-        int bytesRead = 0;
+        int startPosition = in.position();
 
         // Skip the signature bytes
         in.skipFully(PNG_SIGNATURE.length);
-        bytesRead += PNG_SIGNATURE.length;
 
         // Each chunk is made up of four parts:
         //   1) Length: 4-byte unsigned integer indicating the number of bytes in the
@@ -6238,22 +6237,25 @@ public class ExifInterface {
         try {
             while (true) {
                 int length = in.readInt();
-                bytesRead += 4;
 
                 byte[] type = new byte[PNG_CHUNK_TYPE_BYTE_LENGTH];
                 in.readFully(type);
-                bytesRead += PNG_CHUNK_TYPE_BYTE_LENGTH;
 
                 // The first chunk must be the IHDR chunk
-                if (bytesRead == 16 && !Arrays.equals(type, PNG_CHUNK_TYPE_IHDR)) {
-                    throw new IOException("Encountered invalid PNG file--IHDR chunk should appear"
-                            + "as the first chunk");
+                if (in.position() - startPosition == 16
+                        && !Arrays.equals(type, PNG_CHUNK_TYPE_IHDR)) {
+                    throw new IOException(
+                            "Encountered invalid PNG file--IHDR chunk should appear as the first "
+                                    + "chunk");
                 }
 
                 if (Arrays.equals(type, PNG_CHUNK_TYPE_IEND)) {
                     // IEND marks the end of the image.
                     break;
                 } else if (Arrays.equals(type, PNG_CHUNK_TYPE_EXIF)) {
+                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
+                    mOffsetToExifData = in.position() - startPosition;
+
                     // TODO: Need to handle potential OutOfMemoryError
                     byte[] data = new byte[length];
                     in.readFully(data);
@@ -6269,8 +6271,6 @@ public class ExifInterface {
                                 + "\n recorded CRC value: " + dataCrcValue + ", calculated CRC "
                                 + "value: " + crc.getValue());
                     }
-                    // Save offset to EXIF data for handling thumbnail and attribute offsets.
-                    mOffsetToExifData = bytesRead;
                     readExifSegment(data, IFD_TYPE_PRIMARY);
                     validateImages();
 
@@ -6279,7 +6279,6 @@ public class ExifInterface {
                 } else {
                     // Skip to next chunk
                     in.skipFully(length + PNG_CHUNK_CRC_BYTE_LENGTH);
-                    bytesRead += length + PNG_CHUNK_CRC_BYTE_LENGTH;
                 }
             }
         } catch (EOFException e) {
