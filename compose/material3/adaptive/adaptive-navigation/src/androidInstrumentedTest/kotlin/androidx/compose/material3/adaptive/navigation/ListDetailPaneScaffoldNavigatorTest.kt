@@ -566,10 +566,8 @@ class ListDetailPaneScaffoldNavigatorTest {
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective.Default
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockDualPaneScaffoldDirective = PaneScaffoldDirective.Default.copy(
     maxHorizontalPartitions = 2,
     horizontalPartitionSpacerSize = 16.dp,
