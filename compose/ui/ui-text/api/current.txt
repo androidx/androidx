@@ -170,7 +170,7 @@ package androidx.compose.ui.text {
   }
 
   public fun interface LinkInteractionListener {
-    method public void onClicked(androidx.compose.ui.text.LinkAnnotation link);
+    method public void onClick(androidx.compose.ui.text.LinkAnnotation link);
   }
 
   public final class MultiParagraph {

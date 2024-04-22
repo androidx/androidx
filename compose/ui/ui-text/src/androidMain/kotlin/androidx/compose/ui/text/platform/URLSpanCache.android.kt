@@ -76,6 +76,6 @@ class URLSpanCache {
 
 private class ComposeClickableSpan(private val link: LinkAnnotation) : ClickableSpan() {
     override fun onClick(widget: View) {
-        link.linkInteractionListener?.onClicked(link)
+        link.linkInteractionListener?.onClick(link)
     }
 }
