@@ -111,7 +111,6 @@ internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRol
 /**
  * The set of the available pane roles of [ThreePaneScaffold].
  */
-@ExperimentalMaterial3AdaptiveApi
 enum class ThreePaneScaffoldRole {
     /**
      * The primary pane of [ThreePaneScaffold]. It is supposed to have the highest priority during
