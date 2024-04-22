@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Holder for Tiles' TileLeaveEvent class, to be parceled and transferred to a tile service.
+ * Holder for Tiles' TileLeaveEvent class, to be parceled and transferred to a Tile Service.
  *
  * <p>All this does is to serialize TileLeaveEvent as a protobuf and transmit it.
  */

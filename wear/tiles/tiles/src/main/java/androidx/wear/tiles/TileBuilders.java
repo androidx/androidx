@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.StateBuilders.State;
 import androidx.wear.protolayout.TimelineBuilders.Timeline;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.expression.proto.VersionProto.VersionInfo;
 import androidx.wear.tiles.proto.TileProto;
 
@@ -33,6 +34,7 @@ public final class TileBuilders {
      * A holder for a tile. This specifies the resources to use for this delivery of the tile, and
      * the timeline for the tile.
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Tile {
         private final TileProto.Tile mImpl;
 
@@ -81,9 +83,7 @@ public final class TileBuilders {
             return mImpl.getFreshnessIntervalMillis();
         }
 
-        /**
-         * Gets {@link androidx.wear.protolayout.StateBuilders.State} for this tile.
-         */
+        /** Gets {@link androidx.wear.protolayout.StateBuilders.State} for this tile. */
         @Nullable
         public State getState() {
             if (mImpl.hasState()) {
@@ -144,6 +144,8 @@ public final class TileBuilders {
         public static final class Builder {
             private final TileProto.Tile.Builder mImpl = TileProto.Tile.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             public Builder() {}
 
             /**
@@ -152,6 +154,7 @@ public final class TileBuilders {
              * androidx.wear.tiles.RequestBuilders.ResourcesRequest} if the system does not have a
              * copy of the specified resource version.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setResourcesVersion(@NonNull String resourcesVersion) {
                 mImpl.setResourcesVersion(resourcesVersion);
@@ -162,6 +165,7 @@ public final class TileBuilders {
              * Sets the {@link androidx.wear.protolayout.TimelineBuilders.Timeline} containing the
              * layouts for the tiles to show in the carousel, along with their validity periods.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setTileTimeline(@NonNull Timeline tileTimeline) {
                 mImpl.setTileTimeline(tileTimeline.toProto());
@@ -181,15 +185,15 @@ public final class TileBuilders {
              * tile if it is on-screen, or about to be on-screen, although this is not guaranteed
              * due to system-level optimizations.
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setFreshnessIntervalMillis(long freshnessIntervalMillis) {
                 mImpl.setFreshnessIntervalMillis(freshnessIntervalMillis);
                 return this;
             }
 
-            /**
-             * Sets {@link androidx.wear.protolayout.StateBuilders.State} for this tile.
-             */
+            /** Sets {@link androidx.wear.protolayout.StateBuilders.State} for this tile. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setState(@NonNull State state) {
                 mImpl.setState(state.toProto());
