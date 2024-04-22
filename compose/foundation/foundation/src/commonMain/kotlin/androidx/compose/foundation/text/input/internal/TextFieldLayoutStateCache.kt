@@ -165,12 +165,17 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 cachedRecord.constraints == measureInputs.constraints &&
                 cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver
             ) {
+                val isLayoutAffectingSame = cachedRecord.textStyle
+                    ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) ?: false
+
+                val isDrawAffectingSame = cachedRecord.textStyle
+                    ?.hasSameDrawAffectingAttributes(nonMeasureInputs.textStyle) ?: false
+
                 // Fast path: None of the inputs changed.
-                if (cachedRecord.textStyle == nonMeasureInputs.textStyle) return cachedResult
+                if (isLayoutAffectingSame && isDrawAffectingSame) return cachedResult
+
                 // Slightly slower than fast path: Layout did not change but TextLayoutInput did
-                if (cachedRecord.textStyle
-                        ?.hasSameDrawAffectingAttributes(nonMeasureInputs.textStyle) == true
-                ) {
+                if (isLayoutAffectingSame) {
                     return cachedResult.copy(
                         layoutInput = TextLayoutInput(
                             cachedResult.layoutInput.text,
