@@ -21,6 +21,9 @@ import kotlin.math.pow
 
 // File of internal utility methods used for the geometry library
 internal fun Float.toStringAsFixed(digits: Int): String {
+    if (isNaN()) return "NaN"
+    if (isInfinite()) return if (this < 0f) "-Infinity" else "Infinity"
+
     val clampedDigits: Int = max(digits, 0) // Accept positive numbers and 0 only
     val pow = 10f.pow(clampedDigits)
     val shifted = this * pow // shift the given value by the corresponding power of 10
