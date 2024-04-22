@@ -354,8 +354,6 @@ internal class TextFieldDelegate {
          *  @param compositionRange An input state
          *  @param transformed A transformed text
          *  @return The transformed text with composition decoration.
-         *
-         *  @suppress
          */
         fun applyCompositionDecoration(
             compositionRange: TextRange,

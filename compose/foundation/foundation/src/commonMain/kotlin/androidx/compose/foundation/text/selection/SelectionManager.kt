@@ -17,6 +17,10 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.annotation.VisibleForTesting
+import androidx.collection.LongObjectMap
+import androidx.collection.emptyLongObjectMap
+import androidx.collection.mutableLongIntMapOf
+import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -408,8 +412,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal fun selectAll(
         selectableId: Long,
         previousSelection: Selection?
-    ): Pair<Selection?, Map<Long, Selection>> {
-        val subselections = mutableMapOf<Long, Selection>()
+    ): Pair<Selection?, LongObjectMap<Selection>> {
+        val subselections = mutableLongObjectMapOf<Selection>()
         val newSelection = selectionRegistrar.sort(requireContainerCoordinates())
             .fastFold(null) { mergedSelection: Selection?, selectable: Selectable ->
                 val selection = if (selectable.selectableId == selectableId)
@@ -558,7 +562,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     // This is for PressGestureDetector to cancel the selection.
     fun onRelease() {
-        selectionRegistrar.subselections = emptyMap()
+        selectionRegistrar.subselections = emptyLongObjectMap()
         showToolbar = false
         if (selection != null) {
             onSelectionChange(null)
@@ -785,7 +789,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         val containerCoordinates = requireContainerCoordinates()
         val sortedSelectables = selectionRegistrar.sort(containerCoordinates)
 
-        val idToIndexMap = mutableMapOf<Long, Int>()
+        val idToIndexMap = mutableLongIntMapOf()
         sortedSelectables.fastForEachIndexed { index, selectable ->
             idToIndexMap[selectable.selectableId] = index
         }

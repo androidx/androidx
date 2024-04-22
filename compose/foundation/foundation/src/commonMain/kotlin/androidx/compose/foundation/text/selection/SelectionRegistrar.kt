@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.collection.LongObjectMap
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.geometry.Offset
@@ -31,7 +32,7 @@ internal interface SelectionRegistrar {
      * [MutableState]. And any composable reading this field will be recomposed once its value
      * changed.
      */
-    val subselections: Map<Long, Selection>
+    val subselections: LongObjectMap<Selection>
 
     /**
      * Subscribe to SelectionContainer selection changes.

@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.collection.emptyLongObjectMap
+import androidx.collection.longObjectMapOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -90,10 +92,10 @@ class SelectionManagerTest {
         selectable.clear()
         selectable.selectableId = selectableId
         selectionRegistrar.subscribe(selectable)
-        selectionRegistrar.subselections = mapOf(
-            selectableId to fakeSelection,
-            startSelectableId to fakeSelection,
-            endSelectableId to fakeSelection
+        selectionRegistrar.subselections = longObjectMapOf(
+            selectableId, fakeSelection,
+            startSelectableId, fakeSelection,
+            endSelectableId, fakeSelection
         )
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
@@ -249,7 +251,7 @@ class SelectionManagerTest {
             handlesCrossed = false
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
 
         assertThat(selectionManager.isNonEmptySelection()).isTrue()
     }
@@ -274,7 +276,7 @@ class SelectionManagerTest {
             handlesCrossed = false
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
 
         assertThat(selectionManager.isNonEmptySelection()).isFalse()
     }
@@ -308,8 +310,8 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
-        selectionRegistrar.subselections = mapOf(
-            endSelectableId to Selection(
+        selectionRegistrar.subselections = longObjectMapOf(
+            endSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = annotatedString.length,
@@ -322,7 +324,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = true
             ),
-            middleSelectableId to Selection(
+            middleSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = annotatedString.length,
@@ -335,7 +337,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = true
             ),
-            startSelectableId to Selection(
+            startSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = startOffset,
@@ -382,8 +384,8 @@ class SelectionManagerTest {
             handlesCrossed = false
         )
 
-        selectionRegistrar.subselections = mapOf(
-            startSelectableId to Selection(
+        selectionRegistrar.subselections = longObjectMapOf(
+            startSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = annotatedString.length,
@@ -396,7 +398,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = false
             ),
-            middleSelectableId to Selection(
+            middleSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
@@ -409,7 +411,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = false
             ),
-            endSelectableId to Selection(
+            endSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
@@ -456,8 +458,8 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
-        selectionRegistrar.subselections = mapOf(
-            startSelectableId to Selection(
+        selectionRegistrar.subselections = longObjectMapOf(
+            startSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = annotatedString.length,
@@ -470,7 +472,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = true
             ),
-            middleSelectableId to Selection(
+            middleSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
@@ -483,7 +485,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = true
             ),
-            endSelectableId to Selection(
+            endSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
@@ -504,7 +506,7 @@ class SelectionManagerTest {
     @Test
     fun getSelectedText_selection_null_return_null() {
         selectionManager.selection = null
-        selectionRegistrar.subselections = emptyMap()
+        selectionRegistrar.subselections = emptyLongObjectMap()
 
         assertThat(selectionManager.getSelectedText()).isNull()
         assertThat(selectable.getTextCalledTimes).isEqualTo(0)
@@ -531,7 +533,7 @@ class SelectionManagerTest {
             handlesCrossed = false
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
 
         assertThat(selectionManager.getSelectedText())
             .isEqualTo(annotatedString.subSequence(startOffset, endOffset))
@@ -559,7 +561,7 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
 
         assertThat(selectionManager.getSelectedText())
             .isEqualTo(annotatedString.subSequence(endOffset, startOffset))
@@ -595,8 +597,8 @@ class SelectionManagerTest {
             handlesCrossed = false
         )
 
-        selectionRegistrar.subselections = mapOf(
-            startSelectableId to Selection(
+        selectionRegistrar.subselections = longObjectMapOf(
+            startSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = startOffset,
@@ -609,7 +611,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = false
             ),
-            middleSelectableId to Selection(
+            middleSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
@@ -622,7 +624,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = false
             ),
-            endSelectableId to Selection(
+            endSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
@@ -676,8 +678,8 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
-        selectionRegistrar.subselections = mapOf(
-            endSelectableId to Selection(
+        selectionRegistrar.subselections = longObjectMapOf(
+            endSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = annotatedString.length,
@@ -690,7 +692,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = true
             ),
-            middleSelectableId to Selection(
+            middleSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = annotatedString.length,
@@ -703,7 +705,7 @@ class SelectionManagerTest {
                 ),
                 handlesCrossed = true
             ),
-            startSelectableId to Selection(
+            startSelectableId, Selection(
                 start = Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = startOffset,
@@ -731,7 +733,7 @@ class SelectionManagerTest {
     @Test
     fun copy_selection_null_not_trigger_clipboardManager() {
         selectionManager.selection = null
-        selectionRegistrar.subselections = emptyMap()
+        selectionRegistrar.subselections = emptyLongObjectMap()
 
         selectionManager.copy()
 
@@ -759,7 +761,7 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
 
         selectionManager.copy()
 
@@ -793,7 +795,7 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
         selectionManager.hasFocus = true
 
         selectionManager.showToolbar = true
@@ -828,7 +830,7 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
         selectionManager.selection = selection
-        selectionRegistrar.subselections = mapOf(selectableId to selection)
+        selectionRegistrar.subselections = longObjectMapOf(selectableId, selection)
         selectionManager.hasFocus = false
 
         selectionManager.showToolbar = true
@@ -865,7 +867,7 @@ class SelectionManagerTest {
 
         selectionManager.onRelease()
 
-        verify(selectionRegistrar).subselections = emptyMap()
+        verify(selectionRegistrar).subselections = emptyLongObjectMap()
 
         assertThat(selection).isNull()
         verify(spyLambda, times(1)).invoke(null)
@@ -896,12 +898,12 @@ class SelectionManagerTest {
         selectionManager.onSelectionChange = spyLambda
         selectionManager.selection = fakeSelection
 
-        selectionRegistrar.subselections = mapOf(
-            startSelectableId to fakeSelection
+        selectionRegistrar.subselections = longObjectMapOf(
+            startSelectableId, fakeSelection
         )
         selectionRegistrar.notifySelectableChange(startSelectableId)
 
-        verify(selectionRegistrar).subselections = emptyMap()
+        verify(selectionRegistrar).subselections = emptyLongObjectMap()
         assertThat(selection).isNull()
         verify(spyLambda, times(1)).invoke(null)
         verify(
