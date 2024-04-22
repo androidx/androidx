@@ -21,7 +21,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.benchmark.DeviceInfo
-import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -225,34 +224,45 @@ class MacrobenchmarkScopeTest {
     }
 
     @Test
-    fun startActivityAndWait_methodTracing() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val device = UiDevice.getInstance(instrumentation)
-        val files = Outputs.outputDirectory.walk().filter {
-            it.isFile
-        }.toSet()
+    fun measureBlock_methodTracing() {
         val scope = MacrobenchmarkScope(
             Packages.TEST, // self-instrumenting macrobench, so don't kill the process!
             launchWithClearTask = true,
         )
-        // Turn on method tracing
-        scope.launchWithMethodTracing = true
-        // Force Method Tracing
-        scope.methodTracingForTests = true
+        scope.fileLabel = "TEST-UNIQUE-NAME"
+        scope.startMethodTracing()
         // Launch first activity, and validate it is displayed
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
-        assertTrue(device.hasObject(By.text("InitialText")))
-        scope.stopMethodTracing("TEST-UNIQUE-NAME")
-        val outputs = Outputs.outputDirectory.walk().filter {
-            it.isFile
-        }.toSet()
-        val testOutputs = outputs - files
+        assertTrue(scope.device.hasObject(By.text("InitialText")))
+        val testOutputs = scope.stopMethodTracing()
         val trace = testOutputs.singleOrNull { file ->
-            file.name.endsWith(".trace") && file.name.contains("-methodTracing-")
+            file.outputRelativePath.endsWith(".trace") &&
+                file.outputRelativePath.contains("-methodTracing-")
         }
         // One method trace should have been created
         assertNotNull(trace)
-        assertTrue(trace.name.startsWith("TEST-UNIQUE-NAME-methodTracing-"))
+        assertTrue(trace.outputRelativePath.startsWith("TEST-UNIQUE-NAME-methodTracing-"))
+    }
+
+    @Test
+    fun multipleMethodTraces_onProcessStartStop() {
+        val scope = MacrobenchmarkScope(
+            Packages.TARGET,
+            launchWithClearTask = true
+        )
+        scope.fileLabel = "TEST-UNIQUE-NAME"
+        scope.startMethodTracing()
+        scope.startActivityAndWait()
+        scope.killProcess()
+        scope.startActivityAndWait()
+        scope.killProcess()
+        val testOutputs = scope.stopMethodTracing()
+        // We should have 2 method traces
+        val traces = testOutputs.filter { file ->
+            file.outputRelativePath.endsWith(".trace") &&
+                file.outputRelativePath.contains("-methodTracing-")
+        }
+        assertEquals(traces.size, 2)
     }
 
     private fun validateLaunchAndFrameStats(pressHome: Boolean) {
@@ -318,6 +328,7 @@ class MacrobenchmarkScopeTest {
             Packages.TARGET,
             launchWithClearTask = false
         )
+        scope.fileLabel = "TEST-UNIQUE-NAME"
         // reset to empty to begin with
         scope.killProcess()
         scope.dropShaderCacheBlock()
