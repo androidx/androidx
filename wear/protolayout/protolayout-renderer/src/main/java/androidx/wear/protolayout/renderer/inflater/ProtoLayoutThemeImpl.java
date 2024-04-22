@@ -106,15 +106,6 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
         return new ProtoLayoutThemeImpl(context.getResources(), R.style.ProtoLayoutBaseTheme);
     }
 
-    /**
-     * Creates a ProtoLayoutTheme for the default theme, based on R.style.ProtoLayoutBaseTheme and
-     * R.attr.protoLayoutFallbackAppearance from the local package.
-     */
-    @NonNull
-    public static ProtoLayoutTheme defaultTheme(@NonNull Resources resources) {
-        return new ProtoLayoutThemeImpl(resources, R.style.ProtoLayoutBaseTheme);
-    }
-
     private final Map<Integer, FontSet> mVariantToFontSet = new ArrayMap<>();
     private final Theme mTheme;
     @AttrRes private final int mFallbackTextAppearanceAttrId;
