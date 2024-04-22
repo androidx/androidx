@@ -75,6 +75,10 @@ internal class TextStringSimpleNode(
     private var minLines: Int = DefaultMinLines,
     private var overrideColor: ColorProducer? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
+    @Suppress("PrimitiveInCollection") // Map required for use in public API.
+    // Usages of this collection are so few that the gains of using
+    // MutableObjectIntMap<AlignmentLine> and then converting to a Map<AlignmentLine, Int>
+    // as needed for the public API is not worth the performance benefit.
     private var baselineCache: MutableMap<AlignmentLine, Int>? = null
 
     private var _layoutCache: ParagraphLayoutCache? = null
@@ -348,6 +352,8 @@ internal class TextStringSimpleNode(
 
         if (didChangeLayout) {
             invalidateLayer()
+            // Map<AlignmentLine, Int> required for use in public API `layout` below
+            @Suppress("PrimitiveInCollection")
             var cache = baselineCache
             if (cache == null) {
                 cache = LinkedHashMap(2)

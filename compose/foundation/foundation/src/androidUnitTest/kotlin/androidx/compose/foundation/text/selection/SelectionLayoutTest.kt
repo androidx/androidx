@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.collection.LongObjectMap
 import androidx.compose.foundation.text.selection.Direction.AFTER
 import androidx.compose.foundation.text.selection.Direction.BEFORE
 import androidx.compose.foundation.text.selection.Direction.ON
@@ -1020,7 +1021,7 @@ class SelectionLayoutTest {
     fun createSubSelections_singleLayout_validSelection_returnsInputSelection() {
         val layout = getSingleSelectionLayoutForTest()
         val selection = getSelection()
-        val actual = layout.createSubSelections(selection)
+        val actual = layout.createSubSelections(selection).toMap()
         assertThat(actual).hasSize(1)
         // We don't care about the selectableId since it isn't used anyways
         assertThat(actual.toList().single().second).isEqualTo(selection)
@@ -1032,7 +1033,7 @@ class SelectionLayoutTest {
             appendInfoForTest(selectableId = 1L)
         }
         val selection = getSelection()
-        assertThat(layout.createSubSelections(selection)).containsExactly(1L, selection)
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(1L, selection)
     }
 
     @Test
@@ -1064,7 +1065,7 @@ class SelectionLayoutTest {
             appendInfoForTest(selectableId = 2L)
         }
         val selection = getSelection(startSelectableId = 2L, endSelectableId = 2L)
-        assertThat(layout.createSubSelections(selection)).containsExactly(2L, selection)
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(2L, selection)
     }
 
     @Test
@@ -1082,7 +1083,7 @@ class SelectionLayoutTest {
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 2L)
-        assertThat(layout.createSubSelections(selection)).containsExactly(
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
             1L, getSelection(startSelectableId = 1L, endSelectableId = 1L),
             2L, getSelection(startSelectableId = 2L, endSelectableId = 2L),
         )
@@ -1108,7 +1109,7 @@ class SelectionLayoutTest {
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 3L)
-        assertThat(layout.createSubSelections(selection)).containsExactly(
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
             1L, getSelection(startSelectableId = 1L, endSelectableId = 1L),
             2L, getSelection(startSelectableId = 2L, endSelectableId = 2L),
             3L, getSelection(startSelectableId = 3L, endSelectableId = 3L),
@@ -1140,7 +1141,7 @@ class SelectionLayoutTest {
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 4L)
-        assertThat(layout.createSubSelections(selection)).containsExactly(
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
             1L, getSelection(startSelectableId = 1L, endSelectableId = 1L),
             2L, getSelection(startSelectableId = 2L, endSelectableId = 2L),
             3L, getSelection(startSelectableId = 3L, endSelectableId = 3L),
@@ -1166,7 +1167,7 @@ class SelectionLayoutTest {
             endOffset = 0,
             handlesCrossed = true
         )
-        assertThat(layout.createSubSelections(selection)).containsExactly(1L, selection)
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(1L, selection)
     }
 
     @Test
@@ -1194,7 +1195,7 @@ class SelectionLayoutTest {
             endOffset = 0,
             handlesCrossed = true
         )
-        assertThat(layout.createSubSelections(selection)).containsExactly(
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
             1L,
             getSelection(
                 startSelectableId = 1L,
@@ -1246,7 +1247,7 @@ class SelectionLayoutTest {
             endOffset = 0,
             handlesCrossed = true
         )
-        assertThat(layout.createSubSelections(selection)).containsExactly(
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
             1L,
             getSelection(
                 startSelectableId = 1L,
@@ -1313,7 +1314,7 @@ class SelectionLayoutTest {
             endOffset = 0,
             handlesCrossed = true
         )
-        assertThat(layout.createSubSelections(selection)).containsExactly(
+        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
             1L,
             getSelection(
                 startSelectableId = 1L,
@@ -1603,4 +1604,8 @@ class SelectionLayoutTest {
             isStartHandle = isStartHandle
         )
     }
+}
+
+private fun <T> LongObjectMap<T>.toMap(): Map<Long, T> = buildMap {
+    this@toMap.forEach { long, obj -> put(long, obj) }
 }
