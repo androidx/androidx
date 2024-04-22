@@ -21,6 +21,9 @@ import androidx.lifecycle.LifecycleOwner
 
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
+ *
+ * Note: On Android, it works only with Compose UI 1.7.0-alpha05 or above.
+ *  Please use [androidx.compose.ui.platform.LocalLifecycleOwner] on Compose 1.6.*
  */
 val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
     error("CompositionLocal LocalLifecycleOwner not present")

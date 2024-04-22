@@ -16,17 +16,14 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.LifecycleOwner
 
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
-actual val LocalLifecycleOwner = staticCompositionLocalOf<LifecycleOwner> {
-    noLocalProvidedFor("LocalLifecycleOwner")
-}
-
-@Suppress("SameParameterValue")
-private fun noLocalProvidedFor(name: String): Nothing {
-    error("CompositionLocal $name not present")
-}
+// TODO: Deprecate in 1.7.0
+// @Deprecated(
+//    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
+//    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+// )
+actual val LocalLifecycleOwner get() = androidx.lifecycle.compose.LocalLifecycleOwner
