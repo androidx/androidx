@@ -42,6 +42,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.exifinterface.media.ExifInterfaceUtils.Api21Impl;
 import androidx.exifinterface.media.ExifInterfaceUtils.Api23Impl;
 
@@ -69,6 +70,7 @@ import java.nio.charset.Charset;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -875,27 +877,41 @@ public class ExifInterface {
 
     // G. Tags related to picture-taking condition
     /**
-     *  <p>Exposure time, given in seconds.</p>
+     * Exposure time, given in seconds.
      *
-     *  <ul>
-     *      <li>Tag = 33434</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
+     *
+     * <ul>
+     *   <li>Tag = 33434
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_EXPOSURE_TIME = "ExposureTime";
+
     /**
-     *  <p>The F number.</p>
+     * The F number.
      *
-     *  <ul>
-     *      <li>Tag = 33437</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
+     *
+     * <ul>
+     *   <li>Tag = 33437
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_F_NUMBER = "FNumber";
+
     /**
      *  <p>The class of the program used by the camera to set exposure when the picture is taken.
      *  The tag values are as follows.</p>
@@ -1109,19 +1125,28 @@ public class ExifInterface {
      *  </ul>
      */
     public static final String TAG_MAX_APERTURE_VALUE = "MaxApertureValue";
+
     /**
-     *  <p>The distance to the subject, given in meters. Note that if the numerator of the recorded
-     *  value is 0xFFFFFFFF, Infinity shall be indicated; and if the numerator is 0, Distance
-     *  unknown shall be indicated.</p>
+     * The distance to the subject, given in meters.
      *
-     *  <ul>
-     *      <li>Tag = 37382</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note that if the numerator of the recorded value is 0xFFFFFFFF, Infinity shall be
+     * indicated; and if the numerator is 0, Distance unknown shall be indicated.
+     *
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
+     *
+     * <ul>
+     *   <li>Tag = 37382
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_SUBJECT_DISTANCE = "SubjectDistance";
+
     /**
      *  <p>The metering mode.</p>
      *
@@ -1443,18 +1468,26 @@ public class ExifInterface {
      *  @see #WHITEBALANCE_MANUAL
      */
     public static final String TAG_WHITE_BALANCE = "WhiteBalance";
+
     /**
-     *  <p>This tag indicates the digital zoom ratio when the image was shot. If the numerator of
-     *  the recorded value is 0, this indicates that digital zoom was not used.</p>
+     * This tag indicates the digital zoom ratio when the image was shot. If the numerator of the
+     * recorded value is 0, this indicates that digital zoom was not used.
      *
-     *  <ul>
-     *      <li>Tag = 41988</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 1</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: For backwards compatibility this attribute is returned from {@link
+     * #getAttribute(String)} in decimal form (i.e. the format produced by {@link
+     * Double#toString(double)}). It is accepted into {@link #setAttribute(String, String)} in both
+     * rational (e.g. {@code "1/3"}) and decimal forms. The decimal format is anything accepted by
+     * {@link Double#parseDouble(String)}, e.g. {@code "0.125"}.
+     *
+     * <ul>
+     *   <li>Tag = 41988
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 1
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_DIGITAL_ZOOM_RATIO = "DigitalZoomRatio";
+
     /**
      *  <p>This tag indicates the equivalent focal length assuming a 35mm film camera, in mm.
      *  A value of 0 means the focal length is unknown. Note that this tag differs from
@@ -1784,18 +1817,24 @@ public class ExifInterface {
      *  </ul>
      */
     public static final String TAG_GPS_ALTITUDE = "GPSAltitude";
+
     /**
-     *  <p>Indicates the time as UTC (Coordinated Universal Time). TimeStamp is expressed as three
-     *  unsigned rational values giving the hour, minute, and second.</p>
+     * Indicates the time as UTC (Coordinated Universal Time). TimeStamp is expressed as three
+     * unsigned rational values giving the hour, minute, and second.
      *
-     *  <ul>
-     *      <li>Tag = 7</li>
-     *      <li>Type = Unsigned rational</li>
-     *      <li>Count = 3</li>
-     *      <li>Default = None</li>
-     *  </ul>
+     * <p>Note: This attribute is returned from {@link #getAttribute(String)} and accepted into
+     * {@link #setAttribute(String, String)} as 3 colon-separated integers, e.g. {@code "11:05:32"}.
+     * Decimal or rational hours, minutes or seconds parts are not supported.
+     *
+     * <ul>
+     *   <li>Tag = 7
+     *   <li>Type = Unsigned rational
+     *   <li>Count = 3
+     *   <li>Default = None
+     * </ul>
      */
     public static final String TAG_GPS_TIMESTAMP = "GPSTimeStamp";
+
     /**
      *  <p>Indicates the GPS satellites used for measurements. This tag may be used to describe
      *  the number of satellites, their ID number, angle of elevation, azimuth, SNR and other
@@ -3074,14 +3113,11 @@ public class ExifInterface {
     };
 
     // A class for indicating EXIF rational type.
-    private static class Rational {
+    // TODO: b/308978831 - Migrate to android.util.Rational when the min API is 21.
+    @VisibleForTesting
+    static class Rational {
         public final long numerator;
         public final long denominator;
-
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        Rational(double value) {
-            this((long) (value * 10000), 10000);
-        }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         Rational(long numerator, long denominator) {
@@ -3093,6 +3129,43 @@ public class ExifInterface {
             }
             this.numerator = numerator;
             this.denominator = denominator;
+        }
+
+        /**
+         * Creates a new {@code Rational} which approximates the provided {@code double} value by
+         * using <a href="https://en.wikipedia.org/wiki/Continued_fraction">continued fractions</a>.
+         */
+        @NonNull
+        public static Rational createFromDouble(double value) {
+            if (value >= Long.MAX_VALUE || value <= Long.MIN_VALUE) {
+                // value is too large to represent as a long, so just return the max/min value.
+                return new Rational(
+                        /* numerator= */ value > 0 ? Long.MAX_VALUE : Long.MIN_VALUE,
+                        /* denominator= */ 1);
+            }
+
+            double absoluteValue = Math.abs(value);
+            double threshold = 0.00000001 * absoluteValue;
+            double remainingValue = absoluteValue;
+            long numerator = 1;
+            long previousNumerator = 0;
+            long denominator = 0;
+            long previousDenominator = 1;
+            do {
+                double remainder = remainingValue % 1;
+                long wholePart = (long) (remainingValue - remainder);
+                long tmp = numerator;
+                numerator = wholePart * numerator + previousNumerator;
+                previousNumerator = tmp;
+
+                tmp = denominator;
+                denominator = wholePart * denominator + previousDenominator;
+                previousDenominator = tmp;
+
+                remainingValue = 1 / remainder;
+            } while ((Math.abs(absoluteValue - numerator / (double) denominator) > threshold));
+
+            return new Rational(value < 0 ? -numerator : numerator, denominator);
         }
 
         @NonNull
@@ -3793,9 +3866,30 @@ public class ExifInterface {
     @SuppressWarnings("unchecked")
     private static final HashMap<String, ExifTag>[] sExifTagMapsForWriting =
             new HashMap[EXIF_TAGS.length];
-    private static final HashSet<String> sTagSetForCompatibility = new HashSet<>(Arrays.asList(
-            TAG_F_NUMBER, TAG_DIGITAL_ZOOM_RATIO, TAG_EXPOSURE_TIME, TAG_SUBJECT_DISTANCE,
-            TAG_GPS_TIMESTAMP));
+
+    /**
+     * These are tags of type 'Unsigned rational' but which are handled in decimal form.
+     *
+     * <p>This means they are output from {@link #getAttribute(String)}, and accepted into {@link
+     * #setAttribute(String, String)}, as strings in decimal form (e.g. {@code "0.125"}, {@code
+     * "6.25E-4"}).
+     *
+     * <p>This is to maintain backwards compatibility with a previous implementation of the {@link
+     * android.media.ExifInterface} (the platform variant of this class).
+     *
+     * <p>See <a
+     * href="http://ag/c/platform/frameworks/base/+/909922/2..9/api/current.txt#b20093">this
+     * internal code review comment from 2016</a> for more details.
+     */
+    private static final Set<String> RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY =
+            Collections.unmodifiableSet(
+                    new HashSet<>(
+                            Arrays.asList(
+                                    TAG_F_NUMBER,
+                                    TAG_DIGITAL_ZOOM_RATIO,
+                                    TAG_EXPOSURE_TIME,
+                                    TAG_SUBJECT_DISTANCE)));
+
     // Mappings from tag number to IFD type for pointer tags.
     private static final HashMap<Integer, Integer> sExifPointerTagMap = new HashMap<>();
 
@@ -4116,34 +4210,35 @@ public class ExifInterface {
             throw new NullPointerException("tag shouldn't be null");
         }
         ExifAttribute attribute = getExifAttribute(tag);
-        if (attribute != null) {
-            if (!sTagSetForCompatibility.contains(tag)) {
-                return attribute.getStringValue(mExifByteOrder);
+        if (attribute == null) {
+            return null;
+        }
+        if (tag.equals(TAG_GPS_TIMESTAMP)) {
+            // Convert GPS timestamp value to a custom format for backwards compatibility.
+            if (attribute.format != IFD_FORMAT_URATIONAL
+                    && attribute.format != IFD_FORMAT_SRATIONAL) {
+                Log.w(TAG, "GPS Timestamp format is not rational. format=" + attribute.format);
+                return null;
             }
-            if (tag.equals(TAG_GPS_TIMESTAMP)) {
-                // Convert the rational values to the custom formats for backwards compatibility.
-                if (attribute.format != IFD_FORMAT_URATIONAL
-                        && attribute.format != IFD_FORMAT_SRATIONAL) {
-                    Log.w(TAG, "GPS Timestamp format is not rational. format=" + attribute.format);
-                    return null;
-                }
-                Rational[] array = (Rational[]) attribute.getValue(mExifByteOrder);
-                if (array == null || array.length != 3) {
-                    Log.w(TAG, "Invalid GPS Timestamp array. array=" + Arrays.toString(array));
-                    return null;
-                }
-                return String.format("%02d:%02d:%02d",
-                        (int) ((float) array[0].numerator / array[0].denominator),
-                        (int) ((float) array[1].numerator / array[1].denominator),
-                        (int) ((float) array[2].numerator / array[2].denominator));
+            Rational[] array = (Rational[]) attribute.getValue(mExifByteOrder);
+            if (array == null || array.length != 3) {
+                Log.w(TAG, "Invalid GPS Timestamp array. array=" + Arrays.toString(array));
+                return null;
             }
+            return String.format("%02d:%02d:%02d",
+                    (int) ((float) array[0].numerator / array[0].denominator),
+                    (int) ((float) array[1].numerator / array[1].denominator),
+                    (int) ((float) array[2].numerator / array[2].denominator));
+        } else if (RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)) {
+            // Convert the rational values to the custom formats for backwards compatibility.
             try {
                 return Double.toString(attribute.getDoubleValue(mExifByteOrder));
             } catch (NumberFormatException e) {
                 return null;
             }
+        } else {
+            return attribute.getStringValue(mExifByteOrder);
         }
-        return null;
     }
 
     /**
@@ -4205,10 +4300,45 @@ public class ExifInterface {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
-        // Validate and convert if necessary.
-        if (TAG_DATETIME.equals(tag) || TAG_DATETIME_ORIGINAL.equals(tag)
-                || TAG_DATETIME_DIGITIZED.equals(tag)) {
-            if (value != null) {
+
+        // Maintain compatibility.
+        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
+            if (DEBUG) {
+                Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
+                        + "TAG_PHOTOGRAPHIC_SENSITIVITY.");
+            }
+            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
+        }
+        // Maybe convert the given value for backwards compatibility.
+        if (value != null) {
+            if (RATIONAL_TAGS_HANDLED_AS_DECIMALS_FOR_COMPATIBILITY.contains(tag)
+                    && !value.contains("/")) {
+                // Convert floating point values to rational for rational tags that are emitted and
+                // consumed as floating point values for backwards compatibility.
+                try {
+                    double doubleValue = Double.parseDouble(value);
+                    value = Rational.createFromDouble(doubleValue).toString();
+                } catch (NumberFormatException e) {
+                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
+                    return;
+                }
+            } else if (tag.equals(TAG_GPS_TIMESTAMP)) {
+                Matcher m = GPS_TIMESTAMP_PATTERN.matcher(value);
+                if (!m.find()) {
+                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
+                    return;
+                }
+                value =
+                        Integer.parseInt(m.group(1))
+                                + "/1,"
+                                + Integer.parseInt(m.group(2))
+                                + "/1,"
+                                + Integer.parseInt(m.group(3))
+                                + "/1";
+            } else if (TAG_DATETIME.equals(tag)
+                    || TAG_DATETIME_ORIGINAL.equals(tag)
+                    || TAG_DATETIME_DIGITIZED.equals(tag)) {
+                // Validate and convert datetime values if necessary.
                 boolean isPrimaryFormat = DATETIME_PRIMARY_FORMAT_PATTERN.matcher(value).find();
                 boolean isSecondaryFormat = DATETIME_SECONDARY_FORMAT_PATTERN.matcher(value).find();
                 // Validate
@@ -4218,40 +4348,12 @@ public class ExifInterface {
                     return;
                 }
                 // If datetime value has secondary format (e.g. 2020-01-01 00:00:00), convert it to
-                // primary format (e.g. 2020:01:01 00:00:00) since it is the format in the
-                // official documentation.
+                // primary format (e.g. 2020:01:01 00:00:00) since it is the format in the official
+                // documentation.
                 // See JEITA CP-3451C Section 4.6.4. D. Other Tags, DateTime
                 if (isSecondaryFormat) {
                     // Replace "-" with ":" to match the primary format.
                     value = value.replaceAll("-", ":");
-                }
-            }
-        }
-        // Maintain compatibility.
-        if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
-            if (DEBUG) {
-                Log.d(TAG, "setAttribute: Replacing TAG_ISO_SPEED_RATINGS with "
-                        + "TAG_PHOTOGRAPHIC_SENSITIVITY.");
-            }
-            tag = TAG_PHOTOGRAPHIC_SENSITIVITY;
-        }
-        // Convert the given value to rational values for backwards compatibility.
-        if (value != null && sTagSetForCompatibility.contains(tag)) {
-            if (tag.equals(TAG_GPS_TIMESTAMP)) {
-                Matcher m = GPS_TIMESTAMP_PATTERN.matcher(value);
-                if (!m.find()) {
-                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
-                    return;
-                }
-                value = Integer.parseInt(m.group(1)) + "/1," + Integer.parseInt(m.group(2)) + "/1,"
-                        + Integer.parseInt(m.group(3)) + "/1";
-            } else {
-                try {
-                    double doubleValue = Double.parseDouble(value);
-                    value = new Rational(doubleValue).toString();
-                } catch (NumberFormatException e) {
-                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
-                    return;
                 }
             }
         }
@@ -5058,8 +5160,10 @@ public class ExifInterface {
         setAltitude(location.getAltitude());
         // Location objects store speeds in m/sec. Translates it to km/hr here.
         setAttribute(TAG_GPS_SPEED_REF, "K");
-        setAttribute(TAG_GPS_SPEED, new Rational(location.getSpeed()
-                * TimeUnit.HOURS.toSeconds(1) / 1000).toString());
+        setAttribute(
+                TAG_GPS_SPEED,
+                Rational.createFromDouble(location.getSpeed() * TimeUnit.HOURS.toSeconds(1) / 1000)
+                        .toString());
         String[] dateTime = sFormatterPrimary.format(
                 new Date(location.getTime())).split("\\s+", -1);
         setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateTime[0]);
@@ -5111,7 +5215,7 @@ public class ExifInterface {
      */
     public void setAltitude(double altitude) {
         String ref = altitude >= 0 ? "0" : "1";
-        setAttribute(TAG_GPS_ALTITUDE, new Rational(Math.abs(altitude)).toString());
+        setAttribute(TAG_GPS_ALTITUDE, Rational.createFromDouble(Math.abs(altitude)).toString());
         setAttribute(TAG_GPS_ALTITUDE_REF, ref);
     }
 
@@ -5312,7 +5416,7 @@ public class ExifInterface {
             }
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
             // Not valid
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -5953,7 +6057,7 @@ public class ExifInterface {
                 }
             } catch (RuntimeException e) {
                 throw new UnsupportedOperationException("Failed to read EXIF from HEIF file. "
-                        + "Given stream is either malformed or unsupported.");
+                        + "Given stream is either malformed or unsupported.", e);
             } finally {
                 try {
                     retriever.release();
@@ -6181,7 +6285,7 @@ public class ExifInterface {
         } catch (EOFException e) {
             // Should not reach here. Will only reach here if the file is corrupted or
             // does not follow the PNG specifications
-            throw new IOException("Encountered corrupt PNG file.");
+            throw new IOException("Encountered corrupt PNG file.", e);
         }
     }
 
@@ -6264,7 +6368,7 @@ public class ExifInterface {
         } catch (EOFException e) {
             // Should not reach here. Will only reach here if the file is corrupted or
             // does not follow the WebP specifications
-            throw new IOException("Encountered corrupt WebP file.");
+            throw new IOException("Encountered corrupt WebP file.", e);
         }
     }
 
