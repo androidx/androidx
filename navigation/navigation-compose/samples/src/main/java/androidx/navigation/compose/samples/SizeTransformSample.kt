@@ -33,14 +33,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.serialization.Serializable
 
 @Sampled
 @Composable
 fun SizeTransformNav() {
     val navController = rememberNavController()
     Box {
-        NavHost(navController, startDestination = "collapsed") {
-            composable("collapsed",
+        NavHost(navController, startDestination = Collapsed) {
+            composable<Collapsed>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 sizeTransform = {
@@ -52,9 +53,9 @@ fun SizeTransformNav() {
                         }
                     }
                 }) {
-                CollapsedScreen { navController.navigate("expanded") }
+                CollapsedScreen { navController.navigate(Expanded) }
             }
-            composable("expanded",
+            composable<Expanded>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 sizeTransform = {
@@ -70,6 +71,12 @@ fun SizeTransformNav() {
         }
     }
 }
+
+@Serializable
+object Collapsed
+
+@Serializable
+object Expanded
 
 @Composable
 fun CollapsedScreen(onNavigate: () -> Unit) {
