@@ -95,7 +95,6 @@ object ListDetailPaneScaffoldDefaults {
  * of three pane scaffolds. We suggest you to use the values defined here instead of the raw
  * [ThreePaneScaffoldRole] under the context of [ListDetailPaneScaffold] for better code clarity.
  */
-@ExperimentalMaterial3AdaptiveApi
 object ListDetailPaneScaffoldRole {
     /**
      * The list pane of [ListDetailPaneScaffold], which is supposed to hold a list of item summaries
