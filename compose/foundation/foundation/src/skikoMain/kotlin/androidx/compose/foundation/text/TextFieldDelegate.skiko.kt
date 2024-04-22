@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.OffsetMapping
@@ -40,24 +39,23 @@ internal fun TextFieldDelegate.Companion.cupertinoSetCursorOffsetFocused(
     textLayoutResult: TextLayoutResultProxy,
     editProcessor: EditProcessor,
     offsetMapping: OffsetMapping,
-    showContextMenu: (Rect) -> Unit,
+    showContextMenu: (Boolean) -> Unit,
     onValueChange: (TextFieldValue) -> Unit
 ) {
     val offset =
         offsetMapping.transformedToOriginal(textLayoutResult.getOffsetForPosition(position))
     val currentValue = editProcessor.toTextFieldValue()
     val currentText = textLayoutResult.value.layoutInput.text.toString()
+    val previousOffset = currentValue.selection.start
 
     val cursorDesiredOffset = determineCursorDesiredOffset(
         offset,
-        currentValue,
+        previousOffset,
         textLayoutResult,
         currentText
     )
 
-    if (cursorDesiredOffset == offset) {
-        showContextMenu(textLayoutResult.value.getCursorRect(offset))
-    }
+    showContextMenu(cursorDesiredOffset == offset && cursorDesiredOffset == previousOffset)
     onValueChange(
         editProcessor.toTextFieldValue().copy(selection = TextRange(cursorDesiredOffset))
     )
@@ -73,22 +71,21 @@ internal fun TextFieldDelegate.Companion.cupertinoSetCursorOffsetFocused(
  * - If there’s a punctuation mark before the word, the caret is between the punctuation mark and the word.
  * - When you make a single tap on the first half of the word, the caret is placed before this word.
  * - If you tap on the left edge of the TextField, the caret is placed before the first word on this line. The same is for the right edge.
- * - If you tap at the caret, that is placed in the middle of the word, it will jump to the end of the word.
+ * - If you tap at the caret placed in the middle of the word, it will jump to the end of the word.
  * @param offset The current offset position.
- * @param currentValue The current TextFieldValue.
+ * @param previousOffset The previous offset position (where caret was before incoming tap).
  * @param textLayoutResult The TextLayoutResultProxy representing the layout of the text.
  * @param currentText The current text in the TextField.
  * @return The desired cursor position after evaluating the given parameters.
  */
 internal fun determineCursorDesiredOffset(
     offset: Int,
-    currentValue: TextFieldValue,
+    previousOffset: Int,
     textLayoutResult: TextLayoutResultProxy,
     currentText: String
 ): Int {
-    val previousCaretPosition = currentValue.selection.start
     val caretOffsetPosition = when {
-        offset == previousCaretPosition -> offset
+        offset == previousOffset -> offset
         textLayoutResult.isLeftEdgeTapped(offset) -> {
             val lineNumber = textLayoutResult.value.getLineForOffset(offset)
             textLayoutResult.value.getLineStart(lineNumber)

@@ -124,9 +124,9 @@ private fun getTapHandlerModifier(
                                     textLayoutResult = layoutResult,
                                     editProcessor = currentState.processor,
                                     offsetMapping = currentOffsetMapping,
-                                    showContextMenu = {
-                                        // it shouldn't be selection, but this is a way to call context menu in BasicTextField
-                                        currentManager.enterSelectionMode(true)
+                                    showContextMenu = { show ->
+                                        // it shouldn't be selection, but this is a way to call a context menu in BasicTextField
+                                        if (show) { currentManager.enterSelectionMode() } else { currentManager.exitSelectionMode() }
                                     },
                                     onValueChange = currentState.onValueChange
                                 )
