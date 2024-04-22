@@ -2747,12 +2747,12 @@ class LookaheadScopeTest {
 
                                             val position = parent
                                                 .localLookaheadPositionOf(
-                                                    coordinates = coordinates!!,
+                                                    sourceCoordinates = coordinates!!,
                                                     excludeDirectManipulationOffset = false
                                                 )
                                             val excludedPosition = parent
                                                 .localLookaheadPositionOf(
-                                                    coordinates = coordinates!!,
+                                                    sourceCoordinates = coordinates!!,
                                                     excludeDirectManipulationOffset = true
                                                 )
                                             positionToExcludedArray[i] =
@@ -2826,13 +2826,13 @@ class LookaheadScopeTest {
 
                                             val position = parent
                                                 .localLookaheadPositionOf(
-                                                    coordinates = coordinates!!,
+                                                    sourceCoordinates = coordinates!!,
                                                     excludeDirectManipulationOffset = false
                                                 )
 
                                             val excludedPosition = parent
                                                 .localLookaheadPositionOf(
-                                                    coordinates = coordinates!!,
+                                                    sourceCoordinates = coordinates!!,
                                                     excludeDirectManipulationOffset = true
                                                 )
                                             positionToExcludedArray[i] =
@@ -2921,14 +2921,14 @@ class LookaheadScopeTest {
                                 regularPosition =
                                     parentLookaheadCoords
                                         .localLookaheadPositionOf(
-                                            coordinates = it,
+                                            sourceCoordinates = it,
                                             excludeDirectManipulationOffset = false
                                         )
 
                                 excludedManipulationPosition =
                                     parentLookaheadCoords
                                         .localLookaheadPositionOf(
-                                            coordinates = it,
+                                            sourceCoordinates = it,
                                             excludeDirectManipulationOffset = true
                                         )
                             }
@@ -3009,14 +3009,14 @@ class LookaheadScopeTest {
                                     regularPositions[0] =
                                         parentLookaheadCoords
                                             .localLookaheadPositionOf(
-                                                coordinates = it,
+                                                sourceCoordinates = it,
                                                 excludeDirectManipulationOffset = false
                                             )
 
                                     excludedManipulationPositions[0] =
                                         parentLookaheadCoords
                                             .localLookaheadPositionOf(
-                                                coordinates = it,
+                                                sourceCoordinates = it,
                                                 excludeDirectManipulationOffset = true
                                             )
                                 }
@@ -3033,14 +3033,14 @@ class LookaheadScopeTest {
                                     regularPositions[1] =
                                         parentLookaheadCoords
                                             .localLookaheadPositionOf(
-                                                coordinates = it,
+                                                sourceCoordinates = it,
                                                 excludeDirectManipulationOffset = false
                                             )
 
                                     excludedManipulationPositions[1] =
                                         parentLookaheadCoords
                                             .localLookaheadPositionOf(
-                                                coordinates = it,
+                                                sourceCoordinates = it,
                                                 excludeDirectManipulationOffset = true
                                             )
                                 }
@@ -3111,12 +3111,12 @@ class LookaheadScopeTest {
 
                                         lookingAheadPosition = lookaheadScopeCoordinates
                                             .localLookaheadPositionOf(
-                                                coordinates = lookaheadCoordinates,
+                                                sourceCoordinates = lookaheadCoordinates,
                                                 excludeDirectManipulationOffset = false
                                             )
                                         lookingAheadPositionExcludingDmp = lookaheadScopeCoordinates
                                             .localLookaheadPositionOf(
-                                                coordinates = lookaheadCoordinates,
+                                                sourceCoordinates = lookaheadCoordinates,
                                                 excludeDirectManipulationOffset = true
                                             )
                                     }
