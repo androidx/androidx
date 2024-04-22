@@ -151,7 +151,7 @@ fun <T : Any> SavedStateHandle.saveable(
  */
 @SavedStateHandleSaveableApi
 @JvmName("saveableMutableState")
-fun <T : Any, M : MutableState<T>> SavedStateHandle.saveable(
+fun <T, M : MutableState<T>> SavedStateHandle.saveable(
     stateSaver: Saver<T, out Any> = autoSaver(),
     init: () -> M,
 ): PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> =
