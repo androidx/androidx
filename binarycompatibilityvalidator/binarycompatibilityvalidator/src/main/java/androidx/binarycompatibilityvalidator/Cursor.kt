@@ -18,16 +18,24 @@ package androidx.binarycompatibilityvalidator
 
 class Cursor private constructor(
     private val lines: List<String>,
-    private var rowIndex: Int = 0,
+    rowIndex: Int = 0,
     private var columnIndex: Int = 0
 ) {
     constructor(text: String) : this(text.split("\n"))
+    var rowIndex: Int = rowIndex
+        private set
     val currentLine: String
         get() = lines[rowIndex].slice(columnIndex until lines[rowIndex].length)
-    fun hasNext() = rowIndex < (lines.size - 1)
+    fun hasNextRow() = rowIndex < (lines.size - 1)
+
+    /** Check if we have passed the last line  in [lines] and there is nothing left to parse **/
+    fun isFinished() = rowIndex >= lines.size
     fun nextLine() {
         rowIndex++
         columnIndex = 0
+        if (!isFinished()) {
+            skipInlineWhitespace()
+        }
     }
 
     fun parseSymbol(
@@ -39,7 +47,7 @@ class Cursor private constructor(
         return match?.value?.also {
             if (!peek) {
                 val offset = it.length + currentLine.indexOf(it)
-                columnIndex += offset
+                setColumn(columnIndex + offset)
                 if (skipInlineWhitespace) {
                     skipInlineWhitespace()
                 }
@@ -54,9 +62,17 @@ class Cursor private constructor(
 
     fun copy() = Cursor(lines, rowIndex, columnIndex)
 
+    private fun hasNextColumn(): Boolean {
+        return columnIndex < lines[rowIndex].length - 1
+    }
+
+    private fun setColumn(index: Int) {
+        columnIndex = index
+    }
+
     internal fun skipInlineWhitespace() {
         while (currentLine.firstOrNull()?.isWhitespace() == true) {
-            columnIndex++
+            setColumn(columnIndex + 1)
         }
     }
 }

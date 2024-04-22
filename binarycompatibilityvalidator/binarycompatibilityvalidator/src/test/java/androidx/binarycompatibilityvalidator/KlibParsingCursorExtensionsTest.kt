@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.library.abi.AbiVariance
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.junit.Test
 
-class CursorExtensionsTest {
+class KlibParsingCursorExtensionsTest {
 
     @Test
     fun parseModalityFailure() {
@@ -90,6 +90,14 @@ class CursorExtensionsTest {
         val cursor = Cursor(input)
         val kind = cursor.parseClassKind()
         assertThat(kind).isNull()
+    }
+
+    @Test
+    fun parseClassKindMultiPart() {
+        val input = "annotation class"
+        val cursor = Cursor(input)
+        val kind = cursor.parseClassKind()
+        assertThat(kind).isEqualTo(AbiClassKind.ANNOTATION_CLASS)
     }
 
     @Test
@@ -460,6 +468,13 @@ class CursorExtensionsTest {
         val typeParam = cursor.parseTypeParams()?.single()
         assertThat(typeParam).isNotNull()
         assertThat(typeParam?.isReified).isTrue()
+    }
+
+    @Test fun parseTypeParamsDoesNotMatchGetter() {
+        val input = "<get-size>"
+        val cursor = Cursor(input)
+        val typeParams = cursor.parseTypeParams()
+        assertThat(typeParams).isNull()
     }
 
     @Test
