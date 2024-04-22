@@ -18,8 +18,10 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.computeCubicVerticalBounds
 import androidx.compose.ui.graphics.evaluateCubic
 import androidx.compose.ui.graphics.findFirstCubicRoot
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * Easing is a way to adjust an animation’s fraction. Easing allows transitioning
@@ -106,10 +108,17 @@ class CubicBezierEasing(
     private val c: Float,
     private val d: Float
 ) : Easing {
+    private val min: Float
+    private val max: Float
+
     init {
         requirePrecondition(!a.isNaN() && !b.isNaN() && !c.isNaN() && !d.isNaN()) {
             "Parameters to CubicBezierEasing cannot be NaN. Actual parameters are: $a, $b, $c, $d."
         }
+        val roots = FloatArray(5)
+        val extrema = computeCubicVerticalBounds(0.0f, b, d, 1.0f, roots, 0)
+        min = extrema.first
+        max = extrema.second
     }
 
     /**
@@ -131,18 +140,22 @@ class CubicBezierEasing(
 
             // No root, the cubic curve has no solution
             if (t.isNaN()) {
-                throw IllegalArgumentException(
-                    "The cubic curve with parameters ($a, $b, $c, $d) has no solution at $fraction"
-                )
+                throwNoSolution(fraction)
             }
 
             // Don't clamp the values since the curve might be used to over- or under-shoot
             // The test above that checks if fraction is in ]0..1[ will ensure we start and
             // end at 0 and 1 respectively
-            evaluateCubic(b, d, t)
+            evaluateCubic(b, d, t).fastCoerceIn(min, max)
         } else {
             fraction
         }
+    }
+
+    private fun throwNoSolution(fraction: Float) {
+        throw IllegalArgumentException(
+            "The cubic curve with parameters ($a, $b, $c, $d) has no solution at $fraction"
+        )
     }
 
     override fun equals(other: Any?): Boolean {

@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.PathSegment
 import androidx.compose.ui.graphics.computeHorizontalBounds
 import androidx.compose.ui.graphics.evaluateY
 import androidx.compose.ui.graphics.findFirstRoot
-import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * An easing function for an arbitrary [Path].
@@ -66,39 +65,7 @@ class PathEasing(private val path: Path) : Easing {
         }
 
         if (!::intervals.isInitialized) {
-            val roots = FloatArray(5)
-
-            // Using an interval tree is a bit heavy handed but since we are dealing with
-            // easing curves, we don't expect many segments, and therefore few allocations.
-            // The interval tree allows us to quickly query for the correct segment inside
-            // the transform() function.
-            val segmentIntervals = IntervalTree<PathSegment>().apply {
-                // A path easing curve is defined in the domain 0..1, use an error
-                // appropriate for this domain (the default is 0.25). Conic segments
-                // should be unlikely in path easing curves, but just in case...
-                val iterator = path.iterator(
-                    PathIterator.ConicEvaluation.AsQuadratics,
-                    2e-4f
-                )
-                while (iterator.hasNext()) {
-                    val segment = iterator.next()
-                    requirePrecondition(segment.type != PathSegment.Type.Close) {
-                        "The path cannot contain a close() command."
-                    }
-                    if (segment.type != PathSegment.Type.Move &&
-                        segment.type != PathSegment.Type.Done
-                    ) {
-                        val bounds = computeHorizontalBounds(segment, roots)
-                        addInterval(bounds.first, bounds.second, segment)
-                    }
-                }
-            }
-
-            requirePrecondition(0.0f in segmentIntervals && 1.0f in segmentIntervals) {
-                "The easing path must start at 0.0f and end at 1.0f."
-            }
-
-            intervals = segmentIntervals
+            initializeEasing()
         }
 
         val result = intervals.findFirstOverlap(fraction)
@@ -111,6 +78,42 @@ class PathEasing(private val path: Path) : Easing {
             "The easing path is invalid. Make sure it does not contain NaN/Infinity values."
         }
 
-        return evaluateY(segment, t).fastCoerceIn(0.0f, 1.0f)
+        return evaluateY(segment, t)
+    }
+
+    private fun initializeEasing() {
+        val roots = FloatArray(5)
+
+        // Using an interval tree is a bit heavy handed but since we are dealing with
+        // easing curves, we don't expect many segments, and therefore few allocations.
+        // The interval tree allows us to quickly query for the correct segment inside
+        // the transform() function.
+        val segmentIntervals = IntervalTree<PathSegment>().apply {
+            // A path easing curve is defined in the domain 0..1, use an error
+            // appropriate for this domain (the default is 0.25). Conic segments
+            // should be unlikely in path easing curves, but just in case...
+            val iterator = path.iterator(
+                PathIterator.ConicEvaluation.AsQuadratics,
+                2e-4f
+            )
+            while (iterator.hasNext()) {
+                val segment = iterator.next()
+                requirePrecondition(segment.type != PathSegment.Type.Close) {
+                    "The path cannot contain a close() command."
+                }
+                if (segment.type != PathSegment.Type.Move &&
+                    segment.type != PathSegment.Type.Done
+                ) {
+                    val bounds = computeHorizontalBounds(segment, roots)
+                    addInterval(bounds.first, bounds.second, segment)
+                }
+            }
+        }
+
+        requirePrecondition(0.0f in segmentIntervals && 1.0f in segmentIntervals) {
+            "The easing path must start at 0.0f and end at 1.0f."
+        }
+
+        intervals = segmentIntervals
     }
 }

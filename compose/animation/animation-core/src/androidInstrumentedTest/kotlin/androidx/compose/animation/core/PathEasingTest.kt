@@ -167,4 +167,20 @@ class PathEasingTest {
             previousFraction = newFraction
         }
     }
+
+    @Test
+    fun pathEasing_Overshoots() {
+        val path = Path().apply {
+            cubicTo(0.34f, 1.56f, 0.64f, 1.0f, 1.0f, 1.0f)
+        }
+        assertThat(PathEasing(path).transform(0.6f)).isGreaterThan(1.0f)
+    }
+
+    @Test
+    fun pathEasing_Undershoots() {
+        val path = Path().apply {
+            cubicTo(0.68f, -0.6f, 0.32f, 1.6f, 1.0f, 1.0f)
+        }
+        assertThat(PathEasing(path).transform(0.1f)).isLessThan(0.0f)
+    }
 }
