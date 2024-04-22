@@ -72,6 +72,10 @@ kotlin {
     explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
+
         commonMain {
             dependencies {
                 api(project(":annotation:annotation"))
@@ -169,5 +173,4 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
-    metalavaK2UastEnabled = true
 }

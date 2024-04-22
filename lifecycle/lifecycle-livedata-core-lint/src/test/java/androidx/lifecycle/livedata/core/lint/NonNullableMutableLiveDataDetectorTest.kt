@@ -26,7 +26,6 @@ import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -785,7 +784,6 @@ Fix for src/com/example/MyClass2.kt line 30: Change `LiveData` type to nullable:
         ).expectClean()
     }
 
-    @Ignore("b/187536061")
     @Test
     fun genericParameterDefinition() {
         check(
