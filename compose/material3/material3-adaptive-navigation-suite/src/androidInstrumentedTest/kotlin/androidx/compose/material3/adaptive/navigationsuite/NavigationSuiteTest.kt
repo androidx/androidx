@@ -28,7 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NavigationSuiteTest {
@@ -47,7 +46,6 @@ class NavigationSuiteTest {
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @Composable
 private fun SampleNavigationSuite(
     layoutType: NavigationSuiteType

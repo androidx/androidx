@@ -33,7 +33,6 @@ import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class CollectFoldingFeaturesAsStateTest {

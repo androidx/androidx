@@ -126,7 +126,6 @@ fun calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy): List<Rect> {
     return when (hingePolicy) {
         HingePolicy.AvoidSeparating -> posture.separatingVerticalHingeBounds

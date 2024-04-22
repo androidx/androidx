@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -42,7 +41,6 @@ sealed interface PaneScaffoldScope {
     fun Modifier.preferredWidth(width: Dp): Modifier
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal abstract class PaneScaffoldScopeImpl : PaneScaffoldScope {
     override fun Modifier.preferredWidth(width: Dp): Modifier {
         require(width == Dp.Unspecified || width > 0.dp) { "invalid width" }

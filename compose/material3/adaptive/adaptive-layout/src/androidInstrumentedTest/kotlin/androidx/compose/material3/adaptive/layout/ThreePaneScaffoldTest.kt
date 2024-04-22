@@ -166,7 +166,6 @@ class ThreePaneScaffoldTest {
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockScaffoldDirective = PaneScaffoldDirective.Default
 
 internal const val ThreePaneScaffoldTestTag = "SampleThreePaneScaffold"
