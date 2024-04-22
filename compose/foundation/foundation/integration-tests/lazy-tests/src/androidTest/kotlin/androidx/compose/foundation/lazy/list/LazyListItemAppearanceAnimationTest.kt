@@ -54,6 +54,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -310,6 +311,46 @@ class LazyListItemAppearanceAnimationTest {
                         // the animation should be canceled so the red item has no alpha
                         in 0 until itemSize -> Color.Red
                         else -> Color.Green
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun itemOutsideOfViewPortBeingAnimatedIn_shouldBePlacedAtTheEndOfList() {
+        var list by mutableStateOf(
+            listOf(
+                Color.Black,
+                Color.Green,
+                Color.Blue,
+                Color.Yellow,
+                Color.DarkGray
+            )
+        )
+        rule.setContent {
+            LazyList(containerSize = itemSizeDp * 2.5f) {
+                items(list, key = { it.toArgb() }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            // item 0 will leave, item 3 will pop up
+            list = listOf(Color.Green, Color.Blue, Color.Yellow, Color.DarkGray)
+        }
+
+        onAnimationFrame { fraction ->
+            if (fraction.isCloseTo(0.5f)) {
+                assertPixels((itemSize * 2.5f).roundToInt()) { offset ->
+                    when (offset) {
+                        // green item is first
+                        in 0 until itemSize -> Color.Green
+                        // blue item is second
+                        in itemSize until 2 * itemSize -> Color.Blue
+                        // yellow item pops up at the bottom
+                        else -> Color.Yellow
                     }
                 }
             }

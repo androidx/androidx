@@ -1001,6 +1001,50 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     }
 
     @Test
+    fun removingItemsCauseOutOfBoundsItemToPopUp_withContentPadding() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val rawStartPadding = 8f
+        val rawEndPadding = 12f
+        val (startPaddingDp, endPaddingDp) = with(rule.density) {
+            rawStartPadding.toDp() to rawEndPadding.toDp()
+        }
+        rule.setContent {
+            // only 4 items will be visible 0, 1, 2, 3
+            LazyList(
+                maxSize = itemSizeDp * 4,
+                startPadding = startPaddingDp,
+                endPadding = endPaddingDp
+            ) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        val startPadding = if (reverseLayout) rawEndPadding else rawStartPadding
+        assertPositions(
+            0 to startPadding,
+            1 to startPadding + itemSize,
+            2 to startPadding + itemSize * 2,
+            3 to startPadding + itemSize * 3
+        )
+
+        rule.runOnUiThread {
+            list = listOf(1, 2, 3, 4)
+        }
+
+        onAnimationFrame { fraction ->
+            assertPositions(
+                1 to startPadding + itemSize - itemSize * fraction,
+                2 to startPadding + itemSize * 2 - itemSize * fraction,
+                3 to startPadding + itemSize * 3 - itemSize * fraction,
+                4 to startPadding + itemSize * 4 - itemSize * fraction,
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
     fun reorderFirstAndLastItems_noNewLayoutInfoProduced() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
 

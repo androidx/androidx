@@ -71,6 +71,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         consumedScroll: Int,
         layoutWidth: Int,
         layoutHeight: Int,
+        beforeContentPadding: Int,
+        afterContentPadding: Int,
         positionedItems: MutableList<T>,
         keyIndexMap: LazyLayoutKeyIndexMap,
         itemProvider: LazyLayoutMeasuredItemProvider<T>,
@@ -186,8 +188,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
                 movingInFromEndBound.fastForEach { item ->
                     val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
-                    val mainAxisOffset =
-                        mainAxisLayoutSize + accumulatedOffset - item.mainAxisSizeWithSpacings
+                    // Compensate content padding
+                    val contentPadding = beforeContentPadding + afterContentPadding
+                    val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset -
+                        item.mainAxisSizeWithSpacings + contentPadding
                     initializeAnimation(item, mainAxisOffset)
                     startPlacementAnimationsIfNeeded(item)
                 }
@@ -285,7 +289,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     positionedItems.last()
                         .let { it.mainAxisOffset }
                 else {
-                    mainAxisLayoutSize - item.mainAxisSizeWithSpacings
+                    val contentPadding = beforeContentPadding + afterContentPadding
+                    mainAxisLayoutSize - item.mainAxisSizeWithSpacings + contentPadding
                 } + accumulatedOffset
 
                 val itemInfo = keyToItemInfoMap[item.key]!!
@@ -390,19 +395,20 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         return maxOffset
     }
 
-    val minSizeToFitDisappearingItems: IntSize get() {
-        var size = IntSize.Zero
-        disappearingItems.fastForEach {
-            val layer = it.layer
-            if (layer != null) {
-                size = IntSize(
-                    width = maxOf(size.width, it.rawOffset.x + layer.size.width),
-                    height = maxOf(size.height, it.rawOffset.y + layer.size.height)
-                )
+    val minSizeToFitDisappearingItems: IntSize
+        get() {
+            var size = IntSize.Zero
+            disappearingItems.fastForEach {
+                val layer = it.layer
+                if (layer != null) {
+                    size = IntSize(
+                        width = maxOf(size.width, it.rawOffset.x + layer.size.width),
+                        height = maxOf(size.height, it.rawOffset.y + layer.size.height)
+                    )
+                }
             }
+            return size
         }
-        return size
-    }
 
     val modifier: Modifier = DisplayingDisappearingItemsElement(this)
 
