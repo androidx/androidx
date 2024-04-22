@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringNode
 import androidx.compose.foundation.text.modifiers.TextStringSimpleElement
-import androidx.compose.foundation.text.modifiers.fixedCoerceHeightAndWidthForBits
 import androidx.compose.foundation.text.modifiers.hasLinks
 import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -53,6 +52,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
@@ -453,9 +453,11 @@ private fun measureWithTextRangeMeasureConstraints(
                 textRangeLayoutMeasureScope.measure()
             }
             val placeable = measurable.measure(
-                Constraints.fixedCoerceHeightAndWidthForBits(
-                    rangeMeasureResult.width,
-                    rangeMeasureResult.height
+                fitPrioritizingWidth(
+                    minWidth = rangeMeasureResult.width,
+                    maxWidth = rangeMeasureResult.width,
+                    minHeight = rangeMeasureResult.height,
+                    maxHeight = rangeMeasureResult.height
                 )
             )
             Pair(placeable, rangeMeasureResult.place)
