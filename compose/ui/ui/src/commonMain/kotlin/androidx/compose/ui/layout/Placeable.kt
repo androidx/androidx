@@ -18,7 +18,7 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.node.DirectManipulationDelegate
+import androidx.compose.ui.node.FrameOfReferencePlacementDelegate
 import androidx.compose.ui.node.LookaheadCapablePlaceable
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.unit.Constraints
@@ -498,35 +498,40 @@ abstract class Placeable : Measured {
         }
 
         /**
-         * Internal indicator to know when to tag [Placeable] under direct manipulation.
+         * Internal indicator to know when to tag [Placeable] as placed on the same frame of
+         * reference.
          */
-        private var directManipulationPlacement: Boolean = false
+        private var currentFrameOfReferencePlacement: Boolean = false
 
         /**
-         * [Placeable]s placed under [block] may have their position excluded for lookahead
-         * coordinates, see [LookaheadLayoutCoordinates.localPositionOf] with the
-         * `excludeDirectManipulation` argument.
+         * Placement done under [block], will have their [Placeable] placed on the same frame of
+         * reference as the current layout.
+         *
+         * In [LayoutCoordinates], this means that the offset introduced under [block] may be
+         * excluded when calculating positions. See
+         * [LayoutCoordinates.positionInLocalFrameOfReference].
          *
          * Excluding the position set by certain layouts can be helpful to trigger lookahead based
          * animation when intended. The typical case are layouts that change frequently due to a
          * provided value, like [scroll][androidx.compose.foundation.verticalScroll].
          */
-        fun withDirectManipulationPlacement(block: PlacementScope.() -> Unit) {
-            directManipulationPlacement = true
+        fun withCurrentFrameOfReferencePlacement(block: PlacementScope.() -> Unit) {
+            currentFrameOfReferencePlacement = true
             block()
-            directManipulationPlacement = false
+            currentFrameOfReferencePlacement = false
         }
 
         /**
-         * Updates the [DirectManipulationDelegate.isDirectManipulationPlacement] flag when called
-         * a [Placeable] is placed under [withDirectManipulationPlacement].
+         * Updates the [FrameOfReferencePlacementDelegate.isPlacedUsingCurrentFrameOfReference] flag when called
+         * a [Placeable] is placed under [withCurrentFrameOfReferencePlacement].
          *
          * Note that the Main/Lookahead pass delegate are expected to propagate the flag to the
          * proper [LookaheadCapablePlaceable].
          */
         private fun Placeable.handleDirectManipulationPlacement() {
-            if (this is DirectManipulationDelegate) {
-                this.isDirectManipulationPlacement = this@PlacementScope.directManipulationPlacement
+            if (this is FrameOfReferencePlacementDelegate) {
+                this.isPlacedUsingCurrentFrameOfReference =
+                    this@PlacementScope.currentFrameOfReferencePlacement
             }
         }
     }

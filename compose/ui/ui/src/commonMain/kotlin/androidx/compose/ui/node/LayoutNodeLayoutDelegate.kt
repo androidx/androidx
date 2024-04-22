@@ -339,7 +339,7 @@ internal class LayoutNodeLayoutDelegate(
      * actual measure/layout pass.
      */
     inner class MeasurePassDelegate : Measurable, Placeable(), AlignmentLinesOwner,
-        DirectManipulationDelegate {
+        FrameOfReferencePlacementDelegate {
         /**
          * Is true during [replace] invocation. Helps to differentiate between the cases when our
          * parent is measuring us during the measure block, and when we are remeasured individually
@@ -773,16 +773,16 @@ internal class LayoutNodeLayoutDelegate(
          * Flag to indicate when we need to propagate coordinates updates that are not related to a
          * position change.
          *
-         * @see isDirectManipulationPlacement
+         * @see isPlacedUsingCurrentFrameOfReference
          */
         private var needsCoordinatesUpdate = false
 
-        override var isDirectManipulationPlacement: Boolean = false
+        override var isPlacedUsingCurrentFrameOfReference: Boolean = false
             set(new) {
                 // Delegated to outerCoordinator
-                val old = outerCoordinator.isDirectManipulationPlacement
+                val old = outerCoordinator.isPlacedUsingCurrentFrameOfReference
                 if (new != old) {
-                    outerCoordinator.isDirectManipulationPlacement = old
+                    outerCoordinator.isPlacedUsingCurrentFrameOfReference = old
                     // Affects coordinates measurements
                     this.needsCoordinatesUpdate = true
                 }
@@ -1124,7 +1124,7 @@ internal class LayoutNodeLayoutDelegate(
      * the lookahead pass.
      */
     inner class LookaheadPassDelegate : Placeable(), Measurable, AlignmentLinesOwner,
-        DirectManipulationDelegate {
+        FrameOfReferencePlacementDelegate {
 
         /**
          * Is true during [replace] invocation. Helps to differentiate between the cases when our
@@ -1458,12 +1458,12 @@ internal class LayoutNodeLayoutDelegate(
             placeSelf(position, zIndex, null, layer)
         }
 
-        override var isDirectManipulationPlacement: Boolean = false
+        override var isPlacedUsingCurrentFrameOfReference: Boolean = false
             set(new) {
                 // Delegated to outerCoordinator
-                val old = outerCoordinator.lookaheadDelegate?.isDirectManipulationPlacement
+                val old = outerCoordinator.lookaheadDelegate?.isPlacedUsingCurrentFrameOfReference
                 if (new != old) {
-                    outerCoordinator.lookaheadDelegate?.isDirectManipulationPlacement = new
+                    outerCoordinator.lookaheadDelegate?.isPlacedUsingCurrentFrameOfReference = new
                 }
                 field = new
             }
@@ -1935,19 +1935,23 @@ internal interface AlignmentLinesOwner : Measurable {
 
 /**
  * Interface for layout delegates, so that they can set the
- * [LookaheadCapablePlaceable.isDirectManipulationPlacement] to the proper placeable.
+ * [LookaheadCapablePlaceable.isPlacedUsingCurrentFrameOfReference] to the proper placeable.
  */
-internal interface DirectManipulationDelegate {
+internal interface FrameOfReferencePlacementDelegate {
 
     /**
      * Called when a layout is about to be placed.
      *
      * The corresponding [LookaheadCapablePlaceable] should have their
-     * [LookaheadCapablePlaceable.isDirectManipulationPlacement] flag updated to the given value.
+     * [LookaheadCapablePlaceable.isPlacedUsingCurrentFrameOfReference] flag updated to the given
+     * value.
      *
      * The placeable should be tagged such that its corresponding coordinates reflect the
-     * flag in [androidx.compose.ui.layout.LayoutCoordinates.isPositionedByParentWithDirectManipulation].
+     * flag in [androidx.compose.ui.layout.LayoutCoordinates.introducesFrameOfReference]. Note that
+     * when it's placed on the current frame of reference, it means it doesn't introduce a new frame
+     * of reference.
+     *
      * This also means that coordinates consumers (onPlaced readers) are expected to be updated.
      */
-    var isDirectManipulationPlacement: Boolean
+    var isPlacedUsingCurrentFrameOfReference: Boolean
 }
