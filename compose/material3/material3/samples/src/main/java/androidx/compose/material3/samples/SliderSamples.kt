@@ -137,7 +137,9 @@ fun StepsSliderSample() {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
             },
-            steps = 4
+            // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
+            // there are 9 steps (10, 20, ..., 90).
+            steps = 9
         )
     }
 }
@@ -344,7 +346,9 @@ fun StepRangeSliderSample() {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
             },
-            steps = 4
+            // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
+            // there are 9 steps (10, 20, ..., 90).
+            steps = 9
         )
     }
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
