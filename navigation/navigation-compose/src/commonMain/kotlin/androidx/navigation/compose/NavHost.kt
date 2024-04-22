@@ -41,6 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
@@ -52,6 +54,25 @@ import androidx.navigation.Navigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
 import kotlin.jvm.JvmSuppressWildcards
+
+private class ComposeViewModelStoreOwner: ViewModelStoreOwner {
+    override val viewModelStore: ViewModelStore = ViewModelStore()
+    fun dispose() { viewModelStore.clear() }
+}
+
+/**
+ * Return remembered [ViewModelStoreOwner] with the scope of current composable.
+ *
+ * TODO: Consider to move it to `lifecycle-viewmodel-compose` and upstream this to AOSP.
+ */
+@Composable
+private fun rememberViewModelStoreOwner(): ViewModelStoreOwner {
+    val viewModelStoreOwner = remember { ComposeViewModelStoreOwner() }
+    DisposableEffect(viewModelStoreOwner) {
+        onDispose { viewModelStoreOwner.dispose() }
+    }
+    return viewModelStoreOwner
+}
 
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
@@ -308,9 +329,7 @@ public fun NavHost(
 ) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "NavHost requires a ViewModelStoreOwner to be provided via LocalViewModelStoreOwner"
-    }
+    val viewModelStoreOwner = LocalViewModelStoreOwner.current ?: rememberViewModelStoreOwner()
 
     navController.setViewModelStore(viewModelStoreOwner.viewModelStore)
 
