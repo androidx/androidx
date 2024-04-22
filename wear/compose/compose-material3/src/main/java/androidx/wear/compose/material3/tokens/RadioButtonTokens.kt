@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-// VERSION: v0_41
+// VERSION: v0_46
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
 internal object RadioButtonTokens {
     val DisabledOpacity = 0.38f
-    val DisabledSelectedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val DisabledSelectedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledSelectedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledSelectedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledSelectedSecondaryLabelOpacity = 0.8f
-    val DisabledUnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
+    val DisabledSelectedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledSelectedContainerOpacity = 0.12f
+    val DisabledSelectedContentColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledSelectedIconColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledSelectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUnselectedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUnselectedContainerOpacity = 0.12f
     val DisabledUnselectedContentColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledUnselectedIconColor = ColorSchemeKeyTokens.Primary
-    val DisabledUnselectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val DisabledUnselectedIconColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUnselectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurface
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
     val SelectedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val SelectedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val SelectedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val SelectedIconColor = ColorSchemeKeyTokens.Primary
     val SelectedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val SelectedSecondaryLabelOpacity = 0.8f
     val Shape = ShapeKeyTokens.CornerLarge

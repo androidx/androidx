@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-// VERSION: v0_40
+// VERSION: v0_46
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
-
 internal object ToggleButtonTokens {
     val CheckedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val CheckedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val CheckedIconColor = ColorSchemeKeyTokens.Primary
     val CheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val CheckedSecondaryLabelOpacity = 0.8f
     val ContainerShape = ShapeKeyTokens.CornerLarge
-    val DisabledCheckedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledCheckedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledCheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val DisabledCheckedSecondaryLabelOpacity = 0.8f
+    val DisabledCheckedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedContainerOpacity = 0.12f
+    val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedIconColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurface
     val DisabledOpacity = 0.38f
-    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
+    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedContainerOpacity = 0.12f
     val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledUncheckedIconColor = ColorSchemeKeyTokens.Primary
-    val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val DisabledUncheckedIconColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurface
     val LabelFont = TypographyKeyTokens.LabelMedium
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
     val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer

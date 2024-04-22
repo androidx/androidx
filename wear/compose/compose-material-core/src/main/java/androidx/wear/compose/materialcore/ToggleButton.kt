@@ -189,6 +189,8 @@ fun ToggleButton(
     toggleControlWidth: Dp,
     toggleControlHeight: Dp,
     labelSpacerSize: Dp,
+    toggleControlSpacing: Dp,
+    iconSpacing: Dp,
     ripple: Indication
 ) {
     // One and only one of toggleControl and selectionControl should be provided.
@@ -224,7 +226,10 @@ fun ToggleButton(
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ToggleButtonIcon(content = icon)
+        ToggleButtonIcon(
+            spacerSize = iconSpacing,
+            content = icon
+        )
         Labels(
             label = label,
             secondaryLabel = secondaryLabel,
@@ -232,7 +237,7 @@ fun ToggleButton(
         )
         Spacer(
             modifier = Modifier.size(
-                TOGGLE_CONTROL_SPACING
+                toggleControlSpacing
             )
         )
         ToggleControl(
@@ -399,6 +404,7 @@ fun SplitToggleButton(
 
 @Composable
 private fun ToggleButtonIcon(
+    spacerSize: Dp,
     content: @Composable (BoxScope.() -> Unit)? = null
 ) {
     if (content != null) {
@@ -406,7 +412,7 @@ private fun ToggleButtonIcon(
             modifier = Modifier.wrapContentSize(align = Alignment.Center),
             content = content
         )
-        Spacer(modifier = Modifier.size(ICON_SPACING))
+        Spacer(modifier = Modifier.size(spacerSize))
     }
 }
 
@@ -458,5 +464,4 @@ private fun PaddingValues.splitHorizontally() =
     )
 
 private val TOGGLE_CONTROL_SPACING = 4.dp
-private val ICON_SPACING = 6.dp
 private val SPLIT_WIDTH = 52.dp

@@ -399,22 +399,36 @@ object CheckboxDefaults {
      * @param uncheckedBoxColor The box color of this [Checkbox] when enabled and unchecked.
      * @param uncheckedCheckmarkColor The check mark color of this [Checkbox] when enabled
      * and unchecked.
+     * @param disabledCheckedBoxColor The box color of this [Checkbox] when disabled and checked
+     * @param disabledCheckedCheckmarkColor The check mark color of this [Checkbox] when disabled
+     * and checked
+     * @param disabledUncheckedBoxColor The box color of this [Checkbox] when disabled and
+     * unchecked
+     * @param disabledUncheckedCheckmarkColor The check mark color of this [Checkbox] when disabled
+     * and unchecked
      */
     @Composable
     fun colors(
         checkedBoxColor: Color = MaterialTheme.colorScheme.primary,
         checkedCheckmarkColor: Color = MaterialTheme.colorScheme.onPrimary,
-        uncheckedBoxColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        uncheckedCheckmarkColor: Color = MaterialTheme.colorScheme.background,
+        uncheckedBoxColor: Color = MaterialTheme.colorScheme.outline,
+        uncheckedCheckmarkColor: Color = Color.Transparent,
+        disabledCheckedBoxColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
+        disabledCheckedCheckmarkColor: Color =
+            MaterialTheme.colorScheme.background.toDisabledColor(),
+        disabledUncheckedBoxColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
+        disabledUncheckedCheckmarkColor: Color = Color.Transparent
     ): CheckboxColors = CheckboxColors(
         checkedBoxColor = checkedBoxColor,
         checkedCheckmarkColor = checkedCheckmarkColor,
         uncheckedBoxColor = uncheckedBoxColor,
         uncheckedCheckmarkColor = uncheckedCheckmarkColor,
-        disabledCheckedBoxColor = checkedBoxColor.toDisabledColor(),
-        disabledCheckedCheckmarkColor = checkedCheckmarkColor.toDisabledColor(),
-        disabledUncheckedBoxColor = uncheckedBoxColor.toDisabledColor(),
-        disabledUncheckedCheckmarkColor = uncheckedCheckmarkColor.toDisabledColor()
+        disabledCheckedBoxColor = disabledCheckedBoxColor,
+        disabledCheckedCheckmarkColor = disabledCheckedCheckmarkColor,
+        disabledUncheckedBoxColor = disabledUncheckedBoxColor,
+        disabledUncheckedCheckmarkColor = disabledUncheckedCheckmarkColor
     )
 }
 
@@ -467,11 +481,12 @@ object SwitchDefaults {
             MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
         disabledCheckedTrackBorderColor: Color =
             MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
-        disabledUncheckedThumbColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(),
+        disabledUncheckedThumbColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
         disabledUncheckedThumbIconColor: Color = Color.Transparent,
         disabledUncheckedTrackColor: Color = Color.Transparent,
         disabledUncheckedTrackBorderColor: Color =
-            MaterialTheme.colorScheme.onSurface.toDisabledColor()
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f)
     ): SwitchColors = SwitchColors(
         checkedThumbColor = checkedThumbColor,
         checkedThumbIconColor = checkedThumbIconColor,
