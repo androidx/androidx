@@ -17,7 +17,9 @@
 package androidx.baselineprofile.gradle.consumer.task
 
 import androidx.baselineprofile.gradle.consumer.RuleType
+import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
+import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
 import com.android.build.gradle.internal.tasks.BuildAnalyzer
 import com.android.buildanalyzer.common.TaskCategory
@@ -79,7 +81,8 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             sourceProfilesFileCollection: FileCollection,
             outputDir: Provider<Directory>,
             filterRules: List<Pair<RuleType, String>> = listOf(),
-            isLastTask: Boolean
+            isLastTask: Boolean,
+            warnings: Warnings
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
                 .tasks
@@ -113,6 +116,13 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     // Determines whether this is the last task to be executed. This flag is used
                     // exclusively for logging purposes.
                     task.lastTask.set(isLastTask)
+
+                    // Determines whether this task should print warnings. Note that warnings used
+                    // by Android Studio cannot be suppressed.
+                    task.printWarningNoBaselineProfileRulesGenerated
+                        .set(warnings.noBaselineProfileRulesGenerated)
+                    task.printWarningNoStartupProfileRulesGenerated
+                        .set(warnings.noStartupProfileRulesGenerated)
                 }
         }
 
@@ -123,7 +133,8 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             library: Boolean,
             sourceDir: Provider<Directory>,
             outputDir: Provider<Directory>,
-            isLastTask: Boolean
+            isLastTask: Boolean,
+            warnings: Warnings
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
                 .tasks
@@ -132,14 +143,17 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     mergeAwareTaskName,
                     "baselineProfileIntoSrc"
                 ) { task ->
+                    // For explanation about each of these properties, see above function named
+                    // `maybeRegisterForMerge`.
                     task.baselineProfileFileCollection.from.add(sourceDir)
                     task.baselineProfileDir.set(outputDir)
                     task.library.set(library)
                     task.variantName.set(variantName)
-
-                    // Determines whether this is the last task to be executed. This flag is used
-                    // exclusively for logging purposes.
                     task.lastTask.set(isLastTask)
+                    task.printWarningNoBaselineProfileRulesGenerated
+                        .set(warnings.noBaselineProfileRulesGenerated)
+                    task.printWarningNoStartupProfileRulesGenerated
+                        .set(warnings.noStartupProfileRulesGenerated)
                 }
         }
     }
@@ -166,6 +180,14 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
 
     @get:OutputDirectory
     abstract val baselineProfileDir: DirectoryProperty
+
+    @get:Input
+    abstract val printWarningNoBaselineProfileRulesGenerated: Property<Boolean>
+
+    @get:Input
+    abstract val printWarningNoStartupProfileRulesGenerated: Property<Boolean>
+
+    private val logger by lazy { BaselineProfilePluginLogger(this.getLogger()) }
 
     @TaskAction
     fun exec() {
@@ -203,7 +225,9 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
 
         if (variantName.isPresent && profileRules.isEmpty()) {
             logger.warn(
-                """
+                property = { printWarningNoBaselineProfileRulesGenerated.get() },
+                propertyName = "noBaselineProfileRulesGenerated",
+                message = """
                 No baseline profile rules were generated for the variant `${variantName.get()}`.
                 This is most likely because there are no instrumentation test for it. If this
                 is not intentional check that tests for this variant exist in the `baselineProfile`
@@ -263,8 +287,12 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 if (filteredProfileRules.isNotEmpty()) {
                     writeText(filteredProfileRules.joinToString(System.lineSeparator()))
                     if (lastTask.get()) {
+                        // This log should not be suppressed because it's used by Android Studio to
+                        // open the generated HRF file.
                         logger.warn(
-                            """
+                            property = { true },
+                            propertyName = null,
+                            message = """
                             A baseline profile was generated for the variant `${variantName.get()}`:
                             ${Path(absolutePath).toUri()}
                         """.trimIndent()
@@ -284,7 +312,9 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
 
         if (variantName.isPresent && startupRules.isEmpty()) {
             logger.warn(
-                """
+                property = { printWarningNoStartupProfileRulesGenerated.get() },
+                propertyName = "noBaselineProfileRulesGenerated",
+                message = """
                 No startup profile rules were generated for the variant `${variantName.get()}`.
                 This is most likely because there are no instrumentation test with baseline profile
                 rule, which specify `includeInStartupProfile = true`. If this is not intentional
@@ -313,8 +343,12 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 if (sortedProfileRules.isNotEmpty()) {
                     writeText(sortedProfileRules.joinToString(System.lineSeparator()))
                     if (lastTask.get()) {
+                        // This log should not be suppressed because it's used by Android Studio to
+                        // open the generated HRF file.
                         logger.warn(
-                            """
+                            property = { true },
+                            propertyName = null,
+                            message = """
                             A startup profile was generated for the variant `${variantName.get()}`:
                             ${Path(absolutePath).toUri()}
                         """.trimIndent()
