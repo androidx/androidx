@@ -36,7 +36,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
-import androidx.navigation.compose.samples.Destination
+import androidx.navigation.compose.samples.Dialog
 import androidx.navigation.compose.samples.DialogContent
 import androidx.navigation.compose.samples.Profile
 import androidx.navigation.compose.samples.Scrollable
@@ -46,9 +46,9 @@ fun BottomBarNavDemo() {
     val navController = rememberNavController()
 
     val items = listOf(
-        stringResource(R.string.profile) to Destination.Profile,
-        stringResource(R.string.dashboard) to Destination.Dashboard(),
-        stringResource(R.string.scrollable) to Destination.Scrollable
+        stringResource(R.string.profile) to Profile,
+        stringResource(R.string.dashboard) to Dashboard(),
+        stringResource(R.string.scrollable) to Scrollable
     )
 
     Scaffold(
@@ -61,7 +61,7 @@ fun BottomBarNavDemo() {
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         label = { Text(name) },
                         selected = currentDestination?.hierarchy?.any {
-                            it.hasRoute(destination.route)
+                            it.hasRoute(destination::class)
                         } == true,
                         onClick = {
                             navController.navigate(destination) {
@@ -77,11 +77,11 @@ fun BottomBarNavDemo() {
             }
         }
     ) { innerPadding ->
-        NavHost(navController, Destination.Profile.route, Modifier.padding(innerPadding)) {
-            composable<Destination.Profile> { Profile(navController) }
-            composable<Destination.Dashboard> { Dashboard(navController) }
-            composable<Destination.Scrollable> { Scrollable(navController) }
-            dialog<Destination.Dialog> { DialogContent(navController) }
+        NavHost(navController, Profile::class, Modifier.padding(innerPadding)) {
+            composable<Profile> { Profile(navController) }
+            composable<Dashboard> { Dashboard(navController) }
+            composable<Scrollable> { Scrollable(navController) }
+            dialog<Dialog> { DialogContent(navController) }
         }
     }
 }

@@ -39,7 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
-import androidx.navigation.compose.samples.Destination
+import androidx.navigation.compose.samples.Profile
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 
@@ -47,18 +47,18 @@ import androidx.navigation.toRoute
 fun NavByDeepLinkDemo() {
     val navController = rememberNavController()
     val basePath = "https://example.com"
-    NavHost(navController, startDestination = Destination.Profile.route) {
-        composable<Destination.Profile> {
+    NavHost(navController, startDestination = Profile) {
+        composable<Profile> {
             ProfileWithDeepLink(
                 navController,
                 "$basePath?userId="
             )
         }
-        composable<Destination.Dashboard>(
+        composable<Dashboard>(
             // use the same args from Destination.Dashboard with custom uri base path
-            deepLinks = listOf(navDeepLink<Destination.Dashboard>(basePath))
+            deepLinks = listOf(navDeepLink<Dashboard>(basePath))
         ) { backStackEntry ->
-            val dashboard = backStackEntry.toRoute<Destination.Dashboard>()
+            val dashboard = backStackEntry.toRoute<Dashboard>()
             Dashboard(navController, dashboard.userId)
         }
     }
@@ -67,7 +67,7 @@ fun NavByDeepLinkDemo() {
 @Composable
 fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = stringResource(Destination.Profile.resourceId))
+        Text(text = stringResource(Profile.resourceId))
         Divider(color = Color.Black)
         val state = rememberSaveable { mutableStateOf("") }
         Box {

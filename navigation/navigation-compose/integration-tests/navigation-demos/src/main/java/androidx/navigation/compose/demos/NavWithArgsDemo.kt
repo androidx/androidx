@@ -21,17 +21,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
-import androidx.navigation.compose.samples.Destination
+import androidx.navigation.compose.samples.Profile
 import androidx.navigation.compose.samples.ProfileWithArgs
 import androidx.navigation.toRoute
 
 @Composable
 fun NavWithArgsDemo() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Destination.Profile.route) {
-        composable<Destination.Profile> { ProfileWithArgs(navController) }
-        composable<Destination.Dashboard> { backStackEntry ->
-            val dashboard = backStackEntry.toRoute<Destination.Dashboard>()
+    NavHost(navController, startDestination = Profile::class) {
+        composable<Profile> { ProfileWithArgs(navController) }
+        composable<Dashboard> { backStackEntry ->
+            val dashboard = backStackEntry.toRoute<Dashboard>()
             Dashboard(navController, dashboard.userId)
         }
     }
