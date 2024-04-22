@@ -152,7 +152,7 @@ public fun SwipeDismissableNavHost(
     userSwipeEnabled: Boolean = true,
     state: SwipeDismissableNavHostState = rememberSwipeDismissableNavHostState(),
 ) {
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "SwipeDismissableNavHost requires a ViewModelStoreOwner to be provided " +
             "via LocalViewModelStoreOwner"
@@ -272,11 +272,11 @@ public fun SwipeDismissableNavHost(
                 } else {
                     Modifier.graphicsLayer {
                         val scaleProgression = NAV_HOST_ENTER_TRANSITION_EASING_STANDARD
-                            .transform((animationProgress.value / 0.75f).coerceAtMost(1f))
+                            .transform((animationProgress.value / 0.75f))
                         val opacityProgression = NAV_HOST_ENTER_TRANSITION_EASING_STANDARD
-                            .transform((animationProgress.value / 0.25f).coerceAtMost(1f))
-                        val scale = lerp(0.75f, 1f, scaleProgression)
-                        val opacity = lerp(0.1f, 1f, opacityProgression)
+                            .transform((animationProgress.value / 0.25f))
+                        val scale = lerp(0.75f, 1f, scaleProgression).coerceAtMost(1f)
+                        val opacity = lerp(0.1f, 1f, opacityProgression).coerceIn(0f, 1f)
                         scaleX = scale
                         scaleY = scale
                         alpha = opacity
@@ -491,10 +491,10 @@ private fun BoxedStackEntryContent(
                 if (layerColor != Color.Unspecified) {
                     Canvas(Modifier.fillMaxSize()) {
                         val absoluteProgression =
-                            ((animatable.value - 0.25f).coerceAtLeast(0f) / 0.75f).coerceAtMost(1f)
+                            ((animatable.value - 0.25f) / 0.75f).coerceIn(0f, 1f)
                         val easedProgression = NAV_HOST_ENTER_TRANSITION_EASING_STANDARD
                             .transform(absoluteProgression)
-                        val alpha = lerp(0.07f, 0f, easedProgression)
+                        val alpha = lerp(0.07f, 0f, easedProgression).coerceIn(0f, 1f)
                         if (isRoundDevice) {
                             drawCircle(color = layerColor.copy(alpha))
                         } else {
