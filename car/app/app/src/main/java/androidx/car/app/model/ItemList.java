@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
@@ -24,6 +26,7 @@ import android.os.Looper;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
@@ -252,6 +255,15 @@ public final class ItemList {
             return this;
         }
 
+        /** @see #setOnItemsVisibilityChangedListener(OnItemVisibilityChangedListener) */
+        @NonNull
+        @RestrictTo(LIBRARY)
+        public Builder setOnItemsVisibilityChangedDelegate(
+                @Nullable OnItemVisibilityChangedDelegate onItemVisibilityChangedDelegate) {
+            mOnItemVisibilityChangedDelegate = onItemVisibilityChangedDelegate;
+            return this;
+        }
+
         /**
          * Marks the list as selectable by setting the {@link OnSelectedListener} to call when an
          * item is selected by the user, or set to {@code null} to mark the list as non-selectable.
@@ -275,6 +287,15 @@ public final class ItemList {
             mOnSelectedDelegate = OnSelectedDelegateImpl.create(onSelectedListener);
             return this;
         }
+
+        /** @see #setOnSelectedListener(OnSelectedListener)  */
+        @NonNull
+        @RestrictTo(LIBRARY)
+        public Builder setOnSelectedDelegate(@Nullable OnSelectedDelegate onSelectedDelegate) {
+            mOnSelectedDelegate = onSelectedDelegate;
+            return this;
+        }
+
 
         /**
          * Sets the index of the item to show as selected.
