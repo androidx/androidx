@@ -163,7 +163,7 @@ class CombinedClickableTest {
     @Test
     fun longClickSemantics() {
         var counter = 0
-        val onClick: () -> Unit = { ++counter }
+        val onLongClick: () -> Unit = { ++counter }
 
         rule.setContent {
             Box {
@@ -171,7 +171,7 @@ class CombinedClickableTest {
                     "ClickableText",
                     modifier = Modifier
                         .testTag("myClickable")
-                        .combinedClickable(onLongClick = onClick) {}
+                        .combinedClickable(onLongClick = onLongClick) {}
                 )
             }
         }
@@ -190,6 +190,59 @@ class CombinedClickableTest {
         rule.runOnIdle {
             assertThat(counter).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun changingLongClickSemantics() {
+        var counter = 0
+        var onLongClick: (() -> Unit)? by mutableStateOf(null)
+
+        rule.setContent {
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .combinedClickable(onLongClick = onLongClick) {}
+                )
+            }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.OnLongClick))
+
+        rule.runOnIdle {
+            // Add a no-op long click
+            onLongClick = { /* no-op */ }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .performSemanticsAction(SemanticsActions.OnLongClick)
+
+        rule.runOnIdle {
+            // no-op long click handler
+            assertThat(counter).isEqualTo(0)
+            // Change to mutate counter
+            onLongClick = { ++counter }
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performSemanticsAction(SemanticsActions.OnLongClick)
+
+        rule.runOnIdle {
+            // Changes should now be applied
+            assertThat(counter).isEqualTo(1)
+            // Make onLongClick null
+            onLongClick = null
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .assertIsEnabled()
+            // Long click action should be removed
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.OnLongClick))
     }
 
     @Test
