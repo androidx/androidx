@@ -362,6 +362,15 @@
     </issue>
 
     <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`mBroadcastReceiver` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for androidx.car.app.connection.action.CAR_CONNECTION_UPDATED"
+        errorLine1="            mContext.registerReceiver(mBroadcastReceiver, filter);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/connection/CarConnectionTypeLiveData.java"/>
+    </issue>
+
+    <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
         errorLine1="    private final List&lt;CarZone> mCarZones;"
