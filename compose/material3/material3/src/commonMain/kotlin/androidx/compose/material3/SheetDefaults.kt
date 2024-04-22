@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
@@ -34,7 +35,6 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.animateTo
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.snapTo
-import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
@@ -332,11 +332,11 @@ object BottomSheetDefaults {
     val SheetMaxWidth = 640.dp
 
     /**
-     * Default insets to be used and consumed by the [ModalBottomSheet] window.
+     * Default insets to be used and consumed by the [ModalBottomSheet]'s content.
      */
     val windowInsets: WindowInsets
         @Composable
-        get() = WindowInsets.systemBarsForVisualComponents.only(WindowInsetsSides.Vertical)
+        get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
 
     /**
      * The optional visual marker placed on top of a bottom sheet to indicate it may be dragged.

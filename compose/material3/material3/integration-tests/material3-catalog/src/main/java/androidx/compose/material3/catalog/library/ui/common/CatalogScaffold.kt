@@ -17,7 +17,6 @@
 package androidx.compose.material3.catalog.library.ui.common
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -93,7 +92,6 @@ fun CatalogScaffold(
         ModalBottomSheet(
             onDismissRequest = { openThemePicker = false },
             sheetState = sheetState,
-            windowInsets = WindowInsets(0),
             content = {
                 ThemePicker(
                     theme = theme,
