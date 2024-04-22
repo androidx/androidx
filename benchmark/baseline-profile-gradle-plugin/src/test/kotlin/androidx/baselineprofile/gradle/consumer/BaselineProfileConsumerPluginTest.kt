@@ -1472,42 +1472,50 @@ class BaselineProfileConsumerPluginTestWithAgp80 {
     }
 
     @Test
-    fun testGenerateTaskWithFlavorsAndMergeAll() {
+    fun testSuppressWarningMainGenerateTask() {
+        val requiredLines = listOf(
+            "The task `generateBaselineProfile` does not support generating baseline profiles for",
+            "multiple build types with AGP 8.0.",
+            "This warning can be disabled setting the following property:",
+            "baselineProfile {",
+            "    warnings {",
+            "        multipleBuildTypesWithAgp80 = false",
+            "    }",
+            "}"
+        )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+        )
+
+        // Setup with default warnings
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN
+        )
+        projectSetup
+            .consumer
+            .gradleRunner
+            .build("generateBaselineProfile") {
+                println(it)
+                val notFound = it.lines().requireInOrder(*requiredLines.toTypedArray())
+                assertThat(notFound).isEmpty()
+            }
+
+        // Setup turning off warning
         projectSetup.consumer.setup(
             androidPlugin = ANDROID_APPLICATION_PLUGIN,
-            flavors = true,
-            dependencyOnProducerProject = true,
             baselineProfileBlock = """
-                mergeIntoMain = true
+                warnings {
+                    multipleBuildTypesWithAgp80 = false
+                }
             """.trimIndent()
         )
-        projectSetup.producer.setupWithFreeAndPaidFlavors(
-            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
-            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2)
-        )
-
-        // Asserts that all per-variant, per-flavor and per-build type tasks are being generated.
-        projectSetup.consumer.gradleRunner.buildAndAssertThatOutput("tasks") {
-            contains("generateBaselineProfile - ")
-            contains("generateReleaseBaselineProfile - ")
-            doesNotContain("generateFreeReleaseBaselineProfile - ")
-            doesNotContain("generatePaidReleaseBaselineProfile - ")
-        }
-
-        projectSetup.consumer.gradleRunner
-            .withArguments("generateBaselineProfile", "--stacktrace")
-            .build()
-
-        val lines = File(
-            projectSetup.consumer.rootDir,
-            "src/main/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
-        ).readLines()
-        assertThat(lines).containsExactly(
-            Fixtures.CLASS_1,
-            Fixtures.CLASS_1_METHOD_1,
-            Fixtures.CLASS_2,
-            Fixtures.CLASS_2_METHOD_1,
-        )
+        projectSetup
+            .consumer
+            .gradleRunner
+            .build("generateBaselineProfile") {
+                val notFound = it.lines().requireInOrder(*requiredLines.toTypedArray())
+                assertThat(notFound).isEqualTo(requiredLines)
+            }
     }
 }
 
