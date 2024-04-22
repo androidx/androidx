@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.foundation.text.input.internal.matchers.assertThat
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
@@ -479,5 +480,57 @@ class EditingBufferTest {
         assertThat(eb).hasChars("AB")
         assertThat(eb.cursor).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
+    }
+
+    @Test
+    fun setHighlight_clearHighlight() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+
+        eb.setHighlight(TextHighlightType.HandwritingSelectPreview, 1, 3)
+        assertThat(eb.highlight)
+            .isEqualTo(Pair(TextHighlightType.HandwritingSelectPreview, TextRange(1, 3)))
+
+        eb.setHighlight(TextHighlightType.HandwritingDeletePreview, 2, 4)
+        assertThat(eb.highlight)
+            .isEqualTo(Pair(TextHighlightType.HandwritingDeletePreview, TextRange(2, 4)))
+
+        eb.clearHighlight()
+        assertThat(eb.highlight).isNull()
+    }
+
+    @Test
+    fun setHighlight_setSelection_clearsHighlight() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+
+        eb.setHighlight(TextHighlightType.HandwritingSelectPreview, 1, 3)
+        assertThat(eb.highlight)
+            .isEqualTo(Pair(TextHighlightType.HandwritingSelectPreview, TextRange(1, 3)))
+
+        eb.setSelection(0, 1)
+        assertThat(eb.highlight).isNull()
+    }
+
+    @Test
+    fun setHighlight_replace_clearsHighlight() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+
+        eb.setHighlight(TextHighlightType.HandwritingSelectPreview, 1, 3)
+        assertThat(eb.highlight)
+            .isEqualTo(Pair(TextHighlightType.HandwritingSelectPreview, TextRange(1, 3)))
+
+        eb.replace(3, 5, "F")
+        assertThat(eb.highlight).isNull()
+    }
+
+    @Test
+    fun setHighlight_delete_clearsHighlight() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+
+        eb.setHighlight(TextHighlightType.HandwritingSelectPreview, 1, 3)
+        assertThat(eb.highlight)
+            .isEqualTo(Pair(TextHighlightType.HandwritingSelectPreview, TextRange(1, 3)))
+
+        eb.delete(0, 1)
+        assertThat(eb.highlight).isNull()
     }
 }
