@@ -215,7 +215,8 @@ internal fun createTypedEvent(c: Char = 'c'): KeyboardEvent =
         .keyDownEvent()
 
 internal fun createEventShouldNotBePrevented(): KeyboardEvent =
-    KeyboardEventInit(ctrlKey = true, cancelable = true)
+    KeyboardEventInit(ctrlKey = true, cancelable = true, key = "Control")
+        .withKeyCode()
         .keyDownEvent()
 
 

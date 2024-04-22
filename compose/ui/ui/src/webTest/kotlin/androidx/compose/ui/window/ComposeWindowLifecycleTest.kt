@@ -17,17 +17,25 @@
 package androidx.compose.ui.window
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.browser.document
+import kotlinx.browser.window
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.w3c.dom.HTMLCanvasElement
-import org.w3c.dom.events.FocusEvent
 
 
 class ComposeWindowLifecycleTest {
     private val canvasId = "canvas1"
-
 
     @AfterTest
     fun cleanup() {
@@ -35,11 +43,14 @@ class ComposeWindowLifecycleTest {
     }
 
     @Test
-    fun allEvents() {
-        if (isHeadlessBrowser()) return
+    fun allEvents() = runTest {
+        if (isHeadlessBrowser()) return@runTest
         val canvas = document.createElement("canvas") as HTMLCanvasElement
         canvas.setAttribute("id", canvasId)
+        canvas.setAttribute("tabindex", "0")
+
         document.body!!.appendChild(canvas)
+        canvas.focus()
 
         val lifecycleOwner = ComposeWindow(
             canvas = canvas,
@@ -47,12 +58,27 @@ class ComposeWindowLifecycleTest {
             state = DefaultWindowState(document.documentElement!!)
         )
 
-        assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
+        val eventsChannel = Channel<Lifecycle.Event>(10)
 
-        document.dispatchEvent(FocusEvent("blur"))
-        assertEquals(Lifecycle.State.STARTED, lifecycleOwner.lifecycle.currentState)
+        lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                eventsChannel.trySend(event)
+            }
+        })
 
-        document.dispatchEvent(FocusEvent("focus"))
-        assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
+        assertEquals(Lifecycle.State.CREATED, eventsChannel.receive().targetState)
+        assertEquals(Lifecycle.State.STARTED, eventsChannel.receive().targetState)
+        assertEquals(Lifecycle.State.RESUMED, eventsChannel.receive().targetState)
+
+        // Browsers don't allow to blur the window from code:
+        // https://developer.mozilla.org/en-US/docs/Web/API/Window/blur
+        // So we simulate a new tab being open:
+        val anotherWindow = window.open("about:config")
+        assertTrue(anotherWindow != null)
+        assertEquals(Lifecycle.State.STARTED, eventsChannel.receive().targetState)
+
+        // Now go back to the original window
+        anotherWindow.close()
+        assertEquals(Lifecycle.State.RESUMED, eventsChannel.receive().targetState)
     }
 }
