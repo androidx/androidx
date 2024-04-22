@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -57,6 +58,7 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlin.reflect.KClass
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -69,15 +71,40 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Dialog : Screen("dialog", R.string.dialog)
 }
 
+interface Destination {
+    val route: KClass<out Destination>
+
+    @Serializable object Profile : Destination {
+        override val route = this::class
+        val resourceId: Int = R.string.profile
+    }
+    @Serializable object Scrollable : Destination {
+        override val route = this::class
+        val resourceId: Int = R.string.scrollable
+    }
+    @Serializable object Dialog : Destination {
+        override val route = this::class
+        val resourceId: Int = R.string.dialog
+    }
+    @Serializable data class Dashboard(val userId: String? = "no value given") : Destination {
+        override val route: KClass<out Destination>
+            get() = this::class
+        companion object {
+            val resourceId: Int = R.string.dashboard
+        }
+    }
+    @Serializable
+    object Nested : Destination { override val route = this::class }
+}
+
 @Composable
 fun BasicNav() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Screen.Profile.route) {
-        composable(Screen.Profile.route) { Profile(navController) }
-        composable(
-            Screen.Dashboard.route,
+    NavHost(navController, startDestination = Destination.Profile.route) {
+        composable<Destination.Profile> { Profile(navController) }
+        composable<Destination.Dashboard>(
             enterTransition = {
-                if (initialState.destination.route == Screen.Scrollable.route) {
+                if (initialState.destination.hasRoute<Destination.Scrollable>()) {
                     // Slide in when entering from Scrollable
                     slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                 } else {
@@ -85,7 +112,7 @@ fun BasicNav() {
                 }
             },
             popExitTransition = {
-                if (targetState.destination.route == Screen.Scrollable.route) {
+                if (targetState.destination.hasRoute<Destination.Scrollable>()) {
                     // Slide out when popping back to Scrollable
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
                 } else {
@@ -95,10 +122,9 @@ fun BasicNav() {
         ) {
             Dashboard(navController)
         }
-        composable(
-            Screen.Scrollable.route,
+        composable<Destination.Scrollable>(
             exitTransition = {
-                if (targetState.destination.route == Screen.Dashboard.route) {
+                if (targetState.destination.hasRoute<Destination.Dashboard>()) {
                     // Slide out when navigating to Dashboard
                     slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
                 } else {
@@ -106,7 +132,7 @@ fun BasicNav() {
                 }
             },
             popEnterTransition = {
-                if (initialState.destination.route == Screen.Dashboard.route) {
+                if (initialState.destination.hasRoute<Destination.Dashboard>()) {
                     // Slide back in when returning from Dashboard
                     slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End)
                 } else {
@@ -116,33 +142,33 @@ fun BasicNav() {
         ) {
             Scrollable(navController)
         }
-        dialog(Screen.Dialog.route) { DialogContent(navController) }
+        dialog<Destination.Dialog> { DialogContent(navController) }
     }
 }
 
 @Composable
 fun NestedNavStartDestination() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "nested") {
-        navigation(startDestination = Screen.Profile.route, route = "nested") {
-            composable(Screen.Profile.route) { Profile(navController) }
+    NavHost(navController, startDestination = Destination.Nested.route) {
+        navigation<Destination.Nested>(startDestination = Destination.Profile.route) {
+            composable<Destination.Profile> { Profile(navController) }
         }
-        composable(Screen.Dashboard.route) { Dashboard(navController) }
-        composable(Screen.Scrollable.route) { Scrollable(navController) }
-        dialog(Screen.Dialog.route) { DialogContent(navController) }
+        composable<Destination.Dashboard> { Dashboard(navController) }
+        composable<Destination.Scrollable> { Scrollable(navController) }
+        dialog<Destination.Dialog> { DialogContent(navController) }
     }
 }
 
 @Composable
 fun NestedNavInGraph() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Screen.Profile.route) {
-        composable(Screen.Profile.route) { Profile(navController) }
-        navigation(startDestination = "nested", route = Screen.Dashboard.route) {
-            composable("nested") { Dashboard(navController) }
+    NavHost(navController, startDestination = Destination.Profile.route) {
+        composable<Destination.Profile> { Profile(navController) }
+        navigation<Destination.Dashboard>(startDestination = Destination.Nested.route) {
+            composable<Destination.Nested> { Dashboard(navController) }
         }
-        composable(Screen.Scrollable.route) { Scrollable(navController) }
-        dialog(Screen.Dialog.route) { DialogContent(navController) }
+        composable<Destination.Scrollable> { Scrollable(navController) }
+        dialog<Destination.Dialog> { DialogContent(navController) }
     }
 }
 
@@ -151,25 +177,11 @@ fun NestedNavInGraph() {
 fun NavScaffold() {
     val navController = rememberNavController()
     Scaffold { innerPadding ->
-        NavHost(navController, Screen.Profile.route, Modifier.padding(innerPadding)) {
-            composable(Screen.Profile.route) { Profile(navController) }
-            composable(Screen.Dashboard.route) { Dashboard(navController) }
-            composable(Screen.Scrollable.route) { Scrollable(navController) }
-            dialog(Screen.Dialog.route) { DialogContent(navController) }
-        }
-    }
-}
-
-@Composable
-fun NavWithArgs() {
-    val navController = rememberNavController()
-    NavHost(navController, startDestination = Screen.Profile.route) {
-        composable(Screen.Profile.route) { Profile(navController) }
-        composable(
-            Screen.Dashboard.route,
-            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
-        ) { backStackEntry ->
-            Dashboard(navController, backStackEntry.arguments?.getString("userId"))
+        NavHost(navController, Destination.Profile.route, Modifier.padding(innerPadding)) {
+            composable<Destination.Profile> { Profile(navController) }
+            composable<Destination.Dashboard> { Dashboard(navController) }
+            composable<Destination.Scrollable> { Scrollable(navController) }
+            dialog<Destination.Dialog> { DialogContent(navController) }
         }
     }
 }
@@ -202,17 +214,17 @@ fun NestedNavInGraphWithArgs() {
 @Composable
 fun Profile(navController: NavHostController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = stringResource(Screen.Profile.resourceId))
-        NavigateButton(stringResource(Screen.Dashboard.resourceId)) {
-            navController.navigate(Screen.Dashboard.route)
+        Text(text = stringResource(Destination.Profile.resourceId))
+        NavigateButton(stringResource(Destination.Dashboard.resourceId)) {
+            navController.navigate(Destination.Dashboard())
         }
         Divider(color = Color.Black)
-        NavigateButton(stringResource(Screen.Scrollable.resourceId)) {
-            navController.navigate(Screen.Scrollable.route)
+        NavigateButton(stringResource(Destination.Scrollable.resourceId)) {
+            navController.navigate(Destination.Scrollable)
         }
         Divider(color = Color.Black)
-        NavigateButton(stringResource(Screen.Dialog.resourceId)) {
-            navController.navigate(Screen.Dialog.route)
+        NavigateButton(stringResource(Destination.Dialog.resourceId)) {
+            navController.navigate(Destination.Dialog)
         }
         Spacer(Modifier.weight(1f))
         NavigateBackButton(navController)
@@ -222,7 +234,7 @@ fun Profile(navController: NavHostController) {
 @Composable
 fun Dashboard(navController: NavController, title: String? = null) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = title ?: stringResource(Screen.Dashboard.resourceId))
+        Text(text = title ?: stringResource(Destination.Dashboard.resourceId))
         Spacer(Modifier.weight(1f))
         NavigateBackButton(navController)
     }
@@ -231,8 +243,8 @@ fun Dashboard(navController: NavController, title: String? = null) {
 @Composable
 fun Scrollable(navController: NavController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        NavigateButton(stringResource(Screen.Dashboard.resourceId)) {
-            navController.navigate(Screen.Dashboard.route)
+        NavigateButton(stringResource(Destination.Dashboard.resourceId)) {
+            navController.navigate(Destination.Dashboard())
         }
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(phrases) { phrase ->
