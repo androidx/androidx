@@ -201,7 +201,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
         uriHandler: UriHandler
     ) {
         when (link) {
-            is LinkAnnotation.Url -> link.linkInteractionListener?.onClicked(link) ?: try {
+            is LinkAnnotation.Url -> link.linkInteractionListener?.onClick(link) ?: try {
                 uriHandler.openUri(link.url)
             } catch (_: IllegalArgumentException) {
                 // we choose to silently fail when the uri can't be opened to avoid crashes
@@ -209,7 +209,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 // handlers themselves and therefore I suspect are less likely to test them
                 // manually.
             }
-            is LinkAnnotation.Clickable -> link.linkInteractionListener?.onClicked(link)
+            is LinkAnnotation.Clickable -> link.linkInteractionListener?.onClick(link)
         }
     }
 
