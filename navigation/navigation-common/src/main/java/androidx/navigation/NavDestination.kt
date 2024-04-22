@@ -31,6 +31,7 @@ import androidx.core.net.toUri
 import androidx.navigation.common.R
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 
 /**
@@ -828,7 +829,18 @@ public open class NavDestination(
          * @param T the route from KClass
          */
         @JvmStatic
-        public inline fun <reified T : Any> NavDestination.hasRoute() =
-            serializer<T>().hashCode() == id
+        public inline fun <reified T : Any> NavDestination.hasRoute() = hasRoute(T::class)
+
+        /**
+         * Checks if the NavDestination's route was generated from [T]
+         *
+         * Returns true if equal, false otherwise.
+         *
+         * @param route the route from KClass
+         */
+        @OptIn(InternalSerializationApi::class)
+        @JvmStatic
+        public fun <T : Any> NavDestination.hasRoute(route: KClass<T>) =
+            route.serializer().hashCode() == id
     }
 }
