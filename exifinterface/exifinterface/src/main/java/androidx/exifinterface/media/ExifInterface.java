@@ -3036,12 +3036,9 @@ public class ExifInterface {
             (byte) 0x47, (byte) 0x0d, (byte) 0x0a, (byte) 0x1a, (byte) 0x0a};
     // See "Extensions to the PNG 1.2 Specification, Version 1.5.0",
     // 3.7. eXIf Exchangeable Image File (Exif) Profile
-    private static final byte[] PNG_CHUNK_TYPE_EXIF = new byte[]{(byte) 0x65, (byte) 0x58,
-            (byte) 0x49, (byte) 0x66};
-    private static final byte[] PNG_CHUNK_TYPE_IHDR = new byte[]{(byte) 0x49, (byte) 0x48,
-            (byte) 0x44, (byte) 0x52};
-    private static final byte[] PNG_CHUNK_TYPE_IEND = new byte[]{(byte) 0x49, (byte) 0x45,
-            (byte) 0x4e, (byte) 0x44};
+    private static final int PNG_CHUNK_TYPE_EXIF = intFromBytes('e', 'X', 'I', 'f');
+    private static final int PNG_CHUNK_TYPE_IHDR = intFromBytes('I', 'H', 'D', 'R');
+    private static final int PNG_CHUNK_TYPE_IEND = intFromBytes('I', 'E', 'N', 'D');
     private static final int PNG_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int PNG_CHUNK_CRC_BYTE_LENGTH = 4;
 
@@ -6238,21 +6235,19 @@ public class ExifInterface {
             while (true) {
                 int length = in.readInt();
 
-                byte[] type = new byte[PNG_CHUNK_TYPE_BYTE_LENGTH];
-                in.readFully(type);
+                int type = in.readInt();
 
                 // The first chunk must be the IHDR chunk
-                if (in.position() - startPosition == 16
-                        && !Arrays.equals(type, PNG_CHUNK_TYPE_IHDR)) {
+                if (in.position() - startPosition == 16 && type != PNG_CHUNK_TYPE_IHDR) {
                     throw new IOException(
                             "Encountered invalid PNG file--IHDR chunk should appear as the first "
                                     + "chunk");
                 }
 
-                if (Arrays.equals(type, PNG_CHUNK_TYPE_IEND)) {
+                if (type == PNG_CHUNK_TYPE_IEND) {
                     // IEND marks the end of the image.
                     break;
-                } else if (Arrays.equals(type, PNG_CHUNK_TYPE_EXIF)) {
+                } else if (type == PNG_CHUNK_TYPE_EXIF) {
                     // Save offset to EXIF data for handling thumbnail and attribute offsets.
                     mOffsetToExifData = in.position() - startPosition;
 
@@ -6264,7 +6259,7 @@ public class ExifInterface {
                     int dataCrcValue = in.readInt();
                     // Cyclic Redundancy Code used to check for corruption of the data
                     CRC32 crc = new CRC32();
-                    crc.update(type);
+                    updateCrcWithInt(crc, type);
                     crc.update(data);
                     if ((int) crc.getValue() != dataCrcValue) {
                         throw new IOException("Encountered invalid CRC value for PNG-EXIF chunk."
@@ -6286,6 +6281,13 @@ public class ExifInterface {
             // does not follow the PNG specifications
             throw new IOException("Encountered corrupt PNG file.", e);
         }
+    }
+
+    private static void updateCrcWithInt(CRC32 crc, int value) {
+        crc.update(value >>> 24);
+        crc.update(value >>> 16);
+        crc.update(value >>> 8);
+        crc.update(value);
     }
 
     // WebP contains EXIF data as a RIFF File Format Chunk
@@ -7638,7 +7640,7 @@ public class ExifInterface {
             case IMAGE_TYPE_PNG:
                 // Write PNG specific data (chunk size, chunk type)
                 dataOutputStream.writeInt(totalSize);
-                dataOutputStream.write(PNG_CHUNK_TYPE_EXIF);
+                dataOutputStream.writeInt(PNG_CHUNK_TYPE_EXIF);
                 break;
             case IMAGE_TYPE_WEBP:
                 // Write WebP specific data (chunk type, chunk size)
@@ -8251,5 +8253,13 @@ public class ExifInterface {
             return true;
         }
         return false;
+    }
+
+    /*
+     * Combines the lower eight bits of each parameter into a 32-bit int. {@code b1} is the highest
+     * byte of the result, {@code b4} is the lowest.
+     */
+    private static int intFromBytes(int b1, int b2, int b3, int b4) {
+        return ((b1 & 0xFF) << 24) | ((b2 & 0xFF) << 16) | ((b3 & 0xFF) << 8) | (b4 & 0xFF);
     }
 }
