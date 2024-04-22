@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RadioButton
@@ -40,7 +40,7 @@ import androidx.wear.compose.material3.Text
 @Composable
 fun RadioButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         modifier = Modifier.fillMaxSize().selectableGroup(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

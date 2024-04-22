@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
@@ -70,7 +69,7 @@ fun StandardChips() {
     var enabled by remember { mutableStateOf(true) }
     var chipStyle by remember { mutableStateOf(ChipStyle.Primary) }
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
