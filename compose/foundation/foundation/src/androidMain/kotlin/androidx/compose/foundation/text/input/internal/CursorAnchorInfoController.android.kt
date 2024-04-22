@@ -23,10 +23,9 @@ import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_CHARACTER_B
 import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_EDITOR_BOUNDS
 import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_INSERTION_MARKER
 import android.view.inputmethod.InputConnection.CURSOR_UPDATE_FILTER_VISIBLE_LINE_BOUNDS
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.selection.visibleBounds
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.setFrom
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +35,6 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class CursorAnchorInfoController(
     private val textFieldState: TransformedTextFieldState,
     private val textLayoutState: TextLayoutState,
@@ -165,6 +163,9 @@ internal class CursorAnchorInfoController(
 
     private fun calculateCursorAnchorInfo(): CursorAnchorInfo? {
         // State reads
+        val textLayoutCoordinates = textLayoutState.textLayoutNodeCoordinates
+            ?.takeIf { it.isAttached }
+            ?: return null
         val coreCoordinates = textLayoutState.coreNodeCoordinates
             ?.takeIf { it.isAttached }
             ?: return null
@@ -175,16 +176,15 @@ internal class CursorAnchorInfoController(
             ?: return null
         val text = textFieldState.visualText
 
-        // Updates matrix to transform text field local coordinates to screen coordinates.
+        // Updates matrix to transform text layout coordinates to screen coordinates.
         matrix.reset()
-        coreCoordinates.transformToScreen(matrix)
+        textLayoutCoordinates.transformToScreen(matrix)
         androidMatrix.setFrom(matrix)
 
-        val innerTextFieldBounds: Rect = coreCoordinates.visibleBounds()
-        val decorationBoxBounds: Rect = coreCoordinates.localBoundingBoxOf(
-            decorationBoxCoordinates,
-            clipBounds = false
-        )
+        val innerTextFieldBounds = coreCoordinates.visibleBounds()
+            .translate(textLayoutCoordinates.localPositionOf(coreCoordinates, Offset.Zero))
+        val decorationBoxBounds = decorationBoxCoordinates.visibleBounds()
+            .translate(textLayoutCoordinates.localPositionOf(decorationBoxCoordinates, Offset.Zero))
         return builder.build(
             text,
             text.selection,
