@@ -60,6 +60,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastRoundToInt
 
@@ -442,9 +443,11 @@ internal class TextAnnotatedStringNode(
 
         // then allow children to measure _inside_ our final box, with the above placeholders
         val placeable = measurable.measure(
-            Constraints.fixedCoerceHeightAndWidthForBits(
-                width = textLayoutResult.size.width,
-                height = textLayoutResult.size.height
+            fitPrioritizingWidth(
+                minWidth = textLayoutResult.size.width,
+                maxWidth = textLayoutResult.size.width,
+                minHeight = textLayoutResult.size.height,
+                maxHeight = textLayoutResult.size.height
             )
         )
 

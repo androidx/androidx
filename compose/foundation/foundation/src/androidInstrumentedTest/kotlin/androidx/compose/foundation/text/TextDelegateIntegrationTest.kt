@@ -36,7 +36,6 @@ import kotlin.math.roundToInt
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalFoundationTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class TextDelegateIntegrationTest {
@@ -199,6 +198,23 @@ class TextDelegateIntegrationTest {
         val layoutResultRtl = textDelegate.layout(Constraints(), LayoutDirection.Rtl)
 
         assertThat(layoutResultLtr.size.width).isEqualTo(layoutResultRtl.size.width)
+    }
+
+    @Test
+    fun layoutText_doesntThrow_when2shl14char() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = "a".repeat(2 shl 14)),
+            style = TextStyle.Default,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver
+        )
+        val subject = textDelegate.layout(
+            Constraints() /* unbounded */,
+            layoutDirection = LayoutDirection.Ltr,
+            null
+        )
+        assertThat(subject.size.width).isGreaterThan(0)
+        assertThat(subject.size.height).isGreaterThan(0)
     }
 }
 
