@@ -350,8 +350,8 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver {
-                receivedContent = it
+            modifier = Modifier.contentReceiver { content ->
+                receivedContent = content
                 receivedContent.consume {
                     // do not consume text
                     it.uri != null
@@ -501,7 +501,6 @@ class TextFieldDragAndDropTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     private class DragAndDropTestScope(
         val state: TextFieldState,
         val fontSize: TextUnit,

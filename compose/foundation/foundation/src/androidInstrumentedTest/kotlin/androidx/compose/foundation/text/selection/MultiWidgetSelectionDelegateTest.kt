@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.selection
 
 import android.os.Build
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.ui.geometry.Offset
@@ -1860,7 +1859,6 @@ class MultiWidgetSelectionDelegateTest {
         }
     }
 
-    @OptIn(InternalFoundationTextApi::class)
     private fun simpleTextLayout(
         text: String = "",
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -1879,7 +1877,6 @@ class MultiWidgetSelectionDelegateTest {
         ).layout(constraints, LayoutDirection.Ltr)
     }
 
-    @OptIn(InternalFoundationTextApi::class)
     private fun constrainedTextLayout(
         text: String = "",
         fontSize: TextUnit = 20.sp,

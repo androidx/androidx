@@ -378,21 +378,21 @@ class TextFieldReceiveContentTest {
                     state = state,
                     modifier = Modifier
                         .testTag(tag)
-                        .contentReceiver {
-                            transferableContent1 = it
-                            it.consume {
+                        .contentReceiver { content ->
+                            transferableContent1 = content
+                            content.consume {
                                 it.text.contains("a")
                             }
                         }
-                        .contentReceiver {
-                            transferableContent2 = it
-                            it.consume {
+                        .contentReceiver { content ->
+                            transferableContent2 = content
+                            content.consume {
                                 it.text.contains("b")
                             }
                         }
-                        .contentReceiver {
-                            transferableContent3 = it
-                            it.consume {
+                        .contentReceiver { content ->
+                            transferableContent3 = content
+                            content.consume {
                                 it.text.contains("c")
                             }
                         }

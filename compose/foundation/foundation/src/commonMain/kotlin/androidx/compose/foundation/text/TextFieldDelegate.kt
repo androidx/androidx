@@ -87,7 +87,6 @@ internal fun computeSizeForDefaultText(
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
 
-@OptIn(InternalFoundationTextApi::class)
 internal class TextFieldDelegate {
     companion object {
         /**

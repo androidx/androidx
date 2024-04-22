@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -75,7 +74,6 @@ import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 class TextFieldSelectionHandlesTest : FocusedWindowTest {
 

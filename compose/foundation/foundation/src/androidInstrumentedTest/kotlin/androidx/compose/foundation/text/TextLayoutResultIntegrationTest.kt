@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -36,7 +35,6 @@ import kotlin.math.floor
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalFoundationTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class TextLayoutResultIntegrationTest {
@@ -44,7 +42,6 @@ class TextLayoutResultIntegrationTest {
     private val fontFamily = TEST_FONT_FAMILY
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
-    @OptIn(ExperimentalTextApi::class)
     private val fontFamilyResolver = createFontFamilyResolver(context)
     private val layoutDirection = LayoutDirection.Ltr
 

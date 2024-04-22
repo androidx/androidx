@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.appendCodePointX
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.runtime.Stable
@@ -50,7 +49,6 @@ internal fun interface CodepointTransformation {
 internal fun CodepointTransformation.Companion.mask(character: Char): CodepointTransformation =
     MaskCodepointTransformation(character)
 
-@OptIn(ExperimentalFoundationApi::class)
 private data class MaskCodepointTransformation(val character: Char) : CodepointTransformation {
     override fun transform(codepointIndex: Int, codepoint: Int): Int {
         return character.code
@@ -62,7 +60,6 @@ private data class MaskCodepointTransformation(val character: Char) : CodepointT
  * carriage returns(\r) to zero-width no-break space (U+FEFF). This transformation forces any
  * content to appear as single line.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal object SingleLineCodepointTransformation : CodepointTransformation {
 
     private const val LINE_FEED = '\n'.code
@@ -82,7 +79,6 @@ internal object SingleLineCodepointTransformation : CodepointTransformation {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldCharSequence.toVisualText(
     codepointTransformation: CodepointTransformation,
     offsetMappingCalculator: OffsetMappingCalculator

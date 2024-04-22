@@ -926,7 +926,7 @@ class CoreTextFieldHandwritingGestureTest {
         ) { textFieldState, resultCode, textToolbar ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
             val expectedText = "axxxbcdef"
-            assertThat(textFieldState.text.toString()).isEqualTo(expectedText)
+            assertThat(textFieldState.text).isEqualTo(expectedText)
             // Cursor is placed before 'b'
             assertThat(textFieldState.selection).isEqualTo(TextRange(expectedText.indexOf('b')))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
@@ -957,7 +957,7 @@ class CoreTextFieldHandwritingGestureTest {
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK)
 
             val expectedText = text.insert(initialCursor, fallback)
-            assertThat(textFieldState.text.toString()).isEqualTo(expectedText)
+            assertThat(textFieldState.text).isEqualTo(expectedText)
             val expectedSelection = TextRange(initialCursor + fallback.length)
             assertThat(textFieldState.selection).isEqualTo(expectedSelection)
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
@@ -982,7 +982,7 @@ class CoreTextFieldHandwritingGestureTest {
             }
         ) { textFieldState, resultCode, textToolbar ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
-            assertThat(textFieldState.text.toString()).isEqualTo(text)
+            assertThat(textFieldState.text).isEqualTo(text)
             assertThat(textFieldState.selection).isEqualTo(TextRange(text.length))
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
         }

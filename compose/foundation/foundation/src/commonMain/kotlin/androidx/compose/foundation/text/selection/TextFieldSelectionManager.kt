@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.HandleState
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.UndoManager
@@ -90,7 +89,6 @@ internal class TextFieldSelectionManager(
      * The current transformed text from the [LegacyTextFieldState].
      * The original text can be found in [value].
      */
-    @OptIn(InternalFoundationTextApi::class)
     internal val transformedText get() = state?.textDelegate?.text
 
     /**
@@ -793,7 +791,6 @@ internal class TextFieldSelectionManager(
      * line, and the bottom is the bottom of the last selected line. The left is the leftmost
      * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
      */
-    @OptIn(InternalFoundationTextApi::class)
     private fun getContentRect(): Rect {
         // if it's stale layout, return empty Rect
         state?.takeIf { !it.isLayoutResultStale }?.let {
@@ -1002,7 +999,6 @@ internal expect fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
 /**
  * @return the location of the magnifier relative to the inner text field coordinates
  */
-@OptIn(InternalFoundationTextApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
     manager: TextFieldSelectionManager,
     magnifierSize: IntSize

@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.selection
 import android.os.Build
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.TextFieldDelegate
@@ -45,7 +44,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalFoundationTextApi::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)

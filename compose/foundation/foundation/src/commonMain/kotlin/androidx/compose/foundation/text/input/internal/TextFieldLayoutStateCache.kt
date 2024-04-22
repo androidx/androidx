@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.MeasureInputs
@@ -58,7 +56,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * in an instance of a dedicated class. This means for each type of update, only one state object
  * is needed.
  */
-@OptIn(ExperimentalFoundationApi::class, InternalFoundationTextApi::class)
 internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject {
     private var nonMeasureInputs: NonMeasureInputs? by mutableStateOf(
         value = null,

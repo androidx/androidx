@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
@@ -62,7 +61,6 @@ internal expect fun textFieldMagnifierNode(
     visible: Boolean
 ): TextFieldMagnifierNode
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
     textFieldState: TransformedTextFieldState,
     selectionState: TextFieldSelectionState,

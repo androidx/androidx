@@ -46,7 +46,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 private const val DEBUG_CLASS = "AndroidLegacyPlatformTextInputServiceAdapter"
@@ -67,7 +66,7 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
     private var job: Job? = null
     private var currentRequest: LegacyTextInputMethodRequest? = null
     private var backingStylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
-    private var stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null
+    private val stylusHandwritingTrigger: MutableSharedFlow<Unit>?
         get() {
             val finalStylusHandwritingTrigger = backingStylusHandwritingTrigger
             if (finalStylusHandwritingTrigger != null) {
