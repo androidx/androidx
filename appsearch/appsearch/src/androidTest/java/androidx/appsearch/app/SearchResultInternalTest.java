@@ -18,6 +18,10 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
+import androidx.appsearch.flags.Flags;
+
 import org.junit.Test;
 
 public class SearchResultInternalTest {
@@ -56,6 +60,24 @@ public class SearchResultInternalTest {
                 "propertyPath2");
         assertThat(searchResultCopy.getMatchInfos().get(2).getPropertyPath()).isEqualTo(
                 "propertyPath3");
+    }
+
+    @Test
+    public void testSearchResultBuilderCopyConstructor_informationalRankingSignal() {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+
+        GenericDocument document =
+                new GenericDocument.Builder<>("namespace", "id", "schemaType").build();
+        SearchResult searchResult = new SearchResult.Builder("package", "database")
+                .setGenericDocument(document)
+                .setRankingSignal(1.23)
+                .addInformationalRankingSignal(2)
+                .addInformationalRankingSignal(3)
+                .build();
+        SearchResult searchResultCopy = new SearchResult.Builder(searchResult).build();
+        assertThat(searchResultCopy.getRankingSignal()).isEqualTo(searchResult.getRankingSignal());
+        assertThat(searchResultCopy.getInformationalRankingSignals()).isEqualTo(
+                searchResult.getInformationalRankingSignals());
     }
 
     @Test

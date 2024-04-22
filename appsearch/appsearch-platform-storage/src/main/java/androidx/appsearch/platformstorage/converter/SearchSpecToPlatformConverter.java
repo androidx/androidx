@@ -169,6 +169,13 @@ public final class SearchSpecToPlatformConverter {
             ApiHelperForV.setSearchSourceLogTag(
                     platformBuilder, jetpackSearchSpec.getSearchSourceLogTag());
         }
+
+        if (!jetpackSearchSpec.getInformationalRankingExpressions().isEmpty()) {
+            // TODO(b/332642571): Remove this once informational ranking expressions are available.
+            throw new UnsupportedOperationException(
+                    Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS
+                            + " are not available on this AppSearch implementation.");
+        }
         return platformBuilder.build();
     }
 

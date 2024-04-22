@@ -145,11 +145,16 @@ public final class SearchSpec extends AbstractSafeParcelable {
     @Field(id = 19, getter = "getSearchSourceLogTag")
     @Nullable private final String mSearchSourceLogTag;
 
+    @NonNull
     @Field(id = 20, getter = "getSearchEmbeddings")
     private final List<EmbeddingVector> mSearchEmbeddings;
 
     @Field(id = 21, getter = "getDefaultEmbeddingSearchMetricType")
     private final int mDefaultEmbeddingSearchMetricType;
+
+    @NonNull
+    @Field(id = 22, getter = "getInformationalRankingExpressions")
+    private final List<String> mInformationalRankingExpressions;
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -355,14 +360,15 @@ public final class SearchSpec extends AbstractSafeParcelable {
             @Param(id = 17) @NonNull String advancedRankingExpression,
             @Param(id = 18) @NonNull List<String> enabledFeatures,
             @Param(id = 19) @Nullable String searchSourceLogTag,
-            @Param(id = 20) @NonNull List<EmbeddingVector> searchEmbeddings,
-            @Param(id = 21) int defaultEmbeddingSearchMetricType
+            @Param(id = 20) @Nullable List<EmbeddingVector> searchEmbeddings,
+            @Param(id = 21) int defaultEmbeddingSearchMetricType,
+            @Param(id = 22) @Nullable List<String> informationalRankingExpressions
     ) {
         mTermMatchType = termMatchType;
-        mSchemas = Preconditions.checkNotNull(schemas);
-        mNamespaces = Preconditions.checkNotNull(namespaces);
+        mSchemas = Collections.unmodifiableList(Preconditions.checkNotNull(schemas));
+        mNamespaces = Collections.unmodifiableList(Preconditions.checkNotNull(namespaces));
         mTypePropertyFilters = Preconditions.checkNotNull(properties);
-        mPackageNames = Preconditions.checkNotNull(packageNames);
+        mPackageNames = Collections.unmodifiableList(Preconditions.checkNotNull(packageNames));
         mResultCountPerPage = resultCountPerPage;
         mRankingStrategy = rankingStrategy;
         mOrder = order;
@@ -375,10 +381,21 @@ public final class SearchSpec extends AbstractSafeParcelable {
         mTypePropertyWeightsField = Preconditions.checkNotNull(typePropertyWeightsField);
         mJoinSpec = joinSpec;
         mAdvancedRankingExpression = Preconditions.checkNotNull(advancedRankingExpression);
-        mEnabledFeatures = Preconditions.checkNotNull(enabledFeatures);
+        mEnabledFeatures = Collections.unmodifiableList(
+                Preconditions.checkNotNull(enabledFeatures));
         mSearchSourceLogTag = searchSourceLogTag;
-        mSearchEmbeddings = searchEmbeddings;
+        if (searchEmbeddings != null) {
+            mSearchEmbeddings = Collections.unmodifiableList(searchEmbeddings);
+        } else {
+            mSearchEmbeddings = Collections.emptyList();
+        }
         mDefaultEmbeddingSearchMetricType = defaultEmbeddingSearchMetricType;
+        if (informationalRankingExpressions != null) {
+            mInformationalRankingExpressions = Collections.unmodifiableList(
+                    informationalRankingExpressions);
+        } else {
+            mInformationalRankingExpressions = Collections.emptyList();
+        }
     }
 
 
@@ -398,7 +415,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
         if (mSchemas == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(mSchemas);
+        return mSchemas;
     }
 
     /**
@@ -431,7 +448,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
         if (mNamespaces == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(mNamespaces);
+        return mNamespaces;
     }
 
     /**
@@ -446,7 +463,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
         if (mPackageNames == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(mPackageNames);
+        return mPackageNames;
     }
 
     /** Returns the number of results per page in the result set. */
@@ -657,10 +674,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
     @NonNull
     @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public List<EmbeddingVector> getSearchEmbeddings() {
-        if (mSearchEmbeddings == null) {
-            return Collections.emptyList();
-        }
-        return Collections.unmodifiableList(mSearchEmbeddings);
+        return mSearchEmbeddings;
     }
 
     /**
@@ -672,6 +686,17 @@ public final class SearchSpec extends AbstractSafeParcelable {
     @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public int getDefaultEmbeddingSearchMetricType() {
         return mDefaultEmbeddingSearchMetricType;
+    }
+
+    /**
+     * Returns the informational ranking expressions.
+     *
+     * @see Builder#addInformationalRankingExpressions
+     */
+    @NonNull
+    @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+    public List<String> getInformationalRankingExpressions() {
+        return mInformationalRankingExpressions;
     }
 
     /**
@@ -740,14 +765,14 @@ public final class SearchSpec extends AbstractSafeParcelable {
 
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
-        private ArrayList<String> mSchemas = new ArrayList<>();
-        private ArrayList<String> mNamespaces = new ArrayList<>();
+        private List<String> mSchemas = new ArrayList<>();
+        private List<String> mNamespaces = new ArrayList<>();
         private Bundle mTypePropertyFilters = new Bundle();
-        private ArrayList<String> mPackageNames = new ArrayList<>();
+        private List<String> mPackageNames = new ArrayList<>();
         private ArraySet<String> mEnabledFeatures = new ArraySet<>();
         private Bundle mProjectionTypePropertyMasks = new Bundle();
         private Bundle mTypePropertyWeights = new Bundle();
-        private ArrayList<EmbeddingVector> mSearchEmbeddings = new ArrayList<>();
+        private List<EmbeddingVector> mSearchEmbeddings = new ArrayList<>();
 
         private int mResultCountPerPage = DEFAULT_NUM_PER_PAGE;
         @TermMatch private int mTermMatchType = TERM_MATCH_PREFIX;
@@ -762,6 +787,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
         private int mGroupingLimit = 0;
         @Nullable private JoinSpec mJoinSpec;
         private String mAdvancedRankingExpression = "";
+        private List<String> mInformationalRankingExpressions = new ArrayList<>();
         @Nullable private String mSearchSourceLogTag;
         private boolean mBuilt = false;
 
@@ -801,6 +827,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
             mGroupingLimit = searchSpec.getResultGroupingLimit();
             mJoinSpec = searchSpec.getJoinSpec();
             mAdvancedRankingExpression = searchSpec.getAdvancedRankingExpression();
+            mInformationalRankingExpressions = new ArrayList<>(
+                    searchSpec.getInformationalRankingExpressions());
             mSearchSourceLogTag = searchSpec.getSearchSourceLogTag();
         }
 
@@ -1266,6 +1294,54 @@ public final class SearchSpec extends AbstractSafeParcelable {
             resetIfBuilt();
             mRankingStrategy = RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION;
             mAdvancedRankingExpression = advancedRankingExpression;
+            return this;
+        }
+
+        /**
+         * Adds informational ranking expressions to be evaluated for each document in the search
+         * result. The values of these expressions will be returned to the caller via
+         * {@link SearchResult#getInformationalRankingSignals()}. These expressions are purely for
+         * the caller to retrieve additional information about the result and have no effect on
+         * ranking.
+         *
+         * <p>The syntax is exactly the same as specified in
+         * {@link SearchSpec.Builder#setRankingStrategy(String)}.
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS)
+        @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+        public Builder addInformationalRankingExpressions(
+                @NonNull String... informationalRankingExpressions) {
+            Preconditions.checkNotNull(informationalRankingExpressions);
+            resetIfBuilt();
+            return addInformationalRankingExpressions(
+                    Arrays.asList(informationalRankingExpressions));
+        }
+
+        /**
+         * Adds informational ranking expressions to be evaluated for each document in the search
+         * result. The values of these expressions will be returned to the caller via
+         * {@link SearchResult#getInformationalRankingSignals()}. These expressions are purely for
+         * the caller to retrieve additional information about the result and have no effect on
+         * ranking.
+         *
+         * <p>The syntax is exactly the same as specified in
+         * {@link SearchSpec.Builder#setRankingStrategy(String)}.
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS)
+        @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+        public Builder addInformationalRankingExpressions(
+                @NonNull Collection<String> informationalRankingExpressions) {
+            Preconditions.checkNotNull(informationalRankingExpressions);
+            resetIfBuilt();
+            mInformationalRankingExpressions.addAll(informationalRankingExpressions);
             return this;
         }
 
@@ -2055,7 +2131,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
                     mMaxSnippetSize, mProjectionTypePropertyMasks, mGroupingTypeFlags,
                     mGroupingLimit, mTypePropertyWeights, mJoinSpec, mAdvancedRankingExpression,
                     new ArrayList<>(mEnabledFeatures), mSearchSourceLogTag, mSearchEmbeddings,
-                    mDefaultEmbeddingSearchMetricType);
+                    mDefaultEmbeddingSearchMetricType, mInformationalRankingExpressions);
         }
 
         private void resetIfBuilt() {
@@ -2067,6 +2143,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
                 mProjectionTypePropertyMasks = BundleUtil.deepCopy(mProjectionTypePropertyMasks);
                 mTypePropertyWeights = BundleUtil.deepCopy(mTypePropertyWeights);
                 mSearchEmbeddings = new ArrayList<>(mSearchEmbeddings);
+                mInformationalRankingExpressions = new ArrayList<>(
+                        mInformationalRankingExpressions);
                 mBuilt = false;
             }
         }

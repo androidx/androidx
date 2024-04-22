@@ -18,6 +18,10 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
+import androidx.appsearch.flags.Flags;
+
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
@@ -117,6 +121,23 @@ public class SearchSpecInternalTest {
                 searchSpec.getAdvancedRankingExpression());
         assertThat(searchSpecCopy.getSearchSourceLogTag()).isEqualTo(
                 searchSpec.getSearchSourceLogTag());
+    }
+
+    @Test
+    public void testSearchSpecBuilderCopyConstructor_informationalRankingExpressions() {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy("advancedExpression")
+                .addInformationalRankingExpressions("this.relevanceScore()")
+                .build();
+
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getRankingStrategy()).isEqualTo(searchSpec.getRankingStrategy());
+        assertThat(searchSpecCopy.getAdvancedRankingExpression()).isEqualTo(
+                searchSpec.getAdvancedRankingExpression());
+        assertThat(searchSpecCopy.getInformationalRankingExpressions()).isEqualTo(
+                searchSpec.getInformationalRankingExpressions());
     }
 
     // TODO(b/309826655): Flag guard this test.

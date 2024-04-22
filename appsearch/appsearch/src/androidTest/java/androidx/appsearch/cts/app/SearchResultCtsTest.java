@@ -19,9 +19,11 @@ package androidx.appsearch.cts.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
 
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
 
 import org.junit.Test;
@@ -171,5 +173,51 @@ public class SearchResultCtsTest {
         assertThat(rebuildJoinedResult1.getGenericDocument().getId()).isEqualTo("id2");
         SearchResult rebuildJoinedResult2 = rebuild.getJoinedResults().get(1);
         assertThat(rebuildJoinedResult2.getGenericDocument().getId()).isEqualTo("id3");
+    }
+
+    @Test
+    public void testBuildSearchResult_informationalRankingSignals() {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
+                .setBody("Hello World.")
+                .build();
+        SearchResult searchResult = new SearchResult.Builder("packageName", "databaseName")
+                .setGenericDocument(email)
+                .setRankingSignal(2.9)
+                .addInformationalRankingSignal(3.0)
+                .addInformationalRankingSignal(4.0)
+                .build();
+
+        assertThat(searchResult.getRankingSignal()).isEqualTo(2.9);
+        assertThat(searchResult.getInformationalRankingSignals())
+                .containsExactly(3.0, 4.0).inOrder();
+    }
+
+    @Test
+    public void testRebuild_informationalRankingSignals() {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
+                .setBody("Hello World.")
+                .build();
+
+        SearchResult.Builder searchResultBuilder =
+                new SearchResult.Builder("packageName", "databaseName")
+                        .setGenericDocument(email)
+                        .setRankingSignal(2.9)
+                        .addInformationalRankingSignal(3.0)
+                        .addInformationalRankingSignal(4.0);
+
+        SearchResult original = searchResultBuilder.build();
+        SearchResult rebuild = searchResultBuilder.addInformationalRankingSignal(5).build();
+
+        // Rebuild won't effect the original object
+        assertThat(original.getRankingSignal()).isEqualTo(2.9);
+        assertThat(original.getInformationalRankingSignals()).containsExactly(3.0, 4.0).inOrder();
+
+        assertThat(rebuild.getRankingSignal()).isEqualTo(2.9);
+        assertThat(rebuild.getInformationalRankingSignals())
+                .containsExactly(3.0, 4.0, 5.0).inOrder();
     }
 }

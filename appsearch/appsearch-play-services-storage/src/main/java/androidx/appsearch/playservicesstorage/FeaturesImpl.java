@@ -119,9 +119,14 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
                 // TODO(b/275592563) : Update to reflect support once this feature is synced over
                 //  into gms-appsearch.
-            case Features.LIST_FILTER_TOKENIZE_FUNCTION:
-                // TODO(b/332620561) : Update when feature is ready in service-appsearch.
                 // fall through
+            case Features.LIST_FILTER_TOKENIZE_FUNCTION:
+                // TODO(b/332620561) : Update to reflect support once this feature is synced over
+                //  into gms-appsearch.
+                // fall through
+            case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
+                // TODO(b/332642571) : Update to reflect support once this feature is synced over
+                //  into gms-appsearch.
                 return false;
             default:
                 return false; // AppSearch features in U+, absent in GMSCore AppSearch.

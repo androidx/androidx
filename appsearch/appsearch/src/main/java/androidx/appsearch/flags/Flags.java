@@ -128,6 +128,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG =
             FLAG_PREFIX + "enable_schema_embedding_property_config";
 
+    /** Enables informational ranking expressions. */
+    public static final String FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS =
+            FLAG_PREFIX + "enable_informational_ranking_expressions";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -229,6 +233,11 @@ public final class Flags {
 
     /** Whether the "tokenize" function in list filter query expressions should be enabled. */
     public static boolean enableListFilterTokenizeFunction() {
+        return true;
+    }
+
+    /** Whether informational ranking expressions should be enabled. */
+    public static boolean enableInformationalRankingExpressions() {
         return true;
     }
 }
