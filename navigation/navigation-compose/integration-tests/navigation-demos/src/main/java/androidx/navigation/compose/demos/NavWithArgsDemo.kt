@@ -35,17 +35,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
+import androidx.navigation.compose.samples.Destination
 import androidx.navigation.compose.samples.NavigateButton
-import androidx.navigation.compose.samples.Screen
+import androidx.navigation.toRoute
 
 @Composable
-@Suppress("DEPRECATION")
 fun NavWithArgsDemo() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Screen.Profile.route) {
-        composable(Screen.Profile.route) { ProfileWithArgs(navController) }
-        composable(Screen.Dashboard.route + "?userId={userId}") { backStackEntry ->
-            Dashboard(navController, backStackEntry.arguments?.get("userId") as? String)
+    NavHost(navController, startDestination = Destination.Profile.route) {
+        composable<Destination.Profile> { ProfileWithArgs(navController) }
+        composable<Destination.Dashboard> { backStackEntry ->
+            val dashboard = backStackEntry.toRoute<Destination.Dashboard>()
+            Dashboard(navController, dashboard.userId)
         }
     }
 }
@@ -53,7 +54,7 @@ fun NavWithArgsDemo() {
 @Composable
 fun ProfileWithArgs(navController: NavController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = stringResource(Screen.Profile.resourceId))
+        Text(text = stringResource(Destination.Profile.resourceId))
         Divider(color = Color.Black)
         val state = rememberSaveable { mutableStateOf("") }
         Box {
@@ -65,7 +66,7 @@ fun ProfileWithArgs(navController: NavController) {
         }
         Divider(color = Color.Black)
         NavigateButton("Dashboard with userId") {
-            navController.navigate(Screen.Dashboard.route + "?userId=" + state.value)
+            navController.navigate(Destination.Dashboard(state.value))
         }
     }
 }
