@@ -15,12 +15,14 @@ package androidx.compose.material3.adaptive {
   }
 
   @androidx.compose.runtime.Immutable public final class HingeInfo {
-    ctor public HingeInfo(androidx.compose.ui.geometry.Rect bounds, boolean isVertical, boolean isSeparating, boolean isOccluding);
+    ctor public HingeInfo(androidx.compose.ui.geometry.Rect bounds, boolean isFlat, boolean isVertical, boolean isSeparating, boolean isOccluding);
     method public androidx.compose.ui.geometry.Rect getBounds();
+    method public boolean isFlat();
     method public boolean isOccluding();
     method public boolean isSeparating();
     method public boolean isVertical();
     property public final androidx.compose.ui.geometry.Rect bounds;
+    property public final boolean isFlat;
     property public final boolean isOccluding;
     property public final boolean isSeparating;
     property public final boolean isVertical;
