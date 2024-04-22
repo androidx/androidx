@@ -1065,8 +1065,10 @@ import java.util.Set;
                         route.getProviderInstance()
                                 .onCreateRouteController(
                                         route.mDescriptorId, mSelectedRoute.mDescriptorId);
-                controller.onSelect();
-                mRouteControllerMap.put(route.mUniqueId, controller);
+                if (controller != null) {
+                    controller.onSelect();
+                    mRouteControllerMap.put(route.mUniqueId, controller);
+                }
             }
         }
     }
