@@ -521,7 +521,7 @@ internal class TextFieldCoreModifierNode(
         val cursorAlphaValue = cursorAnimation.cursorAlpha
         if (cursorAlphaValue == 0f || !showCursor) return
 
-        val cursorRect = textFieldSelectionState.cursorRect
+        val cursorRect = textFieldSelectionState.getCursorRect()
 
         drawLine(
             cursorBrush,
