@@ -712,6 +712,47 @@ class PowerMetric(
         ): Type.Power {
             return Type.Power(categories)
         }
+
+        /**
+         * Returns true if the current device can be used for power/energy metrics.
+         *
+         * This can be used to change behavior or fall back to lower precision tracking:
+         *
+         * ```
+         * metrics = listOf(
+         *     if (PowerMetric.deviceSupportsPowerEnergy()) {
+         *         PowerMetric(Type.Energy()) // high precision tracking
+         *     } else {
+         *         PowerMetric(Type.Battery()) // fall back to less precise tracking
+         *     }
+         * )
+         * ```
+         *
+         * Or to skip a test when detailed tracking isn't available:
+         * ```
+         * @Test fun myDetailedPowerBenchmark {
+         *     assumeTrue(PowerMetric.deviceSupportsPowerEnergy())
+         *     macrobenchmarkRule.measureRepeated (
+         *         metrics = listOf(PowerMetric(Type.Energy(...)))
+         *     ) {
+         *         ...
+         *     }
+         * }
+         * ```
+         */
+        @JvmStatic
+        fun deviceSupportsPowerEnergy(): Boolean = hasMetrics(throwOnMissingMetrics = false)
+
+        /**
+         * Returns true if [Type.Battery] measurements can be performed, based on current device
+         * charge.
+         *
+         * This can be used to change behavior or throw a clear error before metric configuration,
+         * or to skip the test, e.g. with `assumeTrue(PowerMetric.deviceBatteryHasMinimumCharge())`
+         */
+        @JvmStatic
+        fun deviceBatteryHasMinimumCharge(): Boolean =
+            hasMinimumCharge(throwOnMissingMetrics = false)
     }
 
     /**
