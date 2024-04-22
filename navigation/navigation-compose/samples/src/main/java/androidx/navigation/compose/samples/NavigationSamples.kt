@@ -19,7 +19,6 @@ package androidx.navigation.compose.samples
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.annotation.Sampled
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -36,8 +35,11 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
@@ -57,19 +59,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import kotlin.reflect.KClass
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-
-sealed class Screen(val route: String, @StringRes val resourceId: Int) {
-    object Profile : Screen("profile", R.string.profile)
-    object Dashboard : Screen("dashboard", R.string.dashboard)
-    object Scrollable : Screen("scrollable", R.string.scrollable)
-    object Dialog : Screen("dialog", R.string.dialog)
-}
 
 interface Destination {
     val route: KClass<out Destination>
@@ -95,6 +90,12 @@ interface Destination {
     }
     @Serializable
     object Nested : Destination { override val route = this::class }
+
+    @Serializable
+    data class NestedWithArg(val userId: String? = "default nested arg") : Destination {
+        override val route: KClass<out Destination>
+            get() = this::class
+    }
 }
 
 @Composable
@@ -188,24 +189,16 @@ fun NavScaffold() {
 
 @Sampled
 @Composable
-fun NestedNavInGraphWithArgs() {
+fun NavWithArgsInNestedGraph() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Screen.Profile.route) {
-        composable(Screen.Profile.route) { Profile(navController) }
-        navigation(
-            startDestination = "nested",
-            route = Screen.Dashboard.route,
-            // This value will be sent to the start destination of the graph when you navigate to
-            // this graph
-            arguments = listOf(navArgument("userId") { defaultValue = "no value given" })
-        ) {
-            composable(
-                "nested",
-                // We don't need to set a default value here because the start destination will
-                // automatically receive the arguments of its parent graph
-                arguments = listOf(navArgument("userId") { })
-            ) {
-                Dashboard(navController)
+    NavHost(navController, startDestination = Destination.Profile.route) {
+        composable<Destination.Profile> { ProfileWithArgs(navController) }
+        navigation<Destination.Dashboard>(startDestination = Destination.NestedWithArg::class) {
+            composable<Destination.NestedWithArg> {
+                // argument from parent graph Destination.Dashboard will automatically be
+                // bundled into the start destination's arguments
+                val userId = it.toRoute<Destination.NestedWithArg>().userId
+                Dashboard(navController, userId)
             }
         }
     }
@@ -228,6 +221,26 @@ fun Profile(navController: NavHostController) {
         }
         Spacer(Modifier.weight(1f))
         NavigateBackButton(navController)
+    }
+}
+
+@Composable
+fun ProfileWithArgs(navController: NavController) {
+    Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
+        Text(text = stringResource(Destination.Profile.resourceId))
+        Divider(color = Color.Black)
+        val state = rememberSaveable { mutableStateOf("") }
+        Box {
+            TextField(
+                value = state.value,
+                onValueChange = { state.value = it },
+                placeholder = { Text("Enter userId here") }
+            )
+        }
+        Divider(color = Color.Black)
+        NavigateButton("Dashboard with userId") {
+            navController.navigate(Destination.Dashboard(state.value))
+        }
     }
 }
 
