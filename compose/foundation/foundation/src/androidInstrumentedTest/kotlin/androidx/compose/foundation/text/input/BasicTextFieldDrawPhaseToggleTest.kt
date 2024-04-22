@@ -182,7 +182,7 @@ class BasicTextFieldDrawPhaseToggleTest {
  * Instead of looking for an exact match of pixel values, this assertion provides the ability to
  * judge each pixel individually to whether it fits a predefined filter.
  */
-private inline fun ImageBitmap.assertPixelConsistency(
+internal inline fun ImageBitmap.assertPixelConsistency(
     filter: (color: Color) -> Boolean
 ) {
     val pixel = toPixelMap()
