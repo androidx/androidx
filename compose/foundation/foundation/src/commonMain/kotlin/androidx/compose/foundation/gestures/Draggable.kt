@@ -455,71 +455,7 @@ internal abstract class DragGestureNode(
         }
     }
 
-    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        // TODO: conditionally undelegate when aosp/2462416 lands?
-        if (!this@DragGestureNode.enabled) return@SuspendingPointerInputModifierNode
-        // re-create tracker when pointer input block restarts. This lazily creates the tracker
-        // only when it is need.
-        val velocityTracker = VelocityTracker()
-        coroutineScope {
-            try {
-                awaitPointerEventScope {
-                    while (isActive) {
-                        awaitDownAndSlop(
-                            _canDrag,
-                            ::startDragImmediately,
-                            velocityTracker,
-                            pointerDirectionConfig
-                        )?.let {
-                            /**
-                             * The gesture crossed the touch slop, events are now relevant
-                             * and should be propagated
-                             */
-                            if (!isListeningForEvents) {
-                                if (channel == null) {
-                                    channel = Channel(capacity = Channel.UNLIMITED)
-                                }
-                                startListeningForEvents()
-                            }
-                            var isDragSuccessful = false
-                            try {
-                                isDragSuccessful = awaitDrag(
-                                    it.first,
-                                    it.second,
-                                    velocityTracker,
-                                    channel
-                                ) { event ->
-                                    pointerDirectionConfig.calculateDeltaChange(
-                                        event.positionChangeIgnoreConsumed()
-                                    ) != 0f
-                                }
-                            } catch (cancellation: CancellationException) {
-                                isDragSuccessful = false
-                                if (!isActive) throw cancellation
-                            } finally {
-                                val maximumVelocity = currentValueOf(LocalViewConfiguration)
-                                    .maximumFlingVelocity
-                                val event = if (isDragSuccessful) {
-                                    val velocity = velocityTracker.calculateVelocity(
-                                        Velocity(maximumVelocity, maximumVelocity)
-                                    )
-                                    velocityTracker.resetTracking()
-                                    DragStopped(velocity)
-                                } else {
-                                    DragCancelled
-                                }
-                                channel?.trySend(event)
-                            }
-                        }
-                    }
-                }
-            } catch (exception: CancellationException) {
-                if (!isActive) {
-                    throw exception
-                }
-            }
-        }
-    })
+    private var pointerInputNode: SuspendingPointerInputModifierNode? = null
 
     override fun onDetach() {
         isListeningForEvents = false
@@ -531,11 +467,80 @@ internal abstract class DragGestureNode(
         pass: PointerEventPass,
         bounds: IntSize
     ) {
-        pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+        if (enabled && pointerInputNode == null) {
+            pointerInputNode = delegate(initializePointerInputNode())
+        }
+        pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
+    }
+
+    private fun initializePointerInputNode(): SuspendingPointerInputModifierNode {
+        return SuspendingPointerInputModifierNode {
+            // re-create tracker when pointer input block restarts. This lazily creates the tracker
+            // only when it is need.
+            val velocityTracker = VelocityTracker()
+            coroutineScope {
+                try {
+                    awaitPointerEventScope {
+                        while (isActive) {
+                            awaitDownAndSlop(
+                                _canDrag,
+                                ::startDragImmediately,
+                                velocityTracker,
+                                pointerDirectionConfig
+                            )?.let {
+                                /**
+                                 * The gesture crossed the touch slop, events are now relevant
+                                 * and should be propagated
+                                 */
+                                if (!isListeningForEvents) {
+                                    if (channel == null) {
+                                        channel = Channel(capacity = Channel.UNLIMITED)
+                                    }
+                                    startListeningForEvents()
+                                }
+                                var isDragSuccessful = false
+                                try {
+                                    isDragSuccessful = awaitDrag(
+                                        it.first,
+                                        it.second,
+                                        velocityTracker,
+                                        channel
+                                    ) { event ->
+                                        pointerDirectionConfig.calculateDeltaChange(
+                                            event.positionChangeIgnoreConsumed()
+                                        ) != 0f
+                                    }
+                                } catch (cancellation: CancellationException) {
+                                    isDragSuccessful = false
+                                    if (!isActive) throw cancellation
+                                } finally {
+                                    val maximumVelocity = currentValueOf(LocalViewConfiguration)
+                                        .maximumFlingVelocity
+                                    val event = if (isDragSuccessful) {
+                                        val velocity = velocityTracker.calculateVelocity(
+                                            Velocity(maximumVelocity, maximumVelocity)
+                                        )
+                                        velocityTracker.resetTracking()
+                                        DragStopped(velocity)
+                                    } else {
+                                        DragCancelled
+                                    }
+                                    channel?.trySend(event)
+                                }
+                            }
+                        }
+                    }
+                } catch (exception: CancellationException) {
+                    if (!isActive) {
+                        throw exception
+                    }
+                }
+            }
+        }
     }
 
     override fun onCancelPointerInput() {
-        pointerInputNode.onCancelPointerInput()
+        pointerInputNode?.onCancelPointerInput()
     }
 
     private suspend fun CoroutineScope.processDragStart(event: DragStarted) {
@@ -578,11 +583,14 @@ internal abstract class DragGestureNode(
         isResetPointerInputHandling: Boolean = false
     ) {
         var resetPointerInputHandling = isResetPointerInputHandling
+
         this.canDrag = canDrag
         if (this.enabled != enabled) {
             this.enabled = enabled
             if (!enabled) {
                 disposeInteractionSource()
+                pointerInputNode?.let { undelegate(it) }
+                pointerInputNode = null
             }
             resetPointerInputHandling = true
         }
@@ -592,7 +600,7 @@ internal abstract class DragGestureNode(
         }
 
         if (resetPointerInputHandling) {
-            pointerInputNode.resetPointerInputHandler()
+            pointerInputNode?.resetPointerInputHandler()
         }
     }
 }
