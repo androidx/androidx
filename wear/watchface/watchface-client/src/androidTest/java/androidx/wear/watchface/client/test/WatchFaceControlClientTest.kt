@@ -1344,6 +1344,73 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
 
         assertTrue(ObservableServiceC.awaitForServiceToBeBound(UPDATE_TIMEOUT_MILLIS))
     }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    fun overrideComplicationData() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            return
+        }
+        val wallpaperService =
+            TestComplicationProviderDefaultsWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        interactiveInstance.updateComplicationData(
+            mapOf(123 to rangedValueComplicationBuilder().build())
+        )
+
+        interactiveInstance.overrideComplicationData(
+            mapOf(
+                123 to
+                    ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("TEST").build(),
+                        ComplicationText.EMPTY
+                    )
+                        .build()
+            )
+        )
+
+        interactiveInstance.renderWatchFaceToBitmap(
+            RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null),
+            Instant.ofEpochMilli(1234567),
+            null,
+            null
+        )
+        assertThat(wallpaperService.lastComplicationType).isEqualTo(ComplicationType.SHORT_TEXT)
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    fun clearComplicationDataOverride() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            return
+        }
+        val wallpaperService =
+            TestComplicationProviderDefaultsWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        interactiveInstance.updateComplicationData(
+            mapOf(123 to rangedValueComplicationBuilder().build())
+        )
+        interactiveInstance.overrideComplicationData(
+            mapOf(
+                123 to
+                    ShortTextComplicationData.Builder(
+                        PlainComplicationText.Builder("TEST").build(),
+                        ComplicationText.EMPTY
+                    )
+                        .build(),
+            )
+        )
+
+        interactiveInstance.clearComplicationDataOverride()
+
+        interactiveInstance.renderWatchFaceToBitmap(
+            RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null),
+            Instant.ofEpochMilli(1234567),
+            null,
+            null
+        )
+        assertThat(wallpaperService.lastComplicationType).isEqualTo(ComplicationType.RANGED_VALUE)
+    }
 }
 
 @RunWith(AndroidJUnit4::class)
