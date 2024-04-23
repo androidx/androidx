@@ -92,7 +92,7 @@ data class NestedWithArg(val userId: String? = "default nested arg")
 @Composable
 fun BasicNav() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Profile::class) {
+    NavHost(navController, startDestination = Profile) {
         composable<Profile> { Profile(navController) }
         composable<Dashboard>(
             enterTransition = {
@@ -141,8 +141,8 @@ fun BasicNav() {
 @Composable
 fun NestedNavStartDestination() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Nested::class) {
-        navigation<Nested>(startDestination = Profile::class) {
+    NavHost(navController, startDestination = Nested) {
+        navigation<Nested>(startDestination = Profile) {
             composable<Profile> { Profile(navController) }
         }
         composable<Dashboard> { Dashboard(navController) }
@@ -154,9 +154,9 @@ fun NestedNavStartDestination() {
 @Composable
 fun NestedNavInGraph() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Profile::class) {
+    NavHost(navController, startDestination = Profile) {
         composable<Profile> { Profile(navController) }
-        navigation<Dashboard>(startDestination = Nested::class) {
+        navigation<Dashboard>(startDestination = Nested) {
             composable<Nested> { Dashboard(navController) }
         }
         composable<Scrollable> { Scrollable(navController) }
@@ -169,7 +169,7 @@ fun NestedNavInGraph() {
 fun NavScaffold() {
     val navController = rememberNavController()
     Scaffold { innerPadding ->
-        NavHost(navController, Profile::class, Modifier.padding(innerPadding)) {
+        NavHost(navController, Profile, Modifier.padding(innerPadding)) {
             composable<Profile> { Profile(navController) }
             composable<Dashboard> { Dashboard(navController) }
             composable<Scrollable> { Scrollable(navController) }
@@ -182,7 +182,7 @@ fun NavScaffold() {
 @Composable
 fun NavWithArgsInNestedGraph() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Profile::class) {
+    NavHost(navController, startDestination = Profile) {
         composable<Profile> { ProfileWithArgs(navController) }
         navigation<Dashboard>(startDestination = NestedWithArg::class) {
             composable<NestedWithArg> {
