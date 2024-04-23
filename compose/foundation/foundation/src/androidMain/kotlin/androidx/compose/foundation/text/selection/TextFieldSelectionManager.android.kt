@@ -19,12 +19,10 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
-import androidx.compose.foundation.contextmenu.close
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.TextContextMenuItems
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.foundation.text.TextItem
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,49 +68,29 @@ internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
     }
 }
 
-@ReadOnlyComposable
-@Composable
 internal fun TextFieldSelectionManager.contextMenuBuilder(
     contextMenuState: ContextMenuState
-): ContextMenuScope.() -> Unit {
-    val cutString = TextContextMenuItems.Cut.resolvedString()
-    val copyString = TextContextMenuItems.Copy.resolvedString()
-    val pasteString = TextContextMenuItems.Paste.resolvedString()
-    val selectAllString = TextContextMenuItems.SelectAll.resolvedString()
-    return {
-        val isPassword = visualTransformation is PasswordVisualTransformation
-        val hasSelection = !value.selection.collapsed
-        item(
-            label = cutString,
-            enabled = hasSelection && editable && !isPassword,
-            onClick = {
-                cut()
-                contextMenuState.close()
-            },
-        )
-        item(
-            label = copyString,
-            enabled = hasSelection && !isPassword,
-            onClick = {
-                copy(cancelSelection = false)
-                contextMenuState.close()
-            },
-        )
-        item(
-            label = pasteString,
-            enabled = editable && clipboardManager?.hasText() == true,
-            onClick = {
-                paste()
-                contextMenuState.close()
-            },
-        )
-        item(
-            label = selectAllString,
-            enabled = value.selection.length != value.text.length,
-            onClick = {
-                selectAll()
-                contextMenuState.close()
-            },
-        )
-    }
+): ContextMenuScope.() -> Unit = {
+    val isPassword = visualTransformation is PasswordVisualTransformation
+    val hasSelection = !value.selection.collapsed
+    TextItem(
+        state = contextMenuState,
+        label = TextContextMenuItems.Cut,
+        enabled = hasSelection && editable && !isPassword,
+    ) { cut() }
+    TextItem(
+        state = contextMenuState,
+        label = TextContextMenuItems.Copy,
+        enabled = hasSelection && !isPassword,
+    ) { copy(cancelSelection = false) }
+    TextItem(
+        state = contextMenuState,
+        label = TextContextMenuItems.Paste,
+        enabled = editable && clipboardManager?.hasText() == true,
+    ) { paste() }
+    TextItem(
+        state = contextMenuState,
+        label = TextContextMenuItems.SelectAll,
+        enabled = value.selection.length != value.text.length,
+    ) { selectAll() }
 }
