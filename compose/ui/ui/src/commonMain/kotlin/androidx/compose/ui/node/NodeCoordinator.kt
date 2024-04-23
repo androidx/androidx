@@ -517,18 +517,16 @@ internal abstract class NodeCoordinator(
             }
             graphicsLayerScope.reset()
             graphicsLayerScope.graphicsDensity = layoutNode.density
+            graphicsLayerScope.layoutDirection = layoutNode.layoutDirection
             graphicsLayerScope.size = size.toSize()
             snapshotObserver.observeReads(this, onCommitAffectingLayerParams) {
                 layerBlock.invoke(graphicsLayerScope)
+                graphicsLayerScope.updateOutline()
             }
             val layerPositionalProperties = layerPositionalProperties
                 ?: LayerPositionalProperties().also { layerPositionalProperties = it }
             layerPositionalProperties.copyFrom(graphicsLayerScope)
-            layer.updateLayerProperties(
-                graphicsLayerScope,
-                layoutNode.layoutDirection,
-                layoutNode.density,
-            )
+            layer.updateLayerProperties(graphicsLayerScope)
             isClipping = graphicsLayerScope.clip
             lastLayerAlpha = graphicsLayerScope.alpha
             if (invokeOnLayoutChange) {

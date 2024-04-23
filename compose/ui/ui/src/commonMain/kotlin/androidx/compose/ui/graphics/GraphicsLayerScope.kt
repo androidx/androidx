@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.RememberObserver
@@ -26,6 +27,7 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.layout.PlacementScopeMarker
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Default camera distance for all layers
@@ -411,6 +413,8 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
 
     internal var graphicsDensity: Density = Density(1.0f)
 
+    internal var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
     override val density: Float
         get() = graphicsDensity.density
 
@@ -424,6 +428,10 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
                 field = value
             }
         }
+
+    internal var outline: Outline? = null
+        @VisibleForTesting
+        internal set
 
     fun reset() {
         scaleX = 1f
@@ -444,7 +452,12 @@ internal class ReusableGraphicsLayerScope : GraphicsLayerScope {
         renderEffect = null
         compositingStrategy = CompositingStrategy.Auto
         size = Size.Unspecified
+        outline = null
         // mutatedFields should be reset last as all the setters above modify it.
         mutatedFields = 0
+    }
+
+    internal fun updateOutline() {
+        outline = shape.createOutline(size, layoutDirection, graphicsDensity)
     }
 }
