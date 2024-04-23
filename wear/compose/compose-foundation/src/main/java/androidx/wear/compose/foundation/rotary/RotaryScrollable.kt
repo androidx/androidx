@@ -69,6 +69,16 @@ import kotlinx.coroutines.launch
  * LazyList and others. [ScalingLazyColumn] has a build-in rotary support, and accepts
  * [RotaryScrollableBehavior] directly as a parameter.
  *
+ * This modifier handles rotary input devices, used for scrolling. These devices can be categorized
+ * as high-resolution or low-resolution based on their precision.
+ *
+ *  - High-res devices: Offer finer control and can detect smaller rotations.
+ *    This allows for more precise adjustments during scrolling. One example of a high-res
+ *    device is the crown (also known as rotating side button), located on the side of the watch.
+ *  - Low-res devices: Have less granular control, registering larger rotations
+ *    at a time. Scrolling behavior is adapted to compensate for these larger jumps. Examples
+ *    include physical or virtual bezels, positioned around the screen.
+ *
  * This modifier supports rotary scrolling and snapping.
  * The behaviour is configured by the provided [RotaryScrollableBehavior]:
  * either provide [RotaryScrollableDefaults.behavior] for scrolling with/without fling
@@ -103,7 +113,8 @@ fun Modifier.rotaryScrollable(
 /**
  * An interface for handling scroll events. Has implementations for handling scroll
  * with/without fling [FlingRotaryScrollableBehavior] and for handling snap
- * [LowResSnapRotaryScrollableBehavior], [HighResSnapRotaryScrollableBehavior].
+ * [LowResSnapRotaryScrollableBehavior], [HighResSnapRotaryScrollableBehavior] (see
+ * [Modifier.rotaryScrollable] for descriptions of low-res and high-res devices).
  */
 interface RotaryScrollableBehavior {
 
@@ -321,7 +332,8 @@ internal class ScalingLazyColumnRotarySnapLayoutInfoProvider(
  * Handles scroll with fling.
  *
  * @return A scroll with fling implementation of [RotaryScrollableBehavior] which is suitable
- * for both low-res and high-res inputs.
+ * for both low-res and high-res inputs (see [Modifier.rotaryScrollable] for descriptions
+ * of low-res and high-res devices).
  *
  * @param scrollableState Scrollable state which will be scrolled while receiving rotary events
  * @param flingBehavior Logic describing Fling behavior. If null - fling will not happen
@@ -360,7 +372,8 @@ private fun flingBehavior(
  * Handles scroll with snap.
  *
  * @return A snap implementation of [RotaryScrollableBehavior] which is either suitable for low-res
- * or high-res input.
+ * or high-res input (see [Modifier.rotaryScrollable] for descriptions of low-res
+ * and high-res devices).
  *
  * @param layoutInfoProvider Implementation of [RotarySnapLayoutInfoProvider], which connects
  * scrollableState to a rotary input for snapping scroll actions.
@@ -419,8 +432,9 @@ private fun snapBehavior(
 
 /**
  * An abstract base class for handling scroll events. Has implementations for handling scroll
- * with/without fling [FlingRotaryScrollableBehavior] and for handling snap [LowResSnapRotaryScrollableBehavior],
- * [HighResSnapRotaryScrollableBehavior].
+ * with/without fling [FlingRotaryScrollableBehavior] and for handling snap
+ * [LowResSnapRotaryScrollableBehavior], [HighResSnapRotaryScrollableBehavior] (see
+ * [Modifier.rotaryScrollable] for descriptions of low-res and high-res devices ).
  */
 internal abstract class BaseRotaryScrollableBehavior : RotaryScrollableBehavior {
 
@@ -797,7 +811,8 @@ internal class RotaryFlingHandler(
  *
  * For a high-res input it has a filtering for events which are coming
  * with an opposite sign (this might happen to devices with rsb,
- * especially at the end of the scroll )
+ * especially at the end of the scroll ) - see [Modifier.rotaryScrollable] for descriptions
+ * of low-res and high-res devices.
  *
  * This scroll behavior supports fling. It can be set with [RotaryFlingHandler].
  */
@@ -873,7 +888,8 @@ internal class FlingRotaryScrollableBehavior(
 }
 
 /**
- * A scroll behavior for RSB(high-res) input with snapping and without fling.
+ * A scroll behavior for RSB(high-res) input with snapping and without fling (see
+ * [Modifier.rotaryScrollable] for descriptions of low-res and high-res devices ).
  *
  * Threshold for snapping is set dynamically in ThresholdBehavior, which depends
  * on the scroll speed and the average size of the items.
@@ -1030,7 +1046,8 @@ internal class HighResSnapRotaryScrollableBehavior(
 }
 
 /**
- * A scroll behavior for Bezel(low-res) input with snapping and without fling
+ * A scroll behavior for Bezel(low-res) input with snapping and without fling (see
+ * [Modifier.rotaryScrollable] for descriptions of low-res and high-res devices ).
  *
  * This scroll behavior doesn't support fling.
  */
