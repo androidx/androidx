@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.input.internal
 import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -53,7 +52,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class AndroidTextInputSessionTest {

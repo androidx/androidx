@@ -97,9 +97,9 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
     val fontSize = 10.sp
 
-    val fontSizePx = with(rule.density) { fontSize.toPx() }
+    private val fontSizePx = with(rule.density) { fontSize.toPx() }
 
-    val TAG = "BasicTextField"
+    private val TAG = "BasicTextField"
 
     private var enabled by mutableStateOf(true)
 

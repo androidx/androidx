@@ -30,7 +30,7 @@ import kotlin.math.min
 private val Selection.min get() = min(start.offset, end.offset)
 private val Selection.max get() = max(start.offset, end.offset)
 
-internal class SelectionSubject constructor(
+internal class SelectionSubject(
     failureMetadata: FailureMetadata?,
     private val subject: Selection?,
     private val content: String,

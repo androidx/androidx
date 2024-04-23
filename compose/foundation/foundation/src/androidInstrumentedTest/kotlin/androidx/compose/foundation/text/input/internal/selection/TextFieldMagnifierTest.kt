@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.input.internal.selection
 
 import android.view.DragEvent
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -489,7 +488,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         assertThatOffset(actual).equalsWithTolerance(Offset(lineRightX, secondLineCenterY))
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalTestApi::class)
     private fun checkMagnifierStayAtEndWhenDraggedBeyondScroll(
         handle: Handle,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr

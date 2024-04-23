@@ -37,7 +37,6 @@ import androidx.compose.ui.text.substring
  * important task is to keep a separate staging area for incoming text edit operations to possibly
  * merge them before committing as a single undoable action.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextUndoManager(
     initialStagingUndo: TextUndoOperation? = null,
     private val undoManager: UndoManager<TextUndoOperation> = UndoManager(

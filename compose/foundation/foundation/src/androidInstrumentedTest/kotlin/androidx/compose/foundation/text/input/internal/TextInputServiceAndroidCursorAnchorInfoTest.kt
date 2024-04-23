@@ -22,7 +22,6 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.ComposeInputMethodManagerTestRule
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshots.ObserverHandle
@@ -57,7 +56,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 internal class TextInputServiceAndroidCursorAnchorInfoTest {

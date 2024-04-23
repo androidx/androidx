@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
@@ -42,7 +41,6 @@ internal actual val PointerEvent.isShiftPressed: Boolean
 
 // We use composed{} to read a local, but don't provide inspector info because the underlying
 // magnifier modifier provides more meaningful inspector info.
-@OptIn(ExperimentalFoundationApi::class)
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier {
     // Avoid tracking animation state on older Android versions that don't support magnifiers.
     if (!isPlatformMagnifierSupported()) {

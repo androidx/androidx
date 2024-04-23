@@ -307,7 +307,6 @@ internal fun Float.ceilToIntPx(): Int = ceil(this).fastRoundToInt()
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change
  * otherwise creates a new [TextDelegate].
  */
-@OptIn(InternalFoundationTextApi::class)
 internal fun updateTextDelegate(
     current: TextDelegate,
     text: AnnotatedString,
