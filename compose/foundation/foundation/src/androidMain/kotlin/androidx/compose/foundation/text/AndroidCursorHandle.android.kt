@@ -22,6 +22,10 @@ import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.HandlePopup
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.OffsetProvider
+import androidx.compose.foundation.text.selection.SelectionHandleAnchor
+import androidx.compose.foundation.text.selection.SelectionHandleInfo
+import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.selection.createHandleImage
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,6 +35,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
@@ -41,17 +46,25 @@ internal val CursorHandleWidth = CursorHandleHeight * 2f / (1 + Sqrt2)
 
 @Composable
 internal actual fun CursorHandle(
-    handlePosition: Offset,
+    offsetProvider: OffsetProvider,
     modifier: Modifier,
     minTouchTargetSize: DpSize
 ) {
+    val finalModifier = modifier.semantics {
+        this[SelectionHandleInfoKey] = SelectionHandleInfo(
+            handle = Handle.Cursor,
+            position = offsetProvider.provide(),
+            anchor = SelectionHandleAnchor.Middle,
+            visible = true,
+        )
+    }
     HandlePopup(
-        positionProvider = { handlePosition },
+        positionProvider = offsetProvider,
         handleReferencePoint = Alignment.TopCenter
     ) {
         if (minTouchTargetSize.isSpecified) {
             Box(
-                modifier = modifier.requiredSizeIn(
+                modifier = finalModifier.requiredSizeIn(
                     minWidth = minTouchTargetSize.width,
                     minHeight = minTouchTargetSize.height
                 ),
@@ -60,7 +73,7 @@ internal actual fun CursorHandle(
                 DefaultCursorHandle()
             }
         } else {
-            DefaultCursorHandle(modifier)
+            DefaultCursorHandle(finalModifier)
         }
     }
 }
