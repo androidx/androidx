@@ -215,39 +215,81 @@ interface LookaheadScope {
      * [toLookaheadCoordinates], and 2) invoking [LayoutCoordinates.localPositionOf] with the
      * converted coordinates.
      *
-     * If [excludeDirectManipulationOffset] is true, the offset provided by layouts using
-     * [Placeable.PlacementScope.withDirectManipulationPlacement] will be ignored.
-     *
-     * You can query if a [LayoutCoordinates] was placed with
-     * [Placeable.PlacementScope.withDirectManipulationPlacement] through
-     * [LayoutCoordinates.isPositionedByParentWithDirectManipulation].
+     * For layouts where [LayoutCoordinates.introducesFrameOfReference] returns false (placed under
+     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement]) you may use
+     * [positionInLocalLookaheadFrameOfReference] to get their position while excluding the
+     * additional Offset.
      */
     fun LayoutCoordinates.localLookaheadPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset = Offset.Zero,
-        excludeDirectManipulationOffset: Boolean = false
-    ): Offset {
-        val lookaheadCoords = this.toLookaheadCoordinates()
-        val source = sourceCoordinates.toLookaheadCoordinates()
+    ): Offset = localLookaheadPositionOf(
+        coordinates = this,
+        sourceCoordinates = sourceCoordinates,
+        relativeToSource = relativeToSource,
+        excludeDirectManipulationOffset = false
+    )
 
-        return if (lookaheadCoords is LookaheadLayoutCoordinates) {
-            lookaheadCoords.localPositionOf(
+    /**
+     * Similar to [localLookaheadPositionOf], converts [relativeToSource] in [sourceCoordinates]'s
+     * lookahead coordinate space into local lookahead coordinates.
+     *
+     * However, the Offset introduced on [LayoutCoordinates] when their
+     * [LayoutCoordinates.introducesFrameOfReference] property is false, will be excluded from the
+     * calculation.
+     *
+     * Those [LayoutCoordinates] correspond to when they are placed by their parent under
+     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement], which is typically done by
+     * Layouts that change their children positioning without affecting the overall hierarchy, or
+     * they do so in small increments (such as Scroll).
+     */
+    fun LayoutCoordinates.positionInLocalLookaheadFrameOfReference(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset = Offset.Zero,
+    ): Offset = localLookaheadPositionOf(
+        coordinates = this,
+        sourceCoordinates = sourceCoordinates,
+        relativeToSource = relativeToSource,
+        excludeDirectManipulationOffset = true
+    )
+}
+
+/**
+ * Internal implementation to handle [LookaheadScope.localLookaheadPositionOf] and
+ * [LookaheadScope.positionInLocalLookaheadFrameOfReference].
+ */
+internal fun LookaheadScope.localLookaheadPositionOf(
+    coordinates: LayoutCoordinates,
+    sourceCoordinates: LayoutCoordinates,
+    relativeToSource: Offset,
+    excludeDirectManipulationOffset: Boolean
+): Offset {
+    val lookaheadCoords = coordinates.toLookaheadCoordinates()
+    val source = sourceCoordinates.toLookaheadCoordinates()
+
+    return if (lookaheadCoords is LookaheadLayoutCoordinates) {
+        lookaheadCoords.localPositionOf(
+            sourceCoordinates = source,
+            relativeToSource = relativeToSource,
+            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+        )
+    } else if (source is LookaheadLayoutCoordinates) {
+        // Relative from source, so we take its negative position
+        -source.localPositionOf(
+            sourceCoordinates = lookaheadCoords,
+            relativeToSource = relativeToSource,
+            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+        )
+    } else {
+        if (excludeDirectManipulationOffset) {
+            lookaheadCoords.positionInLocalFrameOfReference(
                 sourceCoordinates = source,
-                relativeToSource = relativeToSource,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
-            )
-        } else if (source is LookaheadLayoutCoordinates) {
-            // Relative from source, so we take its negative position
-            -source.localPositionOf(
-                sourceCoordinates = lookaheadCoords,
-                relativeToSource = relativeToSource,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+                relativeToSource = relativeToSource
             )
         } else {
             lookaheadCoords.localPositionOf(
-                sourceCoordinates = source,
-                relativeToSource = relativeToSource,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+                sourceCoordinates = lookaheadCoords,
+                relativeToSource = relativeToSource
             )
         }
     }
