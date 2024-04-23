@@ -263,9 +263,9 @@ internal class SharedBoundsNode(
 
         layer.record {
             this@draw.drawContent()
-            if (VisualDebugging) {
+            if (VisualDebugging && sharedElement.foundMatch) {
                 // TODO: also draw border of the clip path
-                drawRect(Color.Red, style = Stroke(3f))
+                drawRect(Color.Green, style = Stroke(3f))
             }
         }
         if (state.shouldRenderInPlace) {
