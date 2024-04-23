@@ -47,7 +47,7 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(sdk = [19])
+@Config(sdk = [21])
 class AppWidgetManagerCompatTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
