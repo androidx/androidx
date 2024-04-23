@@ -113,15 +113,23 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     @Deprecated
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
-        mImpl = new Impl30(insetsController,
-                this,
-                new SoftwareKeyboardControllerCompat(insetsController));
+        if (SDK_INT >= 35) {
+            mImpl = new Impl35(insetsController,
+                    this,
+                    new SoftwareKeyboardControllerCompat(insetsController));
+        } else {
+            mImpl = new Impl30(insetsController,
+                    this,
+                    new SoftwareKeyboardControllerCompat(insetsController));
+        }
     }
 
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
         SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat =
                 new SoftwareKeyboardControllerCompat(view);
-        if (SDK_INT >= 30) {
+        if (SDK_INT >= 35) {
+            mImpl = new Impl35(window, this, softwareKeyboardControllerCompat);
+        } else if (SDK_INT >= 30) {
             mImpl = new Impl30(window, this, softwareKeyboardControllerCompat);
         } else if (SDK_INT >= 26) {
             mImpl = new Impl26(window, softwareKeyboardControllerCompat);
@@ -829,5 +837,34 @@ public final class WindowInsetsControllerCompat {
                     decorView.getSystemUiVisibility()
                             | systemUiFlag);
         }
+    }
+
+    @RequiresApi(35)
+    private static class Impl35 extends Impl30 {
+
+        Impl35(@NonNull Window window,
+                @NonNull WindowInsetsControllerCompat compatController,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            super(window, compatController, softwareKeyboardControllerCompat);
+        }
+
+        Impl35(@NonNull WindowInsetsController insetsController,
+                @NonNull WindowInsetsControllerCompat compatController,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            super(insetsController, compatController, softwareKeyboardControllerCompat);
+        }
+
+        @Override
+        public boolean isAppearanceLightStatusBars() {
+            return (mInsetsController.getSystemBarsAppearance()
+                    & WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0;
+        }
+
+        @Override
+        public boolean isAppearanceLightNavigationBars() {
+            return (mInsetsController.getSystemBarsAppearance()
+                    & WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0;
+        }
+
     }
 }
