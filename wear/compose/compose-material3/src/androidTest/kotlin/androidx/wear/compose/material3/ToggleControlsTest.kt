@@ -142,7 +142,7 @@ class ToggleControlsTest {
                     Switch(modifier = Modifier.testTag(TEST_TAG))
                 }
             }
-            .assertHeightIsEqualTo(TOGGLE_CONTROL_HEIGHT)
+            .assertHeightIsEqualTo(SWITCH_CONTROL_HEIGHT)
             .assertWidthIsEqualTo(TOGGLE_CONTROL_WIDTH)
     }
 
@@ -234,4 +234,5 @@ class ToggleControlsTest {
 }
 
 private val TOGGLE_CONTROL_WIDTH = 32.dp
+private val SWITCH_CONTROL_HEIGHT = 22.dp
 private val TOGGLE_CONTROL_HEIGHT = 24.dp

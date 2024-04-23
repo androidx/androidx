@@ -596,7 +596,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class SwitchDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackBorderColor, optional long uncheckedThumbColor, optional long uncheckedThumbIconColor, optional long uncheckedTrackColor, optional long uncheckedTrackBorderColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SwitchColors colors(optional long checkedThumbColor, optional long checkedThumbIconColor, optional long checkedTrackColor, optional long checkedTrackBorderColor, optional long uncheckedThumbColor, optional long uncheckedThumbIconColor, optional long uncheckedTrackColor, optional long uncheckedTrackBorderColor, optional long disabledCheckedThumbColor, optional long disabledCheckedThumbIconColor, optional long disabledCheckedTrackColor, optional long disabledCheckedTrackBorderColor, optional long disabledUncheckedThumbColor, optional long disabledUncheckedThumbIconColor, optional long disabledUncheckedTrackColor, optional long disabledUncheckedTrackBorderColor);
     field public static final androidx.wear.compose.material3.SwitchDefaults INSTANCE;
   }
 

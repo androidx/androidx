@@ -127,21 +127,16 @@ fun Checkbox(
             {
                 onDrawWithContent {
                     drawBox(this, boxColorState.value, progress.value, isRtl)
-
-                    if (targetState == SelectionStage.Checked) {
-                        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-                        drawTick(checkmarkColorState.value, progress.value, startXOffset, enabled)
-                    } else {
-                        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-                        eraseTick(
-                            checkmarkColorState.value,
-                            progress.value,
-                            startXOffset,
-                            enabled
-                        )
-                    }
+                    animateTick(
+                        enabled = enabled,
+                        checked = checked,
+                        tickColor = checkmarkColorState.value,
+                        tickProgress = progress.value,
+                        startXOffset = startXOffset
+                    )
                 }
-            })
+            }
+    )
 }
 
 /**
@@ -403,6 +398,24 @@ fun interface FunctionDrawThumb {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun interface FunctionDotRadiusProgressDuration {
     operator fun invoke(selected: Boolean): Int
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun DrawScope.animateTick(
+    enabled: Boolean,
+    checked: Boolean,
+    tickColor: Color,
+    tickProgress: Float,
+    startXOffset: Dp,
+) {
+    val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
+    if (targetState == SelectionStage.Checked) {
+        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
+        drawTick(tickColor, tickProgress, startXOffset, enabled)
+    } else {
+        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
+        eraseTick(tickColor, tickProgress, startXOffset, enabled)
+    }
 }
 
 @Composable
