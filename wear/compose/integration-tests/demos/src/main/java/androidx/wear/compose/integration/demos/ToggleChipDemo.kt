@@ -32,9 +32,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material.Checkbox
 import androidx.wear.compose.material.CheckboxDefaults
 import androidx.wear.compose.material.ListHeader
@@ -66,7 +66,7 @@ fun ToggleChips(
     var switchIconWithIconChecked by remember { mutableStateOf(true) }
     var splitWithCustomColorChecked by remember { mutableStateOf(true) }
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         state = scrollState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),

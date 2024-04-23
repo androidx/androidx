@@ -35,8 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
@@ -115,7 +115,7 @@ fun ButtonStyles() {
     var enabled by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -315,7 +315,7 @@ fun ButtonStyles() {
 @Composable
 fun ButtonGallery() {
     val state = rememberScalingLazyListState()
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         state = state,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize(),
