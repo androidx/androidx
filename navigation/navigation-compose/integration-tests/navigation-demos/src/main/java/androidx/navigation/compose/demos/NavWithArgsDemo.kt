@@ -28,7 +28,7 @@ import androidx.navigation.toRoute
 @Composable
 fun NavWithArgsDemo() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = Profile::class) {
+    NavHost(navController, startDestination = Profile) {
         composable<Profile> { ProfileWithArgs(navController) }
         composable<Dashboard> { backStackEntry ->
             val dashboard = backStackEntry.toRoute<Dashboard>()
