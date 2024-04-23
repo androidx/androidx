@@ -74,7 +74,7 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
      * width or height parameter
      */
     fun copy(width: Float = unpackFloat1(packedValue), height: Float = unpackFloat2(packedValue)) =
-        Size(width, height)
+        Size(packFloats(width, height))
 
     companion object {
 
@@ -82,7 +82,7 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
          * An empty size, one with a zero width and a zero height.
          */
         @Stable
-        val Zero = Size(0.0f, 0.0f)
+        val Zero = Size(0x0L)
 
         /**
          * A size whose [width] and [height] are unspecified. This is a sentinel
@@ -90,7 +90,7 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
          * Access to width or height on an unspecified size is not allowed.
          */
         @Stable
-        val Unspecified = Size(Float.NaN, Float.NaN)
+        val Unspecified = Size(UnspecifiedPackedFloats)
     }
 
     /**
@@ -103,7 +103,17 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
         if (packedValue == UnspecifiedPackedFloats) {
             throwIllegalStateException("Size is unspecified")
         }
-        return unpackFloat1(packedValue) <= 0.0f || unpackFloat2(packedValue) <= 0.0f
+        // Mask the sign bits, shift them to the right and replicate them by multiplying by -1.
+        // This will give us a mask of 0xffff_ffff for negative packed floats, and 0x0000_0000
+        // for positive packed floats. We invert the mask and do an and operation with the
+        // original value to set any negative float to 0.0f.
+        val v = packedValue and ((packedValue and DualFloatSignBit ushr 31) * -0x1).inv()
+        // At this point any negative float is set to 0, so the sign bit is  always 0.
+        // We take the 2 packed floats and "and" them together: if any of the two floats
+        // is 0.0f (either because the original value is 0.0f or because it was negative and
+        // we turned it into 0.0f with the line above), the result of the and operation will
+        // be 0 and we know our Size is empty.
+        return ((v ushr 32) and (v and 0xffffffffL)) == 0L
     }
 
     /**
@@ -119,8 +129,10 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
             throwIllegalStateException("Size is unspecified")
         }
         return Size(
-            unpackFloat1(packedValue) * operand,
-            unpackFloat2(packedValue) * operand,
+            packFloats(
+                unpackFloat1(packedValue) * operand,
+                unpackFloat2(packedValue) * operand
+            )
         )
     }
 
@@ -137,8 +149,10 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
             throwIllegalStateException("Size is unspecified")
         }
         return Size(
-            unpackFloat1(packedValue) / operand,
-            unpackFloat2(packedValue) / operand,
+            packFloats(
+                unpackFloat1(packedValue) / operand,
+                unpackFloat2(packedValue) / operand
+            )
         )
     }
 
@@ -221,8 +235,10 @@ fun lerp(start: Size, stop: Size, fraction: Float): Size {
         throwIllegalStateException("Offset is unspecified")
     }
     return Size(
-        lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
-        lerp(unpackFloat2(start.packedValue), unpackFloat2(stop.packedValue), fraction)
+        packFloats(
+            lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
+            lerp(unpackFloat2(start.packedValue), unpackFloat2(stop.packedValue), fraction)
+        )
     )
 }
 
