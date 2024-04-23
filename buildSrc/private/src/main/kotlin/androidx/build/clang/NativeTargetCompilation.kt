@@ -109,8 +109,8 @@ class NativeTargetCompilation internal constructor(
         val relativeHeaderPaths = when (konanTarget.family) {
             Family.MINGW -> {
                 listOf(
-                    "/windows-x86/include",
-                    "/windows-x86/include/win32"
+                    "windows-x86/include",
+                    "windows-x86/include/win32"
                 )
             }
 
