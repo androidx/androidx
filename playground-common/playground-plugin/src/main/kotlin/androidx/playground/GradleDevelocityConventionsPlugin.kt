@@ -16,34 +16,32 @@
 
 package androidx.playground
 
-import com.gradle.enterprise.gradleplugin.internal.extension.BuildScanExtensionWithHiddenFeatures
-import org.gradle.api.Plugin
-import org.gradle.api.initialization.Settings
-import org.gradle.caching.http.HttpBuildCache
-import org.gradle.kotlin.dsl.gradleEnterprise
 import java.net.InetAddress
 import java.net.URI
 import java.util.function.Function
+import org.gradle.api.Plugin
+import org.gradle.api.initialization.Settings
+import org.gradle.caching.http.HttpBuildCache
+import org.gradle.kotlin.dsl.develocity
 
-class GradleEnterpriseConventionsPlugin : Plugin<Settings> {
+class GradleDevelocityConventionsPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
-        settings.apply(mapOf("plugin" to "com.gradle.enterprise"))
+        settings.apply(mapOf("plugin" to "com.gradle.develocity"))
         settings.apply(mapOf("plugin" to "com.gradle.common-custom-user-data-gradle-plugin"))
 
         // Github Actions always sets a "CI" environment variable
         val isCI = System.getenv("CI") != null
 
-        settings.gradleEnterprise {
-            server = "https://ge.androidx.dev"
-
+        settings.develocity {
+            server.set("https://ge.androidx.dev")
             buildScan.apply {
-                publishAlways()
-                (this as BuildScanExtensionWithHiddenFeatures).publishIfAuthenticated()
-                isUploadInBackground = !isCI
-                capture.isTaskInputFiles = true
-
+                uploadInBackground.set(!isCI)
+                capture.fileFingerprints.set(true)
                 obfuscation.hostname(HostnameHider())
                 obfuscation.ipAddresses(IpAddressHider())
+                publishing.onlyIf {
+                    it.isAuthenticated
+                }
             }
         }
 
