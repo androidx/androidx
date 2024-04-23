@@ -416,4 +416,57 @@ abstract class BaseQueryTest {
         assertContentEquals(arrayOf(1, 2), resultArrayWithLong)
         assertContentEquals(longArrayOf(1, 2), resultLongArray)
     }
+
+    @Test
+    fun relation1to1() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        db.dao().insert(sampleEntity1)
+        db.dao().insert(sampleEntity2)
+        assertThat(
+            db.dao().getSample1To2()
+        ).isEqualTo(
+            SampleDao.Sample1And2(sample1 = sampleEntity1, sample2 = sampleEntity2)
+        )
+    }
+
+    @Test
+    fun relation1toMany() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        val sampleEntity2s = listOf(sampleEntity2, SampleEntity2(2, 3))
+
+        db.dao().insert(sampleEntity1)
+        db.dao().insertSampleEntity2List(sampleEntity2s)
+
+        assertThat(
+            db.dao().getSample1ToMany()
+        ).isEqualTo(
+            SampleDao.Sample1AndMany(
+                sample1 = sampleEntity1,
+                sample2s = listOf(sampleEntity2)
+            )
+        )
+    }
+
+    @Test
+    fun relationManytoMany() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity1s = listOf(sampleEntity1, SampleEntity(2, 2))
+
+        val sampleEntity2 = SampleEntity2(1, 1)
+        val sampleEntity2s = listOf(sampleEntity2, SampleEntity2(2, 2))
+
+        db.dao().insertSampleEntityList(sampleEntity1s)
+        db.dao().insertSampleEntity2List(sampleEntity2s)
+
+        assertThat(
+            db.dao().getSampleManyToMany()
+        ).isEqualTo(
+            SampleDao.SampleManyAndMany(
+                sample1 = sampleEntity1,
+                sample2s = listOf()
+            )
+        )
+    }
 }
