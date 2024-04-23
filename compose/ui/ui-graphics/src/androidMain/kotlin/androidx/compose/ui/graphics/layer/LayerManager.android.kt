@@ -19,11 +19,13 @@ package androidx.compose.ui.graphics.layer
 import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Build
+import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.collection.ObjectList
 import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.graphics.CanvasHolder
+import androidx.core.os.HandlerCompat
 
 /**
  * Class responsible for managing the layer lifecycle to support
@@ -44,10 +46,17 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
      */
     private var imageReader: ImageReader? = null
 
+    private val handler = HandlerCompat.createAsync(Looper.getMainLooper()) {
+        persistLayers(layerList)
+        true
+    }
+
     fun persist(layer: GraphicsLayer) {
         if (!layerList.contains(layer)) {
             layerList.add(layer)
-            persistLayers(layerList)
+            if (!handler.hasMessages(0)) {
+                handler.sendEmptyMessage(0)
+            }
         }
     }
 
@@ -65,7 +74,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
          * another internal CanvasContext instance owned by the internal HwuiContext instance of
          * a Surface. This is only necessary for Android M and above.
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && layers.isNotEmpty()) {
             val reader = imageReader ?: ImageReader.newInstance(
                 1,
                 1,
@@ -78,7 +87,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             // are not supported
             if (canvas.isHardwareAccelerated) {
                 canvasHolder.drawInto(canvas) {
-                    layers.forEach { layer -> layer.draw(this, null) }
+                    layers.forEach { layer -> layer.drawForPersistence(this) }
                 }
             }
             surface.unlockCanvasAndPost(canvas)

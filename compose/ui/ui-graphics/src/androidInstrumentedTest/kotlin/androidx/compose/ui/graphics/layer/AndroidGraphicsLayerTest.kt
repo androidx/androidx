@@ -21,9 +21,6 @@ import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -51,7 +48,6 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.throwIllegalArgumentException
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.unit.Density
@@ -71,10 +67,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlin.test.assertNotNull
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -92,61 +85,12 @@ class AndroidGraphicsLayerTest {
         val TEST_SIZE = IntSize(TEST_WIDTH, TEST_HEIGHT)
     }
 
-    private var waitThread: HandlerThread? = null
-    private var waitHandler: Handler? = null
-
-    private fun obtainWaitHandler(): Handler {
-        synchronized(this) {
-            var thread = waitThread
-            if (thread == null) {
-                thread = HandlerThread("waitThread").also {
-                    it.start()
-                    waitThread = it
-                }
-            }
-
-            var handler = waitHandler
-            if (handler == null) {
-                handler = Handler(thread.looper)
-            }
-            return handler
-        }
-    }
-
-    /**
-     * Helper method used to synchronously obtain an [ImageBitmap] from a [GraphicsLayer]
-     */
-    private fun GraphicsLayer.toImageBitmap(handler: Handler): ImageBitmap {
-        if (Looper.myLooper() === handler.looper) {
-            throwIllegalArgumentException("Handler looper cannot be the same as the current " +
-                "looper: ${Looper.myLooper()?.thread?.name}  ${handler.looper.thread.name}")
-        }
-        val latch = CountDownLatch(1)
-        var bitmap: ImageBitmap?
-        runBlocking {
-            withContext(handler.asCoroutineDispatcher().immediate) {
-                bitmap = toImageBitmap()
-                latch.countDown()
-            }
-            latch.await()
-        }
-        return bitmap!!
-    }
-
-    @After
-    fun teardown() {
-        synchronized(this) {
-            waitThread?.quit()
-            waitThread = null
-        }
-    }
-
     @Test
     fun testGraphicsLayerBitmap() {
-        var bitmap: ImageBitmap? = null
+        lateinit var layer: GraphicsLayer
         graphicsLayerTest(
             block = { graphicsContext ->
-                graphicsContext.createGraphicsLayer().apply {
+                layer = graphicsContext.createGraphicsLayer().apply {
                     assertEquals(IntSize.Zero, this.size)
                     record {
                         drawRect(
@@ -169,13 +113,13 @@ class AndroidGraphicsLayerTest {
                             size = size / 2f
                         )
                     }
-                    bitmap = toImageBitmap(obtainWaitHandler())
                 }
             },
             verify = {
+                val bitmap: ImageBitmap = layer.toImageBitmap()
                 assertNotNull(bitmap)
-                assertEquals(TEST_SIZE, IntSize(bitmap!!.width, bitmap!!.height))
-                bitmap!!.toPixelMap().verifyQuadrants(
+                assertEquals(TEST_SIZE, IntSize(bitmap.width, bitmap.height))
+                bitmap.toPixelMap().verifyQuadrants(
                     Color.Red,
                     Color.Blue,
                     Color.Green,
@@ -206,7 +150,7 @@ class AndroidGraphicsLayerTest {
                 // Nulling out the dependency here should be safe despite attempting to obtain an
                 // ImageBitmap afterwards
                 provider = null
-                graphicsLayer!!.toImageBitmap(obtainWaitHandler()).toPixelMap().verifyQuadrants(
+                graphicsLayer!!.toImageBitmap().toPixelMap().verifyQuadrants(
                     Color.Red,
                     Color.Red,
                     Color.Red,
@@ -1355,7 +1299,7 @@ class AndroidGraphicsLayerTest {
 
     private fun graphicsLayerTest(
         block: DrawScope.(GraphicsContext) -> Unit,
-        verify: ((PixelMap) -> Unit)? = null,
+        verify: (suspend (PixelMap) -> Unit)? = null,
         entireScene: Boolean = false,
         usePixelCopy: Boolean = false
     ) {
@@ -1399,7 +1343,7 @@ class AndroidGraphicsLayerTest {
                         resumed.countDown()
                     }
                 }
-            Assert.assertTrue(resumed.await(300000, TimeUnit.MILLISECONDS))
+            assertTrue(resumed.await(3000, TimeUnit.MILLISECONDS))
 
             if (verify != null) {
                 val target = if (entireScene) {
@@ -1407,8 +1351,8 @@ class AndroidGraphicsLayerTest {
                 } else {
                     contentView!!
                 }
-                if (usePixelCopy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    verify(target.captureToImage().toPixelMap())
+                val pixelMap = if (usePixelCopy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    target.captureToImage().toPixelMap()
                 } else {
                     val recordLatch = CountDownLatch(1)
                     testActivity!!.runOnUiThread {
@@ -1423,11 +1367,14 @@ class AndroidGraphicsLayerTest {
                         }
                         recordLatch.countDown()
                     }
-                    assertTrue(recordLatch.await(30000, TimeUnit.MILLISECONDS))
+                    assertTrue(recordLatch.await(3000, TimeUnit.MILLISECONDS))
                     val bitmap = runBlocking {
                         rootGraphicsLayer!!.toImageBitmap()
                     }
-                    verify(bitmap.toPixelMap())
+                    bitmap.toPixelMap()
+                }
+                runBlocking {
+                    verify(pixelMap)
                 }
             }
         } finally {
