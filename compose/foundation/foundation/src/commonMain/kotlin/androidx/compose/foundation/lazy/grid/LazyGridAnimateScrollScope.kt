@@ -37,27 +37,25 @@ internal class LazyGridAnimateScrollScope(
 
     override val itemCount: Int get() = state.layoutInfo.totalItemsCount
 
-    private val visibleItemsAverageSize: Int
-        get() = calculateLineAverageMainAxisSize(state.layoutInfo)
-
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
     }
 
     override fun calculateDistanceTo(targetIndex: Int): Float {
-        val visibleItem =
-            state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
+        val layoutInfo = state.layoutInfo
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val visibleItem = layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
 
         return if (visibleItem == null) {
             val slotsPerLine = state.slotsPerLine
-            val averageLineMainAxisSize = visibleItemsAverageSize
+            val averageLineMainAxisSize = calculateLineAverageMainAxisSize(layoutInfo)
             val before = targetIndex < firstVisibleItemIndex
             val linesDiff =
                 (targetIndex - firstVisibleItemIndex + (slotsPerLine - 1) * if (before) -1 else 1) /
                     slotsPerLine
             (averageLineMainAxisSize * linesDiff).toFloat() - firstVisibleItemScrollOffset
         } else {
-            if (state.layoutInfo.orientation == Orientation.Vertical) {
+            if (layoutInfo.orientation == Orientation.Vertical) {
                 visibleItem.offset.y
             } else {
                 visibleItem.offset.x
