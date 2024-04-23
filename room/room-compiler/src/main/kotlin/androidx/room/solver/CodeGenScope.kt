@@ -16,7 +16,6 @@
 
 package androidx.room.solver
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.writer.TypeWriter
 
@@ -29,6 +28,7 @@ class CodeGenScope(
     val useDriverApi: Boolean = false
 ) {
     val language = writer.codeLanguage
+    val javaLambdaSyntaxAvailable = writer.javaLambdaSyntaxAvailable
     val builder by lazy { XCodeBlock.builder(language) }
     private val tmpVarIndices = mutableMapOf<String, Int>()
 
@@ -36,8 +36,7 @@ class CodeGenScope(
         const val TMP_VAR_DEFAULT_PREFIX = "_tmp"
         const val CLASS_PROPERTY_PREFIX = "__"
 
-        @VisibleForTesting
-        fun getTmpVarString(index: Int) =
+        internal fun getTmpVarString(index: Int) =
             getTmpVarString(TMP_VAR_DEFAULT_PREFIX, index)
 
         private fun getTmpVarString(prefix: String, index: Int) =

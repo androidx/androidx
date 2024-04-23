@@ -44,8 +44,9 @@ import javax.lang.model.element.Modifier
  */
 class DatabaseWriter(
     val database: Database,
-    codeLanguage: CodeLanguage
-) : TypeWriter(codeLanguage) {
+    codeLanguage: CodeLanguage,
+    javaLambdaSyntaxAvailable: Boolean
+) : TypeWriter(codeLanguage, javaLambdaSyntaxAvailable) {
     override fun createTypeSpecBuilder(): XTypeSpec.Builder {
         return XTypeSpec.classBuilder(codeLanguage, database.implTypeName).apply {
             addOriginatingElement(database.element)

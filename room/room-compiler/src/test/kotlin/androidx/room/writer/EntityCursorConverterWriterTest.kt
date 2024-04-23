@@ -122,7 +122,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
     ) {
         singleEntity(input) { entity, invocation ->
             val className = XClassName.get("foo.bar", "MyContainerClass")
-            val writer = object : TypeWriter(CodeLanguage.JAVA) {
+            val writer = object : TypeWriter(CodeLanguage.JAVA, true) {
                 override fun createTypeSpecBuilder(): XTypeSpec.Builder {
                     getOrCreateFunction(EntityCursorConverterWriter(entity))
                     return XTypeSpec.classBuilder(codeLanguage, className)

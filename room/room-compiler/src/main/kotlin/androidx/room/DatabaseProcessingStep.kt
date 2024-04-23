@@ -94,15 +94,20 @@ class DatabaseProcessingStep : XProcessingStep {
             prepareDaosForWriting(databases, it.keys.toList())
             it.forEach { (daoMethod, db) ->
                 DaoWriter(
-                    daoMethod.dao,
-                    db.element,
-                    context.codeLanguage
+                    dao = daoMethod.dao,
+                    dbElement = db.element,
+                    codeLanguage = context.codeLanguage,
+                    javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
                 ).write(context.processingEnv)
             }
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(db, context.codeLanguage).write(context.processingEnv)
+            DatabaseWriter(
+                database = db,
+                codeLanguage = context.codeLanguage,
+                javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
+            ).write(context.processingEnv)
             if (db.exportSchema) {
                 val qName = db.element.qualifiedName
                 val filename = "${db.version}.json"
@@ -131,8 +136,12 @@ class DatabaseProcessingStep : XProcessingStep {
                 }
             }
             db.autoMigrations.forEach { autoMigration ->
-                AutoMigrationWriter(db.element, autoMigration, context.codeLanguage)
-                    .write(context.processingEnv)
+                AutoMigrationWriter(
+                    autoMigration = autoMigration,
+                    dbElement = db.element,
+                    codeLanguage = context.codeLanguage,
+                    javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
+                ).write(context.processingEnv)
             }
 
             if (context.codeLanguage == CodeLanguage.KOTLIN) {

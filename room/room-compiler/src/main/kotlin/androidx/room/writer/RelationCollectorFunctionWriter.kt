@@ -20,15 +20,15 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XFunSpec
-import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CollectionsSizeExprCode
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.Function1TypeSpec
+import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.LambdaSpec
 import androidx.room.ext.MapKeySetExprCode
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
@@ -101,7 +101,7 @@ class RelationCollectorFunctionWriter(
                     )
                 }
             ).apply {
-                addRecursiveFetchCall(methodName)
+                addRecursiveFetchCall(scope, methodName)
                 addStatement("return")
             }.endControlFlow()
 
@@ -258,21 +258,10 @@ class RelationCollectorFunctionWriter(
         endControlFlow()
     }
 
-    private fun XCodeBlock.Builder.addRecursiveFetchCall(methodName: String) {
-        fun getRecursiveCall(itVarName: String) =
-            if (useDriverApi) {
-                XCodeBlock.of(
-                    language,
-                    "%L(%L, %L)",
-                    methodName, PARAM_CONNECTION_VARIABLE, itVarName
-                )
-            } else {
-                XCodeBlock.of(
-                    language,
-                    "%L(%L)",
-                    methodName, itVarName
-                )
-            }
+    private fun XCodeBlock.Builder.addRecursiveFetchCall(
+        scope: CodeGenScope,
+        methodName: String,
+    ) {
         val utilFunction =
             RELATION_UTIL.let {
                 when {
@@ -280,54 +269,45 @@ class RelationCollectorFunctionWriter(
                         it.packageMember("recursiveFetchLongSparseArray")
                     usingArrayMap ->
                         it.packageMember("recursiveFetchArrayMap")
-                    language == CodeLanguage.JAVA ->
-                        it.packageMember("recursiveFetchHashMap")
-                    language == CodeLanguage.JAVA ->
-                        it.packageMember("recursiveFetchHashMap")
                     else -> when (language) {
                         CodeLanguage.JAVA -> it.packageMember("recursiveFetchHashMap")
                         CodeLanguage.KOTLIN -> it.packageMember("recursiveFetchMap")
                     }
                 }
             }
-        when (language) {
-            CodeLanguage.JAVA -> {
-                val paramName = "map"
-                if (collector.javaLambdaSyntaxAvailable) {
-                    add("%M(%L, %L, (%L) -> {\n",
-                        utilFunction, PARAM_MAP_VARIABLE, collector.relationTypeIsCollection,
-                        paramName
-                    )
-                    indent()
-                    addStatement("%L", getRecursiveCall(paramName))
-                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
-                    unindent()
-                    addStatement("})")
-                } else {
-                    val functionImpl = Function1TypeSpec(
-                        language = language,
-                        parameterTypeName = collector.mapTypeName,
-                        parameterName = paramName,
-                        returnTypeName = KotlinTypeNames.UNIT,
-                    ) {
-                        addStatement("%L", getRecursiveCall(paramName))
+        val paramName = scope.getTmpVar("_tmpMap")
+        val recursiveFetchBlock = InvokeWithLambdaParameter(
+            scope = scope,
+            functionName = utilFunction,
+            argFormat = listOf("%L", "%L"),
+            args = listOf(PARAM_MAP_VARIABLE, collector.relationTypeIsCollection),
+            lambdaSpec = object : LambdaSpec(
+                parameterTypeName = collector.mapTypeName,
+                parameterName = paramName,
+                returnTypeName = KotlinTypeNames.UNIT,
+                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+            ) {
+                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                    val recursiveCall = if (useDriverApi) {
+                        XCodeBlock.of(
+                            language,
+                            "%L(%L, %L)",
+                            methodName, PARAM_CONNECTION_VARIABLE, paramName
+                        )
+                    } else {
+                        XCodeBlock.of(
+                            language,
+                            "%L(%L)",
+                            methodName, paramName
+                        )
+                    }
+                    addStatement("%L", recursiveCall)
+                    if (language == CodeLanguage.JAVA) {
                         addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                     }
-                    addStatement(
-                        "%M(%L, %L, %L)",
-                        utilFunction, PARAM_MAP_VARIABLE, collector.relationTypeIsCollection,
-                        functionImpl
-                    )
                 }
             }
-            CodeLanguage.KOTLIN -> {
-                beginControlFlow(
-                    "%M(%L, %L)",
-                    utilFunction, PARAM_MAP_VARIABLE, collector.relationTypeIsCollection
-                )
-                addStatement("%L", getRecursiveCall("it"))
-                endControlFlow()
-            }
-        }
+        )
+        add("%L", recursiveFetchBlock)
     }
 }

@@ -16,12 +16,13 @@
 
 package androidx.room.solver.shortcut.binder
 
-import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.Function1TypeSpec
+import androidx.room.ext.InvokeWithLambdaParameter
+import androidx.room.ext.LambdaSpec
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
@@ -43,81 +44,33 @@ class CoroutineUpsertMethodBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        when (scope.language) {
-            CodeLanguage.JAVA -> convertAndReturnJava(
-                parameters, adapters, dbProperty, scope
-            )
-            CodeLanguage.KOTLIN -> convertAndReturnKotlin(
-                parameters, adapters, dbProperty, scope
-            )
-        }
-    }
-
-    private fun convertAndReturnJava(
-        parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
-        dbProperty: XPropertySpec,
-        scope: CodeGenScope
-    ) {
         if (adapter == null) {
             return
         }
         val connectionVar = scope.getTmpVar("_connection")
-        scope.builder.addStatement(
-            "return %M(%N, %L, %L, %L, %L)",
-            RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
-            dbProperty,
-            false, // isReadOnly
-            true, // inTransaction
-            Function1TypeSpec(
-                language = scope.language,
+        val performBlock = InvokeWithLambdaParameter(
+            scope = scope,
+            functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+            argFormat = listOf("%N", "%L", "%L"),
+            args = listOf(dbProperty, /* isReadOnly = */ false, /* inTransaction = */ true),
+            continuationParamName = continuationParamName,
+            lambdaSpec = object : LambdaSpec(
                 parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                 parameterName = connectionVar,
-                returnTypeName = adapter.returnType.asTypeName().box()
+                returnTypeName = adapter.returnType.asTypeName().box(),
+                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
             ) {
-                val functionScope = scope.fork()
-                val functionCode = functionScope.builder.apply {
+                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                     adapter.generateMethodBody(
-                        scope = functionScope,
-                        connectionVar = connectionVar,
+                        scope = scope,
                         parameters = parameters,
-                        adapters = adapters
+                        adapters = adapters,
+                        connectionVar = connectionVar
                     )
-                }.build()
-                this.addCode(functionCode)
-            },
-            continuationParamName
+                }
+            }
         )
-    }
-
-    private fun convertAndReturnKotlin(
-        parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
-        dbProperty: XPropertySpec,
-        scope: CodeGenScope
-    ) {
-        if (adapter == null) {
-            return
-        }
-        val connectionVar = scope.getTmpVar("_connection")
-
-        scope.builder.apply {
-            beginControlFlow(
-                "return %M(%N, %L, %L) { %L ->",
-                RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
-                dbProperty,
-                false, // isReadOnly
-                true, // inTransaction
-                connectionVar
-            ).apply {
-                adapter.generateMethodBody(
-                    scope = scope,
-                    connectionVar = connectionVar,
-                    parameters = parameters,
-                    adapters = adapters
-                )
-            }.endControlFlow()
-        }
+        scope.builder.add("return %L", performBlock)
     }
 
     override fun convertAndReturnCompat(

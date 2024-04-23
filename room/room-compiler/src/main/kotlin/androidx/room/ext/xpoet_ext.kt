@@ -22,12 +22,14 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
+import androidx.room.compiler.codegen.XMemberName
 import androidx.room.compiler.codegen.XMemberName.Companion.companionMember
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
+import androidx.room.solver.CodeGenScope
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import java.util.concurrent.Callable
 
@@ -403,6 +405,126 @@ fun Function1TypeSpec(
         }.build()
     )
 }.build()
+
+/**
+ * Generates a code block that invokes a function with a functional type as last parameter.
+ *
+ * For Java (jvmTarget >= 8) it will generate:
+ * ```
+ * <functionName>(<args>, (<lambdaSpec.paramName>) -> <lambdaSpec.body>);
+ * ```
+ * For Java (jvmTarget < 8) it will generate:
+ * ```
+ * <functionName>(<args>, new Function1<>() { <lambdaSpec.body> });
+ * ```
+ * For Kotlin it will generate:
+ * ```
+ * <functionName>(<args>) { <lambdaSpec.body> }
+ * ```
+ *
+ * The ideal usage of this utility function is to generate code that invokes the various
+ * `DBUtil.perform*()` APIs for interacting with the database connection in DAOs.
+ */
+fun InvokeWithLambdaParameter(
+    scope: CodeGenScope,
+    functionName: XMemberName,
+    argFormat: List<String>,
+    args: List<Any>,
+    continuationParamName: String? = null,
+    lambdaSpec: LambdaSpec
+): XCodeBlock = XCodeBlock.builder(scope.language).apply {
+    check(argFormat.size == args.size)
+    when (language) {
+        CodeLanguage.JAVA -> {
+            if (lambdaSpec.javaLambdaSyntaxAvailable) {
+                val argsFormatString = argFormat.joinToString(separator = ", ")
+                add(
+                    "%M($argsFormatString, (%L) -> {\n",
+                    functionName,
+                    *args.toTypedArray(),
+                    lambdaSpec.parameterName
+                )
+                indent()
+                val bodyScope = scope.fork()
+                with(lambdaSpec) { bodyScope.builder.body(bodyScope) }
+                add(bodyScope.generate())
+                unindent()
+                add("}")
+                if (continuationParamName != null) {
+                    add(", %L", continuationParamName)
+                }
+                add(");\n")
+            } else {
+                val adjustedArgsFormatString = buildList {
+                    addAll(argFormat)
+                    add("%L") // the anonymous function
+                    if (continuationParamName != null) {
+                        add("%L")
+                    }
+                }.joinToString(separator = ", ")
+                val adjustedArgs = buildList {
+                    addAll(args)
+                    add(
+                        Function1TypeSpec(
+                            language = language,
+                            parameterTypeName = lambdaSpec.parameterTypeName,
+                            parameterName = lambdaSpec.parameterName,
+                            returnTypeName = lambdaSpec.returnTypeName,
+                            callBody = {
+                                val bodyScope = scope.fork()
+                                with(lambdaSpec) { bodyScope.builder.body(bodyScope) }
+                                addCode(bodyScope.generate())
+                            }
+                        )
+                    )
+                    if (continuationParamName != null) {
+                        add(continuationParamName)
+                    }
+                }
+                add(
+                    "%M($adjustedArgsFormatString);\n",
+                    functionName,
+                    *adjustedArgs.toTypedArray(),
+                )
+            }
+        }
+        CodeLanguage.KOTLIN -> {
+            val argsFormatString = argFormat.joinToString(separator = ", ")
+            if (lambdaSpec.parameterTypeName.rawTypeName != KotlinTypeNames.CONTINUATION) {
+                add(
+                    "%M($argsFormatString) { %L ->\n",
+                    functionName,
+                    *args.toTypedArray(),
+                    lambdaSpec.parameterName
+                )
+            } else {
+                add(
+                    "%M($argsFormatString) {\n",
+                    functionName,
+                    *args.toTypedArray(),
+                )
+            }
+            indent()
+            val bodyScope = scope.fork()
+            with(lambdaSpec) { bodyScope.builder.body(bodyScope) }
+            add(bodyScope.generate())
+            unindent()
+            add("}\n")
+        }
+    }
+}.build()
+
+/**
+ * Describes the lambda to be generated with [InvokeWithLambdaParameter].
+ */
+abstract class LambdaSpec(
+    val parameterTypeName: XTypeName,
+    val parameterName: String,
+    val returnTypeName: XTypeName,
+    val javaLambdaSyntaxAvailable: Boolean
+) {
+    abstract fun XCodeBlock.Builder.body(scope: CodeGenScope)
+}
 
 /**
  * Generates an array literal with the given [values]
