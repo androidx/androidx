@@ -176,7 +176,11 @@ private fun includeMetaInfServices(library: LibraryExtension) {
 fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
     val inspectorProject = libraryProject.rootProject.findProject(inspectorProjectPath)
     if (inspectorProject == null) {
-        check(libraryProject.property("androidx.studio.type") == "playground") {
+        val extraProperties = libraryProject.extensions.extraProperties
+        check(
+            extraProperties.has("androidx.studio.type") &&
+            extraProperties.get("androidx.studio.type") == "playground"
+        ) {
             "Cannot find $inspectorProjectPath. This is optional only for playground builds."
         }
         // skip setting up inspector project

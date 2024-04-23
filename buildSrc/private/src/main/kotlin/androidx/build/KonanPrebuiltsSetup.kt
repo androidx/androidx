@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import java.io.File
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
@@ -83,7 +84,7 @@ object KonanPrebuiltsSetup {
 
     private fun Project.overrideKotlinNativeDependenciesUrlToLocalDirectory() {
         val compilerDaemonDisabled =
-            findProperty(DISABLE_COMPILER_DAEMON_FLAG)?.toString()?.toBoolean() == true
+            extraPropertyOrNull(DISABLE_COMPILER_DAEMON_FLAG)?.toString()?.toBoolean() == true
         val konanPrebuiltsFolder = getKonanPrebuiltsFolder()
         val rootBaseDir = if (compilerDaemonDisabled) projectDir else rootProject.projectDir
         // use relative path so it doesn't affect gradle remote cache.

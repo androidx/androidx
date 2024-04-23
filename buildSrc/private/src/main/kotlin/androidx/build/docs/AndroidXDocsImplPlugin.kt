@@ -27,6 +27,7 @@ import androidx.build.getCheckoutRoot
 import androidx.build.getDistributionDirectory
 import androidx.build.getKeystore
 import androidx.build.getLibraryByName
+import androidx.build.getSupportRootFolder
 import androidx.build.metalava.versionMetadataUsage
 import androidx.build.multiplatformUsage
 import androidx.build.versionCatalog
@@ -521,7 +522,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                 var taskStartTime: LocalDateTime? = null
                 task.argsJsonFile.set(
                     File(
-                        project.rootProject.getDistributionDirectory(),
+                        project.getDistributionDirectory(),
                         "dackkaArgs-${project.name}.json"
                     )
                 )
@@ -542,7 +543,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     dackkaClasspath.from(project.files(dackkaConfiguration))
                     destinationDir.set(generatedDocsDir)
                     frameworkSamplesDir.set(
-                        project.rootProject.layout.projectDirectory.dir("samples")
+                        File(project.getSupportRootFolder(), "samples")
                     )
                     samplesDeprecatedDir.set(unzippedDeprecatedSamplesSources)
                     samplesJvmDir.set(unzippedJvmSamplesSources)
@@ -550,7 +551,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     jvmSourcesDir.set(unzippedJvmSourcesDirectory)
                     multiplatformSourcesDir.set(unzippedMultiplatformSourcesDirectory)
                     projectListsDirectory.set(
-                        project.rootProject.layout.projectDirectory.dir("docs-public/package-lists")
+                        File(project.getSupportRootFolder(), "docs-public/package-lists")
                     )
                     dependenciesClasspath.from(
                         dependencyClasspath +

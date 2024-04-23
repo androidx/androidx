@@ -26,7 +26,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.create
 import org.jetbrains.kotlin.gradle.plugin.CompilerPluginConfig
@@ -122,7 +121,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
          */
         private fun Project.configureForMultiplatform() {
             // This is to allow K/N not matching the kotlinVersion
-            (this.rootProject.property("ext") as ExtraPropertiesExtension).set(
+            this.rootProject.extensions.extraProperties.set(
                 "kotlin.native.version",
                 KOTLIN_NATIVE_VERSION
             )
