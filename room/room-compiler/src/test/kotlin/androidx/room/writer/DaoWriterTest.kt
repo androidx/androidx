@@ -25,18 +25,19 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.context
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import createVerifierFromEntitiesAndViews
 import java.util.Locale
 import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import writeTestSource
 
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class DaoWriterTest {
     @Test
-    fun complexDao() {
+    fun complexDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "databasewriter/input/ComplexDatabase.java",
@@ -46,6 +47,7 @@ class DaoWriterTest {
                 fileName = "daoWriter/input/ComplexDao.java",
                 qName = "foo.bar.ComplexDao"
             ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
             outputFileName = "ComplexDao.java"
         )
     }
@@ -55,58 +57,63 @@ class DaoWriterTest {
         val originalLocale = Locale.getDefault()
         try {
             Locale.setDefault(Locale("tr")) // Turkish has special upper/lowercase i chars
-            complexDao()
+            complexDao(false)
         } finally {
             Locale.setDefault(originalLocale)
         }
     }
 
     @Test
-    fun writerDao() {
+    fun writerDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/WriterDao.java",
                 qName = "foo.bar.WriterDao"
             ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
             outputFileName = "WriterDao.java"
         )
     }
 
     @Test
-    fun deletionDao() {
+    fun deletionDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/DeletionDao.java",
                 qName = "foo.bar.DeletionDao"
             ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
             outputFileName = "DeletionDao.java"
         )
     }
 
     @Test
-    fun updateDao() {
+    fun updateDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/UpdateDao.java",
                 qName = "foo.bar.UpdateDao"
             ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
             outputFileName = "UpdateDao.java"
         )
     }
 
     @Test
-    fun upsertDao() {
+    fun upsertDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/UpsertDao.java",
                 qName = "foo.bar.UpsertDao"
             ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
             outputFileName = "UpsertDao.java"
         )
     }
 
     private fun singleDao(
         vararg inputs: Source,
+        javaLambdaSyntaxAvailable: Boolean = false,
         outputFileName: String,
         handler: (XTestInvocation) -> Unit = { }
     ) {
@@ -122,6 +129,10 @@ class DaoWriterTest {
         runProcessorTest(
             sources = sources
         ) { invocation ->
+            if (invocation.isKsp && !javaLambdaSyntaxAvailable) {
+                // Skip KSP backend without lambda syntax, it is a nonsensical combination.
+                return@runProcessorTest
+            }
             val dao = invocation.roundEnv
                 .getElementsAnnotatedWith(
                     androidx.room.Dao::class.qualifiedName!!
@@ -143,9 +154,9 @@ class DaoWriterTest {
                     dbVerifier = dbVerifier
                 )
                 val parsedDao = parser.process()
-                DaoWriter(parsedDao, db, CodeLanguage.JAVA)
+                DaoWriter(parsedDao, db, CodeLanguage.JAVA, javaLambdaSyntaxAvailable)
                     .write(invocation.processingEnv)
-                val outputSubFolder = outputFolder(invocation)
+                val outputSubFolder = outputFolder(invocation, javaLambdaSyntaxAvailable)
                 invocation.assertCompilationResult {
                     val expectedFilePath = "daoWriter/output/$outputSubFolder/$outputFileName"
                     val expectedSrc = loadTestSource(
@@ -171,7 +182,14 @@ class DaoWriterTest {
 
     private fun outputFolder(
         invocation: XTestInvocation,
+        javaLambdaSyntaxAvailable: Boolean
     ): String {
-        return invocation.processingEnv.backend.name.lowercase()
+        val backendFolder = invocation.processingEnv.backend.name.lowercase()
+        val lambdaFolder = if (javaLambdaSyntaxAvailable) "withLambda" else "withoutLambda"
+        if (invocation.isKsp) {
+            return backendFolder
+        } else {
+            return "$backendFolder/$lambdaFolder"
+        }
     }
 }

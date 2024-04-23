@@ -38,10 +38,11 @@ import androidx.room.vo.AutoMigration
  * Writes the implementation of migrations that were annotated with @AutoMigration.
  */
 class AutoMigrationWriter(
+    private val autoMigration: AutoMigration,
     private val dbElement: XTypeElement,
-    val autoMigration: AutoMigration,
-    codeLanguage: CodeLanguage
-) : TypeWriter(codeLanguage) {
+    codeLanguage: CodeLanguage,
+    javaLambdaSyntaxAvailable: Boolean
+) : TypeWriter(codeLanguage, javaLambdaSyntaxAvailable) {
     private val addedColumns = autoMigration.schemaDiff.addedColumns
     private val addedTables = autoMigration.schemaDiff.addedTables
     private val renamedTables = autoMigration.schemaDiff.renamedTables

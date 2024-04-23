@@ -187,7 +187,6 @@ class DefaultMethodProcessorDelegate(
                 jvmMethodName = executableElement.jvmName,
                 callType = callType
             ),
-            javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8
         )
 }
 
@@ -270,8 +269,7 @@ class SuspendMethodProcessorDelegate(
                 jvmMethodName = executableElement.jvmName,
                 callType = callType
             ),
-            continuationParamName = continuationParam.name,
-            javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8
+            continuationParamName = continuationParam.name
         )
 
     private fun XCodeBlock.Builder.addCoroutineExecuteStatement(

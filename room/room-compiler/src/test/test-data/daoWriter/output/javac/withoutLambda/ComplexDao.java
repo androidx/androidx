@@ -16,6 +16,7 @@ import androidx.sqlite.SQLiteConnection;
 import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.lang.Boolean;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
@@ -42,9 +43,13 @@ public final class ComplexDao_Impl extends ComplexDao {
 
   @Override
   public boolean transactionMethod(final int i, final String s, final long l) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-          return ComplexDao_Impl.super.transactionMethod(i, s, l);
-        });
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Boolean>() {
+      @Override
+      @NonNull
+      public Boolean invoke(@NonNull final SQLiteConnection _connection) {
+        return ComplexDao_Impl.super.transactionMethod(i, s, l);
+      }
+    });
   }
 
   @Override

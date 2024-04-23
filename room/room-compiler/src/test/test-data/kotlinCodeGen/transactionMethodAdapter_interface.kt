@@ -21,7 +21,7 @@ public class MyDao_Impl(
     this.__db = __db
   }
 
-  public override fun baseConcrete(): Unit = performBlocking(__db, false, true) {
+  public override fun baseConcrete(): Unit = performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.baseConcrete()
   }
 
@@ -29,21 +29,21 @@ public class MyDao_Impl(
     super@MyDao_Impl.baseSuspendConcrete()
   }
 
-  public override fun concrete(): Unit = performBlocking(__db, false, true) {
+  public override fun concrete(): Unit = performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.concrete()
   }
 
-  public override fun concreteWithReturn(): String = performBlocking(__db, false, true) {
+  public override fun concreteWithReturn(): String = performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.concreteWithReturn()
   }
 
   public override fun concreteWithParamsAndReturn(text: String, num: Long): String =
-      performBlocking(__db, false, true) {
+      performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.concreteWithParamsAndReturn(text, num)
   }
 
   public override fun concreteWithFunctionalParam(block: Function0<Unit>): Unit =
-      performBlocking(__db, false, true) {
+      performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.concreteWithFunctionalParam(block)
   }
 

@@ -152,8 +152,8 @@ public class MyDao_Impl(
       return
     }
     if (_map.size > 999) {
-      recursiveFetchMap(_map, false) {
-        __fetchRelationshipArtistAsArtist(_connection, it)
+      recursiveFetchMap(_map, false) { _tmpMap ->
+        __fetchRelationshipArtistAsArtist(_connection, _tmpMap)
       }
       return
     }
@@ -198,8 +198,8 @@ public class MyDao_Impl(
       return
     }
     if (_map.size > 999) {
-      recursiveFetchMap(_map, true) {
-        __fetchRelationshipSongAsSong(_connection, it)
+      recursiveFetchMap(_map, true) { _tmpMap ->
+        __fetchRelationshipSongAsSong(_connection, _tmpMap)
       }
       return
     }
@@ -248,8 +248,8 @@ public class MyDao_Impl(
       return
     }
     if (_map.size > 999) {
-      recursiveFetchMap(_map, true) {
-        __fetchRelationshipSongAsSong_1(_connection, it)
+      recursiveFetchMap(_map, true) { _tmpMap ->
+        __fetchRelationshipSongAsSong_1(_connection, _tmpMap)
       }
       return
     }

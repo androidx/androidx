@@ -49,7 +49,7 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
       }
     };
@@ -61,8 +61,7 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final User entity) {
+      protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
       }
     };
@@ -74,10 +73,17 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement,
-          @NonNull final MultiPKeyEntity entity) {
-        statement.bindText(1, entity.name);
-        statement.bindText(2, entity.lastName);
+      protected void bind(@NonNull final SQLiteStatement statement, final MultiPKeyEntity entity) {
+        if (entity.name == null) {
+          statement.bindNull(1);
+        } else {
+          statement.bindText(1, entity.name);
+        }
+        if (entity.lastName == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.lastName);
+        }
       }
     };
     this.__deleteAdapterOfBook = new EntityDeleteOrUpdateAdapter<Book>() {
@@ -88,7 +94,7 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final Book entity) {
         statement.bindLong(1, entity.bookId);
       }
     };

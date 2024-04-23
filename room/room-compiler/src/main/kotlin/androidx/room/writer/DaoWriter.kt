@@ -65,8 +65,9 @@ import androidx.room.vo.WriteQueryMethod
 class DaoWriter(
     val dao: Dao,
     private val dbElement: XElement,
-    codeLanguage: CodeLanguage
-) : TypeWriter(codeLanguage) {
+    codeLanguage: CodeLanguage,
+    javaLambdaSyntaxAvailable: Boolean
+) : TypeWriter(codeLanguage, javaLambdaSyntaxAvailable) {
     private val declaredDao = dao.element.type
 
     // TODO nothing prevents this from conflicting, we should fix.
