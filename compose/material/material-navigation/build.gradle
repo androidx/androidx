@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import androidx.build.Publish
-import androidx.build.RunApiTasks
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -41,7 +39,7 @@ dependencies {
 
 androidx {
     name = "Compose Material Navigation"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Compose Material integration with Navigation"
