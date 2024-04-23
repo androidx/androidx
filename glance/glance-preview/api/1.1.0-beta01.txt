@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.glance.preview {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlancePreviewApi {
+  }
+
+  @SuppressCompatibility @androidx.glance.preview.ExperimentalGlancePreviewApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Preview {
+    method public abstract int heightDp() default -1;
+    method public abstract int widthDp() default -1;
+    property public abstract int heightDp;
+    property public abstract int widthDp;
+  }
+
+  @SuppressCompatibility @androidx.glance.preview.ExperimentalGlancePreviewApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface Preview.Container {
+    method public abstract androidx.glance.preview.Preview[] value();
+  }
+
+}
+
