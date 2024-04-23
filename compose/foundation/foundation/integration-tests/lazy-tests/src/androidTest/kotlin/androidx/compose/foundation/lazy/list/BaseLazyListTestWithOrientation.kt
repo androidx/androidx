@@ -123,9 +123,10 @@ open class BaseLazyListTestWithOrientation(
         flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
         userScrollEnabled: Boolean = true,
         spacedBy: Dp = 0.dp,
+        isCrossAxis: Boolean = false,
         content: LazyListScope.() -> Unit
     ) {
-        if (vertical) {
+        if (vertical xor isCrossAxis) {
             val verticalArrangement = when {
                 spacedBy != 0.dp -> Arrangement.spacedBy(spacedBy)
                 reverseLayout xor reverseArrangement -> Arrangement.Bottom

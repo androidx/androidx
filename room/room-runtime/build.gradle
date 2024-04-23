@@ -216,7 +216,7 @@ androidXMultiplatform {
 dependencies {
     lintChecks(project(":room:room-runtime-lint"))
     sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
-    add("kspAndroidAndroidTest", project(path: ":room:room-compiler", configuration: "shadowAndImplementation"))
+    add("kspAndroidAndroidTest", project(":room:room-compiler"))
 }
 
 ksp {

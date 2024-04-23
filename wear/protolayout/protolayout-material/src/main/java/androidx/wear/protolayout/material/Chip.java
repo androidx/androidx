@@ -37,7 +37,6 @@ import android.content.Context;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -52,7 +51,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
@@ -98,7 +96,7 @@ public class Chip implements LayoutElement {
         mElement = element;
     }
 
-    /** Builder class for {@link androidx.wear.protolayout.material.Chip}. */
+    /** Builder class for {@link Chip}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final Context mContext;
         @Nullable private LayoutElement mCustomContent;
@@ -151,7 +149,7 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Sets the width of {@link TitleChip}. If not set, default value will be set to fill the
+         * Sets the width of {@link Chip}. If not set, default value will be set to fill the
          * screen.
          */
         @NonNull
@@ -370,8 +368,7 @@ public class Chip implements LayoutElement {
             }
         }
 
-        @OptIn(markerClass = ProtoLayoutExperimental.class)
-        @SuppressWarnings("deprecation")
+        @SuppressWarnings("deprecation") // ELLIPSIZE_END as existing API
         private void setCorrectContent() {
             if (mImageResourceId != null) {
                 Image icon =

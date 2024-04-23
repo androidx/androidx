@@ -30,8 +30,10 @@ plugins {
 }
 
 repackage {
-    sourcePackage = "com.google.protobuf"
-    targetPackage = "androidx.wear.protolayout.protobuf"
+    addRelocation {
+        sourcePackage = "com.google.protobuf"
+        targetPackage =  "androidx.wear.protolayout.protobuf"
+    }
     artifactId = "protolayout-external-protobuf"
 }
 

@@ -26,6 +26,9 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.MouseInjectionScope
+import androidx.compose.ui.test.animateAlong
+import androidx.compose.ui.test.animateBy
+import androidx.compose.ui.test.animateTo
 import androidx.compose.ui.test.injectionscope.mouse.Common.PrimaryButton
 import androidx.compose.ui.test.injectionscope.mouse.Common.runMouseInputInjectionTest
 import androidx.compose.ui.test.injectionscope.mouse.Common.verifyMouseEvent
@@ -46,6 +49,15 @@ class MoveTest {
         private val positionMove1 = Offset(2f, 2f)
         private val positionMove2 = Offset(3f, 3f)
         private val positionOut = Offset(101f, 101f)
+
+        // For testing the animated movement methods:
+        private val steps = 4
+        private val distancePerStep = Offset(5f, 5f)
+        private val distance = distancePerStep * steps.toFloat()
+        private val position1 = Offset.Zero + distance
+        private val position2 = Offset(1f, 1f)
+        private val curveFromHere = { t: Long -> Offset(t.toFloat(), t.toFloat()) }
+        private val curveFromElsewhere = { t: Long -> Offset(1f + t.toFloat(), 1f + t.toFloat()) }
     }
 
     @Test
@@ -170,6 +182,63 @@ class MoveTest {
                 exit(positionOut)
             }
         }
+    )
+
+    @Test
+    fun animatePointerTo() = runMouseInputInjectionTest(
+        mouseInput = {
+            animateTo(position1, durationMillis = steps * T)
+        },
+        eventVerifiers = arrayOf(
+            { verifyMouseEvent(1 * T, Enter, false, distancePerStep * 1f) },
+            { verifyMouseEvent(2 * T, Move, false, distancePerStep * 2f) },
+            { verifyMouseEvent(3 * T, Move, false, distancePerStep * 3f) },
+            { verifyMouseEvent(4 * T, Move, false, distancePerStep * 4f) },
+        )
+    )
+
+    @Test
+    fun animatePointerBy() = runMouseInputInjectionTest(
+        mouseInput = {
+            moveTo(position2)
+            animateBy(distance, durationMillis = steps * T)
+        },
+        eventVerifiers = arrayOf(
+            { verifyMouseEvent(1 * T, Enter, false, position2) },
+            { verifyMouseEvent(2 * T, Move, false, position2 + (distancePerStep * 1f)) },
+            { verifyMouseEvent(3 * T, Move, false, position2 + (distancePerStep * 2f)) },
+            { verifyMouseEvent(4 * T, Move, false, position2 + (distancePerStep * 3f)) },
+            { verifyMouseEvent(5 * T, Move, false, position2 + (distancePerStep * 4f)) },
+        )
+    )
+
+    @Test
+    fun animateAlong_fromCurrentPosition() = runMouseInputInjectionTest(
+        mouseInput = {
+            animateAlong(curveFromHere, durationMillis = steps * T)
+        },
+        eventVerifiers = arrayOf(
+            // The curve starts at the current position (0, 0) so we expect no initial event.
+            { verifyMouseEvent(1 * T, Enter, false, curveFromHere(1 * T)) },
+            { verifyMouseEvent(2 * T, Move, false, curveFromHere(2 * T)) },
+            { verifyMouseEvent(3 * T, Move, false, curveFromHere(3 * T)) },
+            { verifyMouseEvent(4 * T, Move, false, curveFromHere(4 * T)) },
+        )
+    )
+
+    @Test
+    fun animateAlong_fromOtherPosition() = runMouseInputInjectionTest(
+        mouseInput = {
+            animateAlong(curveFromElsewhere, durationMillis = steps * T)
+        },
+        eventVerifiers = arrayOf(
+            // The curve doesn't start at the current position (0, 0) so we expect an initial event
+            { verifyMouseEvent(0 * T, Enter, false, curveFromElsewhere(0 * T)) },
+            { verifyMouseEvent(1 * T, Move, false, curveFromElsewhere(1 * T)) },
+            { verifyMouseEvent(2 * T, Move, false, curveFromElsewhere(2 * T)) },
+            { verifyMouseEvent(3 * T, Move, false, curveFromElsewhere(3 * T)) },
+            { verifyMouseEvent(4 * T, Move, false, curveFromElsewhere(4 * T)) },
+        )
     )
 
     private fun MouseInjectionScope.moveToAndCheck(

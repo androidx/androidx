@@ -92,7 +92,7 @@ androidXMultiplatform {
 
 // TODO(b/325111583): Create a helper function to configure KSP with KMP targets
 dependencies {
-    def roomCompilerDependency = project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    def roomCompilerDependency = project(":room:room-compiler")
     add("kspAndroidAndroidTest", roomCompilerDependency)
     add("kspJvmTest", roomCompilerDependency)
     add("kspLinuxX64Test", roomCompilerDependency)

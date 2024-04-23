@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="desc_file_type" msgid="8918077960128045611">"Тып файла"</string>
+    <!-- no translation found for title_dialog_password (2018068413709926925) -->
+    <skip />
+    <!-- no translation found for label_password_first (4456258714097111908) -->
+    <skip />
+    <!-- no translation found for label_password_incorrect (8449142641187704667) -->
+    <skip />
+    <!-- no translation found for button_cancel (5855794576957267334) -->
+    <skip />
+    <!-- no translation found for button_open (5445014062438566842) -->
+    <skip />
+    <!-- no translation found for desc_password (6636473611443746739) -->
+    <skip />
+    <!-- no translation found for desc_password_incorrect (4718823067483963845) -->
+    <skip />
+    <!-- no translation found for desc_password_incorrect_message (4849541619951023025) -->
+    <skip />
+    <string name="label_page_single" msgid="456123685879261101">"<xliff:g id="PAGE">%1$d</xliff:g> з <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <string name="desc_page_single" msgid="8459583146661044094">"старонка <xliff:g id="PAGE">%1$d</xliff:g> з <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <string name="desc_zoom" msgid="7318480946145947242">"маштаб <xliff:g id="FIRST">%1$d</xliff:g>%%"</string>
+    <!-- no translation found for desc_goto_link (2461368384824849714) -->
+    <skip />
+    <string name="desc_page" msgid="5684226167093594168">"старонка <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <!-- no translation found for message_select_text_to_comment (5725327644007067522) -->
+    <skip />
+    <!-- no translation found for message_tap_to_comment (7820801719181709999) -->
+    <skip />
+    <!-- no translation found for action_cancel (5494417739210197522) -->
+    <skip />
+    <!-- no translation found for error_file_format_pdf (7567006188638831878) -->
+    <skip />
+    <!-- no translation found for error_on_page (1592475819957182385) -->
+    <skip />
+    <!-- no translation found for annotation_mode_failed_to_open (1659648756255912463) -->
+    <skip />
+    <!-- no translation found for desc_web_link_shortened_to_domain (3323639528531061592) -->
+    <skip />
+    <!-- no translation found for desc_web_link (2776023299237058419) -->
+    <skip />
+    <!-- no translation found for desc_email_link (7027325672358507448) -->
+    <skip />
+    <!-- no translation found for desc_phone_link (4986414958429253135) -->
+    <skip />
+    <string name="desc_selection_start" msgid="3249210022376857070">"пачатак вылучэння"</string>
+    <string name="desc_selection_stop" msgid="2690168835536726898">"канец вылучэння"</string>
+    <string name="label_page_range" msgid="8290964180158460076">"<xliff:g id="FIRST">%1$d</xliff:g>-<xliff:g id="LAST">%2$d</xliff:g> з <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
+    <string name="desc_page_range" msgid="5286496438609641577">"старонкі з <xliff:g id="FIRST">%1$d</xliff:g> па <xliff:g id="LAST">%2$d</xliff:g> (усяго <xliff:g id="TOTAL">%3$d</xliff:g>)"</string>
+    <string name="desc_image_alt_text" msgid="7700601988820586333">"Відарыс: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
+</resources>

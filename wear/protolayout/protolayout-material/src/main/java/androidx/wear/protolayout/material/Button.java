@@ -40,7 +40,6 @@ import android.content.Context;
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -52,7 +51,6 @@ import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.material.Typography.TypographyName;
 import androidx.wear.protolayout.materialcore.Button.Builder.ButtonType;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -287,7 +285,6 @@ public class Button implements LayoutElement {
         }
 
         @NonNull
-        @OptIn(markerClass = ProtoLayoutExperimental.class)
         private LayoutElement getCorrectContent() {
             LayoutElement.Builder content;
             switch (mType) {
@@ -345,7 +342,8 @@ public class Button implements LayoutElement {
             }
         }
 
-        private static @TypographyName int getDefaultTypographyForSize(@NonNull DpProp size) {
+        @TypographyName
+        private static int getDefaultTypographyForSize(@NonNull DpProp size) {
             if (size.getValue() == LARGE_SIZE.getValue()) {
                 return Typography.TYPOGRAPHY_TITLE1;
             } else if (size.getValue() == EXTRA_LARGE_SIZE.getValue()) {
@@ -459,6 +457,7 @@ public class Button implements LayoutElement {
             case METADATA_TAG_IMAGE:
             case METADATA_TAG_CUSTOM_CONTENT:
                 break;
+            default: // fall out
         }
 
         if (contentColor == null) {

@@ -546,11 +546,12 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a scroll event on [scrollWheel] by [delta]. Negative values correspond to
-     * rotating the scroll wheel leftward or upward, positive values correspond to rotating the
-     * scroll wheel rightward or downward.
+     * Generates a scroll event on [scrollWheel] by [delta].
+     *
+     * Positive [delta] values correspond to scrolling forward (new content appears at the bottom
+     * of a column, or at the end of a row), negative values correspond to scrolling backward
+     * (new content appears at the top of a column, or at the start of a row).
      */
-    // TODO(fresen): verify the sign of the horizontal scroll axis (is left negative or positive?)
     @OptIn(ExperimentalTestApi::class)
     fun enqueueMouseScroll(delta: Float, scrollWheel: ScrollWheel) {
         val mouse = mouseInputState

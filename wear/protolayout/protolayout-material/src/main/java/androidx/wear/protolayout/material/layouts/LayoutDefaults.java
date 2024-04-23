@@ -60,7 +60,7 @@ public class LayoutDefaults {
      * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
      * on round devices.
      */
-    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP = dp(0);
+    @NonNull static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP = dp(0);
 
     /**
      * The default percentage for the horizontal padding for primary or secondary label in the
@@ -72,7 +72,7 @@ public class LayoutDefaults {
      * The default spacer above primary label in {@link PrimaryLayout} to make space for Tile icon
      * on square devices.
      */
-    static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP = dp(4);
+    @NonNull static final DpProp PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP = dp(4);
 
     /**
      * The default percentage for the horizontal margin for primary chip in the {@link
@@ -134,7 +134,8 @@ public class LayoutDefaults {
      * <p>It is recommended to use this on smaller screen sizes or when there's a lot of content in
      * the layout.
      */
-    public static final DpProp EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP = dp(8);
+    @NonNull public static final DpProp EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP =
+        dp(8);
 
     /**
      * The default spacer width that should be between main content and secondary label if set in
@@ -142,14 +143,14 @@ public class LayoutDefaults {
      *
      * <p>It is recommended to use this on larger screen sizes (screen sizes above 225dp).
      */
-    public static final DpProp EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP =
-            dp(12);
+    @NonNull public static final DpProp
+        EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP = dp(12);
 
     /**
      * The default spacing below primary label in the {@link EdgeContentLayout} to ensure that inner
      * content is not too high up and not near the primary label.
      */
-    static final DpProp EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP = dp(8);
+    @NonNull static final DpProp EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP = dp(8);
 
     /**
      * The recommended padding that should be above the main content (text) in the {@link
@@ -164,10 +165,10 @@ public class LayoutDefaults {
     public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
 
     /** The default spacer width for slots in a {@link MultiSlotLayout}. */
-    public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
+    @NonNull public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
 
     /** The recommended space between the main content and additional labels in layouts. */
-    public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
+    @NonNull public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
 
     /**
      * The maximum number of button that can be added to the {@link MultiButtonLayout}.
@@ -188,30 +189,32 @@ public class LayoutDefaults {
          * The default size of button in case when there are 3 or more buttons in the {@link
          * MultiButtonLayout}.
          */
-        public static final DpProp BUTTON_SIZE_FOR_3_PLUS_BUTTONS = ButtonDefaults.DEFAULT_SIZE;
+        @NonNull public static final DpProp BUTTON_SIZE_FOR_3_PLUS_BUTTONS =
+            ButtonDefaults.DEFAULT_SIZE;
 
         /**
          * The default size of button in case when there are 2 buttons in the {@link
          * MultiButtonLayout}.
          */
-        public static final DpProp BUTTON_SIZE_FOR_2_BUTTONS = ButtonDefaults.LARGE_SIZE;
+        @NonNull public static final DpProp BUTTON_SIZE_FOR_2_BUTTONS = ButtonDefaults.LARGE_SIZE;
 
         /**
          * The default size of button in case when there is 1 button in the {@link
          * MultiButtonLayout}.
          */
-        public static final DpProp BUTTON_SIZE_FOR_1_BUTTON = ButtonDefaults.EXTRA_LARGE_SIZE;
+        @NonNull public static final DpProp BUTTON_SIZE_FOR_1_BUTTON =
+            ButtonDefaults.EXTRA_LARGE_SIZE;
 
         /**
          * The default width for vertical spacer between buttons in the {@link MultiButtonLayout}.
          */
-        static final DpProp SPACER_WIDTH = dp(6);
+        @NonNull static final DpProp SPACER_WIDTH = dp(6);
 
         /**
          * The default height for horizontal spacer between buttons in the {@link
          * MultiButtonLayout}.
          */
-        static final DpProp SPACER_HEIGHT = dp(4);
+        @NonNull static final DpProp SPACER_HEIGHT = dp(4);
     }
 
     /** Wraps the given element into a {@link Box} and applies given horizontal padding. */

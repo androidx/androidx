@@ -216,9 +216,16 @@ interface MouseInjectionScope : InjectionScope {
 
     /**
      * Sends a scroll event with the given [delta] on the given [scrollWheel]. The event will be
-     * sent at the current event time. Negative [delta] values correspond to rotating the scroll
-     * wheel leftward or upward, positive values correspond to rotating the scroll wheel
-     * rightward or downward.
+     * sent at the current event time.
+     *
+     * Positive [delta] values correspond to scrolling forward (new content appears at the bottom
+     * of a column, or at the end of a row), negative values correspond to scrolling backward
+     * (new content appears at the top of a column, or at the start of a row).
+     *
+     * Note that the correlation between scroll [delta] and pixels scrolled is platform
+     * specific. For example, on Android a scroll delta of `1f` corresponds to a scroll
+     * of `64.dp`. However, on any platform, this conversion factor could change in the
+     * future to improve the mouse scroll experience.
      *
      * @param delta The amount of scroll
      * @param scrollWheel Which scroll wheel to rotate. Can be either [ScrollWheel.Vertical] (the
@@ -481,14 +488,17 @@ fun MouseInjectionScope.dragAndDrop(
 
 /**
  * Rotate the mouse's [scrollWheel] by the given [scrollAmount]. The total scroll delta is
- * linearly smoothed out over a stream of scroll events with roughly the
- * [InjectionScope.eventPeriodMillis] between each scroll event. Negative [scrollAmount] values
- * correspond to rotating the scroll wheel leftward or downward, positive values correspond to
- * rotating the scroll wheel rightward or upward.
+ * linearly smoothed out over a stream of scroll events between each scroll event.
+ *
+ * Positive [scrollAmount] values correspond to scrolling forward (new content appears at the
+ * bottom of a column, or at the end of a row), negative values correspond to scrolling backward
+ * (new content appears at the top of a column, or at the start of a row).
  *
  * @param scrollAmount The total delta to scroll the [scrollWheel] by
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  * @param scrollWheel Which scroll wheel will be rotated. By default [ScrollWheel.Vertical].
+ *
+ * @see MouseInjectionScope.scroll
  */
 @ExperimentalTestApi
 fun MouseInjectionScope.smoothScroll(

@@ -57,6 +57,7 @@ import androidx.wear.protolayout.material.Typography;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class TestCasesGenerator {
     private TestCasesGenerator() {}
@@ -918,7 +919,7 @@ public class TestCasesGenerator {
         return testCases.entrySet().stream()
                 .collect(
                         toImmutableMap(
-                                Map.Entry::getKey,
+                                Entry::getKey,
                                 entry -> Layout.fromLayoutElement(entry.getValue())));
     }
 

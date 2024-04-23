@@ -23,11 +23,13 @@ import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
@@ -85,9 +87,10 @@ fun OutlinedBasicTextField(modifier: Modifier = Modifier) {
         .cursorColor(isError = false)
     BasicTextField(
         state = state,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
         cursorBrush = SolidColor(cursorColor),
+        lineLimits = TextFieldLineLimits.MultiLine(1, 3),
         decorator = {
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = state.text.toString(),

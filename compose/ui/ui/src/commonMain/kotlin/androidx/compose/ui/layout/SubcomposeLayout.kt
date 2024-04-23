@@ -43,8 +43,11 @@ import androidx.compose.ui.node.ComposeUiNode.Companion.SetResolvedCompositionLo
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.LayoutState
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.node.traverseDescendants
 import androidx.compose.ui.platform.createSubcomposition
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
@@ -256,6 +259,18 @@ class SubcomposeLayoutState(
          * @param constraints Constraints to measure this placeable with.
          */
         fun premeasure(index: Int, constraints: Constraints) {}
+
+        /**
+         * Conditionally executes [block] for each [Modifier.Node] of this Composition that is a
+         * [TraversableNode] with a matching [key].
+         *
+         * See [androidx.compose.ui.node.traverseDescendants] for the complete semantics of this
+         * function.
+         */
+        fun traverseDescendants(
+            key: Any?,
+            block: (TraversableNode) -> TraverseDescendantsAction
+        ) {}
     }
 }
 
@@ -813,6 +828,13 @@ internal class LayoutNodeSubcompositionsState(
                         node.requireOwner().measureAndLayout(node.children[index], constraints)
                     }
                 }
+            }
+
+            override fun traverseDescendants(
+                key: Any?,
+                block: (TraversableNode) -> TraverseDescendantsAction
+            ) {
+                precomposeMap[slotId]?.nodes?.head?.traverseDescendants(key, block)
             }
         }
     }

@@ -20,7 +20,6 @@ import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Canvas
@@ -2420,13 +2419,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         null
                     } else {
                         startListeningForAccessibilityStateChanges()
-                        BroadcastsReceiver(_context, broadcastsObserver).apply {
-                            processBatteryStatus(
-                                IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
-                                    _context.registerReceiver(null, iFilter)
-                                }
-                            )
-                        }
+                        BroadcastsReceiver(_context, broadcastsObserver)
                     }
                 }
 
