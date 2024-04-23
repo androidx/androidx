@@ -282,7 +282,7 @@ internal class FakeSelectable : Selectable {
     var boundingBoxes: Map<Int, Rect> = emptyMap()
 
     private val selectableKey = 1L
-    private val fakeSelectAllSelection: Selection = Selection(
+    var fakeSelectAllSelection: Selection? = Selection(
         start = Selection.AnchorInfo(
             direction = ResolvedTextDirection.Ltr,
             offset = 0,
@@ -309,7 +309,7 @@ internal class FakeSelectable : Selectable {
         )
     }
 
-    override fun getSelectAllSelection(): Selection {
+    override fun getSelectAllSelection(): Selection? {
         return fakeSelectAllSelection
     }
 

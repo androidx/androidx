@@ -117,11 +117,17 @@ class SelectionContainerContextMenuTest {
         expectedClipboardContent = "Text",
     )
 
+    @Test
+    fun contextMenu_onClickSelectAll() = runClickContextMenuItemTest(
+        labelToClick = ContextMenuItemLabels.SELECT_ALL,
+        expectedSelection = TextRange(0, 14),
+    )
+
     @Suppress("SameParameterValue")
     private fun runClickContextMenuItemTest(
         labelToClick: String,
         expectedSelection: TextRange,
-        expectedClipboardContent: String,
+        expectedClipboardContent: String? = null,
     ) {
         val initialClipboardText = "clip"
 
@@ -163,7 +169,8 @@ class SelectionContainerContextMenuTest {
         assertThat(selection!!.toTextRange()).isEqualTo(expectedSelection)
         val clipboardContent = clipboardManager.getText()
         assertThat(clipboardContent).isNotNull()
-        assertThat(clipboardContent!!.text).isEqualTo(expectedClipboardContent)
+        assertThat(clipboardContent!!.text)
+            .isEqualTo(expectedClipboardContent ?: initialClipboardText)
     }
 
     // endregion Context Menu Item Click Tests
@@ -178,7 +185,7 @@ class SelectionContainerContextMenuTest {
             cutState = ContextMenuItemState.DOES_NOT_EXIST,
             copyState = ContextMenuItemState.DISABLED,
             pasteState = ContextMenuItemState.DOES_NOT_EXIST,
-            selectAllState = ContextMenuItemState.DOES_NOT_EXIST,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -192,7 +199,7 @@ class SelectionContainerContextMenuTest {
             cutState = ContextMenuItemState.DOES_NOT_EXIST,
             copyState = ContextMenuItemState.ENABLED,
             pasteState = ContextMenuItemState.DOES_NOT_EXIST,
-            selectAllState = ContextMenuItemState.DOES_NOT_EXIST,
+            selectAllState = ContextMenuItemState.ENABLED,
         )
     }
 
@@ -206,7 +213,7 @@ class SelectionContainerContextMenuTest {
             cutState = ContextMenuItemState.DOES_NOT_EXIST,
             copyState = ContextMenuItemState.ENABLED,
             pasteState = ContextMenuItemState.DOES_NOT_EXIST,
-            selectAllState = ContextMenuItemState.DOES_NOT_EXIST,
+            selectAllState = ContextMenuItemState.DISABLED,
         )
     }
 
