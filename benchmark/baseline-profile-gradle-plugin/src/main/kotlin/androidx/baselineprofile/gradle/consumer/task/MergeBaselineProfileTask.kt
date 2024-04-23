@@ -242,7 +242,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         // - group by class and method (ignoring flag) and for each group keep only the first value
         // - apply the filters
         // - sort with comparator
-        val filteredProfileRules = profileRules
+        val filteredBaselineProfileRules = profileRules
             .sorted()
             .asSequence()
             .mapNotNull { ProfileRule.parse(it) }
@@ -265,10 +265,11 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 return@filter !rules.any { r -> r.isInclude() }
             }
             .sortedWith(ProfileRule.comparator)
-            .map { it.underlying }
 
         // Check if the filters filtered out all the rules.
-        if (profileRules.isNotEmpty() && filteredProfileRules.isEmpty() && rules.isNotEmpty()) {
+        if (profileRules.isNotEmpty() &&
+            filteredBaselineProfileRules.isEmpty() &&
+            rules.isNotEmpty()) {
             throw GradleException(
                 """
                 The baseline profile consumer plugin is configured with filters that exclude all
@@ -278,28 +279,11 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             )
         }
 
-        baselineProfileDir
-            .file(BASELINE_PROFILE_FILENAME)
-            .get()
-            .asFile
-            .apply {
-                delete()
-                if (filteredProfileRules.isNotEmpty()) {
-                    writeText(filteredProfileRules.joinToString(System.lineSeparator()))
-                    if (lastTask.get()) {
-                        // This log should not be suppressed because it's used by Android Studio to
-                        // open the generated HRF file.
-                        logger.warn(
-                            property = { true },
-                            propertyName = null,
-                            message = """
-                            A baseline profile was generated for the variant `${variantName.get()}`:
-                            ${Path(absolutePath).toUri()}
-                        """.trimIndent()
-                        )
-                    }
-                }
-            }
+        writeProfile(
+            filename = BASELINE_PROFILE_FILENAME,
+            rules = filteredBaselineProfileRules,
+            profileType = "baseline"
+        )
 
         // If this is a library we can stop here and don't manage the startup profiles.
         if (library.get()) {
@@ -324,36 +308,72 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         }
 
         // Use same sorting without filter for startup profiles.
-        val sortedProfileRules = startupRules
+        val sortedStartupProfileRules = startupRules
             .asSequence()
             .sorted()
             .mapNotNull { ProfileRule.parse(it) }
             .groupBy { it.classDescriptor + it.methodDescriptor }
             .map { it.value[0] }
             .sortedWith(ProfileRule.comparator)
-            .map { it.underlying }
-            .toList()
 
+        writeProfile(
+            filename = STARTUP_PROFILE_FILENAME,
+            profileType = "startup",
+            rules = sortedStartupProfileRules,
+        )
+    }
+
+    private fun writeProfile(filename: String, rules: List<ProfileRule>, profileType: String) {
         baselineProfileDir
-            .file(STARTUP_PROFILE_FILENAME)
+            .file(filename)
             .get()
             .asFile
             .apply {
+
+                // If an old profile file already exists calculate stats.
+                val stats = if (exists()) ProfileStats.from(
+                    existingRules = readLines().mapNotNull { ProfileRule.parse(it) },
+                    newRules = rules
+                ) else null
+
                 delete()
-                if (sortedProfileRules.isNotEmpty()) {
-                    writeText(sortedProfileRules.joinToString(System.lineSeparator()))
-                    if (lastTask.get()) {
-                        // This log should not be suppressed because it's used by Android Studio to
-                        // open the generated HRF file.
-                        logger.warn(
-                            property = { true },
-                            propertyName = null,
-                            message = """
-                            A startup profile was generated for the variant `${variantName.get()}`:
-                            ${Path(absolutePath).toUri()}
+                if (rules.isEmpty()) return
+                writeText(rules.joinToString(System.lineSeparator()) { it.underlying })
+
+                // If this is the last task display a success message (depending on the flag
+                // `saveInSrc` this task may be configured as a merge or copy task).
+                if (!lastTask.get()) {
+                    return
+                }
+
+                // This log should not be suppressed because it's used by Android Studio to
+                // open the generated HRF file.
+                logger.warn(
+                    property = { true },
+                    propertyName = null,
+                    message = """
+
+                    A $profileType profile was generated for the variant `${variantName.get()}`:
+                    ${Path(absolutePath).toUri()}
                         """.trimIndent()
-                        )
-                    }
+                )
+
+                // Print stats if was previously calculated
+                stats?.apply {
+                    logger.warn(
+                        property = { true },
+                        propertyName = null,
+                        message = """
+
+                    Comparison with previous $profileType profile:
+                      $existing Old rules
+                      $new New rules
+                      $added Added rules (${"%.2f".format(addedRatio * 100)}%)
+                      $removed Removed rules (${"%.2f".format(removedRatio * 100)}%)
+                      $unmodified Unmodified rules (${"%.2f".format(unmodifiedRatio * 100)}%)
+
+                      """.trimIndent()
+                    )
                 }
             }
     }
@@ -396,4 +416,55 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         }
         .filter(filterBlock)
         .flatMap { it.readLines() }
+}
+
+internal data class ProfileStats(
+    val existing: Int,
+    val new: Int,
+    val added: Int,
+    val removed: Int,
+    val unmodified: Int,
+    val addedRatio: Float,
+    val removedRatio: Float,
+    val unmodifiedRatio: Float,
+) {
+    companion object {
+        fun from(existingRules: List<ProfileRule>, newRules: List<ProfileRule>): ProfileStats {
+            val existingRulesSet = existingRules
+                .map { "${it.classDescriptor}:${it.methodDescriptor}" }
+                .toHashSet()
+            val newRulesSet = newRules
+                .map { "${it.classDescriptor}:${it.methodDescriptor}" }
+                .toHashSet()
+            val allUniqueRules = existingRulesSet.union(newRulesSet).size
+
+            var unmodified = 0
+            var added = 0
+            var removed = 0
+
+            for (x in existingRulesSet) {
+                if (x in newRulesSet) {
+                    unmodified++
+                } else {
+                    removed++
+                }
+            }
+            for (x in newRulesSet) {
+                if (x !in existingRulesSet) {
+                    added++
+                }
+            }
+
+            return ProfileStats(
+                existing = existingRulesSet.size,
+                new = newRulesSet.size,
+                unmodified = unmodified,
+                added = added,
+                removed = removed,
+                addedRatio = added.toFloat() / allUniqueRules,
+                removedRatio = removed.toFloat() / allUniqueRules,
+                unmodifiedRatio = unmodified.toFloat() / allUniqueRules
+            )
+        }
+    }
 }
