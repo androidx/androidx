@@ -93,10 +93,10 @@ internal class LegacyCursorAnchorInfoController(
      * @param textFieldValue the text field's [TextFieldValue]
      * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
-     * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
-     *   empty rectangle if the text field is not visible
-     * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
-     *   empty rectangle if the decoration box is not visible
+     * @param innerTextFieldBounds visible bounds of the text field in text layout coordinates,
+     *   an empty rectangle if the text field is not visible
+     * @param decorationBoxBounds visible bounds of the decoration box in text layout coordinates,
+     *   or an empty rectangle if the decoration box is not visible
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
@@ -135,8 +135,10 @@ internal class LegacyCursorAnchorInfoController(
         if (!inputMethodManager.isActive()) return
 
         matrix.reset()
-        // Updates matrix to transform text field local coordinates to screen coordinates.
+        // Updates matrix to transform decoration box coordinates to screen coordinates.
         localToScreen(matrix)
+        // Updates matrix to transform text layout coordinates to screen coordinates.
+        matrix.translate(-decorationBoxBounds!!.left, -decorationBoxBounds!!.top, 0f)
         androidMatrix.setFrom(matrix)
 
         inputMethodManager.updateCursorAnchorInfo(
