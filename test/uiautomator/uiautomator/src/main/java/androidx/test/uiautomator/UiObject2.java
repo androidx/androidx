@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
@@ -97,7 +96,7 @@ public class UiObject2 implements Searchable {
         // Fetch and cache display information. This is safe as moving the underlying view to
         // another display would invalidate the cached node and require recreating this UiObject2.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            AccessibilityWindowInfo window = Api21Impl.getWindow(cachedNode);
+            AccessibilityWindowInfo window = cachedNode.getWindow();
             mDisplayId = window == null ? Display.DEFAULT_DISPLAY : Api30Impl.getDisplayId(window);
         } else {
             mDisplayId = Display.DEFAULT_DISPLAY;
@@ -969,37 +968,10 @@ public class UiObject2 implements Searchable {
         }
 
         Log.d(TAG, String.format("Setting text to '%s'.", text));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // ACTION_SET_TEXT is added in API 21.
-            Bundle args = new Bundle();
-            args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
-            if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
-                // TODO: Decide if we should throw here
-                Log.w(TAG, "AccessibilityNodeInfo#performAction(ACTION_SET_TEXT) failed");
-            }
-        } else {
-            CharSequence currentText = node.getText();
-            if (currentText == null || !text.contentEquals(currentText)) {
-                // Give focus to the object. Expect this to fail if the object already has focus.
-                if (!node.performAction(AccessibilityNodeInfo.ACTION_FOCUS) && !node.isFocused()) {
-                    // TODO: Decide if we should throw here
-                    Log.w(TAG, "AccessibilityNodeInfo#performAction(ACTION_FOCUS) failed");
-                }
-                // Select the existing text. Expect this to fail if there is no existing text.
-                Bundle args = new Bundle();
-                args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
-                args.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT,
-                        currentText == null ? 0 : currentText.length());
-                if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, args) &&
-                        currentText != null && currentText.length() > 0) {
-                    // TODO: Decide if we should throw here
-                    Log.w(TAG, "AccessibilityNodeInfo#performAction(ACTION_SET_SELECTION) failed");
-                }
-                // Send the delete key to clear the existing text, then send the new text
-                InteractionController ic = getDevice().getInteractionController();
-                ic.sendKey(KeyEvent.KEYCODE_DEL, 0);
-                ic.sendText(text);
-            }
+        Bundle args = new Bundle();
+        args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+        if (!node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
+            Log.w(TAG, "AccessibilityNodeInfo#performAction(ACTION_SET_TEXT) failed");
         }
     }
 
@@ -1053,23 +1025,6 @@ public class UiObject2 implements Searchable {
 
     UiDevice getDevice() {
         return mDevice;
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-        }
-
-        @DoNotInline
-        static AccessibilityWindowInfo getWindow(AccessibilityNodeInfo accessibilityNodeInfo) {
-            return accessibilityNodeInfo.getWindow();
-        }
-
-        @DoNotInline
-        static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
-                Rect outBounds) {
-            accessibilityWindowInfo.getBoundsInScreen(outBounds);
-        }
     }
 
     @RequiresApi(24)
