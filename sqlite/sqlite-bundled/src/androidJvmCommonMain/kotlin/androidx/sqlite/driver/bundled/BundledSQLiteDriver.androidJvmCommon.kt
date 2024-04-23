@@ -33,7 +33,7 @@ actual class BundledSQLiteDriver : SQLiteDriver {
 
     private companion object {
         init {
-            NativeLibraryLoader.loadLibrary("jvmArtJniImplementation")
+            NativeLibraryLoader.loadLibrary("sqliteJni")
         }
     }
 }
