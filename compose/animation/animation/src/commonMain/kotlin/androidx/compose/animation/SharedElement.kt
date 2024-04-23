@@ -218,7 +218,7 @@ internal class SharedElementInternalState(
 
     val nonNullLookaheadSize: Size
         get() = requireNotNull(lookaheadCoords()) {
-            "Error: lookahead coordinates is null."
+            "Error: lookahead coordinates is null for ${sharedElement.key}."
         }.size.toSize()
     var lookaheadCoords: () -> LayoutCoordinates? = { null }
     override var parentState: SharedElementInternalState? = null
