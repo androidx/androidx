@@ -141,4 +141,21 @@ class OffsetTest {
             -Offset(Float.NaN, Float.NaN)
         }
     }
+
+    @Test
+    fun testIsFinite() {
+        assertTrue(Offset(10.0f, 20.0f).isFinite)
+        assertTrue(Offset(0.0f, 0.0f).isFinite)
+        assertTrue(Offset(10.0f, -20.0f).isFinite)
+
+        assertFalse(Offset(10.0f, Float.POSITIVE_INFINITY).isFinite)
+        assertFalse(Offset(10.0f, Float.NEGATIVE_INFINITY).isFinite)
+        assertFalse(Offset(Float.POSITIVE_INFINITY, 20.0f).isFinite)
+        assertFalse(Offset(Float.NEGATIVE_INFINITY, 20.0f).isFinite)
+        assertFalse(Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY).isFinite)
+
+        assertFails {
+            Offset(Float.NaN, Float.NaN).isFinite
+        }
+    }
 }

@@ -21,9 +21,11 @@ import kotlin.contracts.contract
 
 // Masks everything but the sign bit
 internal const val UnsignedFloatMask = 0x7fffffffL
+internal const val DualUnsignedFloatMask = 0x7fffffff_7fffffffL
 
 // Any value greater than this is a NaN
 internal const val FloatInfinityBase = 0x7f800000L
+internal const val DualFloatInfinityBase = 0x7f800000_7f800000L
 
 // Same as Offset/Size.Unspecified.packedValue, but avoids a getstatic
 internal const val UnspecifiedPackedFloats = 0x7fc00000_7fc00000L // NaN_NaN
@@ -31,6 +33,8 @@ internal const val UnspecifiedPackedFloats = 0x7fc00000_7fc00000L // NaN_NaN
 // 0x80000000_80000000UL.toLong() but expressed as a const value
 // Mask for the sign bit of the two floats packed in a long
 internal const val DualFloatSignBit = -0x7fffffff_80000000L
+// Set the highest bit of each 32 bit chunk in a 64 bit word
+internal const val Uint64High32 = -0x7fffffff_80000000L
 
 // This function exists so we do *not* inline the throw. It keeps
 // the call site much smaller and since it's the slow path anyway,
