@@ -58,7 +58,6 @@ import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.viewfinder.CameraViewfinder
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType
 import androidx.camera.viewfinder.CameraViewfinderExt.requestSurface
-import androidx.camera.viewfinder.populateFromCharacteristics
 import androidx.camera.viewfinder.surface.ImplementationMode
 import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.surface.populateFromCharacteristics
@@ -173,9 +172,9 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
             R.id.implementationMode -> {
                 val implementationMode =
                     when (cameraViewfinder.surfaceImplementationMode) {
-                        ImplementationMode.PERFORMANCE ->
-                            ImplementationMode.COMPATIBLE
-                        else -> ImplementationMode.PERFORMANCE
+                        ImplementationMode.EXTERNAL ->
+                            ImplementationMode.EMBEDDED
+                        else -> ImplementationMode.EXTERNAL
                     }
 
                 lifecycleScope.launch {

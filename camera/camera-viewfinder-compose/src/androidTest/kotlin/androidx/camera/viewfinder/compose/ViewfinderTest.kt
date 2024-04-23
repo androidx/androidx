@@ -56,13 +56,13 @@ class ViewfinderTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun canRetrievePerformanceSurface() = runBlocking {
-        assertCanRetrieveSurface(implementationMode = ImplementationMode.PERFORMANCE)
+        assertCanRetrieveSurface(implementationMode = ImplementationMode.EXTERNAL)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun canRetrieveCompatibleSurface() = runBlocking {
-        assertCanRetrieveSurface(implementationMode = ImplementationMode.COMPATIBLE)
+        assertCanRetrieveSurface(implementationMode = ImplementationMode.EMBEDDED)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
@@ -78,7 +78,7 @@ class ViewfinderTest {
                     modifier = Modifier.size(540.toDp(), 960.toDp()),
                     surfaceRequest = surfaceRequest,
                     transformationInfo = TEST_TRANSFORMATION_INFO,
-                    implementationMode = ImplementationMode.PERFORMANCE,
+                    implementationMode = ImplementationMode.EXTERNAL,
                     coordinateTransformer = coordinateTransformer
                 )
             }
@@ -120,7 +120,7 @@ class ViewfinderTest {
                         cropRectBottom = 480,
                         shouldMirror = false
                     ),
-                    implementationMode = ImplementationMode.PERFORMANCE,
+                    implementationMode = ImplementationMode.EXTERNAL,
                     coordinateTransformer = coordinateTransformer
                 )
             }
@@ -231,8 +231,8 @@ class ViewfinderTest {
         val TEST_TRANSFORMATION_INFO = TransformationInfo(
             sourceRotation = 0,
             cropRectLeft = 0,
-            cropRectRight = TEST_RESOLUTION.width,
             cropRectTop = 0,
+            cropRectRight = TEST_RESOLUTION.width,
             cropRectBottom = TEST_RESOLUTION.height,
             shouldMirror = false
         )
@@ -249,7 +249,7 @@ fun TestComposable(surfaceRequest: ViewfinderSurfaceRequest, showView: Boolean) 
                     .testTag("TEST_VIEWFINDER"),
                 surfaceRequest = surfaceRequest,
                 transformationInfo = ViewfinderTest.TEST_TRANSFORMATION_INFO,
-                implementationMode = ImplementationMode.PERFORMANCE,
+                implementationMode = ImplementationMode.EXTERNAL,
             )
         }
     }

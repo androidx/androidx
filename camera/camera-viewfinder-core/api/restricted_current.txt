@@ -54,8 +54,8 @@ package androidx.camera.viewfinder.core {
 package @RequiresApi(21) androidx.camera.viewfinder.surface {
 
   public enum ImplementationMode {
-    enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode COMPATIBLE;
-    enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode PERFORMANCE;
+    enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode EMBEDDED;
+    enum_constant public static final androidx.camera.viewfinder.surface.ImplementationMode EXTERNAL;
     field public static final androidx.camera.viewfinder.surface.ImplementationMode.Companion Companion;
   }
 
@@ -63,7 +63,7 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
   }
 
   public final class TransformationInfo {
-    ctor public TransformationInfo(int sourceRotation, int cropRectLeft, int cropRectRight, int cropRectTop, int cropRectBottom, boolean shouldMirror);
+    ctor public TransformationInfo(int sourceRotation, int cropRectLeft, int cropRectTop, int cropRectRight, int cropRectBottom, boolean shouldMirror);
     method public int getCropRectBottom();
     method public int getCropRectLeft();
     method public int getCropRectRight();
