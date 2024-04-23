@@ -21,6 +21,7 @@ import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.compat.XConverters.toKS
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -1888,7 +1889,13 @@ class XTypeElementTest(
                 // TODO(kuanyingchou): https://github.com/google/ksp/issues/1761
                 val parent = typeElement.superClass!!.typeElement!!
                 if (qName == "test.KotlinEnum" && !isPreCompiled && invocation.isKsp) {
-                    assertThat(parent.asClassName()).isEqualTo(Any::class.asClassName())
+                    if (invocation.isKsp &&
+                            invocation.processingEnv.toKS().kspVersion >=
+                            KotlinVersion(2, 0)) {
+                        assertThat(parent.asClassName()).isEqualTo(XTypeName.ENUM)
+                    } else {
+                        assertThat(parent.asClassName()).isEqualTo(Any::class.asClassName())
+                    }
                 } else {
                     assertThat(parent.asClassName()).isEqualTo(Enum::class.asClassName())
                 }
@@ -1896,16 +1903,16 @@ class XTypeElementTest(
                 val methodNames = typeElement.getDeclaredMethods().map { it.jvmName }
                 if (qName == "test.KotlinEnum") {
                     if (invocation.isKsp) {
-                        if (isPreCompiled) {
+                        if (!isPreCompiled && invocation.processingEnv.toKS().kspVersion <
+                                KotlinVersion(2, 0)) {
+                            assertThat(methodNames).containsExactly(
+                                "enumMethod",
+                            )
+                        } else {
                             assertThat(methodNames).containsExactly(
                                 "enumMethod",
                                 "values",
                                 "valueOf",
-                            )
-                        } else {
-                            // `values` and `valueOf` will be added in KSP2.
-                            assertThat(methodNames).containsExactly(
-                                "enumMethod",
                             )
                         }
                     } else {
