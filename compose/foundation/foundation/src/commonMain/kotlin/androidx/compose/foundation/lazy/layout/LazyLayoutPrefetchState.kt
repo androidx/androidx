@@ -79,6 +79,15 @@ class LazyLayoutPrefetchState(
          * was precomposed already it will be disposed.
          */
         fun cancel()
+
+        /**
+         * Marks this prefetch request as urgent, which is a way to communicate that the requested
+         * item is expected to be needed during the next frame.
+         *
+         * For urgent requests we can proceed with doing the prefetch even if the available time
+         * in the frame is less than we spend on similar prefetch requests on average.
+         */
+        fun markAsUrgent()
     }
 
     private inner class NestedPrefetchScopeImpl : NestedPrefetchScope {
@@ -169,6 +178,7 @@ internal class PrefetchMetrics {
 @ExperimentalFoundationApi
 private object DummyHandle : PrefetchHandle {
     override fun cancel() {}
+    override fun markAsUrgent() {}
 }
 
 /**
@@ -212,6 +222,7 @@ internal class PrefetchHandleProvider(
         private val isComposed get() = precomposeHandle != null
         private var hasResolvedNestedPrefetches = false
         private var nestedPrefetchController: NestedPrefetchController? = null
+        private var isUrgent = false
 
         private val isValid
             get() = !isCanceled &&
@@ -225,13 +236,24 @@ internal class PrefetchHandleProvider(
             }
         }
 
+        override fun markAsUrgent() {
+            isUrgent = true
+        }
+
+        private fun PrefetchRequestScope.shouldExecute(average: Long): Boolean {
+            val available = availableTimeNanos()
+            // even for urgent request we only do the work if we have time available, as otherwise
+            // it is better to just return early to allow the next frame to start and do the work.
+            return (isUrgent && available > 0) || average < available
+        }
+
         override fun PrefetchRequestScope.execute(): Boolean {
             if (!isValid) {
                 return false
             }
 
             if (!isComposed) {
-                if (prefetchMetrics.averageCompositionTimeNanos < availableTimeNanos) {
+                if (shouldExecute(prefetchMetrics.averageCompositionTimeNanos)) {
                     prefetchMetrics.recordCompositionTiming {
                         trace("compose:lazy:prefetch:compose") {
                             performComposition()
@@ -242,27 +264,35 @@ internal class PrefetchHandleProvider(
                 }
             }
 
-            // Nested prefetch logic is best-effort: if nested LazyLayout children are
-            // added/removed/updated after we've resolved nested prefetch states here or resolved
-            // nestedPrefetchRequests below, those changes won't be taken into account.
-            if (!hasResolvedNestedPrefetches) {
-                if (availableTimeNanos > 0) {
-                    trace("compose:lazy:prefetch:resolve-nested") {
-                        nestedPrefetchController = resolveNestedPrefetchStates()
-                        hasResolvedNestedPrefetches = true
+            // if the request is urgent we better proceed with the measuring straight away instead
+            // of spending time trying to split the work more via nested prefetch. nested prefetch
+            // is always an estimation and it could potentially do work we will not need in the end,
+            // but the measuring will only do exactly the needed work (including composing nested
+            // lazy layouts)
+            if (!isUrgent) {
+                // Nested prefetch logic is best-effort: if nested LazyLayout children are
+                // added/removed/updated after we've resolved nested prefetch states here or resolved
+                // nestedPrefetchRequests below, those changes won't be taken into account.
+                if (!hasResolvedNestedPrefetches) {
+                    if (availableTimeNanos() > 0) {
+                        trace("compose:lazy:prefetch:resolve-nested") {
+                            nestedPrefetchController = resolveNestedPrefetchStates()
+                            hasResolvedNestedPrefetches = true
+                        }
+                    } else {
+                        return true
                     }
-                } else {
+                }
+
+                val hasMoreWork =
+                    nestedPrefetchController?.run { executeNestedPrefetches() } ?: false
+                if (hasMoreWork) {
                     return true
                 }
             }
 
-            val hasMoreWork = nestedPrefetchController?.run { executeNestedPrefetches() } ?: false
-            if (hasMoreWork) {
-                return true
-            }
-
             if (!isMeasured && constraints != null) {
-                if (prefetchMetrics.averageMeasureTimeNanos < availableTimeNanos) {
+                if (shouldExecute(prefetchMetrics.averageMeasureTimeNanos)) {
                     prefetchMetrics.recordMeasureTiming {
                         trace("compose:lazy:prefetch:measure") {
                             performMeasure(constraints)
@@ -349,7 +379,7 @@ internal class PrefetchHandleProvider(
                 trace("compose:lazy:prefetch:nested") {
                     while (stateIndex < states.size) {
                         if (requestsByState[stateIndex] == null) {
-                            if (availableTimeNanos <= 0) {
+                            if (availableTimeNanos() <= 0) {
                                 // When we have time again, we'll resolve nested requests for this
                                 // state
                                 return true

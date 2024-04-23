@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.FullSpan
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.Unset
@@ -82,9 +83,10 @@ fun rememberLazyStaggeredGridState(
  * In most cases, it should be created via [rememberLazyStaggeredGridState].
  */
 @OptIn(ExperimentalFoundationApi::class)
-class LazyStaggeredGridState private constructor(
+class LazyStaggeredGridState internal constructor(
     initialFirstVisibleItems: IntArray,
     initialFirstVisibleOffsets: IntArray,
+    prefetchScheduler: PrefetchScheduler?
 ) : ScrollableState {
     /**
      * @param initialFirstVisibleItemIndex initial value for [firstVisibleItemIndex]
@@ -95,7 +97,8 @@ class LazyStaggeredGridState private constructor(
         initialFirstVisibleItemOffset: Int = 0
     ) : this(
         intArrayOf(initialFirstVisibleItemIndex),
-        intArrayOf(initialFirstVisibleItemOffset)
+        intArrayOf(initialFirstVisibleItemOffset),
+        null
     )
 
     /**
@@ -178,7 +181,7 @@ class LazyStaggeredGridState private constructor(
     internal var prefetchingEnabled: Boolean = true
 
     /** prefetch state used for precomputing items in the direction of scroll */
-    internal val prefetchState: LazyLayoutPrefetchState = LazyLayoutPrefetchState()
+    internal val prefetchState: LazyLayoutPrefetchState = LazyLayoutPrefetchState(prefetchScheduler)
 
     /** state controlling the scroll */
     private val scrollableState = ScrollableState { -onScroll(-it) }
@@ -584,7 +587,7 @@ class LazyStaggeredGridState private constructor(
                 )
             },
             restore = {
-                LazyStaggeredGridState(it[0], it[1])
+                LazyStaggeredGridState(it[0], it[1], null)
             }
         )
     }

@@ -26,6 +26,8 @@ import androidx.compose.foundation.lazy.LazyListPrefetchScope
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
+import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -70,11 +72,19 @@ class LazyListNestedPrefetchingTest(
     private val itemsSizePx = 30
     private val itemsSizeDp = with(rule.density) { itemsSizePx.toDp() }
     private val activeNodes = mutableSetOf<String>()
-    private val activeMeasuredNodes = mutableSetOf<String>()
+    private val scheduler = TestPrefetchScheduler()
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private val strategy = object : LazyListPrefetchStrategy by LazyListPrefetchStrategy() {
+        override val prefetchScheduler: PrefetchScheduler = scheduler
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun createState(): LazyListState = LazyListState(prefetchStrategy = strategy)
 
     @Test
     fun nestedPrefetchingForwardAfterSmallScroll() {
-        val state = LazyListState()
+        val state = createState()
         composeList(state)
 
         val prefetchIndex = 2
@@ -85,7 +95,7 @@ class LazyListNestedPrefetchingTest(
                 }
             }
 
-            waitForPrefetch(tagFor(prefetchIndex))
+            waitForPrefetch()
         }
 
         // We want to make sure nested children were precomposed before the parent was premeasured
@@ -111,7 +121,7 @@ class LazyListNestedPrefetchingTest(
 
     @Test
     fun cancelingPrefetchCancelsItsNestedPrefetches() {
-        val state = LazyListState()
+        val state = createState()
         composeList(state)
 
         rule.runOnIdle {
@@ -122,7 +132,7 @@ class LazyListNestedPrefetchingTest(
             }
         }
 
-        waitForPrefetch(tagFor(3))
+        waitForPrefetch()
 
         rule.runOnIdle {
             assertThat(activeNodes).contains(tagFor(3))
@@ -141,7 +151,7 @@ class LazyListNestedPrefetchingTest(
             }
         }
 
-        waitForPrefetch(tagFor(7))
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking(AutoTestFrameClock()) {
@@ -160,7 +170,7 @@ class LazyListNestedPrefetchingTest(
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun overridingNestedPrefetchCountIsRespected() {
-        val state = LazyListState()
+        val state = createState()
         composeList(
             state,
             createNestedLazyListState = {
@@ -177,7 +187,7 @@ class LazyListNestedPrefetchingTest(
                 }
             }
 
-            waitForPrefetch(tagFor(prefetchIndex))
+            waitForPrefetch()
         }
 
         // Since the nested prefetch count on the strategy is 1, we only expect index 0 to be
@@ -197,7 +207,7 @@ class LazyListNestedPrefetchingTest(
     fun nestedPrefetchIsMeasuredWithProvidedConstraints() {
         val nestedConstraints =
             Constraints(minWidth = 20, minHeight = 20, maxWidth = 20, maxHeight = 20)
-        val state = LazyListState()
+        val state = createState()
         composeList(
             state,
             createNestedLazyListState = {
@@ -214,7 +224,7 @@ class LazyListNestedPrefetchingTest(
                 }
             }
 
-            waitForPrefetch(tagFor(prefetchIndex))
+            waitForPrefetch()
         }
 
         assertThat(actions).containsExactly(
@@ -232,7 +242,7 @@ class LazyListNestedPrefetchingTest(
 
     @Test
     fun nestedPrefetchStartsFromFirstVisibleItemIndex() {
-        val state = LazyListState()
+        val state = createState()
         composeList(
             state,
             createNestedLazyListState = {
@@ -247,7 +257,7 @@ class LazyListNestedPrefetchingTest(
                 }
             }
 
-            waitForPrefetch(tagFor(prefetchIndex))
+            waitForPrefetch()
         }
 
         assertThat(actions).containsExactly(
@@ -273,9 +283,9 @@ class LazyListNestedPrefetchingTest(
         }
     }
 
-    private fun waitForPrefetch(tag: String) {
-        rule.waitUntil {
-            activeNodes.contains(tag) && activeMeasuredNodes.contains(tag)
+    private fun waitForPrefetch() {
+        rule.runOnIdle {
+            scheduler.executeActiveRequests()
         }
     }
 
@@ -332,17 +342,14 @@ class LazyListNestedPrefetchingTest(
             actions?.add(Action.Compose(index, nestedIndex))
             onDispose {
                 activeNodes.remove(tag)
-                activeMeasuredNodes.remove(tag)
             }
         }
     }
 
     private fun Modifier.trackWhenMeasured(index: Int, nestedIndex: Int? = null): Modifier {
-        val tag = tagFor(index, nestedIndex)
         return this then Modifier.layout { measurable, constraints ->
             actions?.add(Action.Measure(index, nestedIndex))
             val placeable = measurable.measure(constraints)
-            activeMeasuredNodes.add(tag)
             layout(placeable.width, placeable.height) {
                 placeable.place(0, 0)
             }

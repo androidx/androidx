@@ -257,7 +257,8 @@ class LazyLayoutTest {
                     .then(modifier))
         }
         var needToCompose by mutableStateOf(false)
-        val prefetchState = LazyLayoutPrefetchState()
+        val scheduler = TestPrefetchScheduler()
+        val prefetchState = LazyLayoutPrefetchState(scheduler)
         rule.setContent {
             LazyLayout(itemProvider, prefetchState = prefetchState) {
                 val item = if (needToCompose) {
@@ -273,9 +274,10 @@ class LazyLayoutTest {
             assertThat(measureCount).isEqualTo(0)
 
             prefetchState.schedulePrefetch(0, constraints)
-        }
 
-        rule.waitUntil { measureCount == 1 }
+            scheduler.executeActiveRequests()
+            assertThat(measureCount).isEqualTo(1)
+        }
 
         rule.onNodeWithTag("0").assertIsNotDisplayed()
 
@@ -303,20 +305,18 @@ class LazyLayoutTest {
                 }
             }
         }
-        val prefetchState = LazyLayoutPrefetchState()
+        val scheduler = TestPrefetchScheduler()
+        val prefetchState = LazyLayoutPrefetchState(scheduler)
         rule.setContent {
             LazyLayout(itemProvider, prefetchState = prefetchState) {
                 layout(100, 100) {}
             }
         }
 
-        val handle = rule.runOnIdle {
-            prefetchState.schedulePrefetch(0, Constraints.fixed(50, 50))
-        }
-
-        rule.waitUntil { composed }
-
         rule.runOnIdle {
+            val handle = prefetchState.schedulePrefetch(0, Constraints.fixed(50, 50))
+            scheduler.executeActiveRequests()
+            assertThat(composed).isTrue()
             handle.cancel()
         }
 

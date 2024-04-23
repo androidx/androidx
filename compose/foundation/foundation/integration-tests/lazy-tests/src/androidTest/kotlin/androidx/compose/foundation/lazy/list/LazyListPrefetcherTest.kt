@@ -22,7 +22,10 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
+import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -71,6 +74,13 @@ class LazyListPrefetcherTest(
 
     lateinit var state: LazyListState
 
+    private val scheduler = TestPrefetchScheduler()
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private val strategy = object : LazyListPrefetchStrategy by LazyListPrefetchStrategy() {
+        override val prefetchScheduler: PrefetchScheduler = scheduler
+    }
+
     @Test
     fun notPrefetchingForwardInitially() {
         composeList()
@@ -97,7 +107,7 @@ class LazyListPrefetcherTest(
             }
         }
 
-        waitForPrefetch(preFetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("$preFetchIndex")
             .assertExists()
@@ -115,7 +125,7 @@ class LazyListPrefetcherTest(
             }
         }
 
-        waitForPrefetch(1)
+        waitForPrefetch()
 
         rule.onNodeWithTag("1")
             .assertExists()
@@ -134,7 +144,7 @@ class LazyListPrefetcherTest(
             }
         }
         var prefetchIndex = initialIndex + 2
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
@@ -149,7 +159,7 @@ class LazyListPrefetcherTest(
         }
 
         prefetchIndex -= 3
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
@@ -167,7 +177,7 @@ class LazyListPrefetcherTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking {
@@ -178,7 +188,7 @@ class LazyListPrefetcherTest(
 
         val prefetchIndex = 3
 
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("${prefetchIndex - 1}")
             .assertIsDisplayed()
@@ -198,7 +208,7 @@ class LazyListPrefetcherTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking {
@@ -207,7 +217,7 @@ class LazyListPrefetcherTest(
             }
         }
 
-        waitForPrefetch(1)
+        waitForPrefetch()
 
         rule.onNodeWithTag("2")
             .assertIsDisplayed()
@@ -230,7 +240,7 @@ class LazyListPrefetcherTest(
 
         var prefetchIndex = initialIndex + 2
 
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
@@ -245,7 +255,7 @@ class LazyListPrefetcherTest(
         }
 
         prefetchIndex -= 3
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
@@ -281,7 +291,7 @@ class LazyListPrefetcherTest(
         }
 
         var prefetchIndex = initialIndex + 1
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("${prefetchIndex + 1}")
             .assertExists()
@@ -295,7 +305,7 @@ class LazyListPrefetcherTest(
         }
 
         prefetchIndex -= 3
-        waitForPrefetch(prefetchIndex)
+        waitForPrefetch()
 
         rule.onNodeWithTag("$prefetchIndex")
             .assertExists()
@@ -458,7 +468,7 @@ class LazyListPrefetcherTest(
             }
         }
 
-        waitForPrefetch(7)
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking(AutoTestFrameClock()) {
@@ -472,14 +482,13 @@ class LazyListPrefetcherTest(
         }
     }
 
-    private fun waitForPrefetch(index: Int) {
-        rule.waitUntil {
-            activeNodes.contains(index) && activeMeasuredNodes.contains(index)
+    private fun waitForPrefetch() {
+        rule.runOnIdle {
+            scheduler.executeActiveRequests()
         }
     }
 
     private val activeNodes = mutableSetOf<Int>()
-    private val activeMeasuredNodes = mutableSetOf<Int>()
 
     private fun composeList(
         firstItem: Int = 0,
@@ -488,9 +497,11 @@ class LazyListPrefetcherTest(
         contentPadding: PaddingValues = PaddingValues(0.dp)
     ) {
         rule.setContent {
+            @OptIn(ExperimentalFoundationApi::class)
             state = rememberLazyListState(
                 initialFirstVisibleItemIndex = firstItem,
-                initialFirstVisibleItemScrollOffset = itemOffset
+                initialFirstVisibleItemScrollOffset = itemOffset,
+                prefetchStrategy = strategy
             )
             LazyColumnOrRow(
                 Modifier.mainAxisSize(itemsSizeDp * 1.5f),
@@ -504,7 +515,6 @@ class LazyListPrefetcherTest(
                         activeNodes.add(it)
                         onDispose {
                             activeNodes.remove(it)
-                            activeMeasuredNodes.remove(it)
                         }
                     }
                     Spacer(
@@ -514,7 +524,6 @@ class LazyListPrefetcherTest(
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
                                 layout(placeable.width, placeable.height) {
                                     placeable.place(0, 0)
                                 }
