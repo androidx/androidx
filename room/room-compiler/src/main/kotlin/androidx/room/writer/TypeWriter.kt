@@ -36,7 +36,10 @@ import kotlin.reflect.KClass
 /**
  * Base class for all writers that can produce a class.
  */
-abstract class TypeWriter(val codeLanguage: CodeLanguage) {
+abstract class TypeWriter(
+    val codeLanguage: CodeLanguage,
+    val javaLambdaSyntaxAvailable: Boolean,
+) {
     private val sharedFieldSpecs = mutableMapOf<String, XPropertySpec>()
     private val sharedMethodSpecs = mutableMapOf<String, XFunSpec>()
     private val sharedFieldNames = mutableSetOf<String>()

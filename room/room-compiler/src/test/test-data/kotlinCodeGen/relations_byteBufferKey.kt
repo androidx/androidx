@@ -78,8 +78,8 @@ public class MyDao_Impl(
       return
     }
     if (_map.size > 999) {
-      recursiveFetchMap(_map, false) {
-        __fetchRelationshipArtistAsArtist(_connection, it)
+      recursiveFetchMap(_map, false) { _tmpMap ->
+        __fetchRelationshipArtistAsArtist(_connection, _tmpMap)
       }
       return
     }

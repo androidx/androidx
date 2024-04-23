@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.util.DBUtil;
 import androidx.room.util.SQLiteConnectionUtil;
 import androidx.room.util.StringUtil;
+import androidx.sqlite.SQLiteConnection;
 import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation", "removal"})
@@ -49,7 +51,7 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
       }
     };
@@ -61,8 +63,7 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final User entity) {
+      protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
       }
     };
@@ -74,10 +75,17 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement,
-          @NonNull final MultiPKeyEntity entity) {
-        statement.bindText(1, entity.name);
-        statement.bindText(2, entity.lastName);
+      protected void bind(@NonNull final SQLiteStatement statement, final MultiPKeyEntity entity) {
+        if (entity.name == null) {
+          statement.bindNull(1);
+        } else {
+          statement.bindText(1, entity.name);
+        }
+        if (entity.lastName == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.lastName);
+        }
       }
     };
     this.__deleteAdapterOfBook = new EntityDeleteOrUpdateAdapter<Book>() {
@@ -88,7 +96,7 @@ public final class DeletionDao_Impl implements DeletionDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final Book entity) {
         statement.bindLong(1, entity.bookId);
       }
     };
@@ -96,63 +104,91 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public void deleteUser(final User user) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __deleteAdapterOfUser.handle(_connection, user);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __deleteAdapterOfUser.handle(_connection, user);
+        return null;
+      }
     });
   }
 
   @Override
   public void deleteUsers(final User user1, final List<User> others) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __deleteAdapterOfUser.handle(_connection, user1);
-      __deleteAdapterOfUser.handleMultiple(_connection, others);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __deleteAdapterOfUser.handle(_connection, user1);
+        __deleteAdapterOfUser.handleMultiple(_connection, others);
+        return null;
+      }
     });
   }
 
   @Override
   public void deleteArrayOfUsers(final User[] users) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __deleteAdapterOfUser.handleMultiple(_connection, users);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __deleteAdapterOfUser.handleMultiple(_connection, users);
+        return null;
+      }
     });
   }
 
   @Override
   public Integer deleteUserAndReturnCountObject(final User user) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __deleteAdapterOfUser.handle(_connection, user);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfUser.handle(_connection, user);
+        return _result;
+      }
     });
   }
 
   @Override
   public int deleteUserAndReturnCount(final User user) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __deleteAdapterOfUser.handle(_connection, user);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfUser.handle(_connection, user);
+        return _result;
+      }
     });
   }
 
   @Override
   public int deleteUserAndReturnCount(final User user1, final List<User> others) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __deleteAdapterOfUser.handle(_connection, user1);
-      _result += __deleteAdapterOfUser.handleMultiple(_connection, others);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfUser.handle(_connection, user1);
+        _result += __deleteAdapterOfUser.handleMultiple(_connection, others);
+        return _result;
+      }
     });
   }
 
   @Override
   public int deleteUserAndReturnCount(final User[] users) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __deleteAdapterOfUser.handleMultiple(_connection, users);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfUser.handleMultiple(_connection, users);
+        return _result;
+      }
     });
   }
 
@@ -214,34 +250,46 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int multiPKey(final MultiPKeyEntity entity) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __deleteAdapterOfMultiPKeyEntity.handle(_connection, entity);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfMultiPKeyEntity.handle(_connection, entity);
+        return _result;
+      }
     });
   }
 
   @Override
   public void deleteUserAndBook(final User user, final Book book) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __deleteAdapterOfUser.handle(_connection, user);
-      __deleteAdapterOfBook.handle(_connection, book);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __deleteAdapterOfUser.handle(_connection, user);
+        __deleteAdapterOfBook.handle(_connection, book);
+        return null;
+      }
     });
   }
 
   @Override
   public int deleteByUid(final int uid) {
     final String _sql = "DELETE FROM user where uid = ?";
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, uid);
-        _stmt.step();
-        return SQLiteConnectionUtil.getTotalChangedRows(_connection);
-      } finally {
-        _stmt.close();
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
+        try {
+          int _argIndex = 1;
+          _stmt.bindLong(_argIndex, uid);
+          _stmt.step();
+          return SQLiteConnectionUtil.getTotalChangedRows(_connection);
+        } finally {
+          _stmt.close();
+        }
       }
     });
   }
@@ -320,22 +368,26 @@ public final class DeletionDao_Impl implements DeletionDao {
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
-        int _argIndex = 1;
-        if (uid == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          for (int _item : uid) {
-            _stmt.bindLong(_argIndex, _item);
-            _argIndex++;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
+        try {
+          int _argIndex = 1;
+          if (uid == null) {
+            _stmt.bindNull(_argIndex);
+          } else {
+            for (int _item : uid) {
+              _stmt.bindLong(_argIndex, _item);
+              _argIndex++;
+            }
           }
+          _stmt.step();
+          return SQLiteConnectionUtil.getTotalChangedRows(_connection);
+        } finally {
+          _stmt.close();
         }
-        _stmt.step();
-        return SQLiteConnectionUtil.getTotalChangedRows(_connection);
-      } finally {
-        _stmt.close();
       }
     });
   }
@@ -343,13 +395,17 @@ public final class DeletionDao_Impl implements DeletionDao {
   @Override
   public int deleteEverything() {
     final String _sql = "DELETE FROM user";
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
-        _stmt.step();
-        return SQLiteConnectionUtil.getTotalChangedRows(_connection);
-      } finally {
-        _stmt.close();
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
+        try {
+          _stmt.step();
+          return SQLiteConnectionUtil.getTotalChangedRows(_connection);
+        } finally {
+          _stmt.close();
+        }
       }
     });
   }

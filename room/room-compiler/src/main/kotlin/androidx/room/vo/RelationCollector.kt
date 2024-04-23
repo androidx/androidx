@@ -77,8 +77,7 @@ data class RelationCollector(
     // parsed relating entity query
     val loadAllQuery: ParsedQuery,
     // true if `relationTypeName` is a Collection, when it is `relationTypeName` is always non null.
-    val relationTypeIsCollection: Boolean,
-    val javaLambdaSyntaxAvailable: Boolean
+    val relationTypeIsCollection: Boolean
 ) {
     // TODO(b/319660042): Remove once migration to driver API is done.
     fun isMigratedToDriver(): Boolean = rowAdapter.isMigratedToDriver()
@@ -492,8 +491,7 @@ data class RelationCollector(
                         entityKeyColumnReader = entityKeyColumnReader,
                         rowAdapter = rowAdapter,
                         loadAllQuery = parsedQuery,
-                        relationTypeIsCollection = isRelationCollection,
-                        javaLambdaSyntaxAvailable = context.processingEnv.jvmVersion >= 8
+                        relationTypeIsCollection = isRelationCollection
                     )
                 }
             }.filterNotNull()

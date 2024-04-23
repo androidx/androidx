@@ -195,7 +195,7 @@ class DefaultsInDaoTest(
                         dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                     )
                     val parsedDao = parser.process()
-                    DaoWriter(parsedDao, db, CodeLanguage.JAVA)
+                    DaoWriter(parsedDao, db, CodeLanguage.JAVA, true)
                         .write(invocation.processingEnv)
                     invocation.assertCompilationResult {
                         val relativePath =

@@ -6,6 +6,7 @@ import androidx.room.EntityDeleteOrUpdateAdapter;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.util.DBUtil;
+import androidx.sqlite.SQLiteConnection;
 import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
@@ -22,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation", "removal"})
@@ -48,10 +50,18 @@ public final class UpdateDao_Impl implements UpdateDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindText(2, entity.name);
-        statement.bindText(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }
@@ -64,10 +74,18 @@ public final class UpdateDao_Impl implements UpdateDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindText(2, entity.name);
-        statement.bindText(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }
@@ -80,11 +98,18 @@ public final class UpdateDao_Impl implements UpdateDao {
       }
 
       @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final User entity) {
+      protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindString(2, entity.name);
-        statement.bindString(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindString(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }
@@ -97,12 +122,27 @@ public final class UpdateDao_Impl implements UpdateDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement,
-          @NonNull final MultiPKeyEntity entity) {
-        statement.bindText(1, entity.name);
-        statement.bindText(2, entity.lastName);
-        statement.bindText(3, entity.name);
-        statement.bindText(4, entity.lastName);
+      protected void bind(@NonNull final SQLiteStatement statement, final MultiPKeyEntity entity) {
+        if (entity.name == null) {
+          statement.bindNull(1);
+        } else {
+          statement.bindText(1, entity.name);
+        }
+        if (entity.lastName == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.lastName);
+        }
+        if (entity.name == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.name);
+        }
+        if (entity.lastName == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindText(4, entity.lastName);
+        }
       }
     };
     this.__updateAdapterOfBook = new EntityDeleteOrUpdateAdapter<Book>() {
@@ -113,7 +153,7 @@ public final class UpdateDao_Impl implements UpdateDao {
       }
 
       @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
+      protected void bind(@NonNull final SQLiteStatement statement, final Book entity) {
         statement.bindLong(1, entity.bookId);
         statement.bindLong(2, entity.uid);
         statement.bindLong(3, entity.bookId);
@@ -123,72 +163,104 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public void updateUser(final User user) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handle(_connection, user);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __updateAdapterOfUser.handle(_connection, user);
+        return null;
+      }
     });
   }
 
   @Override
   public void updateUsers(final User user1, final List<User> others) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handle(_connection, user1);
-      __updateAdapterOfUser.handleMultiple(_connection, others);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __updateAdapterOfUser.handle(_connection, user1);
+        __updateAdapterOfUser.handleMultiple(_connection, others);
+        return null;
+      }
     });
   }
 
   @Override
   public void updateArrayOfUsers(final User[] users) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handleMultiple(_connection, users);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __updateAdapterOfUser.handleMultiple(_connection, users);
+        return null;
+      }
     });
   }
 
   @Override
   public void updateTwoUsers(final User userOne, final User userTwo) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser_1.handle(_connection, userOne);
-      __updateAdapterOfUser_1.handle(_connection, userTwo);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __updateAdapterOfUser_1.handle(_connection, userOne);
+        __updateAdapterOfUser_1.handle(_connection, userTwo);
+        return null;
+      }
     });
   }
 
   @Override
   public int updateUserAndReturnCount(final User user) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handle(_connection, user);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __updateAdapterOfUser.handle(_connection, user);
+        return _result;
+      }
     });
   }
 
   @Override
   public int updateUserAndReturnCount(final User user1, final List<User> others) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handle(_connection, user1);
-      _result += __updateAdapterOfUser.handleMultiple(_connection, others);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __updateAdapterOfUser.handle(_connection, user1);
+        _result += __updateAdapterOfUser.handleMultiple(_connection, others);
+        return _result;
+      }
     });
   }
 
   @Override
   public int updateUserAndReturnCount(final User[] users) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handleMultiple(_connection, users);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __updateAdapterOfUser.handleMultiple(_connection, users);
+        return _result;
+      }
     });
   }
 
   @Override
   public Integer updateUserAndReturnCountObject(final User user) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handle(_connection, user);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __updateAdapterOfUser.handle(_connection, user);
+        return _result;
+      }
     });
   }
 
@@ -250,34 +322,50 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public int multiPKey(final MultiPKeyEntity entity) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfMultiPKeyEntity.handle(_connection, entity);
-      return _result;
+    return DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Integer>() {
+      @Override
+      @NonNull
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __updateAdapterOfMultiPKeyEntity.handle(_connection, entity);
+        return _result;
+      }
     });
   }
 
   @Override
   public void updateUserAndBook(final User user, final Book book) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handle(_connection, user);
-      __updateAdapterOfBook.handle(_connection, book);
-      return null;
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        __updateAdapterOfUser.handle(_connection, user);
+        __updateAdapterOfBook.handle(_connection, book);
+        return null;
+      }
     });
   }
 
   @Override
   public void ageUserByUid(final String uid) {
     final String _sql = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
-        int _argIndex = 1;
-        _stmt.bindText(_argIndex, uid);
-        _stmt.step();
-        return null;
-      } finally {
-        _stmt.close();
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
+        try {
+          int _argIndex = 1;
+          if (uid == null) {
+            _stmt.bindNull(_argIndex);
+          } else {
+            _stmt.bindText(_argIndex, uid);
+          }
+          _stmt.step();
+          return null;
+        } finally {
+          _stmt.close();
+        }
       }
     });
   }
@@ -285,13 +373,17 @@ public final class UpdateDao_Impl implements UpdateDao {
   @Override
   public void ageUserAll() {
     final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
-        _stmt.step();
-        return null;
-      } finally {
-        _stmt.close();
+    DBUtil.performBlocking(__db, false, true, new Function1<SQLiteConnection, Void>() {
+      @Override
+      @NonNull
+      public Void invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
+        try {
+          _stmt.step();
+          return null;
+        } finally {
+          _stmt.close();
+        }
       }
     });
   }
