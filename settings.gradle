@@ -405,6 +405,7 @@ includeProject(":benchmark:integration-tests:dry-run-benchmark", [BuildType.MAIN
 includeProject(":benchmark:integration-tests:macrobenchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:macrobenchmark-target", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:startup-benchmark", [BuildType.MAIN])
+includeProject(":binarycompatibilityvalidator:binarycompatibilityvalidator", [BuildType.MAIN])
 includeProject(":biometric:biometric", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx", [BuildType.MAIN])
 includeProject(":biometric:biometric-ktx-samples", "biometric/biometric-ktx/samples", [BuildType.MAIN])
