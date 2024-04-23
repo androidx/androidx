@@ -1285,15 +1285,15 @@ class Camera2CapturePipelineTest {
                 timeout: Long = TimeUnit.SECONDS.toMillis(5),
                 verifyResults: (captureRequests: List<CaptureConfig>) -> Boolean = { true }
             ) {
+                val resultPair = Pair(CountDownLatch(1), verifyResults)
                 synchronized(lock) {
                     allResults.forEach {
                         if (verifyResults(it)) {
                             return
                         }
                     }
+                    waitingList.add(resultPair)
                 }
-                val resultPair = Pair(CountDownLatch(1), verifyResults)
-                waitingList.add(resultPair)
                 assertTrue(resultPair.first.await(timeout, TimeUnit.MILLISECONDS))
                 waitingList.remove(resultPair)
             }
