@@ -77,7 +77,6 @@ protobuf {
 android {
     namespace "androidx.appactions.interaction.proto"
     defaultConfig {
-        minSdkVersion 19
     }
     libraryVariants.all { variant ->
         // Replace the default jar with the shadow jar in the AAR.

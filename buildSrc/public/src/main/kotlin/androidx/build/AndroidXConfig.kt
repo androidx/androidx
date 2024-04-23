@@ -28,7 +28,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
 
     override val compileSdk: Int by lazy { project.findProperty(COMPILE_SDK).toString().toInt() }
 
-    override val minSdk: Int = 19
+    override val minSdk: Int = 21
     override val ndkVersion: String = "25.2.9519653"
 
     override val targetSdk: Int by lazy {

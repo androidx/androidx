@@ -32,7 +32,6 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 19
     }
     namespace "androidx.slice.builders.ktx"
 }
