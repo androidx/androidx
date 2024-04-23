@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import androidx.build.gradle.isRoot
 import groovy.xml.DOMBuilder
 import java.net.URI
@@ -195,7 +196,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             }
 
             private fun Project.requireProperty(name: String): String {
-                return checkNotNull(findProperty(name)) {
+                return checkNotNull(extraPropertyOrNull(name)) {
                         "missing $name property. It must be defined in the gradle.properties file"
                     }
                     .toString()

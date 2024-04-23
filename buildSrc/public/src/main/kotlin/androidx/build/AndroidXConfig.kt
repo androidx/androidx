@@ -18,6 +18,7 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
@@ -26,13 +27,17 @@ import org.gradle.api.file.FileCollection
 abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
     override val buildToolsVersion: String = "35.0.0-rc1"
 
-    override val compileSdk: Int by lazy { project.findProperty(COMPILE_SDK).toString().toInt() }
+    override val compileSdk: Int by lazy {
+        val sdkString = project.extraPropertyOrNull(COMPILE_SDK)?.toString()
+        check(sdkString != null) { "$COMPILE_SDK is unset" }
+        sdkString.toInt()
+    }
 
     override val minSdk: Int = 21
     override val ndkVersion: String = "25.2.9519653"
 
     override val targetSdk: Int by lazy {
-        project.findProperty(TARGET_SDK_VERSION).toString().toInt()
+        project.providers.gradleProperty(TARGET_SDK_VERSION).get().toInt()
     }
 
     companion object {
@@ -95,7 +100,7 @@ fun Project.getKeystore(): File {
 }
 
 fun Project.getPrebuiltsRoot(): File {
-    return File(project.rootProject.property("prebuiltsRoot").toString())
+    return File(project.extraPropertyOrNull("prebuiltsRoot").toString())
 }
 
 /** @return the project's Android SDK stub JAR as a File. */

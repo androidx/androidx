@@ -221,7 +221,7 @@ fun Project.shouldAddGroupConstraints() = booleanPropertyProvider(ADD_GROUP_CONS
  * Returns null if there is no alternative project url.
  */
 fun Project.getAlternativeProjectUrl(): String? =
-    project.findProperty(ALTERNATIVE_PROJECT_URL) as? String
+    project.providers.gradleProperty(ALTERNATIVE_PROJECT_URL).getOrNull()
 
 /**
  * Check that version extra meets the specified rules (version is in format major.minor.patch-extra)
@@ -277,18 +277,9 @@ fun Project.isDisplayTestOutput(): Boolean = findBooleanProperty(DISPLAY_TEST_OU
 fun Project.isWriteVersionedApiFilesEnabled(): Boolean =
     findBooleanProperty(WRITE_VERSIONED_API_FILES) ?: true
 
-/** Returns whether the project should generate documentation. */
-fun Project.isDocumentationEnabled(): Boolean {
-    if (System.getenv().containsKey("ANDROIDX_PROJECTS")) {
-        val projects = System.getenv()["ANDROIDX_PROJECTS"] as String
-        if (projects != "ALL") return false
-    }
-    return (project.findProperty(ENABLE_DOCUMENTATION) as? String)?.toBoolean() ?: true
-}
-
 /** Returns whether the build is for checking forward compatibility across projects */
 fun Project.usingMaxDepVersions(): Boolean {
-    return project.hasProperty(USE_MAX_DEP_VERSIONS)
+    return project.providers.gradleProperty(USE_MAX_DEP_VERSIONS).isPresent()
 }
 
 /**
@@ -320,7 +311,7 @@ fun Project.allowMissingLintProject() =
 fun Project.isCustomCompileSdkAllowed(): Boolean =
     findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
 
-fun Project.findBooleanProperty(propName: String) = (findProperty(propName) as? String)?.toBoolean()
+fun Project.findBooleanProperty(propName: String) = booleanPropertyProvider(propName).get()
 
 fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
     return project.providers.gradleProperty(propName).map { s -> s.toBoolean() }.orElse(false)
