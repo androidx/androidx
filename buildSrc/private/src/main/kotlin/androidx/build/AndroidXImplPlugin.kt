@@ -668,9 +668,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        val reportLibraryMetrics = project.configureReportLibraryMetricsTask()
-        project.addToBuildOnServer(reportLibraryMetrics)
-
         project.addToProjectMap(androidXExtension)
         project.afterEvaluate {
             project.addToBuildOnServer("assembleAndroidMain")
@@ -858,9 +855,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
-        val reportLibraryMetrics = project.configureReportLibraryMetricsTask()
-        project.addToBuildOnServer(reportLibraryMetrics)
-
         val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
         val copyPublicResourcesDirTask =
             project.tasks.register(
@@ -883,14 +877,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     taskProvider.configure { task ->
                         task.dependsOn("compileReleaseJavaWithJavac")
                     }
-                }
-
-                reportLibraryMetrics.configure {
-                    it.jarFiles.from(
-                        project.tasks.named("bundleReleaseAar").map {
-                                zip -> zip.inputs.files
-                        }
-                    )
                 }
             }
             configurePublicResourcesStub(variant, copyPublicResourcesDirTask)
