@@ -200,7 +200,8 @@ val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
 /**
  * CompositionLocal used for providing [RippleConfiguration] down the tree. This acts as a
  * tree-local 'override' for ripples used inside components that you cannot directly control, such
- * as to change the color of a specific component's ripple, or disable it entirely.
+ * as to change the color of a specific component's ripple, or disable it entirely by providing
+ * `null`.
  *
  * In most cases you should rely on the default theme behavior for consistency with other components
  * - this exists as an escape hatch for individual components and is not intended to be used for
@@ -211,15 +212,15 @@ val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
-val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration> =
+val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
     compositionLocalOf { RippleConfiguration() }
 
 /**
  * Configuration for [ripple] appearance, provided using [LocalRippleConfiguration]. In most cases
  * the default values should be used, for custom design system use cases you should instead
- * build your own custom ripple using [createRippleModifierNode].
+ * build your own custom ripple using [createRippleModifierNode]. To disable the ripple, provide
+ * `null` using [LocalRippleConfiguration].
  *
- * @param isEnabled whether the ripple is enabled. If false, no ripple will be rendered
  * @param color the color override for the ripple. If [Color.Unspecified], then the default color
  * from the theme will be used instead. Note that if the ripple has a color explicitly set with
  * the parameter on [ripple], that will always be used instead of this value.
@@ -229,7 +230,6 @@ val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration> =
 @Immutable
 @ExperimentalMaterialApi
 class RippleConfiguration(
-    val isEnabled: Boolean = true,
     val color: Color = Color.Unspecified,
     val rippleAlpha: RippleAlpha? = null
 ) {
@@ -237,7 +237,6 @@ class RippleConfiguration(
         if (this === other) return true
         if (other !is RippleConfiguration) return false
 
-        if (isEnabled != other.isEnabled) return false
         if (color != other.color) return false
         if (rippleAlpha != other.rippleAlpha) return false
 
@@ -245,14 +244,13 @@ class RippleConfiguration(
     }
 
     override fun hashCode(): Int {
-        var result = isEnabled.hashCode()
-        result = 31 * result + color.hashCode()
+        var result = color.hashCode()
         result = 31 * result + (rippleAlpha?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "RippleConfiguration(enabled=$isEnabled, color=$color, rippleAlpha=$rippleAlpha)"
+        return "RippleConfiguration(color=$color, rippleAlpha=$rippleAlpha)"
     }
 }
 
@@ -353,13 +351,14 @@ private class DelegatingThemeAwareRippleNode(
     }
 
     /**
-     * Handles changes to [RippleConfiguration.isEnabled]. Changes to [RippleConfiguration.color] and
-     * [RippleConfiguration.rippleAlpha] are handled as part of the ripple definition.
+     * Handles [LocalRippleConfiguration] changing between null / non-null. Changes to
+     * [RippleConfiguration.color] and [RippleConfiguration.rippleAlpha] are handled as part of
+     * the ripple definition.
      */
     private fun updateConfiguration() {
         observeReads {
             val configuration = currentValueOf(LocalRippleConfiguration)
-            if (!configuration.isEnabled) {
+            if (configuration == null) {
                 removeRipple()
             } else {
                 if (rippleNode == null) attachNewRipple()
@@ -373,8 +372,10 @@ private class DelegatingThemeAwareRippleNode(
             if (userDefinedColor.isSpecified) {
                 userDefinedColor
             } else {
+                // If this is null, the ripple will be removed, so this should always be non-null in
+                // normal use
                 val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-                if (rippleConfiguration.color.isSpecified) {
+                if (rippleConfiguration?.color?.isSpecified == true) {
                     rippleConfiguration.color
                 } else {
                     RippleDefaults.rippleColor(
@@ -385,8 +386,10 @@ private class DelegatingThemeAwareRippleNode(
             }
         }
         val calculateRippleAlpha = {
+            // If this is null, the ripple will be removed, so this should always be non-null in
+            // normal use
             val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
-            rippleConfiguration.rippleAlpha ?: RippleDefaults.rippleAlpha(
+            rippleConfiguration?.rippleAlpha ?: RippleDefaults.rippleAlpha(
                 contentColor = currentValueOf(LocalContentColor),
                 lightTheme = currentValueOf(LocalColors).isLight
             )

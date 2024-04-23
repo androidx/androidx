@@ -1255,12 +1255,10 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class RippleConfiguration {
-    ctor public RippleConfiguration(optional boolean isEnabled, optional long color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
+    ctor public RippleConfiguration(optional long color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     method public long getColor();
     method public androidx.compose.material.ripple.RippleAlpha? getRippleAlpha();
-    method public boolean isEnabled();
     property public final long color;
-    property public final boolean isEnabled;
     property public final androidx.compose.material.ripple.RippleAlpha? rippleAlpha;
   }
 
@@ -1271,11 +1269,11 @@ package androidx.compose.material3 {
   }
 
   public final class RippleKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleConfiguration> getLocalRippleConfiguration();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleConfiguration?> getLocalRippleConfiguration();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalUseFallbackRippleImplementation();
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional float radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional float radius, optional long color);
-    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleConfiguration> LocalRippleConfiguration;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.RippleConfiguration?> LocalRippleConfiguration;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalUseFallbackRippleImplementation;
   }
 
