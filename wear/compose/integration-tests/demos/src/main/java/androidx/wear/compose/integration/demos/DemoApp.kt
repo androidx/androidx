@@ -30,6 +30,7 @@ import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
@@ -38,7 +39,6 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.Demo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.integration.demos.common.DemoParameters
-import androidx.wear.compose.integration.demos.common.ScalingLazyColumnWithRSB
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
@@ -122,13 +122,12 @@ internal fun BoxScope.DisplayDemoList(
 ) {
     val state = rememberScalingLazyListState()
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .testTag(DemoListTag),
         state = scrollStates[scrollStateIndex],
-        snap = false,
         autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
     ) {
         item {
