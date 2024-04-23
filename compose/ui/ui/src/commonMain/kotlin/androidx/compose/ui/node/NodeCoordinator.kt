@@ -85,8 +85,8 @@ internal abstract class NodeCoordinator(
     override val coordinates: LayoutCoordinates
         get() = this
 
-    override val isPositionedByParentWithDirectManipulation: Boolean
-        get() = isDirectManipulationPlacement
+    override val introducesFrameOfReference: Boolean
+        get() = !isPlacedUsingCurrentFrameOfReference
 
     private var released = false
 
@@ -835,7 +835,15 @@ internal abstract class NodeCoordinator(
         relativeToSource: Offset
     ): Offset = localPositionOf(sourceCoordinates, relativeToSource, false)
 
-    override fun localPositionOf(
+    override fun positionInLocalFrameOfReference(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset
+    ): Offset = localPositionOf(sourceCoordinates, relativeToSource, true)
+
+    /**
+     * Common call
+     */
+    internal fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset,
         excludeDirectManipulationOffset: Boolean
@@ -1000,7 +1008,7 @@ internal abstract class NodeCoordinator(
     ): Offset {
         val layer = layer
         val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
-        return if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+        return if (excludeDirectManipulationOffset && isPlacedUsingCurrentFrameOfReference) {
             targetPosition
         } else {
             targetPosition + this.position
@@ -1016,7 +1024,7 @@ internal abstract class NodeCoordinator(
         excludeDirectManipulationOffset: Boolean = false
     ): Offset {
         val relativeToPosition =
-            if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+            if (excludeDirectManipulationOffset && isPlacedUsingCurrentFrameOfReference) {
                 position
             } else {
                 position - this.position

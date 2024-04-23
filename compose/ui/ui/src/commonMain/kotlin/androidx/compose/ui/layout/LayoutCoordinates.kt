@@ -58,17 +58,29 @@ interface LayoutCoordinates {
     val isAttached: Boolean
 
     /**
-     * Whether the coordinates were placed under direct manipulation.
+     * By default, most [LayoutCoordinates] introduce a new frame of reference. In this context, a
+     * frame of reference defines a point of hierarchical change, where other [LayoutCoordinates]
+     * are positioned against.
      *
-     * When true, reading [localPositionOf] coordinates with `excludeDirectManipulation = true` will
-     * exclude the offset set by its parent. This also applies when reading coordinates from a
-     * parent further up the tree, meaning, all the layouts which have this flag as `true` will not
-     * report the offset from their parent.
+     * However, there are some layouts that may visually change the frame of reference, but not
+     * hierarchically, such as Scroll. These Layouts should place their children using
+     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement].
      *
-     * @see Placeable.PlacementScope.withDirectManipulationPlacement
-     * @see localPositionOf
+     * In those situations, the corresponding placed [LayoutCoordinates] will have their
+     * [introducesFrameOfReference] return false.
+     *
+     * You may then use [positionInLocalFrameOfReference] to query a layout's position such that it
+     * excludes all Offset that do not introduce a frame of reference.
+     *
+     * This is typically helpful when deciding when to animate an [approachLayout] using
+     * [LookaheadScope] coordinates. As you probably don't want to consider positional changes that
+     * don't affect the layout hierarchy.
+     *
+     * @see Placeable.PlacementScope.withCurrentFrameOfReferencePlacement
+     * @see positionInLocalFrameOfReference
      */
-    val isPositionedByParentWithDirectManipulation: Boolean get() = false
+    @Suppress("GetterSetterNames") // Preferred name
+    val introducesFrameOfReference: Boolean get() = true
 
     /**
      * Converts [relativeToScreen] relative to the device's screen's origin into an [Offset]
@@ -107,24 +119,18 @@ interface LayoutCoordinates {
     fun localPositionOf(sourceCoordinates: LayoutCoordinates, relativeToSource: Offset): Offset
 
     /**
-     * Converts an [relativeToSource] in [sourceCoordinates] space into local coordinates.
-     * [sourceCoordinates] may be any [LayoutCoordinates] that belong to the same
-     * compose layout hierarchy.
+     * Converts an [relativeToSource] in [sourceCoordinates] space into local coordinates, such that
+     * the offset introduced on [LayoutCoordinates] where [introducesFrameOfReference] is false is
+     * excluded.
      *
-     * If [excludeDirectManipulationOffset] is true, the offset provided by layouts using
-     * [Placeable.PlacementScope.withDirectManipulationPlacement] will be ignored.
-     *
-     * You can query if a [LayoutCoordinates] was placed with
-     * [Placeable.PlacementScope.withDirectManipulationPlacement] through
-     * [LayoutCoordinates.isPositionedByParentWithDirectManipulation].
+     * @see Placeable.PlacementScope.withCurrentFrameOfReferencePlacement
      */
-    fun localPositionOf(
+    fun positionInLocalFrameOfReference(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset,
-        excludeDirectManipulationOffset: Boolean
     ): Offset {
         throw UnsupportedOperationException(
-            "localPositionOf is not implemented on this LayoutCoordinates"
+            "positionInLocalFrameOfReference is not implemented on this LayoutCoordinates"
         )
     }
 

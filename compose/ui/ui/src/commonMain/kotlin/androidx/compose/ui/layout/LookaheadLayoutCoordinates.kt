@@ -55,8 +55,8 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
     override val isAttached: Boolean
         get() = coordinator.isAttached
 
-    override val isPositionedByParentWithDirectManipulation: Boolean
-        get() = lookaheadDelegate.isDirectManipulationPlacement
+    override val introducesFrameOfReference: Boolean
+        get() = !lookaheadDelegate.isPlacedUsingCurrentFrameOfReference
 
     private val lookaheadOffset: Offset
         get() = lookaheadDelegate.rootLookaheadDelegate.let {
@@ -89,7 +89,23 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
             excludeDirectManipulationOffset = false
         )
 
-    override fun localPositionOf(
+    override fun positionInLocalFrameOfReference(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset
+    ): Offset = localPositionOf(
+        sourceCoordinates = sourceCoordinates,
+        relativeToSource = relativeToSource,
+        excludeDirectManipulationOffset = true
+    )
+
+    /**
+     * Handles local position calculation.
+     *
+     * Pass [excludeDirectManipulationOffset] as true, to exclude offsets placed under
+     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement]. It's expected to be true for
+     * calls coming from [positionInLocalFrameOfReference].
+     */
+    internal fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset,
         excludeDirectManipulationOffset: Boolean
@@ -141,19 +157,24 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
             // `sourceCoordinates` isn't. Therefore we'll break this into two parts:
             // local position in lookahead coords space && local position in regular layout coords
             // space.
-            val foo = localPositionOf(
+            val localLookaheadPos = localPositionOf(
                 sourceCoordinates = rootDelegate.lookaheadLayoutCoordinates,
                 relativeToSource = relativeToSource,
                 excludeDirectManipulationOffset = excludeDirectManipulationOffset
             )
 
-            val bar = rootDelegate.coordinator.coordinates.localPositionOf(
-                sourceCoordinates = sourceCoordinates,
-                relativeToSource = Offset.Zero,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
-            )
-
-            return foo + bar
+            val localPos = if (excludeDirectManipulationOffset) {
+                rootDelegate.coordinator.coordinates.positionInLocalFrameOfReference(
+                    sourceCoordinates = sourceCoordinates,
+                    relativeToSource = Offset.Zero,
+                )
+            } else {
+                rootDelegate.coordinator.coordinates.localPositionOf(
+                    sourceCoordinates = sourceCoordinates,
+                    relativeToSource = Offset.Zero
+                )
+            }
+            return localLookaheadPos + localPos
         }
     }
 
