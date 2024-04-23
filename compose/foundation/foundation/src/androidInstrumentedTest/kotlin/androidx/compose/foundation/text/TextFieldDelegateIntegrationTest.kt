@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.TextRange
@@ -38,13 +37,11 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalFoundationTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class TextFieldDelegateIntegrationTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
-    @OptIn(ExperimentalTextApi::class)
     private val fontFamilyResolver = createFontFamilyResolver(context)
     private val layoutDirection = LayoutDirection.Ltr
 

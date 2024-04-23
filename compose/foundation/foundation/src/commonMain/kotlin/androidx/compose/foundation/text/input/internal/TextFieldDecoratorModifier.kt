@@ -111,7 +111,6 @@ private val MediaTypesAll = setOf(MediaType.All)
  *
  * This modifier handles input events (both key and pointer), semantics, and focus.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal data class TextFieldDecoratorModifier(
     private val textFieldState: TransformedTextFieldState,
     private val textLayoutState: TextLayoutState,

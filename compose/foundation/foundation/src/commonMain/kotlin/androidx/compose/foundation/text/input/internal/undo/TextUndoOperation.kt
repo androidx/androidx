@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.undo
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.timeNowMillis
 import androidx.compose.runtime.saveable.Saver
@@ -112,7 +111,6 @@ internal class TextUndoOperation(
 /**
  * Apply a given [TextUndoOperation] in reverse to undo this [TextFieldState].
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.undo(op: TextUndoOperation) {
     editWithNoSideEffects {
         replace(op.index, op.index + op.postText.length, op.preText)
@@ -123,7 +121,6 @@ internal fun TextFieldState.undo(op: TextUndoOperation) {
 /**
  * Apply a given [TextUndoOperation] in forward direction to redo this [TextFieldState].
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun TextFieldState.redo(op: TextUndoOperation) {
     editWithNoSideEffects {
         replace(op.index, op.index + op.preText.length, op.postText)

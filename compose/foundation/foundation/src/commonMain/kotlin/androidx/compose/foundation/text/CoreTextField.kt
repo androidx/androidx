@@ -199,7 +199,7 @@ import kotlinx.coroutines.launch
  * innerTextField exactly once.
  */
 @Composable
-@OptIn(InternalFoundationTextApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 internal fun CoreTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -842,7 +842,6 @@ private fun Modifier.previewKeyEventToDeselectOnBack(
     }
 }
 
-@OptIn(InternalFoundationTextApi::class)
 internal class LegacyTextFieldState(
     var textDelegate: TextDelegate,
     val recomposeScope: RecomposeScope,
@@ -1084,7 +1083,7 @@ private fun endInputSession(state: LegacyTextFieldState) {
  * This function is used to handle 2, 3, and 4, and the others are automatically handled by the
  * focus system.
  */
-@OptIn(ExperimentalFoundationApi::class, InternalFoundationTextApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun BringIntoViewRequester.bringSelectionEndIntoView(
     value: TextFieldValue,
     textDelegate: TextDelegate,
@@ -1196,7 +1195,6 @@ internal expect fun CursorHandle(
 )
 
 // TODO(b/262648050) Try to find a better API.
-@OptIn(InternalFoundationTextApi::class)
 private fun notifyFocusedRect(
     state: LegacyTextFieldState,
     value: TextFieldValue,

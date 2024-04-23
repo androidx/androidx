@@ -555,7 +555,6 @@ private object Api34PerformHandwritingGestureImpl {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun TextFieldCharSequence.toExtractedText(): ExtractedText {
     val res = ExtractedText()
     res.text = this

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -49,7 +48,6 @@ import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 class TextFieldInteractionSourcePressTest : FocusedWindowTest {
 

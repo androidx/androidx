@@ -195,7 +195,7 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
         }
     }
 
-    fun runTest(block: () -> Unit) {
+    private fun runTest(block: () -> Unit) {
         block()
 
         val expectedSelectableId = expectedText.selectableId

@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.AndroidFont
@@ -245,7 +244,7 @@ class HeightInLinesModifierTest {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class, ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun asyncFontLoad_changesLineHeight() {
         val testDispatcher = UnconfinedTestDispatcher()
