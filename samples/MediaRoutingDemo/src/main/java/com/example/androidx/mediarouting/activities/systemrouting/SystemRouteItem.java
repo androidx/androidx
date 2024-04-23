@@ -19,71 +19,32 @@ package com.example.androidx.mediarouting.activities.systemrouting;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-import javax.annotation.Nullable;
-
-/**
- * An abstract model that holds information about routes from different sources.
- *
- * Can represent media routers' routes, bluetooth routes, or audio routes.
- */
+/** Holds information about a system route. */
 public final class SystemRouteItem implements SystemRoutesAdapterItem {
 
-    @NonNull
-    private final String mId;
+    @NonNull public final String mId;
 
-    @NonNull
-    private final String mName;
+    @NonNull public final String mName;
 
-    @Nullable
-    private final String mAddress;
+    @Nullable public final String mAddress;
 
-    @Nullable
-    private final String mDescription;
+    @Nullable public final String mDescription;
+
+    @Nullable public final String mSuitabilityStatus;
+
+    @Nullable public final Boolean mTransferInitiatedBySelf;
 
     private SystemRouteItem(@NonNull Builder builder) {
-        Objects.requireNonNull(builder.mId);
-        Objects.requireNonNull(builder.mName);
-
-        mId = builder.mId;
-        mName = builder.mName;
-
+        mId = Objects.requireNonNull(builder.mId);
+        mName = Objects.requireNonNull(builder.mName);
         mAddress = builder.mAddress;
         mDescription = builder.mDescription;
-    }
-
-    /**
-     * Returns a unique identifier of a route.
-     */
-    @NonNull
-    public String getId() {
-        return mId;
-    }
-
-    /**
-     * Returns a human-readable name of the route.
-     */
-    @NonNull
-    public String getName() {
-        return mName;
-    }
-
-    /**
-     * Returns address if the route is a Bluetooth route and {@code null} otherwise.
-     */
-    @Nullable
-    public String getAddress() {
-        return mAddress;
-    }
-
-    /**
-     * Returns a route description or {@code null} if empty.
-     */
-    @Nullable
-    public String getDescription() {
-        return mDescription;
+        mSuitabilityStatus = builder.mSuitabilityStatus;
+        mTransferInitiatedBySelf = builder.mTransferInitiatedBySelf;
     }
 
     @Override
@@ -106,17 +67,12 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
      */
     public static final class Builder {
 
-        @NonNull
-        private final String mId;
-
-        @NonNull
-        private String mName;
-
-        @Nullable
-        private String mAddress;
-
-        @Nullable
-        private String mDescription;
+        @NonNull private final String mId;
+        @NonNull private String mName;
+        @Nullable private String mAddress;
+        @Nullable private String mDescription;
+        @Nullable private String mSuitabilityStatus;
+        @Nullable private Boolean mTransferInitiatedBySelf;
 
         public Builder(@NonNull String id) {
             mId = id;
@@ -150,6 +106,26 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
             if (!TextUtils.isEmpty(description)) {
                 mDescription = description;
             }
+            return this;
+        }
+
+        /**
+         * Sets a human-readable string describing the transfer suitability of the route, or null if
+         * not applicable.
+         */
+        @NonNull
+        public Builder setSuitabilityStatus(@Nullable String suitabilityStatus) {
+            mSuitabilityStatus = suitabilityStatus;
+            return this;
+        }
+
+        /**
+         * Sets whether the corresponding route's selection is the result of an action of this app,
+         * or null if not applicable.
+         */
+        @NonNull
+        public Builder setTransferInitiatedBySelf(@Nullable Boolean transferInitiatedBySelf) {
+            mTransferInitiatedBySelf = transferInitiatedBySelf;
             return this;
         }
 

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -114,6 +115,8 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private final AppCompatTextView mRouteIdTextView;
         private final AppCompatTextView mRouteAddressTextView;
         private final AppCompatTextView mRouteDescriptionTextView;
+        private final AppCompatTextView mSuitabilityStatusTextView;
+        private final AppCompatTextView mTransferInitiatedBySelfTextView;
 
         ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -122,21 +125,22 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             mRouteIdTextView = itemView.findViewById(R.id.route_id);
             mRouteAddressTextView = itemView.findViewById(R.id.route_address);
             mRouteDescriptionTextView = itemView.findViewById(R.id.route_description);
+            mSuitabilityStatusTextView = itemView.findViewById(R.id.route_suitability_status);
+            mTransferInitiatedBySelfTextView =
+                    itemView.findViewById(R.id.route_transfer_initiated_by_self);
         }
 
         void bind(SystemRouteItem systemRouteItem) {
-            mRouteNameTextView.setText(systemRouteItem.getName());
-            mRouteIdTextView.setText(systemRouteItem.getId());
-
-            showViewIfNotNull(mRouteAddressTextView, systemRouteItem.getAddress());
-            if (systemRouteItem.getAddress() != null) {
-                mRouteAddressTextView.setText(systemRouteItem.getAddress());
-            }
-
-            showViewIfNotNull(mRouteDescriptionTextView, systemRouteItem.getDescription());
-            if (systemRouteItem.getDescription() != null) {
-                mRouteDescriptionTextView.setText(systemRouteItem.getDescription());
-            }
+            mRouteNameTextView.setText(systemRouteItem.mName);
+            mRouteIdTextView.setText(systemRouteItem.mId);
+            setTextOrHide(mRouteAddressTextView, systemRouteItem.mAddress);
+            setTextOrHide(mRouteDescriptionTextView, systemRouteItem.mDescription);
+            setTextOrHide(mSuitabilityStatusTextView, systemRouteItem.mSuitabilityStatus);
+            String initiatedBySelfText =
+                    systemRouteItem.mTransferInitiatedBySelf != null
+                            ? "self-initiated: " + systemRouteItem.mTransferInitiatedBySelf
+                            : null;
+            setTextOrHide(mTransferInitiatedBySelfTextView, initiatedBySelfText);
         }
     }
 
@@ -145,8 +149,7 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public boolean areItemsTheSame(@NonNull SystemRoutesAdapterItem oldItem,
                 @NonNull SystemRoutesAdapterItem newItem) {
             if (oldItem instanceof SystemRouteItem && newItem instanceof SystemRouteItem) {
-                return ((SystemRouteItem) oldItem).getId().equals(
-                        ((SystemRouteItem) newItem).getId());
+                return ((SystemRouteItem) oldItem).mId.equals(((SystemRouteItem) newItem).mId);
             } else if (oldItem instanceof SystemRoutesSourceItem
                     && newItem instanceof SystemRoutesSourceItem) {
                 return oldItem.equals(newItem);
@@ -169,11 +172,12 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    private static <T, V extends View> void showViewIfNotNull(@NonNull V view, @Nullable T obj) {
-        if (obj == null) {
+    private static void setTextOrHide(@NonNull TextView view, @Nullable String text) {
+        if (text == null) {
             view.setVisibility(View.GONE);
         } else {
             view.setVisibility(View.VISIBLE);
+            view.setText(text);
         }
     }
 }
