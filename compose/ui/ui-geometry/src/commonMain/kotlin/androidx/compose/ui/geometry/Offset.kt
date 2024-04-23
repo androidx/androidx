@@ -91,7 +91,7 @@ value class Offset internal constructor(internal val packedValue: Long) {
      * x or y parameter
      */
     fun copy(x: Float = unpackFloat1(packedValue), y: Float = unpackFloat2(packedValue)) =
-        Offset(x, y)
+        Offset(packFloats(x, y))
 
     companion object {
         /**
@@ -100,26 +100,23 @@ value class Offset internal constructor(internal val packedValue: Long) {
          * This can be used to represent the origin of a coordinate space.
          */
         @Stable
-        val Zero = Offset(0.0f, 0.0f)
+        val Zero = Offset(0x0L)
 
         /**
          * An offset with infinite x and y components.
          *
-         * See also:
-         *
-         *  * [isInfinite], which checks whether either component is infinite.
-         *  * [isFinite], which checks whether both components are finite.
+         * See also [isFinite] to check whether both components are finite.
          */
         // This is included for completeness, because [Size.infinite] exists.
         @Stable
-        val Infinite = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+        val Infinite = Offset(DualFloatInfinityBase)
 
         /**
          * Represents an unspecified [Offset] value, usually a replacement for `null`
          * when a primitive value is desired.
          */
         @Stable
-        val Unspecified = Offset(Float.NaN, Float.NaN)
+        val Unspecified = Offset(UnspecifiedPackedFloats)
     }
 
     @Stable
@@ -193,8 +190,10 @@ value class Offset internal constructor(internal val packedValue: Long) {
             "Offset is unspecified"
         }
         return Offset(
-            unpackFloat1(packedValue) - unpackFloat1(other.packedValue),
-            unpackFloat2(packedValue) - unpackFloat2(other.packedValue),
+            packFloats(
+                unpackFloat1(packedValue) - unpackFloat1(other.packedValue),
+                unpackFloat2(packedValue) - unpackFloat2(other.packedValue)
+            )
         )
     }
 
@@ -214,8 +213,10 @@ value class Offset internal constructor(internal val packedValue: Long) {
             "Offset is unspecified"
         }
         return Offset(
-            unpackFloat1(packedValue) + unpackFloat1(other.packedValue),
-            unpackFloat2(packedValue) + unpackFloat2(other.packedValue),
+            packFloats(
+                unpackFloat1(packedValue) + unpackFloat1(other.packedValue),
+                unpackFloat2(packedValue) + unpackFloat2(other.packedValue)
+            )
         )
     }
 
@@ -232,8 +233,10 @@ value class Offset internal constructor(internal val packedValue: Long) {
             "Offset is unspecified"
         }
         return Offset(
-            unpackFloat1(packedValue) * operand,
-            unpackFloat2(packedValue) * operand,
+            packFloats(
+                unpackFloat1(packedValue) * operand,
+                unpackFloat2(packedValue) * operand
+            )
         )
     }
 
@@ -250,8 +253,10 @@ value class Offset internal constructor(internal val packedValue: Long) {
             "Offset is unspecified"
         }
         return Offset(
-            unpackFloat1(packedValue) / operand,
-            unpackFloat2(packedValue) / operand,
+            packFloats(
+                unpackFloat1(packedValue) / operand,
+                unpackFloat2(packedValue) / operand
+            )
         )
     }
 
@@ -268,8 +273,10 @@ value class Offset internal constructor(internal val packedValue: Long) {
             "Offset is unspecified"
         }
         return Offset(
-            unpackFloat1(packedValue) % operand,
-            unpackFloat2(packedValue) % operand,
+            packFloats(
+                unpackFloat1(packedValue) % operand,
+                unpackFloat2(packedValue) % operand
+            )
         )
     }
 
@@ -306,8 +313,10 @@ fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
         "Offset is unspecified"
     }
     return Offset(
-        lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
-        lerp(unpackFloat2(start.packedValue), unpackFloat2(stop.packedValue), fraction)
+        packFloats(
+            lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
+            lerp(unpackFloat2(start.packedValue), unpackFloat2(stop.packedValue), fraction)
+        )
     )
 }
 
@@ -319,9 +328,11 @@ val Offset.isFinite: Boolean get() {
     checkPrecondition(packedValue != UnspecifiedPackedFloats) {
         "Offset is unspecified"
     }
-    val x = (packedValue shr 32) and FloatInfinityBase
-    val y = packedValue and FloatInfinityBase
-    return x != FloatInfinityBase && y != FloatInfinityBase
+    // Mask out the sign bit and do an equality check in each 32-bit lane
+    // against the "infinity base" mask (to check whether each packed float
+    // is infinite or not).
+    val v = (packedValue and DualUnsignedFloatMask) xor DualFloatInfinityBase
+    return (((v shr 1) or Uint64High32) - v) and Uint64High32 == 0L
 }
 
 /**
