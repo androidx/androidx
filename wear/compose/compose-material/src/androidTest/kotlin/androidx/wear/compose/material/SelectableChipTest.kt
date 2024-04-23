@@ -136,6 +136,28 @@ class SelectableChipTest {
     }
 
     @Test
+    fun selectable_chip_has_role_radiobutton() {
+        rule.setContentWithTheme {
+            SelectableChip(
+                selected = true,
+                onClick = {},
+                enabled = false,
+                label = { Text("Label") },
+                selectionControl = { TestImage() },
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Role,
+                    Role.RadioButton
+                )
+            )
+    }
+
+    @Test
     fun split_chip_has_clickaction_when_disabled() {
         rule.setContentWithTheme {
             SplitSelectableChip(

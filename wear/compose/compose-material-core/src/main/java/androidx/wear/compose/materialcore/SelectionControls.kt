@@ -310,10 +310,9 @@ fun RadioButton(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
+        // NB We must set the semantic role to Role.RadioButton in the parent Button,
+        // not here in the selection control - see b/330869742
         modifier = modifier
-            .semantics {
-                this.role = Role.RadioButton
-            }
             .maybeSelectable(
                 onClick, enabled, selected, interactionSource, ripple, width, height
             )
