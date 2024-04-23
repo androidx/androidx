@@ -148,6 +148,15 @@ open class XTypeName protected constructor(
             kotlin = com.squareup.kotlinpoet.ANY
         )
 
+        /**
+         * A convenience [XTypeName] that represents [kotlin.Enum] in Kotlin and
+         * [java.lang.Enum] in Java.
+         */
+        val ENUM = XTypeName(
+            java = JClassName.get(java.lang.Enum::class.java),
+            kotlin = com.squareup.kotlinpoet.ENUM
+        )
+
         val PRIMITIVE_BOOLEAN = Boolean::class.asPrimitiveTypeName()
         val PRIMITIVE_BYTE = Byte::class.asPrimitiveTypeName()
         val PRIMITIVE_SHORT = Short::class.asPrimitiveTypeName()
