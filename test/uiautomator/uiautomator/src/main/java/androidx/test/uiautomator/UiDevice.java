@@ -1351,11 +1351,10 @@ public class UiDevice implements Searchable {
     @Discouraged(message = "Can be useful for simple commands, but lacks support for proper error"
             + " handling, input data, or complex commands (quotes, pipes) that can be obtained "
             + "from UiAutomation#executeShellCommandRwe or similar utilities.")
-    @RequiresApi(21)
     @NonNull
     public String executeShellCommand(@NonNull String cmd) throws IOException {
         Log.d(TAG, String.format("Executing shell command: %s", cmd));
-        try (ParcelFileDescriptor pfd = Api21Impl.executeShellCommand(getUiAutomation(), cmd);
+        try (ParcelFileDescriptor pfd = getUiAutomation().executeShellCommand(cmd);
              FileInputStream fis = new ParcelFileDescriptor.AutoCloseInputStream(pfd)) {
             byte[] buf = new byte[512];
             int bytesRead;
@@ -1394,7 +1393,6 @@ public class UiDevice implements Searchable {
         return p;
     }
 
-    @RequiresApi(21)
     private List<AccessibilityWindowInfo> getWindows(UiAutomation uiAutomation) {
         // Support multi-display searches for API level 30 and up.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -1406,7 +1404,7 @@ public class UiDevice implements Searchable {
             }
             return windowList;
         }
-        return Api21Impl.getWindows(uiAutomation);
+        return uiAutomation.getWindows();
     }
 
     /** Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window */
@@ -1423,16 +1421,14 @@ public class UiDevice implements Searchable {
         } else {
             Log.w(TAG, "Active window root not found.");
         }
-        // Support multi-window searches for API level 21 and up.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            for (final AccessibilityWindowInfo window : getWindows(uiAutomation)) {
-                final AccessibilityNodeInfo root = Api21Impl.getRoot(window);
-                if (root == null) {
-                    Log.w(TAG, "Skipping null root node for window: " + window);
-                    continue;
-                }
-                roots.add(root);
+        // Add all windows to support multi-window/display searches.
+        for (final AccessibilityWindowInfo window : getWindows(uiAutomation)) {
+            final AccessibilityNodeInfo root = window.getRoot();
+            if (root == null) {
+                Log.w(TAG, "Skipping null root node for window: " + window);
+                continue;
             }
+            roots.add(root);
         }
         return roots.toArray(new AccessibilityNodeInfo[0]);
     }
@@ -1489,10 +1485,8 @@ public class UiDevice implements Searchable {
         boolean serviceFlagsChanged = serviceInfo.flags != mCachedServiceFlags;
         if (serviceFlagsChanged
                 || SystemClock.uptimeMillis() - mLastServiceFlagsTime > SERVICE_FLAGS_TIMEOUT) {
-            // Enable multi-window support for API 21+.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                serviceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
-            }
+            // Enable multi-window support.
+            serviceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
             // Enable or disable hierarchy compression.
             if (mCompressed) {
                 serviceInfo.flags &= ~AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
@@ -1518,27 +1512,6 @@ public class UiDevice implements Searchable {
 
     InteractionController getInteractionController() {
         return mInteractionController;
-    }
-
-    @RequiresApi(21)
-    static class Api21Impl {
-        private Api21Impl() {
-        }
-
-        @DoNotInline
-        static ParcelFileDescriptor executeShellCommand(UiAutomation uiAutomation, String command) {
-            return uiAutomation.executeShellCommand(command);
-        }
-
-        @DoNotInline
-        static List<AccessibilityWindowInfo> getWindows(UiAutomation uiAutomation) {
-            return uiAutomation.getWindows();
-        }
-
-        @DoNotInline
-        static AccessibilityNodeInfo getRoot(AccessibilityWindowInfo accessibilityWindowInfo) {
-            return accessibilityWindowInfo.getRoot();
-        }
     }
 
     @RequiresApi(24)
