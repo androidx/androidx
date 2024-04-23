@@ -17,6 +17,7 @@
 package androidx.window.reflection
 
 import android.util.Log
+import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -62,6 +63,14 @@ internal object ReflectionUtils {
             false
         }
     }
+
+    /**
+     * Checks if a constructor has public modifier
+     */
+    internal val Constructor<*>.isPublic: Boolean
+        get() {
+            return Modifier.isPublic(modifiers)
+        }
 
     /**
      * Checks if a method has public modifier
