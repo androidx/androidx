@@ -21,6 +21,7 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.DimensionBuilders.weight;
+import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.ROBOTO_FLEX_FONT;
 import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_NAME;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -661,5 +662,34 @@ public class LayoutElementBuildersTest {
                 () -> new LayoutElementBuilders.FontStyle.Builder()
                         .setSettings(sizes)
                         .build());
+    }
+
+    @Test
+    public void testFontStyleSetFontFamily_constant() {
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setPreferredFontFamilies(ROBOTO_FLEX_FONT)
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(fontStyleProto.getPreferredFontFamiliesList().size()).isEqualTo(1);
+        assertThat(fontStyleProto.getPreferredFontFamilies(0)).isEqualTo(ROBOTO_FLEX_FONT);
+    }
+
+    @Test
+    public void testFontStyleSetFontFamily_customWithFallbacks() {
+        String expectedFontFamily = "font-family-test";
+        String fallbackFontFamily = "font-family-test-fallback";
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setPreferredFontFamilies(expectedFontFamily, fallbackFontFamily)
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(fontStyleProto.getPreferredFontFamiliesList().size()).isEqualTo(2);
+        assertThat(fontStyleProto.getPreferredFontFamilies(0)).isEqualTo(expectedFontFamily);
+        assertThat(fontStyleProto.getPreferredFontFamilies(1)).isEqualTo(fallbackFontFamily);
     }
 }

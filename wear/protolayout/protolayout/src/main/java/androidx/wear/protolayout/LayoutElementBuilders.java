@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.StringDef;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.ColorBuilders.Brush;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -683,6 +684,16 @@ public final class LayoutElementBuilders {
         }
 
         /**
+         * Gets the original font family name and its fallback values describing which font should
+         * be used for this {@link FontStyle}. For example, default font ProtoLayout, variable
+         * version of default font.
+         */
+        @NonNull
+        public List<String> getPreferredFontFamilies() {
+            return mImpl.getPreferredFontFamiliesList();
+        }
+
+        /**
          * Gets the size of the font, in scaled pixels (sp). If more than one size was originally
          * added, it will return the last one.
          */
@@ -751,6 +762,8 @@ public final class LayoutElementBuilders {
                     + getVariant()
                     + ", settings="
                     + getSettings()
+                    + ", fontFamily="
+                    + getPreferredFontFamilies()
                     + "}";
         }
 
@@ -1042,6 +1055,72 @@ public final class LayoutElementBuilders {
                     axes.add(settingName);
                 }
 
+                return this;
+            }
+
+            /**
+             * Adds one item to the font family describing which font should be used for this {@link
+             * FontStyle}. For example, using default font in ProtoLayout or its variable version.
+             * If not set, default font will be used.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            private Builder addPreferredFontFamily(@NonNull String fontFamily) {
+                mImpl.addPreferredFontFamilies(fontFamily);
+                mFingerprint.recordPropertyUpdate(9, fontFamily.hashCode());
+                return this;
+            }
+
+            /** The recommended font family names to be used within {@link FontStyle}. */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            @Retention(RetentionPolicy.SOURCE)
+            @StringDef(
+                    value = {DEFAULT_SYSTEM_FONT, ROBOTO_FONT, ROBOTO_FLEX_FONT},
+                    open = true)
+            public @interface FontFamilyNames {}
+
+            /**
+             * Font family name that uses default system font. Supported in any renderer version.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            public static final String DEFAULT_SYSTEM_FONT = "default";
+
+            /** Font family name that uses Roboto font. Supported in renderers supporting 1.4. */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            public static final String ROBOTO_FONT = "roboto";
+
+            /**
+             * Font family name that uses Roboto Flex variable font. Supported in renderers
+             * supporting 1.4.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            public static final String ROBOTO_FLEX_FONT = "roboto-flex";
+
+            /**
+             * Sets the preferred font families for this {@link FontStyle}.
+             *
+             * <p>For example, preferring default system variable font with default non variable
+             * system font as a fallback.
+             *
+             * <p>If the given font family is not available on a device, the fallback values will
+             * be attempted to use, in order in which they are given.
+             *
+             * <p>Renderer support for values outside of the given constants (
+             * {@link #DEFAULT_SYSTEM_FONT}, {@link #ROBOTO_FONT} or {@link #ROBOTO_FLEX_FONT}) is
+             * not guaranteed for all devices.
+             *
+             * <p>If not set, default system font will be used.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setPreferredFontFamilies(
+                    @NonNull @FontFamilyNames String fontFamily,
+                    @NonNull String... fallbacks) {
+                addPreferredFontFamily(fontFamily);
+                for (String fallback : fallbacks) {
+                    addPreferredFontFamily(fallback);
+                }
                 return this;
             }
 
