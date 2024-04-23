@@ -40,10 +40,34 @@ import java.util.List;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class Fingerprint {
+    private static final int[] POW_31 = {
+        1,
+        31,
+        961,
+        29791,
+        923521,
+        28629151,
+        887503681,
+        1742810335,
+        -1807454463,
+        -196513505,
+        -1796951359,
+        129082719,
+        -293403007,
+        -505558625,
+        1507551809,
+        -510534177,
+        1353309697,
+        -997072353,
+        -844471871,
+        -408824225
+    };
     private static final int DEFAULT_VALUE = 0;
     private final int selfTypeValue;
     private int selfPropsValue;
     private int childNodesValue;
+    // itself + children + grand children + grand grand children + ...
+    private int subNodeCount;
     private @Nullable List<Fingerprint> childNodes;
 
     public Fingerprint(int selfTypeValue) {
@@ -51,6 +75,7 @@ public final class Fingerprint {
         this.selfPropsValue = DEFAULT_VALUE;
         this.childNodesValue = DEFAULT_VALUE;
         this.childNodes = null;
+        this.subNodeCount = 1; // self
     }
 
     public Fingerprint(@NonNull NodeFingerprint proto) {
@@ -102,7 +127,12 @@ public final class Fingerprint {
             childNodes = new ArrayList<>();
         }
         childNodes.add(childNode);
-        childNodesValue = (31 * childNodesValue) + childNode.aggregateValueAsInt();
+        // We need to include the number of grandchildren of the new node, otherwise swapping the
+        // place of "b" and "c" in a layout like "[a b] [c d]" could result in the same fingerprint.
+        int coeff = pow31Unsafe(childNode.subNodeCount);
+        childNodesValue =
+                (coeff * childNodesValue) + (childNodes.size() * childNode.aggregateValueAsInt());
+        subNodeCount += childNode.subNodeCount;
     }
 
     /** Record a property value being updated. */
@@ -113,6 +143,25 @@ public final class Fingerprint {
 
     private void recordEntry(int entry) {
         selfPropsValue = (31 * selfPropsValue) + entry;
+    }
+
+    /**
+     * An int version of {@link Math#pow(double, double)} }. The result will overflow if it's larger
+     * than {@link Integer#MAX_VALUE}.
+     *
+     * <p>Note that this only support positive exponents
+     */
+    private static int pow31Unsafe(int n) {
+        // Check for available precomputed result (as an optimization).
+        if (n < POW_31.length) {
+            return POW_31[n];
+        }
+
+        int result = POW_31[POW_31.length - 1];
+        for (int i = POW_31.length; i <= n; i++) {
+            result *= 31;
+        }
+        return result;
     }
 
     NodeFingerprint toProto() {
