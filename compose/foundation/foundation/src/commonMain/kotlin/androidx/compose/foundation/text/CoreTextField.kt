@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.internal.createLegacyPlatformTextInputServiceAdapter
 import androidx.compose.foundation.text.input.internal.legacyTextInputAdapter
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.OffsetProvider
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
@@ -62,7 +63,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -1161,7 +1161,7 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
         val observer = remember(manager) { manager.cursorDragObserver() }
         val position = manager.getCursorPosition(LocalDensity.current)
         CursorHandle(
-            handlePosition = position,
+            offsetProvider = { position },
             modifier = Modifier
                 .pointerInput(observer) {
                     coroutineScope {
@@ -1189,7 +1189,7 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
 
 @Composable
 internal expect fun CursorHandle(
-    handlePosition: Offset,
+    offsetProvider: OffsetProvider,
     modifier: Modifier,
     minTouchTargetSize: DpSize = DpSize.Unspecified
 )

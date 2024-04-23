@@ -54,13 +54,11 @@ import androidx.compose.foundation.text.selection.getSelectionHandleCoordinates
 import androidx.compose.foundation.text.selection.getTextFieldSelectionLayout
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.visibleBounds
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isSpecified
@@ -235,8 +233,11 @@ internal class TextFieldSelectionState(
 
     /**
      * State of the cursor handle that includes its visibility and position.
+     *
+     * Pass [includePosition] as false to omit the position from the result. This helps create a
+     * derived state which does not invalidate according position changes.
      */
-    val cursorHandle by derivedStateOf {
+    internal fun getCursorHandleState(includePosition: Boolean): TextFieldHandleState {
         // For cursor handle to be visible, [showCursorHandle] must be true and the selection
         // must be collapsed.
         // Also, cursor handle should be in visible bounds of the TextField. However, if
@@ -249,34 +250,33 @@ internal class TextFieldSelectionState(
             text.selection.collapsed &&
             text.shouldShowSelection() &&
             text.isNotEmpty() &&
-            (draggingHandle == Handle.Cursor || cursorHandleInBounds)
+            (draggingHandle == Handle.Cursor || isCursorHandleInVisibleBounds())
 
-        if (!visible) return@derivedStateOf TextFieldHandleState.Hidden
+        if (!visible) return TextFieldHandleState.Hidden
 
         // text direction is useless for cursor handle, any value is fine.
-        TextFieldHandleState(
+        return TextFieldHandleState(
             visible = true,
-            position = cursorRect.bottomCenter,
+            position = if (includePosition) getCursorRect().bottomCenter else Offset.Unspecified,
             direction = ResolvedTextDirection.Ltr,
             handlesCrossed = false
         )
     }
 
     /**
-     * Whether currently cursor handle is in visible bounds. This derived state does not react to
-     * selection changes immediately because every selection change is processed in layout phase
-     * by auto-scroll behavior. Only after giving auto-scroll time to process the cursor movement,
-     * and possibly scroll the cursor back into view, we can say that whether cursor is in visible
-     * bounds or not. This is guaranteed to happen after scroll since new [textLayoutCoordinates]
-     * are reported after the layout phase end.
+     * Whether currently cursor handle is in visible bounds. This function does not register a
+     * state read because every selection change is processed in layout phase by the auto-scroll
+     * behavior.
+     *
+     * We can say that whether cursor is in visible bounds or not only after giving auto-scroll
+     * time to process the cursor movement, and possibly scroll the cursor back into view. This is
+     * guaranteed to happen after scroll since new [textLayoutCoordinates] are reported after the
+     * layout phase ends.
      */
-    private val cursorHandleInBounds by derivedStateOf(policy = structuralEqualityPolicy()) {
-        val position = Snapshot.withoutReadObservation { cursorRect.bottomCenter }
+    private fun isCursorHandleInVisibleBounds(): Boolean {
+        val position = Snapshot.withoutReadObservation { getCursorRect().bottomCenter }
 
-        textLayoutCoordinates
-            ?.visibleBounds()
-            ?.containsInclusive(position)
-            ?: false
+        return textLayoutCoordinates?.visibleBounds()?.containsInclusive(position) ?: false
     }
 
     /**
@@ -285,10 +285,10 @@ internal class TextFieldSelectionState(
      * Returns [Rect.Zero] if text layout has not been calculated yet or the selection is not
      * collapsed (no cursor to locate).
      */
-    val cursorRect: Rect by derivedStateOf {
-        val layoutResult = textLayoutState.layoutResult ?: return@derivedStateOf Rect.Zero
+    fun getCursorRect(): Rect {
+        val layoutResult = textLayoutState.layoutResult ?: return Rect.Zero
         val value = textFieldState.visualText
-        if (!value.selection.collapsed) return@derivedStateOf Rect.Zero
+        if (!value.selection.collapsed) return Rect.Zero
         val cursorRect = layoutResult.getCursorRect(value.selection.start)
 
         val cursorWidth = with(density) { DefaultCursorThickness.toPx() }
@@ -308,7 +308,7 @@ internal class TextFieldSelectionState(
             .coerceAtMost(layoutResult.size.width - cursorWidth / 2)
             .coerceAtLeast(cursorWidth / 2)
 
-        Rect(
+        return Rect(
             left = coercedCursorCenterX - cursorWidth / 2,
             right = coercedCursorCenterX + cursorWidth / 2,
             top = cursorRect.top,
@@ -359,6 +359,7 @@ internal class TextFieldSelectionState(
             }
         }
     }
+
     /**
      * Gesture detector for dragging the selection handles to change the selection in TextField.
      */
@@ -612,7 +613,7 @@ internal class TextFieldSelectionState(
             detectDragGestures(
                 onDragStart = {
                     // mark start drag point
-                    cursorDragStart = getAdjustedCoordinates(cursorRect.bottomCenter)
+                    cursorDragStart = getAdjustedCoordinates(getCursorRect().bottomCenter)
                     cursorDragDelta = Offset.Zero
                     isInTouchMode = true
                     markStartContentVisibleOffset()
@@ -954,8 +955,8 @@ internal class TextFieldSelectionState(
             if (!textToolbarVisible) {
                 Rect.Zero
             } else {
-                // contentRect is calculated in root coordinates. VisibleBounds are in parent
-                // coordinates. Convert visibleBounds to root before checking the overlap.
+                // contentRect is calculated in root coordinates. VisibleBounds are in
+                // textLayoutCoordinates. Convert visibleBounds to root before checking the overlap.
                 val visibleBounds = textLayoutCoordinates?.visibleBounds()
                 if (visibleBounds != null) {
                     val visibleBoundsTopLeftInRoot =
@@ -993,6 +994,7 @@ internal class TextFieldSelectionState(
         // contentRect is defined in text layout node coordinates, so it needs to be realigned to
         // the root container.
         if (text.selection.collapsed) {
+            val cursorRect = getCursorRect()
             val topLeft = textLayoutCoordinates?.localToRoot(cursorRect.topLeft) ?: Offset.Zero
             return Rect(topLeft, cursorRect.size)
         }
@@ -1048,10 +1050,7 @@ internal class TextFieldSelectionState(
         val position = getHandlePosition(isStartHandle)
 
         val visible = draggingHandle == handle ||
-            (textLayoutCoordinates
-                ?.visibleBounds()
-                ?.containsInclusive(position)
-                ?: false)
+            (textLayoutCoordinates?.visibleBounds()?.containsInclusive(position) ?: false)
 
         if (!visible) return TextFieldHandleState.Hidden
 
@@ -1066,8 +1065,7 @@ internal class TextFieldSelectionState(
         // to coerce handle's position to visible bounds to not let it jitter while scrolling the
         // TextField as the selection is expanding.
         val coercedPosition = if (includePosition) {
-            textLayoutCoordinates?.visibleBounds()?.let { position.coerceIn(it) }
-                ?: position
+            textLayoutCoordinates?.visibleBounds()?.let { position.coerceIn(it) } ?: position
         } else {
             Offset.Unspecified
         }

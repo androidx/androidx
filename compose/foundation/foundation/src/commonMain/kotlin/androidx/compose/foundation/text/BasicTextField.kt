@@ -47,9 +47,6 @@ import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.selection.SelectionHandle
-import androidx.compose.foundation.text.selection.SelectionHandleAnchor
-import androidx.compose.foundation.text.selection.SelectionHandleInfo
-import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -71,7 +68,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -416,19 +412,20 @@ internal fun BasicTextField(
 
 @Composable
 internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
-    val cursorHandleState = selectionState.cursorHandle
+    // Does not recompose if only position of the handle changes.
+    val cursorHandleState by remember {
+        derivedStateOf {
+            selectionState.getCursorHandleState(includePosition = false)
+        }
+    }
     if (cursorHandleState.visible) {
         CursorHandle(
-            handlePosition = cursorHandleState.position,
+            offsetProvider = {
+                selectionState
+                    .getCursorHandleState(includePosition = true)
+                    .position
+            },
             modifier = Modifier
-                .semantics {
-                    this[SelectionHandleInfoKey] = SelectionHandleInfo(
-                        handle = Handle.Cursor,
-                        position = cursorHandleState.position,
-                        anchor = SelectionHandleAnchor.Middle,
-                        visible = true,
-                    )
-                }
                 .pointerInput(selectionState) {
                     with(selectionState) { cursorHandleGestures() }
                 },

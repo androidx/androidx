@@ -16,15 +16,15 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.text.selection.OffsetProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.DpSize
 
 @Composable
 @Suppress("UNUSED_PARAMETER")
 internal actual fun CursorHandle(
-    handlePosition: Offset,
+    offsetProvider: OffsetProvider,
     modifier: Modifier,
     minTouchTargetSize: DpSize
 ) {
