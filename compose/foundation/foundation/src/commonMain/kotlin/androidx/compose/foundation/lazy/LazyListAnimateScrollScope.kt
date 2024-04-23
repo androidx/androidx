@@ -42,10 +42,11 @@ internal class LazyListAnimateScrollScope(
     }
 
     override fun calculateDistanceTo(targetIndex: Int): Float {
-        val visibleItem =
-            state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
+        val layoutInfo = state.layoutInfo
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val visibleItem = layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
         return if (visibleItem == null) {
-            val averageSize = visibleItemsAverageSize
+            val averageSize = calculateVisibleItemsAverageSize(layoutInfo)
             val indexesDiff = targetIndex - firstVisibleItemIndex
             (averageSize * indexesDiff).toFloat() - firstVisibleItemScrollOffset
         } else {
@@ -57,11 +58,9 @@ internal class LazyListAnimateScrollScope(
         state.scroll(block = block)
     }
 
-    private val visibleItemsAverageSize: Int
-        get() {
-            val layoutInfo = state.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-            val itemsSum = visibleItems.fastSumBy { it.size }
-            return itemsSum / visibleItems.size + layoutInfo.mainAxisItemSpacing
-        }
+    private fun calculateVisibleItemsAverageSize(layoutInfo: LazyListLayoutInfo): Int {
+        val visibleItems = layoutInfo.visibleItemsInfo
+        val itemsSum = visibleItems.fastSumBy { it.size }
+        return itemsSum / visibleItems.size + layoutInfo.mainAxisItemSpacing
+    }
 }
