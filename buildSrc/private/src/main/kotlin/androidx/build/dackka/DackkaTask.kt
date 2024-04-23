@@ -34,6 +34,7 @@ import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -115,8 +116,19 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 
     @get:Input abstract val nullabilityAnnotations: ListProperty<String>
 
-    @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
+    // Version metadata for apiSince, only marked as @InputFiles if includeVersionMetadata is true
+    @get:Internal
     abstract val versionMetadataFiles: ConfigurableFileCollection
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
+    fun getOptionalVersionMetadataFiles(): ConfigurableFileCollection {
+        return if (includeVersionMetadata) {
+            versionMetadataFiles
+        } else {
+            objects.fileCollection()
+        }
+    }
 
     // Maps to the system variable LIBRARY_METADATA_FILE containing artifactID and other metadata
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
@@ -131,7 +143,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
 
     /**
      * Option for whether to include apiSince metadata in the docs. Defaults to including metadata.
-     * Run with `--no-version-metadata -x generateApi` to avoid running `generateApi` before `docs`.
+     * Run with `--no-version-metadata` to avoid running `generateApi` before `docs`.
      */
     @get:Input
     @set:Option(
@@ -283,8 +295,8 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
      * an exact match of the version metadata attributes to be selected as version metadata.
      */
     private fun getVersionMetadataFiles(): List<File> {
-        if (!includeVersionMetadata) return emptyList()
-        val (json, nonJson) = versionMetadataFiles.files.partition { it.extension == "json" }
+        val (json, nonJson) = getOptionalVersionMetadataFiles().files
+            .partition { it.extension == "json" }
         if (nonJson.isNotEmpty()) {
             logger.error(
                 "The following were resolved as version metadata files but are not JSON files. " +
