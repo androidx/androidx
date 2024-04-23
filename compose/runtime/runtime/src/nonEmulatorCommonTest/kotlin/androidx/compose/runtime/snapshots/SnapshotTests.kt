@@ -41,6 +41,7 @@ import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlinx.test.IgnoreJsTarget
 
 class SnapshotTests {
     @Test
@@ -640,6 +641,9 @@ class SnapshotTests {
     }
 
     @Test
+    @IgnoreJsTarget
+    // Ignored for web, until we merge this change from the upstream:
+    // https://android-review.googlesource.com/c/platform/frameworks/support/+/2940347
     fun changingAnEqualityPolicyStateToItsCurrentValueIsNotConsideredAChange() {
         val state = mutableStateOf(0, referentialEqualityPolicy())
         val changes = changesOf(state) {
