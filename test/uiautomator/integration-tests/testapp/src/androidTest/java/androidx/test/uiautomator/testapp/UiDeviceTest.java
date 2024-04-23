@@ -278,7 +278,6 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21) // Quick settings menu might not be present prior to API 21.
     public void testOpenQuickSettings() {
         mDevice.openQuickSettings();
 
