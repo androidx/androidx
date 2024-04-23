@@ -77,7 +77,7 @@ fun BottomBarNavDemo() {
             }
         }
     ) { innerPadding ->
-        NavHost(navController, Profile::class, Modifier.padding(innerPadding)) {
+        NavHost(navController, Profile, Modifier.padding(innerPadding)) {
             composable<Profile> { Profile(navController) }
             composable<Dashboard> { Dashboard(navController) }
             composable<Scrollable> { Scrollable(navController) }
