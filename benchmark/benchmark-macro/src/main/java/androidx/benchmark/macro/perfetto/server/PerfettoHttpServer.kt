@@ -26,6 +26,7 @@ import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -189,6 +190,12 @@ internal class PerfettoHttpServer {
             val statusResult = status()
             return@inMemoryTrace statusResult.api_version != null && statusResult.api_version > 0
         } catch (e: ConnectException) {
+            // Note that this is fired when the server port is not bound yet.
+            // This can happen before the perfetto trace processor server is fully started.
+            false
+        } catch (e: FileNotFoundException) {
+            // Note that this is fired when the endpoint queried does not exist.
+            // This can happen before the perfetto trace processor server is fully started.
             false
         }
     }
