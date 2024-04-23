@@ -2168,6 +2168,9 @@ package androidx.compose.material3.carousel {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemScope {
     method public androidx.compose.material3.carousel.CarouselItemInfo getCarouselItemInfo();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskClip(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.GenericShape rememberMaskShape(androidx.compose.ui.graphics.Shape shape);
     property public abstract androidx.compose.material3.carousel.CarouselItemInfo carouselItemInfo;
   }
 
