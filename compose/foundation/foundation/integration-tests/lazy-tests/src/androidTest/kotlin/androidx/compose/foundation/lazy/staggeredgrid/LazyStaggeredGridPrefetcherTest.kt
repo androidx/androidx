@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.AutoTestFrameClock
@@ -22,7 +24,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Remeasurement
@@ -63,6 +68,20 @@ class LazyStaggeredGridPrefetcherTest(
     val itemsSizeDp = with(rule.density) { itemsSizePx.toDp() }
 
     internal lateinit var state: LazyStaggeredGridState
+    private val scheduler = TestPrefetchScheduler()
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun rememberState(
+        initialFirstVisibleItemIndex: Int = 0,
+        initialFirstVisibleItemOffset: Int = 0
+    ): LazyStaggeredGridState = remember {
+        LazyStaggeredGridState(
+            intArrayOf(initialFirstVisibleItemIndex),
+            intArrayOf(initialFirstVisibleItemOffset),
+            scheduler
+        )
+    }
 
     @Test
     fun notPrefetchingForwardInitially() {
@@ -90,7 +109,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(5)
+        waitForPrefetch()
 
         rule.onNodeWithTag("4")
             .assertExists()
@@ -110,7 +129,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch()
 
         rule.onNodeWithTag("2")
             .assertExists()
@@ -130,7 +149,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(9)
+        waitForPrefetch()
 
         rule.onNodeWithTag("8")
             .assertExists()
@@ -145,7 +164,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch()
 
         rule.onNodeWithTag("2")
             .assertExists()
@@ -165,7 +184,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(4)
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking {
@@ -174,7 +193,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(6)
+        waitForPrefetch()
 
         rule.onNodeWithTag("4")
             .assertIsDisplayed()
@@ -194,7 +213,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(4)
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking {
@@ -203,7 +222,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch()
 
         rule.onNodeWithTag("4")
             .assertIsDisplayed()
@@ -226,7 +245,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(13)
+        waitForPrefetch()
 
         rule.onNodeWithTag("12")
             .assertExists()
@@ -378,7 +397,7 @@ class LazyStaggeredGridPrefetcherTest(
     fun snappingToOtherPositionWhilePrefetchIsScheduled() {
         val composedItems = mutableListOf<Int>()
         rule.setContent {
-            state = rememberLazyStaggeredGridState()
+            state = rememberState()
             LazyStaggeredGrid(
                 1,
                 Modifier.mainAxisSize(itemsSizeDp * 1.5f),
@@ -433,7 +452,7 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(13)
+        waitForPrefetch()
 
         rule.runOnIdle {
             runBlocking(AutoTestFrameClock()) {
@@ -450,7 +469,7 @@ class LazyStaggeredGridPrefetcherTest(
     @Test
     fun scrollingWithStaggeredItemsPrefetchesCorrectly() {
         rule.setContent {
-            state = rememberLazyStaggeredGridState()
+            state = rememberState()
             LazyStaggeredGrid(
                 2,
                 Modifier.mainAxisSize(itemsSizeDp * 5f),
@@ -461,7 +480,6 @@ class LazyStaggeredGridPrefetcherTest(
                         activeNodes.add(it)
                         onDispose {
                             activeNodes.remove(it)
-                            activeMeasuredNodes.remove(it)
                         }
                     }
                     Spacer(
@@ -471,7 +489,6 @@ class LazyStaggeredGridPrefetcherTest(
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
                                 layout(placeable.width, placeable.height) {
                                     placeable.place(0, 0)
                                 }
@@ -495,8 +512,8 @@ class LazyStaggeredGridPrefetcherTest(
             }
         }
 
-        waitForPrefetch(7)
-        waitForPrefetch(8)
+        waitForPrefetch()
+        waitForPrefetch()
 
         // ┌─┬─┐
         // │2├─┤
@@ -520,14 +537,14 @@ class LazyStaggeredGridPrefetcherTest(
         // │6├─┤
         // └─┴─┘
 
-        waitForPrefetch(9)
+        waitForPrefetch()
     }
 
     @Test
     fun fullSpanIsPrefetchedCorrectly() {
         val nodeConstraints = mutableMapOf<Int, Constraints>()
         rule.setContent {
-            state = rememberLazyStaggeredGridState()
+            state = rememberState()
             LazyStaggeredGrid(
                 2,
                 Modifier.mainAxisSize(itemsSizeDp * 5f).crossAxisSize(itemsSizeDp * 2f),
@@ -546,7 +563,6 @@ class LazyStaggeredGridPrefetcherTest(
                         activeNodes.add(it)
                         onDispose {
                             activeNodes.remove(it)
-                            activeMeasuredNodes.remove(it)
                         }
                     }
                     Spacer(
@@ -555,7 +571,6 @@ class LazyStaggeredGridPrefetcherTest(
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
                                 nodeConstraints.put(it, constraints)
                                 layout(placeable.width, placeable.height) {
                                     placeable.place(0, 0)
@@ -577,7 +592,7 @@ class LazyStaggeredGridPrefetcherTest(
         state.scrollBy(itemsSizeDp * 5f)
         assertThat(activeNodes).contains(9)
 
-        waitForPrefetch(10)
+        waitForPrefetch()
         val expectedConstraints = if (vertical) {
             Constraints.fixedWidth(itemsSizePx * 2)
         } else {
@@ -589,7 +604,7 @@ class LazyStaggeredGridPrefetcherTest(
     @Test
     fun fullSpanIsPrefetchedCorrectly_scrollingBack() {
         rule.setContent {
-            state = rememberLazyStaggeredGridState()
+            state = rememberState()
             LazyStaggeredGrid(
                 2,
                 Modifier.mainAxisSize(itemsSizeDp * 5f),
@@ -608,7 +623,6 @@ class LazyStaggeredGridPrefetcherTest(
                         activeNodes.add(it)
                         onDispose {
                             activeNodes.remove(it)
-                            activeMeasuredNodes.remove(it)
                         }
                     }
                     Spacer(
@@ -618,7 +632,6 @@ class LazyStaggeredGridPrefetcherTest(
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
                                 layout(placeable.width, placeable.height) {
                                     placeable.place(0, 0)
                                 }
@@ -647,27 +660,26 @@ class LazyStaggeredGridPrefetcherTest(
 
         state.scrollBy(-1.dp)
 
-        waitForPrefetch(10)
+        waitForPrefetch()
     }
 
-    private fun waitForPrefetch(index: Int) {
-        rule.waitUntil {
-            activeNodes.contains(index) && activeMeasuredNodes.contains(index)
+    private fun waitForPrefetch() {
+        rule.runOnIdle {
+            scheduler.executeActiveRequests()
         }
     }
 
     private val activeNodes = mutableSetOf<Int>()
-    private val activeMeasuredNodes = mutableSetOf<Int>()
 
     private fun composeStaggeredGrid(
         firstItem: Int = 0,
         itemOffset: Int = 0,
     ) {
-        state = LazyStaggeredGridState(
-            initialFirstVisibleItemIndex = firstItem,
-            initialFirstVisibleItemOffset = itemOffset
-        )
         rule.setContent {
+            state = rememberState(
+                initialFirstVisibleItemIndex = firstItem,
+                initialFirstVisibleItemOffset = itemOffset
+            )
             LazyStaggeredGrid(
                 2,
                 Modifier.mainAxisSize(itemsSizeDp * 1.5f),
@@ -678,7 +690,6 @@ class LazyStaggeredGridPrefetcherTest(
                         activeNodes.add(it)
                         onDispose {
                             activeNodes.remove(it)
-                            activeMeasuredNodes.remove(it)
                         }
                     }
                     Spacer(
@@ -688,7 +699,6 @@ class LazyStaggeredGridPrefetcherTest(
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
                                 layout(placeable.width, placeable.height) {
                                     placeable.place(0, 0)
                                 }

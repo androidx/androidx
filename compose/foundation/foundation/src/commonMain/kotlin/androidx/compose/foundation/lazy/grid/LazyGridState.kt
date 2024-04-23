@@ -22,6 +22,7 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.snapping.offsetOnMainAxis
 import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +32,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -81,17 +83,24 @@ fun rememberLazyGridState(
  * A state object that can be hoisted to control and observe scrolling.
  *
  * In most cases, this will be created via [rememberLazyGridState].
- *
- * @param firstVisibleItemIndex the initial value for [LazyGridState.firstVisibleItemIndex]
- * @param firstVisibleItemScrollOffset the initial value for
- * [LazyGridState.firstVisibleItemScrollOffset]
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class LazyGridState constructor(
+class LazyGridState internal constructor(
     firstVisibleItemIndex: Int = 0,
-    firstVisibleItemScrollOffset: Int = 0
+    firstVisibleItemScrollOffset: Int = 0,
+    prefetchScheduler: PrefetchScheduler?,
 ) : ScrollableState {
+
+    /**
+     * @param firstVisibleItemIndex the initial value for [LazyGridState.firstVisibleItemIndex]
+     * @param firstVisibleItemScrollOffset the initial value for
+     * [LazyGridState.firstVisibleItemScrollOffset]
+     */
+    constructor(
+        firstVisibleItemIndex: Int = 0,
+        firstVisibleItemScrollOffset: Int = 0
+    ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, null)
 
     /**
      * The holder class for the current scroll position.
@@ -413,23 +422,40 @@ class LazyGridState constructor(
                 }
                 closestNextItemToPrefetch = info.visibleItemsInfo.first().index - 1
             }
-            if (lineToPrefetch != this.lineToPrefetch &&
-                closestNextItemToPrefetch in 0 until info.totalItemsCount
-            ) {
-                if (wasScrollingForward != scrollingForward) {
-                    // the scrolling direction has been changed which means the last prefetched
-                    // is not going to be reached anytime soon so it is safer to dispose it.
-                    // if this line is already visible it is safe to call the method anyway
-                    // as it will be no-op
-                    currentLinePrefetchHandles.forEach { it.cancel() }
+            if (closestNextItemToPrefetch in 0 until info.totalItemsCount) {
+                if (lineToPrefetch != this.lineToPrefetch) {
+                    if (wasScrollingForward != scrollingForward) {
+                        // the scrolling direction has been changed which means the last prefetched
+                        // is not going to be reached anytime soon so it is safer to dispose it.
+                        // if this line is already visible it is safe to call the method anyway
+                        // as it will be no-op
+                        currentLinePrefetchHandles.forEach { it.cancel() }
+                    }
+                    this.wasScrollingForward = scrollingForward
+                    this.lineToPrefetch = lineToPrefetch
+                    currentLinePrefetchHandles.clear()
+                    info.prefetchInfoRetriever(lineToPrefetch).fastForEach {
+                        currentLinePrefetchHandles.add(
+                            prefetchState.schedulePrefetch(it.first, it.second)
+                        )
+                    }
                 }
-                this.wasScrollingForward = scrollingForward
-                this.lineToPrefetch = lineToPrefetch
-                currentLinePrefetchHandles.clear()
-                info.prefetchInfoRetriever(lineToPrefetch).fastForEach {
-                    currentLinePrefetchHandles.add(
-                        prefetchState.schedulePrefetch(it.first, it.second)
-                    )
+                if (scrollingForward) {
+                    val lastItem = info.visibleItemsInfo.last()
+                    val distanceToPrefetchItem = lastItem.offsetOnMainAxis(info.orientation) +
+                        lastItem.mainAxisSizeWithSpacings - info.viewportEndOffset
+                    // if in the next frame we will get the same delta will we reach the item?
+                    if (distanceToPrefetchItem < -delta) {
+                        currentLinePrefetchHandles.forEach { it.markAsUrgent() }
+                    }
+                } else {
+                    val firstItem = info.visibleItemsInfo.first()
+                    val distanceToPrefetchItem = info.viewportStartOffset -
+                        firstItem.offsetOnMainAxis(info.orientation)
+                    // if in the next frame we will get the same delta will we reach the item?
+                    if (distanceToPrefetchItem < delta) {
+                        currentLinePrefetchHandles.forEach { it.markAsUrgent() }
+                    }
                 }
             }
         }
@@ -454,7 +480,7 @@ class LazyGridState constructor(
         }
     }
 
-    internal val prefetchState = LazyLayoutPrefetchState()
+    internal val prefetchState = LazyLayoutPrefetchState(prefetchScheduler)
 
     private val numOfItemsToTeleport: Int get() = 100 * slotsPerLine
 
