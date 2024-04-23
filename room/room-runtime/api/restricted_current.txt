@@ -487,10 +487,11 @@ package androidx.room.util {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T, C> T findAndInstantiateDatabaseImpl(Class<C> klass, optional String suffix);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class RelationUtil {
-    method public static <K, V> void recursiveFetchArrayMap(androidx.collection.ArrayMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.ArrayMap<K,V>,kotlin.Unit> fetchBlock);
-    method public static <K, V> void recursiveFetchHashMap(java.util.HashMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.HashMap<K,V>,kotlin.Unit> fetchBlock);
-    method public static <V> void recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.LongSparseArray<V>,kotlin.Unit> fetchBlock);
+  public final class RelationUtil {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <K, V> void recursiveFetchArrayMap(androidx.collection.ArrayMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.ArrayMap<K,V>,kotlin.Unit> fetchBlock);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <K, V> void recursiveFetchHashMap(java.util.HashMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.HashMap<K,V>,kotlin.Unit> fetchBlock);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <V> void recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.LongSparseArray<V>,kotlin.Unit> fetchBlock);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <K, V> void recursiveFetchMap(java.util.Map<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.Map<K,V>,kotlin.Unit> fetchBlock);
   }
 
   public final class SQLiteConnectionUtil {
@@ -499,6 +500,7 @@ package androidx.room.util {
   }
 
   public final class SQLiteStatementUtil {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndex(androidx.sqlite.SQLiteStatement stmt, String name);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndexOrThrow(androidx.sqlite.SQLiteStatement stmt, String name);
   }
 

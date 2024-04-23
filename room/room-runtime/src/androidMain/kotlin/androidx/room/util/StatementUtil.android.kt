@@ -27,12 +27,12 @@ import androidx.sqlite.SQLiteStatement
  *
  * The implementation also contains Android-specific patches to workaround issues on older devices.
  */
-internal actual fun SQLiteStatement.getColumnIndex(name: String): Int {
-    var index = this.columnIndexOf(name)
+internal actual fun SQLiteStatement.columnIndexOf(name: String): Int {
+    var index = this.columnIndexOfCommon(name)
     if (index >= 0) {
         return index
     }
-    index = this.columnIndexOf("`$name`")
+    index = this.columnIndexOfCommon("`$name`")
     return if (index >= 0) {
         index
     } else {
