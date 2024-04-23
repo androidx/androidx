@@ -860,44 +860,67 @@ class SharedTransitionScope internal constructor(
         clipInOverlayDuringTransition: OverlayClip,
     ) = composed {
         val key = sharedContentState.key
-        val sharedElement = remember(key) { sharedElementsFor(key) }
+        val sharedElementState = key(key) {
+            val sharedElement = remember { sharedElementsFor(key) }
 
-        @Suppress("UNCHECKED_CAST")
-        val boundsTransition = key(key, parentTransition) {
-            if (parentTransition != null) {
-                parentTransition.createChildTransition(key.toString()) { visible(it) }
-            } else {
-                val targetState =
-                    (visible as (Unit) -> Boolean).invoke(Unit)
-                val transitionState = remember {
-                    MutableTransitionState(
-                        initialState = if (sharedElement.currentBounds != null) {
-                            // In the transition that we completely own, we could make the
-                            // assumption that if a new shared element is added, it'll
-                            // always animate from current bounds to target bounds. This ensures
-                            // continuity of shared element bounds.
-                            !targetState
-                        } else {
-                            targetState
-                        }
+            val boundsAnimation = key(parentTransition) {
+                val boundsTransition = if (parentTransition != null) {
+                    parentTransition.createChildTransition(key.toString()) { visible(it) }
+                } else {
+                    @Suppress("UNCHECKED_CAST")
+                    val targetState =
+                        (visible as (Unit) -> Boolean).invoke(Unit)
+                    val transitionState = remember {
+                        MutableTransitionState(
+                            initialState = if (sharedElement.currentBounds != null) {
+                                // In the transition that we completely own, we could make the
+                                // assumption that if a new shared element is added, it'll
+                                // always animate from current bounds to target bounds. This ensures
+                                // continuity of shared element bounds.
+                                !targetState
+                            } else {
+                                targetState
+                            }
+                        )
+                    }.also { it.targetState = targetState }
+                    rememberTransition(transitionState)
+                }
+                val animation = key(isTransitionActive) {
+                    boundsTransition.createDeferredAnimation(Rect.VectorConverter)
+                }
+                remember(boundsTransition) {
+                    BoundsAnimation(
+                        this@SharedTransitionScope, boundsTransition, animation, boundsTransform
                     )
-                }.also { it.targetState = targetState }
-                rememberTransition(transitionState)
+                }.also { it.updateAnimation(animation, boundsTransform) }
             }
-        }
-        val animation = key(isTransitionActive) {
-            boundsTransition.createDeferredAnimation(Rect.VectorConverter)
-        }
-
-        val boundsAnimation = remember(boundsTransition) {
-            BoundsAnimation(
-                this@SharedTransitionScope, boundsTransition, animation, boundsTransform
+            rememberSharedElementState(
+                sharedElement = sharedElement,
+                boundsAnimation = boundsAnimation,
+                placeHolderSize = placeHolderSize,
+                renderOnlyWhenVisible = renderOnlyWhenVisible,
+                sharedContentState = sharedContentState,
+                clipInOverlayDuringTransition = clipInOverlayDuringTransition,
+                zIndexInOverlay = zIndexInOverlay,
+                renderInOverlayDuringTransition = renderInOverlayDuringTransition
             )
-        }.also {
-            it.updateAnimation(animation, boundsTransform)
         }
 
-        val sharedElementState = remember(key) {
+        this then SharedBoundsNodeElement(sharedElementState)
+    }
+
+    @Composable
+    private fun rememberSharedElementState(
+        sharedElement: SharedElement,
+        boundsAnimation: BoundsAnimation,
+        placeHolderSize: PlaceHolderSize,
+        renderOnlyWhenVisible: Boolean,
+        sharedContentState: SharedContentState,
+        clipInOverlayDuringTransition: OverlayClip,
+        zIndexInOverlay: Float,
+        renderInOverlayDuringTransition: Boolean
+    ): SharedElementInternalState =
+        remember {
             SharedElementInternalState(
                 sharedElement,
                 boundsAnimation,
@@ -920,9 +943,6 @@ class SharedTransitionScope internal constructor(
             it.renderInOverlayDuringTransition = renderInOverlayDuringTransition
             it.userState = sharedContentState
         }
-
-        this then SharedBoundsNodeElement(sharedElementState)
-    }
 
     internal lateinit var root: LayoutCoordinates
     internal lateinit var lookaheadRoot: LayoutCoordinates
