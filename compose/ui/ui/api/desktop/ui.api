@@ -1654,7 +1654,7 @@ public final class androidx/compose/ui/input/key/KeyEventType$Companion {
 	public final fun getUnknown-CS__XNY ()I
 }
 
-public final class androidx/compose/ui/input/key/KeyEvent_skikoKt {
+public final class androidx/compose/ui/input/key/KeyEvent_desktopKt {
 	public static final fun KeyEvent-4Zc56iI (JIIZZZZLjava/lang/Object;)Ljava/lang/Object;
 	public static synthetic fun KeyEvent-4Zc56iI$default (JIIZZZZLjava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun getKey-ZmokQxo (Ljava/lang/Object;)J
