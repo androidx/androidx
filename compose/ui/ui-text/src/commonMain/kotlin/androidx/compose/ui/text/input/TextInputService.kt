@@ -208,10 +208,10 @@ class TextInputSession(
      * @param textLayoutResult the text field's [TextLayoutResult]
      * @param textFieldToRootTransform function that modifies a matrix to be a transformation matrix
      *   from local coordinates to the root composable coordinates
-     * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
-     *   empty rectangle if the text field is not visible
-     * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
-     *   empty rectangle if the decoration box is not visible
+     * @param innerTextFieldBounds visible bounds of the text field in text layout coordinates, or
+     *   an empty rectangle if the text field is not visible
+     * @param decorationBoxBounds visible bounds of the decoration box in text layout coordinates,
+     *   or an empty rectangle if the decoration box is not visible
      */
     fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
