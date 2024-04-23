@@ -33,10 +33,10 @@ internal sealed class RouteBuilder<T> private constructor() {
      * @param serializer The serializer for destination type T (class, object etc.) that you
      * need to build the route for.
      */
-     class Pattern<T>(
+    class Pattern<T>(
         serializer: KSerializer<T>,
         typeMap: Map<String, NavType<Any?>>
-     ) : RouteBuilder<T>() {
+    ) : RouteBuilder<T>() {
 
         private val builder = Builder(serializer, typeMap)
 
@@ -108,7 +108,7 @@ internal sealed class RouteBuilder<T> private constructor() {
          */
         fun addNull(value: Any?) {
             require(value == null || value == "null") {
-               "Expected null value but got $value"
+                "Expected null value but got $value"
             }
             builder.apply(elementIndex) { name, _, paramType ->
                 when (paramType) {
