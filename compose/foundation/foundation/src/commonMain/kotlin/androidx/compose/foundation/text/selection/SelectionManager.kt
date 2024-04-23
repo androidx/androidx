@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
@@ -277,7 +278,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
         selectionRegistrar.onSelectionUpdateSelectAll =
             { isInTouchMode, selectableId ->
-                val (newSelection, newSubselection) = selectAll(
+                val (newSelection, newSubselection) = selectAllInSelectable(
                     selectableId = selectableId,
                     previousSelection = selection,
                 )
@@ -409,7 +410,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         return coordinates
     }
 
-    internal fun selectAll(
+    internal fun selectAllInSelectable(
         selectableId: Long,
         previousSelection: Selection?
     ): Pair<Selection?, LongObjectMap<Selection>> {
@@ -425,6 +426,70 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
         return Pair(newSelection, subselections)
+    }
+
+    /**
+     * Returns whether the selection encompasses the entire container.
+     */
+    internal fun isEntireContainerSelected(): Boolean {
+        val selectables = selectionRegistrar.sort(requireContainerCoordinates())
+
+        // If there are no selectables, then an empty selection spans the entire container.
+        if (selectables.isEmpty()) return true
+
+        // Since some text exists, we must make sure that every selectable is fully selected.
+        return selectables.fastAll {
+            val text = it.getText()
+            if (text.isEmpty()) return@fastAll true // empty text is inherently fully selected
+
+            // If a non-empty selectable isn't included in the sub-selections,
+            // then some text in the container is not selected.
+            val subSelection = selectionRegistrar.subselections[it.selectableId]
+                ?: return@fastAll false
+
+            val selectionStart = subSelection.start.offset
+            val selectionEnd = subSelection.end.offset
+
+            // The selection could be reversed,
+            // so just verify that the difference between the two offsets matches the text length
+            (selectionStart - selectionEnd).absoluteValue == text.length
+        }
+    }
+
+    /**
+     * Creates and sets a selection spanning the entire container.
+     */
+    internal fun selectAll() {
+        val selectables = selectionRegistrar.sort(requireContainerCoordinates())
+        if (selectables.isEmpty()) return
+
+        var firstSubSelection: Selection? = null
+        var lastSubSelection: Selection? = null
+        val newSubSelections = mutableLongObjectMapOf<Selection>().apply {
+            selectables.fastForEach { selectable ->
+                val subSelection = selectable.getSelectAllSelection() ?: return@fastForEach
+                if (firstSubSelection == null) firstSubSelection = subSelection
+                lastSubSelection = subSelection
+                put(selectable.selectableId, subSelection)
+            }
+        }
+
+        if (newSubSelections.isEmpty()) return
+
+        // first/last sub selections are implied to be non-null from here on out
+        val newSelection = if (firstSubSelection === lastSubSelection) {
+            firstSubSelection
+        } else {
+            Selection(
+                start = firstSubSelection!!.start,
+                end = lastSubSelection!!.end,
+                handlesCrossed = false,
+            )
+        }
+
+        selectionRegistrar.subselections = newSubSelections
+        onSelectionChange(newSelection)
+        previousSelectionLayout = null
     }
 
     /**
@@ -521,9 +586,13 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
 
         val textToolbar = textToolbar ?: return
-        if (showToolbar && isInTouchMode && isNonEmptySelection()) {
+        if (showToolbar && isInTouchMode) {
             val rect = getContentRect() ?: return
-            textToolbar.showMenu(rect = rect, onCopyRequested = ::toolbarCopy)
+            textToolbar.showMenu(
+                rect = rect,
+                onCopyRequested = if (isNonEmptySelection()) ::toolbarCopy else null,
+                onSelectAllRequested = if (isEntireContainerSelected()) null else ::selectAll,
+            )
         } else if (textToolbar.status == TextToolbarStatus.Shown) {
             textToolbar.hide()
         }

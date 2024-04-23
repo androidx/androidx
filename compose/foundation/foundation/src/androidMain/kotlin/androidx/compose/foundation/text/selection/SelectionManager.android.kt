@@ -78,6 +78,7 @@ internal fun SelectionManager.contextMenuBuilder(
     state: ContextMenuState,
 ): ContextMenuScope.() -> Unit {
     val copyString = TextContextMenuItems.Copy.resolvedString()
+    val selectAllString = TextContextMenuItems.SelectAll.resolvedString()
     return {
         listOf(
             item(
@@ -88,7 +89,14 @@ internal fun SelectionManager.contextMenuBuilder(
                     state.close()
                 },
             ),
-            // TODO(b/240143283) Add select all item
+            item(
+                label = selectAllString,
+                enabled = !isEntireContainerSelected(),
+                onClick = {
+                    selectAll()
+                    state.close()
+                },
+            ),
         )
     }
 }
