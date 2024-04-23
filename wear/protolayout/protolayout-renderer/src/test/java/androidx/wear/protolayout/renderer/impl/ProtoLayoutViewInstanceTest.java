@@ -53,6 +53,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto.Layout;
 import androidx.wear.protolayout.proto.ResourceProto.Resources;
+import androidx.wear.protolayout.renderer.common.RenderingArtifact;
 import androidx.wear.protolayout.renderer.helper.TestDsl.LayoutNode;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config;
 
@@ -97,8 +98,8 @@ public class ProtoLayoutViewInstanceTest {
     @Test
     public void adaptiveUpdateRatesDisabled_attach_reinflatesCompletely() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -108,7 +109,7 @@ public class ProtoLayoutViewInstanceTest {
         assertThat(layout1).hasSize(1);
 
         result =
-                mInstanceUnderTest.renderAndAttach(
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -120,8 +121,8 @@ public class ProtoLayoutViewInstanceTest {
     @Test
     public void adaptiveUpdateRatesEnabled_attach_appliesDiffOnly() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -131,7 +132,7 @@ public class ProtoLayoutViewInstanceTest {
         assertThat(layout1).hasSize(1);
 
         result =
-                mInstanceUnderTest.renderAndAttach(
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -144,8 +145,8 @@ public class ProtoLayoutViewInstanceTest {
     @Test
     public void reattach_usesCachedLayoutForDiffUpdate() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -156,7 +157,7 @@ public class ProtoLayoutViewInstanceTest {
         mInstanceUnderTest.detach(mRootContainer);
 
         result =
-                mInstanceUnderTest.renderAndAttach(
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -172,8 +173,8 @@ public class ProtoLayoutViewInstanceTest {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
 
         // First one that does the full layout update.
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT2))), RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -184,7 +185,7 @@ public class ProtoLayoutViewInstanceTest {
 
         // Second one that applies mutation only.
         result =
-                mInstanceUnderTest.renderAndAttach(
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, mRootContainer);
         // Detach so it can't apply update.
         mInstanceUnderTest.detach(mRootContainer);
@@ -200,9 +201,8 @@ public class ProtoLayoutViewInstanceTest {
 
         // Render the first layout.
         Layout layout1 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT2)));
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
-                        layout1, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout1, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
@@ -227,9 +227,7 @@ public class ProtoLayoutViewInstanceTest {
         // not changed part of the layout was also changed in inflated View.
         Layout layout2 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT3)));
 
-        result =
-                mInstanceUnderTest.renderAndAttach(
-                        layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout2, RESOURCES, mRootContainer);
 
         // Make sure future is computing result.
         assertThat(result.isDone()).isFalse();
@@ -252,8 +250,8 @@ public class ProtoLayoutViewInstanceTest {
 
         // Render the first layout.
         Layout layout1 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT2)));
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout1, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout1, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
@@ -263,7 +261,7 @@ public class ProtoLayoutViewInstanceTest {
         assertThat(findViewsWithText(mRootContainer, TEXT2)).hasSize(1);
 
         Layout layout2 = layout(column(dynamicFixedText(TEXT1), dynamicFixedText(TEXT3)));
-        result = mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout2, RESOURCES, mRootContainer);
         // Make sure future is computing result.
         assertThat(result.isDone()).isFalse();
         shadowOf(Looper.getMainLooper()).idle();
@@ -279,13 +277,13 @@ public class ProtoLayoutViewInstanceTest {
     public void adaptiveUpdateRatesEnabled_ongoingRendering_skipsPreviousLayout() {
         FrameLayout container = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result1 =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result1 =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container);
         assertThat(result1.isDone()).isFalse();
 
-        ListenableFuture<Void> result2 =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result2 =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT3))), RESOURCES, container);
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -301,14 +299,14 @@ public class ProtoLayoutViewInstanceTest {
         FrameLayout container1 = new FrameLayout(mApplicationContext);
         FrameLayout container2 = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container1);
 
         assertThrows(
                 IllegalStateException.class,
                 () ->
-                        mInstanceUnderTest.renderAndAttach(
+                        mInstanceUnderTest.renderLayoutAndAttach(
                                 layout(column(text(TEXT1), text(TEXT2))), RESOURCES, container2));
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -321,12 +319,14 @@ public class ProtoLayoutViewInstanceTest {
         FrameLayout container1 = new FrameLayout(mApplicationContext);
         FrameLayout container2 = new FrameLayout(mApplicationContext);
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result1 =
-                mInstanceUnderTest.renderAndAttach(layout(text(TEXT1)), RESOURCES, container1);
+        ListenableFuture<RenderingArtifact> result1 =
+                mInstanceUnderTest.renderLayoutAndAttach(
+                        layout(text(TEXT1)), RESOURCES, container1);
         mInstanceUnderTest.detach(container1);
 
-        ListenableFuture<Void> result2 =
-                mInstanceUnderTest.renderAndAttach(layout(text(TEXT1)), RESOURCES, container2);
+        ListenableFuture<RenderingArtifact> result2 =
+                mInstanceUnderTest.renderLayoutAndAttach(
+                        layout(text(TEXT1)), RESOURCES, container2);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertThat(result1.isCancelled()).isTrue();
@@ -341,13 +341,13 @@ public class ProtoLayoutViewInstanceTest {
             throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
 
-        result = mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
 
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
@@ -360,14 +360,14 @@ public class ProtoLayoutViewInstanceTest {
         Layout layout1 = layout(text(TEXT1));
         Layout layout2 = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout1, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout1, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
 
         // Make sure we have an UnchangedRenderResult
-        result = mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout2, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
@@ -377,7 +377,7 @@ public class ProtoLayoutViewInstanceTest {
         assertThat(findViewsWithText(mRootContainer, TEXT1)).isEmpty();
         shadowOf(Looper.getMainLooper()).idle();
 
-        result = mInstanceUnderTest.renderAndAttach(layout2, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout2, RESOURCES, mRootContainer);
 
         assertThat(result.isDone()).isTrue();
         assertNoException(result);
@@ -388,8 +388,8 @@ public class ProtoLayoutViewInstanceTest {
     public void fullInflationResultCanBeReused() throws Exception {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
         Layout layout = layout(text(TEXT1));
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
@@ -397,7 +397,7 @@ public class ProtoLayoutViewInstanceTest {
         ListenableFuture<?> renderFuture = mInstanceUnderTest.mRenderFuture;
 
         mInstanceUnderTest.detach(mRootContainer);
-        result = mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
 
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
@@ -409,15 +409,15 @@ public class ProtoLayoutViewInstanceTest {
             throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
         List<View> textViews1 = findViewsWithText(mRootContainer, TEXT1);
         assertThat(textViews1).hasSize(1);
 
         mInstanceUnderTest.close();
-        result = mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
 
         assertThat(shadowOf(Looper.getMainLooper()).isIdle()).isFalse();
         shadowOf(Looper.getMainLooper()).idle();
@@ -431,8 +431,8 @@ public class ProtoLayoutViewInstanceTest {
     public void detach_clearsHostView() throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
         assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
@@ -449,14 +449,14 @@ public class ProtoLayoutViewInstanceTest {
         Layout layout2 = layout(text(TEXT1));
         Resources resources2 = Resources.newBuilder().setVersion("2").build();
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout1, resources1, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout1, resources1, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
         assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
         View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
 
-        result = mInstanceUnderTest.renderAndAttach(layout2, resources2, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout2, resources2, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
@@ -472,15 +472,15 @@ public class ProtoLayoutViewInstanceTest {
         Layout layout2 = layout(text(TEXT1));
         Resources resources2 = Resources.newBuilder().setVersion("1").build();
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout1, resources1, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout1, resources1, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
         assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
         View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
 
         mInstanceUnderTest.invalidateCache();
-        result = mInstanceUnderTest.renderAndAttach(layout2, resources2, mRootContainer);
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout2, resources2, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
 
         assertNoException(result);
@@ -490,13 +490,28 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
+    public void invalidateCache_ongoingInflation_oldInflationGetsCancelled() throws Exception {
+        Layout layout1 = layout(text(TEXT1));
+        Resources resources1 = Resources.newBuilder().setVersion("1").build();
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout1, resources1, mRootContainer);
+
+        mInstanceUnderTest.invalidateCache();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(result.isCancelled()).isTrue();
+        assertThat(findViewsWithText(mRootContainer, TEXT1)).isEmpty();
+    }
+
+    @Test
     public void adaptiveUpdateRatesEnabled_rootElementdiff_keepsElementCentered() throws Exception {
         int dimension = 50;
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
 
         // Full inflation.
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(
                                 column(
                                         props -> {
@@ -518,7 +533,7 @@ public class ProtoLayoutViewInstanceTest {
 
         // Diff update only for the root element.
         result =
-                mInstanceUnderTest.renderAndAttach(
+                mInstanceUnderTest.renderLayoutAndAttach(
                         layout(
                                 column(
                                         props -> {
@@ -546,8 +561,8 @@ public class ProtoLayoutViewInstanceTest {
     public void close_clearsHostView() throws Exception {
         Layout layout = layout(text(TEXT1));
         setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
         assertThat(findViewsWithText(mRootContainer, TEXT1)).hasSize(1);
@@ -562,7 +577,9 @@ public class ProtoLayoutViewInstanceTest {
         setupInstance(/* adaptiveUpdateRatesEnabled= */ false);
         assertThrows(
                 ExecutionException.class,
-                () -> renderAndAttachLayout(layout(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH + 1))));
+                () ->
+                        renderLayoutAndAttachLayout(
+                                layout(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH + 1))));
     }
 
     @Test
@@ -573,8 +590,8 @@ public class ProtoLayoutViewInstanceTest {
         for (int i = 0; i < children.length; i++) {
             children[i] = recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH - 1);
         }
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         // MAX_LAYOUT_ELEMENT_DEPTH branches of depth MAX_LAYOUT_ELEMENT_DEPTH - 1.
                         // Total depth is MAX_LAYOUT_ELEMENT_DEPTH (if we count the head).
                         layout(box(children)), RESOURCES, mRootContainer);
@@ -591,7 +608,7 @@ public class ProtoLayoutViewInstanceTest {
         assertThrows(
                 ExecutionException.class,
                 () ->
-                        renderAndAttachLayout(
+                        renderLayoutAndAttachLayout(
                                 // Total number of views is = MAX_LAYOUT_ELEMENT_DEPTH  + 1 (span
                                 // text)
                                 layout(
@@ -599,8 +616,8 @@ public class ProtoLayoutViewInstanceTest {
                                                 MAX_LAYOUT_ELEMENT_DEPTH,
                                                 spannable(spanText("Hello"))))));
 
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         // Total number of views is = (MAX_LAYOUT_ELEMENT_DEPTH -1)  + 1 (span text)
                         layout(
                                 recursiveBox(
@@ -620,12 +637,12 @@ public class ProtoLayoutViewInstanceTest {
         assertThrows(
                 ExecutionException.class,
                 () ->
-                        renderAndAttachLayout(
+                        renderLayoutAndAttachLayout(
                                 // Total number of views is = 1 (Arc) + (MAX_LAYOUT_ELEMENT_DEPTH)
                                 layout(arc(arcAdapter(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH))))));
 
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(
                         // Total number of views is = 1 (Arc) + (MAX_LAYOUT_ELEMENT_DEPTH - 1)
                         // = MAX_LAYOUT_ELEMENT_DEPTH
                         layout(arc(arcAdapter(recursiveBox(MAX_LAYOUT_ELEMENT_DEPTH - 1)))),
@@ -637,9 +654,9 @@ public class ProtoLayoutViewInstanceTest {
         assertThat(mRootContainer.getChildCount()).isEqualTo(1);
     }
 
-    private void renderAndAttachLayout(Layout layout) throws Exception {
-        ListenableFuture<Void> result =
-                mInstanceUnderTest.renderAndAttach(layout, RESOURCES, mRootContainer);
+    private void renderLayoutAndAttachLayout(Layout layout) throws Exception {
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, RESOURCES, mRootContainer);
         shadowOf(Looper.getMainLooper()).idle();
         assertNoException(result);
     }
@@ -690,7 +707,8 @@ public class ProtoLayoutViewInstanceTest {
         return views;
     }
 
-    private static void assertNoException(ListenableFuture<Void> result) throws Exception {
+    private static void assertNoException(ListenableFuture<RenderingArtifact> result)
+            throws Exception {
         // Assert that result hasn't thrown exception.
         result.get();
     }
