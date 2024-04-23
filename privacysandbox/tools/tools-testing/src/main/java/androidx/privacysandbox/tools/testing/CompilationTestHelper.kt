@@ -50,8 +50,6 @@ object CompilationTestHelper {
                 classpath = extraClasspath,
                 symbolProcessorProviders = symbolProcessorProviders,
                 processorOptions = processorOptions,
-                // b/328813158 to remove targeting of Java 17
-                javacArguments = listOf("-source", "17", "-target", "17")
             )
         )
     }
