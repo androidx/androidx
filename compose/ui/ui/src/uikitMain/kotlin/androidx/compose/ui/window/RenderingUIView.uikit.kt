@@ -87,10 +87,7 @@ internal class RenderingUIView(
             it.device = device as objcnames.protocols.MTLDeviceProtocol?
 
             it.pixelFormat = MTLPixelFormatBGRA8Unorm
-            doubleArrayOf(0.0, 0.0, 0.0, 0.0).usePinned { pinned ->
-                it.backgroundColor =
-                    CGColorCreate(CGColorSpaceCreateDeviceRGB(), pinned.addressOf(0))
-            }
+            it.backgroundColor = UIColor.clearColor.CGColor
             it.framebufferOnly = false
         }
     }

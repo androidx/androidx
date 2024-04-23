@@ -51,7 +51,7 @@ class CupertinoTextFieldDelegateTest {
     ) {
         val actual = determineCursorDesiredOffset(
             offset = givenOffset,
-            createSimpleTextFieldValue(text = sampleText, cursorOffset = cursorOffset),
+            createSimpleTextFieldValue(text = sampleText, cursorOffset = cursorOffset).selection.start,
             textLayoutResult = createSimpleTextLayoutResultProxy(sampleText),
             currentText = sampleText
         )

@@ -29,11 +29,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.keyDownEventUnprevented
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.keyDownEvent
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlinx.browser.document
@@ -43,8 +45,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 import kotlinx.browser.window
-import org.w3c.dom.events.KeyboardEvent
-import org.w3c.dom.events.KeyboardEventInit
 
 class CanvasBasedWindowTests {
 
@@ -90,16 +90,16 @@ class CanvasBasedWindowTests {
         })
 
         // dispatchEvent synchronously invokes all the listeners
-        canvasElement.dispatchEvent(createTypedEvent())
+        canvasElement.dispatchEvent(keyDownEvent())
         assertEquals(1, stack.size)
         assertTrue(stack.last())
 
-        canvasElement.dispatchEvent(createEventShouldNotBePrevented())
+        canvasElement.dispatchEvent(keyDownEventUnprevented())
         assertEquals(2, stack.size)
         assertFalse(stack.last())
 
         // copy shortcut should not be prevented (we let browser create a corresponding event)
-        canvasElement.dispatchEvent(createCopyKeyboardEvent())
+        canvasElement.dispatchEvent(keyDownEvent(c = 'c', metaKey = true, ctrlKey = true))
         assertEquals(3, stack.size)
         assertFalse(stack.last())
     }
@@ -138,7 +138,7 @@ class CanvasBasedWindowTests {
         )
 
         ('a'..'z').forEachIndexed { index, c ->
-            canvasElement.dispatchEvent(createTypedEvent(c))
+            canvasElement.dispatchEvent(keyDownEvent(c))
             assertEquals(listOfKeys[index], k)
         }
 
@@ -148,7 +148,7 @@ class CanvasBasedWindowTests {
         )
 
         ('0'..'9').forEachIndexed { index, c ->
-            canvasElement.dispatchEvent(createTypedEvent(c))
+            canvasElement.dispatchEvent(keyDownEvent(c))
             assertEquals(listOfNumbers[index], k)
         }
     }
@@ -180,43 +180,20 @@ class CanvasBasedWindowTests {
             }
         }
 
-        canvasElement.dispatchEvent(createTypedEvent('t'))
+        canvasElement.dispatchEvent(keyDownEvent('t'))
         assertEquals(Key.T, lastKeyEvent!!.key)
         assertEquals("", textValue.value)
 
         stopPropagation = false
-        canvasElement.dispatchEvent(createTypedEvent('t'))
-        canvasElement.dispatchEvent(createTypedEvent('e'))
-        canvasElement.dispatchEvent(createTypedEvent('s'))
-        canvasElement.dispatchEvent(createTypedEvent('t'))
-        canvasElement.dispatchEvent(createTypedEvent('x'))
+        canvasElement.dispatchEvent(keyDownEvent('t'))
+        canvasElement.dispatchEvent(keyDownEvent('e'))
+        canvasElement.dispatchEvent(keyDownEvent('s'))
+        canvasElement.dispatchEvent(keyDownEvent('t'))
+        canvasElement.dispatchEvent(keyDownEvent('x'))
         assertEquals(Key.X, lastKeyEvent!!.key)
         assertEquals("testx", textValue.value)
     }
 }
-
-internal external interface KeyboardEventInitExtended : KeyboardEventInit {
-    var keyCode: Int?
-}
-
-internal fun KeyboardEventInit.keyDownEvent() = KeyboardEvent("keydown", this)
-internal fun KeyboardEventInit.withKeyCode() = (this as KeyboardEventInitExtended).apply {
-    keyCode = key!!.uppercase().first().code
-}
-
-internal fun createCopyKeyboardEvent(): KeyboardEvent =
-    KeyboardEventInit(key = "c", code = "KeyC", ctrlKey = true, metaKey = true, cancelable = true)
-        .withKeyCode()
-        .keyDownEvent()
-
-internal fun createTypedEvent(c: Char = 'c'): KeyboardEvent =
-    KeyboardEventInit(key = "$c", code = "Key${c.uppercase()}", cancelable = true)
-        .withKeyCode()
-        .keyDownEvent()
-
-internal fun createEventShouldNotBePrevented(): KeyboardEvent =
-    KeyboardEventInit(ctrlKey = true, cancelable = true)
-        .keyDownEvent()
 
 
 // Unreliable heuristic, but it works for now

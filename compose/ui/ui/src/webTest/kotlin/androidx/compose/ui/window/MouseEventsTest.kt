@@ -31,6 +31,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.browser.document
 import kotlinx.coroutines.NonCancellable.isActive
+import kotlinx.coroutines.test.runTest
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.MouseEventInit
@@ -45,8 +46,8 @@ class MouseEventsTest {
     }
 
     @Test
-    fun testPointerEvents()  {
-        if (isHeadlessBrowser()) return
+    fun testPointerEvents() = runTest {
+        if (isHeadlessBrowser()) return@runTest
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -94,8 +95,8 @@ class MouseEventsTest {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Test
-    fun testOnClickWithPointerMatchers() {
-        if (isHeadlessBrowser()) return
+    fun testOnClickWithPointerMatchers() = runTest {
+        if (isHeadlessBrowser()) return@runTest
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
@@ -127,8 +128,8 @@ class MouseEventsTest {
     }
 
     @Test
-    fun testPointerButtonIsNullForNoClickEvents() {
-        if (isHeadlessBrowser()) return
+    fun testPointerButtonIsNullForNoClickEvents() = runTest {
+        if (isHeadlessBrowser()) return@runTest
         val canvasElement = document.createElement("canvas") as HTMLCanvasElement
         canvasElement.setAttribute("id", canvasId)
         document.body!!.appendChild(canvasElement)
