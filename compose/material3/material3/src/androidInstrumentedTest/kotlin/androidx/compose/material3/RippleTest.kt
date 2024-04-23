@@ -503,10 +503,6 @@ class RippleTest {
     fun rippleConfiguration_disabled_dragged() {
         val interactionSource = MutableInteractionSource()
 
-        val rippleConfiguration = RippleConfiguration(
-            isEnabled = false
-        )
-
         var scope: CoroutineScope? = null
 
         rule.setContent {
@@ -514,7 +510,7 @@ class RippleTest {
             MaterialTheme {
                 Surface {
                     CompositionLocalProvider(
-                        LocalRippleConfiguration provides rippleConfiguration
+                        LocalRippleConfiguration provides null
                     ) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
@@ -560,7 +556,7 @@ class RippleTest {
 
         val contentColor = Color.Black
 
-        var rippleConfiguration by mutableStateOf(RippleConfiguration())
+        var rippleConfiguration: RippleConfiguration? by mutableStateOf(RippleConfiguration())
 
         var scope: CoroutineScope? = null
 
@@ -607,7 +603,6 @@ class RippleTest {
         }
 
         val newConfiguration = RippleConfiguration(
-            isEnabled = true,
             color = Color.Red,
             rippleAlpha = RippleAlpha(0.5f, 0.5f, 0.5f, 0.5f)
         )
@@ -635,7 +630,7 @@ class RippleTest {
         }
 
         rule.runOnUiThread {
-            rippleConfiguration = RippleConfiguration(isEnabled = false)
+            rippleConfiguration = null
         }
 
         with(rule.onNodeWithTag(Tag)) {
