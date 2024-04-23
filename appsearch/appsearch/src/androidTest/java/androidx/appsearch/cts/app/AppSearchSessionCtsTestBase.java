@@ -9040,4 +9040,84 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
                 + " is not available on this AppSearch implementation.");
     }
+
+    @Test
+    public void testTokenizeSearch_simple() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_TOKENIZE_FUNCTION));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new StringPropertyConfig.Builder("body")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setPropertyString("body", "foo bar")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setPropertyString("body", "bar")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        GenericDocument doc2 =
+                new GenericDocument.Builder<>("namespace", "id2", "Email")
+                        .setPropertyString("body", "foo")
+                        .setCreationTimestampMillis(1000)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1, doc2).build()));
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterTokenizeFunctionEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search("tokenize(\"foo.\")", searchSpec);
+        List<GenericDocument> results = convertSearchResultsToDocuments(searchResults);
+        assertThat(results).containsExactly(doc2, doc0);
+
+        searchResults = mDb1.search("tokenize(\"bar, foo\")", searchSpec);
+        results = convertSearchResultsToDocuments(searchResults);
+        assertThat(results).containsExactly(doc0);
+
+        searchResults = mDb1.search("tokenize(\"\\\"bar, \\\"foo\\\"\")", searchSpec);
+        results = convertSearchResultsToDocuments(searchResults);
+        assertThat(results).containsExactly(doc0);
+
+        searchResults = mDb1.search("tokenize(\"bar ) foo\")", searchSpec);
+        results = convertSearchResultsToDocuments(searchResults);
+        assertThat(results).containsExactly(doc0);
+
+        searchResults = mDb1.search("tokenize(\"bar foo(\")", searchSpec);
+        results = convertSearchResultsToDocuments(searchResults);
+        assertThat(results).containsExactly(doc0);
+    }
+
+    @Test
+    public void testTokenizeSearch_notSupported() throws Exception {
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
+        assumeFalse(
+                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_TOKENIZE_FUNCTION));
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterTokenizeFunctionEnabled(true)
+                .build();
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.search("tokenize(\"foo.\")", searchSpec));
+        assertThat(exception).hasMessageThat().contains(Features.LIST_FILTER_TOKENIZE_FUNCTION
+                + " is not available on this AppSearch implementation.");
+    }
 }

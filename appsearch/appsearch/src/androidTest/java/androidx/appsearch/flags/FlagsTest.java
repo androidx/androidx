@@ -108,4 +108,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
                 .isEqualTo("com.android.appsearch.flags.enable_schema_embedding_property_config");
     }
+
+    @Test
+    public void testFlagValue_enableListFilterTokenizeFunction() {
+        assertThat(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
+                .isEqualTo("com.android.appsearch.flags.enable_list_filter_tokenize_function");
+    }
 }

@@ -712,6 +712,14 @@ public final class SearchSpec extends AbstractSafeParcelable {
     }
 
     /**
+     * Returns whether the LIST_FILTER_TOKENIZE_FUNCTION feature is enabled.
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
+    public boolean isListFilterTokenizeFunctionEnabled() {
+        return mEnabledFeatures.contains(FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
+    }
+
+    /**
      * Get the list of enabled features that the caller is intending to use in this search call.
      *
      * @return the set of {@link Features} enabled in this {@link SearchSpec} Entry.
@@ -1960,6 +1968,25 @@ public final class SearchSpec extends AbstractSafeParcelable {
         @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
         public Builder setEmbeddingSearchEnabled(boolean enabled) {
             modifyEnabledFeature(FeatureConstants.EMBEDDING_SEARCH, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the LIST_FILTER_TOKENIZE_FUNCTION feature as enabled/disabled according to
+         * the enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it
+         *
+         * <p>If disabled, disallows the use of the "tokenize" function. See
+         * {@link AppSearchSession#search} for more details about the function.
+         */
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.LIST_FILTER_TOKENIZE_FUNCTION)
+        @NonNull
+        @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
+        public Builder setListFilterTokenizeFunctionEnabled(boolean enabled) {
+            modifyEnabledFeature(FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION, enabled);
             return this;
         }
 

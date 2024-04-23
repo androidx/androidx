@@ -42,4 +42,7 @@ public interface FeatureConstants {
 
     /** A feature constant for the "semanticSearch" function in {@link AppSearchSession#search}. */
     String EMBEDDING_SEARCH = "EMBEDDING_SEARCH";
+
+    /** A feature constant for the "tokenize" function in {@link AppSearchSession#search}. */
+    String LIST_FILTER_TOKENIZE_FUNCTION = "TOKENIZE";
 }

@@ -792,4 +792,44 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isFalse();
         assertThat(searchSpec.isEmbeddingSearchEnabled()).isFalse();
     }
+
+    @Test
+    public void testGetEnabledFeatures_listFilterTokenizeFunction() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterTokenizeFunctionEnabled(true)
+                .build();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterTokenizeFunctionEnabled()).isTrue();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.LIST_FILTER_QUERY_LANGUAGE, "TOKENIZE");
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpecCopy.isListFilterTokenizeFunctionEnabled()).isTrue();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.LIST_FILTER_QUERY_LANGUAGE, "TOKENIZE");
+    }
+
+    @Test
+    public void testSetFeatureEnabledToFalse_listFilterTokenizeFunction() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterTokenizeFunctionEnabled(true)
+                .build();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterTokenizeFunctionEnabled()).isTrue();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.LIST_FILTER_QUERY_LANGUAGE, "TOKENIZE");
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec)
+                .setListFilterTokenizeFunctionEnabled(false)
+                .build();
+        assertThat(searchSpecCopy.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpecCopy.isListFilterTokenizeFunctionEnabled()).isFalse();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
 }
