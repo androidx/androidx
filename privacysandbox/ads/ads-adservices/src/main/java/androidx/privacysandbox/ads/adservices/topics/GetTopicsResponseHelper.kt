@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 
 /**
  * Helper class to consolidate conversion logic for GetTopicsResponse.
@@ -30,12 +31,36 @@ import androidx.annotation.RestrictTo
 object GetTopicsResponseHelper {
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-    internal fun convertResponse(response: android.adservices.topics.GetTopicsResponse):
-        GetTopicsResponse {
+    internal fun convertResponse(
+        response: android.adservices.topics.GetTopicsResponse,
+        ): GetTopicsResponse {
         val topics = mutableListOf<Topic>()
         for (topic in response.topics) {
             topics.add(Topic(topic.taxonomyVersion, topic.modelVersion, topic.topicId))
         }
         return GetTopicsResponse(topics)
+    }
+
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 11)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 11)
+    @ExperimentalFeatures.Ext11OptIn
+    internal fun convertResponseWithEncryptedTopics(
+        response: android.adservices.topics.GetTopicsResponse,
+        ): GetTopicsResponse {
+        val topics = mutableListOf<Topic>()
+        for (topic in response.topics) {
+            topics.add(Topic(topic.taxonomyVersion, topic.modelVersion, topic.topicId))
+        }
+        val encryptedTopics = mutableListOf<EncryptedTopic>()
+        for (encryptedTopic in response.encryptedTopics) {
+            encryptedTopics.add(
+                EncryptedTopic(
+                    encryptedTopic.encryptedTopic,
+                    encryptedTopic.keyIdentifier,
+                    encryptedTopic.encapsulatedKey,
+                ),
+            )
+        }
+        return GetTopicsResponse(topics, encryptedTopics)
     }
 }

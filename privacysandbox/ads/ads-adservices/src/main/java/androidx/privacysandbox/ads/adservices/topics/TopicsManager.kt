@@ -51,13 +51,19 @@ abstract class TopicsManager internal constructor() {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): TopicsManager? {
-            return if (AdServicesInfo.adServicesVersion() >= 5) {
+            return if (AdServicesInfo.adServicesVersion() >= 11) {
+                TopicsManagerApi33Ext11Impl(context)
+            } else if (AdServicesInfo.adServicesVersion() >= 5) {
                 TopicsManagerApi33Ext5Impl(context)
             } else if (AdServicesInfo.adServicesVersion() == 4) {
                 TopicsManagerApi33Ext4Impl(context)
             } else if (AdServicesInfo.extServicesVersionS() >= 9) {
                 BackCompatManager.getManager(context, "TopicsManager") {
                     TopicsManagerApi31Ext9Impl(context)
+                }
+            } else if (AdServicesInfo.extServicesVersionS() >= 11) {
+                BackCompatManager.getManager(context, "TopicsManager") {
+                    TopicsManagerApi31Ext11Impl(context)
                 }
             } else {
                 null

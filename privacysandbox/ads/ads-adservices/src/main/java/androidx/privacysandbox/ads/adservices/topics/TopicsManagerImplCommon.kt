@@ -58,7 +58,7 @@ open class TopicsManagerImplCommon(
         return GetTopicsRequestHelper.convertRequestWithoutRecordObservation(request)
     }
 
-    internal fun convertResponse(
+    internal open fun convertResponse(
         response: android.adservices.topics.GetTopicsResponse
     ): GetTopicsResponse {
         return GetTopicsResponseHelper.convertResponse(response)
