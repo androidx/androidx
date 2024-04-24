@@ -17,7 +17,6 @@
 package androidx.build.metalava
 
 import androidx.build.AndroidXExtension
-import androidx.build.LibraryType
 import androidx.build.addFilterableTasks
 import androidx.build.addToBuildOnServer
 import androidx.build.addToCheckTask
@@ -74,9 +73,7 @@ object MetalavaTasks {
         // implemented by excluding APIs with this annotation from the restricted API file.
         val generateRestrictToLibraryGroupAPIs = !extension.mavenGroup!!.requireSameVersion
         val kotlinSourceLevel: Provider<KotlinVersion> = extension.kotlinApiVersion
-        val targetsJavaConsumers = (extension.type != LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY &&
-            extension.type != LibraryType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
-            )
+        val targetsJavaConsumers = !extension.type.targetsKotlinConsumersOnly
         val generateApi =
             project.tasks.register("generateApi", GenerateApiTask::class.java) { task ->
                 task.group = "API"

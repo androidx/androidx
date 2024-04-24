@@ -507,8 +507,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 if (!project.name.contains("camera-camera2-pipe")) {
                     kotlinCompilerArgs += "-Xjvm-default=all"
                 }
-                if (androidXExtension.type == LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY ||
-                    androidXExtension.type == LibraryType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY) {
+                if (androidXExtension.type.targetsKotlinConsumersOnly) {
                     // The Kotlin Compiler adds intrinsic assertions which are only relevant
                     // when the code is consumed by Java users. Therefore we can turn this off
                     // when code is being consumed by Kotlin users.
@@ -998,7 +997,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             val mavenGroup = androidXExtension.mavenGroup
             val isProbablyPublished =
                 androidXExtension.type == LibraryType.PUBLISHED_LIBRARY ||
-                    androidXExtension.type == LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY ||
+                    androidXExtension.type ==
+                        LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS ||
                     androidXExtension.type == LibraryType.UNSET
             if (mavenGroup != null && isProbablyPublished && androidXExtension.shouldPublish()) {
                 validateProjectMavenGroup(mavenGroup.group)
