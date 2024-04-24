@@ -71,7 +71,7 @@ android {
 
 androidx {
     name = "TV Material"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.TV_MATERIAL
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."
