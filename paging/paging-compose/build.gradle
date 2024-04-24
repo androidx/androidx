@@ -21,8 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
-import androidx.build.RunApiTasks
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -79,10 +78,9 @@ androidXMultiplatform {
 
 androidx {
     name = "Paging-Compose"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose integration with Paging"
-    runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
     samples(project(":paging:paging-compose:paging-compose-samples"))
 }
