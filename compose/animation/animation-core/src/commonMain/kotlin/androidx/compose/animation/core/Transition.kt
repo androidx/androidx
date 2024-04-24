@@ -475,6 +475,7 @@ class SeekableTransitionState<S>(
                 // the correct animation values
                 waitForCompositionAfterTargetStateChange()
             }
+            transition.onTransitionEnd()
         }
     }
 
@@ -689,6 +690,7 @@ class SeekableTransitionState<S>(
                     currentState = targetState
                     waitForComposition()
                     fraction = 0f
+                    transition.onTransitionEnd()
                 }
             }
         }
