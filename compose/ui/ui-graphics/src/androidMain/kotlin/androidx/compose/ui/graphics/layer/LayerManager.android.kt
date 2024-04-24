@@ -87,7 +87,10 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             // are not supported
             if (canvas.isHardwareAccelerated) {
                 canvasHolder.drawInto(canvas) {
+                    canvas.save()
+                    canvas.clipRect(0, 0, 1, 1)
                     layers.forEach { layer -> layer.drawForPersistence(this) }
+                    canvas.restore()
                 }
             }
             surface.unlockCanvasAndPost(canvas)
@@ -97,6 +100,17 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     fun destroy() {
         imageReader?.close()
         imageReader = null
+    }
+
+    /**
+     * Discards the corresponding ImageReader used to increment the ref count of each layer
+     * and persists the current layer list creating a new ImageReader. This is useful in scenarios
+     * where HWUI releases graphics resources in response to onTrimMemory often when the application
+     * is backgrounded
+     */
+    fun updateLayerPersistence() {
+        destroy()
+        persistLayers(layerList)
     }
 }
 
