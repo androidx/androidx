@@ -17,7 +17,6 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -177,8 +176,7 @@ fun TextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape =
-        MaterialTheme.shapes.small.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+    shape: Shape = TextFieldDefaults.TextFieldShape,
     colors: TextFieldColors = TextFieldDefaults.textFieldColors()
 ) {
     @Suppress("NAME_SHADOWING")
@@ -193,7 +191,6 @@ fun TextField(
     BasicTextField(
         value = value,
         modifier = modifier
-            .background(colors.backgroundColor(enabled).value, shape)
             .indicatorLine(enabled, isError, interactionSource, colors)
             .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
@@ -226,7 +223,8 @@ fun TextField(
                 enabled = enabled,
                 isError = isError,
                 interactionSource = interactionSource,
-                colors = colors
+                shape = shape,
+                colors = colors,
             )
         }
     )
@@ -384,7 +382,6 @@ fun TextField(
     BasicTextField(
         value = value,
         modifier = modifier
-            .background(colors.backgroundColor(enabled).value, shape)
             .indicatorLine(enabled, isError, interactionSource, colors)
             .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
             .defaultMinSize(
@@ -417,7 +414,8 @@ fun TextField(
                 enabled = enabled,
                 isError = isError,
                 interactionSource = interactionSource,
-                colors = colors
+                shape = shape,
+                colors = colors,
             )
         }
     )

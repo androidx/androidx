@@ -544,6 +544,7 @@ object TextFieldDefaults {
      * container
      * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
      * container
+     * @param shape the shape of the text field's container
      * @param colors [TextFieldColors] that will be used to resolve color of the text and content
      * (including label, placeholder, leading and trailing icons, bottom indicator) for this text field in
      * different states. See [TextFieldDefaults.textFieldColors]
@@ -570,6 +571,7 @@ object TextFieldDefaults {
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
         trailingIcon: @Composable (() -> Unit)? = null,
+        shape: Shape = TextFieldShape,
         colors: TextFieldColors = textFieldColors(),
         contentPadding: PaddingValues =
             if (label == null) {
@@ -591,8 +593,10 @@ object TextFieldDefaults {
             enabled = enabled,
             isError = isError,
             interactionSource = interactionSource,
+            shape = shape,
             colors = colors,
-            contentPadding = contentPadding
+            contentPadding = contentPadding,
+            border = null,
         )
     }
 
@@ -638,6 +642,7 @@ object TextFieldDefaults {
      * container
      * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
      * container
+     * @param shape the shape of the text field's container and border
      * @param colors [TextFieldColors] that will be used to resolve color of the text and content
      * (including label, placeholder, leading and trailing icons, border) for this text field in
      * different states. See [TextFieldDefaults.outlinedTextFieldColors]
@@ -662,10 +667,11 @@ object TextFieldDefaults {
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
         trailingIcon: @Composable (() -> Unit)? = null,
+        shape: Shape = OutlinedTextFieldShape,
         colors: TextFieldColors = outlinedTextFieldColors(),
         contentPadding: PaddingValues = outlinedTextFieldPadding(),
         border: @Composable () -> Unit = {
-            BorderBox(enabled, isError, interactionSource, colors)
+            BorderBox(enabled, isError, interactionSource, colors, shape)
         }
     ) {
         CommonDecorationBox(
@@ -681,11 +687,95 @@ object TextFieldDefaults {
             enabled = enabled,
             isError = isError,
             interactionSource = interactionSource,
+            shape = shape,
             colors = colors,
             contentPadding = contentPadding,
-            border = border
+            border = border,
         )
     }
+
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "Maintained for binary compatibility. Use overload with `shape` parameter."
+    )
+    @Composable
+    @ExperimentalMaterialApi
+    fun TextFieldDecorationBox(
+        value: String,
+        innerTextField: @Composable () -> Unit,
+        enabled: Boolean,
+        singleLine: Boolean,
+        visualTransformation: VisualTransformation,
+        interactionSource: InteractionSource,
+        isError: Boolean = false,
+        label: @Composable (() -> Unit)? = null,
+        placeholder: @Composable (() -> Unit)? = null,
+        leadingIcon: @Composable (() -> Unit)? = null,
+        trailingIcon: @Composable (() -> Unit)? = null,
+        colors: TextFieldColors = textFieldColors(),
+        contentPadding: PaddingValues =
+            if (label == null) {
+                textFieldWithoutLabelPadding()
+            } else {
+                textFieldWithLabelPadding()
+            }
+    ) = TextFieldDecorationBox(
+        value = value,
+        innerTextField = innerTextField,
+        enabled = enabled,
+        singleLine = singleLine,
+        visualTransformation = visualTransformation,
+        interactionSource = interactionSource,
+        isError = isError,
+        label = label,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        shape = TextFieldShape,
+        colors = colors,
+        contentPadding = contentPadding,
+    )
+
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "Maintained for binary compatibility. Use overload with `shape` parameter."
+    )
+    @Composable
+    @ExperimentalMaterialApi
+    fun OutlinedTextFieldDecorationBox(
+        value: String,
+        innerTextField: @Composable () -> Unit,
+        enabled: Boolean,
+        singleLine: Boolean,
+        visualTransformation: VisualTransformation,
+        interactionSource: InteractionSource,
+        isError: Boolean = false,
+        label: @Composable (() -> Unit)? = null,
+        placeholder: @Composable (() -> Unit)? = null,
+        leadingIcon: @Composable (() -> Unit)? = null,
+        trailingIcon: @Composable (() -> Unit)? = null,
+        colors: TextFieldColors = outlinedTextFieldColors(),
+        contentPadding: PaddingValues = outlinedTextFieldPadding(),
+        border: @Composable () -> Unit = {
+            BorderBox(enabled, isError, interactionSource, colors)
+        }
+    ) = OutlinedTextFieldDecorationBox(
+        value = value,
+        innerTextField = innerTextField,
+        enabled = enabled,
+        singleLine = singleLine,
+        visualTransformation = visualTransformation,
+        interactionSource = interactionSource,
+        isError = isError,
+        label = label,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        shape = OutlinedTextFieldShape,
+        colors = colors,
+        contentPadding = contentPadding,
+        border = border,
+    )
 }
 
 @Immutable

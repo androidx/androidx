@@ -451,6 +451,124 @@ class TextFieldDecorationBoxTest {
             }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun outlinedTextFieldBox_appliesBackgroundColor() {
+        val textFieldWidth = 300
+        val textFieldHeight = 150
+        val borderWidth = 2
+        val value = ""
+
+        rule.setMaterialContent {
+            CompositionLocalProvider(LocalDensity provides Density) {
+                val interactionSource = remember { MutableInteractionSource() }
+                val singleLine = true
+                val colors = TextFieldDefaults.outlinedTextFieldColors(
+                    backgroundColor = Color.Red
+                )
+                BasicTextField(
+                    value = value,
+                    onValueChange = {},
+                    modifier = Modifier.size(
+                        with(Density) { textFieldWidth.toDp() },
+                        with(Density) { textFieldHeight.toDp() }
+                    ),
+                    singleLine = singleLine,
+                    interactionSource = interactionSource
+                ) {
+                    OutlinedTextFieldDecorationBox(
+                        value = value,
+                        innerTextField = it,
+                        enabled = true,
+                        visualTransformation = VisualTransformation.None,
+                        interactionSource = interactionSource,
+                        singleLine = singleLine,
+                        border = {
+                            TextFieldDefaults.BorderBox(
+                                enabled = true,
+                                isError = false,
+                                colors = colors,
+                                interactionSource = interactionSource,
+                                shape = RectangleShape,
+                                unfocusedBorderThickness = with(Density) { borderWidth.toDp() }
+                            )
+                        },
+                        colors = colors,
+                        contentPadding = PaddingValues(0.dp)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithText(value)
+            .captureToImage()
+            .assertPixels(IntSize(textFieldWidth, textFieldHeight)) {
+                // to account for border + edge pixels
+                if (it.x in (borderWidth + 2)..(textFieldWidth - borderWidth - 2) &&
+                    it.y in (borderWidth + 2)..(textFieldHeight - borderWidth - 2)) {
+                    Color.Red
+                } else null
+            }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun textFieldBox_defaultIndicatorLineColor_appliesBackgroundColor() {
+        val textFieldWidth = 300
+        val textFieldHeight = 150
+        val borderWidth = 2
+        val value = ""
+
+        rule.setMaterialContent {
+            CompositionLocalProvider(LocalDensity provides Density) {
+                val interactionSource = remember { MutableInteractionSource() }
+                val singleLine = true
+                val colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Red
+                )
+                BasicTextField(
+                    value = value,
+                    onValueChange = {},
+                    modifier = Modifier
+                        .indicatorLine(
+                            enabled = true,
+                            isError = false,
+                            colors = colors,
+                            interactionSource = interactionSource,
+                            unfocusedIndicatorLineThickness = with(Density) { borderWidth.toDp() }
+                        )
+                        .size(
+                            with(Density) { textFieldWidth.toDp() },
+                            with(Density) { textFieldHeight.toDp() }
+                        ),
+                    singleLine = singleLine,
+                    interactionSource = interactionSource
+                ) {
+                    TextFieldDecorationBox(
+                        value = value,
+                        innerTextField = it,
+                        enabled = true,
+                        visualTransformation = VisualTransformation.None,
+                        interactionSource = interactionSource,
+                        singleLine = singleLine,
+                        colors = colors,
+                        contentPadding = PaddingValues(0.dp)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithText(value)
+            .captureToImage()
+            .assertPixels(IntSize(textFieldWidth, textFieldHeight)) {
+                // to account for border + edge pixels
+                if (it.x in 2..(textFieldWidth - 2) &&
+                    it.y in 2..(textFieldHeight - borderWidth - 2)) {
+                    Color.Red
+                } else null
+            }
+    }
+
     @Test
     fun outlinedTextFieldBox_innerTextLocation_withMultilineLabel() {
         val labelHeight = 60.dp
