@@ -22,6 +22,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.LayoutIdParentData
@@ -66,16 +68,17 @@ internal fun CommonDecorationBox(
     innerTextField: @Composable () -> Unit,
     visualTransformation: VisualTransformation,
     label: @Composable (() -> Unit)?,
-    placeholder: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    singleLine: Boolean = false,
-    enabled: Boolean = true,
-    isError: Boolean = false,
+    placeholder: @Composable (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
+    singleLine: Boolean,
+    enabled: Boolean,
+    isError: Boolean,
     interactionSource: InteractionSource,
     contentPadding: PaddingValues,
+    shape: Shape,
     colors: TextFieldColors,
-    border: @Composable (() -> Unit)? = null
+    border: @Composable (() -> Unit)?,
 ) {
     val transformedText = remember(value, visualTransformation) {
         visualTransformation.filter(AnnotatedString(value))
@@ -159,10 +162,13 @@ internal fun CommonDecorationBox(
             }
         }
 
+        val backgroundModifier =
+            Modifier.background(colors.backgroundColor(enabled).value, shape)
+
         when (type) {
             TextFieldType.Filled -> {
                 TextFieldLayout(
-                    modifier = Modifier,
+                    modifier = backgroundModifier,
                     textField = innerTextField,
                     placeholder = decoratedPlaceholder,
                     label = decoratedLabel,
@@ -186,7 +192,7 @@ internal fun CommonDecorationBox(
                 }
 
                 OutlinedTextFieldLayout(
-                    modifier = Modifier,
+                    modifier = backgroundModifier,
                     textField = innerTextField,
                     placeholder = decoratedPlaceholder,
                     label = decoratedLabel,
