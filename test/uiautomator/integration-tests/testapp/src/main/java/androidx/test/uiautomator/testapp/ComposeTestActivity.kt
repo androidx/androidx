@@ -22,7 +22,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -69,14 +68,14 @@ private fun TestView(context: Context) {
             ) {
                 Text("Top", modifier = Modifier.padding(top = 20.dp).testTag("top-text"))
                 Spacer(modifier = Modifier.size(scrollHeight.dp))
-                Row(
+                Column(
                     modifier = Modifier.padding(bottom = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    Text(text)
                     Button(onClick = { text = "Updated" }) {
                         Text("Update")
                     }
-                    Text(text)
                 }
             }
         }
