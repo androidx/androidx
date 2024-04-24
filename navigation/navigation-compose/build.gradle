@@ -62,7 +62,7 @@ dependencies {
 
 androidx {
     name = "Compose Navigation"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
     legacyDisableKotlinStrictApiMode = true

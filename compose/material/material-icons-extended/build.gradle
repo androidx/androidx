@@ -124,7 +124,7 @@ IconGenerationTask.registerExtendedIconThemeProject(project, android)
 
 androidx {
     name = "Compose Material Icons Extended"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.COMPOSE
     // This module has a large number (5000+) of generated source files and so doc generation /
     // API tracking will simply take too long

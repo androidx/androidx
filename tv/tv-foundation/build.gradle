@@ -67,7 +67,7 @@ android {
 
 androidx {
     name = "TV Foundation"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.TV
     inceptionYear = "2022"
     description = "This library makes it easier for developers" +
