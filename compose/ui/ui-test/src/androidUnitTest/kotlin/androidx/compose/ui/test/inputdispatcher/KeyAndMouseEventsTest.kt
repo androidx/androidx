@@ -438,7 +438,8 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             Offset.Zero, 0, expectedMetaState = expectedMetaState)
 
         // Key Toggle Off
-        recorder.events[8].verifyKeyEvent(keyDown, key.nativeKeyCode)
+        recorder.events[8].verifyKeyEvent(keyDown, key.nativeKeyCode,
+            expectedMetaState = expectedMetaState)
         recorder.events[9].verifyKeyEvent(keyUp, key.nativeKeyCode)
 
         // Mouse Press
