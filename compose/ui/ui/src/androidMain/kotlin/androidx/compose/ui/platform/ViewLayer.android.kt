@@ -21,10 +21,8 @@ import android.os.Build
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -39,10 +37,8 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -58,11 +54,7 @@ internal class ViewLayer(
     private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
-    private val outlineResolver = Snapshot.withoutReadObservation {
-        // we don't really care about observation here as density is applied manually
-        // not observing the density changes saves performance on recording reads
-        OutlineResolver(ownerView.density)
-    }
+    private val outlineResolver = OutlineResolver()
     // Value of the layerModifier's clipToBounds property
     private var clipToBounds = false
     private var clipBoundsCache: android.graphics.Rect? = null
@@ -132,11 +124,7 @@ internal class ViewLayer(
 
     private var mutatedFields: Int = 0
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ) {
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.mTransformOrigin = scope.transformOrigin
@@ -181,12 +169,11 @@ internal class ViewLayer(
             this.clipToOutline = clipToOutline
         }
         val shapeChanged = outlineResolver.update(
-            scope.shape,
+            scope.outline,
             scope.alpha,
             clipToOutline,
             scope.shadowElevation,
-            layoutDirection,
-            density
+            scope.size
         )
         if (outlineResolver.cacheIsDirty) {
             updateOutlineResolver()
@@ -261,7 +248,7 @@ internal class ViewLayer(
     }
 
     private fun updateOutlineResolver() {
-        this.outlineProvider = if (outlineResolver.outline != null) {
+        this.outlineProvider = if (outlineResolver.androidOutline != null) {
             OutlineProvider
         } else {
             null
@@ -287,7 +274,6 @@ internal class ViewLayer(
         if (width != this.width || height != this.height) {
             pivotX = mTransformOrigin.pivotFractionX * width
             pivotY = mTransformOrigin.pivotFractionY * height
-            outlineResolver.update(Size(width.toFloat(), height.toFloat()))
             updateOutlineResolver()
             layout(left, top, left + width, top + height)
             resetClipBounds()
@@ -437,7 +423,7 @@ internal class ViewLayer(
         val OutlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: android.graphics.Outline) {
                 view as ViewLayer
-                outline.set(view.outlineResolver.outline!!)
+                outline.set(view.outlineResolver.androidOutline!!)
             }
         }
         private var updateDisplayListIfDirtyMethod: Method? = null

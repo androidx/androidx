@@ -19,10 +19,8 @@ package androidx.compose.ui.platform
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Fields
@@ -36,10 +34,8 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * RenderNode implementation of OwnedLayer.
@@ -63,11 +59,7 @@ internal class RenderNodeLayer(
                 ownerView.notifyLayerIsDirty(this, value)
             }
         }
-    private val outlineResolver = Snapshot.withoutReadObservation {
-        // we don't really care about observation here as density is applied manually
-        // not observing the density changes saves performance on recording reads
-        OutlineResolver(ownerView.density)
-    }
+    private val outlineResolver = OutlineResolver()
     private var isDestroyed = false
     private var drawnWithZ = false
 
@@ -117,11 +109,7 @@ internal class RenderNodeLayer(
 
     private var mutatedFields: Int = 0
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ) {
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.transformOrigin = scope.transformOrigin
@@ -179,15 +167,14 @@ internal class RenderNodeLayer(
             renderNode.compositingStrategy = scope.compositingStrategy
         }
         val shapeChanged = outlineResolver.update(
-            scope.shape,
+            scope.outline,
             scope.alpha,
             clipToOutline,
             scope.shadowElevation,
-            layoutDirection,
-            density
+            scope.size,
         )
         if (outlineResolver.cacheIsDirty) {
-            renderNode.setOutline(outlineResolver.outline)
+            renderNode.setOutline(outlineResolver.androidOutline)
         }
         val isClippingManually = clipToOutline && !outlineResolver.outlineClipSupported
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
@@ -232,8 +219,7 @@ internal class RenderNodeLayer(
                 renderNode.top + height
             )
         ) {
-            outlineResolver.update(Size(width.toFloat(), height.toFloat()))
-            renderNode.setOutline(outlineResolver.outline)
+            renderNode.setOutline(outlineResolver.androidOutline)
             invalidate()
             matrixCache.invalidate()
         }
