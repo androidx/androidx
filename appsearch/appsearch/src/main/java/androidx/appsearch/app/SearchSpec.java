@@ -2026,28 +2026,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
                         + "RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION ranking strategies.");
             }
 
-            // If the schema filter isn't empty, and there is a schema with a projection but not
-            // in the filter, that is a SearchSpec user error.
-            if (!mSchemas.isEmpty()) {
-                for (String schema : mProjectionTypePropertyMasks.keySet()) {
-                    if (!mSchemas.contains(schema)) {
-                        throw new IllegalArgumentException("Projection requested for schema not "
-                                + "in schemas filters: " + schema);
-                    }
-                }
-            }
-
-            Set<String> schemaFilter = new ArraySet<>(mSchemas);
-            if (!mSchemas.isEmpty()) {
-                for (String schema : mTypePropertyFilters.keySet()) {
-                    if (!schemaFilter.contains(schema)) {
-                        throw new IllegalStateException(
-                                "The schema: " + schema + " exists in the property filter but "
-                                        + "doesn't exist in the schema filter.");
-                    }
-                }
-            }
-
             mBuilt = true;
             return new SearchSpec(mTermMatchType, mSchemas, mNamespaces,
                     mTypePropertyFilters, mPackageNames, mResultCountPerPage,

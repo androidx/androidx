@@ -529,20 +529,6 @@ public class SearchSpecCtsTest {
     }
 
     @Test
-    public void testProjections_withSchemaFilter() throws Exception {
-        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addFilterSchemas("Filter")
-                .addProjectionPathsForDocumentClass(King.class, ImmutableList.of(
-                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")));
-
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, searchSpecBuilder::build);
-        assertThat(exception.getMessage())
-                .isEqualTo("Projection requested for schema not in schemas filters: King");
-    }
-
-    @Test
     public void testTypePropertyWeightsForDocumentClass() throws Exception {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
@@ -636,18 +622,20 @@ public class SearchSpecCtsTest {
     }
 
     @Test
-    public void testBuilder_throwsException_whenTypePropertyFilterNotInSchemaFilter() {
-        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addFilterSchemas("Schema1", "Schema2")
-                .addFilterPropertyPaths("Schema3", ImmutableList.of(
-                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")));
+    public void testFilterSchemas_wildcardProjection() {
+        // Should not crash
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .addFilterSchemas("ParentType")
+                .addProjection(SearchSpec.SCHEMA_TYPE_WILDCARD, Collections.singletonList("TypeA"))
+                .addFilterProperties(SearchSpec.SCHEMA_TYPE_WILDCARD,
+                        Collections.singletonList("TypeB"))
+                .build();
 
-        IllegalStateException exception =
-                assertThrows(IllegalStateException.class, searchSpecBuilder::build);
-        assertThat(exception.getMessage())
-                .isEqualTo("The schema: Schema3 exists in the property filter but doesn't"
-                        + " exist in the schema filter.");
+        assertThat(searchSpec.getFilterSchemas()).containsExactly("ParentType");
+        assertThat(searchSpec.getProjections())
+                .containsExactly(SearchSpec.SCHEMA_TYPE_WILDCARD, ImmutableList.of("TypeA"));
+        assertThat(searchSpec.getFilterProperties())
+                .containsExactly(SearchSpec.SCHEMA_TYPE_WILDCARD, ImmutableList.of("TypeB"));
     }
 
     @Test
