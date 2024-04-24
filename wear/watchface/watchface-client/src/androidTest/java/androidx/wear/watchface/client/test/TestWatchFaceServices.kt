@@ -526,6 +526,7 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder
 ) : WatchFaceService() {
+    var lastComplicationType: ComplicationType? = null
 
     init {
         attachBaseContext(testContext)
@@ -605,7 +606,10 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
                     CanvasType.HARDWARE,
                     16
                 ) {
-                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
+                    lastComplicationType =
+                        complicationSlotsManager[123]!!.complicationData.value.type
+                }
 
                 override fun renderHighlightLayer(
                     canvas: Canvas,

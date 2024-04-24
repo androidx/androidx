@@ -141,6 +141,23 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun updateComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>)
 
     /**
+     * Sets override complications which are displayed until [clearComplicationDataOverride] is
+     * called. For editors this is more efficient than repeatedly calling [renderWatchFaceToBitmap]
+     * with complication data.
+     *
+     * While there are overrides [updateComplicationData] has no effect until
+     * [clearComplicationDataOverride] is called.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun overrideComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>) {}
+
+    /**
+     * Clears any overrides set by [overrideComplicationData].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun clearComplicationDataOverride() {}
+
+    /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings. Note this
      * will be fairly slow since either software canvas or glReadPixels will be invoked.
      *
@@ -433,6 +450,7 @@ internal constructor(
     private var lastWatchFaceColors: WatchFaceColors? = null
     private var disconnectReason: Int? = null
     private var closed = false
+    private var overrideSlotIdToComplicationData = HashMap<Int, ComplicationData>()
 
     private val iWatchFaceListener =
         object : IWatchfaceListener.Stub() {
@@ -505,6 +523,31 @@ internal constructor(
             )
         }
 
+    override fun overrideComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>) {
+        if (iInteractiveWatchFace.apiVersion >= 11) {
+            iInteractiveWatchFace.overrideComplicationData(
+                slotIdToComplicationData.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        it.value.asWireComplicationData()
+                    )
+                }
+            )
+        } else {
+            for ((id, complicationData) in slotIdToComplicationData) {
+                overrideSlotIdToComplicationData[id] = complicationData
+            }
+        }
+    }
+
+    override fun clearComplicationDataOverride() {
+        if (iInteractiveWatchFace.apiVersion >= 11) {
+            iInteractiveWatchFace.clearComplicationDataOverride()
+        } else {
+            overrideSlotIdToComplicationData.clear()
+        }
+    }
+
     @RequiresApi(27)
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
@@ -519,7 +562,11 @@ internal constructor(
                         renderParameters.toWireFormat(),
                         instant.toEpochMilli(),
                         userStyle?.toWireFormat(),
-                        idAndComplicationData?.map {
+                        if (iInteractiveWatchFace.apiVersion >= 11) {
+                            idAndComplicationData
+                        } else {
+                            mergeWithOverrideComplicationData(idAndComplicationData)
+                        }?.map {
                             IdAndComplicationDataWireFormat(
                                 it.key,
                                 it.value.asWireComplicationData()
@@ -529,6 +576,27 @@ internal constructor(
                 )
             )
         }
+
+    private fun mergeWithOverrideComplicationData(
+        idAndComplicationData: Map<Int, ComplicationData>?
+    ): Map<Int, ComplicationData>? {
+        if (overrideSlotIdToComplicationData.isEmpty()) {
+            return idAndComplicationData
+        }
+
+        if (idAndComplicationData.isNullOrEmpty()) {
+            return overrideSlotIdToComplicationData
+        }
+
+        val merged = HashMap(overrideSlotIdToComplicationData)
+        for ((id, complicationData) in idAndComplicationData) {
+            if (merged.contains(id)) {
+                continue
+            }
+            merged[id] = complicationData
+        }
+        return merged
+    }
 
     override val isRemoteWatchFaceViewHostSupported = iInteractiveWatchFace.apiVersion >= 9
 

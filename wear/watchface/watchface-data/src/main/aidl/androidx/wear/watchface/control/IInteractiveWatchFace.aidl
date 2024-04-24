@@ -37,12 +37,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 25
+    // Next Id: 28
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 10;
+    const int API_VERSION = 11;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -243,4 +243,22 @@ interface IInteractiveWatchFace {
      * @since API version 10.
      */
     UserStyleFlavorsWireFormat getUserStyleFlavors() = 25;
+
+    /**
+     * Send override ComplicationData to be used until clearComplicationDataOverride is called.
+     * While overrides, any calls to updateComplicationData are deferred until
+     * clearComplicationDataOverride is called.
+     *
+     * @since API version 11.
+     */
+    oneway void overrideComplicationData(
+        in List<IdAndComplicationDataWireFormat> complicationData) = 26;
+
+    /**
+     * Clears any complicaton data set by overrideComplicationData, and activates any complications
+     * set by updateComplicationData.
+     *
+     * @since API version 11.
+     */
+    oneway void clearComplicationDataOverride() = 27;
 }
