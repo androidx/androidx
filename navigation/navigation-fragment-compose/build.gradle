@@ -51,7 +51,7 @@ android {
 
 androidx {
     name = "Navigation with Fragments with Compose"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Add Compose destinations to Navigation with Fragments"
 }

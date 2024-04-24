@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,7 +50,7 @@ android {
 
 androidx {
     name = "Security Kotlin Extensions"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2020"
     description = "Kotlin Extensions for the androidx.security:Security-crypto artifact"
