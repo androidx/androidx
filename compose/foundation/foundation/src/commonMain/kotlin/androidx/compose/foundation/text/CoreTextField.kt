@@ -434,9 +434,12 @@ internal fun CoreTextField(
                 TextFieldDelegate.draw(
                     canvas,
                     value,
+                    state.selectionPreviewHighlightRange,
+                    state.deletionPreviewHighlightRange,
                     offsetMapping,
                     layoutResult.value,
-                    state.selectionPaint
+                    state.highlightPaint,
+                    state.selectionBackgroundColor
                 )
             }
         }
@@ -614,7 +617,7 @@ internal fun CoreTextField(
         }
     }
 
-    val showCursor = enabled && !readOnly && windowInfo.isWindowFocused
+    val showCursor = enabled && !readOnly && windowInfo.isWindowFocused && !state.hasHighlight()
     val cursorModifier = Modifier.cursor(state, value, offsetMapping, cursorBrush, showCursor)
 
     DisposableEffect(manager) {
@@ -976,6 +979,8 @@ internal class LegacyTextFieldState(
             // Text has been changed, enter the HandleState.None and hide the cursor handle.
             handleState = HandleState.None
         }
+        selectionPreviewHighlightRange = TextRange.Zero
+        deletionPreviewHighlightRange = TextRange.Zero
         onValueChangeOriginal(it)
         recomposeScope.invalidate()
     }
@@ -984,8 +989,16 @@ internal class LegacyTextFieldState(
         keyboardActionRunner.runAction(imeAction)
     }
 
-    /** The paint used to draw highlight background for selected text. */
-    val selectionPaint: Paint = Paint()
+    /** The paint used to draw highlight backgrounds. */
+    val highlightPaint: Paint = Paint()
+    var selectionBackgroundColor = Color.Unspecified
+
+    /** Range of text to be highlighted to display handwriting gesture previews from the IME. */
+    var selectionPreviewHighlightRange: TextRange by mutableStateOf(TextRange.Zero)
+    var deletionPreviewHighlightRange: TextRange by mutableStateOf(TextRange.Zero)
+
+    fun hasHighlight() =
+        !selectionPreviewHighlightRange.collapsed || !deletionPreviewHighlightRange.collapsed
 
     fun update(
         untransformedText: AnnotatedString,
@@ -1000,7 +1013,7 @@ internal class LegacyTextFieldState(
         selectionBackgroundColor: Color
     ) {
         this.onValueChangeOriginal = onValueChange
-        this.selectionPaint.color = selectionBackgroundColor
+        this.selectionBackgroundColor = selectionBackgroundColor
         this.keyboardActionRunner.apply {
             this.keyboardActions = keyboardActions
             this.focusManager = focusManager

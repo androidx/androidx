@@ -421,6 +421,30 @@ internal object HandwritingGestureApi34 {
     }
 
     @DoNotInline
+    internal fun LegacyTextFieldState.previewHandwritingGesture(
+        gesture: PreviewableHandwritingGesture,
+        textFieldSelectionManager: TextFieldSelectionManager?,
+        cancellationSignal: CancellationSignal?
+    ): Boolean {
+        val text = untransformedText ?: return false
+        if (text != layoutResult?.value?.layoutInput?.text) {
+            // The text is transformed or layout is null, handwriting gesture failed.
+            return false
+        }
+        when (gesture) {
+            is SelectGesture -> previewSelectGesture(gesture, textFieldSelectionManager)
+            is DeleteGesture -> previewDeleteGesture(gesture, textFieldSelectionManager)
+            is SelectRangeGesture -> previewSelectRangeGesture(gesture, textFieldSelectionManager)
+            is DeleteRangeGesture -> previewDeleteRangeGesture(gesture, textFieldSelectionManager)
+            else -> return false
+        }
+        cancellationSignal?.setOnCancelListener {
+            textFieldSelectionManager?.clearPreviewHighlight()
+        }
+        return true
+    }
+
+    @DoNotInline
     private fun LegacyTextFieldState.performSelectGesture(
         gesture: SelectGesture,
         textSelectionManager: TextFieldSelectionManager?,
@@ -436,6 +460,20 @@ internal object HandwritingGestureApi34 {
 
         performSelectionOnLegacyTextField(range, textSelectionManager, editCommandConsumer)
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.previewSelectGesture(
+        gesture: SelectGesture,
+        textFieldSelectionManager: TextFieldSelectionManager?
+    ) {
+        textFieldSelectionManager?.setSelectionPreviewHighlight(
+            getRangeForScreenRect(
+                gesture.selectionArea.toComposeRect(),
+                gesture.granularity.toTextGranularity(),
+                TextInclusionStrategy.ContainsCenter
+            )
+        )
     }
 
     @DoNotInline
@@ -463,6 +501,20 @@ internal object HandwritingGestureApi34 {
     }
 
     @DoNotInline
+    private fun LegacyTextFieldState.previewDeleteGesture(
+        gesture: DeleteGesture,
+        textFieldSelectionManager: TextFieldSelectionManager?
+    ) {
+        textFieldSelectionManager?.setDeletionPreviewHighlight(
+            getRangeForScreenRect(
+                gesture.deletionArea.toComposeRect(),
+                gesture.granularity.toTextGranularity(),
+                TextInclusionStrategy.ContainsCenter
+            )
+        )
+    }
+
+    @DoNotInline
     private fun LegacyTextFieldState.performSelectRangeGesture(
         gesture: SelectRangeGesture,
         textSelectionManager: TextFieldSelectionManager?,
@@ -483,6 +535,21 @@ internal object HandwritingGestureApi34 {
             editCommandConsumer = editCommandConsumer
         )
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.previewSelectRangeGesture(
+        gesture: SelectRangeGesture,
+        textFieldSelectionManager: TextFieldSelectionManager?
+    ) {
+        textFieldSelectionManager?.setSelectionPreviewHighlight(
+            getRangeForScreenRects(
+                gesture.selectionStartArea.toComposeRect(),
+                gesture.selectionEndArea.toComposeRect(),
+                gesture.granularity.toTextGranularity(),
+                TextInclusionStrategy.ContainsCenter
+            )
+        )
     }
 
     @DoNotInline
@@ -507,6 +574,21 @@ internal object HandwritingGestureApi34 {
             editCommandConsumer = editCommandConsumer
         )
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
+    }
+
+    @DoNotInline
+    private fun LegacyTextFieldState.previewDeleteRangeGesture(
+        gesture: DeleteRangeGesture,
+        textFieldSelectionManager: TextFieldSelectionManager?
+    ) {
+        textFieldSelectionManager?.setDeletionPreviewHighlight(
+            getRangeForScreenRects(
+                gesture.deletionStartArea.toComposeRect(),
+                gesture.deletionEndArea.toComposeRect(),
+                gesture.granularity.toTextGranularity(),
+                TextInclusionStrategy.ContainsCenter
+            )
+        )
     }
 
     @DoNotInline

@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
@@ -30,10 +31,12 @@ import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
+import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.previewHandwritingGesture
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.CommitTextCommand
@@ -426,6 +429,22 @@ internal class RecordingInputConnection(
         }
     }
 
+    override fun previewHandwritingGesture(
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean {
+        if (DEBUG) { logDebug("previewHandwritingGesture($gesture, $cancellationSignal)") }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return Api34LegacyPerformHandwritingGestureImpl.previewHandwritingGesture(
+                legacyTextFieldState,
+                textFieldSelectionManager,
+                gesture,
+                cancellationSignal
+            )
+        }
+        return false
+    }
+
     // endregion
     // region Unsupported callbacks
 
@@ -532,5 +551,19 @@ private object Api34LegacyPerformHandwritingGestureImpl {
         } else {
             consumer.accept(result)
         }
+    }
+
+    @DoNotInline
+    fun previewHandwritingGesture(
+        legacyTextFieldState: LegacyTextFieldState?,
+        textFieldSelectionManager: TextFieldSelectionManager?,
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean {
+        return legacyTextFieldState?.previewHandwritingGesture(
+            gesture,
+            textFieldSelectionManager,
+            cancellationSignal
+        ) ?: false
     }
 }

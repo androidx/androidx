@@ -70,11 +70,48 @@ class TextFieldDelegateIntegrationTest {
         TextFieldDelegate.draw(
             canvas = actualCanvas,
             value = TextFieldValue(text = "Hello, World", selection = selection),
-            selectionPaint = Paint().apply { color = selectionColor },
+            selectionPreviewHighlightRange = TextRange.Zero,
+            deletionPreviewHighlightRange = TextRange.Zero,
             offsetMapping = OffsetMapping.Identity,
-            textLayoutResult = layoutResult
+            textLayoutResult = layoutResult,
+            highlightPaint = Paint(),
+            selectionBackgroundColor = selectionColor
         )
 
+        assertThat(actualBitmap.sameAs(expectedBitmap)).isTrue()
+    }
+
+    @Test
+    fun draw_highlight_test() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString("Hello, World"),
+            style = TextStyle.Default,
+            maxLines = 2,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver
+        )
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
+        val deletionPreviewHighlightRange = TextRange(3, 5)
+
+        val actualBitmap = layoutResult.toBitmap()
+        val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
+        TextFieldDelegate.draw(
+            canvas = actualCanvas,
+            value = TextFieldValue(text = "Hello, World", selection = TextRange.Zero),
+            selectionPreviewHighlightRange = TextRange.Zero,
+            deletionPreviewHighlightRange = deletionPreviewHighlightRange,
+            offsetMapping = OffsetMapping.Identity,
+            textLayoutResult = layoutResult,
+            highlightPaint = Paint(),
+            selectionBackgroundColor = Color.Blue
+        )
+
+        val expectedBitmap = layoutResult.toBitmap()
+        val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
+        val selectionPath = layoutResult.multiParagraph.getPathForRange(3, 5)
+        // Default text color is black, so deletion preview highlight is black with 20% alpha.
+        expectedCanvas.drawPath(selectionPath, Paint().apply { color = Color(0f, 0f, 0f, 0.2f) })
+        TextPainter.paint(expectedCanvas, layoutResult)
         assertThat(actualBitmap.sameAs(expectedBitmap)).isTrue()
     }
 
