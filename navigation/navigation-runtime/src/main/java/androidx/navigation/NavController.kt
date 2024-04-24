@@ -2699,8 +2699,21 @@ public open class NavController(
      * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry =
-        getBackStackEntry(serializer<T>().hashCode())
+    public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
+        val id = serializer<T>().hashCode()
+        requireNotNull(findDestinationFromRoot(id)) {
+            "Destination with route ${T::class.simpleName} cannot be found in navigation " +
+                "graph $graph"
+        }
+        val lastFromBackStack = currentBackStack.value.lastOrNull { entry ->
+            entry.destination.id == id
+        }
+        requireNotNull(lastFromBackStack) {
+            "No destination with route ${T::class.simpleName} is on the NavController's " +
+                "back stack. The current destination is $currentDestination"
+        }
+        return lastFromBackStack
+    }
 
     /**
      * Gets the topmost [NavBackStackEntry] for a route from an Object.
@@ -2717,10 +2730,6 @@ public open class NavController(
         // route contains arguments so we need to generate the populated route
         // rather than getting entry based on route pattern
         val finalRoute = generateRouteFilled(route)
-        requireNotNull(finalRoute) {
-            "No destination with route $finalRoute is on the NavController's back stack. The " +
-                "current destination is $currentDestination"
-        }
         return getBackStackEntry(finalRoute)
     }
 

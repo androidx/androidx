@@ -1484,6 +1484,79 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testGetBackStackEntryWithKClassNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val entry = navController.getBackStackEntry<TestClass>()
+        assertThat(entry.destination.route).isEqualTo(TEST_CLASS_ROUTE)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithKClassNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry<TestClassPathArg>()
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithKClassNotInBackstack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry<TestClass>()
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route TestClass is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testGetBackStackEntryWithObject() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
@@ -1557,6 +1630,79 @@ class NavControllerRouteTest {
         assertFailsWith<IllegalArgumentException> {
             navController.getBackStackEntry(TestClassPathArg(1))
         }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithObjectNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClassPathArg::class) {
+                test<TestClassPathArg>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClassPathArg(1))
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_PATH_ARG_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val entry = navController.getBackStackEntry(TestClassPathArg(1))
+        assertThat(entry.destination.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithObjectNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(TestClassPathArg(1))
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithObjectNotInBackstack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(TestClass())
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $TEST_CLASS_ROUTE is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
     }
 
     @UiThreadTest
