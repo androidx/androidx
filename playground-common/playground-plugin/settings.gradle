@@ -29,7 +29,7 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         gradlePluginPortal().content {
-            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+            it.includeModule("com.gradle", "develocity-gradle-plugin")
             it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
             it.includeModule("org.spdx", "spdx-gradle-plugin")
             it.includeModule("com.github.johnrengelman.shadow",

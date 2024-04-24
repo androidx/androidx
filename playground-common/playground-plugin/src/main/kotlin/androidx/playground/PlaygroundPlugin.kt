@@ -21,7 +21,7 @@ import org.gradle.api.initialization.Settings
 
 class PlaygroundPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
-        settings.apply(mapOf("plugin" to "playground-ge-conventions"))
+        settings.apply(mapOf("plugin" to "playground-develocity-conventions"))
         settings.extensions.create("playground", PlaygroundExtension::class.java, settings)
         validateJvm(settings)
     }
