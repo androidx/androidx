@@ -742,7 +742,7 @@ internal abstract class InputDispatcher(
 
     /**
      * Called when this [InputDispatcher] is about to be discarded, from
-     * [InjectionScope.dispose].
+     * [MultiModalInjectionScopeImpl.dispose].
      */
     fun dispose() {
         saveState(root)
