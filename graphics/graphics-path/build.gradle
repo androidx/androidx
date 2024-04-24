@@ -55,7 +55,6 @@ android {
                     "-std=c++17",
                     "-Wno-unused-command-line-argument",
                     "-Wl,--hash-style=both", // Required to support API levels below 23
-                    "-fno-stack-protector",
                     "-fno-exceptions",
                     "-fno-unwind-tables",
                     "-fno-asynchronous-unwind-tables",
@@ -67,7 +66,6 @@ android {
                     "-fomit-frame-pointer",
                     "-ffunction-sections",
                     "-fdata-sections",
-                    "-fstack-protector",
                     "-Wl,--gc-sections",
                     "-Wl,-Bsymbolic-functions",
                     "-nostdlib++"
