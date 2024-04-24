@@ -387,7 +387,7 @@ class TextButtonTest {
         rule.verifyTextButtonColors(
             status = Status.Enabled,
             colors = { TextButtonDefaults.filledTonalTextButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.surface },
+            expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface }
         )
     }
@@ -530,7 +530,7 @@ private fun ComposeContentTestRule.isShape(
     val padding = 0.dp
 
     setContentWithTheme {
-        background = MaterialTheme.colorScheme.surface
+        background = MaterialTheme.colorScheme.surfaceContainer
         Box(Modifier.background(background)) {
             buttonColor = colors().containerColor(true)
             if (buttonColor == Color.Transparent) {

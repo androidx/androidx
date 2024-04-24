@@ -99,6 +99,6 @@ class SelectionControlsScreenshotTest {
             .background(
                 MaterialTheme.colorScheme.primary
                     .copy(alpha = 0.5f)
-                    .compositeOver(MaterialTheme.colorScheme.surface)
+                    .compositeOver(MaterialTheme.colorScheme.surfaceContainer)
             )
 }
