@@ -145,8 +145,6 @@ namespace {
         RENDERER_DYN_RNG_HDR_HLG = 3  // Equivalent to DynamicRange.ENCODING_HLG
     };
 
-    constexpr GLint EGL_GL_COLORSPACE_BT2020_HLG_EXT = 0x3540;
-
     constexpr char VERTEX_SHADER_SRC[] = R"SRC(
       attribute vec4 position;
       attribute vec4 texCoords;
