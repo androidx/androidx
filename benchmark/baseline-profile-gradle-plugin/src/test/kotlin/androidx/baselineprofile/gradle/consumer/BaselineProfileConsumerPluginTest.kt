@@ -386,18 +386,12 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             flavors = false,
             dependencyOnProducerProject = false
         )
-
-        gradleRunner
-            .withArguments("generateReleaseBaselineProfile", "--stacktrace")
-            .buildAndFail()
-            .output
-            .replace("\n", " ")
-            .also {
-                assertThat(it).contains(
-                    "The baseline profile consumer plugin is applied to " +
-                        "this module but no dependency has been set"
-                )
-            }
+        gradleRunner.build("generateReleaseBaselineProfile", "--stacktrace") {
+            assertThat(it.replace("\n", " ")).contains(
+                "The baseline profile consumer plugin is applied to this module but no " +
+                    "dependency has been set for variant `release`"
+            )
+        }
     }
 
     @Test
