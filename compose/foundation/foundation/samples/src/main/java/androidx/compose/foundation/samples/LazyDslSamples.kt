@@ -96,7 +96,10 @@ fun StickyHeaderSample() {
             stickyHeader {
                 Text(
                     "Section $section",
-                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.LightGray)
+                        .padding(8.dp)
                 )
             }
             items(10) {
@@ -109,9 +112,9 @@ fun StickyHeaderSample() {
 @Sampled
 @Composable
 fun AnimateItemSample() {
-    var list by remember { mutableStateOf(listOf("A", "B", "C")) }
+    var list by remember { mutableStateOf(listOf("1", "2", "3")) }
     Column {
-        Button(onClick = { list = list + "D" }) {
+        Button(onClick = { list = list + "${list.count() + 1}" }) {
             Text("Add new item")
         }
         Button(onClick = { list = list.shuffled() }) {
