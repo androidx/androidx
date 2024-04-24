@@ -76,7 +76,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             project: Project,
             variantName: String,
             mergeAwareTaskName: String,
-            hasDependencies: Boolean = false,
+            hasDependencies: Boolean,
             library: Boolean,
             sourceProfilesFileCollection: FileCollection,
             outputDir: Provider<Directory>,
@@ -123,6 +123,8 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                         .set(warnings.noBaselineProfileRulesGenerated)
                     task.printWarningNoStartupProfileRulesGenerated
                         .set(warnings.noStartupProfileRulesGenerated)
+                    task.printWarningVariantHasNoBaselineProfileDependency
+                        .set(warnings.variantHasNoBaselineProfileDependency)
                 }
         }
 
@@ -134,6 +136,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             sourceDir: Provider<Directory>,
             outputDir: Provider<Directory>,
             isLastTask: Boolean,
+            hasDependencies: Boolean,
             warnings: Warnings
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
@@ -150,10 +153,13 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     task.library.set(library)
                     task.variantName.set(variantName)
                     task.lastTask.set(isLastTask)
+                    task.hasDependencies.set(hasDependencies)
                     task.printWarningNoBaselineProfileRulesGenerated
                         .set(warnings.noBaselineProfileRulesGenerated)
                     task.printWarningNoStartupProfileRulesGenerated
                         .set(warnings.noStartupProfileRulesGenerated)
+                    task.printWarningVariantHasNoBaselineProfileDependency
+                        .set(warnings.variantHasNoBaselineProfileDependency)
                 }
         }
     }
@@ -187,19 +193,46 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
     @get:Input
     abstract val printWarningNoStartupProfileRulesGenerated: Property<Boolean>
 
+    @get:Input
+    abstract val printWarningVariantHasNoBaselineProfileDependency: Property<Boolean>
+
     private val logger by lazy { BaselineProfilePluginLogger(this.getLogger()) }
+
+    private val variantHasDependencies by lazy {
+        hasDependencies.isPresent && hasDependencies.get()
+    }
 
     @TaskAction
     fun exec() {
 
-        if (hasDependencies.isPresent && !hasDependencies.get()) {
-            throw GradleException(
-                """
+        // This warning should be printed only if no dependency has been set for the processed
+        // variant.
+        if (lastTask.get() && !variantHasDependencies) {
+            logger.warn(
+                property = { printWarningVariantHasNoBaselineProfileDependency.get() },
+                propertyName = "variantHasNoBaselineProfileDependency",
+                message = """
                 The baseline profile consumer plugin is applied to this module but no dependency
-                has been set. Please review the configuration of build.gradle for this module
-                making sure that a `baselineProfile` dependency exists and points to a valid
-                `com.android.test` module that has the `androidx.baselineprofile` or
-                `androidx.baselineprofile.producer` plugin applied.
+                has been set for variant `${variantName.get()}`, so no baseline profile will be 
+                generated for it.
+
+                A dependency for all the variants can be added in the dependency block using
+                `baselineProfile` configuration:
+
+                dependencies {
+                    ...
+                    baselineProfile(project(":baselineprofile"))
+                }
+
+                Or for a specific variant in the baseline profile block:
+
+                baselineProfile {
+                    variants {
+                        freeRelease {
+                            from(project(":baselineprofile"))
+                        }
+                    }
+                }
                 """.trimIndent()
             )
         }
@@ -217,13 +250,15 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
 
         // Read the profile rules from the file collection that contains the profile artifacts from
         // all the configurations for this variant and merge them in a single list.
-        val profileRules = baselineProfileFileCollection.files
+        val baselineProfileRules = baselineProfileFileCollection.files
             .readLines {
                 FILENAME_MATCHER_BASELINE_PROFILE in it.name ||
                     FILENAME_MATCHER_STARTUP_PROFILE in it.name
             }
 
-        if (variantName.isPresent && profileRules.isEmpty()) {
+        // This warning should be printed only if the variant has dependencies but there are no
+        // baseline profile rules.
+        if (lastTask.get() && variantHasDependencies && baselineProfileRules.isEmpty()) {
             logger.warn(
                 property = { printWarningNoBaselineProfileRulesGenerated.get() },
                 propertyName = "noBaselineProfileRulesGenerated",
@@ -242,7 +277,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         // - group by class and method (ignoring flag) and for each group keep only the first value
         // - apply the filters
         // - sort with comparator
-        val filteredBaselineProfileRules = profileRules
+        val filteredBaselineProfileRules = baselineProfileRules
             .sorted()
             .asSequence()
             .mapNotNull { ProfileRule.parse(it) }
@@ -267,9 +302,10 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             .sortedWith(ProfileRule.comparator)
 
         // Check if the filters filtered out all the rules.
-        if (profileRules.isNotEmpty() &&
+        if (baselineProfileRules.isNotEmpty() &&
             filteredBaselineProfileRules.isEmpty() &&
-            rules.isNotEmpty()) {
+            rules.isNotEmpty()
+        ) {
             throw GradleException(
                 """
                 The baseline profile consumer plugin is configured with filters that exclude all
@@ -294,7 +330,9 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         val startupRules = baselineProfileFileCollection.files
             .readLines { FILENAME_MATCHER_STARTUP_PROFILE in it.name }
 
-        if (variantName.isPresent && startupRules.isEmpty()) {
+        // This warning should be printed only if the variant has dependencies but there are no
+        // startup profile rules.
+        if (lastTask.get() && variantHasDependencies && startupRules.isEmpty()) {
             logger.warn(
                 property = { printWarningNoStartupProfileRulesGenerated.get() },
                 propertyName = "noBaselineProfileRulesGenerated",

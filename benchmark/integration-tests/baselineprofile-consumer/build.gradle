@@ -33,11 +33,21 @@ plugins {
 }
 
 android {
+    sourceSets {
+        // This is required because of release variant specific code used by hilt.
+        releaseLibrariesOnly {
+            java.srcDirs += "src/release/"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+        releaseLibrariesOnly {
+            initWith(release)
+            matchingFallbacks += "release"
         }
     }
     namespace "androidx.benchmark.integration.baselineprofile.consumer"
@@ -49,7 +59,6 @@ dependencies {
     implementation(libs.hiltAndroid)
     kapt(libs.hiltCompiler)
     implementation(project(":profileinstaller:profileinstaller"))
-    baselineProfile(project(":benchmark:integration-tests:baselineprofile-producer"))
 }
 
 baselineProfile {
@@ -58,6 +67,15 @@ baselineProfile {
     // trigger baseline profile generation and integration tests on device.
     saveInSrc = true
     automaticGenerationDuringBuild = false
+
+    variants {
+        release {
+            from(project(":benchmark:integration-tests:baselineprofile-producer"))
+        }
+        releaseLibrariesOnly {
+            // No dependency set
+        }
+    }
 }
 
 apply(from: "../baselineprofile-test-utils/utils.gradle")
