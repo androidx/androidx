@@ -70,7 +70,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-fun SwipeToRevealChips(swipeToDismissBoxState: SwipeToDismissBoxState) {
+fun SwipeToRevealChips(
+    swipeToDismissBoxState: SwipeToDismissBoxState,
+    includeSecondaryAction: Boolean
+) {
     val expandableStateMapping = rememberExpandableStateMapping<Int>(
         initiallyExpanded = { true }
     )
@@ -141,8 +144,8 @@ fun SwipeToRevealChips(swipeToDismissBoxState: SwipeToDismissBoxState) {
                         revealState = revealState,
                         onDeleteAction = deleteItem,
                         onUndoDelete = undoDeleteItem,
-                        onDuplicateAction = addItem,
-                        onUndoDuplicate = undoAddItem
+                        onDuplicateAction = addItem.takeIf { includeSecondaryAction },
+                        onUndoDuplicate = undoAddItem.takeIf { includeSecondaryAction }
                     )
                 } else {
                     Spacer(modifier = Modifier.width(200.dp))
