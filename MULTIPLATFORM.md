@@ -127,8 +127,20 @@ Run native macos Arm64 sample:
 ```bash
 ./gradlew :compose:mpp:demo:runDebugExecutableMacosArm64
 ```
+### Run in KMP Wizard project
+- To use a locally built compose in [KMP with Compose wizard project](https://kmp.jetbrains.com) you need to perform some extra steps:-Checkout https://github.com/JetBrains/compose-multiplatform
+- Open `gradle-plugins` in `compose-multiplatform`
+- Update `gradle.properties` by setting `compose.version` and `deploy.version` to the version you've published (`0.1.0-dev1000` in example above).
+- Run `./gradlew publishToMavenLocal`
+- Open `components` in `compose-multiplatform`
+- Update `gradle.properties` by setting `compose.useMavenLocal` to `true` and `compose.version` to the version you've published.
+- Run `./gradlew publishToMavenLocal`
+- Open KMP wizard project.
+- Update `settings.gradle.kts` by adding `mavenLocal()` to the end of both `repositories` blocks.
+- Update `gradle/libs.versions.toml` by setting `compose-plugin` to the version you've published.
+- Sync gradle, now the project will build with the locally published Compose.
 
-#### Run mpp/demo-uikit sample on iOS
+### Run mpp/demo-uikit sample on iOS
  - Install plugin **Kotlin Multiplatform Mobile** for AppCode
  - Disable Android Plugin in IDE preferences
  - Open root of repository with AppCode
@@ -141,7 +153,7 @@ Run native macos Arm64 sample:
    - Create file project.properties in the root of repository. Add property `TEAM_ID=[your team id]` without double quotes, for example `TEAM_ID=ABC123ABC1`.
  - Choose run configuration **iOS App**
 
-#### Run mpp/demo sample on iOS with Xcode
+### Run mpp/demo sample on iOS with Xcode
 Run script:
 ```bash 
 ./compose/mpp/demo/regenerate_xcode_project.sh
