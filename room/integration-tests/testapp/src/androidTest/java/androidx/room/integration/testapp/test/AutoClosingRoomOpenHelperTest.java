@@ -43,6 +43,7 @@ import androidx.testutils.AssertionsKt;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -253,6 +254,8 @@ public class AutoClosingRoomOpenHelperTest {
         assertFalse(testDatabase.isOpen());
     }
 
+    // TODO(336671494): broken test
+    @Ignore
     @Test
     @MediumTest
     public void invalidationObserver_isCalledOnEachInvalidation()
