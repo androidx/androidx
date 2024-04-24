@@ -1778,19 +1778,14 @@ class NavControllerRouteTest {
             test("start")
             test<TestClass>()
         }
-
-        // first nav
-        navController.navigate("start")
-
-        // second nav
-        navController.navigate(TEST_CLASS_ROUTE)
+        navController.navigate(TestClass())
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         val popped = navController.popBackStack<TestClass>(true)
         assertThat(popped).isTrue()
-        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1818,6 +1813,37 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testPopBackStackWithKClassNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val popped = navController.popBackStack<TestClass>(true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testPopBackStackWithKClassArg() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
@@ -1837,6 +1863,44 @@ class NavControllerRouteTest {
         val popped = navController.popBackStack<TestClassPathArg>(true)
         assertThat(popped).isTrue()
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithKClassNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.popBackStack<TestClassPathArg>(true)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithKClassNotInBackStack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val popped = navController.popBackStack<TestClass>(true)
+        assertThat(popped).isFalse()
     }
 
     @UiThreadTest
@@ -1929,6 +1993,75 @@ class NavControllerRouteTest {
         val popped = navController.popBackStack(TestClassPathArg(1), true)
         assertThat(popped).isFalse()
         assertThat(navigator.backStack.size).isEqualTo(3)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val popped = navController.popBackStack(TestClass(), true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.popBackStack(TestClassPathArg(1), true)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectNotInBackStack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val popped = navController.popBackStack(TestClass(), true)
+        assertThat(popped).isFalse()
     }
 
     @UiThreadTest
@@ -3405,6 +3538,27 @@ class NavControllerRouteTest {
         val route = navController.currentBackStackEntry?.toRoute<TestClass>()
         assertThat(route?.arg is MutableList).isTrue()
         assertThat(route?.arg).containsExactly(true, false, true).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = TestClass::class
+        ) {
+            test<TestClass>()
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(TestClassPathArg(1))
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in navigation " +
+                "graph ${navController.graph}"
+        )
     }
 
     @UiThreadTest

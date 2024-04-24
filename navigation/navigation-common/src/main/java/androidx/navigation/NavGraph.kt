@@ -232,6 +232,24 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
             ?: if (searchParents && parent != null) parent!!.findNode(route) else null
     }
 
+    // searches through child nodes, does not search through parents
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun findChildNode(
+        @IdRes resId: Int,
+    ): NavDestination? {
+        // first search through children directly added to graph
+        var destination = nodes[resId]
+        if (destination != null) return destination
+
+        // then search through child graphs
+        destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
+            if (child is NavGraph) {
+                child.findChildNode(resId)
+            } else null
+        }
+        return destination
+    }
+
     /**
      * @throws NoSuchElementException if there no more elements
      */
