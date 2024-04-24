@@ -218,6 +218,9 @@ package androidx.privacysandbox.ads.adservices.common {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext10 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext10OptIn {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext11 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext11OptIn {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext8 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext8OptIn {
   }
 
@@ -469,6 +472,16 @@ package androidx.privacysandbox.ads.adservices.measurement {
 
 package androidx.privacysandbox.ads.adservices.topics {
 
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext11OptIn public final class EncryptedTopic {
+    ctor public EncryptedTopic(byte[] encryptedTopic, String keyIdentifier, byte[] encapsulatedKey);
+    method public byte[] getEncapsulatedKey();
+    method public byte[] getEncryptedTopic();
+    method public String getKeyIdentifier();
+    property public final byte[] encapsulatedKey;
+    property public final byte[] encryptedTopic;
+    property public final String keyIdentifier;
+  }
+
   public final class GetTopicsRequest {
     ctor public GetTopicsRequest(optional String adsSdkName, optional boolean shouldRecordObservation);
     method public String getAdsSdkName();
@@ -486,7 +499,10 @@ package androidx.privacysandbox.ads.adservices.topics {
 
   public final class GetTopicsResponse {
     ctor public GetTopicsResponse(java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> topics);
+    ctor @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext11OptIn public GetTopicsResponse(java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> topics, java.util.List<androidx.privacysandbox.ads.adservices.topics.EncryptedTopic> encryptedTopics);
+    method public java.util.List<androidx.privacysandbox.ads.adservices.topics.EncryptedTopic> getEncryptedTopics();
     method public java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> getTopics();
+    property public final java.util.List<androidx.privacysandbox.ads.adservices.topics.EncryptedTopic> encryptedTopics;
     property public final java.util.List<androidx.privacysandbox.ads.adservices.topics.Topic> topics;
   }
 
