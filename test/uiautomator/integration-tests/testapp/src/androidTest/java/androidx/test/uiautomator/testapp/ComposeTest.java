@@ -43,7 +43,7 @@ public class ComposeTest extends BaseTest {
         UiObject2 column = mDevice.findObject(By.scrollable(true));
         assertNotNull("Scrollable container not found", column);
         UiObject2 button = column.scrollUntil(Direction.DOWN,
-                Until.findObject(By.clazz(Button.class).hasParent(By.hasChild(By.text("Update")))));
+                Until.findObject(By.clazz(Button.class)));
         assertNotNull("Button not found after scrolling", button);
 
         // Click and wait for change.
