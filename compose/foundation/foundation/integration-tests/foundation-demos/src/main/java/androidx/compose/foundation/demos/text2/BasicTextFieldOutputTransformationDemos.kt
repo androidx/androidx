@@ -195,7 +195,9 @@ private fun InsertReplaceDeleteDemo() {
                 }
                 if (middleWedge) {
                     val index = asCharSequence().indexOf("ghi")
-                    insert(index, middle.text.toString())
+                    if (index > 0) {
+                        insert(index, middle.text.toString())
+                    }
                 }
                 if (suffixEnabled) {
                     append(suffix.text)
