@@ -16,6 +16,7 @@
 
 package com.example.androidx.mediarouting.activities.systemrouting.source;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaRoute2Info;
 import android.media.MediaRouter2;
@@ -28,6 +29,8 @@ import androidx.annotation.RequiresApi;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,11 +41,9 @@ import java.util.Map;
 @RequiresApi(Build.VERSION_CODES.R)
 public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
 
-    @NonNull
-    private Context mContext;
-    @NonNull
-    private MediaRouter2 mMediaRouter2;
-
+    @NonNull private final Context mContext;
+    @NonNull private final MediaRouter2 mMediaRouter2;
+    @NonNull private final Method mSuitabilityStatusMethod;
     @NonNull
     private final Map<String, MediaRoute2Info> mLastKnownRoutes = new HashMap<>();
     @NonNull
@@ -81,6 +82,16 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
             @NonNull MediaRouter2 mediaRouter2) {
         mContext = context;
         mMediaRouter2 = mediaRouter2;
+
+        Method suitabilityStatusMethod = null;
+        // TODO: b/336510942 - Remove reflection once these APIs are available in
+        // androidx-platform-dev.
+        try {
+            suitabilityStatusMethod =
+                    MediaRoute2Info.class.getDeclaredMethod("getSuitabilityStatus");
+        } catch (NoSuchMethodException | IllegalAccessError e) {
+        }
+        mSuitabilityStatusMethod = suitabilityStatusMethod;
     }
 
     @Override
@@ -127,10 +138,37 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
     }
 
     @NonNull
-    private static SystemRouteItem createRouteItemFor(@NonNull MediaRoute2Info routeInfo) {
-        return new SystemRouteItem.Builder(routeInfo.getId())
-                .setName(String.valueOf(routeInfo.getName()))
-                .setDescription(String.valueOf(routeInfo.getDescription()))
-                .build();
+    private SystemRouteItem createRouteItemFor(@NonNull MediaRoute2Info routeInfo) {
+        SystemRouteItem.Builder builder =
+                new SystemRouteItem.Builder(routeInfo.getId())
+                        .setName(String.valueOf(routeInfo.getName()))
+                        .setDescription(String.valueOf(routeInfo.getDescription()));
+        try {
+            if (mSuitabilityStatusMethod != null) {
+                // See b/336510942 for details on why reflection is needed.
+                @SuppressLint("BanUncheckedReflection")
+                int status = (Integer) mSuitabilityStatusMethod.invoke(routeInfo);
+                builder.setSuitabilityStatus(getHumanReadableSuitabilityStatus(status));
+                // TODO: b/319645714 - Populate wasTransferInitiatedBySelf. For that we need to
+                // change the implementation of this class to use the routing controller instead
+                // of a route callback.
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+        }
+        return builder.build();
+    }
+
+    @NonNull
+    private String getHumanReadableSuitabilityStatus(int status) {
+        switch (status) {
+            case 0:
+                return "SUITABLE_FOR_DEFAULT_TRANSFER";
+            case 1:
+                return "SUITABLE_FOR_MANUAL_TRANSFER";
+            case 2:
+                return "NOT_SUITABLE_FOR_TRANSFER";
+            default:
+                return "UNKNOWN(" + status + ")";
+        }
     }
 }
