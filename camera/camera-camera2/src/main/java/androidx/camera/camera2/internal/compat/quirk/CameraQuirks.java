@@ -67,6 +67,12 @@ public class CameraQuirks {
         if (CaptureNoResponseQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CaptureNoResponseQuirk());
         }
+        if (LegacyCameraOutputConfigNullPointerQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new LegacyCameraOutputConfigNullPointerQuirk());
+        }
+        if (LegacyCameraSurfaceCleanupQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new LegacyCameraSurfaceCleanupQuirk());
+        }
         if (ImageCaptureWashedOutImageQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new ImageCaptureWashedOutImageQuirk());
         }
