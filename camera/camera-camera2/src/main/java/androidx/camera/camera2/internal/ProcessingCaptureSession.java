@@ -619,6 +619,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
     }
 
+    @Override
+    public boolean isInOpenState() {
+        return mCaptureSession.isInOpenState();
+    }
+
     /**
      * Checks if the CaptureConfig has a preview surface.
      *

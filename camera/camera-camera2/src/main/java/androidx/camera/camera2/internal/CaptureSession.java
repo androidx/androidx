@@ -588,6 +588,13 @@ final class CaptureSession implements CaptureSessionInterface {
         }
     }
 
+    @Override
+    public boolean isInOpenState() {
+        synchronized (mSessionLock) {
+            return mState == State.OPENED || mState == State.OPENING;
+        }
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mSessionLock")
     void finishClose() {
