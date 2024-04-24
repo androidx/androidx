@@ -472,6 +472,10 @@ actual class GraphicsLayer internal constructor(
         androidCanvas.concat(impl.calculateMatrix())
     }
 
+    internal fun drawForPersistence(canvas: Canvas) {
+        impl.draw(canvas)
+    }
+
     /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
      */
