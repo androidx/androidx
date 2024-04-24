@@ -106,18 +106,8 @@ sealed class Outline {
         override val bounds: Rect
             get() = path.getBounds()
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is Generic) return false
-
-            if (path != other.path) return false
-
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return path.hashCode()
-        }
+        // No equals or hashcode, two different outlines using the same path shouldn't be considered
+        // equal as the path may have changed since the previous outline was rendered
     }
 
     /**

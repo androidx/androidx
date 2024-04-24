@@ -2688,11 +2688,7 @@ internal class MockOwner(
         val transform = Matrix()
         val inverseTransform = Matrix()
         return object : OwnedLayer {
-            override fun updateLayerProperties(
-                scope: ReusableGraphicsLayerScope,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ) {
+            override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
                 transform.reset()
                 // This is not expected to be 100% accurate
                 transform.scale(scope.scaleX, scope.scaleY)
