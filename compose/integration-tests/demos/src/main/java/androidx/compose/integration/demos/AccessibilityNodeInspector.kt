@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -32,6 +33,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -60,8 +63,10 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.derivedStateOf
@@ -71,6 +76,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
@@ -93,12 +99,14 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -106,6 +114,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -127,6 +136,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.core.view.children
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -213,7 +223,7 @@ fun AccessibilityNodeInspectorButton(
 private val NodeInfo.isInspectorButton: Boolean
     get() {
         if (Build.VERSION.SDK_INT >= 26) {
-            visitSelfAndParents {
+            visitSelfAndAncestors {
                 val testTag = AccessibilityNodeInfoHelper.readExtraData(
                     it.nodeInfo.unwrap(),
                     TestTagExtrasKey
@@ -258,7 +268,7 @@ private fun AccessibilityNodeInspector(
                         .then(DrawSelectionOverlayModifier(state))
                 )
 
-                state.selectedNode?.let {
+                state.nodeUnderInspection?.let {
                     if (it.isInspectorButton) {
                         // Don't use Surface here, it breaks touch input.
                         Text(
@@ -272,6 +282,7 @@ private fun AccessibilityNodeInspector(
                     } else {
                         InspectorNodeDetailsDialog(
                             leafNode = it,
+                            onChildNodeClick = state::inspectNode,
                             onBack = onDismissRequest,
                         )
                     }
@@ -303,7 +314,7 @@ private class DrawSelectionOverlayModifierNode(
 ) : Modifier.Node(), DrawModifierNode {
     override fun ContentDrawScope.draw() {
         val coords = requireLayoutCoordinates()
-        state.nodes.let { nodes ->
+        state.nodesUnderCursor.let { nodes ->
             if (nodes.isNotEmpty()) {
                 val layerAlpha = 0.8f / nodes.size
                 nodes.fastForEach { node ->
@@ -318,14 +329,17 @@ private class DrawSelectionOverlayModifierNode(
                         drawRect(Color.Black.copy(alpha = layerAlpha))
                     }
                 }
-                val lastBounds = coords.screenToLocal(nodes.last().boundsInScreen)
-                drawRect(
-                    Color.Green,
-                    style = Stroke(1.dp.toPx()),
-                    topLeft = lastBounds.topLeft.toOffset(),
-                    size = lastBounds.size.toSize()
-                )
             }
+        }
+
+        state.highlightedNode?.let { node ->
+            val lastBounds = coords.screenToLocal(node.boundsInScreen)
+            drawRect(
+                Color.Green,
+                style = Stroke(1.dp.toPx()),
+                topLeft = lastBounds.topLeft.toOffset(),
+                size = lastBounds.size.toSize()
+            )
         }
 
         state.selectionOffset.takeIf { it.isSpecified }?.let { screenOffset ->
@@ -384,7 +398,7 @@ private class NodeSelectionGestureModifierNode(
         awaitEachGesture {
             try {
                 val firstChange = awaitFirstDown(pass = pass)
-                state.updateNodeSelection(firstChange.position, layoutCoords)
+                state.setNodeCursor(firstChange.position, layoutCoords)
                 onDragStarted?.invoke()
                 firstChange.consume()
 
@@ -394,12 +408,12 @@ private class NodeSelectionGestureModifierNode(
                         if (change.changedToUp()) {
                             return@awaitEachGesture
                         } else {
-                            state.updateNodeSelection(change.position, layoutCoords)
+                            state.setNodeCursor(change.position, layoutCoords)
                         }
                     }
                 }
             } finally {
-                state.showNodeDescription()
+                state.inspectNodeUnderCursor()
             }
         }
     })
@@ -416,43 +430,68 @@ private class NodeSelectionGestureModifierNode(
 @Composable
 private fun InspectorNodeDetailsDialog(
     leafNode: NodeInfo,
+    onChildNodeClick: (NodeInfo) -> Unit,
     onBack: () -> Unit,
 ) {
     Dialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onBack
     ) {
-        MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors() else lightColors()) {
-            Surface(
-                modifier = Modifier.padding(16.dp),
-                elevation = 4.dp
-            ) {
-                Column {
-                    TopAppBar(
-                        title = { Text("AccessibilityNodeInfos") },
-                        navigationIcon = {
-                            IconButton(onClick = onBack) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                            }
-                        }
-                    )
+        InspectorNodeDetails(
+            leafNode = leafNode,
+            onChildNodeClick = onChildNodeClick,
+            onBack = onBack
+        )
+    }
+}
 
-                    val nodesFromRoot =
-                        buildList { leafNode.visitSelfAndParents(::add) }.asReversed()
-                    var selectedNodeIndex by remember {
-                        mutableIntStateOf(nodesFromRoot.size - 1)
+@Composable
+private fun InspectorNodeDetails(
+    leafNode: NodeInfo,
+    onChildNodeClick: (NodeInfo) -> Unit,
+    onBack: () -> Unit
+) {
+    MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors() else lightColors()) {
+        val peekInteractionSource = remember { MutableInteractionSource() }
+        val peeking by peekInteractionSource.collectIsPressedAsState()
+        Surface(
+            modifier = Modifier
+                .padding(16.dp)
+                .alpha(if (peeking) 0f else 1f),
+            elevation = 4.dp
+        ) {
+            Column {
+                TopAppBar(
+                    title = { Text("AccessibilityNodeInfo: ${leafNode.nodeInfo.idForDisplay}") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {}, interactionSource = peekInteractionSource) {
+                            Icon(Icons.Filled.Info, contentDescription = null)
+                        }
                     }
-                    Accordion(
-                        selectedIndex = selectedNodeIndex,
-                        onSelectIndex = { selectedNodeIndex = it },
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
-                    ) {
-                        nodesFromRoot.forEach {
-                            item({ NodeAccordionHeader(it) }) {
-                                NodeAccordionBody(it)
-                            }
+                )
+
+                val nodesFromRoot = leafNode.selfAndAncestorsToList()
+                var selectedNodeIndex by remember {
+                    mutableIntStateOf(nodesFromRoot.size - 1)
+                }
+                Accordion(
+                    selectedIndex = selectedNodeIndex,
+                    onSelectIndex = { selectedNodeIndex = it },
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    nodesFromRoot.forEach {
+                        item({ NodeAccordionHeader(it) }) {
+                            NodeAccordionBody(it, onChildNodeClick = onChildNodeClick)
                         }
                     }
                 }
@@ -460,6 +499,9 @@ private fun InspectorNodeDetailsDialog(
         }
     }
 }
+
+private fun NodeInfo.selfAndAncestorsToList() =
+    buildList { visitSelfAndAncestors(::add) }.asReversed()
 
 @Composable
 private fun NodeAccordionHeader(node: NodeInfo) {
@@ -476,23 +518,47 @@ private fun NodeAccordionHeader(node: NodeInfo) {
 }
 
 @Composable
-private fun NodeAccordionBody(node: NodeInfo) {
+private fun NodeAccordionBody(node: NodeInfo, onChildNodeClick: (NodeInfo) -> Unit) {
     SelectionContainer {
         Column(modifier = Modifier.padding(bottom = 8.dp)) {
             val properties = node.getProperties()
-            KeyValueView(elements = properties.toList())
+                .mapValues { (_, v) ->
+                    // Turn references to other nodes into links that actually open those nodes
+                    // in the inspector.
+                    if (v is AccessibilityNodeInfoCompat) {
+                        nodeLinkRepresentation(
+                            node = v,
+                            onClick = { onChildNodeClick(v.toNodeInfo()) }
+                        )
+                    } else {
+                        PropertyValueRepresentation(v)
+                    }
+                }
+                .toList()
+            KeyValueView(elements = properties)
         }
     }
 }
+
+private fun nodeLinkRepresentation(
+    node: AccessibilityNodeInfoCompat,
+    onClick: () -> Unit
+) = PropertyValueRepresentation(
+    buildAnnotatedString {
+        withLink(LinkAnnotation.Clickable("node") { onClick() }) {
+            append(node.className)
+        }
+    }
+)
 
 /**
  * Shows a table of keys and their values. Values are rendered using [PropertyValueRepresentation].
  */
 @Composable
-private fun KeyValueView(elements: List<Pair<String, Any?>>) {
+private fun KeyValueView(elements: List<Pair<String, PropertyValueRepresentation>>) {
     Column(verticalArrangement = spacedBy(8.dp)) {
-        elements.forEach { (name, value) ->
-            KeyValueRow(name, value)
+        elements.forEach { (name, valueRepresentation) ->
+            KeyValueRow(name, valueRepresentation)
         }
     }
 }
@@ -502,7 +568,7 @@ private fun KeyValueView(elements: List<Pair<String, Any?>>) {
  * beside the row, if there's space, otherwise it will be placed below it.
  */
 @Composable
-private fun KeyValueRow(name: String, value: Any?) {
+private fun KeyValueRow(name: String, valueRepresentation: PropertyValueRepresentation) {
     KeyValueRowLayout(
         contentPadding = 8.dp,
         keyContent = {
@@ -514,7 +580,6 @@ private fun KeyValueRow(name: String, value: Any?) {
             )
         },
         valueContent = {
-            val valueRepresentation = PropertyValueRepresentation(value)
             if (valueRepresentation.customRenderer != null) {
                 valueRepresentation.customRenderer.invoke()
             } else {
@@ -624,9 +689,7 @@ private data class PropertyValueRepresentation(
     val customRenderer: (@Composable () -> Unit)? = null
 )
 
-private val ValueTypeTextStyle = TextStyle(
-    fontFamily = FontFamily.Monospace,
-)
+private val ValueTypeTextStyle = TextStyle(fontFamily = FontFamily.Monospace)
 
 /**
  * Creates a [PropertyValueRepresentation] appropriate for certain well-known types. For other types
@@ -646,7 +709,7 @@ private fun PropertyValueRepresentation(value: Any?): PropertyValueRepresentatio
                     Column {
                         Text(valueType, style = ValueTypeTextStyle)
                         KeyValueView(value.mapIndexed { index, element ->
-                            Pair("[$index]", element)
+                            Pair("[$index]", PropertyValueRepresentation(element))
                         })
                     }
                 }
@@ -662,7 +725,7 @@ private fun PropertyValueRepresentation(value: Any?): PropertyValueRepresentatio
                     Column {
                         Text(valueType, style = ValueTypeTextStyle)
                         KeyValueView(value.entries.map { (key, value) ->
-                            Pair(key.toString(), value)
+                            Pair(key.toString(), PropertyValueRepresentation(value))
                         })
                     }
                 }
@@ -681,7 +744,8 @@ private fun PropertyValueRepresentation(value: Any?): PropertyValueRepresentatio
                 PropertyValueRepresentation(AnnotatedString(value.toString())) {
                     KeyValueView(value.keySet().map { key ->
                         @Suppress("DEPRECATION")
-                        Pair(key, value.get(key))
+                        val rawValue = value.get(key)
+                        Pair(key, PropertyValueRepresentation(rawValue))
                     })
                 }
             }
@@ -723,7 +787,7 @@ private fun Accordion(
                 headerHeight = 40.dp,
                 isExpanded = isItemSelected,
                 shrinkHeader = !isItemSelected && isSelectedIndexValid,
-                onHeaderClicked = {
+                onHeaderClick = {
                     onSelectIndex(if (selectedIndex == index) -1 else index)
                 },
             )
@@ -744,7 +808,7 @@ private fun AccordionItemView(
     headerHeight: Dp,
     isExpanded: Boolean,
     shrinkHeader: Boolean,
-    onHeaderClicked: () -> Unit
+    onHeaderClick: () -> Unit
 ) {
     // Shrink collapsed headers to give more space to the expanded body.
     val headerScale by animateFloatAsState(if (shrinkHeader) 0.8f else 1f, label = "headerScale")
@@ -753,7 +817,7 @@ private fun AccordionItemView(
         modifier = Modifier
             .height { (headerHeight * headerScale).roundToPx() }
             .fillMaxWidth()
-            .selectable(selected = isExpanded, onClick = onHeaderClicked)
+            .selectable(selected = isExpanded, onClick = onHeaderClick)
             .graphicsLayer {
                 scaleX = headerScale
                 scaleY = headerScale
@@ -927,11 +991,19 @@ private fun Modifier.height(calculateHeight: Density.() -> Int): Modifier =
  * Creates and remembers an [AccessibilityNodeInspectorState] for inspecting the nodes in the window
  * hosting this composition.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun rememberAccessibilityNodeInspectorState(): AccessibilityNodeInspectorState {
     val hostView = LocalView.current
     val state = remember(hostView) { AccessibilityNodeInspectorState(hostView = hostView) }
     LaunchedEffect(state) { state.runWhileDisplayed() }
+
+    DisposableEffect(hostView) {
+        val testRoot = hostView as RootForTest
+        onDispose {
+            testRoot.forceAccessibilityForTesting(false)
+        }
+    }
     return state
 }
 
@@ -958,30 +1030,57 @@ private class AccessibilityNodeInspectorState(
     var selectionOffset: Offset by mutableStateOf(Offset.Unspecified)
         private set
 
-    var nodes: List<NodeInfo> by mutableStateOf(emptyList())
+    /**
+     * All the nodes that pass the hit test after a call to [setNodeCursor], or if a node is
+     * programmatically selected via [inspectNode] then that node and all its ancestors.
+     */
+    var nodesUnderCursor: List<NodeInfo> by mutableStateOf(emptyList())
         private set
 
-    var selectedNode: NodeInfo? by mutableStateOf(null)
+    /**
+     * The node to highlight – during selection, this will be the node that will be opened in the
+     * inspector when the gesture is finished.
+     */
+    var highlightedNode: NodeInfo? by mutableStateOf(null)
+        private set
+
+    /**
+     * If non-null, the node being shown in the inspector.
+     */
+    var nodeUnderInspection: NodeInfo? by mutableStateOf(null)
         private set
 
     /**
      * Temporarily select the node at [localOffset] in the window being inspected. This should be
      * called while the user is dragging.
      */
-    fun updateNodeSelection(localOffset: Offset, layoutCoordinates: LayoutCoordinates) {
-        hideNodeDescription()
+    fun setNodeCursor(localOffset: Offset, layoutCoordinates: LayoutCoordinates) {
+        hideInspector()
         val screenOffset = layoutCoordinates.localToScreen(localOffset)
         selectionOffset = screenOffset
-        this.nodes = service.findNodesAt(screenOffset)
+        nodesUnderCursor = service.findNodesAt(screenOffset)
+        highlightedNode = nodesUnderCursor.lastOrNull()
     }
 
     /**
-     * Locks in the currently-selected node and shows the inspector dialog with the nodes'
-     * properties.
+     * Opens the node under the selection cursor in the inspector and dumps it to logcat.
      */
-    fun showNodeDescription() {
+    fun inspectNodeUnderCursor() {
         selectionOffset = Offset.Unspecified
-        selectedNode = nodes.lastOrNull()?.also {
+        nodeUnderInspection = highlightedNode?.also {
+            it.dumpToLog(tag = LogTag)
+        }
+    }
+
+    /**
+     * Highlights the given node in the selection popup, dumps it to logcat, and opens it in the
+     * inspector.
+     */
+    fun inspectNode(node: NodeInfo?) {
+        highlightedNode = node
+        nodesUnderCursor = node?.selfAndAncestorsToList() ?: emptyList()
+        nodeUnderInspection = node
+        node?.also {
             it.dumpToLog(tag = LogTag)
         }
     }
@@ -989,14 +1088,16 @@ private class AccessibilityNodeInspectorState(
     /**
      * Hides the inspector dialog to allow the user to select a different node.
      */
-    fun hideNodeDescription() {
-        selectedNode = null
+    fun hideInspector() {
+        nodeUnderInspection = null
     }
 
     /**
      * Runs any coroutine effects the state holder requires while it's connected to some UI.
      */
     suspend fun runWhileDisplayed() {
+        service.initialize()
+
         coroutineScope {
             // Update the overlay window size when the target window is resized.
             launch {
@@ -1116,6 +1217,9 @@ private fun NodeInfo.getProperties(): Map<String, Any?> = buildMap {
         }
         setIfSpecified("extraData (from availableExtraData)", extraData)
     }
+
+    setIfSpecified("traversalBefore", node.traversalBefore)
+    setIfSpecified("traversalAfter", node.traversalAfter)
 }
 
 /**
@@ -1148,6 +1252,7 @@ private object AccessibilityNodeInfoHelper {
 }
 
 private interface InspectableTreeProvider {
+    fun initialize() {}
     fun findNodesAt(screenOffset: Offset): List<NodeInfo>
 }
 
@@ -1161,6 +1266,18 @@ private class AccessibilityTreeInspectorApi34(
 ) : InspectableTreeProvider {
 
     private val matrixCache = Matrix()
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    override fun initialize() {
+        // This will call setQueryableFromApp process, which enables accessibility on the platform,
+        // which allows us to tell compose views to force accessibility support. This is required
+        // for certain fields, such as traversal before/after, to be populated.
+        rootView.createNodeInfo()
+        rootView.visitViewAndChildren { view ->
+            (view as? RootForTest)?.forceAccessibilityForTesting(true)
+            true
+        }
+    }
 
     override fun findNodesAt(screenOffset: Offset): List<NodeInfo> {
         rootView.transformMatrixToLocal(matrixCache)
@@ -1182,9 +1299,20 @@ private class AccessibilityTreeInspectorApi34(
         return boundsInScreen.contains(screenOffset.round())
     }
 
-    private inline fun NodeInfo.visitNodeAndChildren(
-        visitor: (NodeInfo) -> Boolean
-    ) {
+    private inline fun View.visitViewAndChildren(visitor: (View) -> Boolean) {
+        val queue = mutableVectorOf(this)
+        while (queue.isNotEmpty()) {
+            val current = queue.removeAt(queue.lastIndex)
+            val visitChildren = visitor(current)
+            if (visitChildren && current is ViewGroup) {
+                for (child in current.children) {
+                    queue += child
+                }
+            }
+        }
+    }
+
+    private inline fun NodeInfo.visitNodeAndChildren(visitor: (NodeInfo) -> Boolean) {
         val queue = mutableVectorOf(this)
         while (queue.isNotEmpty()) {
             val current = queue.removeAt(queue.lastIndex)
@@ -1205,6 +1333,9 @@ private class AccessibilityTreeInspectorApi34(
     }
 }
 
+private val AccessibilityNodeInfoCompat.idForDisplay: String
+    get() = hashCode().toString(16)
+
 private fun AccessibilityNodeInfoCompat.toNodeInfo(): NodeInfo = NodeInfo(
     nodeInfo = this,
     boundsInScreen = Rect().also(::getBoundsInScreen).toComposeIntRect(),
@@ -1213,13 +1344,13 @@ private fun AccessibilityNodeInfoCompat.toNodeInfo(): NodeInfo = NodeInfo(
 private fun NodeInfo.dumpToLog(tag: String) {
     val indent = "  "
     var depth = 0
-    visitSelfAndParents { node ->
+    visitSelfAndAncestors { node ->
         Log.d(tag, indent.repeat(depth) + node.nodeInfo.unwrap().toString())
         depth++
     }
 }
 
-private inline fun NodeInfo.visitSelfAndParents(block: (NodeInfo) -> Unit) {
+private inline fun NodeInfo.visitSelfAndAncestors(block: (NodeInfo) -> Unit) {
     var node: NodeInfo? = this
     while (node != null) {
         block(node)
