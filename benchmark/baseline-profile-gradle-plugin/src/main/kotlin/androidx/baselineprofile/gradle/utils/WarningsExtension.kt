@@ -74,4 +74,10 @@ open class Warnings {
      * the generate baseline profile command.
      */
     var noStartupProfileRulesGenerated = true
+
+    /**
+     * Controls the warning printed when a variant has no baseline profile dependency set,
+     * either globally or a specific one.
+     */
+    var variantHasNoBaselineProfileDependency = true
 }
