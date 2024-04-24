@@ -990,7 +990,7 @@ package androidx.compose.ui.graphics {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Shadow lerp(androidx.compose.ui.graphics.Shadow start, androidx.compose.ui.graphics.Shadow stop, float fraction);
   }
 
-  @androidx.compose.runtime.Immutable public interface Shape {
+  @androidx.compose.runtime.Stable public interface Shape {
     method public androidx.compose.ui.graphics.Outline createOutline(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.Density density);
   }
 

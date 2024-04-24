@@ -1290,7 +1290,9 @@ class AndroidGraphicsLayerTest {
                 val path = Path().also { it.addOval(Rect(1f, 2f, 3f, 4f)) }
                 val generic = Outline.Generic(path)
                 layer.setOutline(generic)
-                assertEquals(generic, layer.outline)
+                // We wrap the path in a different Outline object from what we pass in, so compare
+                // the paths instead of the outline instances
+                assertEquals(generic.path, (layer.outline as Outline.Generic).path)
             }
         )
     }

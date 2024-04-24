@@ -570,12 +570,7 @@ internal class SpyLayoutModifier : LayoutModifier {
 
 internal open class MockLayer() : OwnedLayer {
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ) {
-    }
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {}
 
     override fun isInLayer(position: Offset) = true
 
