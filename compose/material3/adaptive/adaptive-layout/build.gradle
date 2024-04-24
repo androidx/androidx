@@ -44,6 +44,7 @@ androidXMultiplatform {
                 api(project(":compose:material3:adaptive:adaptive"))
                 api(project(":compose:animation:animation-core"))
                 api(project(":compose:ui:ui"))
+                implementation(project(":compose:animation:animation"))
                 implementation("androidx.compose.foundation:foundation:1.6.5")
                 implementation("androidx.compose.foundation:foundation-layout:1.6.5")
                 implementation("androidx.compose.ui:ui-geometry:1.6.5")
