@@ -18,7 +18,6 @@ package androidx.compose.integration.demos
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.demos.AccessibilityNodeInspectorButton
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
