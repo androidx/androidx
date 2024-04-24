@@ -66,4 +66,17 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * ranging interval will be set to the interval used when startRanging was called.
      */
     suspend fun reconfigureRangingInterval(intervalSkipCount: Int)
+
+    /**
+     * Dynamically adds a controlee to an active ranging session. The controlee to be added must be
+     * configured with the a set of parameters that can join the existing connection.
+     *
+     * @throws [IllegalStateException] if the ranging is inactive or if the ranging profile is not
+     *   the provisioned STS individual key case.
+     *
+     * Otherwise, this method will return successfully, and clients are expected to handle either
+     * [RangingResult.RangingResultPosition] or [RangingResult.RangingResultPeerDisconnected] to
+     * listen for starts or failures.
+     */
+    suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters)
 }
