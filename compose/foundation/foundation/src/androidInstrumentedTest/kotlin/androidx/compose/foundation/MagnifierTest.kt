@@ -409,6 +409,10 @@ class MagnifierTest {
     fun platformMagnifierModifier_updatesProperties_whenZoomChanged() {
         var zoom by mutableStateOf(1f)
         val platformMagnifier = CountingPlatformMagnifier()
+        val factory = PlatformMagnifierFactory(
+            platformMagnifier,
+            canUpdateZoom = true
+        )
         rule.setContent {
             Box(
                 Modifier.magnifier(
@@ -416,10 +420,7 @@ class MagnifierTest {
                     magnifierCenter = { Offset.Unspecified },
                     zoom = zoom,
                     onSizeChanged = null,
-                    platformMagnifierFactory = PlatformMagnifierFactory(
-                        platformMagnifier,
-                        canUpdateZoom = true
-                    )
+                    platformMagnifierFactory = factory
                 )
             )
         }
@@ -556,7 +557,7 @@ class MagnifierTest {
 
     @SdkSuppress(minSdkVersion = 28)
     @Test
-    fun platformMagnifierModifier_firesOnSizeChanged_initially_whenSourceCenterUnspecified() {
+    fun platformMagnifierModifier_doesNotFireOnSizeChanged_initially_whenSourceCenterUnspecified() {
         val magnifierSize = IntSize(10, 11)
         val sizeEvents = mutableListOf<DpSize>()
         val platformMagnifier = CountingPlatformMagnifier().apply {
@@ -573,6 +574,34 @@ class MagnifierTest {
                 )
             )
         }
+
+        rule.runOnIdle { assertThat(sizeEvents).isEmpty() }
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun platformMagnifierModifier_firesOnSizeChanged_afterSourceCenterIsSpecified() {
+        val magnifierSize = IntSize(10, 11)
+        val sizeEvents = mutableListOf<DpSize>()
+        val platformMagnifier = CountingPlatformMagnifier().apply {
+            size = magnifierSize
+        }
+        var sourceCenter by mutableStateOf(Offset.Unspecified)
+        rule.setContent {
+            Box(
+                Modifier.magnifier(
+                    sourceCenter = { sourceCenter },
+                    magnifierCenter = { Offset.Unspecified },
+                    zoom = Float.NaN,
+                    onSizeChanged = { sizeEvents += it },
+                    platformMagnifierFactory = PlatformMagnifierFactory(platformMagnifier)
+                )
+            )
+        }
+
+        rule.runOnIdle { assertThat(sizeEvents).isEmpty() }
+
+        sourceCenter = Offset(1f, 1f)
 
         rule.runOnIdle {
             assertThat(sizeEvents).containsExactly(
