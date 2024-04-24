@@ -61,6 +61,8 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
+import androidx.camera.video.Recorder.sRetrySetupVideoDelayMs
+import androidx.camera.video.Recorder.sRetrySetupVideoMaxCount
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.INACTIVE
@@ -962,16 +964,10 @@ class RecorderTest(
     fun canRecoverFromErrorState(): Unit = runBlocking {
         // Arrange.
         // Create a video encoder factory that will fail on first 2 create encoder requests.
-        var createEncoderRequestCount = 0
         val recorder = createRecorder(
-            videoEncoderFactory = { executor, config ->
-                if (createEncoderRequestCount < 2) {
-                    createEncoderRequestCount++
-                    throw InvalidConfigException("Create video encoder fail on purpose.")
-                } else {
-                    Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
-                }
-            })
+            videoEncoderFactory = createVideoEncoderFactory(failCreationTimes = 2),
+            retrySetupVideoMaxCount = 0, // Don't retry
+        )
         // Recorder initialization should fail by 1st encoder creation fail.
         // Wait STREAM_ID_ERROR which indicates Recorder enter the error state.
         withTimeoutOrNull(3000) {
@@ -989,6 +985,25 @@ class RecorderTest(
         recording = createRecordingProcess(recorder = recorder)
         recording.startAndVerify()
         recording.stopAndVerify()
+    }
+
+    @Test
+    fun canRetrySetupVideo(): Unit = runBlocking {
+        // Arrange.
+        // Create a video encoder factory that will fail on first 2 create encoder requests.
+        val recorder = createRecorder(
+            videoEncoderFactory = createVideoEncoderFactory(failCreationTimes = 2),
+            retrySetupVideoMaxCount = 3,
+            retrySetupVideoDelayMs = 10, // make test quicker
+            )
+
+        // Act and verify.
+        val recording = createRecordingProcess(recorder = recorder)
+        recording.startAndVerify()
+        recording.stopAndVerify { finalize ->
+            // Assert.
+            assertThat(finalize.error).isEqualTo(ERROR_NONE)
+        }
     }
 
     @Test
@@ -1094,6 +1109,8 @@ class RecorderTest(
         videoEncoderFactory: EncoderFactory? = null,
         audioEncoderFactory: EncoderFactory? = null,
         targetBitrate: Int? = null,
+        retrySetupVideoMaxCount: Int? = null,
+        retrySetupVideoDelayMs: Long? = null,
     ): Recorder {
         val recorder = Recorder.Builder().apply {
             qualitySelector?.let { setQualitySelector(it) }
@@ -1102,7 +1119,10 @@ class RecorderTest(
             videoEncoderFactory?.let { setVideoEncoderFactory(it) }
             audioEncoderFactory?.let { setAudioEncoderFactory(it) }
             targetBitrate?.let { setTargetVideoEncodingBitRate(targetBitrate) }
-        }.build()
+        }.build().apply {
+            retrySetupVideoMaxCount?.let { sRetrySetupVideoMaxCount = it }
+            retrySetupVideoDelayMs?.let { sRetrySetupVideoDelayMs = it }
+        }
         if (sendSurfaceRequest) {
             recorder.sendSurfaceRequest()
         }
@@ -1292,6 +1312,19 @@ class RecorderTest(
             val durationFromFile = it.getDurationMs()
 
             assertThat(durationFromFile).isAtMost(duration)
+        }
+    }
+
+    @Suppress("SameParameterValue")
+    private fun createVideoEncoderFactory(failCreationTimes: Int = 0): EncoderFactory {
+        var createEncoderRequestCount = 0
+        return EncoderFactory { executor, config ->
+            if (createEncoderRequestCount < failCreationTimes) {
+                createEncoderRequestCount++
+                throw InvalidConfigException("Create video encoder fail on purpose.")
+            } else {
+                Recorder.DEFAULT_ENCODER_FACTORY.createEncoder(executor, config)
+            }
         }
     }
 
