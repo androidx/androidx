@@ -40,21 +40,18 @@ public final class AudioManagerSystemRoutesSource extends SystemRoutesSource {
     private final AudioManager mAudioManager;
 
     @NonNull
-    private final AudioDeviceCallback mAudioDeviceCallback = new AudioDeviceCallback() {
-        @Override
-        public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
-            for (AudioDeviceInfo audioDeviceInfo: addedDevices) {
-                mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(audioDeviceInfo));
-            }
-        }
+    private final AudioDeviceCallback mAudioDeviceCallback =
+            new AudioDeviceCallback() {
+                @Override
+                public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+                    mOnRoutesChangedListener.run();
+                }
 
-        @Override
-        public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
-            for (AudioDeviceInfo audioDeviceInfo: removedDevices) {
-                mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(audioDeviceInfo));
-            }
-        }
-    };
+                @Override
+                public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+                    mOnRoutesChangedListener.run();
+                }
+            };
 
     /** Returns a new instance. */
     @NonNull

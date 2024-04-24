@@ -53,16 +53,9 @@ public final class SystemRoutingActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_BLUETOOTH_CONNECT = 4199;
 
-    @NonNull
-    private final SystemRoutesAdapter mSystemRoutesAdapter = new SystemRoutesAdapter();
-    @NonNull
-    private final List<SystemRoutesSource> mSystemRoutesSources = new ArrayList<>();
-    @NonNull
-    private final SystemRoutesSourceCallback mSystemRoutesSourceCallback =
-            new SystemRoutesSourceCallback();
-
-    @NonNull
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    @NonNull private final SystemRoutesAdapter mSystemRoutesAdapter = new SystemRoutesAdapter();
+    @NonNull private final List<SystemRoutesSource> mSystemRoutesSources = new ArrayList<>();
+    @NonNull private SwipeRefreshLayout mSwipeRefreshLayout;
 
     /**
      * Creates and launches an intent to start current activity.
@@ -170,20 +163,8 @@ public final class SystemRoutingActivity extends AppCompatActivity {
         }
 
         for (SystemRoutesSource source: mSystemRoutesSources) {
-            source.setOnRoutesChangedListener(mSystemRoutesSourceCallback);
+            source.setOnRoutesChangedListener(this::refreshSystemRoutesList);
             source.start();
-        }
-    }
-
-    private class SystemRoutesSourceCallback implements SystemRoutesSource.OnRoutesChangedListener {
-        @Override
-        public void onRouteAdded(@NonNull SystemRouteItem routeItem) {
-            refreshSystemRoutesList();
-        }
-
-        @Override
-        public void onRouteRemoved(@NonNull SystemRouteItem routeItem) {
-            refreshSystemRoutesList();
         }
     }
 }

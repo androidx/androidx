@@ -46,30 +46,30 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
     @NonNull private final Method mSuitabilityStatusMethod;
     @NonNull
     private final Map<String, MediaRoute2Info> mLastKnownRoutes = new HashMap<>();
+
     @NonNull
-    private final MediaRouter2.RouteCallback mRouteCallback = new MediaRouter2.RouteCallback() {
-        @Override
-        public void onRoutesUpdated(@NonNull List<MediaRoute2Info> routes) {
-            super.onRoutesUpdated(routes);
+    private final MediaRouter2.RouteCallback mRouteCallback =
+            new MediaRouter2.RouteCallback() {
+                @Override
+                public void onRoutesUpdated(@NonNull List<MediaRoute2Info> routes) {
+                    Map<String, MediaRoute2Info> newRoutes = new HashMap<>();
+                    boolean routesChanged = false;
+                    for (MediaRoute2Info route : routes) {
+                        routesChanged |= !mLastKnownRoutes.containsKey(route.getId());
+                        newRoutes.put(route.getId(), route);
+                    }
 
-            Map<String, MediaRoute2Info> routesLookup = new HashMap<>();
-            for (MediaRoute2Info route: routes) {
-                if (!mLastKnownRoutes.containsKey(route.getId())) {
-                    mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(route));
+                    for (MediaRoute2Info route : mLastKnownRoutes.values()) {
+                        routesChanged |= !newRoutes.containsKey(route.getId());
+                    }
+
+                    mLastKnownRoutes.clear();
+                    mLastKnownRoutes.putAll(newRoutes);
+                    if (routesChanged) {
+                        mOnRoutesChangedListener.run();
+                    }
                 }
-                routesLookup.put(route.getId(), route);
-            }
-
-            for (MediaRoute2Info route: mLastKnownRoutes.values()) {
-                if (!routesLookup.containsKey(route.getId())) {
-                    mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(route));
-                }
-            }
-
-            mLastKnownRoutes.clear();
-            mLastKnownRoutes.putAll(routesLookup);
-        }
-    };
+            };
 
     /** Returns a new instance. */
     @NonNull

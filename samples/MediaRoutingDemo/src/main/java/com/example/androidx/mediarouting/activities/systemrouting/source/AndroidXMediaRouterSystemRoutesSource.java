@@ -36,19 +36,20 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
     private final MediaRouter mMediaRouter;
 
     @NonNull
-    private final MediaRouter.Callback mMediaRouterCallback = new MediaRouter.Callback() {
-        @Override
-        public void onRouteAdded(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo route) {
-            mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(route));
-        }
+    private final MediaRouter.Callback mMediaRouterCallback =
+            new MediaRouter.Callback() {
+                @Override
+                public void onRouteAdded(
+                        @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                    mOnRoutesChangedListener.run();
+                }
 
-        @Override
-        public void onRouteRemoved(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo route) {
-            mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(route));
-        }
-    };
+                @Override
+                public void onRouteRemoved(
+                        @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                    mOnRoutesChangedListener.run();
+                }
+            };
 
     /** Returns a new instance. */
     @NonNull
