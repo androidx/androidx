@@ -18,7 +18,6 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,8 +36,6 @@ import androidx.compose.ui.draw.clipToBounds
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
  */
-@Suppress("IllegalExperimentalApiUsage") // TODO: address before moving to beta
-@OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun ThreePaneScaffoldScope.AnimatedPane(
