@@ -76,7 +76,9 @@ androidXMultiplatform {
                 // This has stub APIs for access to legacy Android APIs, so we don't want
                 // any dependency on this module.
                 compileOnly(project(":compose:ui:ui-android-stubs"))
-                implementation("androidx.graphics:graphics-path:1.0.0-beta02")
+                // TODO: Re-pin when 1.0.1 is released
+                //implementation("androidx.graphics:graphics-path:1.0.1")
+                implementation(project(":graphics:graphics-path"))
                 implementation libs.androidx.core
                 api("androidx.annotation:annotation-experimental:1.4.0")
             }
