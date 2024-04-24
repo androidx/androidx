@@ -14,7 +14,7 @@
 # the License.
 #
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(camera_test_app_jni)
 
