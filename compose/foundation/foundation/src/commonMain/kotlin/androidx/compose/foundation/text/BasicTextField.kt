@@ -325,11 +325,9 @@ internal fun BasicTextField(
         .scrollable(
             state = scrollState,
             orientation = orientation,
-            // Disable scrolling when textField is disabled, there is no where to scroll, and
-            // another dragging gesture is taking place
-            enabled = enabled &&
-                scrollState.maxValue > 0 &&
-                textFieldSelectionState.draggingHandle == null,
+            // Disable scrolling when textField is disabled or another dragging gesture is taking
+            // place
+            enabled = enabled && textFieldSelectionState.draggingHandle == null,
             reverseDirection = ScrollableDefaults.reverseDirection(
                 layoutDirection = layoutDirection,
                 orientation = orientation,
