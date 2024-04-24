@@ -20,7 +20,6 @@ import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
@@ -120,7 +119,6 @@ private class AnimateBoundsNode(
         lookaheadCoordinates: LayoutCoordinates
     ) = animateFraction() != 1f
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
         constraints: Constraints
