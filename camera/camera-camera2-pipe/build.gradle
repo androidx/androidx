@@ -27,7 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.atomicFu)
     implementation(libs.dagger)
 
-    kapt(libs.daggerCompiler)
+    ksp(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -52,7 +52,7 @@ dependencies {
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":internal-testutils-truth"))
 
-    kaptTest(libs.daggerCompiler)
+    kspTest(libs.daggerCompiler)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -68,11 +68,9 @@ android {
     namespace "androidx.camera.camera2.pipe"
 }
 
-kapt {
-    javacOptions {
-        option("-Adagger.fastInit=enabled")
-        option("-Adagger.fullBindingGraphValidation=ERROR")
-    }
+ksp {
+    arg("dagger.fastInit", "enabled")
+    arg("dagger.fullBindingGraphValidation", "ERROR")
 }
 
 androidx {
