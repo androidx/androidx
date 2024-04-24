@@ -241,6 +241,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     lane = info.lane,
                     span = info.span
                 )
+
                 item.nonScrollableItem = true
                 // check if we have any active placement animation on the item
                 val inProgress =
@@ -248,6 +249,14 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 if ((!inProgress && newIndex == previousKeyToIndexMap?.getIndex(key))) {
                     removeInfoForKey(key)
                 } else {
+                    // anytime we compose a new item, and we use it,
+                    // we need to update our item info mapping
+                    info.updateAnimation(
+                        item,
+                        coroutineScope,
+                        graphicsContext,
+                        crossAxisOffset = info.crossAxisOffset
+                    )
                     if (newIndex < firstVisibleIndex) {
                         movingAwayToStartBound.add(item)
                     } else {
@@ -444,7 +453,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         fun updateAnimation(
             positionedItem: T,
             coroutineScope: CoroutineScope,
-            graphicsContext: GraphicsContext
+            graphicsContext: GraphicsContext,
+            crossAxisOffset: Int = positionedItem.crossAxisOffset
         ) {
             for (i in positionedItem.placeablesCount until animations.size) {
                 animations[i]?.release()
@@ -453,7 +463,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 animations = animations.copyOf(positionedItem.placeablesCount)
             }
             constraints = positionedItem.constraints
-            crossAxisOffset = positionedItem.crossAxisOffset
+            this.crossAxisOffset = crossAxisOffset
             lane = positionedItem.lane
             span = positionedItem.span
             repeat(positionedItem.placeablesCount) { index ->
