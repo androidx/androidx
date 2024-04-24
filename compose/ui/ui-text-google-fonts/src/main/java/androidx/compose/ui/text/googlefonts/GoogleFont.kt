@@ -21,6 +21,7 @@ package androidx.compose.ui.text.googlefonts
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.ArrayRes
@@ -291,8 +292,7 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
         return suspendCancellableCoroutine { continuation ->
             val callback = object : FontRequestCallback() {
                 override fun onTypefaceRetrieved(typeface: Typeface?) {
-                    // this is entered from any thread
-                    continuation.resume(typeface)
+                    continuation.resume(typeface.recreateWithStyle(typefaceStyle))
                 }
 
                 override fun onTypefaceRequestFailed(reason: Int) {
@@ -317,6 +317,23 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
     private fun asyncHandlerForCurrentThreadOrMainIfNoLooper(): Handler {
         val looper = Looper.myLooper() ?: Looper.getMainLooper()
         return HandlerHelper.createAsync(looper)
+    }
+}
+
+/**
+ * Basically Typeface.create(this, typefaceStyle).
+ *
+ * Can be called from any thread.
+ */
+private fun Typeface?.recreateWithStyle(typefaceStyle: Int): Typeface {
+    return if (Build.VERSION.SDK_INT >= 28) {
+        // typeface create is thread safe
+        return Typeface.create(this, typefaceStyle)
+    } else {
+        // typeface.create has a timing condition
+        synchronized(GoogleFontTypefaceLoader) {
+            Typeface.create(this, typefaceStyle)
+        }
     }
 }
 
@@ -347,11 +364,8 @@ private object DefaultFontsContractCompatLoader : FontsContractCompatLoader {
         FontsContractCompat.requestFont(
             context,
             fontRequest,
-            typefaceStyle,
-            false, /* isBlockingFetch*/
-            0, /* timeout - not used when isBlockingFetch=false */
-            handler,
-            callback
+            callback,
+            handler
         )
     }
 }
