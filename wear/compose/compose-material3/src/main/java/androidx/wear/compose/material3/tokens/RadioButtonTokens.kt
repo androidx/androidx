@@ -25,7 +25,7 @@ internal object RadioButtonTokens {
     val DisabledSelectedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val DisabledSelectedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val DisabledSelectedSecondaryLabelOpacity = 0.8f
-    val DisabledUnselectedContainerColor = ColorSchemeKeyTokens.Surface
+    val DisabledUnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val DisabledUnselectedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUnselectedIconColor = ColorSchemeKeyTokens.Primary
     val DisabledUnselectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
@@ -37,7 +37,7 @@ internal object RadioButtonTokens {
     val SelectedSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val SelectedSecondaryLabelOpacity = 0.8f
     val Shape = ShapeKeyTokens.CornerLarge
-    val UnselectedContainerColor = ColorSchemeKeyTokens.Surface
+    val UnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UnselectedContentColor = ColorSchemeKeyTokens.OnSurface
     val UnselectedIconColor = ColorSchemeKeyTokens.Primary
     val UnselectedSecondaryLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant

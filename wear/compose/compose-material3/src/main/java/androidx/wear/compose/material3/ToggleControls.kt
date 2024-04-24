@@ -458,7 +458,7 @@ object SwitchDefaults {
         checkedTrackBorderColor: Color = MaterialTheme.colorScheme.primary,
         uncheckedThumbColor: Color = MaterialTheme.colorScheme.outline,
         uncheckedThumbIconColor: Color = Color.Transparent,
-        uncheckedTrackColor: Color = MaterialTheme.colorScheme.surface,
+        uncheckedTrackColor: Color = MaterialTheme.colorScheme.surfaceContainer,
         uncheckedTrackBorderColor: Color = MaterialTheme.colorScheme.outline,
         disabledCheckedThumbColor: Color = MaterialTheme.colorScheme.background.toDisabledColor(),
         disabledCheckedThumbIconColor: Color =

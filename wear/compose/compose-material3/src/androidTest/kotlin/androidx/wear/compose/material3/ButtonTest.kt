@@ -400,7 +400,7 @@ class ButtonTest {
     fun gives_enabled_filled_tonal_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Enabled,
-            expectedContainerColor = { MaterialTheme.colorScheme.surface },
+            expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface },
             content = { FilledTonalButton(Status.Enabled) }
         )
@@ -1049,7 +1049,7 @@ private fun ComposeContentTestRule.isShape(
     val padding = 0.dp
 
     setContentWithTheme {
-        background = MaterialTheme.colorScheme.surface
+        background = MaterialTheme.colorScheme.surfaceContainer
         Box(Modifier.background(background)) {
             buttonColor = (colors().containerPainter(true) as ColorPainter).color
             if (buttonColor == Color.Transparent) {
