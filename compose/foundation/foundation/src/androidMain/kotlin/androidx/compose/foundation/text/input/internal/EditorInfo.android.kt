@@ -203,5 +203,11 @@ private object EditorInfoApi34 {
             InsertGesture::class.java,
             RemoveSpaceGesture::class.java
         )
+        editorInfo.supportedHandwritingGesturePreviews = setOf(
+            SelectGesture::class.java,
+            DeleteGesture::class.java,
+            SelectRangeGesture::class.java,
+            DeleteRangeGesture::class.java
+        )
     }
 }

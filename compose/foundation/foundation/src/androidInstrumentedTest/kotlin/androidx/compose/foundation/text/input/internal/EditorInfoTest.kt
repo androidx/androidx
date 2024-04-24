@@ -18,8 +18,13 @@ package androidx.compose.foundation.text.input.internal
 
 import android.text.InputType
 import android.view.inputmethod.DeleteGesture
+import android.view.inputmethod.DeleteRangeGesture
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InsertGesture
+import android.view.inputmethod.JoinOrSplitGesture
+import android.view.inputmethod.RemoveSpaceGesture
 import android.view.inputmethod.SelectGesture
+import android.view.inputmethod.SelectRangeGesture
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -599,8 +604,29 @@ class EditorInfoTest {
         val info = EditorInfo()
         info.update(ImeOptions.Default)
 
-        assertThat(info.supportedHandwritingGestures).contains(SelectGesture::class.java)
-        assertThat(info.supportedHandwritingGestures).contains(DeleteGesture::class.java)
+        assertThat(info.supportedHandwritingGestures).containsExactly(
+            SelectGesture::class.java,
+            DeleteGesture::class.java,
+            SelectRangeGesture::class.java,
+            DeleteRangeGesture::class.java,
+            JoinOrSplitGesture::class.java,
+            InsertGesture::class.java,
+            RemoveSpaceGesture::class.java,
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun supportedStylusHandwritingGesturePreviews() {
+        val info = EditorInfo()
+        info.update(ImeOptions.Default)
+
+        assertThat(info.supportedHandwritingGesturePreviews).containsExactly(
+            SelectGesture::class.java,
+            DeleteGesture::class.java,
+            SelectRangeGesture::class.java,
+            DeleteRangeGesture::class.java,
+        )
     }
 
     private fun EditorInfo.update(
