@@ -16,6 +16,6 @@
 // with such a backward incompatible change, it has a high risk of breaking
 // later when a module using the interface is updated, e.g., Mainline modules.
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 @JavaOnlyStableParcelable @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
-parcelable PageSelection;
+parcelable SelectionBoundary;

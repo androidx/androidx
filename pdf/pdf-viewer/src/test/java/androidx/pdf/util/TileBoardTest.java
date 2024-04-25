@@ -27,7 +27,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.TileBoard.CancelTilesCallback;
 import androidx.pdf.util.TileBoard.TileInfo;
 import androidx.pdf.util.TileBoard.ViewAreaUpdateCallback;

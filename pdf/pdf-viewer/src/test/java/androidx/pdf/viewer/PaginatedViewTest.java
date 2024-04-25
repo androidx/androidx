@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.ProjectorContext;
 import androidx.pdf.viewer.PageViewFactory.PageView;

@@ -16,17 +16,20 @@
 
 package androidx.pdf.aidl;
 
-
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
 
+import androidx.pdf.models.LinkRects;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +57,13 @@ public class LinkRectsTest {
     }
 
     @Test
+    public void testGetUrl_returnsUrlCorrespondingToLink() {
+        assertThat(mLinkRects.getUrl(0)).isEqualTo("http://first.com");
+        assertThat(mLinkRects.getUrl(1)).isEqualTo("http://second.org");
+        assertThat(mLinkRects.getUrl(2)).isEqualTo("http://third.net");
+    }
+
+    @Test
     public void testGetUrlAtPoint() {
         assertThat(mLinkRects.getUrlAtPoint(100, 100)).isEqualTo("http://first.com");
         assertThat(mLinkRects.getUrlAtPoint(200, 201)).isEqualTo("http://first.com");
@@ -64,6 +74,23 @@ public class LinkRectsTest {
         assertThat(mLinkRects.getUrlAtPoint(600, 600)).isNull();
         assertThat(mLinkRects.getUrlAtPoint(100, 200)).isNull();
         assertThat(mLinkRects.getUrlAtPoint(510, 500)).isNull();
+    }
+
+    @Test
+    public void testClassFields_flagsFieldModification() {
+        List<String> fields = new ArrayList<>();
+        fields.add("NO_LINKS");
+        fields.add("CREATOR");
+        fields.add("mRects");
+        fields.add("mLinkToRect");
+        fields.add("mUrls");
+
+        List<String> declaredFields = new ArrayList<>();
+        for (Field field : LinkRects.class.getDeclaredFields()) {
+            declaredFields.add(field.getName());
+        }
+
+        assertTrue(fields.containsAll(declaredFields));
     }
 
     private static LinkRects createLinkRects(int numRects, Integer[] linkToRect, String[] urls) {

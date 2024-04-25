@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import android.os.Parcel;
 
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;

@@ -20,8 +20,8 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
 import androidx.pdf.data.Range;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.ProjectorContext;

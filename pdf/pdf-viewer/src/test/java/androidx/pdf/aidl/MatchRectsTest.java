@@ -16,17 +16,20 @@
 
 package androidx.pdf.aidl;
 
-
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
 
+import androidx.pdf.models.MatchRects;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +54,27 @@ public class MatchRectsTest {
     }
 
     @Test
+    public void testGetCharIndex_returnsIndexCorrespondingToMatch() {
+        assertThat(mMatchRects.getCharIndex(0)).isEqualTo(0);
+        assertThat(mMatchRects.getCharIndex(1)).isEqualTo(10);
+        assertThat(mMatchRects.getCharIndex(2)).isEqualTo(20);
+    }
+
+    @Test
+    public void testGetMatchNearestCharIndex_returnsMatchIndexCorrespondingToCharIndex() {
+        assertThat(mMatchRects.getMatchNearestCharIndex(0)).isEqualTo(0);
+        assertThat(mMatchRects.getMatchNearestCharIndex(10)).isEqualTo(1);
+        assertThat(mMatchRects.getMatchNearestCharIndex(20)).isEqualTo(2);
+    }
+
+    @Test
+    public void testGetFirstRect_returnsFirstRectForMatch() {
+        assertThat(mMatchRects.getFirstRect(0)).isEqualTo(new Rect(0, 0, 0, 0));
+        assertThat(mMatchRects.getFirstRect(1)).isEqualTo(new Rect(200, 200, 202, 202));
+        assertThat(mMatchRects.getFirstRect(2)).isEqualTo(new Rect(300, 300, 303, 303));
+    }
+
+    @Test
     public void testFlatten() {
         List<Rect> rects = mMatchRects.flatten();
         assertThat(rects.size()).isEqualTo(5);
@@ -58,6 +82,31 @@ public class MatchRectsTest {
         List<Rect> rectsExcludingMatchOne = Arrays.asList(
                 rects.get(0), rects.get(1), rects.get(3), rects.get(4));
         assertThat(mMatchRects.flattenExcludingMatch(1)).isEqualTo(rectsExcludingMatchOne);
+    }
+
+    @Test
+    public void testRectsExcludingMatchOne_returnsFlatListOfRectsForAllMatchesExceptGivenMatch() {
+        List<Rect> rects = mMatchRects.flatten();
+        List<Rect> rectsExcludingMatchOne = Arrays.asList(rects.get(0), rects.get(1), rects.get(3),
+                rects.get(4));
+        assertThat(mMatchRects.flattenExcludingMatch(1)).isEqualTo(rectsExcludingMatchOne);
+    }
+
+    @Test
+    public void testClassFields_flagsFieldModification() {
+        List<String> fields = new ArrayList<>();
+        fields.add("NO_MATCHES");
+        fields.add("CREATOR");
+        fields.add("mRects");
+        fields.add("mMatchToRect");
+        fields.add("mCharIndexes");
+
+        List<String> declaredFields = new ArrayList<>();
+        for (Field field : MatchRects.class.getDeclaredFields()) {
+            declaredFields.add(field.getName());
+        }
+
+        assertTrue(fields.containsAll(declaredFields));
     }
 
     private static MatchRects createMatchRects(int numRects, Integer... matchToRect) {

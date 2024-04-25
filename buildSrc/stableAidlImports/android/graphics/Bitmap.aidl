@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.pdf.pdflib;
+package android.graphics;
 
-import androidx.annotation.RestrictTo;
-import androidx.pdf.models.PdfDocumentRemote;
-
-/**
- *
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PdfDocumentRemoteProto {
-    private PdfDocumentRemote mRemote;
-
-    public PdfDocumentRemoteProto(PdfDocumentRemote remote) {
-        this.mRemote = remote;
-    }
-
-    public PdfDocumentRemote getPdfDocumentRemote() {
-        return mRemote;
-    }
-
-    // TODO: Add goto links methods from the original kotlin file
-}
+@JavaOnlyStableParcelable parcelable Bitmap;

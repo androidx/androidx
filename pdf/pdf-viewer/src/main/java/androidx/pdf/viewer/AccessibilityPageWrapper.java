@@ -22,7 +22,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.LinkRects;
+import androidx.pdf.models.LinkRects;
 
 /**
  * Container to hold a {@link PageMosaicView}, a {@link PageLinksView} and sometimes a {@link

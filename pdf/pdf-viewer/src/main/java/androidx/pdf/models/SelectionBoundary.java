@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 
+import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
 
 /**
  * Represents one edge of the selected text. A boundary can be defined by
  * either an index into the text, a point on the page, or both.
  * Should be a nested class of {@link PageSelection}, but AIDL prevents that.
  */
+// TODO: Use android.graphics.pdf.models.selection.SelectionBoundary and remove this class
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("BanParcelableUsage")
 public class SelectionBoundary implements Parcelable {
     public static final SelectionBoundary PAGE_START = SelectionBoundary.atIndex(0);
     public static final SelectionBoundary PAGE_END = SelectionBoundary.atIndex(Integer.MAX_VALUE);
@@ -80,17 +83,20 @@ public class SelectionBoundary implements Parcelable {
     }
 
     /** Create a boundary that has a particular index, but the position is not known. */
+    @NonNull
     public static SelectionBoundary atIndex(int index) {
         return new SelectionBoundary(index, -1, -1, false);
     }
 
     /** Create a boundary at a particular point, but the index is not known. */
+    @NonNull
     public static SelectionBoundary atPoint(int x, int y) {
         return new SelectionBoundary(-1, x, y, false);
     }
 
     /** Create a boundary at a particular point, but the index is not known. */
-    public static SelectionBoundary atPoint(Point p) {
+    @NonNull
+    public static SelectionBoundary atPoint(@NonNull Point p) {
         return new SelectionBoundary(-1, p.x, p.y, false);
     }
 
@@ -101,7 +107,7 @@ public class SelectionBoundary implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeIntArray(new int[]{mIndex, mX, mY, mIsRtl ? 1 : 0});
     }
 

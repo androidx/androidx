@@ -23,7 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Rect;
 
-import androidx.pdf.aidl.MatchRects;
+import androidx.pdf.models.MatchRects;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;

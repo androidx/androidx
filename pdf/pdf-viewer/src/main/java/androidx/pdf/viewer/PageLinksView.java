@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.customview.widget.ExploreByTouchHelper;
-import androidx.pdf.aidl.LinkRects;
+import androidx.pdf.models.LinkRects;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.widget.ZoomView;
 
