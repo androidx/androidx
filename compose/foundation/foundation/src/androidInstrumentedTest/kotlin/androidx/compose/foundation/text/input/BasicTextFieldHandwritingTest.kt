@@ -18,6 +18,8 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardHelper
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.performStylusClick
 import androidx.compose.foundation.text.performStylusHandwriting
@@ -33,8 +35,10 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -55,6 +59,8 @@ internal class BasicTextFieldHandwritingTest {
     private val Tag = "BasicTextField2"
 
     private val imm = FakeInputMethodManager()
+
+    private val keyboardHelper = KeyboardHelper(rule)
 
     @Before
     fun setup() {
@@ -186,6 +192,38 @@ internal class BasicTextFieldHandwritingTest {
         readOnly = false
         rule.waitForIdle()
         performHandwritingAndExpect(stylusHandwritingStarted = true)
+    }
+
+    @Test
+    fun textField_passwordField_notStartStylusHandwriting() {
+        immRule.setFactory { imm }
+        inputMethodInterceptor.setTextFieldTestContent {
+            val state = remember { TextFieldState() }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
+        }
+
+        performHandwritingAndExpect(stylusHandwritingStarted = false)
+    }
+
+    @Test
+    fun coreTextField_passwordField_attemptStylusHandwritingShowSoftInput() {
+        rule.setContent {
+            keyboardHelper.initialize()
+            val state = remember { TextFieldState() }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performStylusHandwriting()
+        keyboardHelper.waitForKeyboardVisibility(true)
+        Truth.assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
     }
 
     private fun testStylusHandwriting(

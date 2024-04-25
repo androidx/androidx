@@ -119,6 +119,7 @@ import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -405,13 +406,18 @@ internal fun CoreTextField(
         )
         .pointerHoverIcon(textPointerIcon)
         .then(
-            if (isStylusHandwritingSupported) {
-                Modifier.pointerInput(writeable) {
-                    if (writeable) {
-                        detectStylusHandwriting {
-                            if (!state.hasFocus) {
-                                focusRequester.requestFocus()
-                            }
+            if (isStylusHandwritingSupported && writeable) {
+                Modifier.pointerInput(Unit) {
+                    detectStylusHandwriting {
+                        if (!state.hasFocus) {
+                            focusRequester.requestFocus()
+                        }
+                        // If this is a password field, we can't trigger handwriting.
+                        // The expected behavior is 1) request focus 2) show software keyboard.
+                        // Note: TextField will show software keyboard automatically when it
+                        // gain focus. 3) show a toast message telling that handwriting is not
+                        // supported for password fields. TODO(b/335294152)
+                        if (imeOptions.keyboardType != KeyboardType.Password) {
                             // TextInputService is calling LegacyTextInputServiceAdapter under the
                             // hood.  And because it's a public API, startStylusHandwriting is added
                             // to legacyTextInputServiceAdapter instead.
@@ -419,8 +425,8 @@ internal fun CoreTextField(
                             // session starts when the editor is not focused, this is handled
                             // internally by the LegacyTextInputServiceAdapter.
                             legacyTextInputServiceAdapter.startStylusHandwriting()
-                            true
                         }
+                        true
                     }
                 }
             } else {
