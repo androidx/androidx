@@ -647,7 +647,9 @@ class TraceSectionMetric @JvmOverloads constructor(
  *
  * For [Type.Energy] or [Type.Power], the sum of all categories will be displayed as a `Total`
  * metric.  The sum of all unrequested categories will be displayed as an `Unselected` metric.  The
- * subsystems that have not been categorized will be displayed as an `Uncategorized` metric.
+ * subsystems that have not been categorized will be displayed as an `Uncategorized` metric. You can
+ * check if the local device supports this high precision tracking with
+ * [deviceSupportsHighPrecisionTracking].
  *
  * For [Type.Battery], the charge for the start of the run and the end of the run will be displayed.
  * An additional `Diff` metric will be displayed to indicate the charge drain over the course of
@@ -714,13 +716,14 @@ class PowerMetric(
         }
 
         /**
-         * Returns true if the current device can be used for power/energy metrics.
+         * Returns true if the current device can be used for high precision [Power] and [Energy]
+         * metrics.
          *
          * This can be used to change behavior or fall back to lower precision tracking:
          *
          * ```
          * metrics = listOf(
-         *     if (PowerMetric.deviceSupportsPowerEnergy()) {
+         *     if (PowerMetric.deviceSupportsHighPrecisionTracking()) {
          *         PowerMetric(Type.Energy()) // high precision tracking
          *     } else {
          *         PowerMetric(Type.Battery()) // fall back to less precise tracking
@@ -731,7 +734,7 @@ class PowerMetric(
          * Or to skip a test when detailed tracking isn't available:
          * ```
          * @Test fun myDetailedPowerBenchmark {
-         *     assumeTrue(PowerMetric.deviceSupportsPowerEnergy())
+         *     assumeTrue(PowerMetric.deviceSupportsHighPrecisionTracking())
          *     macrobenchmarkRule.measureRepeated (
          *         metrics = listOf(PowerMetric(Type.Energy(...)))
          *     ) {
@@ -741,7 +744,8 @@ class PowerMetric(
          * ```
          */
         @JvmStatic
-        fun deviceSupportsPowerEnergy(): Boolean = hasMetrics(throwOnMissingMetrics = false)
+        fun deviceSupportsHighPrecisionTracking(): Boolean =
+            hasMetrics(throwOnMissingMetrics = false)
 
         /**
          * Returns true if [Type.Battery] measurements can be performed, based on current device
