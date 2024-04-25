@@ -555,7 +555,9 @@ internal class TextFieldCoreModifierNode(
                 textFieldState.visualText
                 // Only animate the cursor when its window is actually focused. This also
                 // disables the cursor animation when the screen is off.
-                val isWindowFocused = currentValueOf(LocalWindowInfo).isWindowFocused
+                // TODO: b/335668644, snapshotFlow is invoking this block even after the coroutine
+                // has been cancelled, and currentCoroutineContext().isActive is false
+                val isWindowFocused = isAttached && currentValueOf(LocalWindowInfo).isWindowFocused
 
                 ((if (isWindowFocused) 1 else 2) * sign).also { sign *= -1 }
             }.collectLatest { isWindowFocused ->

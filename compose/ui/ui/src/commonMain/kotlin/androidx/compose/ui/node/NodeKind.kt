@@ -284,12 +284,7 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
         node.invalidateParentData()
     }
     if (Nodes.FocusTarget in selfKindSet && node is FocusTargetNode) {
-        when (phase) {
-            // when we previously had focus target modifier on a node and then this modifier
-            // is removed we need to notify the focus tree about so the focus state is reset.
-            Removed -> node.onReset()
-            else -> node.requireOwner().focusOwner.scheduleInvalidation(node)
-        }
+        node.invalidateFocusTarget()
     }
     if (
         Nodes.FocusProperties in selfKindSet &&

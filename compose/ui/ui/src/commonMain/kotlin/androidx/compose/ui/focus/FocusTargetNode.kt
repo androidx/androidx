@@ -32,7 +32,6 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
-import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
@@ -81,8 +80,8 @@ internal class FocusTargetNode :
     /**
      * Clears focus if this focus target has it.
      */
-    override fun onReset() {
-        //  Note: onReset() is called after onEndApplyChanges, so we can't schedule any nodes for
+    override fun onDetach() {
+        //  Note: this is called after onEndApplyChanges, so we can't schedule any nodes for
         //  invalidation here. If we do, they will be run on the next onEndApplyChanges.
         when (focusState) {
             // Clear focus from the current FocusTarget.
@@ -200,31 +199,6 @@ internal class FocusTargetNode :
             }
 
             ActiveParent, Inactive -> {}
-        }
-    }
-
-    internal fun scheduleInvalidationForFocusEvents() {
-        // Since this is potentially called while _this_ node is getting detached, it is possible
-        // that the nodes above us are already detached, thus, we check for isAttached here.
-        // We should investigate changing the order that children.detach() is called relative to
-        // actually nulling out / detaching ones self.
-        visitAncestors(
-            mask = Nodes.FocusEvent or Nodes.FocusTarget,
-            includeSelf = true
-        ) {
-            // We want invalidation to propagate until the next focus target in the hierarchy, but
-            // if the current node is both a FocusEvent and FocusTarget node, we still want to
-            // visit this node and invalidate the focus event nodes. This case is not recommended,
-            // using the state from the FocusTarget node directly is preferred to the indirection of
-            // listening to events from the state you already own, but we should support this case
-            // anyway to be safe.
-            if (it !== this.node && it.isKind(Nodes.FocusTarget)) return@visitAncestors
-
-            if (it.isAttached) {
-                it.dispatchForKind(Nodes.FocusEvent) { eventNode ->
-                    eventNode.invalidateFocusEvent()
-                }
-            }
         }
     }
 
