@@ -257,27 +257,13 @@ value class DpOffset internal constructor(@PublishedApi internal val packedValue
      * The horizontal aspect of the offset in [Dp]
      */
     @Stable
-    val x: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
-            checkPrecondition(this.packedValue != UnspecifiedPackedFloats) {
-                "DpOffset is unspecified"
-            }
-            return unpackFloat1(packedValue).dp
-        }
+    val x: Dp get() = unpackFloat1(packedValue).dp
 
     /**
      * The vertical aspect of the offset in [Dp]
      */
     @Stable
-    val y: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
-            checkPrecondition(this.packedValue != UnspecifiedPackedFloats) {
-                "DpOffset is unspecified"
-            }
-            return unpackFloat2(packedValue).dp
-        }
+    val y: Dp get() = unpackFloat2(packedValue).dp
 
     /**
      * Returns a copy of this [DpOffset] instance optionally overriding the
@@ -374,27 +360,13 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
      * The horizontal aspect of the Size in [Dp]
      */
     @Stable
-    val width: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
-            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-                "DpSize is unspecified"
-            }
-            return unpackFloat1(packedValue).dp
-        }
+    val width: Dp get() = unpackFloat1(packedValue).dp
 
     /**
      * The vertical aspect of the Size in [Dp]
      */
     @Stable
-    val height: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
-            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-                "DpSize is unspecified"
-            }
-            return unpackFloat2(packedValue).dp
-        }
+    val height: Dp get() = unpackFloat2(packedValue).dp
 
     /**
      * Returns a copy of this [DpSize] instance optionally overriding the

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.geometry
 
-import kotlin.test.assertFails
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -137,9 +136,14 @@ class OffsetTest {
             Offset(-10.0f, Float.POSITIVE_INFINITY),
             -Offset(10.0f, Float.NEGATIVE_INFINITY)
         )
-        assertFails {
-            -Offset(Float.NaN, Float.NaN)
-        }
+
+        // behavior for -Unspecified
+        val minusUnspecified = -Offset(Float.NaN, Float.NaN)
+        assertTrue(minusUnspecified.x.isNaN())
+        assertTrue(minusUnspecified.y.isNaN())
+        assertTrue(minusUnspecified.isUnspecified)
+        assertFalse(minusUnspecified.isSpecified)
+        assertFalse(minusUnspecified.isFinite)
     }
 
     @Test
@@ -154,8 +158,7 @@ class OffsetTest {
         assertFalse(Offset(Float.NEGATIVE_INFINITY, 20.0f).isFinite)
         assertFalse(Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY).isFinite)
 
-        assertFails {
-            Offset(Float.NaN, Float.NaN).isFinite
-        }
+        // isFinite should return false for unspecified/NaN values
+        assertFalse(Offset(Float.NaN, Float.NaN).isFinite)
     }
 }
