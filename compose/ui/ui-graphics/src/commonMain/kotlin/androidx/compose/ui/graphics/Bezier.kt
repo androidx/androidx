@@ -547,7 +547,6 @@ fun computeCubicVerticalBounds(
 
     for (i in 0 until count) {
         val t = roots[i]
-        println(t)
         val y = evaluateCubic(p0y, p1y, p2y, p3y, t)
         minY = min(minY, y)
         maxY = max(maxY, y)
