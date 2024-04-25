@@ -21,17 +21,30 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.LibraryType
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXRepackagePlugin")
     id("kotlin")
     id("com.google.protobuf")
 }
 
+repackage {
+    // Must match what is in datastore/datastore-preferences-external-protobuf/build.gradle
+    addRelocation {
+        sourcePackage = "com.google.protobuf"
+        targetPackage =  "androidx.datastore.preferences.protobuf"
+    }
+}
+
 dependencies {
-    implementation(libs.protobufLite)
+    api(project(":datastore:datastore-preferences-external-protobuf"))
+    // Must be compileOnly to not bring in protobufLite in runtime
+    // Repackaged protobufLite brought in by
+    // project(":datastore:datastore-preferences-external-protobuf") and used at runtime
+    compileOnly(libs.protobufLite)
     compileOnly(project(":datastore:datastore-core"))
 }
 
@@ -61,8 +74,9 @@ afterEvaluate {
 
 androidx {
     name = "Preferences DataStore Proto"
-    publish = Publish.NONE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
-    description = "Jarjar the generated proto and proto-lite dependency for use by " +
-            "datastore-preferences."
+    description = "Jarjar the generated proto for use by datastore-preferences."
+    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
+            "(b/180579063)")
 }

@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -67,6 +66,9 @@ androidXMultiplatform {
         }
         jvmMain {
             dependsOn(commonMain)
+            dependencies {
+                implementation(project(":datastore:datastore-preferences-proto"))
+            }
         }
         jvmTest {
             dependsOn(commonTest)
@@ -105,19 +107,6 @@ androidXMultiplatform {
             }
         }
     }
-}
-
-BundleInsideHelper.forInsideJarKmp(
-        project,
-        /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.datastore.preferences.protobuf",
-        // proto-lite dependency includes .proto files, which are not used and would clash if
-        // users also use proto library directly
-        /* dropResourcesWithSuffix = */ ".proto"
-)
-
-dependencies {
-    bundleInside(project(":datastore:datastore-preferences-proto"))
 }
 
 androidx {
