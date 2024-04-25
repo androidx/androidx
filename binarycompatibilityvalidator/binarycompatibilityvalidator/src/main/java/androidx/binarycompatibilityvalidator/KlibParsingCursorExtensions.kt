@@ -120,7 +120,7 @@ internal fun Cursor.parseGetterOrSetterName(peek: Boolean = false) =
     parseGetterName(peek) ?: parseSetterName(peek)
 
 internal fun Cursor.parseClassModifier(peek: Boolean = false): String? =
-    parseSymbol("^(inner|value|fun|open|annotation|enum)", peek)
+    parseSymbol("^(inner|value|fun|open)", peek)
 
 internal fun Cursor.parseClassModifiers(): Set<String> {
     val modifiers = mutableSetOf<String>()
@@ -358,6 +358,9 @@ private fun Cursor.hasPropertyAccessor(type: GetterOrSetter): Boolean {
 private fun Cursor.subCursor(peek: Boolean) = if (peek) { copy() } else { this }
 
 private fun Cursor.parseTypeParamsString(peek: Boolean = false): String? {
+    if (parseSymbol("^<(get|set)\\-", peek = true) != null) {
+        return null
+    }
     val cursor = subCursor(peek)
     val result = StringBuilder()
     cursor.parseSymbol("^<")?.let { result.append(it) } ?: return null
@@ -388,7 +391,10 @@ private fun Cursor.parsePropertyKindString(peek: Boolean = false) =
     parseSymbol("^(const\\sval|val|var)", peek)?.uppercase()?.replace(" ", "_")
 
 private fun Cursor.parseClassKindString(peek: Boolean = false) =
-    parseSymbol("^(class|interface|object|enum_class|annotation_class)", peek)?.uppercase()
+    parseSymbol(
+        "^(class|interface|object|enum\\sclass|annotation\\sclass)",
+        peek
+    )?.uppercase()?.replace(" ", "_")
 
 private enum class GetterOrSetter() {
     GETTER,
