@@ -74,7 +74,7 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
             "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:nonSkippingGroupOptimization=true"
+            "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=OptimizeNonSkippingGroups"
         ]
     }
 }
