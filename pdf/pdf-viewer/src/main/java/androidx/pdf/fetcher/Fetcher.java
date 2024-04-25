@@ -20,13 +20,13 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
 import androidx.pdf.data.ContentOpenable;
 import androidx.pdf.data.FileOpenable;
 import androidx.pdf.data.FutureValue;
 import androidx.pdf.data.Openable;
 import androidx.pdf.data.Opener;
 import androidx.pdf.data.UiFutureValues;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.StrictModeUtils;
 import androidx.pdf.util.Uris;

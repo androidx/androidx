@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.ListOfList;
 import androidx.pdf.util.Preconditions;
@@ -42,6 +44,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("deprecation")
+@SuppressLint("BanParcelableUsage")
 public class MatchRects extends ListOfList<Rect> implements Parcelable {
     public static final MatchRects NO_MATCHES = new MatchRects(Collections.emptyList(),
             Collections.emptyList(), Collections.emptyList());
@@ -65,7 +68,8 @@ public class MatchRects extends ListOfList<Rect> implements Parcelable {
     private final List<Integer> mMatchToRect;
     private final List<Integer> mCharIndexes;
 
-    public MatchRects(List<Rect> rects, List<Integer> matchToRect, List<Integer> charIndexes) {
+    public MatchRects(@NonNull List<Rect> rects, @NonNull List<Integer> matchToRect,
+            @NonNull List<Integer> charIndexes) {
         super(rects, matchToRect);
         this.mRects = Preconditions.checkNotNull(rects);
         this.mMatchToRect = Preconditions.checkNotNull(matchToRect);
@@ -94,6 +98,7 @@ public class MatchRects extends ListOfList<Rect> implements Parcelable {
     }
 
     /** Returns the first rect for a given match. */
+    @NonNull
     public Rect getFirstRect(int match) {
         return mRects.get(mMatchToRect.get(match));
     }
@@ -102,6 +107,7 @@ public class MatchRects extends ListOfList<Rect> implements Parcelable {
      * Returns the flattened, one-dimensional list of all rectangles that surround
      * all matches <strong>except</strong> for the given match.
      */
+    @NonNull
     public List<Rect> flattenExcludingMatch(int match) {
         if (match < 0 || match >= mMatchToRect.size()) {
             throw new ArrayIndexOutOfBoundsException(match);
@@ -149,7 +155,7 @@ public class MatchRects extends ListOfList<Rect> implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeList(mRects);
         parcel.writeList(mMatchToRect);
         parcel.writeList(mCharIndexes);

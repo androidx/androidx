@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.ListOfList;
@@ -42,6 +44,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("deprecation")
+@SuppressLint("BanParcelableUsage")
 public class LinkRects extends ListOfList<Rect> implements Parcelable {
     public static final LinkRects NO_LINKS = new LinkRects(Collections.emptyList(),
             Collections.emptyList(), Collections.emptyList());
@@ -65,7 +68,8 @@ public class LinkRects extends ListOfList<Rect> implements Parcelable {
     private final List<Integer> mLinkToRect;
     private final List<String> mUrls;
 
-    public LinkRects(List<Rect> rects, List<Integer> linkToRect, List<String> urls) {
+    public LinkRects(@NonNull List<Rect> rects, @NonNull List<Integer> linkToRect,
+            @NonNull List<String> urls) {
         super(rects, linkToRect);
         this.mRects = Preconditions.checkNotNull(rects);
         this.mLinkToRect = Preconditions.checkNotNull(linkToRect);
@@ -73,6 +77,7 @@ public class LinkRects extends ListOfList<Rect> implements Parcelable {
     }
 
     /** Return the URL corresponding to the given link. */
+    @NonNull
     public String getUrl(int link) {
         return mUrls.get(link);
     }
@@ -103,7 +108,7 @@ public class LinkRects extends ListOfList<Rect> implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeList(mRects);
         parcel.writeList(mLinkToRect);
         parcel.writeList(mUrls);

@@ -21,7 +21,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.PdfDocumentRemote;
+import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.pdflib.PdfDocumentRemoteProto;
 import androidx.pdf.util.ErrorLog;
 import androidx.pdf.util.ThreadUtils;

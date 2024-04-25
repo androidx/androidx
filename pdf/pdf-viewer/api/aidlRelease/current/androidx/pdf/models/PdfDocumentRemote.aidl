@@ -16,21 +16,22 @@
 // with such a backward incompatible change, it has a high risk of breaking
 // later when a module using the interface is updated, e.g., Mainline modules.
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface PdfDocumentRemote {
   int create(in ParcelFileDescriptor pfd, String password);
   int numPages();
-  androidx.pdf.aidl.Dimensions getPageDimensions(int pageNum);
-  boolean renderPage(int pageNum, in androidx.pdf.aidl.Dimensions size, boolean hideTextAnnots, in ParcelFileDescriptor output);
-  boolean renderTile(int pageNum, int pageWidth, int pageHeight, int left, int top, in androidx.pdf.aidl.Dimensions tileSize, boolean hideTextAnnots, in ParcelFileDescriptor output);
+  androidx.pdf.models.Dimensions getPageDimensions(int pageNum);
+  android.graphics.Bitmap renderPage(int pageNum, int pageWidth, int pageHeight, boolean hideTextAnnots);
+  android.graphics.Bitmap renderTile(int pageNum, int tileWidth, int tileHeight, int scaledPageWidth, int scaledPageHeight, int left, int top, boolean hideTextAnnots);
   String getPageText(int pageNum);
   List<String> getPageAltText(int pageNum);
-  androidx.pdf.aidl.MatchRects searchPageText(int pageNum, String query);
-  androidx.pdf.aidl.PageSelection selectPageText(int pageNum, in androidx.pdf.aidl.SelectionBoundary start, in androidx.pdf.aidl.SelectionBoundary stop);
-  androidx.pdf.aidl.LinkRects getPageLinks(int pageNum);
-  byte[] getPageGotoLinksByteArray(int pageNum);
+  androidx.pdf.models.MatchRects searchPageText(int pageNum, String query);
+  androidx.pdf.models.PageSelection selectPageText(int pageNum, in androidx.pdf.models.SelectionBoundary start, in androidx.pdf.models.SelectionBoundary stop);
+  androidx.pdf.models.LinkRects getPageLinks(int pageNum);
+  List<androidx.pdf.models.GotoLink> getPageGotoLinks(int pageNum);
   boolean isPdfLinearized();
+  int getFormType();
   boolean cloneWithoutSecurity(in ParcelFileDescriptor destination);
   boolean saveAs(in ParcelFileDescriptor destination);
 }

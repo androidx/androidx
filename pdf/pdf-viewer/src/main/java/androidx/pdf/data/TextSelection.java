@@ -20,7 +20,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.SelectionBoundary;
+import androidx.pdf.models.SelectionBoundary;
 
 /** Represents the selection of part of a piece of text - a start and a stop. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

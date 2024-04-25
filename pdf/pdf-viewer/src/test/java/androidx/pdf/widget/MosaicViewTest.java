@@ -38,7 +38,7 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.TileBoard;
 import androidx.pdf.util.TileBoard.TileInfo;

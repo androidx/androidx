@@ -20,7 +20,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
+import androidx.pdf.models.Dimensions;
 
 /**
  * Utilities related to {@link Rect}s.

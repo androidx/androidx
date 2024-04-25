@@ -20,11 +20,11 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
-import androidx.pdf.aidl.LinkRects;
-import androidx.pdf.aidl.MatchRects;
-import androidx.pdf.aidl.PageSelection;
 import androidx.pdf.data.PdfStatus;
+import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.LinkRects;
+import androidx.pdf.models.MatchRects;
+import androidx.pdf.models.PageSelection;
 import androidx.pdf.util.TileBoard.TileInfo;
 
 import java.io.FileOutputStream;

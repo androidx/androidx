@@ -23,8 +23,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.Dimensions;
-import androidx.pdf.aidl.LinkRects;
+import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.LinkRects;
 import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.widget.MosaicView;

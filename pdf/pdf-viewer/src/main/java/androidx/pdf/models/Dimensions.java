@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.pdf.aidl;
+package androidx.pdf.models;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -28,6 +29,7 @@ import androidx.annotation.RestrictTo;
  * Objects of this class are immutable.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("BanParcelableUsage")
 public class Dimensions implements Parcelable {
     public static final Creator<Dimensions> CREATOR = new Creator<Dimensions>() {
         @Override
@@ -49,7 +51,7 @@ public class Dimensions implements Parcelable {
         this.mHeight = height;
     }
 
-    public Dimensions(Rect rect) {
+    public Dimensions(@NonNull Rect rect) {
         this.mWidth = rect.width();
         this.mHeight = rect.height();
     }
@@ -88,7 +90,7 @@ public class Dimensions implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeInt(mWidth);
         parcel.writeInt(mHeight);
     }
