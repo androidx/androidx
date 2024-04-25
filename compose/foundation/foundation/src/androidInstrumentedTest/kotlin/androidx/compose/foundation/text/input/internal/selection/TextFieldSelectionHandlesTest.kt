@@ -24,6 +24,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,6 +65,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
@@ -178,6 +180,26 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
             focusRequester.requestFocus()
         }
         assertHandlesNotExist()
+    }
+
+    @Test
+    fun selectionHandles_appear_whenTextAlignedToEnd() {
+        state = TextFieldState("hello", initialSelection = TextRange(0, 5))
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state,
+                textStyle = TextStyle(
+                    fontSize = fontSize,
+                    fontFamily = TEST_FONT_FAMILY,
+                    textAlign = TextAlign.End,
+                    letterSpacing = 1.2.sp,
+                ),
+                modifier = Modifier.testTag(TAG).fillMaxWidth()
+            )
+        }
+
+        focusAndWait()
+        assertHandlesDisplayed()
     }
 
     @Test
