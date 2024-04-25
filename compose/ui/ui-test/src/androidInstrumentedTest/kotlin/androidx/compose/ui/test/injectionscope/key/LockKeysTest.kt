@@ -150,6 +150,31 @@ class LockKeysTest {
         }
     }
 
+    @Test
+    fun withKeyToggled_keyIsOff_afterThrow() {
+        rule.performKeyInput {
+            try {
+                // When an exception is thrown during withKeyToggled
+                withKeyToggled(Key.CapsLock) { error("") }
+            } catch (e: Exception) { /* ignore */ }
+            // The key was restored to turned off
+            assertFalse(isCapsLockOn)
+        }
+    }
+
+    @Test
+    fun withKeysToggled_keysAreOff_afterThrow() {
+        rule.performKeyInput {
+            try {
+                // When an exception is thrown during withKeyToggled
+                withKeysToggled(listOf(Key.CapsLock, Key.NumLock)) { error("") }
+            } catch (e: Exception) { /* ignore */ }
+            // The keys were restored to turned off
+            assertFalse(isCapsLockOn)
+            assertFalse(isNumLockOn)
+        }
+    }
+
     private fun toggleAllLockKeys() {
         rule.performKeyInput {
             pressKey(Key.CapsLock)
