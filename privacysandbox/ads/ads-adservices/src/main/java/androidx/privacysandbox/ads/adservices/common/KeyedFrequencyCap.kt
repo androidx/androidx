@@ -28,9 +28,9 @@ import java.time.Duration
  * Frequency caps define the maximum rate an event can occur within a given time interval. If the
  * frequency cap is exceeded, the associated ad will be filtered out of ad selection.
  *
- * @param adCounterKey The ad counter key that the frequency cap is applied to.
- * @param maxCount A render URL for the winning ad.
- * @param interval The caller adtech entity's [AdTechIdentifier].
+ * @param adCounterKey The ad counter key that the frequency cap is applied to
+ * @param maxCount The maximum count of event occurrences allowed within a given time interval
+ * @param interval The interval, as a [Duration] over which the frequency cap is calculated
  */
 @ExperimentalFeatures.Ext8OptIn
 class KeyedFrequencyCap public constructor(
