@@ -161,8 +161,11 @@ fun KeyInjectionScope.pressKey(
  */
 fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit) {
     keyDown(key)
-    block.invoke(this)
-    keyUp(key)
+    try {
+        block.invoke(this)
+    } finally {
+        keyUp(key)
+    }
 }
 
 /**
@@ -178,8 +181,11 @@ fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit)
 // TODO(b/234011835): Refactor this and all functions that take List<Keys> to use vararg instead.
 fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
     keys.forEach { keyDown(it) }
-    block.invoke(this)
-    keys.forEach { keyUp(it) }
+    try {
+        block.invoke(this)
+    } finally {
+        keys.forEach { keyUp(it) }
+    }
 }
 
 /**
@@ -194,8 +200,11 @@ fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() 
  */
 fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Unit) {
     pressKey(key)
-    block.invoke(this)
-    pressKey(key)
+    try {
+        block.invoke(this)
+    } finally {
+        pressKey(key)
+    }
 }
 
 /**
@@ -210,8 +219,11 @@ fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Un
  */
 fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
     pressKeys(keys)
-    block.invoke(this)
-    pressKeys(keys)
+    try {
+        block.invoke(this)
+    } finally {
+        pressKeys(keys)
+    }
 }
 
 /**
