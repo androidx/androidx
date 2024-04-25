@@ -91,9 +91,9 @@ public final class SchemaVisibilityConfig extends AbstractSafeParcelable {
     }
 
     /**
-     * Returns an array of Integers representing Android Permissions as defined in
-     * {@link SetSchemaRequest.AppSearchSupportedPermission} that the caller must hold to access the
-     * schema this {@link SchemaVisibilityConfig} represents.
+     * Returns an array of Integers representing Android Permissions that the caller must hold to
+     * access the schema this {@link SchemaVisibilityConfig} represents.
+     * @see SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility(String, Set)
      */
     @NonNull
     public Set<Set<Integer>> getRequiredPermissions() {

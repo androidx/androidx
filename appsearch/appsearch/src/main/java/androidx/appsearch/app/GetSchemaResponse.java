@@ -94,10 +94,9 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
      * access the schema. All keys in the map are prefixed with the package-database prefix. We
      * do lazy fetch, the object will be created when you first time fetch it.
      * The Map is constructed in ANY-ALL cases. The querier could read the {@link GenericDocument}
-     * objects under the {@code schemaType} if they holds ALL required permissions of ANY
+     * objects under the {@code schemaType} if they hold ALL required permissions of ANY
      * combinations.
-     * The value set represents
-     * {@link androidx.appsearch.app.SetSchemaRequest.AppSearchSupportedPermission}.
+     * @see SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility(String, Set)
      */
     @Nullable
     private Map<String, Set<Set<Integer>>> mSchemasVisibleToPermissionsCached;
