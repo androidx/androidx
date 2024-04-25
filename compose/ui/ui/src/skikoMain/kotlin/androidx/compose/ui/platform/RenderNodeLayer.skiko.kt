@@ -231,8 +231,8 @@ internal class RenderNodeLayer(
         if (!isDestroyed && picture != null) {
             picture?.close()
             picture = null
-            invalidateParentLayer()
         }
+        invalidateParentLayer()
     }
 
     override fun drawLayer(canvas: Canvas) {
