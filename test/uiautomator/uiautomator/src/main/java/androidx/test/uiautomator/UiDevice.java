@@ -1177,10 +1177,10 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Helper method used for debugging to dump the current window's layout hierarchy.
-     * Relative file paths are stored the application's internal private storage location.
+     * Dumps every window's layout hierarchy to a file in XML format.
      *
-     * @param fileName
+     * @param fileName The file path in which to store the window hierarchy information. Relative
+     *                file paths are stored the application's internal private storage location.
      * @deprecated Use {@link UiDevice#dumpWindowHierarchy(File)} or
      *     {@link UiDevice#dumpWindowHierarchy(OutputStream)} instead.
      */
@@ -1198,10 +1198,10 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Dump the current window hierarchy to a {@link java.io.File}.
+     * Dumps every window's layout hierarchy to a {@link java.io.File} in XML format.
      *
      * @param dest The file in which to store the window hierarchy information.
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public void dumpWindowHierarchy(@NonNull File dest) throws IOException {
         Log.d(TAG, String.format("Dumping window hierarchy to %s.", dest));
@@ -1211,10 +1211,10 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Dump the current window hierarchy to an {@link java.io.OutputStream}.
+     * Dumps every window's layout hierarchy to an {@link java.io.OutputStream} in XML format.
      *
      * @param out The output stream that the window hierarchy information is written to.
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public void dumpWindowHierarchy(@NonNull OutputStream out) throws IOException {
         Log.d(TAG, String.format("Dumping window hierarchy to %s.", out));
