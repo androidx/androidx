@@ -277,6 +277,9 @@ internal class GraphicsLayerV23(
 
     override var isInvalidated: Boolean = true
 
+    override val hasDisplayList: Boolean
+        get() = renderNode.isValid
+
     override fun record(
         density: Density,
         layoutDirection: LayoutDirection,
