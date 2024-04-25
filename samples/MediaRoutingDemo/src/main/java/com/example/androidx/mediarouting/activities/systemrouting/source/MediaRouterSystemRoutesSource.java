@@ -34,19 +34,19 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
     private final MediaRouter mMediaRouter;
 
     @NonNull
-    private final MediaRouter.Callback mCallback = new MediaRouter.SimpleCallback() {
-        @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
-            super.onRouteAdded(router, info);
-            mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(info));
-        }
+    private final MediaRouter.Callback mCallback =
+            new MediaRouter.SimpleCallback() {
+                @Override
+                public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+                    mOnRoutesChangedListener.run();
+                }
 
-        @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
-            super.onRouteRemoved(router, info);
-            mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(info));
-        }
-    };
+                @Override
+                public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+                    super.onRouteRemoved(router, info);
+                    mOnRoutesChangedListener.run();
+                }
+            };
 
     /** Returns a new instance. */
     @NonNull
