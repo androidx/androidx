@@ -38,7 +38,7 @@ class PowerRailTest {
 
         assertTrue(PowerRail.hasMetrics(throwOnMissingMetrics = true))
         assertTrue(PowerRail.hasMetrics(throwOnMissingMetrics = false))
-        assertTrue(PowerMetric.deviceSupportsPowerEnergy())
+        assertTrue(PowerMetric.deviceSupportsHighPrecisionTracking())
     }
 
     @Test

@@ -172,7 +172,7 @@ class PowerMetricTest {
     fun deviceSupportsPowerEnergy() {
         assertEquals(
             PowerRail.hasMetrics(throwOnMissingMetrics = false),
-            PowerMetric.deviceSupportsPowerEnergy()
+            PowerMetric.deviceSupportsHighPrecisionTracking()
         )
     }
 
