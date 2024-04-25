@@ -17,6 +17,10 @@ MissingJvmstatic: androidx.navigation.ActivityNavigatorExtrasKt#ActivityNavigato
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 
 
+MissingNullability: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Missing nullability on method `navArgs` return
+
+
 NullableCollection: androidx.navigation.NavController#saveState():
     Return type of method androidx.navigation.NavController.saveState() is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.navigation.NavController.OnDestinationChangedListener#onDestinationChanged(androidx.navigation.NavController, androidx.navigation.NavDestination, android.os.Bundle) parameter #2:

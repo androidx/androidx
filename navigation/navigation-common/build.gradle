@@ -33,7 +33,6 @@ import org.jetbrains.kotlin.konan.target.Family
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    alias(libs.plugins.kotlinSerialization)
     id("JetbrainsAndroidXPlugin")
 }
 
@@ -81,7 +80,6 @@ kotlin {
                 api project(":savedstate:savedstate")
 
                 api(libs.kotlinStdlib)
-                implementation(libs.kotlinSerializationCore)
             }
         }
 

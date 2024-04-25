@@ -20,14 +20,21 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
@@ -41,14 +48,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -70,6 +82,7 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
+import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
@@ -83,6 +96,9 @@ import org.junit.runner.RunWith
 class NavHostTest {
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @get:Rule
+    val screenshotRule = AndroidXScreenshotTestRule("navigation/navigation-compose")
 
     @Test
     fun testSingleDestinationSet() {
@@ -1038,6 +1054,55 @@ class NavHostTest {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun testNavHostAnimationsZIndex() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(
+                navController = navController,
+                startDestination = first,
+                route = "start",
+                enterTransition = { slideInHorizontally { it / 2 } },
+                exitTransition = { slideOutHorizontally { - it / 2 } }
+            ) {
+                composable(first) { BasicText(first) }
+                composable(second) {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) {
+                        BasicText(second, Modifier.size(50.dp))
+                    }
+                }
+                composable(third) {
+                    Box(Modifier.fillMaxSize().background(Color.Red)) {
+                        BasicText(third, Modifier.size(50.dp))
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        // don't start drawing third yet
+        composeTestRule.runOnIdle {
+            composeTestRule.mainClock.autoAdvance = false
+            navController.navigate(third) { popUpTo(first) { inclusive = true } }
+        }
+
+        composeTestRule.waitForIdle()
+        // the image should show third destination covering half the screen (covering half of
+        // second destination) as its slideIn animation starts at half screen
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        composeTestRule.onNodeWithText(third).onParent()
+            .captureToImage().assertAgainstGolden(
+                screenshotRule,
+                "testNavHostAnimationsZIndex"
+            )
+    }
+
     @Test
     fun testNavHostAnimationsBackInterrupt() {
         lateinit var navController: NavHostController
@@ -1432,46 +1497,6 @@ class NavHostTest {
             backPressedDispatcher?.onBackPressed()
             assertThat(count).isEqualTo(2)
             assertThat(wasCalled).isFalse()
-        }
-    }
-
-    @Test
-    fun nestedNavHostRestore() {
-        lateinit var navController: NavHostController
-        composeTestRule.setContent {
-            navController = rememberNavController()
-            val innerNavController = rememberNavController()
-            NavHost(navController, startDestination = first) {
-                composable(first) {
-                    NavHost(innerNavController, "nested1") {
-                        composable("nested1") { }
-                        composable("nested2") { }
-                    }
-                }
-                composable(second) { }
-            }
-        }
-
-        composeTestRule.runOnIdle {
-            navController.navigate(second) {
-                popUpTo(first) {
-                    inclusive = true
-                    saveState = true
-                }
-            }
-        }
-
-        composeTestRule.runOnIdle {
-            navController.navigate(first) {
-                restoreState = true
-                popUpTo(second) {
-                    inclusive = true
-                }
-            }
-        }
-
-        composeTestRule.runOnUiThread {
-            assertThat(navController.currentDestination?.route).isEqualTo(first)
         }
     }
 

@@ -116,7 +116,7 @@ package androidx.navigation {
     method public androidx.navigation.NavDestination getDestination();
     method public String getId();
     method public androidx.lifecycle.Lifecycle getLifecycle();
-    method @MainThread public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
+    method public androidx.lifecycle.SavedStateHandle getSavedStateHandle();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     property public final android.os.Bundle? arguments;
@@ -125,7 +125,7 @@ package androidx.navigation {
     property public final androidx.navigation.NavDestination destination;
     property public final String id;
     property public androidx.lifecycle.Lifecycle lifecycle;
-    property @MainThread public final androidx.lifecycle.SavedStateHandle savedStateHandle;
+    property public final androidx.lifecycle.SavedStateHandle savedStateHandle;
     property public androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
     field public static final androidx.navigation.NavBackStackEntry.Companion Companion;
@@ -406,7 +406,6 @@ package androidx.navigation {
     method public T parseValue(String value, T previousValue);
     method public abstract void put(android.os.Bundle bundle, String key, T value);
     method public String serializeAsValue(T value);
-    method public boolean valueEquals(T value, T other);
     property public boolean isNullableAllowed;
     property public String name;
     field public static final androidx.navigation.NavType<boolean[]?> BoolArrayType;
@@ -432,12 +431,11 @@ package androidx.navigation {
     property public String name;
   }
 
-  public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]> {
+  public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]?> {
     ctor public NavType.ParcelableArrayType(Class<D> type);
     method public D[]? get(android.os.Bundle bundle, String key);
     method public D[] parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D[]? value);
-    method public boolean valueEquals(D[]? value, D[]? other);
     property public String name;
   }
 
@@ -449,12 +447,11 @@ package androidx.navigation {
     property public String name;
   }
 
-  public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]> {
+  public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]?> {
     ctor public NavType.SerializableArrayType(Class<D> type);
     method public D[]? get(android.os.Bundle bundle, String key);
     method public D[] parseValue(String value);
     method public void put(android.os.Bundle bundle, String key, D[]? value);
-    method public boolean valueEquals(D[]? value, D[]? other);
     property public String name;
   }
 

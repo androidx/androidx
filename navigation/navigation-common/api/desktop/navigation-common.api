@@ -273,7 +273,6 @@ public abstract class androidx/navigation/NavType {
 	public abstract fun put (Landroidx/core/bundle/Bundle;Ljava/lang/String;Ljava/lang/Object;)V
 	public fun serializeAsValue (Ljava/lang/Object;)Ljava/lang/String;
 	public fun toString ()Ljava/lang/String;
-	public fun valueEquals (Ljava/lang/Object;Ljava/lang/Object;)Z
 }
 
 public final class androidx/navigation/NavType$Companion {
