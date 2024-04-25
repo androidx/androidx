@@ -41,7 +41,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -71,7 +70,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -282,7 +280,7 @@ private fun AccessibilityNodeInspector(
                     } else {
                         InspectorNodeDetailsDialog(
                             leafNode = it,
-                            onChildNodeClick = state::inspectNode,
+                            onNodeClick = state::inspectNode,
                             onBack = onDismissRequest,
                         )
                     }
@@ -430,7 +428,7 @@ private class NodeSelectionGestureModifierNode(
 @Composable
 private fun InspectorNodeDetailsDialog(
     leafNode: NodeInfo,
-    onChildNodeClick: (NodeInfo) -> Unit,
+    onNodeClick: (NodeInfo) -> Unit,
     onBack: () -> Unit,
 ) {
     Dialog(
@@ -439,7 +437,7 @@ private fun InspectorNodeDetailsDialog(
     ) {
         InspectorNodeDetails(
             leafNode = leafNode,
-            onChildNodeClick = onChildNodeClick,
+            onNodeClick = onNodeClick,
             onBack = onBack
         )
     }
@@ -448,7 +446,7 @@ private fun InspectorNodeDetailsDialog(
 @Composable
 private fun InspectorNodeDetails(
     leafNode: NodeInfo,
-    onChildNodeClick: (NodeInfo) -> Unit,
+    onNodeClick: (NodeInfo) -> Unit,
     onBack: () -> Unit
 ) {
     MaterialTheme(colors = if (isSystemInDarkTheme()) darkColors() else lightColors()) {
@@ -462,7 +460,7 @@ private fun InspectorNodeDetails(
         ) {
             Column {
                 TopAppBar(
-                    title = { Text("AccessibilityNodeInfo: ${leafNode.nodeInfo.idForDisplay}") },
+                    title = { NodeHeader(leafNode) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
@@ -478,23 +476,13 @@ private fun InspectorNodeDetails(
                     }
                 )
 
-                val nodesFromRoot = leafNode.selfAndAncestorsToList()
-                var selectedNodeIndex by remember {
-                    mutableIntStateOf(nodesFromRoot.size - 1)
-                }
-                Accordion(
-                    selectedIndex = selectedNodeIndex,
-                    onSelectIndex = { selectedNodeIndex = it },
+                NodeProperties(
+                    node = leafNode,
+                    onNodeClick = onNodeClick,
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
-                ) {
-                    nodesFromRoot.forEach {
-                        item({ NodeAccordionHeader(it) }) {
-                            NodeAccordionBody(it, onChildNodeClick = onChildNodeClick)
-                        }
-                    }
-                }
+                )
             }
         }
     }
@@ -504,23 +492,30 @@ private fun NodeInfo.selfAndAncestorsToList() =
     buildList { visitSelfAndAncestors(::add) }.asReversed()
 
 @Composable
-private fun NodeAccordionHeader(node: NodeInfo) {
-    val (nodeClassPackage, nodeClassName) = node.nodeInfo.parseClassPackageAndName()
-    Text(nodeClassName, fontWeight = FontWeight.Medium)
-    Spacer(Modifier.width(8.dp))
-    Text(
-        nodeClassPackage,
-        style = MaterialTheme.typography.caption,
-        modifier = Modifier.alpha(0.5f),
-        overflow = TextOverflow.Ellipsis,
-        softWrap = false,
-    )
+private fun NodeHeader(node: NodeInfo) {
+    Column {
+        val (nodeClassPackage, nodeClassName) = node.nodeInfo.parseClassPackageAndName()
+        Text(nodeClassName, fontWeight = FontWeight.Medium)
+        Text(
+            nodeClassPackage,
+            style = MaterialTheme.typography.caption,
+            modifier = Modifier.alpha(0.5f),
+            overflow = TextOverflow.Ellipsis,
+            softWrap = false,
+        )
+    }
 }
 
 @Composable
-private fun NodeAccordionBody(node: NodeInfo, onChildNodeClick: (NodeInfo) -> Unit) {
+private fun NodeProperties(
+    node: NodeInfo,
+    onNodeClick: (NodeInfo) -> Unit,
+    modifier: Modifier
+) {
     SelectionContainer {
-        Column(modifier = Modifier.padding(bottom = 8.dp)) {
+        Column(modifier = modifier, verticalArrangement = spacedBy(8.dp)) {
+            NodeAncestorLinks(node, onNodeClick)
+
             val properties = node.getProperties()
                 .mapValues { (_, v) ->
                     // Turn references to other nodes into links that actually open those nodes
@@ -528,7 +523,7 @@ private fun NodeAccordionBody(node: NodeInfo, onChildNodeClick: (NodeInfo) -> Un
                     if (v is AccessibilityNodeInfoCompat) {
                         nodeLinkRepresentation(
                             node = v,
-                            onClick = { onChildNodeClick(v.toNodeInfo()) }
+                            onClick = { onNodeClick(v.toNodeInfo()) }
                         )
                     } else {
                         PropertyValueRepresentation(v)
@@ -537,6 +532,27 @@ private fun NodeAccordionBody(node: NodeInfo, onChildNodeClick: (NodeInfo) -> Un
                 .toList()
             KeyValueView(elements = properties)
         }
+    }
+}
+
+@Composable
+private fun NodeAncestorLinks(node: NodeInfo, onNodeClick: (NodeInfo) -> Unit) {
+    val ancestors = remember(node) { node.selfAndAncestorsToList().dropLast(1) }
+    if (ancestors.isNotEmpty()) {
+        val ancestorLinks = remember(ancestors) {
+            buildAnnotatedString {
+                ancestors.fastForEachIndexed { index, ancestorNode ->
+                    withLink(LinkAnnotation.Clickable("ancestor") { onNodeClick(ancestorNode) }) {
+                        append(ancestorNode.nodeInfo.parseClassPackageAndName().second)
+                    }
+
+                    if (index < ancestors.size - 1) {
+                        append(" > ")
+                    }
+                }
+            }
+        }
+        Text(ancestorLinks)
     }
 }
 
@@ -1332,9 +1348,6 @@ private class AccessibilityTreeInspectorApi34(
         return nodeInfoCompat.toNodeInfo()
     }
 }
-
-private val AccessibilityNodeInfoCompat.idForDisplay: String
-    get() = hashCode().toString(16)
 
 private fun AccessibilityNodeInfoCompat.toNodeInfo(): NodeInfo = NodeInfo(
     nodeInfo = this,
