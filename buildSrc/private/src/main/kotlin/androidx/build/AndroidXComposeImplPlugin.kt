@@ -247,9 +247,8 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             compile.inputs.property("composeReportsEnabled", enableReports)
 
             compile.pluginClasspath.from(kotlinPluginProvider.get())
-            compile.addPluginOption(ComposeCompileOptions.StrongSkippingOption, "true")
-            compile.addPluginOption(ComposeCompileOptions.NonSkippingGroupOption, "true")
-
+            compile.enableFeatureFlag(ComposeFeatureFlag.StrongSkipping)
+            compile.enableFeatureFlag(ComposeFeatureFlag.OptimizeNonSkippingGroups)
             if (shouldPublish) {
                 compile.addPluginOption(ComposeCompileOptions.SourceOption, "true")
             }
@@ -292,6 +291,18 @@ private fun KotlinCompile.addPluginOption(
                     SubpluginOption(composeCompileOptions.key, value))
     }
 )
+
+private fun KotlinCompile.enableFeatureFlag(
+    featureFlag: ComposeFeatureFlag
+) {
+    addPluginOption(ComposeCompileOptions.FeatureFlagOption, featureFlag.featureName)
+}
+
+private fun KotlinCompile.disableFeatureFlag(
+    featureFlag: ComposeFeatureFlag
+) {
+    addPluginOption(ComposeCompileOptions.FeatureFlagOption, "-${featureFlag.featureName}")
+}
 
 public fun Project.zipComposeCompilerMetrics() {
     if (project.enableComposeCompilerMetrics()) {
@@ -339,6 +350,10 @@ private enum class ComposeCompileOptions(val pluginId: String, val key: String) 
     SourceOption(ComposePluginId, "sourceInformation"),
     MetricsOption(ComposePluginId, "metricsDestination"),
     ReportsOption(ComposePluginId, "reportsDestination"),
-    StrongSkippingOption(ComposePluginId, "strongSkipping"),
-    NonSkippingGroupOption(ComposePluginId, "nonSkippingGroupOptimization")
+    FeatureFlagOption(ComposePluginId, "featureFlag"),
+}
+
+private enum class ComposeFeatureFlag(val featureName: String) {
+    StrongSkipping("StrongSkipping"),
+    OptimizeNonSkippingGroups("OptimizeNonSkippingGroups"),
 }
