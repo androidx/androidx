@@ -61,24 +61,10 @@ fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
 @kotlin.jvm.JvmInline
 value class Offset internal constructor(internal val packedValue: Long) {
     @Stable
-    val x: Float
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
-            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-                "Offset is unspecified"
-            }
-            return unpackFloat1(packedValue)
-        }
+    val x: Float get() = unpackFloat1(packedValue)
 
     @Stable
-    val y: Float
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of Size.Unspecified
-            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-                "Offset is unspecified"
-            }
-            return unpackFloat2(packedValue)
-        }
+    val y: Float get() = unpackFloat2(packedValue)
 
     @Stable
     inline operator fun component1(): Float = x
@@ -135,9 +121,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     fun getDistance(): Float {
-        checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-            "Offset is unspecified"
-        }
         val x = unpackFloat1(packedValue)
         val y = unpackFloat2(packedValue)
         return sqrt(x * x + y * y)
@@ -150,9 +133,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     fun getDistanceSquared(): Float {
-        checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-            "Offset is unspecified"
-        }
         val x = unpackFloat1(packedValue)
         val y = unpackFloat2(packedValue)
         return x * x + y * y
@@ -168,9 +148,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     operator fun unaryMinus(): Offset {
-        checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-            "Offset is unspecified"
-        }
         return Offset(packedValue xor DualFloatSignBit)
     }
 
@@ -183,12 +160,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     operator fun minus(other: Offset): Offset {
-        checkPrecondition(
-            packedValue != UnspecifiedPackedFloats &&
-            other.packedValue != UnspecifiedPackedFloats
-        ) {
-            "Offset is unspecified"
-        }
         return Offset(
             packFloats(
                 unpackFloat1(packedValue) - unpackFloat1(other.packedValue),
@@ -206,12 +177,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     operator fun plus(other: Offset): Offset {
-        checkPrecondition(
-            packedValue != UnspecifiedPackedFloats &&
-            other.packedValue != UnspecifiedPackedFloats
-        ) {
-            "Offset is unspecified"
-        }
         return Offset(
             packFloats(
                 unpackFloat1(packedValue) + unpackFloat1(other.packedValue),
@@ -229,9 +194,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     operator fun times(operand: Float): Offset {
-        checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-            "Offset is unspecified"
-        }
         return Offset(
             packFloats(
                 unpackFloat1(packedValue) * operand,
@@ -249,9 +211,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     operator fun div(operand: Float): Offset {
-        checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-            "Offset is unspecified"
-        }
         return Offset(
             packFloats(
                 unpackFloat1(packedValue) / operand,
@@ -269,9 +228,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
      */
     @Stable
     operator fun rem(operand: Float): Offset {
-        checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-            "Offset is unspecified"
-        }
         return Offset(
             packFloats(
                 unpackFloat1(packedValue) % operand,
@@ -306,12 +262,6 @@ value class Offset internal constructor(internal val packedValue: Long) {
  */
 @Stable
 fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
-    checkPrecondition(
-        start.packedValue != UnspecifiedPackedFloats &&
-        stop.packedValue != UnspecifiedPackedFloats
-    ) {
-        "Offset is unspecified"
-    }
     return Offset(
         packFloats(
             lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
@@ -325,13 +275,10 @@ fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
  */
 @Stable
 val Offset.isFinite: Boolean get() {
-    checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-        "Offset is unspecified"
-    }
     // Mask out the sign bit and do an equality check in each 32-bit lane
     // against the "infinity base" mask (to check whether each packed float
     // is infinite or not).
-    val v = (packedValue and DualUnsignedFloatMask) xor DualFloatInfinityBase
+    val v = (packedValue and DualFloatInfinityBase) xor DualFloatInfinityBase
     return (((v shr 1) or Uint64High32) - v) and Uint64High32 == 0L
 }
 
@@ -339,13 +286,15 @@ val Offset.isFinite: Boolean get() {
  * `false` when this is [Offset.Unspecified].
  */
 @Stable
-val Offset.isSpecified: Boolean get() = packedValue != UnspecifiedPackedFloats
+val Offset.isSpecified: Boolean
+    get() = packedValue and DualUnsignedFloatMask != UnspecifiedPackedFloats
 
 /**
  * `true` when this is [Offset.Unspecified].
  */
 @Stable
-val Offset.isUnspecified: Boolean get() = packedValue == UnspecifiedPackedFloats
+val Offset.isUnspecified: Boolean
+    get() = packedValue and DualUnsignedFloatMask == UnspecifiedPackedFloats
 
 /**
  * If this [Offset]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
