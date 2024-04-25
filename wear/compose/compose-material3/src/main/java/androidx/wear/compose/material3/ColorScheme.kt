@@ -235,6 +235,9 @@ public class ColorScheme(
     // Radio Button
     internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
     internal var defaultSplitRadioButtonColorsCached: SplitRadioButtonColors? = null
+
+    // Progress Indicator
+    internal var defaultProgressIndicatorColorsCached: ProgressIndicatorColors? = null
 }
 
 /**
