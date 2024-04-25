@@ -105,12 +105,17 @@ value class Offset internal constructor(internal val packedValue: Long) {
         val Unspecified = Offset(UnspecifiedPackedFloats)
     }
 
+    /**
+     * Returns:
+     * - False if [x] or [y] is a NaN
+     * - True if [x] or [y] is infinite
+     * - True otherwise
+     */
     @Stable
     fun isValid(): Boolean {
-        val convertX = (packedValue shr 32) and UnsignedFloatMask
-        val convertY = packedValue and UnsignedFloatMask
-
-        return (convertX <= FloatInfinityBase) && (convertY <= FloatInfinityBase)
+        // Take the unsigned packed floats and see if they are < InfinityBase + 1 (first NaN)
+        val v = packedValue and DualUnsignedFloatMask
+        return (v - DualFirstNaN) and v.inv() and Uint64High32 == Uint64High32
     }
 
     /**
@@ -271,7 +276,8 @@ fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
 }
 
 /**
- * True if both x and y values of the [Offset] are finite
+ * True if both x and y values of the [Offset] are finite. NaN values are not
+ * considered finite.
  */
 @Stable
 val Offset.isFinite: Boolean get() {
@@ -279,7 +285,7 @@ val Offset.isFinite: Boolean get() {
     // against the "infinity base" mask (to check whether each packed float
     // is infinite or not).
     val v = (packedValue and DualFloatInfinityBase) xor DualFloatInfinityBase
-    return (((v shr 1) or Uint64High32) - v) and Uint64High32 == 0L
+    return (v - Uint64Low32) and v.inv() and Uint64High32 == 0L
 }
 
 /**

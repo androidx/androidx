@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.geometry
 
+import androidx.compose.ui.util.floatFromBits
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -23,6 +24,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+
+// A NaN that is not Float.NaN
+private val AnotherNaN = floatFromBits(0x7f800001)
 
 @RunWith(JUnit4::class)
 class OffsetTest {
@@ -159,6 +163,28 @@ class OffsetTest {
         assertFalse(Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY).isFinite)
 
         // isFinite should return false for unspecified/NaN values
-        assertFalse(Offset(Float.NaN, Float.NaN).isFinite)
+        assertFalse(Offset.Unspecified.isFinite)
+        assertFalse(Offset(Float.NaN, 10.0f).isFinite)
+        assertFalse(Offset(10.0f, Float.NaN).isFinite)
+        assertFalse(Offset(AnotherNaN, AnotherNaN).isFinite)
+    }
+
+    @Test
+    fun testIsValid() {
+        assertTrue(Offset(10.0f, 20.0f).isValid())
+        assertTrue(Offset(0.0f, 0.0f).isValid())
+        assertTrue(Offset(10.0f, -20.0f).isValid())
+
+        assertTrue(Offset(10.0f, Float.POSITIVE_INFINITY).isValid())
+        assertTrue(Offset(10.0f, Float.NEGATIVE_INFINITY).isValid())
+        assertTrue(Offset(Float.POSITIVE_INFINITY, 20.0f).isValid())
+        assertTrue(Offset(Float.NEGATIVE_INFINITY, 20.0f).isValid())
+        assertTrue(Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY).isValid())
+
+        // isFinite should return false for unspecified/NaN values
+        assertFalse(Offset.Unspecified.isValid())
+        assertFalse(Offset(Float.NaN, 10.0f).isValid())
+        assertFalse(Offset(10.0f, Float.NaN).isValid())
+        assertFalse(Offset(AnotherNaN, AnotherNaN).isValid())
     }
 }

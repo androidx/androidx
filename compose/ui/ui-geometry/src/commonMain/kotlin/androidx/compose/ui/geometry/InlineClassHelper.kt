@@ -20,7 +20,6 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 // Masks everything but the sign bit
-internal const val UnsignedFloatMask = 0x7fffffffL
 internal const val DualUnsignedFloatMask = 0x7fffffff_7fffffffL
 
 // Any value greater than this is a NaN
@@ -35,6 +34,10 @@ internal const val UnspecifiedPackedFloats = 0x7fc00000_7fc00000L // NaN_NaN
 internal const val DualFloatSignBit = -0x7fffffff_80000000L
 // Set the highest bit of each 32 bit chunk in a 64 bit word
 internal const val Uint64High32 = -0x7fffffff_80000000L
+// Set the lowest bit of each 32 bit chunk in a 64 bit word
+internal const val Uint64Low32 = 0x00000001_00000001L
+// Encodes the first valid NaN in each of the 32 bit chunk of a 64 bit word
+internal const val DualFirstNaN = 0x7f800001_7f800001L
 
 // This function exists so we do *not* inline the throw. It keeps
 // the call site much smaller and since it's the slow path anyway,
