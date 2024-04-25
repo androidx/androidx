@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import android.util.Log
 import android.view.InputEvent
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
@@ -43,7 +44,7 @@ class ReportEventRequest public constructor(
     val adSelectionId: Long,
     val eventKey: String,
     val eventData: String,
-    val reportingDestinations: Int,
+    @ReportingDestination val reportingDestinations: Int,
     @property:ExperimentalFeatures.Ext10OptIn val inputEvent: InputEvent? = null
 ) {
     init {
@@ -81,6 +82,15 @@ class ReportEventRequest public constructor(
             "eventData=$eventData, reportingDestinations=$reportingDestinations" +
             "inputEvent=$inputEvent"
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        flag = true,
+        value = [
+            Companion.FLAG_REPORTING_DESTINATION_SELLER,
+            Companion.FLAG_REPORTING_DESTINATION_BUYER])
+    annotation class ReportingDestination
 
     companion object {
         const val FLAG_REPORTING_DESTINATION_SELLER: Int =
