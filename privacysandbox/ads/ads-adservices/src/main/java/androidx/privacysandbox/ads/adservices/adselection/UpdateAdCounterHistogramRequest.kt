@@ -38,7 +38,7 @@ import androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters
 @ExperimentalFeatures.Ext8OptIn
 class UpdateAdCounterHistogramRequest public constructor(
     val adSelectionId: Long,
-    val adEventType: Int,
+    @FrequencyCapFilters.AdEventType val adEventType: Int,
     val callerAdTech: AdTechIdentifier
 ) {
     init {
@@ -77,7 +77,9 @@ class UpdateAdCounterHistogramRequest public constructor(
         val adEventTypeStr = when (adEventType) {
             FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION -> "AD_EVENT_TYPE_IMPRESSION"
             FrequencyCapFilters.AD_EVENT_TYPE_VIEW -> "AD_EVENT_TYPE_VIEW"
-            else -> "AD_EVENT_TYPE_CLICK"
+            FrequencyCapFilters.AD_EVENT_TYPE_WIN -> "AD_EVENT_TYPE_WIN"
+            FrequencyCapFilters.AD_EVENT_TYPE_CLICK -> "AD_EVENT_TYPE_CLICK"
+            else -> "Invalid ad event type"
         }
         return "UpdateAdCounterHistogramRequest: adSelectionId=$adSelectionId, " +
             "adEventType=$adEventTypeStr, callerAdTech=$callerAdTech"

@@ -31,7 +31,7 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
  * @param renderUri a URI pointing to the ad's rendering assets
  * @param metadata buyer ad metadata represented as a JSON string
  * @param adCounterKeys the set of keys used in counting events
- * @param adFilters all [AdFilters] associated with the ad
+ * @param adFilters all [AdFilters] associated with the ad, it's optional and can be null as well
  * @param adRenderId ad render id for server auctions
  */
 @OptIn(ExperimentalFeatures.Ext8OptIn::class, ExperimentalFeatures.Ext10OptIn::class)
