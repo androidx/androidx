@@ -137,7 +137,7 @@ class TopicsManagerTest {
             mValidAdServicesSdkExt11Version || mValidAdExtServicesSdkExt11Version,
         )
 
-        val topicsManager = mockTopicsManager(mContext, false)
+        val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExt11Version)
         setupEncryptedTopicsResponse(topicsManager)
         val managerCompat = obtain(mContext)
 
