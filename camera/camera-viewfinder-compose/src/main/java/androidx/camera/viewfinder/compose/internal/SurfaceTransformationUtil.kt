@@ -174,18 +174,16 @@ object SurfaceTransformationUtil {
         return matrix
     }
 
-    fun getTransformedSurfaceRect(
-        resolution: Size,
+    fun getTransformedSurfaceMatrix(
         transformationInfo: TransformationInfo,
         viewfinderSize: Size,
-    ): RectF {
+    ): Matrix {
         val surfaceToViewFinder: Matrix =
             getSurfaceToViewFinderMatrix(
                 viewfinderSize,
                 transformationInfo,
             )
-        val rect = RectF(0f, 0f, resolution.width.toFloat(), resolution.height.toFloat())
-        surfaceToViewFinder.mapRect(rect)
-        return rect
+
+        return surfaceToViewFinder
     }
 }
