@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.material.AnimationDuration
 import androidx.compose.material.GOLDEN_MATERIAL
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -145,6 +146,8 @@ class OutlinedTextFieldScreenshotTest {
 
     @Test
     fun outlinedTextField_error_focused() {
+        // stop animation of blinking cursor
+        rule.mainClock.autoAdvance = false
         rule.setMaterialContent {
             val text = "Input"
             OutlinedTextField(
@@ -157,10 +160,7 @@ class OutlinedTextFieldScreenshotTest {
         }
 
         rule.onNodeWithTag(TextFieldTag).focus()
-        rule.runOnIdle {
-            // stop animation of blinking cursor
-            rule.mainClock.autoAdvance = false
-        }
+        rule.mainClock.advanceTimeBy(AnimationDuration.toLong())
 
         assertAgainstGolden("outlined_textField_focused_errorState")
     }
