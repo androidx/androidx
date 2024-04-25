@@ -28,7 +28,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("androidx.baselineprofile")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
     implementation(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
+    ksp(libs.hiltCompiler)
     implementation(project(":profileinstaller:profileinstaller"))
 }
 
