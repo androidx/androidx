@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.demos
+package androidx.compose.integration.demos
 
 import android.graphics.Matrix
 import android.graphics.Rect
@@ -769,7 +769,8 @@ private fun AccordionItemView(
             contentDescription = null,
             modifier = Modifier.graphicsLayer {
                 rotationZ = iconRotation
-            })
+            }
+        )
         item.header()
     }
     AnimatedVisibility(
