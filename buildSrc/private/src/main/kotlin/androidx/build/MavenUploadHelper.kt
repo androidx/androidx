@@ -237,7 +237,6 @@ internal fun modifyPomDependencies(
     pom: String,
     mavenCoordsToRedirecting: Map<String, ArtifactRedirecting>
 ): String {
-    println(mavenCoordsToRedirecting.toList().joinToString("\n"))
     // Workaround for using the default namespace in dom4j.
     val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
     val docFactory = DocumentFactory()
