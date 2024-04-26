@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Rule
@@ -392,6 +393,32 @@ class TextFieldLongPressTest : FocusedWindowTest {
         assertThat(state.selection).isEqualTo(TextRange(4, 7))
     }
 
+    @Test
+    fun longPress_startingFromEndPadding_draggingUp_selectsFromLastWord_ltr() {
+        val state = TextFieldState("abc def\nghi jkl\nmno pqr")
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                textStyle = TextStyle(),
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(200.dp)
+            )
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(bottomRight)
+            repeat((bottomRight - topRight).y.roundToInt()) {
+                moveBy(Offset(0f, -1f))
+            }
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(state.selection).isEqualTo(TextRange(4, 23))
+        }
+    }
+
     //region RTL
 
     @Test
@@ -496,6 +523,34 @@ class TextFieldLongPressTest : FocusedWindowTest {
         }
 
         assertThat(state.selection).isEqualTo(TextRange(4, 7))
+    }
+
+    @Test
+    fun longPress_startingFromEndPadding_draggingUp_selectsFromLastWord_rtl() {
+        val state = TextFieldState("$rtlText2\n$rtlText2\n$rtlText2")
+        rule.setTextFieldTestContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(),
+                    modifier = Modifier
+                        .testTag(TAG)
+                        .width(200.dp)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longPress(bottomLeft)
+            repeat((bottomLeft - topLeft).y.roundToInt()) {
+                moveBy(Offset(0f, -1f))
+            }
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(state.selection).isEqualTo(TextRange(4, 23))
+        }
     }
 
     @Test
