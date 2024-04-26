@@ -17,8 +17,10 @@
 package androidx.benchmark.macro
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -83,6 +85,38 @@ class MacrobenchmarkTest {
             )
         }
         assertTrue(exception.message!!.contains("Require iterations > 0"))
+    }
+
+    @Test
+    fun macrobenchmarkWithStartupMode_noMethodTrace() {
+        val result = macrobenchmarkWithStartupMode(
+                uniqueName = "uniqueName", // ignored, uniqueness not important
+                className = "className",
+                testName = "testName",
+                packageName = Packages.TARGET,
+                metrics = listOf(StartupTimingMetric()),
+                compilationMode = CompilationMode.Ignore(),
+                iterations = 1,
+                startupMode = StartupMode.COLD,
+                perfettoConfig = null,
+                setupBlock = {},
+                measureBlock = {
+                    startActivityAndWait(
+                        Intent(
+                            "androidx.benchmark.integration.macrobenchmark.target" +
+                                ".TRIVIAL_STARTUP_ACTIVITY"
+                        )
+                    )
+                }
+            )
+        assertEquals(
+            1,
+            result.profilerOutputs!!.size
+        )
+        assertEquals(
+            result.profilerOutputs!!.single().type,
+            BenchmarkData.TestResult.ProfilerOutput.Type.PerfettoTrace
+        )
     }
 
     enum class Block { Setup, Measure }

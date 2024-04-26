@@ -230,10 +230,6 @@ private fun macrobenchmark(
     // Capture if the app being benchmarked is a system app.
     scope.isSystemApp = applicationInfo.isSystemApp()
 
-    if (requestMethodTracing) {
-        scope.startMethodTracing()
-    }
-
     // Ensure the device is awake
     scope.device.wakeUp()
 
@@ -309,7 +305,9 @@ private fun macrobenchmark(
                                 it.start()
                             }
                         }
-                        scope.startMethodTracing()
+                        if (requestMethodTracing) {
+                            scope.startMethodTracing()
+                        }
                         trace("measureBlock") {
                             measureBlock(scope)
                         }
@@ -318,7 +316,9 @@ private fun macrobenchmark(
                             metrics.forEach {
                                 it.stop()
                             }
-                            methodTracingResultFiles += scope.stopMethodTracing()
+                            if (requestMethodTracing) {
+                                methodTracingResultFiles += scope.stopMethodTracing()
+                            }
                         }
                     }
                 }!!
