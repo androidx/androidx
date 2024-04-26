@@ -108,7 +108,7 @@ fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
  * Create and remember default implementation of [Draggable2DState] interface that allows to pass a
  * simple action that will be invoked when the drag occurs.
  *
- * This is the simplest way to set up a [draggable] modifier. When constructing this
+ * This is the simplest way to set up a [draggable2D] modifier. When constructing this
  * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever
  * drag happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in
  * pixels.
@@ -145,13 +145,13 @@ fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
  * @param onDragStarted callback that will be invoked when drag is about to start at the starting
  * position, allowing user to suspend and perform preparation for drag, if desired.This suspend
  * function is invoked with the draggable2D scope, allowing for async processing, if desired. Note
- * that the scope used here is the onw provided by the draggable2D node, for long running work that
+ * that the scope used here is the one provided by the draggable2D node, for long-running work that
  * needs to outlast the modifier being in the composition you should use a scope that fits the
  * lifecycle needed.
  * @param onDragStopped callback that will be invoked when drag is finished, allowing the
  * user to react on velocity and process it. This suspend function is invoked with the draggable2D
- * scope, allowing for async processing, if desired. Note that the scope used here is the onw
- * provided by the draggable2D scope, for long running work that needs to outlast the modifier being
+ * scope, allowing for async processing, if desired. Note that the scope used here is the one
+ * provided by the draggable2D scope, for long-running work that needs to outlast the modifier being
  * in the composition you should use a scope that fits the lifecycle needed.
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
