@@ -26,6 +26,7 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.M
 import android.os.Build.VERSION_CODES.N
 import android.os.Build.VERSION_CODES.O
+import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.Q
 import android.os.Build.VERSION_CODES.S
 import android.os.Looper
@@ -1426,20 +1427,22 @@ internal class AndroidComposeView(
             return layer
         }
 
+        // enable new layers on versions supporting render nodes
+        if (isHardwareAccelerated && SDK_INT >= M && SDK_INT != P) {
+            return GraphicsLayerOwnerLayer(
+                graphicsLayer = graphicsContext.createGraphicsLayer(),
+                context = graphicsContext,
+                ownerView = this,
+                drawBlock = drawBlock,
+                invalidateParentLayer = invalidateParentLayer
+            )
+        }
+
         // RenderNode is supported on Q+ for certain, but may also be supported on M-O.
         // We can't be confident that RenderNode is supported, so we try and fail over to
         // the ViewLayer implementation. We'll try even on on P devices, but it will fail
         // until ART allows things on the unsupported list on P.
         if (isHardwareAccelerated && SDK_INT >= M && isRenderNodeCompatible) {
-            if (SDK_INT >= Q) {
-                return GraphicsLayerOwnerLayer(
-                    graphicsLayer = graphicsContext.createGraphicsLayer(),
-                    context = graphicsContext,
-                    ownerView = this,
-                    drawBlock = drawBlock,
-                    invalidateParentLayer = invalidateParentLayer
-                )
-            }
             try {
                 return RenderNodeLayer(
                     this,
