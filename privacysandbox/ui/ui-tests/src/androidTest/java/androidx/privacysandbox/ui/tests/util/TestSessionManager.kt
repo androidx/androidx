@@ -29,6 +29,7 @@ import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import androidx.privacysandbox.ui.tests.endtoend.IntegrationTests
 import com.google.common.truth.Truth.assertThat
@@ -124,7 +125,7 @@ class TestSessionManager(
     class TestSandboxedUiAdapter(
         private val hasFailingTestSession: Boolean = false,
         private val placeViewInsideFrameLayout: Boolean = false
-    ) : SandboxedUiAdapter {
+    ) : AbstractSandboxedUiAdapter() {
 
         private val openSessionLatch: CountDownLatch = CountDownLatch(1)
 
@@ -186,7 +187,7 @@ class TestSessionManager(
             private val context: Context,
             val sessionClient: SandboxedUiAdapter.SessionClient,
             private val placeViewInsideFrameLayout: Boolean = false
-        ) : SandboxedUiAdapter.Session {
+        ) : AbstractSession() {
 
             private val configLatch = CountDownLatch(1)
             private val resizeLatch = CountDownLatch(1)
