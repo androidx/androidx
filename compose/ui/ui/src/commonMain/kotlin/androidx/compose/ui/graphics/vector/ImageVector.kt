@@ -20,6 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -285,7 +286,7 @@ class ImageVector internal constructor(
          * @param trimPathStart specifies the fraction of the path to trim from the start in the
          * range from 0 to 1. Values outside the range will wrap around the length of the path.
          * Default is 0.
-         * @param trimPathStart specifies the fraction of the path to trim from the end in the
+         * @param trimPathEnd specifies the fraction of the path to trim from the end in the
          * range from 0 to 1. Values outside the range will wrap around the length of the path.
          * Default is 1.
          * @param trimPathOffset specifies the fraction to shift the path trim region in the range
@@ -701,6 +702,8 @@ class VectorPath internal constructor(
  * @param strokeLineCap specifies the linecap for a stroked path
  * @param strokeLineJoin specifies the linejoin for a stroked path
  * @param strokeLineMiter specifies the miter limit for a stroked path
+ * @param pathFillType specifies the winding rule that decides how the interior of a [Path] is
+ * calculated.
  * @param pathBuilder [PathBuilder] lambda for adding [PathNode]s to this path.
  */
 inline fun ImageVector.Builder.path(

@@ -112,6 +112,8 @@ fun rememberVectorPainter(
  * @param [name] optional identifier used to identify the root of this vector graphic
  * @param [tintColor] optional color used to tint the root group of this vector graphic
  * @param [tintBlendMode] BlendMode used in combination with [tintColor]
+ * @param [autoMirror] Determines if the contents of the Vector should be mirrored for right to left
+ * layouts.
  * @param [content] Composable used to define the structure and contents of the vector graphic
  */
 @Composable
