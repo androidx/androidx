@@ -335,6 +335,7 @@ value class Color(val value: ULong) {
          * 240 is blue
          * @param saturation The amount of [hue] represented in the color in the range (0..1),
          * where 0 has no color and 1 is fully saturated.
+         * @param alpha Alpha channel to apply to the computed color
          * @param value The strength of the color, where 0 is black.
          * @param colorSpace The RGB color space used to calculate the Color from the HSV values.
          */
@@ -370,6 +371,7 @@ value class Color(val value: ULong) {
          * where 0 has no color and 1 is fully saturated.
          * @param lightness A range of (0..1) where 0 is black, 0.5 is fully colored, and 1 is
          * white.
+         * @param alpha Alpha channel to apply to the computed color
          * @param colorSpace The RGB color space used to calculate the Color from the HSL values.
          */
         fun hsl(

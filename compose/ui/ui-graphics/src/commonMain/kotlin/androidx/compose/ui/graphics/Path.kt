@@ -367,6 +367,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
      *
      * @param path1 The first operand (for difference, the minuend)
      * @param path2 The second operand (for difference, the subtrahend)
+     * @param operation [PathOperation] to apply to the 2 specified paths
      *
      * @return True if operation succeeded, false otherwise and this path remains unmodified.
      */
