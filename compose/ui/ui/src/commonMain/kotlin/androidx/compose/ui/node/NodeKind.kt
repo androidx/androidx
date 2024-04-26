@@ -269,10 +269,18 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
         }
     }
     if (Nodes.LayoutAware in selfKindSet && node is LayoutAwareModifierNode) {
-        node.requireLayoutNode().invalidateMeasurements()
+        // No need to invalidate layout when removing a LayoutAwareModifierNode, as these won't be
+        // invoked anyway
+        if (phase != Removed) {
+            node.requireLayoutNode().invalidateMeasurements()
+        }
     }
     if (Nodes.GlobalPositionAware in selfKindSet && node is GlobalPositionAwareModifierNode) {
-        node.requireLayoutNode().invalidateOnPositioned()
+        // No need to invalidate when removing a GlobalPositionAwareModifierNode, as these won't be
+        // invoked anyway
+        if (phase != Removed) {
+            node.requireLayoutNode().invalidateOnPositioned()
+        }
     }
     if (Nodes.Draw in selfKindSet && node is DrawModifierNode) {
         node.invalidateDraw()

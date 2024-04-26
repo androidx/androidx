@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.AtLeastSize
@@ -1282,6 +1283,43 @@ class OnGloballyPositionedTest {
         }
         rule.runOnIdle {
             assertThat(position).isEqualTo(Offset(1f, 1f))
+        }
+    }
+
+    @Test
+    fun removingOnPositionedCallbackDoesNotTriggerOtherCallbacks() {
+        val callbackPresent = mutableStateOf(true)
+
+        var positionCalled1Count = 0
+        var positionCalled2Count = 0
+        rule.setContent {
+            val modifier = if (callbackPresent.value) {
+                // Remember lambdas to avoid triggering a node update when the lambda changes
+                Modifier.onGloballyPositioned(remember { { positionCalled1Count++ } })
+            } else {
+                Modifier
+            }
+            Box(Modifier
+                // Remember lambdas to avoid triggering a node update when the lambda changes
+                .onGloballyPositioned(remember { { positionCalled2Count++ } })
+                .then(modifier)
+                .fillMaxSize()
+            )
+        }
+
+        rule.runOnIdle {
+            // Both callbacks should be called
+            assertThat(positionCalled1Count).isEqualTo(1)
+            assertThat(positionCalled2Count).isEqualTo(1)
+        }
+
+        // Remove the first node
+        rule.runOnIdle { callbackPresent.value = false }
+
+        rule.runOnIdle {
+            // Removing the node should not trigger any new callbacks
+            assertThat(positionCalled1Count).isEqualTo(1)
+            assertThat(positionCalled2Count).isEqualTo(1)
         }
     }
 }
