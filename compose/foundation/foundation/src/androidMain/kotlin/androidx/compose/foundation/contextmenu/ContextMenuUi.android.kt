@@ -254,7 +254,7 @@ internal class ContextMenuScope internal constructor() {
      * Returns whether or not the context menu should be dismissed.
      */
     fun item(
-        label: String,
+        label: @Composable () -> String,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
         /**
@@ -272,11 +272,12 @@ internal class ContextMenuScope internal constructor() {
          */
         onClick: () -> Unit,
     ) {
-        check(label.isNotBlank()) { "Label must not be blank" }
         composables += { colors ->
+            val resolvedLabel = label()
+            check(resolvedLabel.isNotBlank()) { "Label must not be blank" }
             ContextMenuItem(
                 modifier = modifier,
-                label = label,
+                label = resolvedLabel,
                 enabled = enabled,
                 colors = colors,
                 leadingIcon = leadingIcon,
