@@ -229,6 +229,13 @@ public interface Features {
     String ENTERPRISE_GLOBAL_SEARCH_SESSION = "ENTERPRISE_GLOBAL_SEARCH_SESSION";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#addInformationalRankingExpressions}.
+     */
+    String SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS =
+            "SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

@@ -81,6 +81,8 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
                 // fall through
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
                 return true;
             default:
                 return false;

@@ -114,4 +114,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
                 .isEqualTo("com.android.appsearch.flags.enable_list_filter_tokenize_function");
     }
+
+    @Test
+    public void testFlagValue_enableInformationalRankingExpressions() {
+        assertThat(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+                .isEqualTo("com.android.appsearch.flags.enable_informational_ranking_expressions");
+    }
 }

@@ -96,6 +96,9 @@ public class SearchResultToProtoConverter {
         SearchResult.Builder builder =
                 new SearchResult.Builder(getPackageName(prefix), getDatabaseName(prefix))
                         .setGenericDocument(document).setRankingSignal(proto.getScore());
+        for (int i = 0; i < proto.getAdditionalScoresCount(); i++) {
+            builder.addInformationalRankingSignal(proto.getAdditionalScores(i));
+        }
         if (proto.hasSnippet()) {
             for (int i = 0; i < proto.getSnippet().getEntriesCount(); i++) {
                 SnippetProto.EntryProto entry = proto.getSnippet().getEntries(i);

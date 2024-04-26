@@ -64,6 +64,7 @@ import androidx.appsearch.app.usagereporting.ClickAction;
 import androidx.appsearch.app.usagereporting.SearchAction;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.appsearch.util.DocumentIdUtil;
 import androidx.collection.ArrayMap;
@@ -9119,5 +9120,103 @@ public abstract class AppSearchSessionCtsTestBase {
                 () -> mDb1.search("tokenize(\"foo.\")", searchSpec));
         assertThat(exception).hasMessageThat().contains(Features.LIST_FILTER_TOKENIZE_FUNCTION
                 + " is not available on this AppSearch implementation.");
+    }
+
+    @Test
+    public void testInformationalRankingExpressions() throws Exception {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+        assumeTrue(
+                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS));
+
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
+                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding")
+                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
+                        .setIndexingType(
+                                AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+
+        // Index documents
+        final int doc0DocScore = 2;
+        GenericDocument doc0 =
+                new GenericDocument.Builder<>("namespace", "id0", "Email")
+                        .setScore(doc0DocScore)
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding", new EmbeddingVector(
+                                new float[]{-0.1f, -0.2f, -0.3f, -0.4f, -0.5f}, "my_model"))
+                        .build();
+        final int doc1DocScore = 3;
+        GenericDocument doc1 =
+                new GenericDocument.Builder<>("namespace", "id1", "Email")
+                        .setScore(doc1DocScore)
+                        .setCreationTimestampMillis(1000)
+                        .setPropertyEmbedding("embedding", new EmbeddingVector(
+                                        new float[]{-0.1f, 0.2f, -0.3f, -0.4f, 0.5f}, "my_model"),
+                                new EmbeddingVector(
+                                        new float[]{-0.1f, -0.2f, -0.3f, -0.4f, -0.5f}, "my_model"))
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(doc0, doc1).build()));
+
+        // Add an embedding search with dot product semantic scores:
+        // - document 0: 0.5
+        // - document 1: -0.9, 0.5
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{1, -1, -1, 1, -1}, "my_model");
+
+        // Make an embedding query that matches all documents.
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(searchEmbedding)
+                .setRankingStrategy(
+                        "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .addInformationalRankingExpressions(
+                        "len(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .addInformationalRankingExpressions("this.documentScore()")
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .build();
+        SearchResults searchResults = mDb1.search(
+                "semanticSearch(getSearchSpecEmbedding(0))", searchSpec);
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(2);
+        // doc0:
+        assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(0.5);
+        // doc0 has 1 embedding vector and a document score of 2.
+        assertThat(results.get(0).getInformationalRankingSignals())
+                .containsExactly(1.0, (double) doc0DocScore).inOrder();
+
+        // doc1:
+        assertThat(results.get(1).getGenericDocument()).isEqualTo(doc1);
+        assertThat(results.get(1).getRankingSignal()).isWithin(0.00001).of(-0.9 + 0.5);
+        // doc1 has 2 embedding vectors and a document score of 3.
+        assertThat(results.get(1).getInformationalRankingSignals())
+                .containsExactly(2.0, (double) doc1DocScore).inOrder();
+    }
+
+    @Test
+    public void testInformationalRankingExpressions_notSupported() throws Exception {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+        assumeTrue(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION));
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS));
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy("this.documentScore() + 1")
+                .addInformationalRankingExpressions("this.documentScore()")
+                .build();
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.search("foo", searchSpec));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS
+                + " are not available on this AppSearch implementation.");
     }
 }

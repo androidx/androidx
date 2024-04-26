@@ -522,6 +522,8 @@ public final class SearchSpecToProtoConverter {
         addTypePropertyWeights(mSearchSpec.getPropertyWeights(), protoBuilder);
 
         protoBuilder.setAdvancedScoringExpression(mSearchSpec.getAdvancedRankingExpression());
+        protoBuilder.addAllAdditionalAdvancedScoringExpressions(
+                mSearchSpec.getInformationalRankingExpressions());
 
         return protoBuilder.build();
     }

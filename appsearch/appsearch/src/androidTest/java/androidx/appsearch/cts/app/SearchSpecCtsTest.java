@@ -22,6 +22,7 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENI
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
 
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.EmbeddingVector;
@@ -29,6 +30,7 @@ import androidx.appsearch.app.Features;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.flags.Flags;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -819,5 +821,44 @@ public class SearchSpecCtsTest {
         assertThat(searchSpecCopy.isListFilterTokenizeFunctionEnabled()).isFalse();
         assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
                 Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    @Test
+    public void testInformationalRankingExpressions() {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setRankingStrategy("this.documentScore()")
+                .addInformationalRankingExpressions("this.relevanceScore()")
+                .build();
+        assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
+        assertThat(searchSpec.getRankingStrategy())
+                .isEqualTo(SearchSpec.RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION);
+        assertThat(searchSpec.getAdvancedRankingExpression())
+                .isEqualTo("this.documentScore()");
+        assertThat(searchSpec.getInformationalRankingExpressions()).containsExactly(
+                "this.relevanceScore()");
+    }
+
+    @Test
+    public void testRebuild_informationalRankingExpressions() {
+        assumeTrue(Flags.enableInformationalRankingExpressions());
+
+        SearchSpec.Builder searchSpecBuilder =
+                new SearchSpec.Builder().addInformationalRankingExpressions(
+                        "this.relevanceScore()");
+
+        SearchSpec original = searchSpecBuilder.build();
+        SearchSpec rebuild = searchSpecBuilder
+                .addInformationalRankingExpressions("this.documentScore()")
+                .build();
+
+        // Rebuild won't effect the original object
+        assertThat(original.getInformationalRankingExpressions())
+                .containsExactly("this.relevanceScore()");
+
+        assertThat(rebuild.getInformationalRankingExpressions())
+                .containsExactly("this.relevanceScore()", "this.documentScore()").inOrder();
     }
 }

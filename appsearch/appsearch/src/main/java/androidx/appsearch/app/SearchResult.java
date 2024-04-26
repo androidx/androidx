@@ -36,6 +36,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,9 @@ public final class SearchResult extends AbstractSafeParcelable {
     private final double mRankingSignal;
     @Field(id = 6, getter = "getJoinedResults")
     private final List<SearchResult> mJoinedResults;
+    @NonNull
+    @Field(id = 7, getter = "getInformationalRankingSignals")
+    private final List<Double> mInformationalRankingSignals;
 
 
     /** Cache of the {@link GenericDocument}. Comes from mDocument at first use. */
@@ -92,13 +96,20 @@ public final class SearchResult extends AbstractSafeParcelable {
             @Param(id = 3) @NonNull String packageName,
             @Param(id = 4) @NonNull String databaseName,
             @Param(id = 5) double rankingSignal,
-            @Param(id = 6) @NonNull List<SearchResult> joinedResults) {
+            @Param(id = 6) @NonNull List<SearchResult> joinedResults,
+            @Param(id = 7) @Nullable List<Double> informationalRankingSignals) {
         mDocument = Preconditions.checkNotNull(document);
         mMatchInfos = Preconditions.checkNotNull(matchInfos);
         mPackageName = Preconditions.checkNotNull(packageName);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mRankingSignal = rankingSignal;
-        mJoinedResults = Preconditions.checkNotNull(joinedResults);
+        mJoinedResults = Collections.unmodifiableList(Preconditions.checkNotNull(joinedResults));
+        if (informationalRankingSignals != null) {
+            mInformationalRankingSignals = Collections.unmodifiableList(
+                    informationalRankingSignals);
+        } else {
+            mInformationalRankingSignals = Collections.emptyList();
+        }
     }
 
 // @exportToFramework:startStrip()
@@ -176,6 +187,7 @@ public final class SearchResult extends AbstractSafeParcelable {
                     mMatchInfosCached.add(matchInfo);
                 }
             }
+            mMatchInfosCached = Collections.unmodifiableList(mMatchInfosCached);
         }
         // This check is added for NullnessChecker, mMatchInfos will always be NonNull.
         return Preconditions.checkNotNull(mMatchInfosCached);
@@ -231,6 +243,16 @@ public final class SearchResult extends AbstractSafeParcelable {
     }
 
     /**
+     * Returns the informational ranking signals of the {@link GenericDocument}, according to the
+     * expressions added in {@link SearchSpec.Builder#addInformationalRankingExpressions}.
+     */
+    @NonNull
+    @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+    public List<Double> getInformationalRankingSignals() {
+        return mInformationalRankingSignals;
+    }
+
+    /**
      * Gets a list of {@link SearchResult} joined from the join operation.
      *
      * <p> These joined documents match the outer document as specified in the {@link JoinSpec}
@@ -260,10 +282,11 @@ public final class SearchResult extends AbstractSafeParcelable {
     public static final class Builder {
         private final String mPackageName;
         private final String mDatabaseName;
-        private ArrayList<MatchInfo> mMatchInfos = new ArrayList<>();
+        private List<MatchInfo> mMatchInfos = new ArrayList<>();
         private GenericDocument mGenericDocument;
         private double mRankingSignal;
-        private ArrayList<SearchResult> mJoinedResults = new ArrayList<>();
+        private List<Double> mInformationalRankingSignals = new ArrayList<>();
+        private List<SearchResult> mJoinedResults = new ArrayList<>();
         private boolean mBuilt = false;
 
         /**
@@ -289,6 +312,8 @@ public final class SearchResult extends AbstractSafeParcelable {
             }
             mGenericDocument = searchResult.getGenericDocument();
             mRankingSignal = searchResult.getRankingSignal();
+            mInformationalRankingSignals = new ArrayList<>(
+                    searchResult.getInformationalRankingSignals());
             List<SearchResult> joinedResults = searchResult.getJoinedResults();
             for (int i = 0; i < joinedResults.size(); i++) {
                 addJoinedResult(joinedResults.get(i));
@@ -346,6 +371,17 @@ public final class SearchResult extends AbstractSafeParcelable {
             return this;
         }
 
+        /** Adds the informational ranking signal of the matched document in this SearchResult. */
+        @CanIgnoreReturnValue
+        @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+        @NonNull
+        public Builder addInformationalRankingSignal(double rankingSignal) {
+            resetIfBuilt();
+            mInformationalRankingSignals.add(rankingSignal);
+            return this;
+        }
+
+
         /**
          * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
          * @param joinedResult The joined SearchResult to add.
@@ -377,18 +413,20 @@ public final class SearchResult extends AbstractSafeParcelable {
         public SearchResult build() {
             mBuilt = true;
             return new SearchResult(
-                mGenericDocument.getDocumentParcel(),
-                mMatchInfos,
-                mPackageName,
-                mDatabaseName,
-                mRankingSignal,
-                mJoinedResults);
+                    mGenericDocument.getDocumentParcel(),
+                    mMatchInfos,
+                    mPackageName,
+                    mDatabaseName,
+                    mRankingSignal,
+                    mJoinedResults,
+                    mInformationalRankingSignals);
         }
 
         private void resetIfBuilt() {
             if (mBuilt) {
                 mMatchInfos = new ArrayList<>(mMatchInfos);
                 mJoinedResults = new ArrayList<>(mJoinedResults);
+                mInformationalRankingSignals = new ArrayList<>(mInformationalRankingSignals);
                 mBuilt = false;
             }
         }
