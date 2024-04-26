@@ -20,7 +20,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.Orientation
@@ -657,14 +656,9 @@ object CarouselDefaults {
      */
     @Composable
     fun noSnapFlingBehavior(): TargetedFlingBehavior {
-        val splineDecay = rememberSplineBasedDecay<Float>()
         val decayLayoutInfoProvider = remember {
             object : SnapLayoutInfoProvider {
-                override fun calculateApproachOffset(initialVelocity: Float): Float {
-                    return splineDecay.calculateTargetValue(0f, initialVelocity)
-                }
-
-                override fun calculateSnappingOffset(currentVelocity: Float): Float = 0f
+                override fun calculateSnapOffset(velocity: Float): Float = 0f
             }
         }
 
