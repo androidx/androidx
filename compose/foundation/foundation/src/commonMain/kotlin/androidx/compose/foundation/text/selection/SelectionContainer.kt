@@ -37,6 +37,12 @@ import androidx.compose.ui.util.fastForEach
 /**
  * Enables text selection for its direct or indirect children.
  *
+ * Use of a lazy layout, such as [LazyRow][androidx.compose.foundation.lazy.LazyRow] or
+ * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn], within a [SelectionContainer]
+ * has undefined behavior on text items that aren't composed. For example, texts that aren't
+ * composed will not be included in copy operations and select all will not expand the
+ * selection to include them.
+ *
  * @sample androidx.compose.foundation.samples.SelectionSample
  */
 @Composable
