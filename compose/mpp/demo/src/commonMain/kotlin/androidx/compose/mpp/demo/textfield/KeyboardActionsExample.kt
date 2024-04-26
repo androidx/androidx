@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -108,7 +109,7 @@ private fun TextBlock(
         OutlinedTextField(
             value = textState.value,
             onValueChange = { textState.value = it },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp).onKeyEvent { println("KEY EVENT $this"); false },
             textStyle = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Normal),
             keyboardOptions = KeyboardOptions(imeAction = imeActionName),
             keyboardActions = keyboardActions

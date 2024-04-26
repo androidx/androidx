@@ -17,26 +17,31 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.text.input.CommitTextCommand
-import androidx.compose.ui.text.input.DeleteAllCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.browser.document
 import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.events.KeyboardEvent
+import org.w3c.dom.events.KeyboardEventInit
 
 /**
-* The purpose of this entity is to isolate synchronization between a TextFieldValue
-* and the DOM HTMLTextAreaElement we are actually listening events on in order to show
-* the virtual keyboard.
-*/
+ * The purpose of this entity is to isolate synchronization between a TextFieldValue
+ * and the DOM HTMLTextAreaElement we are actually listening events on in order to show
+ * the virtual keyboard.
+ */
 internal class BackingTextArea(
     private val imeOptions: ImeOptions,
     private val onEditCommand: (List<EditCommand>) -> Unit,
-    private val onImeActionPerformed: (ImeAction) -> Unit
+    private val onImeActionPerformed: (ImeAction) -> Unit,
+    private val sendKey: (evt: KeyEvent) -> Unit
 ) {
     private val textArea: HTMLTextAreaElement = createHtmlInput()
 
@@ -95,10 +100,44 @@ internal class BackingTextArea(
             setProperty("text-shadow", "none")
         }
 
-        htmlInput.addEventListener("input", {
-            val text = htmlInput.value
-            val cursorPosition = htmlInput.selectionEnd
-            sendImeValueToCompose(onEditCommand, text, cursorPosition)
+        htmlInput.addEventListener("input", { evt ->
+            evt.preventDefault()
+            evt as InputEventExtended
+
+            when (evt.inputType) {
+                "insertLineBreak" -> {
+                    if (imeOptions.singleLine) {
+                        onImeActionPerformed(imeOptions.imeAction)
+                    }
+                }
+
+                "insertCompositionText" -> {
+                    val data = evt.data ?: return@addEventListener
+                    onEditCommand(listOf(SetComposingTextCommand(data, 1)))
+                }
+
+                "insertText" -> {
+                    val data = evt.data ?: return@addEventListener
+                    if (data.length == 1) {
+                        sendKey(
+                            KeyboardEvent(
+                                "keydown", KeyboardEventInit(key = data)
+                            ).toComposeEvent()
+                        )
+                    } else if (data.length > 1) {
+                        onEditCommand(listOf(CommitTextCommand(data, 1)))
+                    }
+                }
+
+                "deleteContentBackward" -> {
+                    sendKey(
+                        KeyboardEvent(
+                            "keydown",
+                            KeyboardEventInit(key = "Backspace", code = "Backspace").withKeyCode(Key.Backspace)
+                        ).toComposeEvent()
+                    )
+                }
+            }
         })
 
         htmlInput.addEventListener("contextmenu", { evt ->
@@ -106,49 +145,11 @@ internal class BackingTextArea(
             evt.stopPropagation()
         })
 
-        // this done by analogy with KeyCommand.NEW_LINE processing in TextFieldKeyInput
-        if (imeOptions.singleLine) {
-            htmlInput.addEventListener("keydown", { evt ->
-                evt.preventDefault()
-                evt as KeyboardEvent
-                if (evt.key == "Enter" && evt.type == "keydown") {
-                    onImeActionPerformed(imeOptions.imeAction)
-                }
-            })
-        }
-
         return htmlInput
     }
 
     fun register() {
         document.body?.appendChild(textArea)
-    }
-
-    private fun sendImeValueToCompose(
-        onEditCommand: (List<EditCommand>) -> Unit,
-        text: String,
-        newCursorPosition: Int? = null
-    ) {
-        val value = if (text == "\n") {
-            ""
-        } else {
-            text
-        }
-
-        if (newCursorPosition != null) {
-            onEditCommand(
-                listOf(
-                    DeleteAllCommand(),
-                    CommitTextCommand(value, newCursorPosition),
-                )
-            )
-        } else {
-            onEditCommand(
-                listOf(
-                    CommitTextCommand(value, 1)
-                )
-            )
-        }
     }
 
     fun focus() {
@@ -175,3 +176,19 @@ internal class BackingTextArea(
         textArea.remove()
     }
 }
+
+private external interface InputEventExtended {
+    val inputType: String
+    val data: String?
+}
+
+// TODO: reuse in tests
+private external interface KeyboardEventInitExtended : KeyboardEventInit {
+    var keyCode: Int?
+}
+
+@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+private fun KeyboardEventInit.withKeyCode(key: Key) =
+    (this as KeyboardEventInitExtended).apply {
+        this.keyCode = key.keyCode.toInt()
+    }
