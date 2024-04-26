@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.provider
 
 import android.content.res.Configuration
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionObserverFactory
 
 /**
  * An abstract class that implements [SandboxedUiAdapter] while abstracting away methods that do not
@@ -26,6 +27,28 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
  * UI providers should use this class rather than implementing [SandboxedUiAdapter] directly.
  */
 abstract class AbstractSandboxedUiAdapter : SandboxedUiAdapter {
+
+    /** The list of [SessionObserverFactory] instances that have been added to this adapter. */
+    val sessionObserverFactories: List<SessionObserverFactory>
+        get() {
+            synchronized(_sessionObserverFactories) {
+                return _sessionObserverFactories.toList()
+            }
+        }
+
+    private val _sessionObserverFactories: MutableList<SessionObserverFactory> = mutableListOf()
+
+    final override fun addObserverFactory(sessionObserverFactory: SessionObserverFactory) {
+        synchronized(_sessionObserverFactories) {
+            _sessionObserverFactories.add(sessionObserverFactory)
+        }
+    }
+
+    final override fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory) {
+        synchronized(_sessionObserverFactories) {
+            _sessionObserverFactories.remove(sessionObserverFactory)
+        }
+    }
 
     /**
      * An abstract class that implements [SandboxedUiAdapter.Session] so that a UI provider does not

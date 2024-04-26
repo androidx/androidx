@@ -3,6 +3,10 @@ package androidx.privacysandbox.ui.provider {
 
   public abstract class AbstractSandboxedUiAdapter implements androidx.privacysandbox.ui.core.SandboxedUiAdapter {
     ctor public AbstractSandboxedUiAdapter();
+    method public final void addObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
+    method public final java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> getSessionObserverFactories();
+    method public final void removeObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
+    property public final java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> sessionObserverFactories;
   }
 
   public abstract static class AbstractSandboxedUiAdapter.AbstractSession implements androidx.privacysandbox.ui.core.SandboxedUiAdapter.Session {

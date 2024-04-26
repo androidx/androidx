@@ -2,7 +2,9 @@
 package androidx.privacysandbox.ui.core {
 
   public interface SandboxedUiAdapter {
+    method public void addObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
     method public void openSession(android.content.Context context, android.os.IBinder windowInputToken, int initialWidth, int initialHeight, boolean isZOrderOnTop, java.util.concurrent.Executor clientExecutor, androidx.privacysandbox.ui.core.SandboxedUiAdapter.SessionClient client);
+    method public void removeObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
   }
 
   public static interface SandboxedUiAdapter.Session extends java.lang.AutoCloseable {
@@ -29,6 +31,21 @@ package androidx.privacysandbox.ui.core {
     property public final int clientVersion;
     field public static final androidx.privacysandbox.ui.core.SdkRuntimeUiLibVersions INSTANCE;
     field public static final int apiVersion = 1; // 0x1
+  }
+
+  public interface SessionObserver {
+    method public void onSessionClosed();
+    method public void onSessionOpened(androidx.privacysandbox.ui.core.SessionObserverContext sessionObserverContext);
+  }
+
+  public final class SessionObserverContext {
+    ctor public SessionObserverContext(android.view.View? view);
+    method public android.view.View? getView();
+    property public final android.view.View? view;
+  }
+
+  public fun interface SessionObserverFactory {
+    method public androidx.privacysandbox.ui.core.SessionObserver create();
   }
 
 }

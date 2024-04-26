@@ -29,6 +29,9 @@ import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionObserver
+import androidx.privacysandbox.ui.core.SessionObserverContext
+import androidx.privacysandbox.ui.core.SessionObserverFactory
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 import androidx.privacysandbox.ui.tests.endtoend.IntegrationTests
@@ -60,10 +63,12 @@ class TestSessionManager(
         hasFailingTestSession: Boolean = false,
         placeViewInsideFrameLayout: Boolean = false,
         viewForSession: SandboxedSdkView?,
-        testSessionClient: TestSessionClient = TestSessionClient()
+        testSessionClient: TestSessionClient = TestSessionClient(),
+        sessionObserverFactories: List<SessionObserverFactory>? = null
     ): TestSandboxedUiAdapter {
 
         val adapter = TestSandboxedUiAdapter(hasFailingTestSession, placeViewInsideFrameLayout)
+        sessionObserverFactories?.forEach { adapter.addObserverFactory(it) }
         val adapterFromCoreLibInfo =
             SandboxedUiAdapterFactory.createFromCoreLibInfo(getCoreLibInfoFromAdapter(adapter))
         if (viewForSession != null) {
@@ -94,14 +99,16 @@ class TestSessionManager(
     fun createAdapterAndWaitToBeActive(
         initialZOrder: Boolean = true,
         viewForSession: SandboxedSdkView,
-        placeViewInsideFrameLayout: Boolean = false
+        placeViewInsideFrameLayout: Boolean = false,
+        sessionObserverFactories: List<SessionObserverFactory>? = null,
     ): TestSandboxedUiAdapter {
         viewForSession.orderProviderUiAboveClientUi(initialZOrder)
 
         val adapter =
             createAdapterAndEstablishSession(
                 placeViewInsideFrameLayout = placeViewInsideFrameLayout,
-                viewForSession = viewForSession
+                viewForSession = viewForSession,
+                sessionObserverFactories = sessionObserverFactories
             )
 
         val activeLatch = CountDownLatch(1)
@@ -246,14 +253,13 @@ class TestSessionManager(
                     }
                 }
 
-            override val view: View
-                get() {
-                    return if (placeViewInsideFrameLayout) {
-                        FrameLayout(context).also { it.addView(testView) }
-                    } else {
-                        testView
-                    }
+            override val view: View by lazy {
+                if (placeViewInsideFrameLayout) {
+                    FrameLayout(context).also { it.addView(testView) }
+                } else {
+                    testView
                 }
+            }
 
             override fun notifyResized(width: Int, height: Int) {
                 resizedWidth = width
@@ -325,6 +331,45 @@ class TestSessionManager(
             resizedWidth = width
             resizedHeight = height
             resizeRequestedLatch.countDown()
+        }
+    }
+
+    class SessionObserverFactoryImpl : SessionObserverFactory {
+        val sessionObservers: MutableList<SessionObserverImpl> = mutableListOf()
+        private val sessionObserverCreatedLatch = CountDownLatch(1)
+
+        override fun create(): SessionObserver {
+            sessionObserverCreatedLatch.countDown()
+            val sessionObserver = SessionObserverImpl()
+            sessionObservers.add(sessionObserver)
+            return sessionObserver
+        }
+
+        fun assertNoSessionsAreCreated() {
+            assertThat(sessionObserverCreatedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+        }
+    }
+
+    class SessionObserverImpl : SessionObserver {
+        var sessionObserverContext: SessionObserverContext? = null
+        private val sessionOpenedLatch = CountDownLatch(1)
+        private val sessionClosedLatch = CountDownLatch(1)
+
+        override fun onSessionOpened(sessionObserverContext: SessionObserverContext) {
+            this.sessionObserverContext = sessionObserverContext
+            sessionOpenedLatch.countDown()
+        }
+
+        override fun onSessionClosed() {
+            sessionClosedLatch.countDown()
+        }
+
+        fun assertSessionOpened() {
+            assertThat(sessionOpenedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        fun assertSessionClosed() {
+            assertThat(sessionClosedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 

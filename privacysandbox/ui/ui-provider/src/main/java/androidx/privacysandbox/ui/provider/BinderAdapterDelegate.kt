@@ -28,6 +28,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceControlViewHost
+import android.view.View
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -35,6 +36,9 @@ import androidx.privacysandbox.ui.core.IRemoteSessionClient
 import androidx.privacysandbox.ui.core.IRemoteSessionController
 import androidx.privacysandbox.ui.core.ISandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SessionObserver
+import androidx.privacysandbox.ui.core.SessionObserverContext
+import androidx.privacysandbox.ui.core.SessionObserverFactory
 import java.util.concurrent.Executor
 
 /**
@@ -76,9 +80,13 @@ private class BinderAdapterDelegate(
             initialHeight,
             isZOrderOnTop,
             clientExecutor,
-            client
+            SessionClientForObservers(client)
         )
     }
+
+    override fun addObserverFactory(sessionObserverFactory: SessionObserverFactory) {}
+
+    override fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory) {}
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun openRemoteSession(
@@ -227,6 +235,67 @@ private class BinderAdapterDelegate(
                     surfaceControlViewHost.release()
                 }
             }
+        }
+    }
+
+    /**
+     * Wrapper class to handle the creation of [SessionObserver] instances when the session is
+     * opened.
+     */
+    private inner class SessionClientForObservers(val client: SandboxedUiAdapter.SessionClient) :
+        SandboxedUiAdapter.SessionClient {
+
+        override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
+            val sessionObservers: MutableList<SessionObserver> = mutableListOf()
+            if (adapter is AbstractSandboxedUiAdapter) {
+                adapter.sessionObserverFactories.forEach { sessionObservers.add(it.create()) }
+            }
+            client.onSessionOpened(SessionForObservers(session, sessionObservers))
+        }
+
+        override fun onSessionError(throwable: Throwable) {
+            client.onSessionError(throwable)
+        }
+
+        override fun onResizeRequested(width: Int, height: Int) {
+            client.onResizeRequested(width, height)
+        }
+    }
+
+    /**
+     * Wrapper class of a [SandboxedUiAdapter.Session] that handles the sending of events to any
+     * [SessionObserver]s attached to the session.
+     */
+    private class SessionForObservers(
+        val session: SandboxedUiAdapter.Session,
+        val sessionObservers: List<SessionObserver>
+    ) : SandboxedUiAdapter.Session {
+
+        init {
+            if (sessionObservers.isNotEmpty()) {
+                val sessionObserverContext = SessionObserverContext(view)
+                sessionObservers.forEach { it.onSessionOpened(sessionObserverContext) }
+            }
+        }
+
+        override val view: View
+            get() = session.view
+
+        override fun notifyResized(width: Int, height: Int) {
+            session.notifyResized(width, height)
+        }
+
+        override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
+            session.notifyZOrderChanged(isZOrderOnTop)
+        }
+
+        override fun notifyConfigurationChanged(configuration: Configuration) {
+            session.notifyConfigurationChanged(configuration)
+        }
+
+        override fun close() {
+            session.close()
+            sessionObservers.forEach { it.onSessionClosed() }
         }
     }
 

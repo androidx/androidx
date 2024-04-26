@@ -34,6 +34,7 @@ import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedL
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.BackwardCompatUtil
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -78,7 +79,7 @@ class SandboxedSdkViewTest {
 
     @get:Rule var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
 
-    class FailingTestSandboxedUiAdapter : SandboxedUiAdapter {
+    class FailingTestSandboxedUiAdapter : AbstractSandboxedUiAdapter() {
         override fun openSession(
             context: Context,
             windowInputToken: IBinder,
@@ -92,7 +93,7 @@ class SandboxedSdkViewTest {
         }
     }
 
-    class TestSandboxedUiAdapter : SandboxedUiAdapter {
+    class TestSandboxedUiAdapter : AbstractSandboxedUiAdapter() {
 
         var isSessionOpened = false
         var internalClient: SandboxedUiAdapter.SessionClient? = null
