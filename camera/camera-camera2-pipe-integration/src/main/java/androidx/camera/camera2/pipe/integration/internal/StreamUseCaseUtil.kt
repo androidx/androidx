@@ -47,6 +47,7 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.streamsharing.StreamSharingConfig
+import androidx.core.util.Preconditions.checkState
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object StreamUseCaseUtil {
@@ -135,16 +136,22 @@ object StreamUseCaseUtil {
                     // MeteringRepeating is attached after the StreamUseCase population logic and
                     // therefore won't have the StreamUseCase option. It should always have
                     // SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW
+                    checkState(
+                        sessionConfig.surfaces.isNotEmpty(),
+                        "MeteringRepeating should contain a surface"
+                    )
                     streamUseCaseMap[sessionConfig.surfaces[0]] =
                         SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong()
                 } else if (sessionConfig.implementationOptions.containsOption(
                         STREAM_USE_CASE_STREAM_SPEC_OPTION
                     )
                 ) {
-                    streamUseCaseMap[sessionConfig.surfaces[0]] =
-                        sessionConfig.implementationOptions.retrieveOption(
-                            STREAM_USE_CASE_STREAM_SPEC_OPTION
-                        )!!
+                    if (sessionConfig.surfaces.isNotEmpty()) {
+                        streamUseCaseMap[sessionConfig.surfaces[0]] =
+                            sessionConfig.implementationOptions.retrieveOption(
+                                STREAM_USE_CASE_STREAM_SPEC_OPTION
+                            )!!
+                    }
                 }
                 position++
             }
