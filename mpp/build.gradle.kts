@@ -58,8 +58,7 @@ val mainComponents =
         ComposeComponent(":navigation:navigation-common", viewModelPlatforms),
         ComposeComponent(":navigation:navigation-runtime", viewModelPlatforms),
 
-        //To be added later: (also don't forget to add gradle.properties see in lifecycle-runtime for an example)
-        ComposeComponent(":lifecycle:lifecycle-runtime-compose"),
+        ComposeComponent(":lifecycle:lifecycle-runtime-compose", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":lifecycle:lifecycle-viewmodel-compose"),
         ComposeComponent(":navigation:navigation-compose"),
 
