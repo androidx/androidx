@@ -22,8 +22,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIApplicationDidEnterBackgroundNotification
 import platform.UIKit.UIApplicationWillEnterForegroundNotification
+import platform.UIKit.UIApplicationWillResignActiveNotification
 
 class ViewControllerBasedLifecycleOwnerTest {
     @Test
@@ -35,8 +37,16 @@ class ViewControllerBasedLifecycleOwnerTest {
         lifecycleOwner.handleViewWillAppear()
         assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
 
-        notificationCenter.postNotificationName(UIApplicationDidEnterBackgroundNotification, UIApplication.sharedApplication)
+        // app is visible, but not active, e.g. App switcher is shown
+        notificationCenter.postNotificationName(UIApplicationWillResignActiveNotification, UIApplication.sharedApplication)
         assertEquals(Lifecycle.State.STARTED, lifecycleOwner.lifecycle.currentState)
+
+        notificationCenter.postNotificationName(UIApplicationDidBecomeActiveNotification, UIApplication.sharedApplication)
+        assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
+
+        // app in background, e.g. Home button is pressed
+        notificationCenter.postNotificationName(UIApplicationDidEnterBackgroundNotification, UIApplication.sharedApplication)
+        assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
 
         notificationCenter.postNotificationName(UIApplicationWillEnterForegroundNotification, UIApplication.sharedApplication)
         assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)

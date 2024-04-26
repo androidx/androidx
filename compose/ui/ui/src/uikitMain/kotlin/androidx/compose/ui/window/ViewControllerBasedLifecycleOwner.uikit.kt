@@ -31,11 +31,17 @@ internal class ViewControllerBasedLifecycleOwner(
     override val viewModelStore = ViewModelStore()
 
     private var isViewAppeared = false
-    private var isAppForeground = ApplicationStateListener.isApplicationActive
+    private var isAppForeground = ApplicationForegroundStateListener.isApplicationForeground
+    private var isAppActive = isAppForeground
     private var isDisposed = false
 
-    private val applicationStateListener = ApplicationStateListener(notificationCenter) { isForeground ->
+    private val applicationForegroundStateListener = ApplicationForegroundStateListener(notificationCenter) { isForeground ->
         isAppForeground = isForeground
+        updateLifecycleState()
+    }
+
+    private val applicationActiveStateListener = ApplicationActiveStateListener(notificationCenter) { isActive ->
+        isAppActive = isActive
         updateLifecycleState()
     }
 
@@ -44,7 +50,8 @@ internal class ViewControllerBasedLifecycleOwner(
     }
 
     fun dispose() {
-        applicationStateListener.dispose()
+        applicationForegroundStateListener.dispose()
+        applicationActiveStateListener.dispose()
         viewModelStore.clear()
         isDisposed = true
         updateLifecycleState()
@@ -63,8 +70,8 @@ internal class ViewControllerBasedLifecycleOwner(
     private fun updateLifecycleState() {
         lifecycle.currentState = when {
             isDisposed -> State.DESTROYED
-            isViewAppeared && isAppForeground -> State.RESUMED
-            isViewAppeared -> State.STARTED
+            isViewAppeared && isAppForeground && isAppActive -> State.RESUMED
+            isViewAppeared && isAppForeground && !isAppActive -> State.STARTED
             else -> State.CREATED
         }
     }

@@ -37,8 +37,6 @@ import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.NSTimeInterval
 import platform.Metal.MTLCommandQueueProtocol
 import platform.Metal.MTLDeviceProtocol
-import platform.UIKit.UIApplication
-import platform.UIKit.UIApplicationState
 
 private class DisplayLinkConditions(
     val setPausedCallback: (Boolean) -> Unit
@@ -226,7 +224,7 @@ internal class MetalRedrawer(
         caDisplayLink?.paused = paused
     }
 
-    private val applicationStateListener = ApplicationStateListener { isApplicationActive ->
+    private val applicationForegroundStateListener = ApplicationForegroundStateListener { isApplicationActive ->
         displayLinkConditions.isApplicationActive = isApplicationActive
 
         if (!isApplicationActive) {
@@ -244,7 +242,7 @@ internal class MetalRedrawer(
         // and won't receive UIApplicationWillEnterForegroundNotification
         // so we compare the state with UIApplicationStateBackground instead of UIApplicationStateActive
         displayLinkConditions.isApplicationActive =
-            ApplicationStateListener.isApplicationActive
+            ApplicationForegroundStateListener.isApplicationForeground
 
         caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoopCommonModes)
 
@@ -256,7 +254,7 @@ internal class MetalRedrawer(
 
         releaseCachedCommandQueue(queue)
 
-        applicationStateListener.dispose()
+        applicationForegroundStateListener.dispose()
 
         caDisplayLink?.invalidate()
         caDisplayLink = null
