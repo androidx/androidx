@@ -49,6 +49,7 @@ import kotlin.math.max
 /**
  * Paint the content using [painter].
  *
+ * @param painter [Painter] to be drawn by this [Modifier]
  * @param sizeToIntrinsics `true` to size the element relative to [Painter.intrinsicSize]
  * @param alignment specifies alignment of the [painter] relative to content
  * @param contentScale strategy for scaling [painter] if its size does not match the content size
