@@ -17,38 +17,49 @@
 package androidx.compose.foundation.gestures.snapping
 
 /**
- * Provides information about the layout that is using a SnapFlingBehavior.
+ * Provides information about the layout that is using a [snapFlingBehavior].
  * The provider should give the following information:
- * 1) Snapping offset: The next snap position offset.
- * 2) Approach offset: An optional offset to be consumed before snapping to a defined bound.
+ * 1) Snapping offset: The next snap position offset. This needs to be provided by the layout
+ * where the snapping is happened and will represent the final settling position of this layout.
+ * 2) Approach offset: An offset to be consumed before snapping to a defined bound. If not
+ * overridden this will provide a decayed snapping behavior.
  *
  * In snapping, the approach offset and the snapping offset can be used to control how a snapping
- * animation will look in a given SnappingLayout. The complete snapping animation can be split
- * into 2 phases: Approach and Snapping. In the Approach phase, we'll use an animation to consume
- * all of the offset provided by [calculateApproachOffset], if [Float.NaN] is provided,
- * we'll naturally decay if possible. In the snapping phase, [SnapFlingBehavior] will use an
- * animation to consume all of the offset provided by [calculateSnappingOffset].
+ * animation will look in a given layout. The complete snapping animation can be split
+ * into 2 phases: approach and snapping.
+ *
+ * Approach: animate to the offset returned by [calculateApproachOffset]. This will use a decay
+ * animation if possible, otherwise the snap animation.
+ * Snapping: once the approach offset is reached, snap to the offset returned by
+ * [calculateSnapOffset] using the snap animation.
  */
 interface SnapLayoutInfoProvider {
 
     /**
-     * Calculate the distance to navigate before settling into the next snapping bound. If
-     * Float.NaN (the default value) is returned and the velocity is high enough to decay,
-     * [SnapFlingBehavior] will decay before snapping. If zero is specified, that means there won't
-     * be an approach phase and there will only be snapping.
+     * Calculate the distance to navigate before settling into the next snapping bound. By default
+     * this is [decayOffset] a suggested offset given by [snapFlingBehavior] to indicate
+     * where the animation would naturally decay if using [velocity]. Returning a value higher than
+     * [decayOffset] is valid and will force [snapFlingBehavior] to use a target based animation
+     * spec to run the approach phase since we won't be able to naturally decay to the proposed
+     * offset. If a value smaller than or equal to [decayOffset] is returned [snapFlingBehavior]
+     * will run a decay animation until it reaches the returned value. If zero is specified,
+     * that means there won't be an approach phase and there will only be snapping.
      *
-     * @param initialVelocity The current fling movement velocity. You can use this to calculate a
+     * @param velocity The current fling movement velocity. You can use this to calculate a
      * velocity based offset.
+     * @param decayOffset A suggested offset indicating where the animation would
+     * naturally decay to.
      */
-    fun calculateApproachOffset(initialVelocity: Float): Float = Float.NaN
+    fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float =
+        decayOffset
 
     /**
      * Given a target placement in a layout, the snapping offset is the next snapping position
      * this layout can be placed in. The target placement should be in the direction of
-     * [currentVelocity].
+     * [velocity].
      *
-     * @param currentVelocity The current fling movement velocity. This may change throughout the
+     * @param velocity The current fling movement velocity. This may change throughout the
      * fling animation.
      */
-    fun calculateSnappingOffset(currentVelocity: Float): Float
+    fun calculateSnapOffset(velocity: Float): Float
 }

@@ -34,8 +34,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -712,12 +712,13 @@ object DatePickerDefaults {
         return remember(decayAnimationSpec, lazyListState) {
             val original = SnapLayoutInfoProvider(lazyListState)
             val snapLayoutInfoProvider = object : SnapLayoutInfoProvider by original {
-                override fun calculateApproachOffset(initialVelocity: Float): Float {
-                    return 0.0f
-                }
+                override fun calculateApproachOffset(
+                    velocity: Float,
+                    decayOffset: Float
+                ): Float = 0.0f
             }
 
-            SnapFlingBehavior(
+            snapFlingBehavior(
                 snapLayoutInfoProvider = snapLayoutInfoProvider,
                 decayAnimationSpec = decayAnimationSpec,
                 snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow)

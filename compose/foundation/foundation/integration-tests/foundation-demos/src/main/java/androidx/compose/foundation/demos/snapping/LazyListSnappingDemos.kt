@@ -18,7 +18,6 @@ package androidx.compose.foundation.demos.snapping
 
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
@@ -42,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastSumBy
 
-@OptIn(ExperimentalFoundationApi::class)
 val SnapPositionDemos = listOf(
     ComposableDemo("Center") { SnapPosition(SnapPosition.Center) },
     ComposableDemo("Start") { SnapPosition(SnapPosition.Start) },
@@ -62,7 +60,6 @@ val LazyListSnappingDemos = listOf(
 /**
  * Snapping happens to the next item and items have the same size
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SnapPosition(snapPosition: SnapPosition) {
     val lazyListState = rememberLazyListState()
@@ -92,7 +89,6 @@ private fun SnapPosition(snapPosition: SnapPosition) {
 /**
  * Snapping happens to the next item and items have the same size
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SameItemSizeDemo() {
     val lazyListState = rememberLazyListState()
@@ -110,7 +106,6 @@ private fun SameItemSizeDemo() {
 /**
  * Snapping happens to the next item and items have the different sizes
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DifferentItemSizeDemo() {
     val lazyListState = rememberLazyListState()
@@ -129,7 +124,6 @@ private fun DifferentItemSizeDemo() {
 /**
  * Snapping happens to the next item and items are larger than the view port
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LargeItemSizeDemo() {
     val lazyListState = rememberLazyListState()
@@ -148,7 +142,6 @@ private fun LargeItemSizeDemo() {
 /**
  * Snapping happens to the next item and list has content paddings
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DifferentContentPaddingDemo() {
     val lazyListState = rememberLazyListState()
@@ -168,7 +161,6 @@ private fun DifferentContentPaddingDemo() {
 /**
  * Snapping happens after a decay animation and items have the same size
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DecayedSnappingDemo() {
     val lazyListState = rememberLazyListState()
@@ -181,7 +173,6 @@ private fun DecayedSnappingDemo() {
 /**
  * Snapping happens to at max one view port item's worth distance.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ViewPortBasedSnappingDemo() {
     val lazyListState = rememberLazyListState()
@@ -193,7 +184,6 @@ private fun ViewPortBasedSnappingDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberNextItemSnappingLayoutInfoProvider(
     state: LazyListState,
@@ -203,14 +193,14 @@ private fun rememberNextItemSnappingLayoutInfoProvider(
         val basedSnappingLayoutInfoProvider =
             SnapLayoutInfoProvider(lazyListState = state, snapPosition = snapPosition)
         object : SnapLayoutInfoProvider by basedSnappingLayoutInfoProvider {
-            override fun calculateApproachOffset(initialVelocity: Float): Float {
-                return 0f
-            }
+            override fun calculateApproachOffset(
+                velocity: Float,
+                decayOffset: Float
+            ): Float = 0.0f
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberViewPortSnappingLayoutInfoProvider(
     state: LazyListState

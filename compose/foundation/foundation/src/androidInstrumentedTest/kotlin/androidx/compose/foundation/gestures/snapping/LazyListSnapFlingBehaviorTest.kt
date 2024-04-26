@@ -391,7 +391,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // act and assert: next calculated offset is the first value emitted by
         // remainingScrollOffset this indicates the last snap step will start
         rule.mainClock.advanceTimeUntil {
-            scrollOffset.last() == snapLayoutInfoProvider.calculateSnappingOffset(10000f)
+            scrollOffset.last() == snapLayoutInfoProvider.calculateSnapOffset(10000f)
         }
 
         rule.mainClock.autoAdvance = true
