@@ -80,7 +80,11 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
                 1,
                 PixelFormat.RGBA_8888,
                 1
-            ).also { imageReader = it }
+            ).apply {
+                // We don't care about the result, but release the buffer back to the queue
+                // for subsequent renders to ensure the RenderThread is free as much as possible
+                setOnImageAvailableListener({ it?.acquireLatestImage()?.close() }, handler)
+            }.also { imageReader = it }
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
             // on Robolectric even this canvas is not hardware accelerated and drawing render nodes
