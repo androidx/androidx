@@ -21,6 +21,7 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.DimensionBuilders.weight;
+import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_NAME;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -37,6 +38,11 @@ import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 public class LayoutElementBuildersTest {
@@ -501,5 +507,159 @@ public class LayoutElementBuildersTest {
                 new LayoutElementBuilders.ArcAdapter.Builder();
 
         assertThrows(IllegalArgumentException.class, () -> arcAdapterBuilder.setContent(text));
+    }
+
+    @Test
+    public void testFontSettings_sameAxis_secondValueIgnored() {
+        int expectedValue = 100;
+        String repeatedAxis = "tst1";
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(repeatedAxis, expectedValue)
+                        .build();
+        LayoutElementBuilders.FontSetting setting1Repeated =
+                new LayoutElementBuilders.FontVariationSetting
+                        .Builder(repeatedAxis, expectedValue + 5)
+                        .build();
+        LayoutElementBuilders.FontVariationSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                        /* axisName= */ "tst2", /* value= */ 200).build();
+
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(setting1, setting2, setting1Repeated).build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontSetting> settingsList = fontStyleProto.getSettingsList();
+
+        assertThat(settingsList.size()).isEqualTo(2);
+        assertThat(settingsList.get(0)).isEqualTo(setting1.toFontSettingProto());
+        assertThat(settingsList.get(1)).isEqualTo(setting2.toFontSettingProto());
+    }
+
+    @Test
+    public void testFontSettings_secondCall_clearsPrevious() {
+        String expectedAxis = "axs3";
+        int expectedValue = 100;
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 300).build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                        /* axisName= */ "axs2", /* value= */ 200).build();
+        LayoutElementBuilders.FontSetting setting3 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                        /* axisName= */ expectedAxis, expectedValue).build();
+
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(setting1, setting2)
+                        .setSettings(setting3).build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontSetting> settingsList = fontStyleProto.getSettingsList();
+
+        assertThat(settingsList.size()).isEqualTo(1);
+        assertThat(settingsList.get(0)).isEqualTo(setting3.toFontSettingProto());
+    }
+
+    @Test
+    public void testFontSettings_setWeight() {
+        int expectedValue = 100;
+
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(
+                                LayoutElementBuilders.FontSetting.weight(expectedValue))
+                        .build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontVariationSetting> settingsList =
+                fontStyleProto.getSettingsList().stream()
+                        .map(LayoutElementProto.FontSetting::getVariation)
+                        .collect(Collectors.toList());
+        String actualAxisName =
+                new String(
+                        ByteBuffer.allocate(4)
+                                .putInt(settingsList.get(0).getAxisName()).array(),
+                        StandardCharsets.US_ASCII);
+
+        assertThat(settingsList.size()).isEqualTo(1);
+        assertThat(actualAxisName).isEqualTo(WEIGHT_AXIS_NAME);
+        assertThat(settingsList.get(0).getValue()).isEqualTo(expectedValue);
+    }
+
+    @Test
+    public void testSetting_axisName() {
+        String expectedName = "test";
+        int expectedValue = 100;
+
+        LayoutElementBuilders.FontVariationSetting setting =
+                new LayoutElementBuilders.FontVariationSetting.Builder(expectedName, expectedValue)
+                        .build();
+
+        assertThat(setting.getAxisName()).isEqualTo(expectedName);
+        assertThat(setting.getValue()).isEqualTo(expectedValue);
+    }
+
+    @Test
+    public void testSetting_equal() {
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+
+        assertThat(setting1).isEqualTo(setting2);
+        assertThat(setting1.hashCode()).isEqualTo(setting2.hashCode());
+    }
+
+    @Test
+    public void testSetting_notEqualName() {
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs2", 100)
+                        .build();
+
+        assertThat(setting1).isNotEqualTo(setting2);
+        assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
+    }
+
+    @Test
+    public void testSetting_notEqualValue() {
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs21", 200)
+                        .build();
+
+        assertThat(setting1).isNotEqualTo(setting2);
+        assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
+    }
+
+    @Test
+    public void testFontSettings_setNotAllowedWeight_throws() {
+        int expectedValue = 1005;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(
+                                LayoutElementBuilders.FontSetting.weight(expectedValue))
+                        .build());
+    }
+
+    @Test
+    public void testFontSettings_tooManySettings_throws() {
+        LayoutElementBuilders.FontSetting[] sizes =
+                new LayoutElementBuilders.FontSetting[
+                        LayoutElementBuilders.FontStyle.Builder.SETTINGS_LIMIT + 1];
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(sizes)
+                        .build());
     }
 }
