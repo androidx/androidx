@@ -59,7 +59,7 @@ internal fun ContextMenuScope.testItem(
     onClick: () -> Unit = {},
 ) {
     item(
-        label = label,
+        label = { label },
         modifier = modifier,
         enabled = enabled,
         leadingIcon = leadingIcon,

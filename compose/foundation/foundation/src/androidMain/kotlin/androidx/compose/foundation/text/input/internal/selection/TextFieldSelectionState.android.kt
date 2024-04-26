@@ -18,36 +18,16 @@ package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
-import androidx.compose.foundation.contextmenu.close
 import androidx.compose.foundation.text.TextContextMenuItems
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.foundation.text.TextItem
 
-@ReadOnlyComposable
-@Composable
 internal fun TextFieldSelectionState.contextMenuBuilder(
     state: ContextMenuState,
-): ContextMenuScope.() -> Unit {
-    val cutString = TextContextMenuItems.Cut.resolvedString()
-    val copyString = TextContextMenuItems.Copy.resolvedString()
-    val pasteString = TextContextMenuItems.Paste.resolvedString()
-    val selectAllString = TextContextMenuItems.SelectAll.resolvedString()
-    return {
-        item(state, label = cutString, enabled = canCut()) { cut() }
-        item(state, label = copyString, enabled = canCopy()) { copy(cancelSelection = false) }
-        item(state, label = pasteString, enabled = canPaste()) { paste() }
-        item(state, label = selectAllString, enabled = canSelectAll()) { selectAll() }
+): ContextMenuScope.() -> Unit = {
+    TextItem(state, TextContextMenuItems.Cut, enabled = canCut()) { cut() }
+    TextItem(state, TextContextMenuItems.Copy, enabled = canCopy()) {
+        copy(cancelSelection = false)
     }
-}
-
-private inline fun ContextMenuScope.item(
-    state: ContextMenuState,
-    label: String,
-    enabled: Boolean,
-    crossinline operation: () -> Unit
-) {
-    item(label, enabled = enabled) {
-        operation()
-        state.close()
-    }
+    TextItem(state, TextContextMenuItems.Paste, enabled = canPaste()) { paste() }
+    TextItem(state, TextContextMenuItems.SelectAll, enabled = canSelectAll()) { selectAll() }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
 import androidx.compose.foundation.contextmenu.close
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
@@ -87,4 +88,16 @@ internal enum class TextContextMenuItems(private val stringId: Int) {
     @ReadOnlyComposable
     @Composable
     fun resolvedString(): String = stringResource(stringId)
+}
+
+internal inline fun ContextMenuScope.TextItem(
+    state: ContextMenuState,
+    label: TextContextMenuItems,
+    enabled: Boolean,
+    crossinline operation: () -> Unit
+) {
+    item(label = { label.resolvedString() }, enabled = enabled) {
+        operation()
+        state.close()
+    }
 }
