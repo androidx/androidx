@@ -119,29 +119,21 @@ fun Snackbar(
         val actionTextStyle = SnackbarTokens.ActionLabelTextFont.value
         CompositionLocalProvider(LocalTextStyle provides textStyle) {
             when {
-                action == null -> OneRowSnackbar(
+                actionOnNewLine && action != null -> NewLineButtonSnackbar(
                     text = content,
-                    action = null,
+                    action = action,
                     dismissAction = dismissAction,
-                    actionTextStyle,
-                    actionContentColor,
-                    dismissActionContentColor
-                )
-                actionOnNewLine -> NewLineButtonSnackbar(
-                    content,
-                    action,
-                    dismissAction,
-                    actionTextStyle,
-                    actionContentColor,
-                    dismissActionContentColor
+                    actionTextStyle = actionTextStyle,
+                    actionContentColor = actionContentColor,
+                    dismissActionContentColor = dismissActionContentColor,
                 )
                 else -> OneRowSnackbar(
                     text = content,
                     action = action,
                     dismissAction = dismissAction,
-                    actionTextStyle,
-                    actionContentColor,
-                    dismissActionContentColor
+                    actionTextStyle = actionTextStyle,
+                    actionTextColor = actionContentColor,
+                    dismissActionColor = dismissActionContentColor,
                 )
             }
         }
@@ -353,10 +345,10 @@ private fun OneRowSnackbar(
         )
 
         val firstTextBaseline = textPlaceable[FirstBaseline]
-        require(firstTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
         val lastTextBaseline = textPlaceable[LastBaseline]
-        require(lastTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
-        val isOneLine = firstTextBaseline == lastTextBaseline
+        val hasText = firstTextBaseline != AlignmentLine.Unspecified &&
+            lastTextBaseline != AlignmentLine.Unspecified
+        val isOneLine = firstTextBaseline == lastTextBaseline || !hasText
         val dismissButtonPlaceX = containerWidth - dismissButtonWidth
         val actionButtonPlaceX = dismissButtonPlaceX - actionButtonWidth
 
