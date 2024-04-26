@@ -658,7 +658,9 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart()")
-        activityStopped = false
+        synchronized(lock) {
+            activityStopped = false
+        }
         if (restartOnStart) {
             restartOnStart = false
             setupAndStartPreview(currentCameraId, currentExtensionMode)
@@ -767,7 +769,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 if (!oldCaptureSessionClosedDeferred.isCompleted) {
                     oldCaptureSessionClosedDeferred.complete(Unit)
                 }
-                if (!keepCamera) {
+                if (!keepCamera && synchronized(lock) { activityStopped }) {
                     Log.d(TAG, "Close camera++")
                     cameraDevice?.close()
                     cameraDevice = null
@@ -872,12 +874,11 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                 override fun onDisconnected(device: CameraDevice) {
                     Log.w(TAG, "Camera $cameraId has been disconnected")
-                    if (activityStopped) {
-                        return
-                    }
                     // Rerun the flow to re-open the camera and capture session
                     coroutineScope.launch(Dispatchers.Main) {
-                        setupAndStartPreview(currentCameraId, currentExtensionMode)
+                        if (!synchronized(lock) { activityStopped }) {
+                            setupAndStartPreview(currentCameraId, currentExtensionMode)
+                        }
                     }
                 }
 
