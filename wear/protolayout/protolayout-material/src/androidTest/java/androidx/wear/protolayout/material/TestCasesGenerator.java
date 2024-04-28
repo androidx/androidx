@@ -21,7 +21,6 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_END;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
-
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.GAP_END_ANGLE;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.GAP_START_ANGLE;
 
@@ -406,7 +405,7 @@ public class TestCasesGenerator {
                 "التسمية الأولية",
                 "نص اختباري.",
                 "نص طويل جدًا لا يمكن احتواؤه في المربع الأصلي الخاص به، لذا يجب تغيير حجمه بشكل"
-                    + " صحيح قبل السطر الأخير");
+                        + " صحيح قبل السطر الأخير");
     }
 
     /**
@@ -415,7 +414,7 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    @SuppressWarnings("deprecation")    // TEXT_OVERFLOW_ELLIPSIZE_END
+    @SuppressWarnings("deprecation") // TEXT_OVERFLOW_ELLIPSIZE_END
     private static ImmutableMap<String, Layout> generateTextTestCasesForLanguage(
             @NonNull Context context,
             @NonNull DeviceParameters deviceParameters,
@@ -439,18 +438,9 @@ public class TestCasesGenerator {
                         .setColor(argb(Color.YELLOW))
                         .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
                         .setTypography(Typography.TYPOGRAPHY_BODY2)
-                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                         .build());
         testCases.put(
-                "overflow_text_golden" + goldenSuffix,
-                new Text.Builder(context, longText)
-                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
-                        .build());
-        testCases.put(
-                "overflow_text_center_golden" + goldenSuffix,
-                new Text.Builder(context, longText)
-                        .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_CENTER)
-                        .build());
+                "overflow_text_golden" + goldenSuffix, new Text.Builder(context, longText).build());
         testCases.put(
                 "overflow_ellipsize_maxlines_notreached" + goldenSuffix,
                 new Box.Builder()
