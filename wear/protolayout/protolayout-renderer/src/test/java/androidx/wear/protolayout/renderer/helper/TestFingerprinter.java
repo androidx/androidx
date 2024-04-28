@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.renderer.helper;
 
+import static androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement.InnerCase.ADAPTER;
+
 import androidx.annotation.Nullable;
 import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
@@ -96,6 +98,7 @@ public class TestFingerprinter {
         for (LayoutElementProto.ArcLayoutElement child : getArcChildren(element)) {
             addNodeToParent(child, currentFingerprintBuilder);
         }
+
         NodeFingerprint currentFingerprint = currentFingerprintBuilder.build();
         if (parentFingerprintBuilder != null) {
             addNodeToParent(currentFingerprint, parentFingerprintBuilder);
@@ -106,12 +109,14 @@ public class TestFingerprinter {
     private void addNodeToParent(
             LayoutElementProto.ArcLayoutElement element,
             NodeFingerprint.Builder parentFingerprintBuilder) {
-        addNodeToParent(
+        NodeFingerprint.Builder currentFingerprint =
                 NodeFingerprint.newBuilder()
                         .setSelfTypeValue(getSelfTypeFingerprint(element))
-                        .setSelfPropsValue(getSelfPropsFingerprint(element))
-                        .build(),
-                parentFingerprintBuilder);
+                        .setSelfPropsValue(getSelfPropsFingerprint(element));
+        if (element.getInnerCase() == ADAPTER) {
+            addNodeToParent(element.getAdapter().getContent(), currentFingerprint);
+        }
+        addNodeToParent(currentFingerprint.build(), parentFingerprintBuilder);
     }
 
     private void addNodeToParent(
