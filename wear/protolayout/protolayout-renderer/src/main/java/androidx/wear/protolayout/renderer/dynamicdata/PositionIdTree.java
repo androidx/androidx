@@ -25,6 +25,8 @@ import android.util.ArrayMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.renderer.dynamicdata.PositionIdTree.TreeNode;
 
@@ -45,10 +47,11 @@ import java.util.function.Predicate;
  *
  * <p>This class is not thread-safe.
  */
-final class PositionIdTree<T extends TreeNode> {
+@RestrictTo(Scope.LIBRARY_GROUP)
+public final class PositionIdTree<T extends TreeNode> {
 
     /** Interface for nodes stored in this tree. */
-    interface TreeNode {
+    public interface TreeNode {
         /** Will be called after a node is removed from the tree. */
         void destroy();
     }
@@ -61,7 +64,7 @@ final class PositionIdTree<T extends TreeNode> {
     }
 
     /** Removes all of the nodes in the tree and calls their {@link TreeNode#destroy()}. */
-    void clear() {
+    public void clear() {
         mPosIdToTreeNode.values().forEach(TreeNode::destroy);
         mPosIdToTreeNode.clear();
     }
@@ -71,7 +74,7 @@ final class PositionIdTree<T extends TreeNode> {
      * {@link TreeNode#destroy()} on all of the removed node. Note that the {@code posId} node won't
      * be removed.
      */
-    void removeChildNodesFor(@NonNull String posId) {
+    public void removeChildNodesFor(@NonNull String posId) {
         removeChildNodesFor(posId, /* removeRoot= */ false);
     }
 
@@ -92,7 +95,7 @@ final class PositionIdTree<T extends TreeNode> {
      * Adds the {@code newNode} to the tree. If the tree already contains a node at that position,
      * the old node will be removed and will be destroyed.
      */
-    void addOrReplace(@NonNull String posId, @NonNull T newNode) {
+    public void addOrReplace(@NonNull String posId, @NonNull T newNode) {
         T oldNode = mPosIdToTreeNode.put(posId, newNode);
         if (oldNode != null) {
             oldNode.destroy();
@@ -107,16 +110,35 @@ final class PositionIdTree<T extends TreeNode> {
 
     /** Returns the node with {@code posId} or null if it doesn't exist. */
     @Nullable
-    T get(String posId) {
+    public T get(@NonNull String posId) {
         return mPosIdToTreeNode.get(posId);
     }
 
     /**
-     * Returns all of the ancestors of the node with {@code posId} matching the {@code predicate}.
+     * Returns all of the ancestors of the node {@code posId} and value matching the {@code
+     * predicate}.
      */
     @NonNull
-    List<T> findAncestorsFor(@NonNull String posId, @NonNull Predicate<? super T> predicate) {
+    public List<T> findAncestorsFor(
+            @NonNull String posId, @NonNull Predicate<? super T> predicate) {
         List<T> result = new ArrayList<>();
+        for (String id : findAncestorsNodesFor(posId, predicate)) {
+            T value = mPosIdToTreeNode.get(id);
+            if (value != null) {
+                result.add(value);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns all of the ancestors' posIds of the node {@code posId} with value matching the {@code
+     * predicate}.
+     */
+    @NonNull
+    public List<String> findAncestorsNodesFor(
+            @NonNull String posId, @NonNull Predicate<? super T> predicate) {
+        List<String> result = new ArrayList<>();
         while (true) {
             String parentPosId = getParentNodePosId(posId);
             if (parentPosId == null) {
@@ -124,7 +146,7 @@ final class PositionIdTree<T extends TreeNode> {
             }
             T value = mPosIdToTreeNode.get(parentPosId);
             if (value != null && predicate.test(value)) {
-                result.add(value);
+                result.add(parentPosId);
             }
             posId = parentPosId;
         }
