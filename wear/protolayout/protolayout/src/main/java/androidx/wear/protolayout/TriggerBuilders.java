@@ -33,6 +33,7 @@ public final class TriggerBuilders {
     private TriggerBuilders() {}
 
     /** Creates a {@link Trigger} that fires immediately when the layout is loaded / reloaded. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     @NonNull
     public static Trigger createOnLoadTrigger() {
         return new OnLoadTrigger.Builder().build();
@@ -106,6 +107,7 @@ public final class TriggerBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-1262805599);
 
             /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /** Builds an instance from accumulated values. */
@@ -190,6 +192,7 @@ public final class TriggerBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(756642641);
 
             /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /** Sets dynamic boolean used as trigger. */
