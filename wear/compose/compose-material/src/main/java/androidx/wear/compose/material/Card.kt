@@ -90,6 +90,7 @@ import kotlin.math.min
  * still happen internally.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ * @param content Slot for composable body content displayed on the Card
  */
 @Composable
 public fun Card(
@@ -179,6 +180,7 @@ public fun Card(
  * set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
+ * @param content Slot for composable body content displayed on the Card
  */
 @Composable
 public fun AppCard(
@@ -289,6 +291,7 @@ public fun AppCard(
  * @param contentColor The default color to use for content() slot unless explicitly set.
  * @param titleColor The default color to use for title() slot unless explicitly set.
  * @param timeColor The default color to use for time() slot unless explicitly set.
+ * @param content Slot for composable body content displayed on the Card
  */
 @Composable
 public fun TitleCard(

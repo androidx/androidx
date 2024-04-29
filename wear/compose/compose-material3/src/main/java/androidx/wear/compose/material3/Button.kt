@@ -106,6 +106,7 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * emitting [Interaction]s for this button. You can use this to change the button's appearance
  * or preview the button in different states. Note that if `null` is provided, interactions will
  * still happen internally.
+ * @param content Slot for composable body content displayed on the Button
  */
 @Composable
 fun Button(
@@ -176,6 +177,7 @@ fun Button(
  * emitting [Interaction]s for this button. You can use this to change the button's appearance
  * or preview the button in different states. Note that if `null` is provided, interactions will
  * still happen internally.
+ * @param content Slot for composable body content displayed on the Button
  */
 @Composable
 fun FilledTonalButton(
@@ -245,6 +247,7 @@ fun FilledTonalButton(
  * emitting [Interaction]s for this button. You can use this to change the button's appearance
  * or preview the button in different states. Note that if `null` is provided, interactions will
  * still happen internally.
+ * @param content Slot for composable body content displayed on the OutlinedButton
  */
 @Composable
 fun OutlinedButton(
@@ -314,6 +317,7 @@ fun OutlinedButton(
  * emitting [Interaction]s for this button. You can use this to change the button's appearance
  * or preview the button in different states. Note that if `null` is provided, interactions will
  * still happen internally.
+ * @param content Slot for composable body content displayed on the ChildButton
  */
 @Composable
 fun ChildButton(
@@ -1058,6 +1062,8 @@ object ButtonDefaults {
     /**
      * Creates a [BorderStroke], such as for an [OutlinedButton]
      *
+     * @param enabled Controls the color of the border based on the enabled/disabled state of the
+     * button
      * @param borderColor The color to use for the border for this outline when enabled
      * @param disabledBorderColor The color to use for the border for this outline when
      * disabled
