@@ -222,6 +222,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowChoreographer;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowPackageManager;
@@ -1955,6 +1956,108 @@ public class ProtoLayoutInflaterTest {
         receivedState.clearLastClickableId();
         dispatchTouchEvent(parent, parentWidth - 1, parentHeight - 1);
         expect.that(receivedState.getLastClickableId()).isEqualTo("mmm");
+    }
+
+    @Test
+    @Config(minSdk = VERSION_CODES.Q)
+    public void inflateThenMutate_withClickableSizeChange_clickableModifier_extendClickTargetSize()
+    {
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+        int parentSize = 50;
+        ContainerDimension parentBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentSize)).build();
+        ContainerDimension childBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentSize / 2f)).build();
+
+        Modifiers testModifiers1 =
+                Modifiers.newBuilder()
+                        .setClickable(Clickable.newBuilder().setOnClick(action).setId("foo1"))
+                        .build();
+
+        // Child box has a size smaller than the minimum clickable size, touch delegation is
+        // required.
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setBox(
+                                                                Box.newBuilder()
+                                                                        .setWidth(childBoxSize)
+                                                                        .setHeight(childBoxSize)
+                                                                        .setModifiers(
+                                                                                testModifiers1))))
+                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        Renderer renderer =
+                renderer(
+                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
+                                .setLoadActionListener(receivedState::mergeFrom));
+        FrameLayout rootLayout = renderer.inflate();
+        ViewGroup parent = (ViewGroup) rootLayout.getChildAt(0);
+        // Confirm the touch delegation has happened.
+        assertThat(parent.getTouchDelegate()).isNotNull();
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, 5, 5);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo1");
+
+        // Produce a new layout with child box specifies its minimum clickable size, NO touch
+        // delegation is required.
+        Modifiers testModifiers2 =
+                Modifiers.newBuilder()
+                        .setClickable(
+                                Clickable.newBuilder()
+                                        .setOnClick(action)
+                                        .setId("foo2")
+                                        .setMinimumClickableWidth(dp(parentSize / 2f))
+                                        .setMinimumClickableHeight(dp(parentSize / 2f)))
+                        .build();
+        LayoutElement root2 =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setBox(
+                                                                Box.newBuilder()
+                                                                        .setWidth(childBoxSize)
+                                                                        .setHeight(childBoxSize)
+                                                                        .setModifiers(
+                                                                                testModifiers2))))
+                        .build();
+
+        // Compute the mutation
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(rootLayout),
+                        fingerprintedLayout(root2));
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+
+        // Apply the mutation
+        boolean mutationResult = renderer.applyMutation(rootLayout, mutation);
+        assertThat(mutationResult).isTrue();
+
+        // Verify that the parent removed the touch delegation.
+        // Keep an empty touch delegate composite will lead to failure when calling
+        // {@link TouchDelegateComposite#getTouchDelegateInfo}
+        assertThat(parent.getTouchDelegate()).isNull();
+
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should no longer trigger the LoadAction.
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, 5, 5);
+        expect.that(receivedState.getLastClickableId()).isEmpty();
+        View box = parent.getChildAt(0);
+        dispatchTouchEvent(box, 1, 1);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo2");
     }
 
     @Test

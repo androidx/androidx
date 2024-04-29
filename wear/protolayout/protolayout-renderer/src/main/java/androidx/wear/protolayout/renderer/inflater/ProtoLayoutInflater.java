@@ -4620,15 +4620,21 @@ public final class ProtoLayoutInflater {
             }
             // Remove the touch delegate to the view to be updated
             if (immediateParent.getTouchDelegate() != null) {
-                ((TouchDelegateComposite) immediateParent.getTouchDelegate())
-                        .removeDelegate(viewToUpdate);
+                TouchDelegateComposite delegateComposite =
+                        (TouchDelegateComposite) immediateParent.getTouchDelegate();
+                delegateComposite.removeDelegate(viewToUpdate);
 
                 // Make sure to remove the touch delegate when the actual clickable view is wrapped,
                 // for example ImageView inside the RatioViewWrapper
                 if (viewToUpdate instanceof ViewGroup
                         && ((ViewGroup) viewToUpdate).getChildCount() > 0) {
-                    ((TouchDelegateComposite) immediateParent.getTouchDelegate())
-                            .removeDelegate(((ViewGroup) viewToUpdate).getChildAt(0));
+                    delegateComposite.removeDelegate(((ViewGroup) viewToUpdate).getChildAt(0));
+                }
+
+                // If no more touch delegate left in the composite, remove it completely from the
+                // parent
+                if (delegateComposite.isEmpty()) {
+                    immediateParent.setTouchDelegate(null);
                 }
             }
             immediateParent.removeViewAt(childIndex);
