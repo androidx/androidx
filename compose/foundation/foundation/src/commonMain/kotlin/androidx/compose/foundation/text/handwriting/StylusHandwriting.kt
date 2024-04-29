@@ -89,7 +89,7 @@ private data class StylusHandwritingElementWithNegativePadding(
  * same.
  * Note: this node is a temporary solution, ideally we don't need it.
  */
-private class StylusHandwritingNodeWithNegativePadding(
+internal class StylusHandwritingNodeWithNegativePadding(
     onHandwritingSlopExceeded: () -> Boolean
 ) : StylusHandwritingNode(onHandwritingSlopExceeded), LayoutModifierNode {
     override fun MeasureScope.measure(
