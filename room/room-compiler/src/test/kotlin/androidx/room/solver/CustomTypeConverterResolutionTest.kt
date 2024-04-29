@@ -35,7 +35,6 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomAnnotationTypeNames
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -260,7 +259,6 @@ class CustomTypeConverterResolutionTest {
         runProcessorTest(
             sources = sources + CUSTOM_TYPE_JFO + CUSTOM_TYPE_CONVERTER_JFO +
                 CUSTOM_TYPE_SET_CONVERTER_JFO,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             createProcessingSteps = {
                 listOf(DatabaseProcessingStep())
             },
