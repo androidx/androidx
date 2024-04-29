@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
  * @param modifier The modifier for the list header
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content
+ * @param content Slot for displayed header text
  */
 @Composable
 public fun ListHeader(
