@@ -38,6 +38,8 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
 
     @Nullable public final Boolean mTransferInitiatedBySelf;
 
+    @Nullable public final String mTransferReason;
+
     private SystemRouteItem(@NonNull Builder builder) {
         mId = Objects.requireNonNull(builder.mId);
         mName = Objects.requireNonNull(builder.mName);
@@ -45,6 +47,7 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         mDescription = builder.mDescription;
         mSuitabilityStatus = builder.mSuitabilityStatus;
         mTransferInitiatedBySelf = builder.mTransferInitiatedBySelf;
+        mTransferReason = builder.mTransferReason;
     }
 
     @Override
@@ -73,6 +76,7 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         @Nullable private String mDescription;
         @Nullable private String mSuitabilityStatus;
         @Nullable private Boolean mTransferInitiatedBySelf;
+        @Nullable private String mTransferReason;
 
         public Builder(@NonNull String id) {
             mId = id;
@@ -126,6 +130,15 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         @NonNull
         public Builder setTransferInitiatedBySelf(@Nullable Boolean transferInitiatedBySelf) {
             mTransferInitiatedBySelf = transferInitiatedBySelf;
+            return this;
+        }
+
+        /**
+         * Sets a human-readable string describing the transfer reason, or null if not applicable.
+         */
+        @NonNull
+        public Builder setTransferReason(@Nullable String transferReason) {
+            mTransferReason = transferReason;
             return this;
         }
 
