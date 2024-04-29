@@ -17,10 +17,11 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -34,11 +35,11 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyStaggeredGridScrollTest(
@@ -59,20 +60,23 @@ class LazyStaggeredGridScrollTest(
     private var itemSizeDp = Dp.Unspecified
     private val itemCount = 100
 
+    @Before
+    fun initSizes() {
+        itemSizeDp = with(rule.density) {
+            itemSizePx.toDp()
+        }
+    }
+
     fun setContent(
         containerSizePx: Int = itemSizePx * 5,
         afterContentPaddingPx: Int = 0
     ) {
-        itemSizeDp = with(rule.density) {
-            itemSizePx.toDp()
-        }
         rule.setContent {
             state = rememberLazyStaggeredGridState()
             with(rule.density) {
                 TestContent(containerSizePx.toDp(), afterContentPaddingPx.toDp())
             }
         }
-        rule.waitForIdle()
     }
 
     @Test
@@ -351,6 +355,41 @@ class LazyStaggeredGridScrollTest(
             assertThat(state.canScrollForward).isFalse()
             assertThat(state.canScrollBackward).isTrue()
         }
+    }
+
+    @Test
+    fun scrollBy_emptyItemWithSpacing() {
+        val state = LazyStaggeredGridState()
+        val spacingDp = with(rule.density) { 10.toDp() }
+        rule.setContent {
+            LazyStaggeredGrid(
+                lanes = 1,
+                state = state,
+                mainAxisSpacing = spacingDp,
+                modifier = Modifier.size(itemSizeDp),
+            ) {
+                item {
+                    Box(Modifier.size(itemSizeDp).testTag("0").debugBorder())
+                }
+                item { } // empty item surrounded by spacings
+                item {
+                    Box(Modifier.size(itemSizeDp).testTag("2").debugBorder())
+                }
+            }
+        }
+        rule.runOnIdle {
+            runBlocking(AutoTestFrameClock()) {
+                // empty item introduces two spacings 10 pixels each
+                // so after this operation item 2 is right at the edge of the viewport
+                state.scrollBy(20f)
+                // then we do some extra scrolling to make item 2 visible
+                state.scrollBy(20f)
+            }
+        }
+        rule.onNodeWithTag("2")
+            .assertMainAxisStartPositionInRootIsEqualTo(
+                itemSizeDp - with(rule.density) { 20.toDp() }
+            )
     }
 
     @Composable
