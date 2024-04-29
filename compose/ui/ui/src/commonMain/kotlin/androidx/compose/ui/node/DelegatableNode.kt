@@ -190,11 +190,21 @@ internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.N
 internal inline fun DelegatableNode.visitLocalDescendants(
     mask: Int,
     block: (Modifier.Node) -> Unit
+) = visitLocalDescendants(
+    mask = mask,
+    includeSelf = false,
+    block = block
+)
+
+internal inline fun DelegatableNode.visitLocalDescendants(
+    mask: Int,
+    includeSelf: Boolean = false,
+    block: (Modifier.Node) -> Unit
 ) {
     checkPrecondition(node.isAttached) { "visitLocalDescendants called on an unattached node" }
     val self = node
     if (self.aggregateChildKindSet and mask == 0) return
-    var next = self.child
+    var next = if (includeSelf) self else self.child
     while (next != null) {
         if (next.kindSet and mask != 0) {
             block(next)
@@ -215,6 +225,13 @@ internal inline fun DelegatableNode.visitLocalAncestors(
         }
         next = next.parent
     }
+}
+
+internal inline fun <reified T> DelegatableNode.visitSelfAndLocalDescendants(
+    type: NodeKind<T>,
+    block: (T) -> Unit
+) = visitLocalDescendants(mask = type.mask, includeSelf = true) {
+    it.dispatchForKind(type, block)
 }
 
 internal inline fun <reified T> DelegatableNode.visitLocalDescendants(

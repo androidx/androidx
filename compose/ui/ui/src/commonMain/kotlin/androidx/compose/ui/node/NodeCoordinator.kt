@@ -1215,7 +1215,10 @@ internal abstract class NodeCoordinator(
         val start = headNode(Nodes.PointerInput.includeSelfInTraversal) ?: return false
 
         if (start.isAttached) {
-            start.visitLocalDescendants(Nodes.PointerInput) {
+            // We have to check both the self and local descendants, because the `start` can also
+            // be a `PointerInputModifierNode` (when the first modifier node on the LayoutNode is
+            // a `PointerInputModifierNode`).
+            start.visitSelfAndLocalDescendants(Nodes.PointerInput) {
                 if (it.sharePointerInputWithSiblings()) return true
             }
         }

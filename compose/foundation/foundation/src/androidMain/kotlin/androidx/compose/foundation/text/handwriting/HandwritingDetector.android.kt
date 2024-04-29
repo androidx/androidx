@@ -21,7 +21,6 @@ import androidx.compose.foundation.text.input.internal.ComposeInputMethodManager
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
@@ -93,11 +92,9 @@ private class HandwritingDetectorNode(var callback: () -> Unit) : DelegatingNode
         pointerInputNode.onCancelPointerInput()
     }
 
-    val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        detectStylusHandwriting {
-            callback()
-            composeImm.prepareStylusHandwritingDelegation()
-            return@detectStylusHandwriting true
-        }
+    val pointerInputNode = delegate(StylusHandwritingNode {
+        callback()
+        composeImm.prepareStylusHandwritingDelegation()
+        return@StylusHandwritingNode true
     })
 }
