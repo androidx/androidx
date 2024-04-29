@@ -119,6 +119,7 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#SAFE_BROWSING_ENABLE}.
      *
+     * @param settings The WebSettings object to update.
      * @param enabled Whether Safe Browsing is enabled.
      */
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
@@ -179,6 +180,7 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS}.
      *
+     * @param settings The WebSettings object to update.
      * @param menuItems an integer field flag for the menu items to be disabled.
      */
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
@@ -425,6 +427,7 @@ public class WebSettingsCompat {
      * is created.
      *
      * <p>
+     * @param settings The WebSettings object to update.
      * @param allow allow algorithmic darkening or not.
      *
      */
@@ -593,6 +596,7 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY}.
      *
+     * @param settings The WebSettings object to update.
      * @param enabled Whether EnterpriseAuthenticationAppLinkPolicy should be enabled.
      */
     @RequiresFeature(name = WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY,

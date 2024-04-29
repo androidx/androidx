@@ -160,6 +160,7 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#VISUAL_STATE_CALLBACK}.
      *
+     * @param webview The WebView to post to.
      * @param requestId An id that will be returned in the callback to allow callers to match
      *                  requests with callbacks.
      * @param callback  The callback to be invoked.
@@ -497,6 +498,7 @@ public class WebViewCompat {
      * }
      * </pre
      *
+     * @param webview The WebView to post to.
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
@@ -760,6 +762,7 @@ public class WebViewCompat {
      * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#WEB_MESSAGE_LISTENER}.
      *
+     * @param webview The WebView object to remove from.
      * @param jsObjectName The JavaScript object's name that was previously passed to {@link
      *         #addWebMessageListener(WebView, String, Set, WebMessageListener)}.
      *
