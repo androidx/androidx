@@ -1130,7 +1130,8 @@ package androidx.compose.foundation.lazy.layout {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class LazyLayoutPrefetchState {
     ctor public LazyLayoutPrefetchState(optional androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.NestedPrefetchScope,kotlin.Unit>? onNestedPrefetch);
-    method public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index, optional androidx.compose.ui.unit.Constraints? constraints);
+    method public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index);
+    method public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index, long constraints);
   }
 
   public static sealed interface LazyLayoutPrefetchState.PrefetchHandle {
@@ -1152,7 +1153,8 @@ package androidx.compose.foundation.lazy.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface NestedPrefetchScope {
-    method public void schedulePrefetch(int index, optional androidx.compose.ui.unit.Constraints? constraints);
+    method public void schedulePrefetch(int index);
+    method public void schedulePrefetch(int index, long constraints);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PrefetchRequest {
