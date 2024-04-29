@@ -16,8 +16,12 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.text.handwriting.HandwritingBoundsVerticalOffset
 import androidx.compose.foundation.text.handwriting.handwritingDetector
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.performStylusClick
@@ -48,7 +52,9 @@ internal class HandwritingDetectorTest {
 
     private val imm = FakeInputMethodManager()
 
-    private val tag = "detector"
+    private val detectorTag = "detector"
+    private val insideSpacerTag = "inside"
+    private val outsideSpacerTag = "outside"
 
     private var callbackCount = 0
 
@@ -62,39 +68,72 @@ internal class HandwritingDetectorTest {
         callbackCount = 0
 
         rule.setContent {
-            Spacer(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .handwritingDetector { callbackCount++ }
-                    .testTag(tag)
-            )
+            Column(Modifier.safeContentPadding()) {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(HandwritingBoundsVerticalOffset)
+                        .handwritingDetector { callbackCount++ }
+                        .testTag(detectorTag)
+                )
+                // This spacer is within the extended handwriting bounds of the detector
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(HandwritingBoundsVerticalOffset)
+                        .testTag(insideSpacerTag)
+                )
+                // This spacer is outside the extended handwriting bounds of the detector
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(HandwritingBoundsVerticalOffset)
+                        .testTag(outsideSpacerTag)
+                )
+            }
         }
     }
 
     @Test
     fun detector_handwriting_preparesDelegation() {
-        rule.onNodeWithTag(tag).performStylusHandwriting()
+        rule.onNodeWithTag(detectorTag).performStylusHandwriting()
 
         assertHandwritingDelegationPrepared()
     }
 
     @Test
+    fun detector_handwritingInExtendedBounds_preparesDelegation() {
+        // This spacer is within the extended handwriting bounds of the detector
+        rule.onNodeWithTag(insideSpacerTag).performStylusHandwriting()
+
+        assertHandwritingDelegationPrepared()
+    }
+
+    @Test
+    fun detector_handwritingOutsideExtendedBounds_notPreparesDelegation() {
+        // This spacer is outside the extended handwriting bounds of the detector
+        rule.onNodeWithTag(outsideSpacerTag).performStylusHandwriting()
+
+        assertHandwritingDelegationNotPrepared()
+    }
+
+    @Test
     fun detector_click_notPreparesDelegation() {
-        rule.onNodeWithTag(tag).performStylusClick()
+        rule.onNodeWithTag(detectorTag).performStylusClick()
 
         assertHandwritingDelegationNotPrepared()
     }
 
     @Test
     fun detector_longClick_notPreparesDelegation() {
-        rule.onNodeWithTag(tag).performStylusLongClick()
+        rule.onNodeWithTag(detectorTag).performStylusLongClick()
 
         assertHandwritingDelegationNotPrepared()
     }
 
     @Test
     fun detector_longPressAndDrag_notPreparesDelegation() {
-        rule.onNodeWithTag(tag).performStylusLongPressAndDrag()
+        rule.onNodeWithTag(detectorTag).performStylusLongPressAndDrag()
 
         assertHandwritingDelegationNotPrepared()
     }
