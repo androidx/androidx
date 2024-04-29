@@ -60,6 +60,39 @@ class IsTypedEventTests {
     }
 
     @Test
+    fun shortcutsWithCtrlOnlyAreNotTyped() {
+        val keyDownEvents = listOf(
+            keyDownEvent('c', metaKey = false, ctrlKey = true),
+            keyDownEvent('p', metaKey = false, ctrlKey = true),
+            keyDownEvent('v', metaKey = false, ctrlKey = true)
+        )
+
+        keyDownEvents.forEach { event -> event.assertIsNotTyped() }
+    }
+
+    @Test
+    fun shortcutsWithMetaOnlyAreNotTyped() {
+        val keyDownEvents = listOf(
+            keyDownEvent('c', metaKey = true, ctrlKey = false),
+            keyDownEvent('p', metaKey = true, ctrlKey = false),
+            keyDownEvent('v', metaKey = true, ctrlKey = false)
+        )
+
+        keyDownEvents.forEach { event -> event.assertIsNotTyped() }
+    }
+
+    @Test
+    fun altProducesATypedEvent() {
+        val keyDownEvents = listOf(
+            keyDownEvent('c', altKey = true),
+            keyDownEvent('p', altKey = true),
+            keyDownEvent('v', altKey = true)
+        )
+
+        keyDownEvents.forEach { event -> event.assertIsTyped() }
+    }
+
+    @Test
     fun functionalsAreNotTyped() {
         val keyDownEvents = listOf(
             keyDownEvent("Backspace", code="Backspace"),
