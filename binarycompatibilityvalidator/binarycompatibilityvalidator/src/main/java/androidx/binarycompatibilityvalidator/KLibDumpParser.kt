@@ -39,38 +39,44 @@ import org.jetbrains.kotlin.library.abi.impl.AbiSignaturesImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiTopLevelDeclarationsImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiValueParameterImpl
 
+class MutableAbiInfo(
+    val declarations: MutableList<AbiDeclaration> = mutableListOf(),
+    var uniqueName: String = ""
+)
+
 @OptIn(ExperimentalLibraryAbiReader::class)
 class KlibDumpParser(klibDump: String) {
 
     /** Cursor to keep track of current location within the dump **/
     private val cursor = Cursor(klibDump)
     /** The set of targets that the declarations being parsed belong to **/
-    private val currentTargets = mutableSetOf<String>()
+    private val currentTargetNames = mutableSetOf<String>()
+    private val currentTargets: List<MutableAbiInfo>
+        get() = currentTargetNames.map {
+            abiInfoByTarget[it]
+                ?: throw IllegalStateException("Expected target $it to exist in map")
+        }
     /**
      * Map of all targets to the declarations that belong to them.
-     * Only update the [currentTargets] when parsing declarations.
+     * Only update the [currentTargetNames] when parsing declarations.
      **/
-    private val abiDeclarationsByTarget = mutableMapOf<String, MutableList<AbiDeclaration>>()
-
+    private val abiInfoByTarget = mutableMapOf<String, MutableAbiInfo>()
     /** Parse the klib dump tracked by [cursor] into a map of targets to [LibraryAbi]s **/
     fun parse(): Map<String, LibraryAbi> {
         while (cursor.hasNextRow()) {
             parseDeclaration(parentQualifiedName = null)?.let { abiDeclaration ->
                 // Find all the targets the current declaration belongs to
-                currentTargets.map { target ->
-                    abiDeclarationsByTarget[target]
-                        ?: throw IllegalStateException("Expected target $target to exist in map")
-                }.forEach {
+                currentTargets.forEach {
                     // and add the parsed declaration to the list for those targets
-                    it.add(abiDeclaration)
+                    it.declarations.add(abiDeclaration)
                 }
             }
         }
-        return abiDeclarationsByTarget.map { (target, abiDeclarations) ->
+        return abiInfoByTarget.map { (target, abiInfo) ->
             target to LibraryAbi(
-                uniqueName = "",
+                uniqueName = abiInfo.uniqueName,
                 signatureVersions = emptySet(),
-                topLevelDeclarations = AbiTopLevelDeclarationsImpl(abiDeclarations),
+                topLevelDeclarations = AbiTopLevelDeclarationsImpl(abiInfo.declarations),
                 manifest = LibraryManifest(
                     platform = target,
                     // To be completed in follow up CLs. This information is currently not
@@ -93,10 +99,17 @@ class KlibDumpParser(klibDump: String) {
                 // always reset our current targets
                 val targets = cursor.parseTargets()
                 targets.forEach {
-                    abiDeclarationsByTarget.putIfAbsent(it, mutableListOf())
+                    abiInfoByTarget.putIfAbsent(it, MutableAbiInfo())
                 }
-                currentTargets.clear()
-                currentTargets.addAll(targets)
+                currentTargetNames.clear()
+                currentTargetNames.addAll(targets)
+            } else if (cursor.parseSymbol("Library unique name: ") != null) {
+                cursor.parseSymbol("<")
+                val uniqueName = cursor.parseSymbol("[a-zA-Z\\-\\.:]+")
+                    ?: throw ParseException(cursor, "Failed to parse library unique name")
+                currentTargets.forEach {
+                    it.uniqueName = uniqueName
+                }
             }
             cursor.nextLine()
         } else if (cursor.hasClassKind()) {
