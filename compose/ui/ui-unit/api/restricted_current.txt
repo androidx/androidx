@@ -132,8 +132,8 @@ package androidx.compose.ui.unit {
     method public long copy(optional float x, optional float y);
     method public float getX();
     method public float getY();
-    method @androidx.compose.runtime.Stable public inline operator long minus(long other);
-    method @androidx.compose.runtime.Stable public inline operator long plus(long other);
+    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @androidx.compose.runtime.Stable public operator long plus(long other);
     property @androidx.compose.runtime.Stable public final float x;
     property @androidx.compose.runtime.Stable public final float y;
     field public static final androidx.compose.ui.unit.DpOffset.Companion Companion;
@@ -176,8 +176,8 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public operator long div(int other);
     method public float getHeight();
     method public float getWidth();
-    method @androidx.compose.runtime.Stable public inline operator long minus(long other);
-    method @androidx.compose.runtime.Stable public inline operator long plus(long other);
+    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @androidx.compose.runtime.Stable public operator long plus(long other);
     method @androidx.compose.runtime.Stable public operator long times(float other);
     method @androidx.compose.runtime.Stable public operator long times(int other);
     property @androidx.compose.runtime.Stable public final float height;
