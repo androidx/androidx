@@ -73,8 +73,6 @@ RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable:
     Removed class androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable
 RemovedClass: androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable:
     Removed class androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable
-RemovedClass: androidx.kruth.TableSubject:
-    Removed class androidx.kruth.TableSubject
 RemovedClass: androidx.kruth.Truth:
     Removed class androidx.kruth.Truth
 RemovedClass: androidx.kruth.TruthJUnit:
