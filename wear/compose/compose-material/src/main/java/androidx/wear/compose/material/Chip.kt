@@ -172,6 +172,7 @@ public fun Chip(
  * still happen internally.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ * @param content Slot for composable body content displayed on the Chip
  */
 @Composable
 public fun Chip(
