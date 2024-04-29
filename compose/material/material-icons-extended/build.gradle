@@ -139,10 +139,12 @@ android {
 
 afterEvaluate {
     // Workaround for b/337776938
-    tasks.named("lintAnalyzeDebugAndroidTest").configure {
-        it.dependsOn("generateTestFilesDebugAndroidTest")
-    }
-    tasks.named("generateDebugAndroidTestLintModel").configure {
-        it.dependsOn("generateTestFilesDebugAndroidTest")
+    if (!project.hasProperty("android.injected.invoked.from.ide")) {
+        tasks.named("lintAnalyzeDebugAndroidTest").configure {
+            it.dependsOn("generateTestFilesDebugAndroidTest")
+        }
+        tasks.named("generateDebugAndroidTestLintModel").configure {
+            it.dependsOn("generateTestFilesDebugAndroidTest")
+        }
     }
 }
