@@ -86,10 +86,6 @@ public class RatioViewWrapper extends ViewGroup {
         requestLayout();
     }
 
-    public float getAspectRatio() {
-        return mAspectRatio;
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (getChildCount() != 1) {
@@ -118,11 +114,16 @@ public class RatioViewWrapper extends ViewGroup {
             return;
         }
 
-        // If we've already hit our aspect ratio, exit.
-        if (Math.abs(
-                        (float) childView.getMeasuredWidth() / childView.getMeasuredHeight()
-                                - mAspectRatio)
-                <= EPSILON) {
+        // 1. If measure gives zero size, exit. This happens when the child view is an
+        // ImageViewWithoutIntrinsicSize and gets a MeasureSpec which allows it to pick its own
+        // size.
+        // 2. If we've already hit our aspect ratio, exit.
+        if (childView.getMeasuredWidth() == 0
+                || childView.getMeasuredHeight() == 0
+                || Math.abs(
+                                (float) childView.getMeasuredWidth() / childView.getMeasuredHeight()
+                                        - mAspectRatio)
+                        <= EPSILON) {
             setMeasuredDimension(childView.getMeasuredWidth(), childView.getMeasuredHeight());
             return;
         }
