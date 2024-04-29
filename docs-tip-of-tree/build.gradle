@@ -66,6 +66,8 @@ dependencies {
     docs(project(":camera:camera-effects-still-portrait"))
     docs(project(":camera:camera-extensions"))
     stubs(fileTree(dir: "../camera/camera-extensions-stub", include: ["camera-extensions-stub.jar"]))
+    docs(project(":camera:camera-feature-combination-query"))
+    docs(project(":camera:camera-feature-combination-query-play-services"))
     docs(project(":camera:camera-lifecycle"))
     samples(project(":camera:camera-lifecycle:camera-lifecycle-samples"))
     docs(project(":camera:camera-mlkit-vision"))
