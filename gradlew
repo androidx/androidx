@@ -16,7 +16,6 @@ if [ -n "$OUT_DIR" ] ; then
     OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export TMPDIR="$OUT_DIR/tmp"
-    mkdir -p "$TMPDIR"
 else
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
@@ -230,9 +229,6 @@ HOME_SYSTEM_PROPERTY_ARGUMENT=""
 if [ "$GRADLE_USER_HOME" != "" ]; then
     HOME_SYSTEM_PROPERTY_ARGUMENT="-Duser.home=$GRADLE_USER_HOME"
 fi
-if [ "$TMPDIR" != "" ]; then
-  TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
-fi
 
 if [[ " ${@} " =~ " --clean " ]]; then
   cleanCaches=true
@@ -407,6 +403,11 @@ function rotateBuildScans() {
 }
 
 function runGradle() {
+  if [ "$TMPDIR" != "" ]; then
+    mkdir -p "$TMPDIR"
+    TMPDIR_ARG="-Djava.io.tmpdir=$TMPDIR"
+  fi
+
   processOutput=false
   if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
     processOutput=true
