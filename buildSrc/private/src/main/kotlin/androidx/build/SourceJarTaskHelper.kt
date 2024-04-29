@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.build.dackka.DokkaAnalysisPlatform
 import androidx.build.dackka.docsPlatform
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
 import java.util.Locale
@@ -42,10 +43,14 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 /** Sets up a source jar task for an Android library project. */
-fun Project.configureSourceJarForAndroid(libraryVariant: LibraryVariant) {
+fun Project.configureSourceJarForAndroid(
+    libraryVariant: LibraryVariant,
+    samplesProjects: MutableCollection<Project>
+) {
     val sourceJar =
         tasks.register(
             "sourceJar${libraryVariant.name.capitalize()}",
@@ -73,8 +78,10 @@ fun Project.configureSourceJarForAndroid(libraryVariant: LibraryVariant) {
     }
     project.afterEvaluate {
         registerAsComponentForPublishing(sourceElementsConfig)
-        project.configureMultiplatformSourcesForAndroid(libraryVariant.name)
+        project.configureMultiplatformSourcesForAndroid(libraryVariant.name, samplesProjects)
     }
+    project.registerSamplesLibraries(samplesProjects)
+
     val disableNames =
         setOf(
             "releaseSourcesJar",
@@ -82,7 +89,10 @@ fun Project.configureSourceJarForAndroid(libraryVariant: LibraryVariant) {
     disableUnusedSourceJarTasks(disableNames)
 }
 
-fun Project.configureMultiplatformSourcesForAndroid(variantName: String) {
+fun Project.configureMultiplatformSourcesForAndroid(
+    variantName: String,
+    samplesProjects: MutableCollection<Project>
+) {
     val mpExtension = multiplatformExtension
     if (mpExtension != null && extra.has("publish")) {
         val sourceJar =
@@ -96,11 +106,12 @@ fun Project.configureMultiplatformSourcesForAndroid(variantName: String) {
             sourceJarTask.from(mpExtension.sourceSets.getByName("commonMain").kotlin.srcDirs)
             sourceJarTask.from(mpExtension.sourceSets.getByName("androidMain").kotlin.srcDirs)
         }
+        registerSamplesLibraries(samplesProjects)
     }
 }
 
 /** Sets up a source jar task for a Java library project. */
-fun Project.configureSourceJarForJava() {
+fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project>) {
     val sourceJar =
         tasks.register("sourceJar", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
@@ -134,6 +145,7 @@ fun Project.configureSourceJarForJava() {
             "kotlinSourcesJar",
         )
     disableUnusedSourceJarTasks(disableNames)
+    project.registerSamplesLibraries(samplesProjects)
 }
 
 fun Project.configureSourceJarForMultiplatform() {
@@ -270,14 +282,52 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
     return mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
 }
 
+private fun Project.registerSamplesLibraries(samplesProjects: MutableCollection<Project>) =
+    samplesProjects.forEach {
+        dependencies.add("samples", it)
+        // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP projects
+        val publishingVariants = mutableListOf<String>()
+        if (hasAndroidMultiplatformPlugin()) {
+            publishingVariants.add(androidMultiplatformSourcesConfigurationName)
+        } else {
+            publishingVariants.add(sourcesConfigurationName)
+        }
+        project.multiplatformExtension?.let {
+            publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
+            if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })
+            // used for --android source jars of KMP projects
+                publishingVariants += "release" + sourcesConfigurationName.capitalize()
+        }
+        updateCopySampleSourceJarsTaskWithVariant(publishingVariants)
+}
+
+/**
+ * Updates the published variants with the output of [LazyInputsCopyTask]. This function must be
+ * called in the stack of [LibraryAndroidComponentsExtension.onVariants] as at that stage,
+ * [AndroidXExtension.samplesProjects] would be populated.
+ */
+private fun Project.updateCopySampleSourceJarsTaskWithVariant(publishingVariants: List<String>) {
+    val copySampleJarTask = tasks.named("copySampleSourceJars", LazyInputsCopyTask::class.java)
+    configurations.configureEach { config ->
+        if (config.name in publishingVariants) {
+            // Register the sample source jar as an outgoing artifact of the publishing variant
+            config.outgoing.artifact(copySampleJarTask.flatMap { it.destinationJar }) {
+                // The only place where this classifier is load-bearing is when we filter sample
+                // source jars out in our AndroidXDocsImplPlugin.configureUnzipJvmSourcesTasks
+                it.classifier = "samples-sources"
+            }
+        }
+    }
+}
+
 internal const val PROJECT_STRUCTURE_METADATA_FILENAME = "kotlin-project-structure-metadata.json"
 
 private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
     "project_structure_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME"
 
 internal const val sourcesConfigurationName = "sourcesElements"
-internal const val androidMultiplatformSourcesConfigurationName = "androidSourcesElements"
-internal const val kmpSourcesConfigurationName = "androidxSourcesElements"
+private const val androidMultiplatformSourcesConfigurationName = "androidSourcesElements"
+private const val kmpSourcesConfigurationName = "androidxSourcesElements"
 internal fun String.capitalize() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
 }

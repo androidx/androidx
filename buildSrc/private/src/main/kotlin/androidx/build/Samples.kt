@@ -32,13 +32,13 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.named
 import org.gradle.work.DisableCachingByDefault
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 /**
- * Used to register a project that will be providing documentation samples for this project.
+ * Used to configure a project that will be providing documentation samples.
+ *
  * Can only be called once so only one samples library can exist per library b/318840087.
  */
-fun AndroidXExtension.registerSamplesLibrary(samplesProject: Project) {
+internal fun Project.configureSamplesProject() {
     fun Configuration.setResolveSources() {
         // While a sample library can have more dependencies than the library it has samples
         // for, in Studio sample code is not executable or inspectable, so we don't need them.
@@ -64,44 +64,17 @@ fun AndroidXExtension.registerSamplesLibrary(samplesProject: Project) {
         }
     }
 
-    val samplesConfiguration = project.configurations.findByName("samples")
-        ?: project.configurations.create("samples") {
-            it.setResolveSources()
-            it.isVisible = false
-            it.isCanBeConsumed = false
-            it.isCanBeResolved = true
-        }
-    project.dependencies.add("samples", samplesProject)
+    val samplesConfiguration = project.configurations.register("samples") {
+        it.isVisible = false
+        it.isCanBeConsumed = false
+        it.isCanBeResolved = true
+        it.setResolveSources()
+    }
 
-    val copySampleSourceJarsTask =
-        project.tasks.register("copySampleSourceJars", LazyInputsCopyTask::class.java) {
-            it.inputJars.from(samplesConfiguration.incoming.artifactView { }.files)
-            val srcJarFilename = "${project.name}-${project.version}-samples-sources.jar"
-            it.destinationJar.set(project.layout.buildDirectory.file(srcJarFilename))
-        }
-    // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP projects
-    val publishingVariants = mutableListOf<String>()
-    if (project.hasAndroidMultiplatformPlugin()) {
-        publishingVariants.add(androidMultiplatformSourcesConfigurationName)
-    } else {
-        publishingVariants.add(sourcesConfigurationName)
-    }
-    project.multiplatformExtension?.let {
-        publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
-        if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })
-            // used for --android source jars of KMP projects
-            publishingVariants += "release" + sourcesConfigurationName.capitalize()
-    }
-    for (variantName in publishingVariants) {
-        project.afterEvaluate {
-            project.configurations.getByName(variantName)
-                // Register the sample source jar as an outgoing artifact of the publishing variant
-                .outgoing.artifact(copySampleSourceJarsTask) {
-                // The only place where this classifier is load-bearing is when we filter sample
-                // source jars out in our AndroidXDocsImplPlugin.configureUnzipJvmSourcesTasks
-                it.classifier = "samples-sources"
-            }
-        }
+    project.tasks.register("copySampleSourceJars", LazyInputsCopyTask::class.java) { task ->
+        task.inputJars.from(samplesConfiguration.map { it.incoming.artifactView { }.files })
+        val srcJarFilename = "${project.name}-${project.version}-samples-sources.jar"
+        task.destinationJar.set(project.layout.buildDirectory.file(srcJarFilename))
     }
 }
 

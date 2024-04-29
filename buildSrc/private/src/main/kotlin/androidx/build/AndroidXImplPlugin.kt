@@ -219,6 +219,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         TaskUpToDateValidator.setup(project, registry)
 
         project.workaroundPrebuiltTakingPrecedenceOverProject()
+        project.configureSamplesProject()
     }
     private fun Project.registerProjectOrArtifact() {
         // Add a method for each sub project where they can declare an optional
@@ -651,7 +652,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.configurePublicResourcesStub(project.multiplatformExtension!!)
         kotlinMultiplatformAndroidComponentsExtension.onVariant {
-            project.configureMultiplatformSourcesForAndroid(it.name)
+            project.configureMultiplatformSourcesForAndroid(
+                it.name, androidXExtension.samplesProjects
+            )
         }
         project.configureVersionFileWriter(
             project.multiplatformExtension!!,
@@ -871,7 +874,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 )
             }
             if (variant.name == DEFAULT_PUBLISH_CONFIG) {
-                project.configureSourceJarForAndroid(variant)
+                project.configureSourceJarForAndroid(variant, androidXExtension.samplesProjects)
                 project.configureDependencyVerification(androidXExtension) { taskProvider ->
                     taskProvider.configure { task ->
                         task.dependsOn("compileReleaseJavaWithJavac")
@@ -940,7 +943,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 project.disableJava8TargetObsoleteWarnings()
             }
             if (!project.plugins.hasPlugin(KotlinBasePluginWrapper::class.java)) {
-                project.configureSourceJarForJava()
+                project.configureSourceJarForJava(androidXExtension.samplesProjects)
             }
         }
 
