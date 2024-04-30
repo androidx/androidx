@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -64,6 +65,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.lightColors
+import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -479,9 +481,7 @@ private fun InspectorNodeDetails(
                 NodeProperties(
                     node = leafNode,
                     onNodeClick = onNodeClick,
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 )
             }
         }
@@ -513,7 +513,7 @@ private fun NodeProperties(
     modifier: Modifier
 ) {
     SelectionContainer {
-        Column(modifier = modifier, verticalArrangement = spacedBy(8.dp)) {
+        Column(modifier = modifier) {
             NodeAncestorLinks(node, onNodeClick)
 
             val properties = node.getProperties()
@@ -530,7 +530,10 @@ private fun NodeProperties(
                     }
                 }
                 .toList()
-            KeyValueView(elements = properties)
+            KeyValueView(
+                elements = properties,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            )
         }
     }
 }
@@ -552,7 +555,13 @@ private fun NodeAncestorLinks(node: NodeInfo, onNodeClick: (NodeInfo) -> Unit) {
                 }
             }
         }
-        Text(ancestorLinks)
+
+        Surface(
+            color = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(ancestorLinks, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        }
     }
 }
 
@@ -571,8 +580,14 @@ private fun nodeLinkRepresentation(
  * Shows a table of keys and their values. Values are rendered using [PropertyValueRepresentation].
  */
 @Composable
-private fun KeyValueView(elements: List<Pair<String, PropertyValueRepresentation>>) {
-    Column(verticalArrangement = spacedBy(8.dp)) {
+private fun KeyValueView(
+    elements: List<Pair<String, PropertyValueRepresentation>>,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = spacedBy(8.dp)
+    ) {
         elements.forEach { (name, valueRepresentation) ->
             KeyValueRow(name, valueRepresentation)
         }
