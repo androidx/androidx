@@ -97,22 +97,6 @@ import java.util.Set;
             new RemoteControlClientCompat.PlaybackInfo();
     private final ProviderCallback mProviderCallback = new ProviderCallback();
     private final boolean mLowRam;
-    private final MediaSessionCompat.OnActiveChangeListener mSessionActiveListener =
-            new MediaSessionCompat.OnActiveChangeListener() {
-                @Override
-                public void onActiveChanged() {
-                    if (mRccMediaSession != null) {
-                        android.media.RemoteControlClient remoteControlClient =
-                                (android.media.RemoteControlClient)
-                                        mRccMediaSession.getRemoteControlClient();
-                        if (mRccMediaSession.isActive()) {
-                            addRemoteControlClient(remoteControlClient);
-                        } else {
-                            removeRemoteControlClient(remoteControlClient);
-                        }
-                    }
-                }
-            };
 
     private boolean mTransferReceiverDeclared;
     private boolean mUseMediaRouter2ForSystemRouting;
@@ -130,7 +114,6 @@ import java.util.Set;
     private MediaRouteDiscoveryRequest mDiscoveryRequestForMr2Provider;
     private int mCallbackCount;
     private MediaSessionRecord mMediaSession;
-    private MediaSessionCompat mRccMediaSession;
     private MediaSessionCompat mCompatSession;
 
     /* package */ GlobalMediaRouter(Context applicationContext) {
@@ -1190,24 +1173,7 @@ import java.util.Set;
 
     /* package */ void setMediaSessionCompat(final MediaSessionCompat session) {
         mCompatSession = session;
-        if (Build.VERSION.SDK_INT >= 21) {
-            setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
-        } else {
-            if (mRccMediaSession != null) {
-                removeRemoteControlClient(
-                        (android.media.RemoteControlClient)
-                                mRccMediaSession.getRemoteControlClient());
-                mRccMediaSession.removeOnActiveChangeListener(mSessionActiveListener);
-            }
-            mRccMediaSession = session;
-            if (session != null) {
-                session.addOnActiveChangeListener(mSessionActiveListener);
-                if (session.isActive()) {
-                    addRemoteControlClient(
-                            (android.media.RemoteControlClient) session.getRemoteControlClient());
-                }
-            }
-        }
+        setMediaSessionRecord(session != null ? new MediaSessionRecord(session) : null);
     }
 
     private void setMediaSessionRecord(MediaSessionRecord mediaSessionRecord) {
