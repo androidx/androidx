@@ -34,6 +34,7 @@ import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -143,6 +144,11 @@ fun SharedTransitionScope(
                     sharedScope.drawInOverlay(this)
                 }
         )
+        DisposableEffect(Unit) {
+            onDispose {
+                SharedTransitionObserver.clear(sharedScope)
+            }
+        }
     }
 }
 
@@ -835,10 +841,12 @@ class SharedTransitionScope internal constructor(
         sharedElements.forEach { _, element ->
             element.updateMatch()
         }
-        observer.observeReads(this, updateTransitionActiveness, observeAnimatingBlock)
+        SharedTransitionObserver.observeReads(
+            this@SharedTransitionScope,
+            updateTransitionActiveness,
+            observeAnimatingBlock
+        )
     }
-
-    private val observer = SnapshotStateObserver { it() }.also { it.start() }
 
     /**
      * sharedBoundsImpl is the implementation for creating animations for shared element
@@ -975,7 +983,11 @@ class SharedTransitionScope internal constructor(
         with(sharedElementState.sharedElement) {
             removeState(sharedElementState)
             updateTransitionActiveness.invoke(this@SharedTransitionScope)
-            observer.observeReads(scope, updateTransitionActiveness, observeAnimatingBlock)
+            SharedTransitionObserver.observeReads(
+                scope,
+                updateTransitionActiveness,
+                observeAnimatingBlock
+            )
             renderers.remove(sharedElementState)
             if (states.isEmpty()) {
                 scope.coroutineScope.launch {
@@ -991,7 +1003,11 @@ class SharedTransitionScope internal constructor(
         with(sharedElementState.sharedElement) {
             addState(sharedElementState)
             updateTransitionActiveness.invoke(this@SharedTransitionScope)
-            observer.observeReads(scope, updateTransitionActiveness, observeAnimatingBlock)
+            SharedTransitionObserver.observeReads(
+                scope,
+                updateTransitionActiveness,
+                observeAnimatingBlock
+            )
             val id = renderers.indexOfFirst {
                 (it as? SharedElementInternalState)?.sharedElement ==
                     sharedElementState.sharedElement
@@ -1158,3 +1174,7 @@ private val DefaultClipInOverlayDuringTransition: (LayoutDirection, Density) -> 
 private val DefaultBoundsTransform = BoundsTransform { _, _ -> DefaultSpring }
 
 internal const val VisualDebugging = false
+
+internal val SharedTransitionObserver by lazy(LazyThreadSafetyMode.NONE) {
+    SnapshotStateObserver { it() }.also { it.start() }
+}
