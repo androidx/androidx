@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * State of Draggable2D. Allows for granular control of how deltas are consumed by the user as well
@@ -418,14 +419,22 @@ internal class Draggable2DNode(
         }
     }
 
-    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {
-        onDragStarted(this, startedPosition)
+    override fun onDragStarted(startedPosition: Offset) {
         onDragStart.invoke(startedPosition)
+        // do not launch if callback is no no-op
+        if (!isAttached || onDragStarted === NoOpOnDragStarted) return
+        coroutineScope.launch {
+            this@Draggable2DNode.onDragStarted(this, startedPosition)
+        }
     }
 
-    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
-        onDragStopped(this, velocity.reverseIfNeeded())
+    override fun onDragStopped(velocity: Velocity) {
         onDragStop.invoke(velocity)
+        // do not launch if callback is no no-op
+        if (!isAttached || onDragStopped === NoOpOnDragStopped) return
+        coroutineScope.launch {
+            this@Draggable2DNode.onDragStopped(this, velocity.reverseIfNeeded())
+        }
     }
 
     override fun startDragImmediately(): Boolean = startDragImmediately
