@@ -131,6 +131,7 @@ public interface CanvasComplication {
      * @param boundsType The [ComplicationSlotBoundsTypeIntDef] of the complication
      * @param zonedDateTime The [ZonedDateTime] to render the highlight with
      * @param color The color to render the highlight with
+     * @param boundingArc Optional [BoundingArc] defining the geometry of an edge complication
      */
     @ComplicationExperimental
     public fun drawHighlight(
@@ -633,8 +634,12 @@ internal constructor(
          * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] used to select
          *   the initial complication data source when the watch is first installed.
          * @param bounds The complication's [ComplicationSlotBounds]. Its likely the bounding rect
-         *   will be much larger than the complication and shouldn't directly be used for hit
+         *   will have a much larger area than [boundingArc] and shouldn't directly be used for hit
          *   testing.
+         * @param boundingArc The [BoundingArc] defining the geometry of the edge complication.
+         * @param complicationTapFilter The [ComplicationTapFilter] used to determine whether or not
+         *   a tap hit the complication. The default [ComplicationTapFilter] uses [boundingArc] to
+         *   perform hit testing.
          */
         @JvmStatic
         @JvmOverloads
