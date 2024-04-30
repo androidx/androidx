@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
-internal class MyDatabase_Impl : MyDatabase() {
+public class MyDatabase_Impl : MyDatabase() {
   private val _myDao: Lazy<MyDao> = lazy {
     MyDao_Impl(this)
   }
@@ -110,5 +110,5 @@ internal class MyDatabase_Impl : MyDatabase() {
     return _autoMigrations
   }
 
-  internal override fun getDao(): MyDao = _myDao.value
+  override fun getDao(): MyDao = _myDao.value
 }

@@ -160,6 +160,50 @@ class DatabaseKotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun database_javaSource() {
+        val dbSrc = Source.java(
+            "MyDatabase",
+            """
+            import androidx.room.*;
+
+            @Database(entities = { MyEntity.class }, version = 1, exportSchema = false)
+            public abstract class MyDatabase extends RoomDatabase {
+              abstract MyDao getDao();
+            }
+            """.trimIndent()
+        )
+        val daoSrc = Source.java(
+            "MyDao",
+            """
+            import androidx.annotation.NonNull;
+            import androidx.room.*;
+
+            @Dao
+            public interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              @NonNull MyEntity getEntity();
+            }
+            """.trimIndent()
+        )
+        val entitySrc = Source.java(
+            "MyEntity",
+            """
+            import androidx.room.*;
+
+            @Entity
+            public class MyEntity {
+                @PrimaryKey
+                public int pk;
+            }
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(dbSrc, daoSrc, entitySrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }
