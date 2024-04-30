@@ -140,6 +140,7 @@ public final class AnimationParameterBuilders {
                     AnimationParameterProto.AnimationSpec.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-2136602843);
 
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /** Sets animation parameters including duration, easing and repeat delay. */
@@ -158,6 +159,7 @@ public final class AnimationParameterBuilders {
              * Sets the repeatable mode to be used for specifying repetition parameters for the
              * animation. If not set, animation won't be repeated.
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setRepeatable(@NonNull Repeatable repeatable) {
                 mImpl.setRepeatable(repeatable.toProto());
@@ -261,6 +263,7 @@ public final class AnimationParameterBuilders {
                     AnimationParameterProto.AnimationParameters.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1301308590);
 
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**
@@ -491,7 +494,6 @@ public final class AnimationParameterBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         AnimationParameterProto.CubicBezierEasing toProto() {
             return mImpl;
@@ -525,6 +527,7 @@ public final class AnimationParameterBuilders {
                     AnimationParameterProto.CubicBezierEasing.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(856403705);
 
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**
@@ -704,6 +707,7 @@ public final class AnimationParameterBuilders {
                     AnimationParameterProto.Repeatable.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(2110475048);
 
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**

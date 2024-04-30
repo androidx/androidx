@@ -708,7 +708,7 @@ public final class DynamicBuilders {
                 return this;
             }
 
-            /** Sets the name space for the state key. */
+            /** Sets the namespace for the state key. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setSourceNamespace(@NonNull String sourceNamespace) {
@@ -1255,7 +1255,7 @@ public final class DynamicBuilders {
             /** Sets the value to start animating from. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
-            public AnimatableFixedInt32.Builder setFromValue(int fromValue) {
+            public Builder setFromValue(int fromValue) {
                 mImpl.setFromValue(fromValue);
                 mFingerprint.recordPropertyUpdate(1, fromValue);
                 return this;
@@ -1264,7 +1264,7 @@ public final class DynamicBuilders {
             /** Sets the value to animate to. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
-            public AnimatableFixedInt32.Builder setToValue(int toValue) {
+            public Builder setToValue(int toValue) {
                 mImpl.setToValue(toValue);
                 mFingerprint.recordPropertyUpdate(2, toValue);
                 return this;
@@ -1398,7 +1398,7 @@ public final class DynamicBuilders {
             /** Sets the value to watch, and animate when it changes. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
-            public AnimatableDynamicInt32.Builder setInput(@NonNull DynamicInt32 input) {
+            public Builder setInput(@NonNull DynamicInt32 input) {
                 mImpl.setInput(input.toDynamicInt32Proto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(input.getFingerprint()).aggregateValueAsInt());
@@ -2413,7 +2413,7 @@ public final class DynamicBuilders {
 
             /** Returns whether digit grouping is used or not. */
             public boolean isGroupingUsed() {
-                return mInt32FormatOp.getGroupingUsed();
+                return mInt32FormatOp.isGroupingUsed();
             }
 
             /** Builder to create {@link IntFormatter} objects. */
@@ -2579,7 +2579,7 @@ public final class DynamicBuilders {
          * locale. If not defined, defaults to false. For example, for locale en_US, using grouping
          * with 1234 would yield "1,234".
          */
-        public boolean getGroupingUsed() {
+        public boolean isGroupingUsed() {
             return mImpl.getGroupingUsed();
         }
 
@@ -2638,13 +2638,13 @@ public final class DynamicBuilders {
                     + ", minIntegerDigits="
                     + getMinIntegerDigits()
                     + ", groupingUsed="
-                    + getGroupingUsed()
+                    + isGroupingUsed()
                     + "}";
         }
 
         /** Builder for {@link Int32FormatOp}. */
         public static final class Builder implements DynamicString.Builder {
-            final DynamicProto.Int32FormatOp.Builder mImpl =
+            private final DynamicProto.Int32FormatOp.Builder mImpl =
                     DynamicProto.Int32FormatOp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(196209833);
 
@@ -2792,7 +2792,7 @@ public final class DynamicBuilders {
                 return this;
             }
 
-            /** Sets the name space for the state key. */
+            /** Sets the namespace for the state key. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setSourceNamespace(@NonNull String sourceNamespace) {
@@ -3143,7 +3143,7 @@ public final class DynamicBuilders {
          * locale. If not defined, defaults to false. For example, for locale en_US, using grouping
          * with 1234.56 would yield "1,234.56".
          */
-        public boolean getGroupingUsed() {
+        public boolean isGroupingUsed() {
             return mImpl.getGroupingUsed();
         }
 
@@ -3206,7 +3206,7 @@ public final class DynamicBuilders {
                     + ", minIntegerDigits="
                     + getMinIntegerDigits()
                     + ", groupingUsed="
-                    + getGroupingUsed()
+                    + isGroupingUsed()
                     + "}";
         }
 
@@ -3736,7 +3736,7 @@ public final class DynamicBuilders {
                 return this;
             }
 
-            /** Sets the name space for the state key. */
+            /** Sets the namespace for the state key. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setSourceNamespace(@NonNull String sourceNamespace) {
@@ -5012,7 +5012,7 @@ public final class DynamicBuilders {
 
             /** Returns whether digit grouping is used or not. */
             public boolean isGroupingUsed() {
-                return mFloatFormatOp.getGroupingUsed();
+                return mFloatFormatOp.isGroupingUsed();
             }
 
             /** Builder to create {@link FloatFormatter} objects. */
@@ -5228,8 +5228,8 @@ public final class DynamicBuilders {
         @NonNull
         public DynamicProto.DynamicBool toDynamicBoolProto(boolean withFingerprint) {
             if (withFingerprint) {
-                return DynamicProto.DynamicBool.newBuilder().
-                        setStateSource(mImpl)
+                return DynamicProto.DynamicBool.newBuilder()
+                        .setStateSource(mImpl)
                         .setFingerprint(checkNotNull(mFingerprint).toProto())
                         .build();
             }
@@ -5265,7 +5265,7 @@ public final class DynamicBuilders {
                 return this;
             }
 
-            /** Sets the name space for the state key. */
+            /** Sets the namespace for the state key. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setSourceNamespace(@NonNull String sourceNamespace) {
@@ -6144,7 +6144,7 @@ public final class DynamicBuilders {
                 return this;
             }
 
-            /** Sets the name space for the state key. */
+            /** Sets the namespace for the state key. */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setSourceNamespace(@NonNull String sourceNamespace) {
