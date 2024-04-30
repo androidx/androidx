@@ -2,11 +2,13 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
+import androidx.room.writer.TypeWriter
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -219,8 +221,15 @@ class BaseDaoTest {
                 val processed = DaoProcessor(
                     invocation.context, dao, dbType, null
                 ).process()
-                DaoWriter(processed, dbElm, CodeLanguage.JAVA, false)
-                    .write(invocation.processingEnv)
+                DaoWriter(
+                    dao = processed,
+                    dbElement = dbElm,
+                    writerContext = TypeWriter.WriterContext(
+                        codeLanguage = CodeLanguage.JAVA,
+                        javaLambdaSyntaxAvailable = false,
+                        targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                    )
+                ).write(invocation.processingEnv)
             }
         }
     }
@@ -270,8 +279,15 @@ class BaseDaoTest {
                 invocation.context, daoElm, dbType, null
             ).process()
             handler(processedDao)
-            DaoWriter(processedDao, dbElm, CodeLanguage.JAVA, false)
-                .write(invocation.processingEnv)
+            DaoWriter(
+                dao = processedDao,
+                dbElement = dbElm,
+                writerContext = TypeWriter.WriterContext(
+                    codeLanguage = CodeLanguage.JAVA,
+                    javaLambdaSyntaxAvailable = false,
+                    targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                )
+            ).write(invocation.processingEnv)
         }
     }
 }

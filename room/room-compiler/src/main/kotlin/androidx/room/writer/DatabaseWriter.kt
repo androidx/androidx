@@ -23,7 +23,7 @@ import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.XPropertySpec.Companion.apply
+import androidx.room.compiler.codegen.XPropertySpec.Builder.Companion.apply
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
@@ -44,9 +44,8 @@ import javax.lang.model.element.Modifier
  */
 class DatabaseWriter(
     val database: Database,
-    codeLanguage: CodeLanguage,
-    javaLambdaSyntaxAvailable: Boolean
-) : TypeWriter(codeLanguage, javaLambdaSyntaxAvailable) {
+    writerContext: WriterContext,
+) : TypeWriter(writerContext) {
     override fun createTypeSpecBuilder(): XTypeSpec.Builder {
         return XTypeSpec.classBuilder(codeLanguage, database.implTypeName).apply {
             addOriginatingElement(database.element)
@@ -89,7 +88,8 @@ class DatabaseWriter(
                 CodeLanguage.JAVA -> addLocalVariable(
                     name = typeConvertersVar,
                     typeName = typeConvertersTypeName,
-                    assignExpr = XCodeBlock.ofNewInstance(codeLanguage,
+                    assignExpr = XCodeBlock.ofNewInstance(
+                        codeLanguage,
                         CommonTypeNames.HASH_MAP
                             .parametrizedBy(
                                 classOfAnyTypeName,
@@ -362,7 +362,11 @@ class DatabaseWriter(
                 kotlinPropertyBuilder = { }
             ).build()
             builder.addProperty(privateDaoProperty)
-            builder.addFunction(createDaoGetter(method, privateDaoProperty))
+            if (codeLanguage == CodeLanguage.KOTLIN && method.isProperty) {
+                builder.addProperty(createDaoProperty(method, privateDaoProperty))
+            } else {
+                builder.addFunction(createDaoGetter(method, privateDaoProperty))
+            }
         }
     }
 
@@ -408,6 +412,16 @@ class DatabaseWriter(
         ).apply {
             addCode(body.build())
         }.build()
+    }
+
+    private fun createDaoProperty(method: DaoMethod, daoProperty: XPropertySpec): XPropertySpec {
+        return XPropertySpec.overridingBuilder(
+            language = codeLanguage,
+            element = method.element,
+            owner = database.type
+        ).getter(
+            XCodeBlock.of(codeLanguage, "return %L.value", daoProperty.name)
+        ).build()
     }
 
     private fun createOpenDelegate(): XFunSpec {

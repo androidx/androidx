@@ -61,7 +61,9 @@ class ReadQueryMethod(
     parameters: List<QueryParameter>,
     val inTransaction: Boolean,
     val queryResultBinder: QueryResultBinder
-) : QueryMethod(element, query, returnType, parameters)
+) : QueryMethod(element, query, returnType, parameters) {
+    val isProperty = element.isKotlinPropertyMethod()
+}
 
 /**
  * A query method who's query is a INSERT, UPDATE or DELETE statement.

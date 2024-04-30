@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -154,8 +155,15 @@ class DaoWriterTest {
                     dbVerifier = dbVerifier
                 )
                 val parsedDao = parser.process()
-                DaoWriter(parsedDao, db, CodeLanguage.JAVA, javaLambdaSyntaxAvailable)
-                    .write(invocation.processingEnv)
+                DaoWriter(
+                    dao = parsedDao,
+                    dbElement = db,
+                    writerContext = TypeWriter.WriterContext(
+                        codeLanguage = CodeLanguage.JAVA,
+                        javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+                        targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                    )
+                ).write(invocation.processingEnv)
                 val outputSubFolder = outputFolder(invocation, javaLambdaSyntaxAvailable)
                 invocation.assertCompilationResult {
                     val expectedFilePath = "daoWriter/output/$outputSubFolder/$outputFileName"
