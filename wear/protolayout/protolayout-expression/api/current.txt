@@ -14,7 +14,7 @@ package androidx.wear.protolayout.expression {
   }
 
   public static final class AnimationParameterBuilders.AnimationParameters.Builder {
-    ctor public AnimationParameterBuilders.AnimationParameters.Builder();
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public AnimationParameterBuilders.AnimationParameters.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setDelayMillis(@IntRange(from=0) long);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters.Builder setDurationMillis(@IntRange(from=0) long);
@@ -27,10 +27,10 @@ package androidx.wear.protolayout.expression {
   }
 
   public static final class AnimationParameterBuilders.AnimationSpec.Builder {
-    ctor public AnimationParameterBuilders.AnimationSpec.Builder();
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public AnimationParameterBuilders.AnimationSpec.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setAnimationParameters(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
-    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static interface AnimationParameterBuilders.Easing {
@@ -53,7 +53,7 @@ package androidx.wear.protolayout.expression {
   }
 
   public static final class AnimationParameterBuilders.Repeatable.Builder {
-    ctor public AnimationParameterBuilders.Repeatable.Builder();
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public AnimationParameterBuilders.Repeatable.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setForwardRepeatOverride(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setIterations(@IntRange(from=1) int);
