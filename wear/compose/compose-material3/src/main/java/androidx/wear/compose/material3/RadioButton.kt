@@ -144,7 +144,13 @@ fun RadioButton(
                 indication = rippleOrFallbackImplementation(),
                 interactionSource = interactionSource
             )
-            .padding(contentPadding),
+            .padding(contentPadding)
+            .semantics {
+                // For a selectable button, the role is always RadioButton.
+                // See also b/330869742 for issue with setting the RadioButton role
+                // within the selection control.
+                role = Role.RadioButton
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null) {
@@ -329,7 +335,13 @@ fun SplitRadioButton(
                 .width(SPLIT_WIDTH)
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .wrapContentWidth(align = Alignment.End)
-                .then(endPadding),
+                .then(endPadding)
+                .semantics {
+                    // For a selectable button, the role is always RadioButton.
+                    // See also b/330869742 for issue with setting the RadioButton role
+                    // within the selection control.
+                    role = Role.RadioButton
+                },
         ) {
             val scope = remember(enabled, selected) { SelectionControlScope(enabled, selected) }
             selectionControl(scope)

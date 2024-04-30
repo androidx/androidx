@@ -211,6 +211,9 @@ fun ToggleButton(
                         indication = ripple,
                         interactionSource = interactionSource
                     )
+                    // For a toggleable button, the role could be Checkbox or Switch,
+                    // so we cannot set the semantics here. Instead,
+                    // we set them in the toggle control
                 } else {
                     Modifier.selectable(
                         enabled = enabled,
@@ -218,7 +221,12 @@ fun ToggleButton(
                         onClick = { onCheckedChange(true) },
                         indication = ripple,
                         interactionSource = interactionSource
-                    )
+                    ).semantics {
+                        // For a selectable button, the role is always RadioButton.
+                        // See also b/330869742 for issue with setting the RadioButton role
+                        // within the selection control.
+                        role = Role.RadioButton
+                    }
                 }
             )
             .padding(contentPadding),
@@ -375,6 +383,12 @@ fun SplitToggleButton(
                     indication = ripple,
                     interactionSource = checkedInteractionSource
                 )
+                .semantics {
+                    // For a selectable button, the role is always RadioButton.
+                    // See also b/330869742 for issue with setting the RadioButton role
+                    // within the selection control.
+                    role = Role.RadioButton
+                }
             }
 
         Box(
