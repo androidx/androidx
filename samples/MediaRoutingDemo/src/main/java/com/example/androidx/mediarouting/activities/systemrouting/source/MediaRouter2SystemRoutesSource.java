@@ -21,8 +21,10 @@ import android.content.Context;
 import android.media.MediaRoute2Info;
 import android.media.MediaRouter2;
 import android.media.RouteDiscoveryPreference;
+import android.media.RoutingSessionInfo;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -45,8 +47,9 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
 
     @NonNull private final Context mContext;
     @NonNull private final MediaRouter2 mMediaRouter2;
-    @NonNull private final Method mSuitabilityStatusMethod;
-    @NonNull private final Method mWasTransferInitiatedBySelfMethod;
+    @Nullable private final Method mSuitabilityStatusMethod;
+    @Nullable private final Method mWasTransferInitiatedBySelfMethod;
+    @Nullable private final Method mTransferReasonMethod;
     @NonNull private final ArrayList<SystemRouteItem> mRouteItems = new ArrayList<>();
 
     @NonNull
@@ -82,6 +85,7 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
 
         Method suitabilityStatusMethod = null;
         Method wasTransferInitiatedBySelfMethod = null;
+        Method transferReasonMethod = null;
         // TODO: b/336510942 - Remove reflection once these APIs are available in
         // androidx-platform-dev.
         try {
@@ -90,10 +94,12 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
             wasTransferInitiatedBySelfMethod =
                     MediaRouter2.RoutingController.class.getDeclaredMethod(
                             "wasTransferInitiatedBySelf");
+            transferReasonMethod = RoutingSessionInfo.class.getDeclaredMethod("getTransferReason");
         } catch (NoSuchMethodException | IllegalAccessError e) {
         }
         mSuitabilityStatusMethod = suitabilityStatusMethod;
         mWasTransferInitiatedBySelfMethod = wasTransferInitiatedBySelfMethod;
+        mTransferReasonMethod = transferReasonMethod;
     }
 
     @Override
@@ -130,8 +136,10 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
         return mRouteItems;
     }
 
-    // See b/336510942 for details on why reflection is needed.
-    @SuppressLint("BanUncheckedReflection")
+    // BanUncheckedReflection: See b/336510942 for details on why reflection is needed.
+    // NewApi: We don't need to check the API level because the transfer reason method is only
+    // available on API 35, which is greater than API 34, where getRoutingSessionInfo was added.
+    @SuppressLint({"BanUncheckedReflection", "NewApi"})
     private void populateRouteItems(List<MediaRoute2Info> routes) {
         MediaRouter2.RoutingController systemController = mMediaRouter2.getSystemController();
         Set<String> selectedRoutesIds =
@@ -139,10 +147,17 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
                         .map(MediaRoute2Info::getId)
                         .collect(Collectors.toSet());
         Boolean selectionInitiatedBySelf = null;
+        Integer sessionTransferReason = null;
         try {
             if (mSuitabilityStatusMethod != null) {
                 selectionInitiatedBySelf =
                         (Boolean) mWasTransferInitiatedBySelfMethod.invoke(systemController);
+            }
+            if (mTransferReasonMethod != null) {
+                sessionTransferReason =
+                        (Integer)
+                                mTransferReasonMethod.invoke(
+                                        Api34Impl.getRoutingSessionInfo(systemController));
             }
         } catch (IllegalAccessException | InvocationTargetException e) {
         }
@@ -153,21 +168,29 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
 
         mRouteItems.clear();
         for (MediaRoute2Info route : systemRoutes) {
-            Boolean wasTransferredBySelf =
-                    selectedRoutesIds.contains(route.getId()) ? selectionInitiatedBySelf : null;
-            mRouteItems.add(createRouteItemFor(route, wasTransferredBySelf));
+            boolean isSelectedRoute = selectedRoutesIds.contains(route.getId());
+            Boolean wasTransferredBySelf = isSelectedRoute ? selectionInitiatedBySelf : null;
+            Integer routeTransferReason = isSelectedRoute ? sessionTransferReason : null;
+            mRouteItems.add(
+                    createRouteItemFor(
+                            route,
+                            wasTransferredBySelf,
+                            routeTransferReason));
         }
         mOnRoutesChangedListener.run();
     }
 
     @NonNull
     private SystemRouteItem createRouteItemFor(
-            @NonNull MediaRoute2Info routeInfo, @Nullable Boolean wasTransferredBySelf) {
+            @NonNull MediaRoute2Info routeInfo,
+            @Nullable Boolean wasTransferredBySelf,
+            @Nullable Integer transferReason) {
         SystemRouteItem.Builder builder =
                 new SystemRouteItem.Builder(routeInfo.getId())
                         .setName(String.valueOf(routeInfo.getName()))
                         .setDescription(String.valueOf(routeInfo.getDescription()))
-                        .setTransferInitiatedBySelf(wasTransferredBySelf);
+                        .setTransferInitiatedBySelf(wasTransferredBySelf)
+                        .setTransferReason(getHumanReadableTransferReason(transferReason));
         try {
             if (mSuitabilityStatusMethod != null) {
                 // See b/336510942 for details on why reflection is needed.
@@ -184,7 +207,12 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
     }
 
     @NonNull
-    private String getHumanReadableSuitabilityStatus(int status) {
+    private String getHumanReadableSuitabilityStatus(@Nullable Integer status) {
+        if (status == null) {
+            // The route is not selected, or this Android version doesn't support suitability
+            // status.
+            return null;
+        }
         switch (status) {
             case 0:
                 return "SUITABLE_FOR_DEFAULT_TRANSFER";
@@ -194,6 +222,35 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
                 return "NOT_SUITABLE_FOR_TRANSFER";
             default:
                 return "UNKNOWN(" + status + ")";
+        }
+    }
+
+    @NonNull
+    private String getHumanReadableTransferReason(@Nullable Integer transferReason) {
+        if (transferReason == null) {
+            // The route is not selected, or this Android version doesn't support transfer reason.
+            return null;
+        }
+        switch (transferReason) {
+            case 0:
+                return "FALLBACK";
+            case 1:
+                return "SYSTEM_REQUEST";
+            case 2:
+                return "APP";
+            default:
+                return "UNKNOWN(" + transferReason + ")";
+        }
+    }
+
+    @RequiresApi(34)
+    private static final class Api34Impl {
+        private Api34Impl() {}
+
+        @DoNotInline
+        static RoutingSessionInfo getRoutingSessionInfo(
+                MediaRouter2.RoutingController routingController) {
+            return routingController.getRoutingSessionInfo();
         }
     }
 }

@@ -99,6 +99,17 @@
                 android:textSize="14sp"
                 tools:text="Transfer initiated by self." />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/route_transfer_reason"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/route_transfer_initiated_by_self"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="14sp"
+                tools:text="Transfer reason." />
+
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>

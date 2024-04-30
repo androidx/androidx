@@ -117,6 +117,7 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private final AppCompatTextView mRouteDescriptionTextView;
         private final AppCompatTextView mSuitabilityStatusTextView;
         private final AppCompatTextView mTransferInitiatedBySelfTextView;
+        private final AppCompatTextView mTransferReasonTextView;
 
         ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -128,6 +129,7 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             mSuitabilityStatusTextView = itemView.findViewById(R.id.route_suitability_status);
             mTransferInitiatedBySelfTextView =
                     itemView.findViewById(R.id.route_transfer_initiated_by_self);
+            mTransferReasonTextView = itemView.findViewById(R.id.route_transfer_reason);
         }
 
         void bind(SystemRouteItem systemRouteItem) {
@@ -141,6 +143,11 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             ? "self-initiated: " + systemRouteItem.mTransferInitiatedBySelf
                             : null;
             setTextOrHide(mTransferInitiatedBySelfTextView, initiatedBySelfText);
+            String transferReasonText =
+                    systemRouteItem.mTransferReason != null
+                            ? "transfer reason: " + systemRouteItem.mTransferReason
+                            : null;
+            setTextOrHide(mTransferReasonTextView, transferReasonText);
         }
     }
 
