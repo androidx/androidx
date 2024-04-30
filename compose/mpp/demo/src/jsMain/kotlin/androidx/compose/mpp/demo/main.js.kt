@@ -8,7 +8,7 @@ import org.jetbrains.skiko.wasm.onWasmReady
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     onWasmReady {
-        ComposeViewport(viewportContainer = "composeApplication") {
+        ComposeViewport(viewportContainerId = "composeApplication") {
             val app = remember { App() }
             app.Content()
         }

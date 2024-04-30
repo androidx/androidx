@@ -496,15 +496,15 @@ fun CanvasBasedWindow(
 /**
  * EXPERIMENTAL! Might be deleted or changed in the future!
  *
- * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] id.
+ * Creates the composition in HTML canvas created in parent container identified by [viewportContainerId] id.
  * This size of canvas is adjusted with the size of the container
  */
 @ExperimentalComposeUiApi
 fun ComposeViewport(
-    viewportContainer: String,
+    viewportContainerId: String,
     content: @Composable () -> Unit = { }
 ) {
-    ComposeViewport(document.getElementById(viewportContainer)!!, content)
+    ComposeViewport(document.getElementById(viewportContainerId)!!, content)
 }
 
 /**
