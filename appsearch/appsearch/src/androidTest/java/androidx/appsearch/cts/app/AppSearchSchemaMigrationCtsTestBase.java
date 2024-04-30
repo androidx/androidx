@@ -1232,7 +1232,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         @Override
         public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                 @NonNull GenericDocument document) {
-            GenericDocument.Builder docBuilder =
+            GenericDocument.Builder<?> docBuilder =
                     new GenericDocument.Builder<>("namespace", "id", "TypeB")
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME);
             if (currentVersion == 2) {

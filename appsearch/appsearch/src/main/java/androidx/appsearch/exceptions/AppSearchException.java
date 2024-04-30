@@ -27,7 +27,7 @@ import androidx.appsearch.app.AppSearchResult;
  * for propagating to the client.
  */
 public class AppSearchException extends Exception {
-    private final @AppSearchResult.ResultCode int mResultCode;
+    @AppSearchResult.ResultCode private final int mResultCode;
 
     /**
      * Initializes an {@link AppSearchException} with no message.

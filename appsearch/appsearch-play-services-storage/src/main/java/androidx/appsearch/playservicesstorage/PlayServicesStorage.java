@@ -19,6 +19,7 @@ package androidx.appsearch.playservicesstorage;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.playservicesstorage.util.AppSearchTaskFutures;
@@ -33,7 +34,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * An AppSearch storage system which stores data in the central AppSearch service in Google
@@ -200,7 +200,8 @@ public final class PlayServicesStorage {
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
     // mutate requests will need to gain write lock and query requests need to gain read lock.
-    static final Executor EXECUTOR = Executors.newCachedThreadPool();
+    static final Executor EXECUTOR = AppSearchEnvironmentFactory.getEnvironmentInstance()
+            .createCachedThreadPoolExecutor();
 
     /**
      * Opens a new {@link AppSearchSession} on this storage.

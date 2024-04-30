@@ -117,8 +117,10 @@ public final class GetByDocumentIdRequest extends AbstractSafeParcelable {
         Set<String> schemas = mTypePropertyPaths.keySet();
         Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
         for (String schema : schemas) {
-            typePropertyPathsMap.put(schema, Collections.unmodifiableList(
-                    mTypePropertyPaths.getStringArrayList(schema)));
+            List<String> propertyPaths = mTypePropertyPaths.getStringArrayList(schema);
+            if (propertyPaths != null) {
+                typePropertyPathsMap.put(schema, Collections.unmodifiableList(propertyPaths));
+            }
         }
         return typePropertyPathsMap;
     }
@@ -137,12 +139,14 @@ public final class GetByDocumentIdRequest extends AbstractSafeParcelable {
         Map<String, List<PropertyPath>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
         for (String schema : schemas) {
             List<String> paths = mTypePropertyPaths.getStringArrayList(schema);
-            int pathsSize = paths.size();
-            List<PropertyPath> propertyPathList = new ArrayList<>(pathsSize);
-            for (int i = 0; i < pathsSize; i++) {
-                propertyPathList.add(new PropertyPath(paths.get(i)));
+            if (paths != null) {
+                int pathsSize = paths.size();
+                List<PropertyPath> propertyPathList = new ArrayList<>(pathsSize);
+                for (int i = 0; i < pathsSize; i++) {
+                    propertyPathList.add(new PropertyPath(paths.get(i)));
+                }
+                typePropertyPathsMap.put(schema, Collections.unmodifiableList(propertyPathList));
             }
-            typePropertyPathsMap.put(schema, Collections.unmodifiableList(propertyPathList));
         }
         return typePropertyPathsMap;
     }

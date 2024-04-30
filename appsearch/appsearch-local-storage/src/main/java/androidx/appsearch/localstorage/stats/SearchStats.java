@@ -138,7 +138,7 @@ public final class SearchStats {
     private final int mNativeNumJoinedResultsCurrentPage;
     /** Time taken to join documents together. */
     private final int mNativeJoinLatencyMillis;
-    private final String mSearchSourceLogTag;
+    @Nullable private final String mSearchSourceLogTag;
 
     SearchStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -386,7 +386,7 @@ public final class SearchStats {
         @JoinableValueType int mJoinType;
         int mNativeNumJoinedResultsCurrentPage;
         int mNativeJoinLatencyMillis;
-        String mSearchSourceLogTag;
+        @Nullable String mSearchSourceLogTag;
 
         /**
          * Constructor
@@ -640,7 +640,7 @@ public final class SearchStats {
         /** Sets a tag to indicate the source of this search. */
         @CanIgnoreReturnValue
         @NonNull
-        public Builder setSearchSourceLogTag(@NonNull String searchSourceLogTag) {
+        public Builder setSearchSourceLogTag(@Nullable String searchSourceLogTag) {
             mSearchSourceLogTag = searchSourceLogTag;
             return this;
         }

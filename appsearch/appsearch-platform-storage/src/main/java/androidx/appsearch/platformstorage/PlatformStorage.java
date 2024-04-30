@@ -23,6 +23,7 @@ import android.os.Build;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.EnterpriseGlobalSearchSession;
 import androidx.appsearch.app.Features;
@@ -37,7 +38,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
@@ -206,7 +206,8 @@ public final class PlatformStorage {
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
     // mutate requests will need to gain write lock and query requests need to gain read lock.
-    static final Executor EXECUTOR = Executors.newCachedThreadPool();
+    static final Executor EXECUTOR = AppSearchEnvironmentFactory.getEnvironmentInstance()
+            .createCachedThreadPoolExecutor();
 
     /**
      * Opens a new {@link AppSearchSession} on this storage.
