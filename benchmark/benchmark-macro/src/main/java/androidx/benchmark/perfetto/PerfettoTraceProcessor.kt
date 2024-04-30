@@ -81,7 +81,7 @@ import perfetto.protos.TraceMetrics
 @ExperimentalPerfettoTraceProcessorApi
 class PerfettoTraceProcessor {
     companion object {
-        private val SERVER_START_TIMEOUT_MS = 5.seconds
+        private val SERVER_START_TIMEOUT_MS = 60.seconds
         internal const val PORT = 9001
 
         /**
