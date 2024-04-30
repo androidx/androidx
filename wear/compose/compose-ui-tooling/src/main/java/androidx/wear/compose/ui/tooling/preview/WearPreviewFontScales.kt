@@ -34,7 +34,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * note, the above list is not exhaustive. It previews the composables on a small round Wear device.
  *
  * @sample androidx.wear.compose.material.samples.TitleCardWithImagePreview
- * @see [Preview.fontScale]
+ * @see Preview.fontScale
  */
 @Preview(
     device = WearDevices.SMALL_ROUND,

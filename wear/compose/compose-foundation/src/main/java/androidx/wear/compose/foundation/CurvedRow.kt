@@ -42,6 +42,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * and if those needs to be reversed in a Rtl layout.
  * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
  * See [CurvedDirection.Angular].
+ * @param contentBuilder Scope used to provide the content for this row.
  */
 public fun CurvedScope.curvedRow(
     modifier: CurvedModifier = CurvedModifier,
