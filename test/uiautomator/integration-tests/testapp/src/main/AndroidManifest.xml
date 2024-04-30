@@ -27,7 +27,8 @@
     <application android:label="UiAutomator Test App"
         android:theme="@android:style/Theme.Holo.NoActionBar">
         <activity android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
