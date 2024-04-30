@@ -211,7 +211,7 @@ actual abstract class RoomDatabase {
     /**
      * Property delegate of [getRequiredTypeConverterClasses] for common ext functionality.
      */
-    internal actual val requiredTypeConverterClasses: Map<KClass<*>, List<KClass<*>>>
+    internal actual val requiredTypeConverterClassesMap: Map<KClass<*>, List<KClass<*>>>
         get() = getRequiredTypeConverterClasses()
 
     /**

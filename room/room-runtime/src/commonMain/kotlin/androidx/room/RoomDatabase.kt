@@ -167,7 +167,7 @@ expect abstract class RoomDatabase() {
     /**
      * Property delegate of [getRequiredTypeConverterClasses] for common ext functionality.
      */
-    internal val requiredTypeConverterClasses: Map<KClass<*>, List<KClass<*>>>
+    internal val requiredTypeConverterClassesMap: Map<KClass<*>, List<KClass<*>>>
 
     /**
      * Initialize invalidation tracker. Note that this method is called when the [RoomDatabase] is
@@ -576,7 +576,7 @@ internal fun RoomDatabase.validateAutoMigrations(configuration: DatabaseConfigur
 }
 
 internal fun RoomDatabase.validateTypeConverters(configuration: DatabaseConfiguration) {
-    val requiredFactories = this.requiredTypeConverterClasses
+    val requiredFactories = this.requiredTypeConverterClassesMap
     // Indices for each converter on whether it is used or not so that we can throw an exception
     // if developer provides an unused converter. It is not necessarily an error but likely
     // to be because why would developer add a converter if it won't be used?

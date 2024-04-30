@@ -77,7 +77,7 @@ class DatabaseWriter(
                 CodeLanguage.JAVA -> CommonTypeNames.JAVA_CLASS
                 CodeLanguage.KOTLIN -> CommonTypeNames.KOTLIN_CLASS
             }.parametrizedBy(
-                XTypeName.getProducerExtendsName(KotlinTypeNames.ANY)
+                XTypeName.ANY_WILDCARD
             )
         val typeConvertersTypeName = CommonTypeNames.MUTABLE_MAP.parametrizedBy(
             classOfAnyTypeName,
