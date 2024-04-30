@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.viewfinder.compose {
 
-  @androidx.compose.runtime.Stable public interface CoordinateTransformer {
+  public interface CoordinateTransformer {
     method public float[] getTransformMatrix();
     method public long transform(long);
     property public float[] transformMatrix;
