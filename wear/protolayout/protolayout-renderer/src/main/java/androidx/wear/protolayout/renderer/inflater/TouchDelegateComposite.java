@@ -83,6 +83,10 @@ class TouchDelegateComposite extends TouchDelegate {
         mDelegates.remove(delegateView);
     }
 
+    boolean isEmpty() {
+        return mDelegates.isEmpty();
+    }
+
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         boolean eventForwarded = false;
@@ -125,7 +129,7 @@ class TouchDelegateComposite extends TouchDelegate {
     @Override
     @NonNull
     public AccessibilityNodeInfo.TouchDelegateInfo getTouchDelegateInfo() {
-        if (VERSION.SDK_INT >= VERSION_CODES.Q) {
+        if (VERSION.SDK_INT >= VERSION_CODES.Q && !mDelegates.isEmpty()) {
             Map<Region, View> targetMap = new ArrayMap<>(mDelegates.size());
             for (Map.Entry<View, DelegateInfo> entry : mDelegates.entrySet()) {
                 AccessibilityNodeInfo.TouchDelegateInfo info =
