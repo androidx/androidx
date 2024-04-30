@@ -1087,6 +1087,7 @@ includeProject(":work:work-testing", [BuildType.MAIN])
 File repoRoot = new File(rootDir, "../..").canonicalFile
 
 includeOptionalProject(":xr:xr", new File(repoRoot, "xr/xr"), [BuildType.XR])
+includeOptionalProject(":xr:integration-tests:compose-adaptive-sample", new File(repoRoot, "xr/integration-tests/compose-adaptive-sample"), [BuildType.XR])
 
 /////////////////////////////
 //
