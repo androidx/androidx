@@ -51,6 +51,7 @@ public inline fun DynamicNavGraphBuilder.activity(
 /**
  * Construct a new [DynamicActivityNavigator.Destination]
  * @param route Destination route.
+ * @param builder the builder used to construct the graph
  */
 public inline fun DynamicNavGraphBuilder.activity(
     route: String,
