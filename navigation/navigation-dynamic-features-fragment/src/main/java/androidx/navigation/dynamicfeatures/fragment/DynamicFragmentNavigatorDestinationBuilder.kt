@@ -88,6 +88,7 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
 /**
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param route Destination route.
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     route: String,
@@ -98,6 +99,7 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param route Destination route.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun DynamicNavGraphBuilder.fragment(
     route: String,
@@ -128,6 +130,7 @@ public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder
  * @param T the destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
  * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
@@ -141,6 +144,7 @@ public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
  * [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified T : Any> DynamicNavGraphBuilder.fragment(
     fragmentClassName: String,

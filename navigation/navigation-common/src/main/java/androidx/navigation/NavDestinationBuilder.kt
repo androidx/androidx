@@ -363,7 +363,7 @@ public class NavActionBuilder {
      *
      * All values added here should be able to be added to a [android.os.Bundle].
      *
-     * @see NavAction.getDefaultArguments
+     * @see NavAction.defaultArguments
      */
     public val defaultArguments: MutableMap<String, Any?> = mutableMapOf()
 
