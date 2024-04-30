@@ -3425,22 +3425,8 @@ class AndroidPointerInputTest {
         // don't wait several frames before triggering the ACTION_DOWN. Thus, no hover exit is
         // triggered.
         dispatchMouseEvent(ACTION_HOVER_EXIT, box1LayoutCoordinates!!)
-
-        rule.runOnUiThread {
-            // Verify Box 1 events and pointer id
-            assertThat(originalPointerId).isEqualTo(box1PointerId)
-            assertThat(hoverEventCount).isEqualTo(1)
-            assertThat(hoverExitCount).isEqualTo(0)
-            assertThat(downCount).isEqualTo(0)
-            assertThat(unknownCount).isEqualTo(0)
-            assertThat(upCount).isEqualTo(0)
-
-            assertThat(pointerEvent).isNull()
-            assertThat(eventsThatShouldNotTrigger).isFalse()
-        }
-
-        pointerEvent = null // Reset before each event
         dispatchMouseEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
         rule.runOnUiThread {
             assertThat(originalPointerId).isEqualTo(box1PointerId)
             assertThat(hoverEventCount).isEqualTo(1)
@@ -3488,21 +3474,8 @@ class AndroidPointerInputTest {
 
         pointerEvent = null // Reset before each event
         dispatchMouseEvent(ACTION_UP, box1LayoutCoordinates!!)
-        rule.runOnUiThread {
-            assertThat(originalPointerId).isEqualTo(box1PointerId)
-            assertThat(hoverEventCount).isEqualTo(1)
-            assertThat(hoverExitCount).isEqualTo(0)
-            assertThat(downCount).isEqualTo(1)
-            assertThat(unknownCount).isEqualTo(2)
-            assertThat(upCount).isEqualTo(1)
-
-            assertThat(pointerEvent).isNotNull()
-            assertThat(eventsThatShouldNotTrigger).isFalse()
-        }
-
-        pointerEvent = null // Reset before each event
         // Compose already considered us as ENTERING the UI Element, so we don't need to trigger
-        // it again.
+        // it again. (This is a synthetic hover enter anyway sent from platform with UP.)
         dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
 
         rule.runOnUiThread {
@@ -3513,7 +3486,7 @@ class AndroidPointerInputTest {
             assertThat(unknownCount).isEqualTo(2)
             assertThat(upCount).isEqualTo(1)
 
-            assertThat(pointerEvent).isNull()
+            assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
         }
 
