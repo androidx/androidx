@@ -663,24 +663,26 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             list = listOf(0, 4, 2, 3, 1, 5)
         }
 
+        val afterLastVisibleItem = itemSize * 3 + spacing * 3
+
         onAnimationFrame { fraction ->
             // item 1 moves to and item 4 moves from `listSize`, right after the end edge
             val item1Offset = if (isInLookaheadScope) {
                 itemSizePlusSpacing + 2 * itemSizePlusSpacing * fraction
             } else
-                itemSizePlusSpacing + (listSize - itemSizePlusSpacing) * fraction
+                itemSizePlusSpacing + (afterLastVisibleItem - itemSizePlusSpacing) * fraction
             val item4Offset =
-                listSize - (listSize - itemSizePlusSpacing) * fraction
-            val screenSize = itemSize * 3 + spacing * 2
+                afterLastVisibleItem - (afterLastVisibleItem - itemSizePlusSpacing) * fraction
+
             val expected = mutableListOf<Pair<Any, Float>>().apply {
                 add(0 to 0f)
-                if (item1Offset < screenSize) {
+                if (item1Offset < afterLastVisibleItem) {
                     add(1 to item1Offset)
                 } else {
                     rule.onNodeWithTag("1").assertIsNotDisplayed()
                 }
                 add(2 to itemSizePlusSpacing * 2)
-                if (item4Offset < screenSize) {
+                if (item4Offset < afterLastVisibleItem) {
                     add(4 to item4Offset)
                 } else {
                     rule.onNodeWithTag("4").assertIsNotDisplayed()
@@ -828,19 +830,21 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         rule.runOnUiThread {
             list = listOf(0, 4, 2, 3, 1, 5)
         }
-
+        val afterLastVisibleItem = itemSize2 + itemSize3 + itemSize
         onAnimationFrame { fraction ->
-            // item 1 moves from and item 4 moves to `listSize`, right after the end edge
-            val startItem4Offset = listSize
-            val endItem1Offset = listSize
+            val startItem4Offset = afterLastVisibleItem
+            val endItem1Offset = afterLastVisibleItem
+
             val item4Size = itemSize3
-            val item1Offset =
+            val item1Offset = if (isInLookaheadScope) {
+                item0Size + (item4Size + itemSize) * fraction
+            } else {
                 item0Size + (endItem1Offset - item0Size) * fraction
-            val item4Offset =
-                startItem4Offset - (startItem4Offset - item0Size) * fraction
+            }
+            val item4Offset = startItem4Offset - (startItem4Offset - item0Size) * fraction
             val expected = mutableListOf<Pair<Any, Float>>().apply {
                 add(0 to 0f)
-                if (item1Offset < listSize) {
+                if (item1Offset < afterLastVisibleItem) {
                     add(1 to item1Offset)
                 } else {
                     rule.onNodeWithTag("1").assertIsNotDisplayed()
