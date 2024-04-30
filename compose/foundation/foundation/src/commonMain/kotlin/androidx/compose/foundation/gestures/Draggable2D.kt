@@ -267,9 +267,10 @@ internal class Draggable2DNode(
     private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
     private var reverseDirection: Boolean
 ) : DragGestureNode(
-    canDrag,
-    enabled,
-    interactionSource
+    canDrag = canDrag,
+    enabled = enabled,
+    interactionSource = interactionSource,
+    orientationLock = null
 ) {
 
     override suspend fun drag(
@@ -281,8 +282,6 @@ internal class Draggable2DNode(
             }
         }
     }
-
-    override val pointerDirectionConfig = BidirectionalPointerDirectionConfig
 
     override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) =
         this@Draggable2DNode.onDragStarted(this, startedPosition)
@@ -317,10 +316,11 @@ internal class Draggable2DNode(
         this.startDragImmediately = startDragImmediately
 
         update(
-            canDrag,
-            enabled,
-            interactionSource,
-            resetPointerInputHandling
+            canDrag = canDrag,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            orientationLock = null,
+            shouldResetPointerInputHandling = resetPointerInputHandling
         )
     }
 
