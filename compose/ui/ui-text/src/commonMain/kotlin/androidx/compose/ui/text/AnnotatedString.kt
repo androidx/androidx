@@ -272,9 +272,9 @@ class AnnotatedString internal constructor(
      * [spanStyles], [paragraphStyles], or [text] are different.
      *
      * @param other to compare annotations with
-     * @return true iff this compares equal on annotations with other
+     * @return true if and only if this compares equal on annotations with other
      */
-    fun hasEqualsAnnotations(other: AnnotatedString): Boolean =
+    fun hasEqualAnnotations(other: AnnotatedString): Boolean =
         this.annotations == other.annotations
 
     /**
