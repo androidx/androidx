@@ -27,8 +27,8 @@ class CodeGenScope(
     // TODO(b/319660042): Remove once migration to driver API is done.
     val useDriverApi: Boolean = false
 ) {
-    val language = writer.codeLanguage
-    val javaLambdaSyntaxAvailable = writer.javaLambdaSyntaxAvailable
+    val language = writer.context.codeLanguage
+    val javaLambdaSyntaxAvailable = writer.context.javaLambdaSyntaxAvailable
     val builder by lazy { XCodeBlock.builder(language) }
     private val tmpVarIndices = mutableMapOf<String, Int>()
 

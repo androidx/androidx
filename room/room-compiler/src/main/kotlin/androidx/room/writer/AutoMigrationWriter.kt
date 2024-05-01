@@ -40,9 +40,8 @@ import androidx.room.vo.AutoMigration
 class AutoMigrationWriter(
     private val autoMigration: AutoMigration,
     private val dbElement: XTypeElement,
-    codeLanguage: CodeLanguage,
-    javaLambdaSyntaxAvailable: Boolean
-) : TypeWriter(codeLanguage, javaLambdaSyntaxAvailable) {
+    writerContext: WriterContext,
+) : TypeWriter(writerContext) {
     private val addedColumns = autoMigration.schemaDiff.addedColumns
     private val addedTables = autoMigration.schemaDiff.addedTables
     private val renamedTables = autoMigration.schemaDiff.renamedTables

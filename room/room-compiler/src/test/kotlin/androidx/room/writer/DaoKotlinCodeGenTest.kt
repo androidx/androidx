@@ -2412,4 +2412,30 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
+
+    @Test
+    fun overridePropertyQuery() {
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @get:Query("SELECT * FROM MyEntity")
+              val entities: List<MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
 }

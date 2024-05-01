@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XProcessingEnv.Platform
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
@@ -332,7 +333,9 @@ object COMMON {
 
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(
-        object : TypeWriter(CodeLanguage.JAVA, true) {
+        object : TypeWriter(
+            WriterContext(CodeLanguage.JAVA, setOf(Platform.JVM), true)
+        ) {
             override fun createTypeSpecBuilder(): XTypeSpec.Builder {
                 return XTypeSpec.classBuilder(codeLanguage, XClassName.get("test", "Foo"))
             }

@@ -50,9 +50,11 @@ object ProcessorErrors {
         "room/Transaction.html"
     val INVALID_ANNOTATION_COUNT_IN_DAO_METHOD = "An abstract DAO method must be" +
         " annotated with one and only one of the following annotations: " +
-        DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
-            it.java.simpleName
+        DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(", ") {
+            "@" + it.java.simpleName
         }
+    val INVALID_ANNOTATION_IN_DAO_PROPERTY = "An abstract DAO property must be" +
+        " annotated with @get:${Query::class.java}."
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
     val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query" +
         " methods. It must be bound to a type through base Dao class."
@@ -1119,9 +1121,6 @@ object ProcessorErrors {
         POJO,
         ENTITY,
     }
-
-    val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
-        "Kotlin code, please rewrite as an abstract function."
 
     val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
         "class represents a placeholder type that is uninstantiable and 'null' is always returned."
