@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.graphics.RectF
 import android.util.Size
 import android.view.Surface
+import androidx.camera.viewfinder.compose.internal.RefCounted
 import androidx.camera.viewfinder.compose.internal.SurfaceTransformationUtil
 import androidx.camera.viewfinder.surface.ImplementationMode
 import androidx.camera.viewfinder.surface.TransformationInfo
@@ -38,8 +39,8 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
-import kotlin.coroutines.resume
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 
 /**
  * Displays a media stream with the given transformations for crop and rotation while maintaining
@@ -85,10 +86,23 @@ fun Viewfinder(
                 implementationMode = implementationMode,
                 onInit = {
                     onSurface { newSurface, _, _ ->
-                        // TODO(b/322420450): Properly release surface when no longer needed
-                        surfaceRequest.provideSurface(newSurface)
-                    }
+                        val refCountedSurface = RefCounted<Surface> {
+                            it.release()
+                        }
 
+                        refCountedSurface.initialize(newSurface)
+                        newSurface.onDestroyed {
+                            refCountedSurface.release()
+                        }
+
+                        refCountedSurface.acquire()?.let {
+                            surfaceRequest.provideSurface(it, Runnable::run) {
+                                refCountedSurface.release()
+                                this@onSurface.cancel()
+                            }
+                            awaitCancellation()
+                        } ?: run { this@onSurface.cancel() }
+                    }
                     // TODO(b/322420176): Properly handle onSurfaceChanged()
                 },
                 coordinateTransformer,
@@ -96,16 +110,6 @@ fun Viewfinder(
         }
     }
 }
-
-// TODO(b/322420450): Properly release surface when this is cancelled
-private suspend fun ViewfinderSurfaceRequest.provideSurface(surface: Surface): Surface =
-    suspendCancellableCoroutine {
-        this.provideSurface(surface, Runnable::run) { result: ViewfinderSurfaceRequest.Result? ->
-            it.resume(requireNotNull(result) {
-                "Expected non-null result from ViewfinderSurfaceRequest, but received null."
-            }.surface)
-        }
-    }
 
 @SuppressLint("RestrictedApi")
 @Composable
