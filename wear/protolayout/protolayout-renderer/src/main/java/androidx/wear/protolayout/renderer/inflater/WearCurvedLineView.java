@@ -323,11 +323,6 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         this.setColor(mBasePaint.getColor());
     }
 
-    /** Clears the stroke cap shadow. */
-    public void clearStrokeCapShadow() {
-        this.mCapShadow = null;
-    }
-
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         if (mArcDrawable == null) {
