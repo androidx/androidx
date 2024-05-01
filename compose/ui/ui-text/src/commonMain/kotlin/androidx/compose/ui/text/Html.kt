@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.text
 
-import androidx.compose.ui.text.style.TextDecoration
-
 /**
  * Converts a string with HTML tags into [AnnotatedString].
  *
@@ -52,7 +50,7 @@ import androidx.compose.ui.text.style.TextDecoration
  */
 expect fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
-    linkStyle: SpanStyle? = SpanStyle(textDecoration = TextDecoration.Underline),
+    linkStyle: SpanStyle? = null,
     linkFocusedStyle: SpanStyle? = null,
     linkHoveredStyle: SpanStyle? = null,
     linkPressedStyle: SpanStyle? = null,
