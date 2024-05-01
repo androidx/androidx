@@ -218,6 +218,19 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodSetEmbeddedActivityWindowInfoCallbackValid() &&
             isMethodClearEmbeddedActivityWindowInfoCallbackValid()
 
+    private fun isActivityEmbeddingComponentValid(): Boolean {
+        return validateReflection("WindowExtensions#getActivityEmbeddingComponent is not valid") {
+            val extensionsClass = safeWindowExtensionsProvider.windowExtensionsClass
+            val getActivityEmbeddingComponentMethod =
+                extensionsClass.getMethod("getActivityEmbeddingComponent")
+            val activityEmbeddingComponentClass = activityEmbeddingComponentClass
+            getActivityEmbeddingComponentMethod.isPublic &&
+                getActivityEmbeddingComponentMethod.doesReturn(activityEmbeddingComponentClass)
+        }
+    }
+
+    /** Vendor API level 1 validation methods */
+
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
             val setEmbeddingRulesMethod = activityEmbeddingComponentClass.getMethod(
@@ -236,6 +249,90 @@ internal class SafeActivityEmbeddingComponentProvider(
             )
             isActivityEmbeddedMethod.isPublic &&
                 isActivityEmbeddedMethod.doesReturn(Boolean::class.java)
+        }
+    }
+
+    private fun isMethodSetSplitInfoCallbackJavaConsumerValid(): Boolean {
+        return validateReflection("ActivityEmbeddingComponent#setSplitInfoCallback is not valid") {
+            val consumerClass =
+                consumerAdapter.consumerClassOrNull() ?: return@validateReflection false
+            val setSplitInfoCallbackMethod =
+                activityEmbeddingComponentClass.getMethod("setSplitInfoCallback", consumerClass)
+            setSplitInfoCallbackMethod.isPublic
+        }
+    }
+
+    private fun isClassActivityRuleValid(): Boolean =
+        validateReflection("Class ActivityRule is not valid") {
+            val activityRuleClass = ActivityRule::class.java
+            val shouldAlwaysExpandMethod = activityRuleClass.getMethod("shouldAlwaysExpand")
+            val activityRuleBuilderClass = ActivityRule.Builder::class.java
+            val setShouldAlwaysExpandMethod = activityRuleBuilderClass.getMethod(
+                "setShouldAlwaysExpand",
+                Boolean::class.java
+            )
+            shouldAlwaysExpandMethod.isPublic &&
+                shouldAlwaysExpandMethod.doesReturn(Boolean::class.java) &&
+                setShouldAlwaysExpandMethod.isPublic
+        }
+
+    private fun isClassSplitInfoValid(): Boolean =
+        validateReflection("Class SplitInfo is not valid") {
+            val splitInfoClass = SplitInfo::class.java
+            val getPrimaryActivityStackMethod =
+                splitInfoClass.getMethod("getPrimaryActivityStack")
+            val getSecondaryActivityStackMethod =
+                splitInfoClass.getMethod("getSecondaryActivityStack")
+            val getSplitRatioMethod = splitInfoClass.getMethod("getSplitRatio")
+            getPrimaryActivityStackMethod.isPublic &&
+                getPrimaryActivityStackMethod.doesReturn(ActivityStack::class.java) &&
+                getSecondaryActivityStackMethod.isPublic &&
+                getSecondaryActivityStackMethod.doesReturn(ActivityStack::class.java) &&
+                getSplitRatioMethod.isPublic &&
+                getSplitRatioMethod.doesReturn(Float::class.java)
+        }
+
+    private fun isClassSplitPairRuleValid(): Boolean =
+        validateReflection("Class SplitPairRule is not valid") {
+            val splitPairRuleClass = SplitPairRule::class.java
+            val getFinishPrimaryWithSecondaryMethod =
+                splitPairRuleClass.getMethod("getFinishPrimaryWithSecondary")
+            val getFinishSecondaryWithPrimaryMethod =
+                splitPairRuleClass.getMethod("getFinishSecondaryWithPrimary")
+            val shouldClearTopMethod = splitPairRuleClass.getMethod("shouldClearTop")
+            getFinishPrimaryWithSecondaryMethod.isPublic &&
+                getFinishPrimaryWithSecondaryMethod.doesReturn(Int::class.java) &&
+                getFinishSecondaryWithPrimaryMethod.isPublic &&
+                getFinishSecondaryWithPrimaryMethod.doesReturn(Int::class.java) &&
+                shouldClearTopMethod.isPublic &&
+                shouldClearTopMethod.doesReturn(Boolean::class.java)
+        }
+
+    private fun isClassSplitPlaceholderRuleValid(): Boolean =
+        validateReflection("Class SplitPlaceholderRule is not valid") {
+            val splitPlaceholderRuleClass = SplitPlaceholderRule::class.java
+            val getPlaceholderIntentMethod =
+                splitPlaceholderRuleClass.getMethod("getPlaceholderIntent")
+            val isStickyMethod = splitPlaceholderRuleClass.getMethod("isSticky")
+            val getFinishPrimaryWithSecondaryMethod =
+                splitPlaceholderRuleClass.getMethod("getFinishPrimaryWithSecondary")
+            getPlaceholderIntentMethod.isPublic &&
+                getPlaceholderIntentMethod.doesReturn(Intent::class.java) &&
+                isStickyMethod.isPublic &&
+                isStickyMethod.doesReturn(Boolean::class.java)
+            getFinishPrimaryWithSecondaryMethod.isPublic &&
+                getFinishPrimaryWithSecondaryMethod.doesReturn(Int::class.java)
+        }
+
+    /** Vendor API level 2 validation methods */
+
+    private fun isMethodSetSplitInfoCallbackWindowConsumerValid(): Boolean {
+        return validateReflection("ActivityEmbeddingComponent#setSplitInfoCallback is not valid") {
+            val setSplitInfoCallbackMethod = activityEmbeddingComponentClass.getMethod(
+                "setSplitInfoCallback",
+                Consumer::class.java
+            )
+            setSplitInfoCallbackMethod.isPublic
         }
     }
 
@@ -320,87 +417,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 expandContainersSplitTypeConstructor.isPublic
         }
 
-    private fun isMethodSetSplitInfoCallbackJavaConsumerValid(): Boolean {
-        return validateReflection("ActivityEmbeddingComponent#setSplitInfoCallback is not valid") {
-            val consumerClass =
-                consumerAdapter.consumerClassOrNull() ?: return@validateReflection false
-            val setSplitInfoCallbackMethod =
-                activityEmbeddingComponentClass.getMethod("setSplitInfoCallback", consumerClass)
-            setSplitInfoCallbackMethod.isPublic
-        }
-    }
-
-    private fun isClassActivityRuleValid(): Boolean =
-        validateReflection("Class ActivityRule is not valid") {
-            val activityRuleClass = ActivityRule::class.java
-            val shouldAlwaysExpandMethod = activityRuleClass.getMethod("shouldAlwaysExpand")
-            val activityRuleBuilderClass = ActivityRule.Builder::class.java
-            val setShouldAlwaysExpandMethod = activityRuleBuilderClass.getMethod(
-                "setShouldAlwaysExpand",
-                Boolean::class.java
-            )
-            shouldAlwaysExpandMethod.isPublic &&
-                shouldAlwaysExpandMethod.doesReturn(Boolean::class.java) &&
-                setShouldAlwaysExpandMethod.isPublic
-        }
-
-    private fun isClassSplitInfoValid(): Boolean =
-        validateReflection("Class SplitInfo is not valid") {
-            val splitInfoClass = SplitInfo::class.java
-            val getPrimaryActivityStackMethod =
-                splitInfoClass.getMethod("getPrimaryActivityStack")
-            val getSecondaryActivityStackMethod =
-                splitInfoClass.getMethod("getSecondaryActivityStack")
-            val getSplitRatioMethod = splitInfoClass.getMethod("getSplitRatio")
-            getPrimaryActivityStackMethod.isPublic &&
-                getPrimaryActivityStackMethod.doesReturn(ActivityStack::class.java) &&
-                getSecondaryActivityStackMethod.isPublic &&
-                getSecondaryActivityStackMethod.doesReturn(ActivityStack::class.java) &&
-                getSplitRatioMethod.isPublic &&
-                getSplitRatioMethod.doesReturn(Float::class.java)
-        }
-
-    private fun isClassSplitPairRuleValid(): Boolean =
-        validateReflection("Class SplitPairRule is not valid") {
-            val splitPairRuleClass = SplitPairRule::class.java
-            val getFinishPrimaryWithSecondaryMethod =
-                splitPairRuleClass.getMethod("getFinishPrimaryWithSecondary")
-            val getFinishSecondaryWithPrimaryMethod =
-                splitPairRuleClass.getMethod("getFinishSecondaryWithPrimary")
-            val shouldClearTopMethod = splitPairRuleClass.getMethod("shouldClearTop")
-            getFinishPrimaryWithSecondaryMethod.isPublic &&
-                getFinishPrimaryWithSecondaryMethod.doesReturn(Int::class.java) &&
-                getFinishSecondaryWithPrimaryMethod.isPublic &&
-                getFinishSecondaryWithPrimaryMethod.doesReturn(Int::class.java) &&
-                shouldClearTopMethod.isPublic &&
-                shouldClearTopMethod.doesReturn(Boolean::class.java)
-        }
-
-    private fun isClassSplitPlaceholderRuleValid(): Boolean =
-        validateReflection("Class SplitPlaceholderRule is not valid") {
-            val splitPlaceholderRuleClass = SplitPlaceholderRule::class.java
-            val getPlaceholderIntentMethod =
-                splitPlaceholderRuleClass.getMethod("getPlaceholderIntent")
-            val isStickyMethod = splitPlaceholderRuleClass.getMethod("isSticky")
-            val getFinishPrimaryWithSecondaryMethod =
-                splitPlaceholderRuleClass.getMethod("getFinishPrimaryWithSecondary")
-            getPlaceholderIntentMethod.isPublic &&
-                getPlaceholderIntentMethod.doesReturn(Intent::class.java) &&
-                isStickyMethod.isPublic &&
-                isStickyMethod.doesReturn(Boolean::class.java)
-                getFinishPrimaryWithSecondaryMethod.isPublic &&
-                getFinishPrimaryWithSecondaryMethod.doesReturn(Int::class.java)
-        }
-
-    private fun isMethodSetSplitInfoCallbackWindowConsumerValid(): Boolean {
-        return validateReflection("ActivityEmbeddingComponent#setSplitInfoCallback is not valid") {
-            val setSplitInfoCallbackMethod = activityEmbeddingComponentClass.getMethod(
-                "setSplitInfoCallback",
-                Consumer::class.java
-            )
-            setSplitInfoCallbackMethod.isPublic
-        }
-    }
+    /** Vendor API level 3 validation methods */
 
     private fun isMethodInvalidateTopVisibleSplitAttributesValid(): Boolean =
         validateReflection("#invalidateTopVisibleSplitAttributes is not valid") {
@@ -420,6 +437,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             )
             updateSplitAttributesMethod.isPublic
         }
+
+    /** Vendor API level 5 validation methods */
 
     private fun isClassAnimationBackgroundValid(): Boolean =
         validateReflection("Class AnimationBackground is not valid") {
@@ -473,74 +492,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
         }
 
-    private fun isActivityStackGetTagValid(): Boolean =
-        validateReflection("ActivityStack#getTag is not valid") {
-            val activityStackClass = ActivityStack::class.java
-            val getTokenMethod = activityStackClass.getMethod("getTag")
-
-            getTokenMethod.isPublic && getTokenMethod.doesReturn(String::class.java)
-        }
-
-    @Suppress("newApi") // Suppress lint check for WindowMetrics
-    private fun isClassParentContainerInfoValid(): Boolean =
-        validateReflection("ParentContainerInfo is not valid") {
-            val parentContainerInfoClass = ParentContainerInfo::class.java
-            val getWindowMetricsMethod = parentContainerInfoClass.getMethod("getWindowMetrics")
-            val getConfigurationMethod = parentContainerInfoClass.getMethod("getConfiguration")
-            val getWindowLayoutInfoMethod = parentContainerInfoClass
-                .getMethod("getWindowLayoutInfo")
-
-            getWindowMetricsMethod.isPublic &&
-                getWindowMetricsMethod.doesReturn(WindowMetrics::class.java) &&
-                getConfigurationMethod.isPublic &&
-                getConfigurationMethod.doesReturn(Configuration::class.java) &&
-                getWindowLayoutInfoMethod.isPublic &&
-                getWindowLayoutInfoMethod.doesReturn(WindowLayoutInfo::class.java)
-        }
-
-    private fun isMethodGetParentContainerInfoValid(): Boolean =
-        validateReflection(
-            "ActivityEmbeddingComponent#getParentContainerInfo is not valid") {
-            val getParentContainerInfoMethod = activityEmbeddingComponentClass.getMethod(
-                "getParentContainerInfo",
-                ActivityStack.Token::class.java
-            )
-            getParentContainerInfoMethod.isPublic &&
-                getParentContainerInfoMethod.doesReturn(ParentContainerInfo::class.java)
-        }
-
-    private fun isMethodGetActivityStackTokenValid(): Boolean =
-        validateReflection("getActivityStackToken is not valid") {
-            val getActivityStackTokenMethod = activityEmbeddingComponentClass.getMethod(
-                "getActivityStackToken",
-                String::class.java
-            )
-            getActivityStackTokenMethod.isPublic &&
-                getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
-        }
-
-    private fun isMethodSetActivityStackAttributesCalculatorValid(): Boolean =
-        validateReflection("setActivityStackAttributesCalculator is not valid") {
-            val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
-                .getMethod("setActivityStackAttributesCalculator", Function::class.java)
-            setActivityStackAttributesCalculatorMethod.isPublic
-        }
-
-    private fun isMethodClearActivityStackAttributesCalculatorValid(): Boolean =
-        validateReflection("clearActivityStackAttributesCalculator is not valid") {
-            val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
-                .getMethod("clearActivityStackAttributesCalculator")
-            setActivityStackAttributesCalculatorMethod.isPublic
-        }
-
-    private fun isMethodUpdateActivityStackAttributesValid(): Boolean =
-        validateReflection("updateActivityStackAttributes is not valid") {
-            val updateActivityStackAttributesMethod = activityEmbeddingComponentClass
-                .getMethod("updateActivityStackAttributes", ActivityStack.Token::class.java,
-                    ActivityStackAttributes::class.java)
-            updateActivityStackAttributesMethod.isPublic
-        }
-
     private fun isMethodRegisterActivityStackCallbackValid(): Boolean =
         validateReflection("registerActivityStackCallback is not valid") {
             val registerActivityStackCallbackMethod = activityEmbeddingComponentClass
@@ -558,37 +509,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                 .getMethod(
                     "unregisterActivityStackCallback",
                     Consumer::class.java
-                )
-            unregisterActivityStackCallbackMethod.isPublic
-        }
-
-    private fun isClassSplitInfoTokenValid(): Boolean =
-        validateReflection("SplitInfo.Token is not valid") {
-            val splitInfoTokenClass = SplitInfo.Token::class.java
-            val createFromBinder = splitInfoTokenClass.getMethod(
-                "createFromBinder",
-                IBinder::class.java
-            )
-
-            createFromBinder.isPublic && createFromBinder.doesReturn(splitInfoTokenClass)
-        }
-
-    private fun isMethodGetSplitInfoTokenValid(): Boolean =
-        validateReflection("SplitInfo#getSplitInfoToken is not valid") {
-            val splitInfoClass = SplitInfo::class.java
-            val getSplitInfoToken = splitInfoClass.getMethod("getSplitInfoToken")
-
-            getSplitInfoToken.isPublic &&
-                getSplitInfoToken.doesReturn(SplitInfo.Token::class.java)
-        }
-
-    private fun isMethodUpdateSplitAttributesWithTokenValid(): Boolean =
-        validateReflection("updateSplitAttributes is not valid") {
-            val unregisterActivityStackCallbackMethod = activityEmbeddingComponentClass
-                .getMethod(
-                    "updateSplitAttributes",
-                    SplitInfo.Token::class.java,
-                    SplitAttributes::class.java,
                 )
             unregisterActivityStackCallbackMethod.isPublic
         }
@@ -642,16 +562,106 @@ internal class SafeActivityEmbeddingComponentProvider(
                 unpinTopActivityStackMethod.isPublic
         }
 
-    private fun isActivityEmbeddingComponentValid(): Boolean {
-        return validateReflection("WindowExtensions#getActivityEmbeddingComponent is not valid") {
-            val extensionsClass = safeWindowExtensionsProvider.windowExtensionsClass
-            val getActivityEmbeddingComponentMethod =
-                extensionsClass.getMethod("getActivityEmbeddingComponent")
-            val activityEmbeddingComponentClass = activityEmbeddingComponentClass
-            getActivityEmbeddingComponentMethod.isPublic &&
-                getActivityEmbeddingComponentMethod.doesReturn(activityEmbeddingComponentClass)
+    private fun isMethodUpdateSplitAttributesWithTokenValid(): Boolean =
+        validateReflection("updateSplitAttributes is not valid") {
+            val unregisterActivityStackCallbackMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "updateSplitAttributes",
+                    SplitInfo.Token::class.java,
+                    SplitAttributes::class.java,
+                )
+            unregisterActivityStackCallbackMethod.isPublic
         }
-    }
+
+    private fun isClassSplitInfoTokenValid(): Boolean =
+        validateReflection("SplitInfo.Token is not valid") {
+            val splitInfoTokenClass = SplitInfo.Token::class.java
+            val createFromBinder = splitInfoTokenClass.getMethod(
+                "createFromBinder",
+                IBinder::class.java
+            )
+
+            createFromBinder.isPublic && createFromBinder.doesReturn(splitInfoTokenClass)
+        }
+
+    private fun isMethodGetSplitInfoTokenValid(): Boolean =
+        validateReflection("SplitInfo#getSplitInfoToken is not valid") {
+            val splitInfoClass = SplitInfo::class.java
+            val getSplitInfoToken = splitInfoClass.getMethod("getSplitInfoToken")
+
+            getSplitInfoToken.isPublic &&
+                getSplitInfoToken.doesReturn(SplitInfo.Token::class.java)
+        }
+
+    /** Vendor API level 6 validation methods */
+
+    @Suppress("newApi") // Suppress lint check for WindowMetrics
+    private fun isClassParentContainerInfoValid(): Boolean =
+        validateReflection("ParentContainerInfo is not valid") {
+            val parentContainerInfoClass = ParentContainerInfo::class.java
+            val getWindowMetricsMethod = parentContainerInfoClass.getMethod("getWindowMetrics")
+            val getConfigurationMethod = parentContainerInfoClass.getMethod("getConfiguration")
+            val getWindowLayoutInfoMethod = parentContainerInfoClass
+                .getMethod("getWindowLayoutInfo")
+
+            getWindowMetricsMethod.isPublic &&
+                getWindowMetricsMethod.doesReturn(WindowMetrics::class.java) &&
+                getConfigurationMethod.isPublic &&
+                getConfigurationMethod.doesReturn(Configuration::class.java) &&
+                getWindowLayoutInfoMethod.isPublic &&
+                getWindowLayoutInfoMethod.doesReturn(WindowLayoutInfo::class.java)
+        }
+
+    private fun isActivityStackGetTagValid(): Boolean =
+        validateReflection("ActivityStack#getTag is not valid") {
+            val activityStackClass = ActivityStack::class.java
+            val getTokenMethod = activityStackClass.getMethod("getTag")
+
+            getTokenMethod.isPublic && getTokenMethod.doesReturn(String::class.java)
+        }
+
+    private fun isMethodGetActivityStackTokenValid(): Boolean =
+        validateReflection("getActivityStackToken is not valid") {
+            val getActivityStackTokenMethod = activityEmbeddingComponentClass.getMethod(
+                "getActivityStackToken",
+                String::class.java
+            )
+            getActivityStackTokenMethod.isPublic &&
+                getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
+        }
+
+    private fun isMethodGetParentContainerInfoValid(): Boolean =
+        validateReflection(
+            "ActivityEmbeddingComponent#getParentContainerInfo is not valid") {
+            val getParentContainerInfoMethod = activityEmbeddingComponentClass.getMethod(
+                "getParentContainerInfo",
+                ActivityStack.Token::class.java
+            )
+            getParentContainerInfoMethod.isPublic &&
+                getParentContainerInfoMethod.doesReturn(ParentContainerInfo::class.java)
+        }
+
+    private fun isMethodSetActivityStackAttributesCalculatorValid(): Boolean =
+        validateReflection("setActivityStackAttributesCalculator is not valid") {
+            val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
+                .getMethod("setActivityStackAttributesCalculator", Function::class.java)
+            setActivityStackAttributesCalculatorMethod.isPublic
+        }
+
+    private fun isMethodClearActivityStackAttributesCalculatorValid(): Boolean =
+        validateReflection("clearActivityStackAttributesCalculator is not valid") {
+            val setActivityStackAttributesCalculatorMethod = activityEmbeddingComponentClass
+                .getMethod("clearActivityStackAttributesCalculator")
+            setActivityStackAttributesCalculatorMethod.isPublic
+        }
+
+    private fun isMethodUpdateActivityStackAttributesValid(): Boolean =
+        validateReflection("updateActivityStackAttributes is not valid") {
+            val updateActivityStackAttributesMethod = activityEmbeddingComponentClass
+                .getMethod("updateActivityStackAttributes", ActivityStack.Token::class.java,
+                    ActivityStackAttributes::class.java)
+            updateActivityStackAttributesMethod.isPublic
+        }
 
     private fun isClassEmbeddedActivityWindowInfoValid(): Boolean =
         validateReflection("Class EmbeddedActivityWindowInfo is not valid") {
