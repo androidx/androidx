@@ -31,8 +31,7 @@ import androidx.compose.ui.util.unpackInt2
  * Constructs a [IntOffset] from [x] and [y] position [Int] values.
  */
 @Stable
-fun IntOffset(x: Int, y: Int): IntOffset =
-    IntOffset(packInts(x, y))
+fun IntOffset(x: Int, y: Int): IntOffset = IntOffset(packInts(x, y))
 
 /**
  * A two-dimensional position using [Int] pixels for units
@@ -40,7 +39,6 @@ fun IntOffset(x: Int, y: Int): IntOffset =
 @Immutable
 @JvmInline
 value class IntOffset internal constructor(@PublishedApi internal val packedValue: Long) {
-
     /**
      * The horizontal aspect of the position in [Int] pixels.
      */
@@ -65,33 +63,37 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      * Returns a copy of this IntOffset instance optionally overriding the
      * x or y parameter
      */
-    fun copy(x: Int = unpackInt1(packedValue), y: Int = unpackInt2(packedValue)) = IntOffset(x, y)
+    fun copy(x: Int = unpackInt1(packedValue), y: Int = unpackInt2(packedValue)) =
+        IntOffset(packInts(x, y))
 
     /**
      * Subtract a [IntOffset] from another one.
      */
     @Stable
-    inline operator fun minus(other: IntOffset) =
+    operator fun minus(other: IntOffset) =
         IntOffset(
-            unpackInt1(packedValue) - unpackInt1(other.packedValue),
-            unpackInt2(packedValue) - unpackInt2(other.packedValue)
+            packInts(
+                unpackInt1(packedValue) - unpackInt1(other.packedValue),
+                unpackInt2(packedValue) - unpackInt2(other.packedValue)
+            )
         )
 
     /**
      * Add a [IntOffset] to another one.
      */
     @Stable
-    inline operator fun plus(other: IntOffset) =
+    operator fun plus(other: IntOffset) =
         IntOffset(
-            unpackInt1(packedValue) + unpackInt1(other.packedValue),
-            unpackInt2(packedValue) + unpackInt2(other.packedValue)
+            packInts(
+                unpackInt1(packedValue) + unpackInt1(other.packedValue),
+                unpackInt2(packedValue) + unpackInt2(other.packedValue)
+            )
         )
 
-    /**
-     * Returns a new [IntOffset] representing the negation of this point.
-     */
+    /** Returns a new [IntOffset] representing the negation of this point. */
     @Stable
-    inline operator fun unaryMinus() = IntOffset(-unpackInt1(packedValue), -unpackInt2(packedValue))
+    operator fun unaryMinus() =
+        IntOffset(packInts(-unpackInt1(packedValue), -unpackInt2(packedValue)))
 
     /**
      * Multiplication operator.
@@ -102,8 +104,10 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      */
     @Stable
     operator fun times(operand: Float): IntOffset = IntOffset(
-        (unpackInt1(packedValue) * operand).fastRoundToInt(),
-        (unpackInt2(packedValue) * operand).fastRoundToInt()
+        packInts(
+            (unpackInt1(packedValue) * operand).fastRoundToInt(),
+            (unpackInt2(packedValue) * operand).fastRoundToInt()
+        )
     )
 
     /**
@@ -115,8 +119,10 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      */
     @Stable
     operator fun div(operand: Float): IntOffset = IntOffset(
-        (unpackInt1(packedValue) / operand).fastRoundToInt(),
-        (unpackInt2(packedValue) / operand).fastRoundToInt()
+        packInts(
+            (unpackInt1(packedValue) / operand).fastRoundToInt(),
+            (unpackInt2(packedValue) / operand).fastRoundToInt()
+        )
     )
 
     /**
@@ -128,15 +134,17 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      */
     @Stable
     operator fun rem(operand: Int) = IntOffset(
-        unpackInt1(packedValue) % operand,
-        unpackInt2(packedValue) % operand
+        packInts(
+            unpackInt1(packedValue) % operand,
+            unpackInt2(packedValue) % operand
+        )
     )
 
     @Stable
     override fun toString(): String = "($x, $y)"
 
     companion object {
-        val Zero = IntOffset(0, 0)
+        val Zero = IntOffset(0x0L)
     }
 }
 
@@ -153,7 +161,12 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
  */
 @Stable
 fun lerp(start: IntOffset, stop: IntOffset, fraction: Float): IntOffset =
-    IntOffset(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
+    IntOffset(
+        packInts(
+            lerp(start.x, stop.x, fraction),
+            lerp(start.y, stop.y, fraction)
+        )
+    )
 
 /**
  * Converts the [IntOffset] to an [Offset].
@@ -181,4 +194,4 @@ operator fun IntOffset.minus(offset: Offset): Offset =
  * Round a [Offset] down to the nearest [Int] coordinates.
  */
 @Stable
-inline fun Offset.round(): IntOffset = IntOffset(x.fastRoundToInt(), y.fastRoundToInt())
+fun Offset.round(): IntOffset = IntOffset(packInts(x.fastRoundToInt(), y.fastRoundToInt()))
