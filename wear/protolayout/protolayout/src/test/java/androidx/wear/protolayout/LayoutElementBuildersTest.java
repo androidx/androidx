@@ -586,12 +586,12 @@ public class LayoutElementBuildersTest {
         String actualAxis1Name =
                 new String(
                         ByteBuffer.allocate(4)
-                                .putInt(settingsList.get(0).getAxisName()).array(),
+                                .putInt(settingsList.get(0).getAxisTag()).array(),
                         StandardCharsets.US_ASCII);
         String actualAxis2Name =
                 new String(
                         ByteBuffer.allocate(4)
-                                .putInt(settingsList.get(1).getAxisName()).array(),
+                                .putInt(settingsList.get(1).getAxisTag()).array(),
                         StandardCharsets.US_ASCII);
 
         assertThat(actualAxis1Name).isEqualTo(WEIGHT_AXIS_NAME);

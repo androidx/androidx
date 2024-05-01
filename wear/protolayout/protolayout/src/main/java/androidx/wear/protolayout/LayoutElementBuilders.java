@@ -1013,7 +1013,7 @@ public final class LayoutElementBuilders {
 
             /**
              * Sets the collection of font settings to be applied. If more than one Setting with the
-             * same axis name is added, the first one will be used.
+             * same axis tag is added, the first one will be used.
              *
              * <p>Any previously added settings will be cleared.
              *
@@ -6369,7 +6369,7 @@ public final class LayoutElementBuilders {
     }
     return false;
   }
-    /** A single point of customization in a font, with axis name and a value for it. */
+    /** A single point of customization in a font, with axis tag and a value for it. */
     @RequiresSchemaVersion(major = 1, minor = 400)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class FontVariationSetting implements FontSetting {
@@ -6388,12 +6388,12 @@ public final class LayoutElementBuilders {
             return mImpl.getValue();
         }
 
-        /** Gets the axis name for this font setting. This represents a 4 ASCII characters tag. */
+        /** Gets the axis tag for this font setting. This represents a 4 ASCII characters tag. */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public String getAxisName() {
             return new String(
-                    ByteBuffer.allocate(4).putInt(mImpl.getAxisName()).array(),
+                    ByteBuffer.allocate(4).putInt(mImpl.getAxisTag()).array(),
                     StandardCharsets.US_ASCII);
         }
 
@@ -6478,7 +6478,7 @@ public final class LayoutElementBuilders {
             /**
              * Creates an instance of {@link Builder}.
              *
-             * @param axisName the axis name for this font setting. This represents a 4 ASCII
+             * @param axisName the axis tag for this font setting. This represents a 4 ASCII
              *                 characters tag.
              * @param value the value for this font setting.
              */
@@ -6490,13 +6490,13 @@ public final class LayoutElementBuilders {
             }
 
             /**
-             * Sets the axis name for this font setting. This represents a 4 ASCII characters tag.
+             * Sets the axis tag for this font setting. This represents a 4 ASCII characters tag.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
             Builder setAxisName(@NonNull String axisName) {
                 int axisNameInt = ByteBuffer.wrap(axisName.getBytes()).getInt();
-                mImpl.setAxisName(axisNameInt);
+                mImpl.setAxisTag(axisNameInt);
                 mFingerprint.recordPropertyUpdate(1, axisNameInt);
                 return this;
             }
