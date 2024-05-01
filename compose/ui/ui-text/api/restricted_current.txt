@@ -58,6 +58,7 @@ package androidx.compose.ui.text {
     method public int pushStyle(androidx.compose.ui.text.SpanStyle style);
     method public int pushTtsAnnotation(androidx.compose.ui.text.TtsAnnotation ttsAnnotation);
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public int pushUrlAnnotation(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
+    method public void replace(androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation> old, androidx.compose.ui.text.LinkAnnotation new);
     method public androidx.compose.ui.text.AnnotatedString toAnnotatedString();
     property public final int length;
   }
@@ -130,6 +131,7 @@ package androidx.compose.ui.text {
     method public abstract androidx.compose.ui.text.LinkInteractionListener? getLinkInteractionListener();
     method public abstract androidx.compose.ui.text.SpanStyle? getPressedStyle();
     method public abstract androidx.compose.ui.text.SpanStyle? getStyle();
+    method public abstract androidx.compose.ui.text.LinkAnnotation withDefaultsFrom(androidx.compose.ui.text.SpanStyle? defaultStyle, androidx.compose.ui.text.SpanStyle? defaultFocusedStyle, androidx.compose.ui.text.SpanStyle? defaultHoveredStyle, androidx.compose.ui.text.SpanStyle? defaultPressedStyle);
     property public abstract androidx.compose.ui.text.SpanStyle? focusedStyle;
     property public abstract androidx.compose.ui.text.SpanStyle? hoveredStyle;
     property public abstract androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener;
@@ -145,6 +147,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.SpanStyle? getPressedStyle();
     method public androidx.compose.ui.text.SpanStyle? getStyle();
     method public String getTag();
+    method public androidx.compose.ui.text.LinkAnnotation.Clickable withDefaultsFrom(androidx.compose.ui.text.SpanStyle? defaultStyle, androidx.compose.ui.text.SpanStyle? defaultFocusedStyle, androidx.compose.ui.text.SpanStyle? defaultHoveredStyle, androidx.compose.ui.text.SpanStyle? defaultPressedStyle);
     property public androidx.compose.ui.text.SpanStyle? focusedStyle;
     property public androidx.compose.ui.text.SpanStyle? hoveredStyle;
     property public androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener;
@@ -161,6 +164,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.SpanStyle? getPressedStyle();
     method public androidx.compose.ui.text.SpanStyle? getStyle();
     method public String getUrl();
+    method public androidx.compose.ui.text.LinkAnnotation.Url withDefaultsFrom(androidx.compose.ui.text.SpanStyle? defaultStyle, androidx.compose.ui.text.SpanStyle? defaultFocusedStyle, androidx.compose.ui.text.SpanStyle? defaultHoveredStyle, androidx.compose.ui.text.SpanStyle? defaultPressedStyle);
     property public androidx.compose.ui.text.SpanStyle? focusedStyle;
     property public androidx.compose.ui.text.SpanStyle? hoveredStyle;
     property public androidx.compose.ui.text.LinkInteractionListener? linkInteractionListener;

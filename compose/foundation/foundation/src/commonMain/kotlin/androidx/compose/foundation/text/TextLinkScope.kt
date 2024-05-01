@@ -182,11 +182,11 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 // we calculate the latest style based on the link state and apply it to the
                 // initialText's style. This allows us to merge the style with the original instead
                 // of fully replacing it
-                val mergedStyle = range.item.style?.merge(
+                val mergedStyle = range.item.style.mergeOrUse(
                     if (isFocused) range.item.focusedStyle else null
-                )?.merge(
+                ).mergeOrUse(
                     if (isHovered) range.item.hoveredStyle else null
-                )?.merge(
+                ).mergeOrUse(
                     if (isPressed) range.item.pressedStyle else null
                 )
                 mergedStyle?.let {
@@ -195,6 +195,8 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             }
         }
     }
+
+    private fun SpanStyle?.mergeOrUse(other: SpanStyle?) = this?.merge(other) ?: other
 
     private fun handleLink(
         link: LinkAnnotation,

@@ -505,7 +505,7 @@ class BasicTextLinkTest {
         }
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertDoesNotContainColor(Color.Red)
@@ -531,7 +531,7 @@ class BasicTextLinkTest {
         }
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertDoesNotContainColor(Color.Red)
@@ -555,7 +555,7 @@ class BasicTextLinkTest {
         }
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertContainsColor(Color.Red)
@@ -649,7 +649,7 @@ class BasicTextLinkTest {
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
             .requestFocus()
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertDoesNotContainColor(Color.Blue)
@@ -672,7 +672,7 @@ class BasicTextLinkTest {
         }
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .requestFocus()
             .captureToImage()
             .assertContainsColor(Color.Green)
@@ -696,7 +696,7 @@ class BasicTextLinkTest {
         }
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .requestFocus()
             .captureToImage()
             .assertContainsColor(Color.Green)
@@ -766,7 +766,7 @@ class BasicTextLinkTest {
 
         rule.onNode(hasClickAction(), useUnmergedTree = true)
             .requestFocus()
-            .performMouseInput { enter(this.center) }
+            .performMouseInput { moveTo(this.center) }
             .performTouchInput { longPress(this.center) }
             .captureToImage()
             .assertContainsColor(Color.Blue)

@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.tokens.DefaultTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -37,11 +36,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.util.fastForEach
 
 /**
  * High level element that displays text and provides semantics / accessibility information.
@@ -237,7 +236,69 @@ fun Text(
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
+ * @param linkStyles Configures styles for the links in different states which are present in text
+ * as [androidx.compose.ui.text.LinkAnnotation] annotations. This object passes the styles directly
+ * to the link annotations. If you style the [text] either using the [SpanStyle] annotations or
+ * via the parameters from this composable like [color], [style] and others, the [linkStyles] will
+ * override them for links
+ *
+ * @sample androidx.compose.material3.samples.AnnotatedStringWithLinks
  */
+@Composable
+fun Text(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Unspecified,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Unspecified,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = LocalTextStyle.current,
+    linkStyles: TextLinkStyles = TextDefaults.linkStyles()
+) {
+    val textColor = color.takeOrElse {
+        style.color.takeOrElse {
+            LocalContentColor.current
+        }
+    }
+
+    BasicText(
+        text = textWithLinkStyles(text, linkStyles),
+        modifier = modifier,
+        style = style.merge(
+            color = textColor,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            lineHeight = lineHeight,
+            fontFamily = fontFamily,
+            textDecoration = textDecoration,
+            fontStyle = fontStyle,
+            letterSpacing = letterSpacing
+        ),
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        inlineContent = inlineContent
+    )
+}
+
+@Deprecated(
+    "Maintained for binary compatibility. Use version with a textLinkStyles instead",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 fun Text(
     text: AnnotatedString,
@@ -259,32 +320,25 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    val textColor = color.takeOrElse {
-        style.color.takeOrElse {
-            LocalContentColor.current
-        }
-    }
-
-    BasicText(
-        text = text,
-        modifier = modifier,
-        style = style.merge(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign ?: TextAlign.Unspecified,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        ),
-        onTextLayout = onTextLayout,
-        overflow = overflow,
-        softWrap = softWrap,
-        maxLines = maxLines,
-        minLines = minLines,
-        inlineContent = inlineContent
+    Text(
+        text,
+        modifier,
+        color,
+        fontSize,
+        fontStyle,
+        fontWeight,
+        fontFamily,
+        letterSpacing,
+        textDecoration,
+        textAlign,
+        lineHeight,
+        overflow,
+        softWrap,
+        maxLines,
+        minLines,
+        inlineContent,
+        onTextLayout,
+        style
     )
 }
 
@@ -359,96 +413,114 @@ fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
 
 /** Contains the methods to be used by [Text] */
 object TextDefaults {
-    /**
-     * Converts a string with HTML tags into [AnnotatedString]. Applies default styling from the
-     * [MaterialTheme] to links present in the [htmlString].
-     *
-     * Check [androidx.compose.ui.text.AnnotatedString.Companion.fromHtml] for more details on
-     * supported tags and usage.
-     *
-     * @param htmlString HTML-tagged string to be parsed to construct AnnotatedString
-     * @param linkStyle style to be applied to links present in the string
-     * @param linkFocusedStyle style to be applied to links present in the string when they are
-     * focused
-     * @param linkHoveredStyle style to be applied to links present in the string when they are
-     * hovered
-     * @param linkPressedStyle style to be applied to links present in the string when they are
-     * pressed
-     * @param linkInteractionListener a listener that will be attached to links that are present in
-     * the string and triggered when user clicks on those links. When set to null, which is
-     * a default, the system will try to open the corresponding links with the
-     * [androidx.compose.ui.platform.UriHandler] composition local
-     *
-     * @see androidx.compose.ui.text.AnnotatedString.Companion.fromHtml
-     */
-    @Composable
-    @ReadOnlyComposable
-    @Suppress("ExecutorRegistration") // LinkInteractionListener is a UI event handler
-    fun fromHtml(
-        htmlString: String,
-        linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colorScheme.primary),
-        linkFocusedStyle: SpanStyle? = null,
-        linkHoveredStyle: SpanStyle? = null,
-        linkPressedStyle: SpanStyle? = null,
-        linkInteractionListener: LinkInteractionListener? = null
-    ): AnnotatedString {
-        return AnnotatedString.fromHtml(
-            htmlString,
-            linkStyle,
-            linkFocusedStyle,
-            linkHoveredStyle,
-            linkPressedStyle,
-            linkInteractionListener
-        )
-    }
 
     /**
-     * Constructs a [LinkAnnotation.Url] and applies default styling from the [MaterialTheme]
-     *
-     * @sample androidx.compose.material3.samples.AnnotatedStringWithLinks
+     * Creates a [TextLinkStyles] that are used to style the links present in the text
      */
     @Composable
-    @ReadOnlyComposable
-    @Suppress("ExecutorRegistration") // LinkInteractionListener is a UI event handler
-    fun Url(
-        url: String,
-        linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colorScheme.primary),
-        linkFocusedStyle: SpanStyle? = null,
-        linkHoveredStyle: SpanStyle? = null,
-        linkPressedStyle: SpanStyle? = null,
-        linkInteractionListener: LinkInteractionListener? = null
-    ): LinkAnnotation.Url {
-        return LinkAnnotation.Url(
-            url,
-            linkStyle,
-            linkFocusedStyle,
-            linkHoveredStyle,
-            linkPressedStyle,
-            linkInteractionListener
-        )
-    }
+    fun linkStyles(): TextLinkStyles = MaterialTheme.colorScheme.defaultTextLinkStyles
 
     /**
-     * Constructs a [LinkAnnotation.Clickable] and applies default styling from the [MaterialTheme]
+     * Creates a [TextLinkStyles] that are used to style the links present in the text based on
+     * their state
+     *
+     * @see LinkAnnotation
      */
     @Composable
-    @ReadOnlyComposable
-    @Suppress("ExecutorRegistration") // LinkInteractionListener is a UI event handler
-    fun Clickable(
-        tag: String,
-        linkStyle: SpanStyle? = SpanStyle(color = MaterialTheme.colorScheme.primary),
+    fun linkStyles(
+        linkStyle: SpanStyle? = null,
         linkFocusedStyle: SpanStyle? = null,
         linkHoveredStyle: SpanStyle? = null,
-        linkPressedStyle: SpanStyle? = null,
-        linkInteractionListener: LinkInteractionListener?
-    ): LinkAnnotation.Clickable {
-        return LinkAnnotation.Clickable(
-            tag,
-            linkStyle,
-            linkFocusedStyle,
-            linkHoveredStyle,
-            linkPressedStyle,
-            linkInteractionListener
-        )
+        linkPressedStyle: SpanStyle? = null
+    ): TextLinkStyles = MaterialTheme.colorScheme.defaultTextLinkStyles.copy(
+        linkStyle, linkFocusedStyle, linkHoveredStyle, linkPressedStyle
+    )
+
+    private val ColorScheme.defaultTextLinkStyles: TextLinkStyles
+        get() {
+            return defaultTextLinkStylesCached ?: TextLinkStyles(
+                linkStyle = SpanStyle(color = primary)
+            ).also {
+                defaultTextLinkStylesCached = it
+            }
+        }
+}
+
+/**
+ * Represents the styles of the links in the Text in different states
+ *
+ * @param linkStyle style to be applied to links present in the string
+ * @param linkFocusedStyle style to be applied to links present in the string when they are
+ * focused
+ * @param linkHoveredStyle style to be applied to links present in the string when they are
+ * hovered
+ * @param linkPressedStyle style to be applied to links present in the string when they are
+ * pressed
+ */
+@Immutable
+class TextLinkStyles(
+    val linkStyle: SpanStyle?,
+    val linkFocusedStyle: SpanStyle? = null,
+    val linkHoveredStyle: SpanStyle? = null,
+    val linkPressedStyle: SpanStyle? = null
+) {
+    /**
+     * Returns a copy of this TextLinkStyles, optionally overriding some of the values.
+     * This uses the null to mean “use the value from the source”
+     */
+    fun copy(
+        linkStyle: SpanStyle? = this.linkStyle,
+        linkFocusedStyle: SpanStyle? = this.linkFocusedStyle,
+        linkHoveredStyle: SpanStyle? = this.linkHoveredStyle,
+        linkPressedStyle: SpanStyle? = this.linkPressedStyle
+    ) = TextLinkStyles(
+        linkStyle ?: this.linkStyle,
+        linkFocusedStyle ?: this.linkFocusedStyle,
+        linkHoveredStyle ?: this.linkHoveredStyle,
+        linkPressedStyle ?: this.linkPressedStyle
+    )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is TextLinkStyles) return false
+
+        if (linkStyle != other.linkStyle) return false
+        if (linkFocusedStyle != other.linkFocusedStyle) return false
+        if (linkHoveredStyle != other.linkHoveredStyle) return false
+        if (linkPressedStyle != other.linkPressedStyle) return false
+
+        return true
     }
+
+    override fun hashCode(): Int {
+        var result = linkStyle?.hashCode() ?: 0
+        result = 31 * result + (linkFocusedStyle?.hashCode() ?: 0)
+        result = 31 * result + (linkHoveredStyle?.hashCode() ?: 0)
+        result = 31 * result + (linkPressedStyle?.hashCode() ?: 0)
+        return result
+    }
+}
+
+/**
+ * Replaces all link annotations in the AnnotatedString with the new link annotations the styles of
+ * which are merged with the Material styling.
+ *
+ * If the [text]'s link annotation has a style defined in the annotation, Material theming will
+ * not fully override it but apply on top the _missing_ fields.
+*/
+private fun textWithLinkStyles(text: AnnotatedString, linkStyles: TextLinkStyles): AnnotatedString {
+    val links = text.getLinkAnnotations(0, text.length)
+    if (links.isEmpty()) return text
+
+    val builder = AnnotatedString.Builder(text)
+    links.fastForEach {
+        val styledLink = it.item.withDefaultsFrom(
+            linkStyles.linkStyle,
+            linkStyles.linkFocusedStyle,
+            linkStyles.linkHoveredStyle,
+            linkStyles.linkPressedStyle
+        )
+        builder.replace(it, styledLink)
+    }
+    return builder.toAnnotatedString()
 }
