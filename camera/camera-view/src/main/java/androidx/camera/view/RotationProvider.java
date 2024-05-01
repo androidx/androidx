@@ -119,6 +119,7 @@ public final class RotationProvider {
      *
      * @param executor The executor in which the {@link {@link Listener#onRotationChanged(int)}
      *                 will be run.
+     * @param listener The listener to be receive rotation updates.
      * @return false if the device cannot detection rotation changes. In that case, the listener
      * will not be set.
      */
