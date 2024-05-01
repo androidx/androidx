@@ -140,7 +140,7 @@ internal class TextAnnotatedStringNode(
         val charDiff = this.text.text != text.text
         val spanDiff = this.text.spanStyles != text.spanStyles
         val paragraphDiff = this.text.paragraphStyles != text.paragraphStyles
-        val annotationDiff = !this.text.hasEqualsAnnotations(text)
+        val annotationDiff = !this.text.hasEqualAnnotations(text)
         val anyDiff = charDiff || spanDiff || paragraphDiff || annotationDiff
 
         if (anyDiff) {
