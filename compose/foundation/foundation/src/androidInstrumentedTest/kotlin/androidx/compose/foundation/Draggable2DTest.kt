@@ -850,6 +850,7 @@ class Draggable2DTest {
         val enabled = mutableStateOf(true)
         lateinit var runningJob: Job
         rule.setContent {
+            val scope = rememberCoroutineScope()
             Box(
                 modifier = Modifier
                     .testTag(draggable2DBoxTag)
@@ -858,7 +859,7 @@ class Draggable2DTest {
                         enabled = enabled.value,
                         state = rememberDraggable2DState { },
                         onDragStopped = { _ ->
-                            runningJob = launch { delay(10_000L) } // long running operation
+                            runningJob = scope.launch { delay(10_000L) } // long running operation
                         }
                     )
             )
