@@ -377,9 +377,13 @@ public class DeviceProfileWriter {
 
     private static @Nullable byte[] desiredVersion() {
         // If SDK is pre or post supported version, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
-                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
             return null;
+        }
+
+        // Profile version V015_S is forward compatible.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return ProfileVersion.V015_S;
         }
 
         switch (Build.VERSION.SDK_INT) {
@@ -397,12 +401,6 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.R:
                 return ProfileVersion.V010_P;
 
-            case Build.VERSION_CODES.S:
-            case Build.VERSION_CODES.S_V2:
-            case Build.VERSION_CODES.TIRAMISU:
-            case 34:
-                return ProfileVersion.V015_S;
-
             default:
                 return null;
         }
@@ -410,9 +408,14 @@ public class DeviceProfileWriter {
 
     private static boolean requiresMetadata() {
         // If SDK is pre-N, we don't want to do anything, so return null.
-        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK
-                || Build.VERSION.SDK_INT > ProfileVersion.MAX_SUPPORTED_SDK) {
+        if (Build.VERSION.SDK_INT < ProfileVersion.MIN_SUPPORTED_SDK) {
             return false;
+        }
+
+        // The profiles for S require a typeIdCount. Therefore metadata is required.
+        // Profile version V015_S is forward compatible.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return true;
         }
 
         switch (Build.VERSION.SDK_INT) {
@@ -431,13 +434,6 @@ public class DeviceProfileWriter {
             case Build.VERSION_CODES.Q:
             case Build.VERSION_CODES.R:
                 return false;
-
-            // The profiles for S require a typeIdCount. Therefore metadata is required.
-            case Build.VERSION_CODES.S:
-            case Build.VERSION_CODES.S_V2:
-            case Build.VERSION_CODES.TIRAMISU:
-            case 34:
-                return true;
 
             default:
                 return false;
