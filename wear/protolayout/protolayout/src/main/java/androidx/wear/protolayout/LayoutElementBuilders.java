@@ -18,7 +18,6 @@ package androidx.wear.protolayout;
 
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
-import static androidx.wear.protolayout.proto.LayoutElementProto.FontSetting.InnerCase.VARIATION;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
@@ -90,6 +89,7 @@ public final class LayoutElementBuilders {
 
     @VisibleForTesting static final String WEIGHT_AXIS_NAME = "wght";
     @VisibleForTesting static final String WIDTH_AXIS_NAME = "wdth";
+    @VisibleForTesting static final String TABULAR_OPTION_NAME = "tnum";
 
     private LayoutElementBuilders() {}
 
@@ -1041,8 +1041,15 @@ public final class LayoutElementBuilders {
                 for (FontSetting setting : settings) {
                     String settingName = "";
 
-                    if (setting.toFontSettingProto().getInnerCase() == VARIATION) {
-                        settingName = ((FontVariationSetting) setting).getAxisName();
+                    switch (setting.toFontSettingProto().getInnerCase()) {
+                        case VARIATION:
+                            settingName = ((FontVariationSetting) setting).getAxisName();
+                            break;
+                        case FEATURE:
+                            settingName = ((FontFeatureSetting) setting).getTag();
+                            break;
+                        case INNER_NOT_SET:
+                            break;
                     }
 
                     if (settingName.isEmpty() || axes.contains(settingName)) {
@@ -1155,7 +1162,7 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * FontSetting option for custom weight for font. Similar to the {@link FontWeightProp} but
+         * {@link FontSetting} option for custom weight for font. Similar to the {@link FontWeightProp} but
          * it accepts any value. For more information, see
          * <a href="https://fonts.google.com/knowledge/glossary/weight_axis">here</a>.
          *
@@ -1171,7 +1178,7 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * FontSetting option for custom width for font. For more information, see
+         * {@link FontSetting} option for custom width for font. For more information, see
          * <a href="https://fonts.google.com/knowledge/glossary/width_axis">here</a>.
          *
          * @param value width, usually in 25..200, but actual range can depend on the font used
@@ -1180,6 +1187,21 @@ public final class LayoutElementBuilders {
         @RequiresSchemaVersion(major = 1, minor = 400)
         static FontSetting width(float value) {
             return new FontVariationSetting.Builder(WIDTH_AXIS_NAME, value).build();
+        }
+
+        /**
+         * {@link FontSetting} option for enabling displaying tabular figures. In other words,
+         * all numeral characters will have the same width. This corresponds to
+         * {@code tnum} OpenType feature.
+         *
+         * <p>This setting's availability is font dependent and may not have effect on all font
+         * families, some of them like Roboto automatically space out numeral characters to have the
+         * same width, while other characters will have their own width.
+         */
+        @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 400)
+        static FontSetting tabularNum() {
+            return new FontFeatureSetting.Builder(TABULAR_OPTION_NAME).build();
         }
     }
 
@@ -6369,6 +6391,7 @@ public final class LayoutElementBuilders {
     }
     return false;
   }
+
     /** A single point of customization in a font, with axis tag and a value for it. */
     @RequiresSchemaVersion(major = 1, minor = 400)
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -6399,8 +6422,14 @@ public final class LayoutElementBuilders {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
             FontVariationSetting that = (FontVariationSetting) o;
             return Objects.equals(getAxisName(), that.getAxisName())
                     && Objects.equals(getValue(), that.getValue());
@@ -6506,6 +6535,132 @@ public final class LayoutElementBuilders {
             @NonNull
             public FontVariationSetting build() {
                 return new FontVariationSetting(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /** A single point of customization in a font feature, with specified tag. */
+    @RequiresSchemaVersion(major = 1, minor = 400)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final class FontFeatureSetting implements FontSetting {
+        private final LayoutElementProto.FontFeatureSetting mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        FontFeatureSetting(
+                LayoutElementProto.FontFeatureSetting impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /** Gets the feature tag. This represents a 4 ASCII characters tag. */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public String getTag() {
+            return new String(
+                    ByteBuffer.allocate(4).putInt(mImpl.getTag()).array(),
+                    StandardCharsets.US_ASCII);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            FontFeatureSetting that = (FontFeatureSetting) o;
+            return Objects.equals(getTag(), that.getTag());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getTag());
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static FontFeatureSetting fromProto(
+                @NonNull LayoutElementProto.FontFeatureSetting proto,
+                @Nullable Fingerprint fingerprint) {
+            return new FontFeatureSetting(proto, fingerprint);
+        }
+
+        @NonNull
+        static FontFeatureSetting fromProto(
+                @NonNull LayoutElementProto.FontFeatureSetting proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.FontFeatureSetting toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.FontSetting toFontSettingProto() {
+            return LayoutElementProto.FontSetting.newBuilder().setFeature(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "FontFeatureSetting{"
+                    + "tag="
+                    + getTag()
+                    + "}";
+        }
+
+        /** Builder for {@link FontFeatureSetting} */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public static final class Builder implements FontSetting.Builder {
+            private final LayoutElementProto.FontFeatureSetting.Builder mImpl =
+                    LayoutElementProto.FontFeatureSetting.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(843808384);
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @param tag the tag for this font feature. This represents a 4 ASCII characters tag.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @SuppressLint("CheckResult") // (b/247804720)
+            public Builder(@NonNull String tag) {
+                setTag(tag);
+            }
+
+            /**
+             * Sets the feature tag. This represents a 4 ASCII characters tag.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            Builder setTag(@NonNull String tag) {
+                int tagInt = ByteBuffer.wrap(tag.getBytes()).getInt();
+                mImpl.setTag(tagInt);
+                mFingerprint.recordPropertyUpdate(1, tagInt);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            @NonNull
+            public FontFeatureSetting build() {
+                return new FontFeatureSetting(mImpl.build(), mFingerprint);
             }
         }
     }

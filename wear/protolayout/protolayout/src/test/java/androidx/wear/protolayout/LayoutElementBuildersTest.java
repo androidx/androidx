@@ -22,6 +22,7 @@ import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.DimensionBuilders.weight;
 import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.ROBOTO_FLEX_FONT;
+import static androidx.wear.protolayout.LayoutElementBuilders.TABULAR_OPTION_NAME;
 import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_NAME;
 import static androidx.wear.protolayout.LayoutElementBuilders.WIDTH_AXIS_NAME;
 
@@ -599,6 +600,31 @@ public class LayoutElementBuildersTest {
 
         assertThat(actualAxis2Name).isEqualTo(WIDTH_AXIS_NAME);
         assertThat(settingsList.get(1).getValue()).isEqualTo(expectedValueWidth);
+    }
+
+    @Test
+    public void testFontSettings_setTnum() {
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(
+                                LayoutElementBuilders.FontSetting.tabularNum())
+                        .build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontFeatureSetting> settingsList =
+                fontStyleProto.getSettingsList().stream()
+                        .map(LayoutElementProto.FontSetting::getFeature)
+                        .collect(Collectors.toList());
+
+        assertThat(settingsList.size()).isEqualTo(1);
+
+        String actualAxis1Name =
+                new String(
+                        ByteBuffer.allocate(4)
+                                .putInt(settingsList.get(0).getTag()).array(),
+                        StandardCharsets.US_ASCII);
+
+        assertThat(actualAxis1Name).isEqualTo(TABULAR_OPTION_NAME);
     }
 
     @Test
