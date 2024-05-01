@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -293,8 +294,18 @@ private class FocusableInteractionNode(
 
     private fun MutableInteractionSource.emitWithFallback(interaction: Interaction) {
         if (isAttached) {
+            // If this is being called from inside FocusTargetNode's onDetach(), we are still
+            // attached, but the scope will be cancelled soon after - so the launch {} might not
+            // even start before it is cancelled. We don't want to use CoroutineStart.UNDISPATCHED,
+            // or always call tryEmit() as this will break other timing / cause some events to be
+            // missed for other cases. Instead just make sure we call tryEmit if we cancel the
+            // scope, before we finish emitting.
+            val handler = coroutineScope.coroutineContext[Job]?.invokeOnCompletion {
+                tryEmit(interaction)
+            }
             coroutineScope.launch {
                 emit(interaction)
+                handler?.dispose()
             }
         } else {
             tryEmit(interaction)
