@@ -20,9 +20,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
@@ -729,9 +731,9 @@ class SuspendingPointerInputFilterTest {
         isDebugInspectorInfoEnabled = true
 
         rule.setContent {
-            val pointerInputHandler: suspend PointerInputScope.() -> Unit = {}
+            val pointerInputEventHandler = PointerInputEventHandler {}
             val modifier =
-                Modifier.pointerInput(Unit, pointerInputHandler) as SuspendPointerInputElement
+                Modifier.pointerInput(Unit, pointerInputEventHandler) as SuspendPointerInputElement
 
             assertThat(modifier.nameFallback).isEqualTo("pointerInput")
             assertThat(modifier.valueOverride).isNull()
@@ -740,7 +742,7 @@ class SuspendingPointerInputFilterTest {
                     ValueElement("key1", Unit),
                     ValueElement("key2", null),
                     ValueElement("keys", null),
-                    ValueElement("pointerInputHandler", pointerInputHandler)
+                    ValueElement("pointerInputEventHandler", pointerInputEventHandler)
                 )
         }
     }
@@ -748,7 +750,7 @@ class SuspendingPointerInputFilterTest {
     @Test
     @SmallTest
     fun testEquality_key() {
-        val block: suspend PointerInputScope.() -> Unit = {}
+        val block = PointerInputEventHandler {}
 
         assertModifierIsPure { toggleInput -> Modifier.pointerInput(toggleInput, block = block) }
     }
@@ -756,8 +758,8 @@ class SuspendingPointerInputFilterTest {
     @Test
     @SmallTest
     fun testEquality_block() {
-        val block1: suspend PointerInputScope.() -> Unit = {}
-        val block2: suspend PointerInputScope.() -> Unit = {}
+        val block1 = PointerInputEventHandler {}
+        val block2 = PointerInputEventHandler {}
 
         assertModifierIsPure { toggleInput ->
             val block = if (toggleInput) block1 else block2
@@ -1154,19 +1156,150 @@ class SuspendingPointerInputFilterTest {
         rule.runOnIdle { assertThat(cancelled).isTrue() }
     }
 
+    // Tests cases where the key does not change (`Unit` in this case), but the lambda (the `block`
+    // parameter) does change. Thus, the previous lambda/block is cancelled (what developers
+    // expect). For tests that bypass this behavior, see
+    // [changePointerInputBlockGeneratedViaExternalFunctionInside_blockNotCancelled].
     @Test
     @MediumTest
-    fun testUpdatingBlockDoesNotRestartPointerInput() {
+    fun testChangePointerInputBlockCancelsPreviousPointerInputBlock() {
         val tag = "box"
         var cancelled = false
-        val lambda1: suspend PointerInputScope.() -> Unit = {
+        // PointerInputEventHandler is an interface, so the class produced is unique to this
+        // call site.
+        val lambda1 = PointerInputEventHandler {
             try {
                 suspendCancellableCoroutine<Unit> {}
             } catch (e: CancellationException) {
                 cancelled = true
             }
         }
-        val lambda2: suspend PointerInputScope.() -> Unit = {}
+        // Same as above, this class will be unique/different from lambda1.
+        val lambda2 = PointerInputEventHandler {}
+        var block by mutableStateOf(lambda1)
+
+        rule.setContent {
+            Box(
+                Modifier.testTag(tag)
+                    .fillMaxSize()
+                    // Because we are using `Unit` for the key (and it doesn't change), the
+                    // class is used as the comparison to cancel and restart the block.
+                    .pointerInput(key1 = Unit, key2 = Unit, block = block)
+            )
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+        rule.runOnIdle { assertThat(cancelled).isFalse() }
+
+        block = lambda2
+        // Because the lambda has changed, the previous block is cancelled.
+        rule.runOnIdle { assertThat(cancelled).isTrue() }
+    }
+
+    // This test is similar to the test above
+    // (`testChangePointerInputBlockCancelsPreviousPointerInputBlock()`), but it uses a custom
+    // function to create the new instances of the functional interfaces (PointerInputEventHandler)
+    // vs. creating them directly. The results are the same, because the custom function takes an
+    // argument of functional interface (meaning a new class is created based on test's call site,
+    // not from a site within the custom function). In the end, it behaves as if we are just
+    // creating an instance of the functional interface directly in the test.
+    @Test
+    @MediumTest
+    fun changePointerInputBlockGeneratedViaExternalFunctionParameter_cancelsPreviousBlock() {
+        val tag = "box"
+        var cancelled = false
+
+        // createPointerInputEventHandlerReturnTypeInterface() takes a PointerInputEventHandler
+        // parameter, so the new class will be created at this call site (unique to lambda2).
+        val lambda1 = createPointerInputEventHandlerReturnTypeInterface {
+            try {
+                suspendCancellableCoroutine<Unit> {}
+            } catch (e: CancellationException) {
+                cancelled = true
+            }
+        }
+        val lambda2 = createPointerInputEventHandlerReturnTypeInterface {}
+        var block by mutableStateOf(lambda1)
+
+        rule.setContent {
+            Box(Modifier.testTag(tag).fillMaxSize().pointerInput(key1 = Unit, block = block))
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+        rule.runOnIdle { assertThat(cancelled).isFalse() }
+
+        block = lambda2
+        rule.runOnIdle { assertThat(cancelled).isTrue() }
+    }
+
+    // The next three tests cover the somewhat rare case of circumventing the behavior of
+    // `.pointerInput()` when `Unit` is used for key(s) and the `block` parameter changes (current
+    // behavior **cancels** the previous `block` and the new `block` executes when a new event
+    // arrives). Circumventing this behavior means the previous `block` won't cancel.
+    //
+    // These tests are to verify the behavior does not change. We do not recommend this approach to
+    // developers (it probably does not make sense to avoid cancelling the previous `block`).
+    //
+    // To bypass the current behavior, each `block` needs to be created from the same class, since
+    // we determine if a block has changed by class type. (Usually, a new class will be created
+    // for each call site when you pass in a trailing lambda to `.pointerInput()`.)
+    //
+    // These tests change the call sites from unique locations to the same location for all `block`
+    // creation (see tests for details).
+
+    // Test 1 of creating the same class type for all `block` parameters.
+    // The block instances are created inside a separate function
+    // ([createPointerInputEventHandlerWithSameClassEverytime()]) and returned to this test (all
+    // instances are of the same class). Since we are not using keys (just `Unit`) and the
+    // classes aren't different, the block will not be cancelled (even though it's changed). See
+    // above for more details.
+    @Test
+    @MediumTest
+    fun changePointerInputBlockGeneratedViaExternalFunctionInside_blockNotCancelled() {
+        val tag = "box"
+        var cancelled = false
+
+        val lambda1 = createPointerInputEventHandlerWithSameClassEverytime {
+            try {
+                suspendCancellableCoroutine<Unit> {}
+            } catch (e: CancellationException) {
+                cancelled = true
+            }
+        }
+        // Both lambda1 and lambda2 will be of the same class type (see fun for details).
+        val lambda2 = createPointerInputEventHandlerWithSameClassEverytime {}
+        var block by mutableStateOf(lambda1)
+
+        rule.setContent {
+            Box(Modifier.testTag(tag).fillMaxSize().pointerInput(key1 = Unit, block = block))
+        }
+
+        rule.onNodeWithTag(tag).performClick()
+        rule.runOnIdle { assertThat(cancelled).isFalse() }
+
+        block = lambda2
+        rule.runOnIdle { assertThat(cancelled).isFalse() }
+    }
+
+    // Test 2 of creating the same class type for all `block` parameters.
+    // The block instances are created all at once inside a separate function
+    // ([createPointerInputHandlersThatCaptureWithCompose()]) and returned to this test (all
+    // instances are of the same class). That function also captures values.
+    // Since we are not using keys (just `Unit`) and the classes aren't different so the block will
+    // not be cancelled (even though it's changed). See above for more details.
+    @Test
+    @MediumTest
+    fun multipleClassesCreatedFromFunInterfaceInSeparateFunctionWithKotlinCapture_classesMatch() {
+        val tag = "box"
+        var cancelled = false
+
+        val (lambda1, lambda2) = createPointerInputHandlersThatCapture { cancelled = true }
+        val (lambda1Copy, lambda2Copy) = createPointerInputHandlersThatCapture { cancelled = true }
+
+        // Classes
+        assertThat(lambda1::class).isEqualTo(lambda1Copy::class)
+        assertThat(lambda2::class).isEqualTo(lambda2Copy::class)
+
         var block by mutableStateOf(lambda1)
 
         rule.setContent {
@@ -1181,9 +1314,99 @@ class SuspendingPointerInputFilterTest {
 
         rule.runOnIdle { assertThat(cancelled).isFalse() }
 
+        // The keys have not changed, BUT the class are different between lambda1 and lambda2, so
+        // it will trigger a cancellation of lambda1.
         block = lambda2
 
+        rule.runOnIdle { assertThat(cancelled).isTrue() }
+
+        // Reset
+        block = lambda1
+        cancelled = false
+
+        rule.onNodeWithTag(tag).performClick()
+
         rule.runOnIdle { assertThat(cancelled).isFalse() }
+
+        // The keys have not changed AND the class between lambda1 and lambda1Copy are the same, so
+        // it will NOT trigger a cancellation.
+        block = lambda1Copy
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle { assertThat(cancelled).isFalse() }
+    }
+
+    // Test 3 of creating the same class type for all `block` parameters.
+    // Same as test 2 above
+    // ([changePointerInputBlockGeneratedViaExternalFunctionInsideMultiple_blockNotCancelled()])
+    // but uses Compose for capture vs. standard Kotlin.
+    @Test
+    @MediumTest
+    fun multipleClassesCreatedFromFunInterfaceInSeparateFunctionWithComposeCapture_classesMatch() {
+        val tag = "box"
+        val cancelled = mutableStateOf(false)
+
+        lateinit var lambda1: PointerInputEventHandler
+        lateinit var lambda2: PointerInputEventHandler
+        lateinit var lambda1Copy: PointerInputEventHandler
+        lateinit var lambda2Copy: PointerInputEventHandler
+
+        // Initialized to empty block
+        var block: PointerInputEventHandler by mutableStateOf(PointerInputEventHandler {})
+
+        rule.setContent {
+            val capturedKey = remember { mutableStateOf("capturedKey") }
+
+            val lambdasResult =
+                createPointerInputHandlersThatCaptureWithCompose(capturedKey) {
+                    cancelled.value = true
+                }
+            val lambdasCopyResult =
+                createPointerInputHandlersThatCaptureWithCompose(capturedKey) {
+                    cancelled.value = true
+                }
+            lambda1 = lambdasResult.first
+            lambda2 = lambdasResult.second
+            lambda1Copy = lambdasCopyResult.first
+            lambda2Copy = lambdasCopyResult.second
+
+            Box(
+                Modifier.testTag(tag)
+                    .fillMaxSize()
+                    .pointerInput(key1 = Unit, key2 = Unit, block = block)
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(lambda1::class).isEqualTo(lambda1Copy::class)
+            assertThat(lambda2::class).isEqualTo(lambda2Copy::class)
+        }
+
+        block = lambda1
+
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle { assertThat(cancelled.value).isFalse() }
+
+        // The keys have not changed, BUT the class are different between lambda1 and lambda2, so
+        // it will trigger a cancellation of lambda1.
+        block = lambda2
+
+        rule.runOnIdle { assertThat(cancelled.value).isTrue() }
+
+        // Reset
+        block = lambda1
+        cancelled.value = false
+
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.runOnIdle { assertThat(cancelled.value).isFalse() }
+
+        // The keys have not changed AND the class between lambda1 and lambda1Copy are the same, so
+        // it will NOT trigger a cancellation.
+        block = lambda1Copy
+        rule.onNodeWithTag(tag).performClick()
+        rule.runOnIdle { assertThat(cancelled.value).isFalse() }
     }
 
     // Tests pointerInput with bad pointer data
@@ -1307,4 +1530,71 @@ class SuspendingPointerInputFilterTest {
                 PointerEventType.Release
             )
     }
+}
+
+// The return type (PointerInputEventHandler) is actually an interface, so Kotlin will create class
+// type based on calling location/order.
+// NOTE: Because the PointerInputEventHandler is passed as a parameter, the created class will be
+// created at the call site where this function is called, NOT within this function where the
+// parameter is defined! That means you will get a different class for every unique place this
+// function is called (the same way [.pointerInput's] `block` parameter operates).
+private fun createPointerInputEventHandlerReturnTypeInterface(
+    lambda: PointerInputEventHandler
+): PointerInputEventHandler {
+    return lambda
+}
+
+// The return type ([PointerInputEventHandler]) is actually an interface, and because the function
+// creates it inside the method, the call site will always be the same no matter where this
+// function is called externally. Thus, the same class will be used for all instances vs. a new
+// class for each call which is the normal case when using `.pointerInput()`.
+// More details can be found in test functions.
+private fun createPointerInputEventHandlerWithSameClassEverytime(
+    lambda: suspend PointerInputScope.() -> Unit
+): PointerInputEventHandler {
+    return PointerInputEventHandler { with(this) { lambda() } }
+}
+
+// Same as above but creates multiple [PointerInputEventHandler]s and captures.
+private fun createPointerInputHandlersThatCapture(
+    lambda1CancellationLambda: () -> Unit
+): Pair<PointerInputEventHandler, PointerInputEventHandler> {
+    val lambda1 = PointerInputEventHandler {
+        try {
+            suspendCancellableCoroutine<Unit> {}
+        } catch (e: CancellationException) {
+            lambda1CancellationLambda()
+        }
+    }
+
+    val lambda2 = PointerInputEventHandler {}
+
+    return Pair(lambda1, lambda2)
+}
+
+// Same as above but creates multiple [PointerInputEventHandler]s and captures with Compose.
+@Composable
+private fun createPointerInputHandlersThatCaptureWithCompose(
+    key: MutableState<String>,
+    lambda1CancellationLambda: () -> Unit
+): Pair<PointerInputEventHandler, PointerInputEventHandler> {
+
+    var capturedKey by remember { key }
+
+    val lambda1 = PointerInputEventHandler {
+        println("$this")
+        println("\tcapturedKey: $capturedKey")
+        try {
+            suspendCancellableCoroutine<Unit> {}
+        } catch (e: CancellationException) {
+            lambda1CancellationLambda()
+        }
+    }
+
+    val lambda2 = PointerInputEventHandler {
+        println("$this")
+        println("\tcapturedKey: $capturedKey")
+    }
+
+    return Pair(lambda1, lambda2)
 }

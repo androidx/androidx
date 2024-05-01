@@ -66,6 +66,8 @@ import androidx.compose.ui.demos.gestures.NestedPressingDemo
 import androidx.compose.ui.demos.gestures.NestedScrollDispatchDemo
 import androidx.compose.ui.demos.gestures.NestedScrollingDemo
 import androidx.compose.ui.demos.gestures.PointerInputDuringSubComp
+import androidx.compose.ui.demos.gestures.PointerInputLambdaExecutions
+import androidx.compose.ui.demos.gestures.PointerInputLambdaExecutionsUsingExternalFunctions
 import androidx.compose.ui.demos.gestures.PopupDragDemo
 import androidx.compose.ui.demos.gestures.PressIndicatorGestureFilterDemo
 import androidx.compose.ui.demos.gestures.RawDragGestureFilterDemo
@@ -143,7 +145,11 @@ private val GestureDemos =
                     ComposableDemo("Popup Drag") { PopupDragDemo() },
                     ComposableDemo("Double Tap in Tap") { DoubleTapInTapDemo() },
                     ComposableDemo("Nested Long Press") { NestedLongPressDemo() },
-                    ComposableDemo("Pointer Input During Sub Comp") { PointerInputDuringSubComp() }
+                    ComposableDemo("Pointer Input During Sub Comp") { PointerInputDuringSubComp() },
+                    ComposableDemo("Pointer Input Lambda Stats") { PointerInputLambdaExecutions() },
+                    ComposableDemo("Pointer Input Lambda Stats w/ external function") {
+                        PointerInputLambdaExecutionsUsingExternalFunctions()
+                    }
                 )
             ),
             DemoCategory(
