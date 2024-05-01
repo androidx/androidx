@@ -440,12 +440,10 @@ internal class BasicTextFieldTest {
     }
 
     @Test
-    fun hideKeyboardWhenFocusCleared() {
-        val keyboardHelper = KeyboardHelper(rule)
+    fun disposeSessionWhenFocusCleared() {
         val state = TextFieldState("initial text")
         lateinit var focusManager: FocusManager
-        rule.setContent {
-            keyboardHelper.initialize()
+        inputMethodInterceptor.setContent {
             focusManager = LocalFocusManager.current
             Row {
                 // Extra focusable that takes initial focus when focus is cleared.
@@ -461,15 +459,14 @@ internal class BasicTextFieldTest {
         }
 
         rule.onNodeWithTag("TextField").requestFocus()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertTrue(keyboardHelper.isSoftwareKeyboardShown())
+
+        inputMethodInterceptor.assertSessionActive()
 
         rule.runOnIdle {
             focusManager.clearFocus()
         }
 
-        keyboardHelper.waitForKeyboardVisibility(false)
-        assertFalse(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
