@@ -29,6 +29,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import androidx.annotation.RequiresApi
+import androidx.camera.integration.extensions.EXTENSION_MODE_NONE
 import java.util.stream.Collectors
 
 private const val TAG = "Camera2ExtensionsUtil"
@@ -59,6 +60,7 @@ object Camera2ExtensionsUtil {
     @RequiresApi(31)
     @JvmStatic
     fun getCamera2ExtensionModeStringFromId(extension: Int): String = when (extension) {
+        EXTENSION_MODE_NONE -> "None"
         CameraExtensionCharacteristics.EXTENSION_HDR -> "HDR"
         CameraExtensionCharacteristics.EXTENSION_NIGHT -> "NIGHT"
         CameraExtensionCharacteristics.EXTENSION_BOKEH -> "BOKEH"
@@ -71,6 +73,7 @@ object Camera2ExtensionsUtil {
     @RequiresApi(31)
     @JvmStatic
     fun getCamera2ExtensionModeIdFromString(mode: String): Int = when (mode) {
+        "None" -> EXTENSION_MODE_NONE
         "HDR" -> CameraExtensionCharacteristics.EXTENSION_HDR
         "NIGHT" -> CameraExtensionCharacteristics.EXTENSION_NIGHT
         "BOKEH" -> CameraExtensionCharacteristics.EXTENSION_BOKEH
@@ -149,6 +152,20 @@ object Camera2ExtensionsUtil {
                 previewSizes.add(sz)
             }
         }
+
+        var previewSize = previewSizes[0]
+        var currentDistance = Int.MAX_VALUE
+        if (extensionMode == EXTENSION_MODE_NONE) {
+             for (sz in previewSizes) {
+                val distance = Math.abs(sz.width * sz.height - displaySize.x * displaySize.y)
+                if (currentDistance > distance) {
+                    currentDistance = distance
+                    previewSize = sz
+                }
+            }
+            return previewSize
+        }
+
         val extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
         val extensionSizes = extensionCharacteristics.getExtensionSupportedSizes(
             extensionMode, SurfaceTexture::class.java
@@ -157,12 +174,12 @@ object Camera2ExtensionsUtil {
             return null
         }
 
-        var previewSize = extensionSizes[0]
+        previewSize = extensionSizes[0]
         val supportedPreviewSizes =
             previewSizes.stream().distinct().filter { o: Size -> extensionSizes.contains(o) }
                 .collect(Collectors.toList())
         if (supportedPreviewSizes.isNotEmpty()) {
-            var currentDistance = Int.MAX_VALUE
+            currentDistance = Int.MAX_VALUE
             for (sz in supportedPreviewSizes) {
                 val distance = Math.abs(sz.width * sz.height - displaySize.x * displaySize.y)
                 if (currentDistance > distance) {
@@ -187,15 +204,30 @@ object Camera2ExtensionsUtil {
     @RequiresApi(Build.VERSION_CODES.S)
     @JvmStatic
     fun pickStillImageResolution(
+        cameraCharacteristics: CameraCharacteristics,
         extensionCharacteristics: CameraExtensionCharacteristics,
         extensionMode: Int
     ): Pair<Size, Int> {
-        val yuvColorEncodingSystemSizes = extensionCharacteristics.getExtensionSupportedSizes(
-            extensionMode, ImageFormat.YUV_420_888
-        )
-        val jpegSizes = extensionCharacteristics.getExtensionSupportedSizes(
-            extensionMode, ImageFormat.JPEG
-        )
+        val yuvColorEncodingSystemSizes = if (extensionMode == EXTENSION_MODE_NONE) {
+            cameraCharacteristics.get(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                .getOutputSizes(ImageFormat.YUV_420_888)
+                .toList()
+        } else {
+            extensionCharacteristics.getExtensionSupportedSizes(
+                extensionMode, ImageFormat.YUV_420_888
+            )
+        }
+        val jpegSizes = if (extensionMode == EXTENSION_MODE_NONE) {
+            cameraCharacteristics.get(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                .getOutputSizes(ImageFormat.JPEG)
+                .toList()
+        } else {
+            extensionCharacteristics.getExtensionSupportedSizes(
+                extensionMode, ImageFormat.JPEG
+            )
+        }
         val stillFormat = if (jpegSizes.isEmpty()) ImageFormat.YUV_420_888 else ImageFormat.JPEG
         val stillCaptureSize =
             if (jpegSizes.isEmpty()) yuvColorEncodingSystemSizes[0] else jpegSizes[0]
