@@ -339,6 +339,60 @@ class FocusableTest {
     }
 
     @Test
+    fun focusable_interactionSource_resetWhenDisabled() {
+        val interactionSource = MutableInteractionSource()
+        val focusRequester = FocusRequester()
+        var enabled by mutableStateOf(true)
+
+        lateinit var scope: CoroutineScope
+
+        rule.setFocusableContent {
+            scope = rememberCoroutineScope()
+            Box {
+                BasicText(
+                    "focusableText",
+                    modifier = Modifier
+                        .testTag(focusTag)
+                        .focusRequester(focusRequester)
+                        .focusable(enabled = enabled, interactionSource)
+                )
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Make focusable disabled, Interaction should be gone
+        rule.runOnIdle {
+            enabled = false
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
+            assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
     fun focusable_interactionSource_resetWhenDisposed() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
