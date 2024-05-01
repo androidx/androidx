@@ -114,7 +114,6 @@ internal class TextFieldSelectionState(
      * Whether user is interacting with the UI in touch mode.
      */
     var isInTouchMode: Boolean by mutableStateOf(true)
-        private set
 
     /**
      * Reduced [ReceiveContentConfiguration] from the attached modifier node hierarchy. This value

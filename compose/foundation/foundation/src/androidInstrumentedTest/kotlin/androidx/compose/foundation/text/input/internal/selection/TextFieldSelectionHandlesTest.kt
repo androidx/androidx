@@ -17,6 +17,11 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import android.os.Build
+import android.view.InputDevice
+import android.view.KeyCharacterMap
+import android.view.KeyEvent
+import android.view.KeyEvent.ACTION_DOWN
+import android.view.View
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -47,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
@@ -55,6 +61,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
@@ -821,6 +828,53 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         rule.runOnIdle {
             assertThat(state.selection).isEqualTo(TextRange(4, 0))
         }
+    }
+
+    @Test
+    fun selectionHandlesHide_whenHardwareKeyboardIsUsed_thenComesBackWithTouch() {
+        state = TextFieldState("hello")
+        lateinit var view: View
+        rule.setTextFieldTestContent {
+            view = LocalView.current
+            BasicTextField(
+                state,
+                textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY),
+                modifier = Modifier.testTag(TAG)
+            )
+        }
+
+        focusAndWait()
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longClick(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
+        }
+
+        assertHandlesDisplayed()
+
+        // regular `performKeyInput` scope does not set source to InputDevice.SOURCE_KEYBOARD
+        view.dispatchKeyEvent(
+            KeyEvent(
+                /* downTime = */ 0,
+                /* eventTime = */ 0,
+                /* action = */ ACTION_DOWN,
+                /* code = */ KeyEvent.KEYCODE_A,
+                /* repeat = */ 0,
+                /* metaState = */ KeyEvent.META_CTRL_ON,
+                KeyCharacterMap.VIRTUAL_KEYBOARD,
+                /* scancode= */ 0,
+                /* flags= */ 0,
+                /* source= */ InputDevice.SOURCE_KEYBOARD
+            )
+        )
+
+        assertHandlesNotExist()
+        assertThat(state.selection).isEqualTo(TextRange(0, 5))
+
+        rule.onNodeWithTag(TAG).performTouchInput {
+            longClick(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
+        }
+
+        assertHandlesDisplayed()
     }
 
     private fun focusAndWait() {

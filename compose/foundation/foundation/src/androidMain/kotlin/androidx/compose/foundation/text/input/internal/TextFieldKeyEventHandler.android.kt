@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.view.InputDevice
 import android.view.InputDevice.SOURCE_DPAD
 import android.view.KeyEvent.KEYCODE_DPAD_CENTER
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
@@ -83,6 +84,32 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
             }
             else -> false
         }
+    }
+
+    override fun onKeyEvent(
+        event: KeyEvent,
+        textFieldState: TransformedTextFieldState,
+        textLayoutState: TextLayoutState,
+        textFieldSelectionState: TextFieldSelectionState,
+        editable: Boolean,
+        singleLine: Boolean,
+        onSubmit: () -> Unit
+    ): Boolean {
+        if (event.type == KeyDown &&
+            event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
+            !event.isFromSoftKeyboard
+        ) {
+            textFieldSelectionState.isInTouchMode = false
+        }
+        return super.onKeyEvent(
+            event,
+            textFieldState,
+            textLayoutState,
+            textFieldSelectionState,
+            editable,
+            singleLine,
+            onSubmit
+        )
     }
 }
 
