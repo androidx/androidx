@@ -299,7 +299,7 @@ dependencies {
     docs(project(":room:room-rxjava3"))
     kmpDocs(project(":room:room-testing"))
     docs(project(":safeparcel:safeparcel"))
-    kmpDocs(project(":savedstate:savedstate"))
+    docs(project(":savedstate:savedstate"))
     docs(project(":savedstate:savedstate-ktx"))
     docs(project(":security:security-app-authenticator"))
     docs(project(":security:security-app-authenticator-testing"))
