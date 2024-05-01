@@ -24,6 +24,7 @@ import androidx.compose.foundation.demos.text2.BasicTextFieldInScrollableDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldLongTextDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldOutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldValueCallbackDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldsInDialogDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
@@ -177,6 +178,7 @@ val TextDemos = DemoCategory(
                     BasicTextFieldOutputTransformationDemos()
                 },
                 ComposableDemo("Secure Field") { BasicSecureTextFieldDemos() },
+                ComposableDemo("Inside Dialog") { BasicTextFieldsInDialogDemo() },
                 ComposableDemo("Swap the field but reuse the state") { SwapFieldSameStateDemo() },
                 ComposableDemo("Custom PIN field") { BasicTextFieldCustomPinFieldDemo() },
                 ComposableDemo("Undo/Redo") { BasicTextFieldUndoSample() },
