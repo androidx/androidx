@@ -17,6 +17,7 @@
 package androidx.room.writer
 
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runJavaProcessorTest
@@ -114,8 +115,11 @@ class AutoMigrationWriterTest(
                 autoMigration = autoMigrationResultWithNewAddedColumn,
                 dbElement =
                     invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
-                codeLanguage = codeLanguage,
-                javaLambdaSyntaxAvailable = false
+                writerContext = TypeWriter.WriterContext(
+                    codeLanguage = codeLanguage,
+                    javaLambdaSyntaxAvailable = false,
+                    targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                )
             ).write(invocation.processingEnv)
 
             val expectedFile = when (codeLanguage) {
@@ -190,8 +194,11 @@ class AutoMigrationWriterTest(
                 autoMigration = autoMigrationResultWithNewAddedColumn,
                 dbElement =
                     invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
-                codeLanguage = codeLanguage,
-                javaLambdaSyntaxAvailable = false
+                writerContext = TypeWriter.WriterContext(
+                    codeLanguage = codeLanguage,
+                    javaLambdaSyntaxAvailable = false,
+                    targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                )
             ).write(invocation.processingEnv)
 
             val expectedFile = when (codeLanguage) {
@@ -274,8 +281,11 @@ class AutoMigrationWriterTest(
                 autoMigration = autoMigrationResultWithNewAddedColumn,
                 dbElement =
                     invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
-                codeLanguage = codeLanguage,
-                javaLambdaSyntaxAvailable = false
+                writerContext = TypeWriter.WriterContext(
+                    codeLanguage = codeLanguage,
+                    javaLambdaSyntaxAvailable = false,
+                    targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                )
             ).write(invocation.processingEnv)
 
             val expectedFile = when (codeLanguage) {

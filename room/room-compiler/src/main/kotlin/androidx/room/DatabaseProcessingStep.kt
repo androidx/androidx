@@ -33,6 +33,7 @@ import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
 import androidx.room.writer.InstantiateImplWriter
+import androidx.room.writer.TypeWriter
 import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
@@ -96,8 +97,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 DaoWriter(
                     dao = daoMethod.dao,
                     dbElement = db.element,
-                    codeLanguage = context.codeLanguage,
-                    javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
+                    writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
                 ).write(context.processingEnv)
             }
         }
@@ -105,8 +105,7 @@ class DatabaseProcessingStep : XProcessingStep {
         databases?.forEach { db ->
             DatabaseWriter(
                 database = db,
-                codeLanguage = context.codeLanguage,
-                javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
+                writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
             ).write(context.processingEnv)
             if (db.exportSchema) {
                 val qName = db.element.qualifiedName
@@ -139,8 +138,7 @@ class DatabaseProcessingStep : XProcessingStep {
                 AutoMigrationWriter(
                     autoMigration = autoMigration,
                     dbElement = db.element,
-                    codeLanguage = context.codeLanguage,
-                    javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
+                    writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
                 ).write(context.processingEnv)
             }
 
