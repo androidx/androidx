@@ -25,7 +25,6 @@ import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.Dimension;
-import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -90,6 +89,7 @@ import java.util.Set;
 public final class LayoutElementBuilders {
 
     @VisibleForTesting static final String WEIGHT_AXIS_NAME = "wght";
+    @VisibleForTesting static final String WIDTH_AXIS_NAME = "wdth";
 
     private LayoutElementBuilders() {}
 
@@ -671,8 +671,8 @@ public final class LayoutElementBuilders {
          * Gets the collection of font settings to be applied.
          *
          * <p>Supported settings depend on the font used and renderer version. If this is used with
-         * the variable fonts on renderers supporting 1.4, {@link FontSetting#weight} setting will
-         * be always available.
+         * the variable fonts on renderers supporting 1.4, {@link FontSetting#weight} and
+         * {@link FontSetting#width} setting will be always available.
          */
         @NonNull
         public List<FontSetting> getSettings() {
@@ -924,8 +924,8 @@ public final class LayoutElementBuilders {
              * Adds one item to the collection of font settings to be applied.
              *
              * <p>Supported settings depend on the font used and renderer version. If this is used
-             * with the variable fonts on renderers supporting 1.4, {@link FontSetting#weight}
-             * setting will be always available.
+             * with the variable fonts on renderers supporting 1.4, {@link FontSetting#weight} and
+             * {@link FontSetting#width} setting will be always available.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1018,8 +1018,8 @@ public final class LayoutElementBuilders {
              * <p>Any previously added settings will be cleared.
              *
              * <p>Supported settings depend on the font used and renderer version. If this is used
-             * with the variable fonts on renderers supporting 1.4, {@link FontSetting#weight}
-             * setting will be always available.
+             * with the variable fonts on renderers supporting 1.4, {@link FontSetting#weight} and
+             * {@link FontSetting#width} setting will be always available.
              *
              * @throws IllegalArgumentException if the number of the given Setting is larger than
              *  10.
@@ -1156,23 +1156,30 @@ public final class LayoutElementBuilders {
 
         /**
          * FontSetting option for custom weight for font. Similar to the {@link FontWeightProp} but
-         * it accepts any value between 1 and 1000.
+         * it accepts any value. For more information, see
+         * <a href="https://fonts.google.com/knowledge/glossary/weight_axis">here</a>.
          *
          * <p>Note that using this {@link FontSetting} will override {@link
          * FontStyle.Builder#setWeight}.
          *
-         * @param value weight, in 1..1000
-         * @throws IllegalArgumentException if the given value is not between 1 and 1000.
+         * @param value weight, usually in 1..1000, but actual range can depend on the font used
          */
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
-        static FontSetting weight(@FloatRange(from = 1, to = 1000) float value) {
-            if (value < 1 || value > 1000) {
-                throw new IllegalArgumentException(
-                        "Given value for the FontSetting.weight must be between 1 and 1000.");
-            }
-
+        static FontSetting weight(float value) {
             return new FontVariationSetting.Builder(WEIGHT_AXIS_NAME, value).build();
+        }
+
+        /**
+         * FontSetting option for custom width for font. For more information, see
+         * <a href="https://fonts.google.com/knowledge/glossary/width_axis">here</a>.
+         *
+         * @param value width, usually in 25..200, but actual range can depend on the font used
+         */
+        @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 400)
+        static FontSetting width(float value) {
+            return new FontVariationSetting.Builder(WIDTH_AXIS_NAME, value).build();
         }
     }
 

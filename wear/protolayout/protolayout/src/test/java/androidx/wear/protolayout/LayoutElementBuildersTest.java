@@ -23,6 +23,7 @@ import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.DimensionBuilders.weight;
 import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.ROBOTO_FLEX_FONT;
 import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_NAME;
+import static androidx.wear.protolayout.LayoutElementBuilders.WIDTH_AXIS_NAME;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -563,13 +564,15 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
-    public void testFontSettings_setWeight() {
-        int expectedValue = 100;
+    public void testFontSettings_setWeight_setWidth() {
+        int expectedValueWeight = 100;
+        int expectedValueWidth = 120;
 
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
                         .setSettings(
-                                LayoutElementBuilders.FontSetting.weight(expectedValue))
+                                LayoutElementBuilders.FontSetting.weight(expectedValueWeight),
+                                LayoutElementBuilders.FontSetting.width(expectedValueWidth))
                         .build();
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
@@ -577,15 +580,25 @@ public class LayoutElementBuildersTest {
                 fontStyleProto.getSettingsList().stream()
                         .map(LayoutElementProto.FontSetting::getVariation)
                         .collect(Collectors.toList());
-        String actualAxisName =
+
+        assertThat(settingsList.size()).isEqualTo(2);
+
+        String actualAxis1Name =
                 new String(
                         ByteBuffer.allocate(4)
                                 .putInt(settingsList.get(0).getAxisName()).array(),
                         StandardCharsets.US_ASCII);
+        String actualAxis2Name =
+                new String(
+                        ByteBuffer.allocate(4)
+                                .putInt(settingsList.get(1).getAxisName()).array(),
+                        StandardCharsets.US_ASCII);
 
-        assertThat(settingsList.size()).isEqualTo(1);
-        assertThat(actualAxisName).isEqualTo(WEIGHT_AXIS_NAME);
-        assertThat(settingsList.get(0).getValue()).isEqualTo(expectedValue);
+        assertThat(actualAxis1Name).isEqualTo(WEIGHT_AXIS_NAME);
+        assertThat(settingsList.get(0).getValue()).isEqualTo(expectedValueWeight);
+
+        assertThat(actualAxis2Name).isEqualTo(WIDTH_AXIS_NAME);
+        assertThat(settingsList.get(1).getValue()).isEqualTo(expectedValueWidth);
     }
 
     @Test
@@ -638,18 +651,6 @@ public class LayoutElementBuildersTest {
 
         assertThat(setting1).isNotEqualTo(setting2);
         assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
-    }
-
-    @Test
-    public void testFontSettings_setNotAllowedWeight_throws() {
-        int expectedValue = 1005;
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new LayoutElementBuilders.FontStyle.Builder()
-                        .setSettings(
-                                LayoutElementBuilders.FontSetting.weight(expectedValue))
-                        .build());
     }
 
     @Test

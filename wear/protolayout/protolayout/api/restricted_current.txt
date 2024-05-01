@@ -575,7 +575,8 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static interface LayoutElementBuilders.FontSetting {
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(@FloatRange(from=1, to=1000) float);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(float);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting width(float);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class LayoutElementBuilders.FontStyle {
