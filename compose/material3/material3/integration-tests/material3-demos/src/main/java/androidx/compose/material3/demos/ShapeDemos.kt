@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun ShapeDemo() {
     val shapes = MaterialTheme.shapes
     Column(
@@ -48,7 +50,13 @@ fun ShapeDemo() {
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {}, shape = shapes.large) { Text("Large") }
         Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {}, shape = shapes.largeIncreased) { Text("Large Increased") }
+        Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {}, shape = shapes.extraLarge) { Text("Extra Large") }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {}, shape = shapes.extraLargeIncreased) { Text("Extra Large Increased") }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {}, shape = shapes.extraExtraLarge) { Text("Extra Extra Large") }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {}, shape = CircleShape) { Text("Full") }
     }
