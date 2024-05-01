@@ -20,9 +20,11 @@ import androidx.build.AndroidXExtension
 import androidx.build.Release
 import androidx.build.RunApiTasks
 import androidx.build.Version
+import androidx.build.binarycompatibilityvalidator.BinaryCompatibilityValidation
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
 import androidx.build.metalava.MetalavaTasks
+import androidx.build.multiplatformExtension
 import androidx.build.resources.ResourceTasks
 import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.version
@@ -123,7 +125,7 @@ fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
  * and `<version>.txt`. When set to `false`, only `current.txt` will be written. The default value
  * is `true`.
  */
-private fun Project.shouldWriteVersionedApiFile(): Boolean {
+internal fun Project.shouldWriteVersionedApiFile(): Boolean {
     // Is versioned file writing disabled globally, ex. we're on a downstream branch?
     if (!project.isWriteVersionedApiFilesEnabled()) {
         return false
@@ -213,6 +215,10 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                 builtApiLocation,
                 outputApiLocations
             )
+        }
+        multiplatformExtension?.let { multiplatformExtension ->
+            BinaryCompatibilityValidation(project, multiplatformExtension)
+                .setupBinaryCompatibilityValidatorTasks()
         }
     }
 }
