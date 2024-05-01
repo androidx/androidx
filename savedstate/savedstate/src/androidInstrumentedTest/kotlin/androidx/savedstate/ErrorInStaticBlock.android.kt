@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.savedstate
 
-package androidx.savedstate;
+import org.junit.Assert
 
-import org.junit.Assert;
+class ErrorInStaticBlock {
 
-public class ErrorInStaticBlock {
-
-    static {
-        Assert.fail("This class shouldn't be initialized!");
+    companion object {
+        init {
+            Assert.fail("This class shouldn't be initialized!")
+        }
     }
 }

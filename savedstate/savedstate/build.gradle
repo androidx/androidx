@@ -5,12 +5,47 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+}
+
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+                implementation("androidx.arch.core:core-common:2.2.0")
+                implementation("androidx.lifecycle:lifecycle-common:2.6.1")
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+                implementation(libs.truth)
+            }
+        }
+    }
 }
 
 android {
@@ -18,20 +53,6 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.savedstate"
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.arch.core:core-common:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    api(libs.kotlinStdlib)
-
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.truth)
 }
 
 androidx {
