@@ -156,12 +156,12 @@ constructor(
                 outputConfigMap[cameraOutputConfig]!!.streamBuilder.add(stream)
             }
         }
-
         inputs = graphConfig.input?.map {
+            val streamFormat = it.streamFormat ?: StreamFormat(checkNotNull(it.format))
             InputStreamImpl(
                 nextInputId(),
-                it.format,
-                it.maxImages
+                it.maxImages,
+                streamFormat,
             )
         } ?: emptyList()
 
@@ -219,8 +219,8 @@ constructor(
 
     private class InputStreamImpl(
         override val id: InputStreamId,
-        override val format: Int,
-        override val maxImages: Int
+        override val maxImages: Int,
+        override val format: StreamFormat
     ) : InputStream
 
     interface SurfaceListener {
