@@ -19,17 +19,14 @@ package androidx.compose.ui.unit
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-// Same as DpOffset/DpSize.Unspecified.packedValue, but avoids a getstatic
-internal const val UnspecifiedPackedFloats = 0x7fc00000_7fc00000L // NaN_NaN
+// 0x80000000_80000000UL.toLong() but expressed as a const value
+// Mask for the sign bit of the two floats packed in a long
+internal const val DualFloatSignBit = -0x7fffffff_80000000L
 
 // This function exists so we do *not* inline the throw. It keeps
 // the call site much smaller and since it's the slow path anyway,
 // we don't mind the extra function call
 internal fun throwIllegalArgumentException(message: String) {
-    throw IllegalArgumentException(message)
-}
-
-internal fun throwIllegalArgumentExceptionNoReturn(message: String): Nothing {
     throw IllegalArgumentException(message)
 }
 
