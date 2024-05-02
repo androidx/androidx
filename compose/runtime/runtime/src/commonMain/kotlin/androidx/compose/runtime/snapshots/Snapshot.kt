@@ -476,6 +476,8 @@ sealed class Snapshot(
          * @param writeObserver called when a state object is created or just before it is
          * written to the first time in the snapshot or a nested mutable snapshot. This might be
          * called several times for the same object if nested mutable snapshots are created.
+         * @param block the code the [readObserver] and [writeObserver] will be observing. Once
+         * [block] returns, the [readObserver] and [writeObserver] will no longer be called.
          */
         fun <T> observe(
             readObserver: ((Any) -> Unit)? = null,
