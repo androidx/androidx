@@ -38,7 +38,6 @@ fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(width, height))
 @Immutable
 @kotlin.jvm.JvmInline
 value class IntSize internal constructor(@PublishedApi internal val packedValue: Long) {
-
     /**
      * The horizontal aspect of the size in [Int] pixels.
      */
@@ -63,15 +62,23 @@ value class IntSize internal constructor(@PublishedApi internal val packedValue:
      * Returns an IntSize scaled by multiplying [width] and [height] by [other]
      */
     @Stable
-    operator fun times(other: Int): IntSize =
-        IntSize(width = width * other, height = height * other)
+    operator fun times(other: Int): IntSize = IntSize(
+        packInts(
+            unpackInt1(packedValue) * other,
+            unpackInt2(packedValue) * other
+        )
+    )
 
     /**
      * Returns an IntSize scaled by dividing [width] and [height] by [other]
      */
     @Stable
-    operator fun div(other: Int): IntSize =
-        IntSize(width = width / other, height = height / other)
+    operator fun div(other: Int): IntSize = IntSize(
+        packInts(
+            unpackInt1(packedValue) / other,
+            unpackInt2(packedValue) / other
+        )
+    )
 
     @Stable
     override fun toString(): String = "$width x $height"
@@ -89,7 +96,7 @@ value class IntSize internal constructor(@PublishedApi internal val packedValue:
  * multiplied by [this].
  */
 @Stable
-operator fun Int.times(size: IntSize) = size * this
+inline operator fun Int.times(size: IntSize) = size * this
 
 /**
  * Convert a [IntSize] to a [IntRect].
@@ -105,7 +112,14 @@ fun IntSize.toIntRect(): IntRect {
  */
 @Stable
 val IntSize.center: IntOffset
-    get() = IntOffset(width / 2, height / 2)
+    get() = IntOffset(
+        // Divide X by 2 by moving it to the low bits, then place it back in the high bits
+        (packedValue shr 33 shl 32)
+        or
+        // Move Y to the high bits so we can preserve the sign when dividing by 2, then
+        // move Y back to the low bits and mask out the top 32 bits for X
+        ((packedValue shl 32 shr 33) and 0xffffffffL)
+    )
 
 // temporary while PxSize is transitioned to Size
 @Stable
@@ -116,7 +130,7 @@ fun IntSize.toSize() = Size(width.toFloat(), height.toFloat())
  * integer.
  */
 @Stable
-fun Size.toIntSize(): IntSize = IntSize(this.width.toInt(), this.height.toInt())
+fun Size.toIntSize(): IntSize = IntSize(packInts(this.width.toInt(), this.height.toInt()))
 
 /**
  * Convert a [Size] to an [IntSize]. This rounds [Size.width] and [Size.height] to the nearest
@@ -124,6 +138,8 @@ fun Size.toIntSize(): IntSize = IntSize(this.width.toInt(), this.height.toInt())
  */
 @Stable
 fun Size.roundToIntSize(): IntSize = IntSize(
-    this.width.fastRoundToInt(),
-    this.height.fastRoundToInt()
+    packInts(
+        this.width.fastRoundToInt(),
+        this.height.fastRoundToInt()
+    )
 )

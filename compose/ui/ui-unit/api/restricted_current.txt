@@ -209,11 +209,11 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method public int getX();
     method public int getY();
-    method @androidx.compose.runtime.Stable public inline operator long minus(long other);
-    method @androidx.compose.runtime.Stable public inline operator long plus(long other);
+    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @androidx.compose.runtime.Stable public operator long plus(long other);
     method @androidx.compose.runtime.Stable public operator long rem(int operand);
     method @androidx.compose.runtime.Stable public operator long times(float operand);
-    method @androidx.compose.runtime.Stable public inline operator long unaryMinus();
+    method @androidx.compose.runtime.Stable public operator long unaryMinus();
     property @androidx.compose.runtime.Stable public final int x;
     property @androidx.compose.runtime.Stable public final int y;
     field public static final androidx.compose.ui.unit.IntOffset.Companion Companion;
@@ -231,7 +231,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static operator long minus(long, long offset);
     method @androidx.compose.runtime.Stable public static operator long plus(long, long offset);
     method @androidx.compose.runtime.Stable public static operator long plus(long, long offset);
-    method @androidx.compose.runtime.Stable public static inline long round(long);
+    method @androidx.compose.runtime.Stable public static long round(long);
     method @androidx.compose.runtime.Stable public static inline long toOffset(long);
   }
 
@@ -325,7 +325,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static long IntSize(int width, int height);
     method public static long getCenter(long);
     method @androidx.compose.runtime.Stable public static long roundToIntSize(long);
-    method @androidx.compose.runtime.Stable public static operator long times(int, long size);
+    method @androidx.compose.runtime.Stable public static inline operator long times(int, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect toIntRect(long);
     method @androidx.compose.runtime.Stable public static long toIntSize(long);
     method @androidx.compose.runtime.Stable public static long toSize(long);
@@ -398,8 +398,8 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Velocity {
-    method @androidx.compose.runtime.Stable public operator float component1();
-    method @androidx.compose.runtime.Stable public operator float component2();
+    method @androidx.compose.runtime.Stable public inline operator float component1();
+    method @androidx.compose.runtime.Stable public inline operator float component2();
     method public long copy(optional float x, optional float y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method public float getX();
