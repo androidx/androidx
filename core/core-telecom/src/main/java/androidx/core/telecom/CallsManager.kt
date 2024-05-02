@@ -37,8 +37,6 @@ import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
-import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
-import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
 import java.util.UUID
@@ -47,8 +45,6 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withTimeout
 
@@ -339,6 +335,10 @@ class CallsManager constructor(context: Context) {
                 onSetActive,
                 onSetInactive,
                 blockingSessionExecution)
+            // The CallSession.CallEvent* class receives callbacks from the platform and emits
+            // the values through Flows out to the client.
+            val callEvents = CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
+                voipExtensionManager)
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -359,17 +359,21 @@ class CallsManager constructor(context: Context) {
                         openResult.cancel(CancellationException(CALL_CREATION_FAILURE_MSG))
                     }
                 }
+
             // leverage the platform API
             mTelecomManager.addCall(
                 callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
                 mDirectExecutor,
                 callControlOutcomeReceiver,
                 CallSession.CallControlCallbackImpl(callSession),
-                CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
-                    voipExtensionManager)
+                callEvents
             )
 
             pauseExecutionUntilCallIsReady_orTimeout(openResult)
+
+            callEvents.maybeSwitchToSpeakerOnCallStart(
+                openResult.getCompleted().getCallControl(),
+                callAttributes)
 
             /* at this point in time we have CallControl object */
             val scope =
@@ -383,8 +387,6 @@ class CallsManager constructor(context: Context) {
             // Set up extension manager to register the VOIP supported extensions.
             voipExtensionManager.initializeSession(scope)
             voipExtensionManager.initializeExtensions()
-
-            maybeSwitchToSpeakerPhone(callAttributes, callChannels, scope)
 
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
@@ -431,43 +433,6 @@ class CallsManager constructor(context: Context) {
         blockingSessionExecution.await()
         voipExtensionManager.tearDownExtensions()
         mCapabilities.clear()
-    }
-
-    /**
-     * If the user starts a video call and the earpiece is the current endpoint, this method will
-     * attempt to switch the call endpoint to speaker.
-     */
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    private suspend fun maybeSwitchToSpeakerPhone(
-        attributes: CallAttributesCompat,
-        callChannels: CallChannels,
-        scope: CallControlScope
-    ) {
-        if (attributes.isVideoCall()) {
-            try {
-                withTimeout(SWITCH_TO_SPEAKER_TIMEOUT) {
-                    // Channel.receive will wait indefinitely until an item is emitted which is why
-                    // this task is wrapped in a withTimeout block.
-                    val currentEndpoint = async {
-                        callChannels.currentEndpointChannel.receive()
-                    }
-                    val availableEndpoints = async {
-                        callChannels.availableEndpointChannel.receive()
-                    }
-
-                    awaitAll(currentEndpoint, availableEndpoints)
-
-                    val speakerEndpoint = getSpeakerEndpoint(availableEndpoints.getCompleted())
-                    // Bluetooth, Wired, and Unknown endpoints should not be defaulted to speaker.
-                    if (isEarpieceEndpoint(currentEndpoint.getCompleted()) &&
-                        speakerEndpoint != null) {
-                        scope.requestEndpointChange(speakerEndpoint)
-                    }
-                }
-            } catch (e: TimeoutCancellationException) {
-                Log.i(TAG, "maybeSwitchToSpeakerPhone: hit timeout!")
-            }
-        }
     }
 
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(

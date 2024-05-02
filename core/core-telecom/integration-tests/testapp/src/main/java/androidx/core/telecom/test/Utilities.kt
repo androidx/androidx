@@ -48,7 +48,9 @@ class Utilities {
         var OUTGOING_CALL_ATTRIBUTES = CallAttributesCompat(
             OUTGOING_NAME,
             OUTGOING_URI,
-            DIRECTION_OUTGOING)
+            DIRECTION_OUTGOING,
+            CALL_TYPE_VIDEO_CALL,
+            ALL_CALL_CAPABILITIES)
 
         // incoming attributes constants
         const val INCOMING_NAME = "Sundar Pichai"
