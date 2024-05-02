@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,20 @@ package androidx.compose.material3.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1394/Implement-rememberAccessibilityServiceState
 
 /**
- * It depends on the state of accessibility services to determine the current state of touch
- * exploration services.
+ * Returns the state of whether any accessibility services are enabled.
+ *
+ * @param listenToTouchExplorationState whether to track the enabled/disabled state of touch
+ * exploration (i.e. TalkBack)
+ * @param listenToSwitchAccessState whether to track the enabled/disabled state of Switch Access
  */
 @Composable
-internal actual fun touchExplorationState(): State<Boolean> {
-    return remember { derivedStateOf { false } }
+internal actual fun rememberAccessibilityServiceState(
+    listenToTouchExplorationState: Boolean,
+    listenToSwitchAccessState: Boolean
+): State<Boolean> {
+    TODO("Not yet implemented")
 }
