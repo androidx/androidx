@@ -95,6 +95,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -1327,6 +1328,50 @@ internal class BasicTextFieldTest {
 
         rule.waitForIdle()
         rule.onNodeWithTag(Tag).captureToImage().assertHorizontallySymmetrical(fontSize)
+    }
+
+    @Test
+    fun changingInputTransformation_doesNotRestartInput() {
+        var inputTransformation by mutableStateOf(InputTransformation.maxLength(10))
+        inputMethodInterceptor.setTextFieldTestContent {
+            val state = remember { TextFieldState() }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                inputTransformation = inputTransformation
+            )
+        }
+
+        requestFocus(Tag)
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)
+
+        inputTransformation = InputTransformation.maxLength(15)
+
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)
+    }
+
+    @Test
+    fun changingInputTransformation_restartsInput_ifKeyboardOptionsChange() {
+        var inputTransformation by mutableStateOf<InputTransformation?>(null)
+        inputMethodInterceptor.setTextFieldTestContent {
+            val state = remember { TextFieldState() }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                inputTransformation = inputTransformation
+            )
+        }
+
+        requestFocus(Tag)
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)
+
+        inputTransformation = InputTransformation.allCaps(Locale.current)
+
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)
     }
 
     private fun requestFocus(tag: String) =
