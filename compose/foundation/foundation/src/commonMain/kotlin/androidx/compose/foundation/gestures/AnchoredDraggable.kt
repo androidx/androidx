@@ -60,9 +60,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-// start Overscroll
-// This file contains both a Modifier.anchoredDraggable overload with overscroll and without
-// Everything below the Overscroll part should be copied to M2/M3 and kept in sync.
 /**
  * Enable drag gestures between a set of predefined values.
  *
@@ -98,7 +95,7 @@ fun <T> Modifier.anchoredDraggable(
     interactionSource: MutableInteractionSource? = null,
     overscrollEffect: OverscrollEffect? = null,
     startDragImmediately: Boolean = state.isAnimationRunning
-): Modifier = this then AnchoredDraggableOverscrollElement(
+): Modifier = this then AnchoredDraggableElement(
     state = state,
     orientation = orientation,
     enabled = enabled,
@@ -109,7 +106,7 @@ fun <T> Modifier.anchoredDraggable(
 )
 
 @OptIn(ExperimentalFoundationApi::class)
-private class AnchoredDraggableOverscrollElement<T>(
+private class AnchoredDraggableElement<T>(
     private val state: AnchoredDraggableState<T>,
     private val orientation: Orientation,
     private val enabled: Boolean,
@@ -117,18 +114,18 @@ private class AnchoredDraggableOverscrollElement<T>(
     private val interactionSource: MutableInteractionSource?,
     private val startDragImmediately: Boolean,
     private val overscrollEffect: OverscrollEffect?,
-) : ModifierNodeElement<AnchoredDraggableOverscrollNode<T>>() {
-    override fun create() = AnchoredDraggableOverscrollNode(
+) : ModifierNodeElement<AnchoredDraggableNode<T>>() {
+    override fun create() = AnchoredDraggableNode(
         state,
         orientation,
         enabled,
         reverseDirection,
         interactionSource,
-        startDragImmediately,
         overscrollEffect,
+        startDragImmediately,
     )
 
-    override fun update(node: AnchoredDraggableOverscrollNode<T>) {
+    override fun update(node: AnchoredDraggableNode<T>) {
         node.update(
             state,
             orientation,
@@ -154,7 +151,7 @@ private class AnchoredDraggableOverscrollElement<T>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
-        if (other !is AnchoredDraggableOverscrollElement<*>) return false
+        if (other !is AnchoredDraggableElement<*>) return false
 
         if (state != other.state) return false
         if (orientation != other.orientation) return false
@@ -180,41 +177,42 @@ private class AnchoredDraggableOverscrollElement<T>(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class AnchoredDraggableOverscrollNode<T>(
-    state: AnchoredDraggableState<T>,
-    orientation: Orientation,
+private class AnchoredDraggableNode<T>(
+    private var state: AnchoredDraggableState<T>,
+    private var orientation: Orientation,
     enabled: Boolean,
-    reverseDirection: Boolean,
+    private var reverseDirection: Boolean,
     interactionSource: MutableInteractionSource?,
-    startDragImmediately: Boolean,
     private var overscrollEffect: OverscrollEffect?,
-) : AnchoredDraggableNode<T>(
-    state = state,
-    orientation = orientation,
+    private var startDragImmediately: Boolean
+) : DragGestureNode(
+    canDrag = AlwaysDrag,
     enabled = enabled,
-    reverseDirection = reverseDirection,
     interactionSource = interactionSource,
-    startDragImmediately = startDragImmediately
+    orientationLock = orientation
 ) {
-    override suspend fun AnchoredDragScope.anchoredDrag(
-        forEachDelta: suspend ((dragDelta: DragEvent.DragDelta) -> Unit) -> Unit
-    ) {
-        forEachDelta { dragDelta ->
-            if (overscrollEffect == null) {
-                dragTo(state.newOffsetForDelta(dragDelta.delta.reverseIfNeeded().toFloat()))
-            } else {
-                overscrollEffect!!.applyToScroll(
-                    delta = dragDelta.delta.reverseIfNeeded(),
-                    source = NestedScrollSource.UserInput
-                ) { deltaForDrag ->
-                    val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
-                    val consumedDelta = (dragOffset - state.requireOffset()).toOffset()
-                    dragTo(dragOffset)
-                    consumedDelta
+
+    override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
+        state.anchoredDrag {
+            forEachDelta { dragDelta ->
+                if (overscrollEffect == null) {
+                    dragTo(state.newOffsetForDelta(dragDelta.delta.reverseIfNeeded().toFloat()))
+                } else {
+                    overscrollEffect!!.applyToScroll(
+                        delta = dragDelta.delta.reverseIfNeeded(),
+                        source = NestedScrollSource.UserInput
+                    ) { deltaForDrag ->
+                        val dragOffset = state.newOffsetForDelta(deltaForDrag.toFloat())
+                        val consumedDelta = (dragOffset - state.requireOffset()).toOffset()
+                        dragTo(dragOffset)
+                        consumedDelta
+                    }
                 }
             }
         }
     }
+
+    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) { }
 
     override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
         if (overscrollEffect == null) {
@@ -237,165 +235,6 @@ private class AnchoredDraggableOverscrollNode<T>(
         }
     }
 
-    fun update(
-        state: AnchoredDraggableState<T>,
-        orientation: Orientation,
-        enabled: Boolean,
-        reverseDirection: Boolean,
-        interactionSource: MutableInteractionSource?,
-        overscrollEffect: OverscrollEffect?,
-        startDragImmediately: Boolean
-    ) {
-        this.overscrollEffect = overscrollEffect
-        update(
-            state = state,
-            orientation = orientation,
-            enabled = enabled,
-            reverseDirection = reverseDirection,
-            interactionSource = interactionSource,
-            startDragImmediately = startDragImmediately
-        )
-    }
-}
-// end Overscroll
-
-/**
- * Enable drag gestures between a set of predefined values.
- *
- * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
- * delta. You should use this offset to move your content accordingly (see [Modifier.offset]).
- * When the drag ends, the offset will be animated to one of the anchors and when that anchor is
- * reached, the value of the [AnchoredDraggableState] will also be updated to the value
- * corresponding to the new anchor.
- *
- * Dragging is constrained between the minimum and maximum anchors.
- *
- * @param state The associated [AnchoredDraggableState].
- * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
- * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
- * @param reverseDirection Whether to reverse the direction of the drag, so a top to bottom
- * drag will behave like bottom to top, and a left to right drag will behave like right to left.
- * @param interactionSource Optional [MutableInteractionSource] that will passed on to
- * the internal [Modifier.draggable].
- * @param startDragImmediately when set to false, [draggable] will start dragging only when the
- * gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
- * widget when pressing on it. See [draggable] to learn more about startDragImmediately.
- */
-@ExperimentalFoundationApi
-fun <T> Modifier.anchoredDraggable(
-    state: AnchoredDraggableState<T>,
-    orientation: Orientation,
-    enabled: Boolean = true,
-    reverseDirection: Boolean = false,
-    interactionSource: MutableInteractionSource? = null,
-    startDragImmediately: Boolean = state.isAnimationRunning
-): Modifier = this then AnchoredDraggableElement(
-    state = state,
-    orientation = orientation,
-    enabled = enabled,
-    reverseDirection = reverseDirection,
-    interactionSource = interactionSource,
-    startDragImmediately = startDragImmediately
-)
-
-@OptIn(ExperimentalFoundationApi::class)
-private class AnchoredDraggableElement<T>(
-    private val state: AnchoredDraggableState<T>,
-    private val orientation: Orientation,
-    private val enabled: Boolean,
-    private val reverseDirection: Boolean,
-    private val interactionSource: MutableInteractionSource?,
-    private val startDragImmediately: Boolean
-) : ModifierNodeElement<AnchoredDraggableNode<T>>() {
-    override fun create() = AnchoredDraggableNode(
-        state,
-        orientation,
-        enabled,
-        reverseDirection,
-        interactionSource,
-        startDragImmediately
-    )
-
-    override fun update(node: AnchoredDraggableNode<T>) {
-        node.update(
-            state,
-            orientation,
-            enabled,
-            reverseDirection,
-            interactionSource,
-            startDragImmediately
-        )
-    }
-
-    override fun hashCode(): Int {
-        var result = state.hashCode()
-        result = 31 * result + orientation.hashCode()
-        result = 31 * result + enabled.hashCode()
-        result = 31 * result + reverseDirection.hashCode()
-        result = 31 * result + interactionSource.hashCode()
-        result = 31 * result + startDragImmediately.hashCode()
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-
-        if (other !is AnchoredDraggableElement<*>) return false
-
-        if (state != other.state) return false
-        if (orientation != other.orientation) return false
-        if (enabled != other.enabled) return false
-        if (reverseDirection != other.reverseDirection) return false
-        if (interactionSource != other.interactionSource) return false
-        if (startDragImmediately != other.startDragImmediately) return false
-
-        return true
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "anchoredDraggable"
-        properties["state"] = state
-        properties["orientation"] = orientation
-        properties["enabled"] = enabled
-        properties["reverseDirection"] = reverseDirection
-        properties["interactionSource"] = interactionSource
-        properties["startDragImmediately"] = startDragImmediately
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private open class AnchoredDraggableNode<T>(
-    protected var state: AnchoredDraggableState<T>,
-    protected var orientation: Orientation,
-    enabled: Boolean,
-    protected var reverseDirection: Boolean,
-    interactionSource: MutableInteractionSource?,
-    protected var startDragImmediately: Boolean
-) : DragGestureNode(
-    canDrag = AlwaysDrag,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    orientationLock = orientation
-) {
-
-    open suspend fun AnchoredDragScope.anchoredDrag(
-        forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit
-    ) {
-        forEachDelta { dragDelta ->
-            dragTo(state.newOffsetForDelta(dragDelta.delta.reverseIfNeeded().toFloat()))
-        }
-    }
-
-    override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
-        state.anchoredDrag(MutatePriority.Default) { anchoredDrag(forEachDelta) }
-    }
-
-    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {}
-
-    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
-        state.settle(velocity.reverseIfNeeded().toFloat()).toVelocity()
-    }
-
     override fun startDragImmediately(): Boolean = startDragImmediately
 
     fun update(
@@ -404,6 +243,7 @@ private open class AnchoredDraggableNode<T>(
         enabled: Boolean,
         reverseDirection: Boolean,
         interactionSource: MutableInteractionSource?,
+        overscrollEffect: OverscrollEffect?,
         startDragImmediately: Boolean
     ) {
         var resetPointerInputHandling = false
@@ -423,6 +263,7 @@ private open class AnchoredDraggableNode<T>(
         }
 
         this.startDragImmediately = startDragImmediately
+        this.overscrollEffect = overscrollEffect
 
         update(
             enabled = enabled,
@@ -432,24 +273,24 @@ private open class AnchoredDraggableNode<T>(
         )
     }
 
-    protected fun Float.toOffset() = Offset(
+    private fun Float.toOffset() = Offset(
         x = if (orientation == Orientation.Horizontal) this else 0f,
         y = if (orientation == Orientation.Vertical) this else 0f,
     )
 
-    protected fun Float.toVelocity() = Velocity(
+    private fun Float.toVelocity() = Velocity(
         x = if (orientation == Orientation.Horizontal) this else 0f,
         y = if (orientation == Orientation.Vertical) this else 0f,
     )
 
-    protected fun Velocity.toFloat() =
+    private fun Velocity.toFloat() =
         if (orientation == Orientation.Vertical) this.y else this.x
 
-    protected fun Offset.toFloat() =
+    private fun Offset.toFloat() =
         if (orientation == Orientation.Vertical) this.y else this.x
 
-    protected fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
-    protected fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
 private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
