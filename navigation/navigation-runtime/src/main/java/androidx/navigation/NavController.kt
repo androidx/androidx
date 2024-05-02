@@ -2280,9 +2280,7 @@ public open class NavController(
                 hierarchy.first().destination
         // Pop any orphaned navigation graphs that don't connect to the new destinations
         while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
-            (backQueue.last().destination as NavGraph).findNode(
-                    overlappingDestination.id, false
-                ) == null
+            (backQueue.last().destination as NavGraph).nodes[overlappingDestination.id] == null
         ) {
             popEntryFromBackStack(backQueue.last())
         }

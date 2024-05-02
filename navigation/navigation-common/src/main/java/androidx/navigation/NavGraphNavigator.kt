@@ -76,7 +76,7 @@ public open class NavGraphNavigator(
         val startDestination = if (startRoute != null) {
             destination.findNode(startRoute, false)
         } else {
-            destination.findNode(startId, false)
+            destination.nodes[startId]
         }
         requireNotNull(startDestination) {
             val dest = destination.startDestDisplayName

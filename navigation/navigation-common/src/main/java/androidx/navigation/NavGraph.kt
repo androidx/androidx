@@ -170,7 +170,11 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @return the node with ID resId
      */
     public fun findNode(@IdRes resId: Int): NavDestination? {
-        return findNode(resId, true)
+        val destination = nodes[resId]
+        // Search the parent for the NavDestination if it is not a child of this navigation graph
+        // and searchParents is true
+        return destination
+            ?: if (parent != null) parent!!.findNode(resId) else null
     }
 
     /**
@@ -191,10 +195,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param T Route from a [KClass] to locate
      * @return the node with route - the node must have been created with a route from [KClass]
      */
-    @OptIn(InternalSerializationApi::class)
-    public inline fun <reified T> findNode(): NavDestination? {
-        return findNode(serializer<T>().hashCode())
-    }
+    public inline fun <reified T> findNode(): NavDestination? = findNode(serializer<T>().hashCode())
 
     /**
      * Finds a destination in the collection by route from Object. This will recursively check the
@@ -204,19 +205,8 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @return the node with route - the node must have been created with a route from [KClass]
      */
     @OptIn(InternalSerializationApi::class)
-    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    public fun <T> findNode(route: T?): NavDestination? {
-        return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findNode(@IdRes resId: Int, searchParents: Boolean): NavDestination? {
-        val destination = nodes[resId]
-        // Search the parent for the NavDestination if it is not a child of this navigation graph
-        // and searchParents is true
-        return destination
-            ?: if (searchParents && parent != null) parent!!.findNode(resId) else null
-    }
+    public fun <T> findNode(route: T?): NavDestination? =
+        route?.let { findNode(it::class.serializer().hashCode()) }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(route: String, searchParents: Boolean): NavDestination? {
