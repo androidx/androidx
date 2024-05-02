@@ -149,7 +149,7 @@ interface WindowInfoTracker {
         fun getOrCreate(context: Context): WindowInfoTracker {
             val backend = extensionBackend ?: SidecarWindowBackend.getInstance(context)
             val repo = WindowInfoTrackerImpl(
-                WindowMetricsCalculatorCompat,
+                WindowMetricsCalculatorCompat(),
                 backend,
                 WindowSdkExtensions.getInstance()
             )

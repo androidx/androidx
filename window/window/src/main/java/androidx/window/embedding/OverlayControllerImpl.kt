@@ -33,6 +33,7 @@ import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
+import androidx.window.layout.util.DensityCompatHelper
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -86,14 +87,16 @@ internal open class OverlayControllerImpl(
         embeddingExtension.setActivityStackAttributesCalculator { params ->
             globalLock.withLock {
                 val parentContainerInfo = params.parentContainerInfo
+                val density = DensityCompatHelper.getInstance()
+                    .density(parentContainerInfo.configuration, parentContainerInfo.windowMetrics)
                 val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(
-                    parentContainerInfo.windowMetrics
+                    parentContainerInfo.windowMetrics, density
                 )
                 val overlayAttributes = calculateOverlayAttributes(
                     params.activityStackTag,
                     params.launchOptions.getOverlayAttributes(),
                     WindowMetricsCalculator.translateWindowMetrics(
-                        params.parentContainerInfo.windowMetrics
+                        params.parentContainerInfo.windowMetrics, density
                     ),
                     params.parentContainerInfo.configuration,
                     ExtensionsWindowLayoutInfoAdapter.translate(

@@ -81,7 +81,7 @@ class OverlayControllerImplTest {
     ): OverlayAttributes = calculateOverlayAttributes(
         TAG_TEST,
         initialOverlayAttrs,
-        WindowMetrics(Rect(), WindowInsetsCompat.CONSUMED),
+        WindowMetrics(Rect(), WindowInsetsCompat.CONSUMED, density = 1f),
         Configuration(),
         WindowLayoutInfo(emptyList())
     )
@@ -101,7 +101,7 @@ class OverlayControllerImplTest {
     }
 
     private class TestableOverlayControllerImpl(
-        val mockExtension: ActivityEmbeddingComponent = mock<ActivityEmbeddingComponent>()
+        mockExtension: ActivityEmbeddingComponent = mock<ActivityEmbeddingComponent>(),
     ) : OverlayControllerImpl(
         mockExtension,
         EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader()))

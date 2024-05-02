@@ -58,7 +58,7 @@ public class WindowInfoTrackerImplTest {
     @Test
     public fun testWindowLayoutFeatures(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity { testActivity ->
-            val windowMetricsCalculator = WindowMetricsCalculatorCompat
+            val windowMetricsCalculator = WindowMetricsCalculatorCompat()
             val fakeBackend = FakeWindowBackend()
             val repo = WindowInfoTrackerImpl(
                 windowMetricsCalculator,
@@ -82,7 +82,7 @@ public class WindowInfoTrackerImplTest {
         assumeAtLeastVendorApiLevel(2)
         val fakeBackend = FakeWindowBackend()
         val repo = WindowInfoTrackerImpl(
-            WindowMetricsCalculatorCompat,
+            WindowMetricsCalculatorCompat(),
             fakeBackend,
             windowSdkExtensions
         )
@@ -100,7 +100,7 @@ public class WindowInfoTrackerImplTest {
     @Test
     public fun testWindowLayoutFeatures_multicasting(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity { testActivity ->
-            val windowMetricsCalculator = WindowMetricsCalculatorCompat
+            val windowMetricsCalculator = WindowMetricsCalculatorCompat()
             val fakeBackend = FakeWindowBackend()
             val repo = WindowInfoTrackerImpl(
                 windowMetricsCalculator,
@@ -127,7 +127,7 @@ public class WindowInfoTrackerImplTest {
     fun testSupportedWindowPostures_throwsBeforeApi6() {
         assumeBeforeVendorApiLevel(6)
         activityScenario.scenario.onActivity { _ ->
-            val windowMetricsCalculator = WindowMetricsCalculatorCompat
+            val windowMetricsCalculator = WindowMetricsCalculatorCompat()
             val fakeBackend = FakeWindowBackend()
             val repo = WindowInfoTrackerImpl(
                 windowMetricsCalculator,
@@ -144,7 +144,7 @@ public class WindowInfoTrackerImplTest {
     fun testSupportedWindowPostures_reportsFeatures() {
         assumeAtLeastVendorApiLevel(6)
         activityScenario.scenario.onActivity { _ ->
-            val windowMetricsCalculator = WindowMetricsCalculatorCompat
+            val windowMetricsCalculator = WindowMetricsCalculatorCompat()
             val expected = listOf(SupportedPosture.TABLETOP)
             val fakeBackend = FakeWindowBackend(supportedPostures = expected)
             val repo = WindowInfoTrackerImpl(
@@ -164,7 +164,7 @@ public class WindowInfoTrackerImplTest {
             return@runTest
         }
         assumeAtLeastVendorApiLevel(2)
-        val windowMetricsCalculator = WindowMetricsCalculatorCompat
+        val windowMetricsCalculator = WindowMetricsCalculatorCompat()
         val fakeBackend = FakeWindowBackend()
         val repo = WindowInfoTrackerImpl(
             windowMetricsCalculator,

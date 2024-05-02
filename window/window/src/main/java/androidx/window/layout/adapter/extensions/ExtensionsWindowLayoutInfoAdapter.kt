@@ -34,7 +34,7 @@ import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
-import androidx.window.layout.WindowMetricsCalculatorCompat.computeCurrentWindowMetrics
+import androidx.window.layout.WindowMetricsCalculatorCompat
 
 internal object ExtensionsWindowLayoutInfoAdapter {
 
@@ -64,10 +64,11 @@ internal object ExtensionsWindowLayoutInfoAdapter {
         @UiContext context: Context,
         info: OEMWindowLayoutInfo,
     ): WindowLayoutInfo {
+        val calculator = WindowMetricsCalculatorCompat()
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            translate(computeCurrentWindowMetrics(context), info)
+            translate(calculator.computeCurrentWindowMetrics(context), info)
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && (context is Activity)) {
-            translate(computeCurrentWindowMetrics(context), info)
+            translate(calculator.computeCurrentWindowMetrics(context), info)
         } else {
             throw UnsupportedOperationException(
                 "Display Features are only supported after Q. Display features for non-Activity " +
