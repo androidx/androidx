@@ -63,7 +63,8 @@ fun Project.configureSourceJarForAndroid(
             // otherwise.
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
         }
-    val sourceElementsConfig = registerSourcesVariant(sourceJar)
+    registerSourcesVariant(sourceJar)
+    registerSamplesLibraries(samplesProjects)
 
     // b/272214715
     configurations.whenObjectAdded {
@@ -76,11 +77,6 @@ fun Project.configureSourceJarForAndroid(
             }
         }
     }
-    project.afterEvaluate {
-        registerAsComponentForPublishing(sourceElementsConfig)
-        project.configureMultiplatformSourcesForAndroid(libraryVariant.name, samplesProjects)
-    }
-    project.registerSamplesLibraries(samplesProjects)
 
     val disableNames =
         setOf(
@@ -138,14 +134,14 @@ fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project
                 }
             }
         }
-    registerAsComponentForPublishing(registerSourcesVariant(sourceJar))
+    registerSourcesVariant(sourceJar)
+    registerSamplesLibraries(samplesProjects)
 
     val disableNames =
         setOf(
             "kotlinSourcesJar",
         )
     disableUnusedSourceJarTasks(disableNames)
-    project.registerSamplesLibraries(samplesProjects)
 }
 
 fun Project.configureSourceJarForMultiplatform() {
@@ -178,7 +174,7 @@ fun Project.configureSourceJarForMultiplatform() {
                 }
             task.metaInf.from(metadataFile)
         }
-    registerAsComponentForPublishing(registerMultiplatformSourcesVariant(sourceJar))
+    registerMultiplatformSourcesVariant(sourceJar)
 
     val disableNames =
         setOf(
@@ -226,6 +222,7 @@ private fun Project.registerSourcesVariant(
             objects.named<DocsType>(DocsType.SOURCES)
         )
         gradleVariant.outgoing.artifact(sourceJar)
+        registerAsComponentForPublishing(gradleVariant)
     }
 
 /**
