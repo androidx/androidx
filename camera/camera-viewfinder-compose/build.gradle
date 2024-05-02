@@ -41,6 +41,8 @@ dependencies {
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":compose:material:material-icons-core"))
+    androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
@@ -48,6 +50,9 @@ dependencies {
 
 android {
     namespace "androidx.camera.viewfinder.compose"
+
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/camera/camera-viewfinder-compose"
 }
 
 androidx {
