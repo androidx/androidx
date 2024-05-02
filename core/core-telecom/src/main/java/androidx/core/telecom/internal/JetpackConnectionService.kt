@@ -217,6 +217,7 @@ internal class JetpackConnectionService : ConnectionService() {
 
         val jetpackConnection = CallSessionLegacy(
             ParcelUuid.fromString(UUID.randomUUID().toString()),
+            targetRequest.callAttributes,
             targetRequest.callChannel,
             targetRequest.coroutineContext,
             targetRequest.onAnswer,
