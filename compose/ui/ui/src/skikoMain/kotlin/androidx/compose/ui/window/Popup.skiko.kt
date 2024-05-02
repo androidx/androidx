@@ -31,6 +31,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.Layout
@@ -410,7 +411,10 @@ fun Popup(
     }
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside && onDismissRequest != null) {
         // No need to remember this lambda, as it doesn't capture any values that can change.
-        { eventType: PointerEventType ->
+        { eventType: PointerEventType, _: PointerButton? ->
+            // Popup should react on first event - [PointerEventType.Press],
+            // but at the same time trigger [onDismissRequest] only once per click.
+            // Any mouse buttons should be accepted to match regular dropdown behavior.
             if (eventType == PointerEventType.Press) {
                 currentOnDismissRequest?.invoke()
             }
@@ -436,7 +440,7 @@ private fun PopupLayout(
     modifier: Modifier,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
-    onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
+    onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val currentContent by rememberUpdatedState(content)

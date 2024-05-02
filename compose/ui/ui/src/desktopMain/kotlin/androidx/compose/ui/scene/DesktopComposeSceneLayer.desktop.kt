@@ -23,6 +23,7 @@ import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.toAwtRectangle
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
 import androidx.compose.ui.unit.Density
@@ -73,7 +74,10 @@ internal abstract class DesktopComposeSceneLayer(
      */
     private var maxDrawInflate = IntRect.Zero
 
-    private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
+    private var outsidePointerCallback: ((
+        eventType: PointerEventType,
+        button: PointerButton?
+    ) -> Unit)? = null
     private var isClosed = false
 
     final override var density: Density = density
@@ -119,7 +123,7 @@ internal abstract class DesktopComposeSceneLayer(
     }
 
     final override fun setOutsidePointerEventListener(
-        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?
+        onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)?
     ) {
         outsidePointerCallback = onOutsidePointerEvent
     }
@@ -196,7 +200,7 @@ internal abstract class DesktopComposeSceneLayer(
             MouseEvent.MOUSE_RELEASED -> PointerEventType.Release
             else -> return
         }
-        outsidePointerCallback?.invoke(eventType)
+        outsidePointerCallback?.invoke(eventType, event.composePointerButton)
     }
 
     private fun inBounds(event: MouseEvent): Boolean {

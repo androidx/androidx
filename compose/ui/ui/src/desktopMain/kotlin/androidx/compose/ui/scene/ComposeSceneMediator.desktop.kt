@@ -714,11 +714,11 @@ private fun ComposeScene.onMouseEvent(
         buttons = event.buttons,
         keyboardModifiers = event.keyboardModifiers,
         nativeEvent = event,
-        button = event.getPointerButton()
+        button = event.composePointerButton
     )
 }
 
-private fun MouseEvent.getPointerButton(): PointerButton? {
+internal val MouseEvent.composePointerButton: PointerButton? get() {
     if (button == MouseEvent.NOBUTTON) return null
     return when (button) {
         MouseEvent.BUTTON2 -> PointerButton.Tertiary

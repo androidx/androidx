@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.platform.PlatformContext
@@ -66,7 +67,10 @@ internal class UIViewComposeSceneLayer(
 ) : ComposeSceneLayer {
 
     override var focusable: Boolean = focusStack != null
-    private var onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null
+    private var onOutsidePointerEvent: ((
+        eventType: PointerEventType,
+        button: PointerButton?
+    ) -> Unit)? = null
     private val rootView = composeContainer.view.window ?: composeContainer.view
     private val backgroundView: UIView = object : UIView(
         frame = CGRectZero.readValue()
@@ -77,7 +81,7 @@ internal class UIViewComposeSceneLayer(
             if (previousSuccessHitTestTimestamp != withEvent?.timestamp) {
                 // This workaround needs to send PointerEventType.Press just once
                 previousSuccessHitTestTimestamp = withEvent?.timestamp
-                onOutsidePointerEvent?.invoke(PointerEventType.Press)
+                onOutsidePointerEvent?.invoke(PointerEventType.Press, null)
             }
         }
 
@@ -91,7 +95,8 @@ internal class UIViewComposeSceneLayer(
                 // This view's coordinate space is equal to [ComposeScene]'s
                 val contains = boundsInWindow.contains(locationInView.toOffset(density).round())
                 if (!contains) {
-                    onOutsidePointerEvent?.invoke(PointerEventType.Release)
+                    // TODO: Send only for last pointer in case of multi-touch
+                    onOutsidePointerEvent?.invoke(PointerEventType.Release, null)
                 }
             }
             super.touchesEnded(touches, withEvent)
@@ -202,7 +207,7 @@ internal class UIViewComposeSceneLayer(
     }
 
     override fun setOutsidePointerEventListener(
-        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?
+        onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)?
     ) {
         this.onOutsidePointerEvent = onOutsidePointerEvent
     }

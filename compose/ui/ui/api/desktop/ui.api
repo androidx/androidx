@@ -3408,8 +3408,8 @@ public abstract interface class androidx/compose/ui/scene/ComposeSceneLayer {
 	public abstract fun setKeyEventListener (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun setKeyEventListener$default (Landroidx/compose/ui/scene/ComposeSceneLayer;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public abstract fun setLayoutDirection (Landroidx/compose/ui/unit/LayoutDirection;)V
-	public abstract fun setOutsidePointerEventListener (Lkotlin/jvm/functions/Function1;)V
-	public static synthetic fun setOutsidePointerEventListener$default (Landroidx/compose/ui/scene/ComposeSceneLayer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public abstract fun setOutsidePointerEventListener (Lkotlin/jvm/functions/Function2;)V
+	public static synthetic fun setOutsidePointerEventListener$default (Landroidx/compose/ui/scene/ComposeSceneLayer;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public abstract fun setScrimColor-Y2TPw74 (Landroidx/compose/ui/graphics/Color;)V
 }
 

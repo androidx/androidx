@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalDensity
@@ -145,7 +146,10 @@ interface ComposeSceneLayer {
      * gesture that started outside of [boundsInWindow].
      */
     fun setOutsidePointerEventListener(
-        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)? = null,
+        onOutsidePointerEvent: ((
+            eventType: PointerEventType,
+            button: PointerButton?
+        ) -> Unit)? = null,
     )
 
     /**
