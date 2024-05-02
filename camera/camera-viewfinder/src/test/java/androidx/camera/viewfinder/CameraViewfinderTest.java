@@ -17,8 +17,8 @@
 package androidx.camera.viewfinder;
 
 import static androidx.camera.viewfinder.CameraViewfinder.shouldUseTextureView;
-import static androidx.camera.viewfinder.surface.ImplementationMode.COMPATIBLE;
-import static androidx.camera.viewfinder.surface.ImplementationMode.PERFORMANCE;
+import static androidx.camera.viewfinder.surface.ImplementationMode.EMBEDDED;
+import static androidx.camera.viewfinder.surface.ImplementationMode.EXTERNAL;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -49,7 +49,7 @@ public class CameraViewfinderTest {
     @Config(minSdk = Build.VERSION_CODES.N_MR1)
     public void surfaceViewNormal_useSurfaceView() {
         // Assert: SurfaceView is used.
-        assertThat(shouldUseTextureView(PERFORMANCE)).isFalse();
+        assertThat(shouldUseTextureView(EXTERNAL)).isFalse();
     }
 
     @Test
@@ -58,7 +58,7 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewStretchedQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(shouldUseTextureView(PERFORMANCE)).isTrue();
+        assertThat(shouldUseTextureView(EXTERNAL)).isTrue();
     }
 
     @Test
@@ -67,7 +67,7 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(shouldUseTextureView(PERFORMANCE)).isTrue();
+        assertThat(shouldUseTextureView(EXTERNAL)).isTrue();
     }
 
     @Test
@@ -76,6 +76,6 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(shouldUseTextureView(COMPATIBLE)).isTrue();
+        assertThat(shouldUseTextureView(EMBEDDED)).isTrue();
     }
 }
