@@ -35,6 +35,7 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.appwidget.components.CircleIconButton
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.components.OutlineButton
+import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.appwidget.components.SquareIconButton
 import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -768,6 +769,76 @@ class GlanceAppWidgetReceiverScreenshotTest {
                     actionButton()
                 })
         }
+    }
+
+    @Test
+    fun scaffoldTests_basicScaffold() {
+        TestGlanceAppWidget.uiDefinition = {
+            ScaffoldTestUi.BasicScaffold()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "scaffoldTests_basicScaffold"
+        )
+    }
+
+    @Test
+    fun scaffoldTests_scaffoldWithPaddingOverride() {
+        TestGlanceAppWidget.uiDefinition = {
+            ScaffoldTestUi.PaddedScaffold()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "scaffoldTests_scaffoldWithPaddingOverride"
+        )
+    }
+}
+
+private object ScaffoldTestUi {
+    private val fg = ColorProvider(Color.Magenta)
+    private val bg = ColorProvider(Color.Cyan)
+    private val widgetBg = ColorProvider(Color.Yellow)
+
+    @Composable
+    fun BasicScaffold() {
+        Scaffold(
+            titleBar = { ScaffoldTitleBar() },
+            modifier = GlanceModifier,
+            backgroundColor = widgetBg,
+            content = { ScaffoldContent() }
+        )
+    }
+
+    @Composable
+    fun PaddedScaffold() {
+        Scaffold(
+            titleBar = { ScaffoldTitleBar() },
+            modifier = GlanceModifier,
+            backgroundColor = widgetBg,
+            horizontalPadding = 32.dp,
+            content = { ScaffoldContent() }
+        )
+    }
+
+    @Composable
+    private fun ScaffoldTitleBar() {
+        TitleBar(
+            modifier = GlanceModifier.background(bg).fillMaxWidth(),
+            startIcon = ImageProvider(R.drawable.filled_oval),
+            title = "Lead icon; title; no btns",
+            textColor = fg,
+            iconColor = fg
+        )
+    }
+
+    @Composable
+    private fun ScaffoldContent() {
+        Text(
+            text = "text, fill-max-size\nbg cyan, fg magenta",
+            modifier = GlanceModifier.fillMaxSize()
+        )
     }
 }
 
