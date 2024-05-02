@@ -66,7 +66,7 @@ fun TitleBar(
     @Composable
     fun StartIcon() {
         Box(
-            GlanceModifier.size(48.dp),
+            GlanceModifier.size(48.dp).padding(start = 2.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -94,7 +94,7 @@ fun TitleBar(
     }
 
     Row(
-        modifier.fillMaxWidth().padding(4.dp),
+        modifier.fillMaxWidth().padding(vertical = 4.dp),
         verticalAlignment = Alignment.Vertical.CenterVertically
     ) {
         StartIcon()

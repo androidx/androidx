@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
@@ -54,12 +53,12 @@ class TitleBarWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
         // assets
-        val icStart = ImageProvider(R.drawable.shape_square)
+        val icStart = ImageProvider(R.drawable.shape_circle)
         val icAdd = ImageProvider(R.drawable.baseline_add_24)
         val icPhone = ImageProvider(R.drawable.baseline_local_phone_24)
 
         provideContent {
-            val contentColor = GlanceTheme.colors.onSurface
+            val contentColor = ColorProvider(Color.White)
 
             // for demo purposes, check if widget is displaying in a relatively narrow form
             // factor and if so, don't show title text. This check is relatively arbitrary, and
@@ -95,7 +94,7 @@ class TitleBarWidget : GlanceAppWidget() {
             fun MainContent(modifier: GlanceModifier = GlanceModifier) {
                 Text(
                     "This is the content() of the scaffold.\nWidget content goes here...",
-                    style = TextStyle(color = contentColor),
+                    style = TextStyle(color = ColorProvider(Color.DarkGray)),
                     modifier = modifier
                 )
             }
