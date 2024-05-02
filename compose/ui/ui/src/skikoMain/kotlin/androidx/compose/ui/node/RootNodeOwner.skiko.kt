@@ -70,6 +70,7 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.semantics.EmptySemanticsElement
+import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
@@ -128,7 +129,8 @@ internal class RootNodeOwner(
             platformContext.parentFocusManager.clearFocus(true)
         },
     )
-    private val rootModifier = EmptySemanticsElement
+    private val rootSemanticsNode = EmptySemanticsModifier()
+    private val rootModifier = EmptySemanticsElement(rootSemanticsNode)
         .then(focusOwner.modifier)
         .onKeyEvent {
             // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
@@ -141,7 +143,7 @@ internal class RootNodeOwner(
             focusOwner.moveFocus(focusDirection)
         }
     val owner: Owner = OwnerImpl(layoutDirection, coroutineContext)
-    val semanticsOwner = SemanticsOwner(owner.root)
+    val semanticsOwner = SemanticsOwner(owner.root, rootSemanticsNode)
     var size by mutableStateOf(size)
     var density by mutableStateOf(density)
 
