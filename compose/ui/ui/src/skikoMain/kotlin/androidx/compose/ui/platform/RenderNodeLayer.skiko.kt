@@ -63,7 +63,7 @@ internal class RenderNodeLayer(
     private var density: Density,
     measureDrawBounds: Boolean,
     private val invalidateParentLayer: () -> Unit,
-    private val drawBlock: (Canvas) -> Unit,
+    private val drawBlock: (Canvas, parentLayer: GraphicsLayer?) -> Unit,
     private val onDestroy: () -> Unit = {}
 ) : OwnedLayer {
     private var size = IntSize.Zero
@@ -107,8 +107,11 @@ internal class RenderNodeLayer(
         onDestroy()
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
-        // TODO: in destroy, call recycle, and reconfigure this layer to be ready to use here.
+    override fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
+        TODO("Not yet implemented")
     }
 
     override fun resize(size: IntSize) {
@@ -299,7 +302,7 @@ internal class RenderNodeLayer(
                 1.0f
             }
 
-            drawBlock(canvas)
+            drawBlock(canvas, null)
             canvas.restore()
             if (clip) {
                 canvas.restore()

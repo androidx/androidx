@@ -385,7 +385,7 @@ internal class RootNodeOwner(
         }
 
         override fun createLayer(
-            drawBlock: (Canvas) -> Unit,
+            drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
             invalidateParentLayer: () -> Unit,
             explicitLayer: GraphicsLayer?,
         ) = RenderNodeLayer(
