@@ -18,7 +18,6 @@ package androidx.navigation
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.DEFAULT_ARGS_KEY
@@ -51,9 +50,7 @@ import kotlinx.serialization.serializer
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-public actual class NavBackStackEntry
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-private constructor(
+public actual class NavBackStackEntry private constructor(
     private val context: Context?,
     /**
      * The destination associated with this entry
@@ -130,7 +127,6 @@ private constructor(
     /**
      * The [SavedStateHandle] for this entry.
      */
-    @get:MainThread
     public actual val savedStateHandle: SavedStateHandle by lazy {
         check(savedStateRegistryAttached) {
             "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +

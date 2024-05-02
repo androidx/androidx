@@ -15,7 +15,6 @@
  */
 package androidx.navigation
 
-import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
@@ -70,7 +69,6 @@ public expect class NavBackStackEntry :
     /**
      * The [SavedStateHandle] for this entry.
      */
-    @get:MainThread
     public val savedStateHandle: SavedStateHandle
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

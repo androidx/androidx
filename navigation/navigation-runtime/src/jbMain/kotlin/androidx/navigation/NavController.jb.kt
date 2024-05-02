@@ -210,7 +210,6 @@ public actual open class NavController {
         override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
             val destinationNavigator: Navigator<out NavDestination> =
                 _navigatorProvider[popUpTo.destination.navigatorName]
-            entrySavedState[popUpTo] = saveState
             if (destinationNavigator == navigator) {
                 val handler = popFromBackStackHandler
                 if (handler != null) {
@@ -228,6 +227,7 @@ public actual open class NavController {
 
         override fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
             super.popWithTransition(popUpTo, saveState)
+            entrySavedState[popUpTo] = saveState
         }
 
         override fun markTransitionComplete(entry: NavBackStackEntry) {
@@ -853,7 +853,7 @@ public actual open class NavController {
         tempBackQueue.forEach { newEntry ->
             val parent = newEntry.destination.parent
             if (parent != null) {
-                val newParent = getBackStackEntry(parent.route!!)
+                val newParent = getBackStackEntry(parent)
                 linkChildToParent(newEntry, newParent)
             }
             backQueue.add(newEntry)
@@ -1069,9 +1069,9 @@ public actual open class NavController {
         // Link the newly added hierarchy and entry with the parent NavBackStackEntry
         // so that we can track how many destinations are associated with each NavGraph
         (hierarchy + backStackEntry).forEach {
-            val parentRoute = it.destination.parent?.route
-            if (parentRoute != null) {
-                linkChildToParent(it, getBackStackEntry(parentRoute))
+            val parent = it.destination.parent
+            if (parent != null) {
+                linkChildToParent(it, getBackStackEntry(parent))
             }
         }
     }
@@ -1225,6 +1225,17 @@ public actual open class NavController {
         }
         check(backQueue.isEmpty()) { "ViewModelStore should be set before setGraph call" }
         viewModel = NavControllerViewModel.getInstance(viewModelStore)
+    }
+
+    private fun getBackStackEntry(destination: NavDestination): NavBackStackEntry {
+        val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
+            entry.destination == destination
+        }
+        requireNotNull(lastFromBackStack) {
+            "No destination $destination is on the NavController's back stack. The " +
+                "current destination is $currentDestination"
+        }
+        return lastFromBackStack
     }
 
     public actual fun getBackStackEntry(route: String): NavBackStackEntry {

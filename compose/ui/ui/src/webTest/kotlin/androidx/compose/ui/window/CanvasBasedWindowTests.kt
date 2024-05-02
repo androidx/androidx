@@ -120,7 +120,6 @@ class CanvasBasedWindowTests {
             Box(Modifier.size(1000.dp).background(Color.Red).focusRequester(fr).focusTarget().onKeyEvent {
                 k = it.key
                 mapping = it.key.toString()
-                println(mapping)
                 false
             }) {
                 Text("Try to press different keys and look at the console...")
@@ -197,4 +196,4 @@ class CanvasBasedWindowTests {
 
 
 // Unreliable heuristic, but it works for now
-internal fun isHeadlessBrowser(): Boolean = window.navigator.userAgent.contains("Headless")
+internal fun isHeadlessBrowser(): Boolean = false//window.navigator.userAgent.contains("Headless")

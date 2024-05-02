@@ -127,14 +127,6 @@ public expect abstract class NavType<T>(
      */
     public open val name: String
 
-    /**
-     * Compares two values of type [T] and returns true if values are equal.
-     *
-     * @param value the first value for comparison
-     * @param other the second value for comparison
-     */
-    public open fun valueEquals(value: T, other: T): Boolean
-
     public companion object {
         /**
          * Parse an argType string into a NavType.

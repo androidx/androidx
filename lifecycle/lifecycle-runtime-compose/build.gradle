@@ -42,9 +42,21 @@ androidXComposeMultiplatform {
     darwin()
     js()
     wasm()
+
+    linuxX64()
+    linuxArm64()
 }
 
 kotlin {
+    watchosArm64()
+    watchosArm32()
+    watchosX64()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    mingwX64()
+
     sourceSets {
         commonMain {
             dependencies {

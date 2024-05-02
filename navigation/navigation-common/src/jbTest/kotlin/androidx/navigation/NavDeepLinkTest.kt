@@ -375,7 +375,7 @@ class NavDeepLinkTest {
 
     // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
     @Test
-    fun deepLinkQueryParamNullableStringArgumentMatchParamsInBraces() {
+    fun deepLinkQueryParamNullableArgumentMatchParamsInBraces() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
         val deepLink = NavDeepLink(deepLinkArgument)
 
@@ -386,30 +386,6 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        // We allow {argName} values for String types
-        assertWithMessage("Args should contain the argument")
-            .that(matchArgs?.getString("myarg"))
-            .isEqualTo("{myarg}")
-    }
-
-    // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
-    @Test
-    fun deepLinkQueryParamNullableNonStringArgumentMatchParamsInBraces() {
-        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
-        val deepLink = NavDeepLink(deepLinkArgument)
-        val intArrayArg = NavArgument.Builder().setType(NavType.IntArrayType)
-            .setIsNullable(true)
-            .setDefaultValue(null)
-            .build()
-
-        val matchArgs = deepLink.getMatchingArguments(
-            deepLinkArgument,
-            mapOf("myarg" to intArrayArg)
-        )
-        assertWithMessage("Args should not be null")
-            .that(matchArgs)
-            .isNotNull()
-        // For non-strings, {argName} values are invalid and considered lack of argument value
         assertWithMessage("Args should not contain the argument")
             .that(matchArgs?.containsKey("myarg"))
             .isFalse()
@@ -431,7 +407,7 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the argument and it should not be null")
+        assertWithMessage("Args should contain the argument and it should be null")
             .that(matchArgs?.getString("myarg"))
             .isEqualTo("myarg")
     }
@@ -467,12 +443,13 @@ class NavDeepLinkTest {
         val deepLink = NavDeepLink(deepLinkArgument)
 
         val id = 2
+        val optional = "test"
         val matchArgs = deepLink.getMatchingArguments(
             "$DEEP_LINK_EXACT_HTTPS/users?optional={optional}&id={id}"
                 .replace("{id}", id.toString()),
             mapOf(
                 "id" to intArgument(),
-                "optional" to stringArrayArgument(arrayOf("theArg"))
+                "optional" to stringArgument(optional)
             )
         )
         assertWithMessage("Args should not be null")
@@ -481,9 +458,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the id")
             .that(matchArgs?.getInt("id"))
             .isEqualTo(id)
-        assertWithMessage("Args should not contain optional")
-            .that(matchArgs?.getStringArray("optional"))
-            .isEqualTo(arrayOf("{optional}"))
+        assertWithMessage("Args should contain optional")
+            .that(matchArgs?.containsKey("optional"))
+            .isFalse()
     }
 
     @Test
@@ -870,9 +847,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the argument")
-            .that(matchArgs?.getString("myarg"))
-            .isEqualTo("{myarg}")
+        assertWithMessage("Args should not contain the argument")
+            .that(matchArgs?.containsKey("myarg"))
+            .isFalse()
     }
 
     // Handle the case were the input is wild card and separator with no argument
@@ -1218,15 +1195,14 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             deepLinkString,
-            mapOf("myarg" to stringArrayArgument(arrayOf("theArg")))
+            mapOf("myarg" to nullableStringArgument())
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        // We allow {argName} values for String types
-        assertWithMessage("Args bundle should contain arg value")
-            .that(matchArgs?.getStringArray("myarg"))
-            .isEqualTo(arrayOf("{myarg}"))
+        assertWithMessage("Args bundle should be empty")
+            .that(matchArgs?.isEmpty())
+            .isTrue()
     }
 
     @Test

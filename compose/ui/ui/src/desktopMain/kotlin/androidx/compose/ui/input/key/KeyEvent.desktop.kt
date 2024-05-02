@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("KeyEvent_desktopKt")
+@file:JvmMultifileClass
+
 package androidx.compose.ui.input.key
 
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers

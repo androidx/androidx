@@ -46,7 +46,7 @@ internal fun KeyboardEvent.toComposeEvent(): KeyEvent {
         nativeKeyEvent = InternalKeyEvent(
             key = Key(keyCode.toLong(), location),
             type = when (type) {
-                "keydown", "keypress" -> KeyEventType.KeyDown
+                "keydown" -> KeyEventType.KeyDown
                 "keyup" -> KeyEventType.KeyUp
                 else -> KeyEventType.Unknown
             },

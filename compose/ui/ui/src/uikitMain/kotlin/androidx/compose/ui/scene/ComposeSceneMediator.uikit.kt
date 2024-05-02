@@ -22,7 +22,6 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
@@ -68,7 +67,7 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
-import androidx.compose.ui.window.ApplicationStateListener
+import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
 import androidx.compose.ui.window.KeyboardEventHandler
@@ -254,7 +253,7 @@ internal class ComposeSceneMediator(
         renderingUIViewFactory(interopContext, renderDelegate)
     }
 
-    private val applicationStateListener = ApplicationStateListener { isForeground ->
+    private val applicationForegroundStateListener = ApplicationForegroundStateListener { isForeground ->
         // Sometimes the application can trigger animation and go background before the animation is
         // finished. The scheduled GPU work is performed, but no presentation can be done, causing
         // mismatch between visual state and application state. This can be fixed by forcing
@@ -500,7 +499,7 @@ internal class ComposeSceneMediator(
 
     fun dispose() {
         uiKitTextInputService.stopInput()
-        applicationStateListener.dispose()
+        applicationForegroundStateListener.dispose()
         focusStack?.popUntilNext(renderingView)
         keyboardManager.stop()
         renderingView.dispose()

@@ -26,6 +26,7 @@ import androidx.compose.ui.events.EventTargetListener
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -108,10 +109,8 @@ internal interface ComposeWindowState {
 }
 
 private sealed interface KeyboardModeState {
-    companion object {
-        object Virtual: KeyboardModeState
-        object Hardware: KeyboardModeState
-    }
+    object Virtual: KeyboardModeState
+    object Hardware: KeyboardModeState
 }
 
 internal class DefaultWindowState(private val viewportContainer: Element) : ComposeWindowState {
@@ -168,7 +167,7 @@ internal class ComposeWindow(
 
     private val canvasEvents = EventTargetListener(canvas)
 
-    private var keyboardModeState: KeyboardModeState = KeyboardModeState.Companion.Hardware
+    private var keyboardModeState: KeyboardModeState = KeyboardModeState.Hardware
 
     private val platformContext: PlatformContext = object : PlatformContext {
         override val windowInfo get() = _windowInfo
@@ -176,13 +175,17 @@ internal class ComposeWindow(
         override val inputModeManager: InputModeManager = DefaultInputModeManager()
 
         override val textInputService = object : WebTextInputService() {
-            override fun isVirtualKeyboard() = keyboardModeState == KeyboardModeState.Companion.Virtual
+            override fun isVirtualKeyboard() = keyboardModeState == KeyboardModeState.Virtual
 
             override fun getOffset(rect: Rect): Offset {
                 val viewportRect = canvas.getBoundingClientRect()
                 val offsetX = viewportRect.left.toFloat().coerceAtLeast(0f) + (rect.left / density.density)
                 val offsetY = viewportRect.top.toFloat().coerceAtLeast(0f) + (rect.top / density.density)
                 return Offset(offsetX, offsetY)
+            }
+
+            override fun sendKeyEvent(event: KeyEvent) {
+                layer.onKeyboardEvent(event)
             }
         }
 
@@ -354,7 +357,7 @@ internal class ComposeWindow(
         event: TouchEvent,
         offset: Offset,
     ) {
-        keyboardModeState = KeyboardModeState.Companion.Virtual
+        keyboardModeState = KeyboardModeState.Virtual
         val eventType = when (event.type) {
             "touchstart" -> PointerEventType.Press
             "touchmove" -> PointerEventType.Move
@@ -386,7 +389,7 @@ internal class ComposeWindow(
     private fun ComposeLayer.onMouseEvent(
         event: MouseEvent,
     ) {
-        keyboardModeState = KeyboardModeState.Companion.Hardware
+        keyboardModeState = KeyboardModeState.Hardware
         val eventType = when (event.type) {
             "mousedown" -> PointerEventType.Press
             "mousemove" -> PointerEventType.Move
@@ -413,7 +416,7 @@ internal class ComposeWindow(
     private fun ComposeLayer.onWheelEvent(
         event: WheelEvent,
     ) {
-        keyboardModeState = KeyboardModeState.Companion.Hardware
+        keyboardModeState = KeyboardModeState.Hardware
         onMouseEvent(
             eventType = PointerEventType.Scroll,
             position = event.offset,
@@ -493,15 +496,15 @@ fun CanvasBasedWindow(
 /**
  * EXPERIMENTAL! Might be deleted or changed in the future!
  *
- * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] id.
+ * Creates the composition in HTML canvas created in parent container identified by [viewportContainerId] id.
  * This size of canvas is adjusted with the size of the container
  */
 @ExperimentalComposeUiApi
 fun ComposeViewport(
-    viewportContainer: String,
+    viewportContainerId: String,
     content: @Composable () -> Unit = { }
 ) {
-    ComposeViewport(document.getElementById(viewportContainer)!!, content)
+    ComposeViewport(document.getElementById(viewportContainerId)!!, content)
 }
 
 /**

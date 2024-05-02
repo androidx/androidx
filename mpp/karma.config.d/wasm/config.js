@@ -27,7 +27,7 @@ const debug = message => console.log(`[karma-config] ${message}`);
 
 // https://github.com/JetBrains/compose-multiplatform-core/pull/1008#issuecomment-1956354231
 config.client.mocha = config.client.mocha || {};
-config.client.mocha.timeout = 60000;
+config.client.mocha.timeout = 10000;
 
 debug(`karma basePath: ${basePath}`);
 debug(`karma generatedAssetsPath: ${generatedAssetsPath}`);

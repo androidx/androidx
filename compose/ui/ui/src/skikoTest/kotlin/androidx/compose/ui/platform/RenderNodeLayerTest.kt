@@ -17,8 +17,10 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.assertThat
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.unit.*
 import kotlin.math.PI
 import kotlin.math.cos
@@ -26,6 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.jetbrains.skia.Surface
 
 class RenderNodeLayerTest {
 
@@ -464,11 +467,56 @@ class RenderNodeLayerTest {
         assertTrue(layer.isInLayer(Offset(50f, 100f)))
     }
 
-    private fun TestRenderNodeLayer() = RenderNodeLayer(
+    @Test
+    fun invalidate_parent_layer() {
+        var parentDrawCount = 0
+
+        var childLayer: RenderNodeLayer? = null
+        val parentLayer = TestRenderNodeLayer(
+            drawBlock = {
+                parentDrawCount++
+                childLayer?.drawLayer(it)
+            },
+        )
+
+        val surface = Surface.makeNull(10, 10)
+        val canvas = surface.canvas.asComposeCanvas()
+
+        assertThat(parentDrawCount).isEqualTo(0)
+
+        parentLayer.drawLayer(canvas)
+        assertThat(parentDrawCount).isEqualTo(1)
+
+        // shouldn't be drawn again, as it isn't changed
+        parentLayer.drawLayer(canvas)
+        assertThat(parentDrawCount).isEqualTo(1)
+
+        // https://github.com/JetBrains/compose-multiplatform/issues/4681
+        // parent should be drawn again, as we add a child
+        childLayer = TestRenderNodeLayer(
+            invalidateParentLayer = parentLayer::invalidate,
+            drawBlock = {},
+        )
+        childLayer.invalidate()
+        parentLayer.drawLayer(canvas)
+        assertThat(parentDrawCount).isEqualTo(2)
+
+        parentLayer.drawLayer(canvas)
+        assertThat(parentDrawCount).isEqualTo(2)
+
+        childLayer.invalidate()
+        parentLayer.drawLayer(canvas)
+        assertThat(parentDrawCount).isEqualTo(3)
+    }
+
+    private fun TestRenderNodeLayer(
+        invalidateParentLayer: () -> Unit = {},
+        drawBlock: (Canvas) -> Unit = {},
+    ) = RenderNodeLayer(
         Density(1f, 1f),
         measureDrawBounds = false,
-        invalidateParentLayer = {},
-        drawBlock = {}
+        invalidateParentLayer = invalidateParentLayer,
+        drawBlock = drawBlock,
     )
 
     private fun assertMapping(from: Offset, to: Offset) {

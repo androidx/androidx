@@ -114,11 +114,9 @@ public actual open class NavDestination actual constructor(
          * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
          * the [arguments].
          *
-         * This returns true in these edge cases:
+         * This returns true in both edge cases:
          * 1. If the [arguments] contain more args than [DeepLinkMatch.matchingArgs].
          * 2. If [DeepLinkMatch.matchingArgs] is empty
-         * 3. Argument has null value in both [DeepLinkMatch.matchingArgs] and [arguments]
-         * i.e. arguments/params with nullable values
          *
          * @param [arguments] The arguments to match with the matchingArgs stored in this
          * DeepLinkMatch.
@@ -133,9 +131,8 @@ public actual open class NavDestination actual constructor(
                 val type = destination._arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key)
                 val entryArgValue = type?.get(arguments, key)
-                if (type?.valueEquals(matchingArgValue, entryArgValue) == false) {
-                    return false
-                }
+                // fine if both argValues are null, i.e. arguments/params with nullable values
+                if (matchingArgValue != entryArgValue) return false
             }
             return true
         }
@@ -386,7 +383,7 @@ public actual open class NavDestination actual constructor(
      * extracted from the Uri, or null if no match was found.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public actual open fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
+    public open fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
         if (deepLinks.isEmpty()) {
             return null
         }
