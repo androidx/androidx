@@ -109,7 +109,7 @@ class SharedTransitionTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 SharedTransitionLayout {
-                    transitionScope = this
+                    transitionScope = this@SharedTransitionLayout as SharedTransitionScopeImpl
                     AnimatedVisibility(visible = visible) {
                         Column {
                             Box(Modifier
@@ -247,11 +247,11 @@ class SharedTransitionTest {
             Offset.Zero, Offset.Zero, Offset.Zero, Offset.Zero
         )
         val sizes = mutableListOf(IntSize(-1, -1), IntSize(-1, -1), IntSize.Zero, IntSize.Zero)
-        var transitionScope: SharedTransitionScope? = null
+        var transitionScope: SharedTransitionScopeImpl? = null
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 SharedTransitionLayout {
-                    transitionScope = this
+                    transitionScope = this@SharedTransitionLayout as SharedTransitionScopeImpl
                     Column {
                         Box(Modifier
                             .sharedElementWithCallerManagedVisibility(
@@ -386,6 +386,7 @@ class SharedTransitionTest {
         var visible by mutableStateOf(true)
         rule.setContent {
             SharedTransitionLayout {
+                this@SharedTransitionLayout as SharedTransitionScopeImpl
                 Column {
                     Box(
                         Modifier
@@ -1048,7 +1049,7 @@ class SharedTransitionTest {
                         .requiredSize(100.dp)
                         .background(Color.White)
                 ) {
-                    transitionScope = this
+                    transitionScope = this@SharedTransitionLayout as SharedTransitionScopeImpl
                     AnimatedVisibility(
                         visible = visible,
                         enter = EnterTransition.None,
