@@ -119,6 +119,10 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
          * @param totalCount Total number of items that may be returned from this DataSource.
          * Includes the number in the initial `data` parameter as well as any items that can be
          * loaded in front or behind of `data`.
+         * @param previousPageKey Key for page before the initial load result, or `null` if no more
+         * data can be loaded before.
+         * @param nextPageKey Key for page after the initial load result, or `null` if no more data
+         * can be loaded after.
          */
         public abstract fun onResult(
             data: List<Value>,
