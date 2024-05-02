@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
+
 internal expect class PlatformDateFormat constructor(locale: CalendarLocale) {
 
 

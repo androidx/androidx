@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
 import androidx.compose.ui.text.intl.Locale
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate

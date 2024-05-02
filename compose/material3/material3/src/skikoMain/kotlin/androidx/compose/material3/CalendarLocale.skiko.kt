@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal
+package androidx.compose.material3
 
 /**
  * Returns a string representation of an integer for the current Locale.
