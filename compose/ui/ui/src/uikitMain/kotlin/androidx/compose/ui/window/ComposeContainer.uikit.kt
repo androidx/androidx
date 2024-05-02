@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ExperimentalComposeApi
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.LocalSystemTheme
@@ -93,7 +92,6 @@ import platform.darwin.dispatch_get_main_queue
 private val coroutineDispatcher = Dispatchers.Main
 
 // TODO: Move to androidx.compose.ui.scene
-@OptIn(InternalComposeApi::class)
 @ExportObjCClass
 internal class ComposeContainer(
     private val configuration: ComposeUIViewControllerConfiguration,
@@ -432,7 +430,6 @@ private fun getLayoutDirection() =
         else -> LayoutDirection.Ltr
     }
 
-@OptIn(InternalComposeApi::class)
 @Composable
 internal fun ProvideContainerCompositionLocals(
     composeContainer: ComposeContainer,

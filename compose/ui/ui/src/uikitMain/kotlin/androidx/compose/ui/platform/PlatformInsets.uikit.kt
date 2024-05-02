@@ -18,24 +18,23 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.uikit.LocalKeyboardOverlapHeight
 import androidx.compose.ui.unit.dp
 
 /**
  * Composition local for SafeArea of ComposeUIViewController
  */
-@InternalComposeApi
+@InternalComposeUiApi
 val LocalSafeArea = staticCompositionLocalOf { PlatformInsets.Zero }
 
 /**
  * Composition local for layoutMargins of ComposeUIViewController
  */
-@InternalComposeApi
+@InternalComposeUiApi
 val LocalLayoutMargins = staticCompositionLocalOf { PlatformInsets.Zero }
 
-@OptIn(InternalComposeApi::class)
 private object SafeAreaInsetsConfig : InsetsConfig {
     override val safeInsets: PlatformInsets
         @Composable get() = LocalSafeArea.current

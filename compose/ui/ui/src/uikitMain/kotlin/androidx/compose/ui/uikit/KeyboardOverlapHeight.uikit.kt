@@ -16,13 +16,13 @@
 
 package androidx.compose.ui.uikit
 
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.unit.dp
 
 
 /**
  * Composition local for height that is overlapped with keyboard over Compose view.
  */
-@InternalComposeApi
+@InternalComposeUiApi
 val LocalKeyboardOverlapHeight = compositionLocalOf { 0.dp }
