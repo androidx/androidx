@@ -21,6 +21,7 @@ import androidx.sqlite.use
 import kotlin.test.Test
 
 abstract class BaseBundledConformanceTest : BaseConformanceTest() {
+
     @Test
     fun readSQLiteVersion() {
         val connection = getDriver().open(":memory:")
@@ -30,9 +31,13 @@ abstract class BaseBundledConformanceTest : BaseConformanceTest() {
                 it.getText(0)
             }
             // The bundled androidx SQLite version compiled and statically included
-            assertThat(version).isEqualTo("3.42.0")
+            assertThat(version).isEqualTo(EXPECTED_SQLITE_VERSION)
         } finally {
             connection.close()
         }
+    }
+
+    companion object {
+        const val EXPECTED_SQLITE_VERSION = "3.42.0"
     }
 }
