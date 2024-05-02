@@ -432,9 +432,9 @@ internal class SkiaParagraph(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
-    ): TextRange? {
+    ): TextRange {
         // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-1255/Implement-Paragraph.getRangeForRect)
-        return null
+        return TextRange.Zero
     }
 
     override fun getBoundingBox(offset: Int): Rect {

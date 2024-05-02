@@ -60,7 +60,7 @@ actual sealed interface Paragraph {
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
-    ): TextRange?
+    ): TextRange
     actual fun getBoundingBox(offset: Int): Rect
     actual fun fillBoundingBoxes(range: TextRange, array: FloatArray, arrayStart: Int)
     actual fun getWordBoundary(offset: Int): TextRange
