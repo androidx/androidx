@@ -53,13 +53,20 @@ class LazyLayoutPrefetchState(
     internal var prefetchHandleProvider: PrefetchHandleProvider? = null
 
     /**
+     * Schedules precomposition for the new item. If you also want to premeasure the item please
+     * use a second overload accepting a [Constraints] param.
+     *
+     * @param index item index to prefetch.
+     */
+    fun schedulePrefetch(index: Int): PrefetchHandle = schedulePrefetch(index, ZeroConstraints)
+
+    /**
      * Schedules precomposition and premeasure for the new item.
      *
      * @param index item index to prefetch.
-     * @param constraints [Constraints] to use for premeasuring. If null, the child will not
-     * be premeasured.
+     * @param constraints [Constraints] to use for premeasuring.
      */
-    fun schedulePrefetch(index: Int, constraints: Constraints? = null): PrefetchHandle {
+    fun schedulePrefetch(index: Int, constraints: Constraints): PrefetchHandle {
         return prefetchHandleProvider?.schedulePrefetch(index, constraints, prefetchMetrics)
             ?: DummyHandle
     }
@@ -95,8 +102,11 @@ class LazyLayoutPrefetchState(
         val requests: List<PrefetchRequest>
             get() = _requests
         private val _requests: MutableList<PrefetchRequest> = mutableListOf()
+        override fun schedulePrefetch(index: Int) {
+            schedulePrefetch(index, ZeroConstraints)
+        }
 
-        override fun schedulePrefetch(index: Int, constraints: Constraints?) {
+        override fun schedulePrefetch(index: Int, constraints: Constraints) {
             val prefetchHandleProvider = prefetchHandleProvider ?: return
             _requests.add(
                 prefetchHandleProvider.createNestedPrefetchRequest(
@@ -117,11 +127,22 @@ sealed interface NestedPrefetchScope {
 
     /**
      * Requests a child index to be prefetched as part of the prefetch of a parent LazyLayout.
+     *
+     * The prefetch will only do the precomposition for the new item. If you also want to premeasure
+     * please use a second overload accepting a [Constraints] param.
+     *
+     * @param index item index to prefetch.
+     */
+    fun schedulePrefetch(index: Int)
+
+    /**
+     * Requests a child index to be prefetched as part of the prefetch of a parent LazyLayout.
+     *
      * @param index the index of the child to prefetch.
      * @param constraints [Constraints] to use for premeasuring. If null, the child will not
      * be premeasured.
      */
-    fun schedulePrefetch(index: Int, constraints: Constraints? = null)
+    fun schedulePrefetch(index: Int, constraints: Constraints)
 }
 
 /**
@@ -195,7 +216,7 @@ internal class PrefetchHandleProvider(
 ) {
     fun schedulePrefetch(
         index: Int,
-        constraints: Constraints?,
+        constraints: Constraints,
         prefetchMetrics: PrefetchMetrics
     ): PrefetchHandle =
         HandleAndRequestImpl(index, constraints, prefetchMetrics).also {
@@ -204,7 +225,7 @@ internal class PrefetchHandleProvider(
 
     fun createNestedPrefetchRequest(
         index: Int,
-        constraints: Constraints?,
+        constraints: Constraints,
         prefetchMetrics: PrefetchMetrics,
     ): PrefetchRequest =
         HandleAndRequestImpl(index, constraints = constraints, prefetchMetrics)
@@ -212,7 +233,7 @@ internal class PrefetchHandleProvider(
     @ExperimentalFoundationApi
     private inner class HandleAndRequestImpl(
         private val index: Int,
-        private val constraints: Constraints?,
+        private val constraints: Constraints,
         private val prefetchMetrics: PrefetchMetrics,
     ) : PrefetchHandle, PrefetchRequest {
 
@@ -291,7 +312,7 @@ internal class PrefetchHandleProvider(
                 }
             }
 
-            if (!isMeasured && constraints != null) {
+            if (!isMeasured && !constraints.isZero) {
                 if (shouldExecute(prefetchMetrics.averageMeasureTimeNanos)) {
                     prefetchMetrics.recordMeasureTiming {
                         trace("compose:lazy:prefetch:measure") {
@@ -449,3 +470,5 @@ private data class TraversablePrefetchStateModifierElement(
         value = prefetchState
     }
 }
+
+private val ZeroConstraints = Constraints(maxWidth = 0, maxHeight = 0)
