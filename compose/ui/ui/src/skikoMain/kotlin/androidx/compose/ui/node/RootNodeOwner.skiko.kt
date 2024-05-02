@@ -551,7 +551,7 @@ internal class RootNodeOwner(
         // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1258/Implement-PlatformRootForTest.accessitiblity-functions
 
         @ExperimentalComposeUiApi
-        override fun forceAccessibilityForTesting() {
+        override fun forceAccessibilityForTesting(enable: Boolean) {
         }
 
         @ExperimentalComposeUiApi
