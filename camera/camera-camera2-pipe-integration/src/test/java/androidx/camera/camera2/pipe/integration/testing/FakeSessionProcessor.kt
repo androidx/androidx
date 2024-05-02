@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.CameraDevice
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageAnalysis
@@ -30,7 +28,6 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeSessionProcessor : SessionProcessor {
     val previewOutputConfigId = 0
     val imageCaptureOutputConfigId = 1

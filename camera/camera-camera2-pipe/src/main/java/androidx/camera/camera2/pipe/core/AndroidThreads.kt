@@ -17,14 +17,12 @@
 package androidx.camera.camera2.pipe.core
 
 import android.os.Process
-import androidx.annotation.RequiresApi
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ThreadFactory
 import kotlinx.atomicfu.atomic
 
-@RequiresApi(21)
 internal object AndroidThreads {
 
     /**

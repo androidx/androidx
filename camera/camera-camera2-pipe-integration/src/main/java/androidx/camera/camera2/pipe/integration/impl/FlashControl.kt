@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
@@ -46,7 +45,6 @@ internal const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 /**
  * Implementation of Flash control exposed by [CameraControlInternal].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class FlashControl @Inject constructor(
     private val cameraProperties: CameraProperties,

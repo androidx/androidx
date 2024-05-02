@@ -16,9 +16,7 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.OutputStatus
@@ -37,7 +35,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * FrameCaptureQueue manages the list of requests that are expected to produce a [Frame] that needs
  * to be returned when the [Frame] that matches the [Request] is started.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @CameraGraphScope
 internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
     private val lock = Any()

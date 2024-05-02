@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.util.Range
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
@@ -41,7 +40,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
 @CameraScope
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class State3AControl @Inject constructor(
     val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,

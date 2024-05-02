@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
@@ -35,7 +34,6 @@ import androidx.camera.core.impl.SurfaceConfig
  * YUV/PREVIEW + YUV/MAXIMUM configurations.
  * Device(s): Some Samsung devices
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
     /**

@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -38,7 +37,6 @@ import kotlinx.coroutines.launch
 /**
  * Implementation of Torch control exposed by [CameraControlInternal].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class TorchControl @Inject constructor(
     cameraProperties: CameraProperties,

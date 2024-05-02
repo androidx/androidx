@@ -31,7 +31,6 @@ import android.util.Pair
 import android.util.Range
 import android.util.Rational
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -76,7 +75,6 @@ import kotlin.math.min
  * support for this camera device.
  */
 @Suppress("DEPRECATION")
-@RequiresApi(21) // TODO(b/243963130): Remove and replace with annotation on package-info.java
 // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SupportedSurfaceCombination(
     context: Context,

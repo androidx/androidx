@@ -19,7 +19,6 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Log
@@ -29,7 +28,6 @@ import androidx.camera.core.InitializationException
  * The [CameraCompatibilityFilter] is responsible for filtering out Cameras that
  * doesn't contains REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE capability.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object CameraCompatibilityFilter {
 
     @JvmStatic

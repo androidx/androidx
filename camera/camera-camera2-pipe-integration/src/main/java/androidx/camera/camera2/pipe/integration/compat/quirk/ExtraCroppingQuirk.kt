@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.os.Build
 import android.util.Range
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
 
@@ -41,7 +40,6 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType
  * Samsung Galaxy A3 (2017) SM-A320FL, Samsung Galaxy J5 Prime SM-G570M,
  * Samsung Galaxy J7 Prime SM-G610F, Samsung Galaxy J7 Prime SM-G610M
  */
-@RequiresApi(21)
 class ExtraCroppingQuirk : Quirk {
     /**
      * Get a verified resolution that is guaranteed to work.

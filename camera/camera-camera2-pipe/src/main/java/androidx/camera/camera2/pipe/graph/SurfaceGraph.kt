@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.graph
 
 import android.view.Surface
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraSurfaceManager
@@ -32,7 +31,6 @@ import androidx.camera.camera2.pipe.media.ImageSource
  * It's primary responsibility is aggregating the current stream-to-surface mapping and passing the
  * most up to date version to the [CameraController] instance.
  */
-@RequiresApi(21)
 internal class SurfaceGraph(
     private val streamGraph: StreamGraphImpl,
     private val cameraController: CameraController,

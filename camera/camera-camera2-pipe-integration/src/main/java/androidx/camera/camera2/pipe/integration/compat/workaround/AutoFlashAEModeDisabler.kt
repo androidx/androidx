@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks

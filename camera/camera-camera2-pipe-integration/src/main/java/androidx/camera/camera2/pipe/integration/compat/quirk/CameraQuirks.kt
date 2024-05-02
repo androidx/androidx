@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -27,7 +25,6 @@ import androidx.camera.core.impl.Quirks
 import javax.inject.Inject
 
 /** Provider of camera specific quirks. */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @CameraScope
 class CameraQuirks @Inject constructor(
     private val cameraMetadata: CameraMetadata?,

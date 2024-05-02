@@ -16,9 +16,6 @@
 
 package androidx.camera.camera2.pipe.media
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-
 /**
  * Interface for objects that know how to finalize arbitrary objects.
  *
@@ -31,7 +28,6 @@ interface Finalizer<in T> {
 }
 
 /** Simple [Finalizer] that can be used with [AutoCloseable] objects to close and release them. */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object ClosingFinalizer : Finalizer<AutoCloseable> {
     override fun finalize(value: AutoCloseable?) {
         value?.close()

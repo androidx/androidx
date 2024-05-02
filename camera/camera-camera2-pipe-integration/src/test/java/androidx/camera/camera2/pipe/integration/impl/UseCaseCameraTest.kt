@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
@@ -144,7 +143,6 @@ class UseCaseCameraTest {
     }
 }
 
-@RequiresApi(21)
 private class FakeTestUseCase : FakeUseCase(
     FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
 ) {

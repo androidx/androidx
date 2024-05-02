@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.testing
 
 import android.hardware.camera2.params.MeteringRectangle
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -44,7 +43,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 
-@RequiresApi(21)
 open class FakeCameraGraphSession : CameraGraph.Session {
 
     val repeatingRequests = mutableListOf<Request>()

@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.Quirks
 

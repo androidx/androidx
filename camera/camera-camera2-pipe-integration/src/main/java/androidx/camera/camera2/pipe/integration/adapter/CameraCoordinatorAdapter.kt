@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
@@ -33,7 +32,6 @@ import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_U
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode
 import androidx.camera.core.impl.CameraInternal
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraCoordinatorAdapter(
     private var cameraPipe: CameraPipe?,
     cameraDevices: CameraDevices,

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.config
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.compat.AudioRestrictionControllerImpl
@@ -26,14 +25,12 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 @Component(modules = [ExternalCameraPipeModules::class, ThreadConfigModule::class])
 internal interface ExternalCameraPipeComponent {
     fun cameraGraphBuilder(): ExternalCameraGraphComponent.Builder
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Module
 internal abstract class ExternalCameraPipeModules {
     companion object {

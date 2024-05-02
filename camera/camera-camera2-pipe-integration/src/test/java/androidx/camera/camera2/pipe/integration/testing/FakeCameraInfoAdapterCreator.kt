@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
@@ -56,7 +55,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
-@RequiresApi(21)
 object FakeCameraInfoAdapterCreator {
     private val CAMERA_ID_0 = CameraId("0")
     private val PHYSICAL_CAMERA_ID_5 = CameraId("5")

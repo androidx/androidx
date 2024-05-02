@@ -24,13 +24,11 @@ import android.hardware.camera2.CameraAccessException.CAMERA_IN_USE
 import android.hardware.camera2.CameraAccessException.MAX_CAMERAS_IN_USE
 import android.hardware.camera2.CameraDevice.StateCallback
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Log
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-@RequiresApi(21)
 value class CameraError private constructor(val value: Int) {
     companion object {
         /**

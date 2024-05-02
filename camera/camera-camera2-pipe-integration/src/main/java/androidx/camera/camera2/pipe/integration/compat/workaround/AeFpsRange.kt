@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.util.Range
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.AeFpsRangeLegacyQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -27,7 +26,6 @@ import javax.inject.Inject
  * Sets an AE target FPS range on legacy devices from [AeFpsRangeLegacyQuirk] to maintain good
  * exposure.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 @CameraScope
 class AeFpsRange @Inject constructor(cameraQuirks: CameraQuirks) {

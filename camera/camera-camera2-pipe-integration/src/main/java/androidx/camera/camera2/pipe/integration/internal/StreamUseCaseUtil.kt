@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES
 import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
 import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
@@ -49,7 +48,6 @@ import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.streamsharing.StreamSharingConfig
 import androidx.core.util.Preconditions.checkState
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object StreamUseCaseUtil {
 
     @VisibleForTesting

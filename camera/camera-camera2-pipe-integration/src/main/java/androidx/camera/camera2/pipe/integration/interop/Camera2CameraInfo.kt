@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CameraCharacteristics
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.adapter.PhysicalCameraInfoAdapter
@@ -31,7 +30,6 @@ import androidx.core.util.Preconditions
  * An interface for retrieving Camera2-related camera information.
  */
 @ExperimentalCamera2Interop
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2CameraInfo private constructor(
     private val cameraProperties: CameraProperties,
 ) {

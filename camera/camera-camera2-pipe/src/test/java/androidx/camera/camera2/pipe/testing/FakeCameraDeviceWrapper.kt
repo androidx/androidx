@@ -37,7 +37,6 @@ import androidx.camera.camera2.pipe.compat.SessionConfigData
 import kotlin.reflect.KClass
 
 /** Fake implementation of [CameraDeviceWrapper] for tests. */
-@RequiresApi(21)
 internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCamera) :
     CameraDeviceWrapper {
     override val cameraId: CameraId

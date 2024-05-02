@@ -27,7 +27,6 @@ import androidx.camera.core.DynamicRange
 /**
  * Helper for accessing features in DynamicRangeProfiles in a backwards compatible fashion.
  */
-@RequiresApi(21)
 class DynamicRangeProfilesCompat internal constructor(
     private val impl: DynamicRangeProfilesCompatImpl
 ) {

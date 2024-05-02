@@ -20,7 +20,6 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -59,7 +58,6 @@ import kotlinx.coroutines.launch
  * of primitive rate limiting that ensures that updates arriving too quickly are only sent to the
  * underlying camera graph as fast as the camera is capable of consuming them.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @UseCaseCameraScope
 class UseCaseCameraState @Inject constructor(
     useCaseGraphConfig: UseCaseGraphConfig,

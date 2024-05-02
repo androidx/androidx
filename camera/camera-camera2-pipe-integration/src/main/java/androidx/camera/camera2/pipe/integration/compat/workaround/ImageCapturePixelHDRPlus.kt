@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CaptureRequest
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ImageCapturePixelHDRPlusQuirk
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
