@@ -95,7 +95,7 @@ internal class KspExecutableParameterElement(
         // In KSP2 the varargs have the component type instead of the array type. We make it always
         // return the array type in XProcessing.
         return if (isVarArgs() && !type.isArray()) {
-            env.getArrayType(type)
+            env.getArrayType(env.getWildcardType(producerExtends = type))
         } else {
             type
         }
