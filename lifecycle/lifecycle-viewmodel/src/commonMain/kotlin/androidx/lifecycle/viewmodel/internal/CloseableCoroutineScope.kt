@@ -50,11 +50,16 @@ internal const val VIEW_MODEL_SCOPE_KEY =
  */
 internal fun createViewModelScope(): CloseableCoroutineScope {
     val dispatcher = try {
+        // In platforms where `Dispatchers.Main` is not available, Kotlin Multiplatform will throw
+        // an exception (the specific exception type may depend on the platform). Since there's no
+        // direct functional alternative, we use `EmptyCoroutineContext` to ensure that a coroutine
+        // launched within this scope will run in the same context as the caller.
         Dispatchers.Main.immediate
     } catch (_: NotImplementedError) {
-        // In platforms where `Dispatchers.Main` is not available, Kotlin Multiplatform will throw
-        // a `NotImplementedError`. Since there's no direct functional alternative, we use
-        // `EmptyCoroutineContext` to ensure a `launch` will run in the same context as the caller.
+        // In Native environments where `Dispatchers.Main` might not exist (e.g., Linux):
+        EmptyCoroutineContext
+    } catch (_: IllegalStateException) {
+        // In JVM Desktop environments where `Dispatchers.Main` might not exist (e.g., Swing):
         EmptyCoroutineContext
     }
     return CloseableCoroutineScope(coroutineContext = dispatcher + SupervisorJob())
