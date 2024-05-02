@@ -68,7 +68,7 @@ public final class CameraViewfinder extends FrameLayout {
 
     @ColorRes private static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
     private static final androidx.camera.viewfinder.surface.ImplementationMode DEFAULT_IMPL_MODE =
-            androidx.camera.viewfinder.surface.ImplementationMode.PERFORMANCE;
+            androidx.camera.viewfinder.surface.ImplementationMode.EXTERNAL;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -232,7 +232,7 @@ public final class CameraViewfinder extends FrameLayout {
      * {@link androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest} will be used first.
      * If it's not set, the {@code app:implementationMode} in the layout xml will be used. If
      * it's not set in the layout xml, the default value
-     * {@link androidx.camera.viewfinder.surface.ImplementationMode#PERFORMANCE}
+     * {@link androidx.camera.viewfinder.surface.ImplementationMode#EXTERNAL}
      * will be used. Each {@link androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest} sent
      * to {@link CameraViewfinder} can override the
      * {@link androidx.camera.viewfinder.surface.ImplementationMode} once it has set the
@@ -460,9 +460,9 @@ public final class CameraViewfinder extends FrameLayout {
             return true;
         }
         switch (implementationMode) {
-            case COMPATIBLE:
+            case EMBEDDED:
                 return true;
-            case PERFORMANCE:
+            case EXTERNAL:
                 return false;
             default:
                 throw new IllegalArgumentException(

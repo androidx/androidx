@@ -50,8 +50,8 @@ import kotlinx.coroutines.cancel
  * [ViewfinderSurfaceRequest.getSurface].
  *
  * This has two underlying implementations either using an [AndroidEmbeddedExternalSurface] for
- * [ImplementationMode.COMPATIBLE] or an [AndroidExternalSurface] for
- * [ImplementationMode.PERFORMANCE].
+ * [ImplementationMode.EMBEDDED] or an [AndroidExternalSurface] for
+ * [ImplementationMode.EXTERNAL].
  *
  * @param surfaceRequest Details about the surface being requested
  * @param implementationMode Determines the underlying implementation of the [Surface].
@@ -176,13 +176,13 @@ private fun TransformedSurface(
         }
 
     when (implementationMode) {
-        ImplementationMode.PERFORMANCE -> {
+        ImplementationMode.EXTERNAL -> {
             AndroidExternalSurface(
                 modifier = surfaceModifier,
                 onInit = onInit
             )
         }
-        ImplementationMode.COMPATIBLE -> {
+        ImplementationMode.EMBEDDED -> {
             AndroidEmbeddedExternalSurface(
                 modifier = surfaceModifier,
                 transform = correctionMatrix,
