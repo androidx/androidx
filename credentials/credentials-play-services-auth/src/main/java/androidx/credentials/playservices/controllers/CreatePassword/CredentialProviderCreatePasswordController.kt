@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.CreatePassword
 
 import android.content.Context
@@ -42,7 +43,6 @@ import java.util.concurrent.Executor
 /**
  * A controller to handle the CreatePassword flow with play services.
  */
-@Suppress("deprecation")
 internal class CredentialProviderCreatePasswordController(private val context: Context) :
     CredentialProviderController<
         CreatePasswordRequest,

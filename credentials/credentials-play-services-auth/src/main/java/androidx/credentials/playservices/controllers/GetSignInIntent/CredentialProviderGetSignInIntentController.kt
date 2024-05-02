@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.GetSignInIntent
 
 import android.content.Context
@@ -50,7 +51,6 @@ import java.util.concurrent.Executor
 /**
  * A controller to handle the GetSignInIntent flow with play services.
  */
-@Suppress("deprecation")
 internal class CredentialProviderGetSignInIntentController(private val context: Context) :
     CredentialProviderController<GetCredentialRequest, GetSignInIntentRequest,
         SignInCredential, GetCredentialResponse, GetCredentialException>(context) {
