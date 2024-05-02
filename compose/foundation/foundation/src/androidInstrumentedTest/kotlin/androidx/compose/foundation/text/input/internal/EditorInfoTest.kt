@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -596,6 +597,38 @@ class EditorInfoTest {
         info.update(ImeOptions.Default)
 
         assertThat(info.hintLocales).isNull()
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun stylusHandwritingEnabled_fromAndroidV_returnsTrue() {
+        val info = EditorInfo()
+        info.update(ImeOptions.Default)
+
+        assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isTrue()
+    }
+
+    @SdkSuppress(maxSdkVersion = 33)
+    @Test
+    fun stylusHandwritingEnabled_upToAndroidU_returnsFalse() {
+        val info = EditorInfo()
+        info.update(ImeOptions.Default)
+
+        assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun stylusHandwritingEnabled_fromAndroidV_password_returnsFalse() {
+        val info = EditorInfo()
+        info.update(
+            ImeOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Default
+            )
+        )
+
+        assertThat(EditorInfoCompat.isStylusHandwritingEnabled(info)).isFalse()
     }
 
     @SdkSuppress(minSdkVersion = 34)
