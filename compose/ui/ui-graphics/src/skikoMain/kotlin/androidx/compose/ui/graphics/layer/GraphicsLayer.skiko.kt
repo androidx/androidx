@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics.layer
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -103,8 +104,8 @@ actual class GraphicsLayer internal constructor() {
     actual var compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
 
     actual fun setRoundRectOutline(
-        topLeft: IntOffset,
-        size: IntSize,
+        topLeft: Offset,
+        size: Size,
         cornerRadius: Float
     ) {
         // TODO
@@ -115,18 +116,13 @@ actual class GraphicsLayer internal constructor() {
     }
 
     actual fun setRectOutline(
-        topLeft: IntOffset,
-        size: IntSize
+        topLeft: Offset,
+        size: Size
     ) {
         // TODO
     }
 
     actual val outline: Outline = Outline.Rectangle(Rect(0f, 0f, 0f, 0f))
-
-    actual companion object {
-        actual val UnsetOffset: IntOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
-        actual val UnsetSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
-    }
 
     /**
      * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
