@@ -21,7 +21,6 @@ import android.location.Location;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 /**
@@ -35,7 +34,6 @@ import androidx.core.util.Preconditions;
  * @see FileDescriptorOutputOptions
  * @see MediaStoreOutputOptions
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class OutputOptions {
 
     /** Represents an unbound file size. */

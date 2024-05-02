@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.video
 
 import android.content.Context
@@ -39,7 +37,6 @@ import android.os.Looper
 import android.util.Range
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3

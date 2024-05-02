@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.video.internal
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.testing.impl.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat

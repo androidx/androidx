@@ -24,7 +24,6 @@ import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -57,7 +56,6 @@ import com.google.auto.value.AutoValue;
  * <a href="https://developer.android.com/reference/android/provider/MediaStore">MediaStore</a>
  * developer guide.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class MediaStoreOutputOptions extends OutputOptions {
 
     /**

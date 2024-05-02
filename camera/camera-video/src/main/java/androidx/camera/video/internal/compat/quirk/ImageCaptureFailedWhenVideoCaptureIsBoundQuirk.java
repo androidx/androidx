@@ -18,7 +18,6 @@ package androidx.camera.video.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -32,7 +31,6 @@ import androidx.camera.core.impl.Quirk;
  *                  the recording is stopped.
  *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto E13
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {

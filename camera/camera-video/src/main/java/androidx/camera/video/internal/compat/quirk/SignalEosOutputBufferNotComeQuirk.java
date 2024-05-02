@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat.quirk;
 import android.media.MediaCodec;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -32,7 +31,6 @@ import androidx.camera.core.impl.Quirk;
  *                  not 100% reproducible.
  *     Device(s): Nokia 1
  */
-@RequiresApi(21)
 public class SignalEosOutputBufferNotComeQuirk implements Quirk {
 
     static boolean load() {

@@ -28,12 +28,10 @@ import android.media.AudioFormat;
 import android.media.AudioTimestamp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.TimeUnit;
 
 /** Utility class for audio-related operations and calculations. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioUtils {
 
     // Prevent instantiation

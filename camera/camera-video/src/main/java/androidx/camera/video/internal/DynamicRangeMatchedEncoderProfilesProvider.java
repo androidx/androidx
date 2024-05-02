@@ -20,7 +20,6 @@ import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSetting
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
@@ -36,7 +35,6 @@ import java.util.Map;
  * An implementation that provides {@link EncoderProfilesProxy} containing video information
  * matched with the target {@link DynamicRange}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DynamicRangeMatchedEncoderProfilesProvider implements EncoderProfilesProvider {
 
     private final EncoderProfilesProvider mEncoderProfilesProvider;

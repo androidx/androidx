@@ -24,7 +24,6 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -35,7 +34,6 @@ import androidx.camera.core.impl.Quirk;
  *                  qualities.
  *     Device(s): Motorola Moto E5 Play.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class StretchedVideoResolutionQuirk implements Quirk {
 
     static boolean load() {

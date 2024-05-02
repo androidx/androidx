@@ -34,7 +34,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.EncoderProfilesProvider;
@@ -58,7 +57,6 @@ import java.util.Map;
  *                  it is feasible to simply check camera id "1" to create EncoderProfilesProxy.
  *     Device(s): moto c
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedQualityQuirk implements Quirk {
     private static final String MOTO_C_FRONT_CAM_ID = "1";
 

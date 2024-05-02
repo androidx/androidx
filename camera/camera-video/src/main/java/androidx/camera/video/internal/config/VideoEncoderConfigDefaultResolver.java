@@ -20,7 +20,6 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -37,7 +36,6 @@ import java.util.Objects;
  * A {@link VideoEncoderConfig} supplier that resolves requested encoder settings from a
  * {@link VideoSpec} for the given surface {@link Size} using pre-defined default values.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderConfigDefaultResolver implements Supplier<VideoEncoderConfig> {
 
     private static final String TAG = "VidEncCfgDefaultRslvr";

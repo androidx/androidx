@@ -20,7 +20,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk;
@@ -42,7 +41,6 @@ import androidx.camera.video.internal.encoder.TimeProvider;
  *
  * @see CameraUseInconsistentTimebaseQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoTimebaseConverter {
     private static final String TAG = "VideoTimebaseConverter";
 

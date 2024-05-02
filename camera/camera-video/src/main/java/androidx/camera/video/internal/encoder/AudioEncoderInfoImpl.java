@@ -22,7 +22,6 @@ import android.media.MediaCodecInfo;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.Objects;
 
@@ -33,7 +32,6 @@ import java.util.Objects;
  * such as {@link MediaCodecInfo.CodecCapabilities}, {@link MediaCodecInfo.EncoderCapabilities}
  * and {@link MediaCodecInfo.AudioCapabilities}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioEncoderInfoImpl extends EncoderInfoImpl implements AudioEncoderInfo {
 
     private final MediaCodecInfo.AudioCapabilities mAudioCapabilities;

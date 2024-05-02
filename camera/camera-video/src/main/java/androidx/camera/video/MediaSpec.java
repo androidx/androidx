@@ -23,7 +23,6 @@ import android.media.MediaMuxer;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.video.internal.encoder.EncoderConfig;
@@ -39,7 +38,6 @@ import java.util.Objects;
  * MediaSpec communicates the encoding type and encoder-specific options for both the
  * video and audio inputs to the VideoOutput.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY)
 @AutoValue
 public abstract class MediaSpec {

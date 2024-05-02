@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
 
@@ -37,7 +36,6 @@ import java.util.Set;
  *     Device(s): Some Samsung devices and devices running on certain Qualcomm SoCs
  *     @see VideoTimebaseConverter
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraUseInconsistentTimebaseQuirk implements Quirk {
     private static final Set<String> BUILD_HARDWARE_SET = new HashSet<>(Arrays.asList(
             "samsungexynos7570",

@@ -18,7 +18,6 @@ package androidx.camera.video.internal.config;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.video.internal.encoder.EncoderConfig;
 
@@ -32,7 +31,6 @@ import com.google.auto.value.AutoValue;
  * {@link EncoderProfilesProxy.VideoProfileProxy}.
  */
 @SuppressWarnings("NullableProblems") // Problem from AutoValue generated class.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class VideoMimeInfo extends MimeInfo {
 

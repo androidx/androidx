@@ -21,7 +21,6 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -41,7 +40,6 @@ import androidx.camera.video.internal.encoder.VideoEncoderInfo;
  *
  * @param <T> the type of VideoOutput
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCaptureConfig<T extends VideoOutput>
         implements UseCaseConfig<VideoCapture<T>>,
         ImageOutputConfig,

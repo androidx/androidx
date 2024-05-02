@@ -32,7 +32,6 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
@@ -60,7 +59,6 @@ import java.util.Map;
  * same quality and adds the derived profile to the provided {@link EncoderProfilesProxy} if it is
  * verified by the {@code validator} passed to the constructor.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesProvider {
 
     private static final String TAG = "BackupHdrProfileEncoderProfilesProvider";

@@ -18,7 +18,6 @@ package androidx.camera.video.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -31,7 +30,6 @@ import androidx.camera.core.impl.Quirk;
  *                  by all paths but we should try to call MediaCodec.stop() as soon as possible.
  *     Device(s): moto c
  */
-@RequiresApi(21)
 public class StopCodecAfterSurfaceRemovalCrashMediaServerQuirk implements Quirk {
 
     static boolean load() {

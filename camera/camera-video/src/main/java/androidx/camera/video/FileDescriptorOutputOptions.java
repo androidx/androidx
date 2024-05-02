@@ -20,7 +20,6 @@ import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -36,7 +35,6 @@ import com.google.auto.value.AutoValue;
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use
  * {@link FileOutputOptions}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FileDescriptorOutputOptions extends OutputOptions {
 
     private final FileDescriptorOutputOptionsInternal mFileDescriptorOutputOptionsInternal;
@@ -83,7 +81,6 @@ public final class FileDescriptorOutputOptions extends OutputOptions {
     }
 
     /** The builder of the {@link FileDescriptorOutputOptions} object. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder extends
             OutputOptions.Builder<FileDescriptorOutputOptions, Builder> {
 

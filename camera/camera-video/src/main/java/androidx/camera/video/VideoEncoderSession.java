@@ -23,7 +23,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -53,7 +52,6 @@ import java.util.concurrent.Executor;
  *  <li>The session can only be configured once, cannot be reused for another SurfaceRequest.</li>
  * </ul>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class VideoEncoderSession {
 
     private static final String TAG = "VideoEncoderSession";

@@ -20,7 +20,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.ConstantObservable;
@@ -37,7 +36,6 @@ import java.util.Set;
  * A class that contains the information of an video output stream.
  *
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @AutoValue
 public abstract class StreamInfo {

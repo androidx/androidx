@@ -16,7 +16,6 @@
 
 package androidx.camera.video.internal.encoder;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Timebase;
 
 /**
@@ -26,7 +25,6 @@ import androidx.camera.core.impl.Timebase;
  *
  * @see SystemTimeProvider
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface TimeProvider {
 
     /** Returns the timestamp in microseconds based on {@link Timebase#UPTIME}. */

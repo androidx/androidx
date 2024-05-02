@@ -16,13 +16,11 @@
 
 package androidx.camera.video.internal.audio
 
-import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.MockConsumer.NO_TIMEOUT
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.verifyAcceptCallExt
 
-@RequiresApi(21)
 class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
     private val onSuspendedCallbacks = MockConsumer<Boolean>()
     private val onSilencedCallbacks = MockConsumer<Boolean>()

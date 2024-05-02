@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat.quirk;
 import android.media.MediaFormat;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -38,7 +37,6 @@ import androidx.camera.core.impl.Quirk;
  * @see <a href="https://developer.android.com/reference/android/media/MediaCodec#creation">
  *     MediaCodec Creation</a>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MediaFormatMustNotUseFrameRateToFindEncoderQuirk implements Quirk {
 
     static boolean load() {

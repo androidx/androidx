@@ -18,7 +18,6 @@ package androidx.camera.video;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -29,7 +28,6 @@ import java.lang.annotation.RetentionPolicy;
  * A class represents the strategy that will be adopted when the device does not support all the
  * desired {@link Quality} in {@link QualitySelector} in order to select the quality as possible.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FallbackStrategy {
 
     // Restrict access to sealed class

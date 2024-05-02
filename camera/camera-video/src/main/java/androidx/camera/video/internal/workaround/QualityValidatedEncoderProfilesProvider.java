@@ -32,7 +32,6 @@ import static androidx.camera.video.Quality.UHD;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
@@ -49,7 +48,6 @@ import java.util.Map;
  *
  * @see VideoQualityQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class QualityValidatedEncoderProfilesProvider implements EncoderProfilesProvider {
 
     private static final Map<Integer, Quality> CAMCORDER_TO_VIDEO_QUALITY_MAP = new HashMap<>();

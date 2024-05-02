@@ -21,14 +21,12 @@ import static androidx.core.util.Preconditions.checkArgument;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * A VideoEncoderInfo wrapper that swaps the width and height constraints internally.
  *
  * @noinspection SuspiciousNameCombination
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SwappedVideoEncoderInfo implements VideoEncoderInfo {
     private final VideoEncoderInfo mVideoEncoderInfo;
 

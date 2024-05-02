@@ -20,7 +20,6 @@ import static java.util.Collections.unmodifiableList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.core.util.Preconditions;
 
@@ -33,7 +32,6 @@ import java.util.List;
  * VideoValidatedEncoderProfilesProxy is an implementation of {@link EncoderProfilesProxy} that
  * guarantees to provide video information.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class VideoValidatedEncoderProfilesProxy implements EncoderProfilesProxy {
 

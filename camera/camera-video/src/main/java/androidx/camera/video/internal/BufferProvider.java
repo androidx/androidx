@@ -17,7 +17,6 @@
 package androidx.camera.video.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Observable;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -39,7 +38,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  * @param <T> the buffer data type
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface BufferProvider<T> extends Observable<BufferProvider.State> {
 
     /**

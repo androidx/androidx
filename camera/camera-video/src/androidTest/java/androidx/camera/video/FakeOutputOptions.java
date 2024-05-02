@@ -17,13 +17,11 @@
 package androidx.camera.video;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
 /** A fake implementation of {@link OutputOptions}. */
 // Java is used because @AutoValue is required.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeOutputOptions extends OutputOptions {
 
     private FakeOutputOptions(@NonNull FakeOutputOptionsInternal fakeOutputOptionsInternal) {
@@ -31,7 +29,6 @@ public class FakeOutputOptions extends OutputOptions {
     }
 
     /** The builder of the {@link FakeOutputOptions} object. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder extends OutputOptions.Builder<FakeOutputOptions, Builder> {
 
         /** Creates a builder of the {@link FakeOutputOptions}. */

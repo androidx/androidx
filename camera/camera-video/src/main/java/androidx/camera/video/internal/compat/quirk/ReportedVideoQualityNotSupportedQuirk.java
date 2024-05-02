@@ -25,7 +25,6 @@ import android.media.MediaRecorder.VideoEncoder;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.video.Quality;
 
@@ -65,7 +64,6 @@ import java.util.Locale;
  *                  </ul>
  *      Device(s):   Huawei Mate 20, Huawei Mate 20 Pro, Vivo Y91i, Huawei P40 Lite, Oppo pht110
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk {
     static boolean load() {
         return isHuaweiMate20() || isHuaweiMate20Pro() || isVivoY91i() || isHuaweiP40Lite()

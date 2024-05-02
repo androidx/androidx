@@ -19,7 +19,6 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -29,7 +28,6 @@ import com.google.auto.value.AutoValue;
  * <p>This is the encoder equivalent of {@link android.hardware.DataSpace}, and should be used to
  * communicate the {@link MediaFormat} keys needed by the encoder.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class VideoEncoderDataSpace {
 

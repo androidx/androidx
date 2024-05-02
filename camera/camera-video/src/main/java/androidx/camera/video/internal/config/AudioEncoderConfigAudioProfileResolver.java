@@ -20,7 +20,6 @@ package androidx.camera.video.internal.config;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
 import androidx.camera.core.impl.Timebase;
@@ -34,7 +33,6 @@ import androidx.core.util.Supplier;
  * {@link AudioSpec} for the given {@link AudioSettings} using the provided
  * {@link AudioProfileProxy}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioEncoderConfigAudioProfileResolver implements
         Supplier<AudioEncoderConfig> {
 

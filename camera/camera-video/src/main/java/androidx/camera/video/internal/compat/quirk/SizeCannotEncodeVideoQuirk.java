@@ -27,7 +27,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
@@ -44,7 +43,6 @@ import java.util.Set;
  *                  alignment is 16.
  *     Device(s): MotoC
  */
-@RequiresApi(21)
 public class SizeCannotEncodeVideoQuirk implements Quirk {
 
     static boolean load() {
